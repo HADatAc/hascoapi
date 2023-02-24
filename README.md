@@ -1,4 +1,4 @@
-# SIR - Semantica Instrument Repository
+# SIR - Semantic Instrument Repository
 
 ## What is SIR?
 
