@@ -1,0 +1,48 @@
+@import com.typesafe.config.ConfigFactory
+@import views.html.helper.style
+@(title: String, nav: String = "",userName: String)(content: Html)
+@import org.sirapi.console.controllers._
+@import views.html._
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@title</title>
+    <script type="text/javascript" src="@controllers.routes.Assets.versioned("lib/jquery/jquery.js")"></script>
+        <script type="text/javascript" src="@controllers.routes.Assets.versioned("javascripts/moment-with-locales.js")"></script>
+    <script type="text/javascript" src="@controllers.routes.Assets.versioned("lib/bootstrap/js/bootstrap.js")"></script>
+        <script type="text/javascript" src="@controllers.routes.Assets.versioned("javascripts/bootstrap-datetimepicker.js")"></script>
+
+    <link rel="stylesheet" href="@controllers.routes.Assets.versioned("lib/bootstrap/css/bootstrap.css")">
+    <link href="@controllers.routes.Assets.versioned("css/upload.css")" rel="stylesheet">
+    <link href="@controllers.routes.Assets.versioned("css/main.css")" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="@controllers.routes.Assets.versioned("lib/dhtmlx/css/dhtmlx.css")"/>
+    <link rel="stylesheet" type="text/css" href="@controllers.routes.Assets.versioned("stylesheets/bootstrap-datetimepicker.css")"/>
+    <script src="@controllers.routes.Assets.versioned("lib/dhtmlx/js/dhtmlx.js")"></script>
+        <script type="text/stylesheet" rel="stylesheet" media="print" href="@controllers.routes.Assets.versioned("css/printfriendly.css")"></script>
+
+</head>
+<body>
+<nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container-fluid">
+            <div id="navbar" class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <a class="navbar-brand" style="color: white;font: 16px" href="@org.sirapi.console.controllers.routes.Portal.index()">SIR API Home</a>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>
+@content
+<div class="footer">
+    <hr>
+    <a href="@org.sirapi.console.controllers.routes.Version.index()">Version</a><br>
+    (c) 2015-2023 <a href="http://hadatac.org">HADatAc.org</a>
+</div>
+
+</body>
+</html>
+

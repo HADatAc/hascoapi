@@ -1,0 +1,92 @@
+@()
+
+@import helper._
+@import org.sirapi.utils.NameSpaces
+@import org.sirapi.console.views.html._
+@import org.sirapi.console.controllers._
+@import org.sirapi.entity.pojo.HADatAcClass
+@import org.sirapi.entity.pojo.HADatAcThing
+@import org.sirapi.entity.pojo.Instrument
+@import play.api.Play
+@import com.typesafe.config.ConfigFactory
+
+@main("RESTful API","","") {
+
+    <div class="container-fluid">
+
+        <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-8">
+                <h3><font color="darkBlue">@ConfigFactory.load().getString("sirapi.community.shortname")'s Semantic Instrument Repository</font></h3>
+                @ConfigFactory.load().getString("sirapi.community.description")
+                <hr>
+            </div>
+            <div class="col-md-1"></div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-10">
+                <h3>RESTful API</h3>
+
+                <h4>Repository</h4>
+                GET&nbsp;&nbsp;&nbsp;  <a href="/sirapi/api/repo">/sirapi/api/repo</a> - Return repository setting information.<br>
+
+                <h4>Retrieval of SIR Element</h4>
+                <p><b>Note:</b>Every single SIR element is the instantiation of a concept, which is registered at SIR under an unique URI. Instances of concepts like instruments, instrument types, and detectors are example of SIR elements.</p>
+
+                GET&nbsp;&nbsp;&nbsp;  /sirapi/api/uri/(instrUri) - Return a full description of a concept as described in SIR. URI needs to be URL encoded.<br>
+
+                <h4>Instruments</h4>
+                GET&nbsp;&nbsp;&nbsp;  <a href="/sirapi/api/instrument/all">/sirapi/api/instrument/all</a> - Return all instruments in SIR, including their properties.<br>
+                POST /sirapi/api/instrument/create/(instrumentJson) - Create a new instrument according to the json specification provided. Json needs to be URL encoded. Use the <a href="@org.sirapi.console.controllers.documentation.routes.MethodList.createInstrumentExample()">Create Instrument Example</a> to see how to use a CURL with POST method to create instruments.<br>
+                POST /sirapi/api/instrument/delete/(instrUri) - Delete an existing instrument using the URI provided. URI needs to be URL encoded. Use the <a href="@org.sirapi.console.controllers.documentation.routes.MethodList.deleteInstrumentExample()">Delete Instrument Example</a> to see how to use a CURL with POST method to delete instruments.<br>
+
+                <h4>Instrument Types</h4>
+
+                <p><b>Note:</b> Instrument types are loaded into SIR through the VSTOI ontology. The VSTOI ontology needs to be modified and reloaded to create a new instrument type or to delete an existing instrument type.</p>
+
+                GET&nbsp;&nbsp;&nbsp;  <a href="/sirapi/api/instrumenttype/all">/sirapi/api/instrumenttype/all</a> - Return all instrument types currently loaded into SIR.<br>
+
+                <h4>Semantic Support for Instrument Interoperability</h4>
+
+                GET&nbsp;&nbsp;&nbsp;  /sirapi/api/instrument/tordf/turtle/(instrUri) - Return RDF encoding in Turtle for requested instrument.<br>
+                GET&nbsp;&nbsp;&nbsp;  /sirapi/api/instrument/tordf/owlxml/(instrUri) - Return RDF encoding in OWL/XML for requested instrument.<br>
+                GET&nbsp;&nbsp;&nbsp;  /sirapi/api/instrument/tofhir/(instrUri) - Return FHIR encoding for requested instrument.<br>
+                GET&nbsp;&nbsp;&nbsp;  /sirapi/api/instrument/toredcap/(instrUri) - Return RedCAP encoding for requested instrument.<br>
+
+                <h4>Semantic Support for Instrument Response Interoperability</h4>
+
+                GET&nbsp;&nbsp;&nbsp;  /sirapi/api/response/sdd/(instrUri) - Return Semantic Data Dictionary of instrument response for requested instrument.<br>
+
+                <h4>Semantic Support for Instrument Documentation</h4>
+
+                GET&nbsp;&nbsp;&nbsp;  /sirapi/api/instrument/totext/pdf/(instrUri) - Return Text encoding in PDF for requested instrument.<br>
+                GET&nbsp;&nbsp;&nbsp;  /sirapi/api/instrument/totext/plain/(instrUri) - Return Text encoding in Plain for requested instrument.<br>
+
+                <h4>Test Instrument</h4>
+
+                GET&nbsp;&nbsp;&nbsp;  <a href="/sirapi/api/instrument/test/create">/sirapi/api/instrument/test/create</a> - Create a test instrument.<br>
+                GET&nbsp;&nbsp;&nbsp;  <a href="/sirapi/api/instrument/test/delete">/sirapi/api/instrument/test/delete</a> - Delete a test instrument.<br>
+                GET&nbsp;&nbsp;&nbsp;  <a href="/sirapi/api/instrument/test/tordf/turtle">/sirapi/api/instrument/test/tordf/turtle</a> - Return RDF encoding in Turtle for requested instrument.<br>
+                GET&nbsp;&nbsp;&nbsp;  <a href="/sirapi/api/instrument/test/tordf/owlxml">/sirapi/api/instrument/test/tordf/owlxml</a> - Return RDF encoding in OWL/XML for requested instrument.<br>
+                GET&nbsp;&nbsp;&nbsp;  <a href="/sirapi/api/instrument/test/totext/pdf">/sirapi/api/instrument/test/totext/pdf</a> - Return Text encoding in PDF for requested instrument.<br>
+                GET&nbsp;&nbsp;&nbsp;  <a href="/sirapi/api/instrument/test/totext/plain">/sirapi/api/instrument/test/totext/plain</a> - Return Text encoding in Plain for requested instrument.<br>
+                GET&nbsp;&nbsp;&nbsp;  <a href="/sirapi/api/instrument/test/tofhir">/sirapi/api/instrument/test/tofhir</a> - Return FHIR encoding for requested instrument.<br>
+                GET&nbsp;&nbsp;&nbsp;  <a href="/sirapi/api/instrument/test/toredcap">/sirapi/api/instrument/test/toredcap</a> - Return RedCAP encoding for requested instrument.<br>
+
+                <br><br><br>
+
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-10">
+            <a href="@org.sirapi.console.controllers.routes.Portal.index()" class="btn btn-success" role="button">Back to Main Page</a>
+        </div>
+    </div>
+
+}

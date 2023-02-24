@@ -1,0 +1,293 @@
+package org.sirapi.entity.pojo;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.jena.query.QuerySolution;
+import org.apache.jena.query.ResultSetRewindable;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.rdf.model.Statement;
+import org.apache.jena.rdf.model.StmtIterator;
+import org.apache.jena.sparql.engine.http.QueryExceptionHTTP;
+import org.sirapi.utils.CollectionUtil;
+import org.sirapi.utils.NameSpaces;
+import org.sirapi.utils.SPARQLUtils;
+import org.sirapi.vocabularies.HASCO;
+import org.sirapi.vocabularies.RDF;
+import org.sirapi.vocabularies.RDFS;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import scala.concurrent.java8.FuturesConvertersImpl;
+
+public class Instrument extends HADatAcThing implements Comparable<Instrument> {
+
+	private static final Logger log = LoggerFactory.getLogger(Instrument.class);
+
+	private String serialNumber;
+	private String image;
+	
+	public String getSerialNumber() {
+		return serialNumber;
+	}
+
+	public void setSerialNumber(String serialNumber) {
+		this.serialNumber = serialNumber;
+	}
+	
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+    
+    public String getTypeLabel() {
+    	InstrumentType insType = InstrumentType.find(getTypeUri());
+    	if (insType == null || insType.getLabel() == null) {
+    		return "";
+    	}
+    	return insType.getLabel();
+    }
+
+    public String getTypeURL() {
+    	InstrumentType insType = InstrumentType.find(getTypeUri());
+    	if (insType == null || insType.getLabel() == null) {
+    		return "";
+    	}
+    	return insType.getURL();
+    }
+
+    public List<Detector> getAttachments() {
+    	List<Detector> dets = new ArrayList<Detector>();
+    	if (uri == null || uri.isEmpty()) {
+    		return dets;
+    	}
+    	String iUri = uri;
+    	if (uri.startsWith("http")) {
+    		iUri = "<" + uri + ">";
+    	}
+		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+			    "SELECT ?detUri WHERE { " +
+			    "   ?detUri vstoi:isInstrumentAttachment " + iUri + " . " + 
+			    "} ";
+			
+		ResultSetRewindable resultsrw = SPARQLUtils.select(
+				CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+				
+		while (resultsrw.hasNext()) {
+			QuerySolution soln = resultsrw.next();
+			Detector det = Detector.find(soln.getResource("detUri").getURI());
+			dets.add(det);
+		}			
+    	return dets;
+    }
+    
+	@Override
+	public boolean equals(Object o) {
+		if((o instanceof Instrument) && (((Instrument)o).getUri().equals(this.getUri()))) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	@Override
+	public int hashCode() {
+		return getUri().hashCode();
+	}
+
+	public static List<Instrument> find() {
+		List<Instrument> instruments = new ArrayList<Instrument>();
+		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+		    " SELECT ?uri WHERE { " +
+		    " ?instModel rdfs:subClassOf+ vstoi:Instrument . " + 
+		    " ?uri a ?instModel ." + 
+		    "} ";
+		
+		ResultSetRewindable resultsrw = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+		while (resultsrw.hasNext()) {
+		    QuerySolution soln = resultsrw.next();
+		    Instrument instrument = find(soln.getResource("uri").getURI());
+		    instruments.add(instrument);
+		}			
+		
+		java.util.Collections.sort((List<Instrument>) instruments);
+		return instruments;
+	}
+
+	public static List<Instrument> findWithPages(int pageSize, int offset) {
+		List<Instrument> instruments = new ArrayList<Instrument>();
+		String queryString = "";
+		queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+				"SELECT ?instUri ?instLabel ?subUri WHERE { " +
+				"   ?instUri rdfs:subClassOf* vstoi:Instrument . " +
+				"   ?instUri a ?subUri . " +
+				"   ?instUri rdfs:label ?instLabel . " +
+				" }" +
+				" LIMIT " + pageSize +
+				" OFFSET " + offset;
+
+		ResultSetRewindable resultsrw = SPARQLUtils.select(
+				CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+		Instrument instrument = null;
+		while (resultsrw.hasNext()) {
+			QuerySolution soln = resultsrw.next();
+			if (soln != null && soln.getResource("instUri").getURI()!= null) {
+				instrument = new Instrument();
+				instrument.setUri(soln.get("instUri").toString());
+				instrument.setLabel(soln.get("instLabel").toString());
+				//System.out.println("Instrument URI: " + soln.get("instUri").toString());
+			}
+			instruments.add(instrument);
+		}
+		return instruments;
+	}
+
+	public static List<Instrument> findAvailable() {
+		List<Instrument> instruments = new ArrayList<Instrument>();
+		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+		    " SELECT ?uri WHERE { " +
+		    "   { ?instModel rdfs:subClassOf+ vstoi:Instrument . " + 
+		    "     ?uri a ?instModel ." + 
+		    "   } MINUS { " + 
+		    "     ?dep_uri a vstoi:Deployment . " + 
+		    "     ?dep_uri hasco:hasInstrument ?uri .  " +
+		    "     FILTER NOT EXISTS { ?dep_uri prov:endedAtTime ?enddatetime . } " + 
+		    "    } " + 
+		    "} " + 
+		    "ORDER BY DESC(?datetime) ";
+		
+		ResultSetRewindable resultsrw = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+		
+		while (resultsrw.hasNext()) {
+		    QuerySolution soln = resultsrw.next();
+		    Instrument instrument = find(soln.getResource("uri").getURI().trim());
+			instruments.add(instrument);
+		}			
+		
+		java.util.Collections.sort((List<Instrument>) instruments);
+		return instruments;
+	}
+	
+	public static List<Instrument> findDeployed() {
+		List<Instrument> instruments = new ArrayList<Instrument>();
+		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+		    " SELECT ?uri WHERE { " +
+		    "   ?instModel rdfs:subClassOf+ vstoi:Instrument . " + 
+		    "   ?uri a ?instModel ." + 
+		    "   ?dep_uri a vstoi:Deployment . " + 
+		    "   ?dep_uri hasco:hasInstrument ?uri .  " +
+		    "   FILTER NOT EXISTS { ?dep_uri prov:endedAtTime ?enddatetime . } " + 
+		    "} " + 
+		    "ORDER BY DESC(?datetime) ";
+		
+		ResultSetRewindable resultsrw = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+		
+		while (resultsrw.hasNext()) {
+		    QuerySolution soln = resultsrw.next();
+		    Instrument instrument = find(soln.getResource("uri").getURI().trim());
+		    instruments.add(instrument);
+		}			
+
+		java.util.Collections.sort((List<Instrument>) instruments);
+		return instruments;
+	}
+	
+	public static Instrument find(String uri) {
+	    Instrument instrument = null;
+	    Statement statement;
+	    RDFNode object;
+	    
+	    String queryString = "DESCRIBE <" + uri + ">";
+	    Model model = SPARQLUtils.describe(CollectionUtil.getCollectionPath(
+                CollectionUtil.Collection.SPARQL_QUERY), queryString);
+		
+		StmtIterator stmtIterator = model.listStatements();
+
+		if (!stmtIterator.hasNext()) {
+			return null;
+		} else {
+			instrument = new Instrument();
+		}
+		
+		while (stmtIterator.hasNext()) {
+		    statement = stmtIterator.next();
+		    object = statement.getObject();
+		    if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
+		    	instrument.setLabel(object.asLiteral().getString());
+            } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
+                instrument.setTypeUri(object.asResource().getURI());
+			} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
+				instrument.setHascoTypeUri(object.asResource().getURI());
+		    } else if (statement.getPredicate().getURI().equals(HASCO.HAS_SERIAL_NUMBER)) {
+		    	instrument.setSerialNumber(object.asLiteral().getString());
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+                instrument.setImage(object.asLiteral().getString());
+		    } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
+		    	instrument.setComment(object.asLiteral().getString());
+		    }
+		}
+		
+		instrument.setUri(uri);
+		
+		return instrument;
+	}
+
+	public static int getNumberInstruments() {
+		String query = "";
+		query += NameSpaces.getInstance().printSparqlNameSpaceList();
+		query += " select (count(?instrument) as ?tot) where { " +
+				" ?instrumentType rdfs:subClassOf* vstoi:Instrument . " +
+				" ?instrument a ?instrumentType . " +
+				" }";
+
+		//select ?obj ?collection ?objType where { ?obj hasco:isMemberOf ?collection . ?obj a ?objType . FILTER NOT EXISTS { ?objType rdfs:subClassOf* hasco:ObjectCollection . } }
+		//System.out.println("Study query: " + query);
+
+		try {
+			ResultSetRewindable resultsrw = SPARQLUtils.select(
+					CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), query);
+
+			if (resultsrw.hasNext()) {
+				QuerySolution soln = resultsrw.next();
+				return Integer.parseInt(soln.getLiteral("tot").getString());
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return -1;
+	}
+
+    @Override
+    public int compareTo(Instrument another) {
+        return this.getLabel().compareTo(another.getLabel());
+    }
+
+    @Override public void save() {
+		saveToTripleStore();
+	}
+
+    @Override public void delete() {
+		deleteFromTripleStore();
+	}
+
+    @Override
+    public boolean saveToSolr() {
+        return false;
+    }
+    
+    @Override
+    public int deleteFromSolr() {
+        return 0;
+    }
+    
+}

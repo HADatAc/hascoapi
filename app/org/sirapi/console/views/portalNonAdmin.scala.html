@@ -1,0 +1,124 @@
+@()
+
+@import helper._
+@import org.sirapi.utils.NameSpaces
+@import org.sirapi.console.views.html._
+@import org.sirapi.console.controllers._
+@import org.sirapi.entity.pojo.HADatAcClass
+@import org.sirapi.entity.pojo.HADatAcThing
+@import org.sirapi.entity.pojo.Instrument
+@import org.sirapi.entity.pojo.InstrumentType
+@import org.sirapi.entity.pojo.Detector
+@import org.sirapi.entity.pojo.DetectorType
+@import play.api.Play
+@import com.typesafe.config.ConfigFactory
+
+<style>
+    .dashNumber
+    {
+       font-family:    Arial, Helvetica, sans-serif;
+       font-size:      48px;
+       font-weight:    bold;
+       color:          Black;
+    }
+    .dashText
+    {
+       font-family:    Arial, Helvetica, sans-serif;
+       font-size:      28px;
+       font-weight:    bold;
+       padding:        1px 15px 35px 15px;
+    }
+    .glyphicon-comment{
+       font-size: 24px
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-1"></div>
+    <div class="col-md-10">
+        <h2>Dashboard</h2>
+        <br>
+        <h4>Instrument Elements</h4>
+        <div class="row dash-text">
+            <div class="col-md-2 text-center">
+                <div class="dashNumber">@Instrument.getNumberInstruments()</div>
+                <a href="" id="instruments" class="btn btn-primary btn-block disabled" role="button">Instruments</a>
+                <br>
+            </div>
+            <div class="col-md-2 text-center">
+                <div class="dashNumber">@InstrumentType.getNumberInstrumentTypes()</div>
+                <a href="" id="instrumentTypes" class="btn btn-primary btn-block disabled" role="button">Instrument Types</a>
+                <br>
+            </div>
+            <div class="col-md-2 text-center">
+                <div class="dashNumber">@Detector.getNumberDetectors()</div>
+                <a href="" id="detectors" class="btn btn-primary btn-block disabled" role="button">Detectors</a>
+                <br>
+            </div>
+            <div class="col-md-2 text-center">
+                <div class="dashNumber">@DetectorType.getNumberDetectorTypes()</div>
+                <a href="" id="detectorTypes" class="btn btn-primary btn-block disabled" role="button">Detector Types</a>
+                <br>
+            </div>
+            <div class="col-md-2 text-center">
+                <div class="dashNumber">0</div>
+                <a href="" id="responseoptions" class="btn btn-primary btn-block disabled" role="button">Response Options</a>
+                <br>
+            </div>
+        </div>
+        <h4>Semantic Elements</h4>
+        <div class="row dash-text">
+            <div class="col-md-2 text-center">
+                <div class="dashNumber">0</div>
+                <a href="" id="sdds" class="btn btn-primary btn-block disabled" role="button">Data Dictionaries</a>
+                <br>
+            </div>
+            <div class="col-md-2 text-center">
+                <div class="dashNumber">0</div>
+                <a href="" id="metavariables" class="btn btn-primary btn-block disabled" role="button">Meta Variables</a>
+                <br>
+            </div>
+            <div class="col-md-2 text-center">
+                <div class="dashNumber">0</div>
+                <a href="" id="entitytypes" class="btn btn-primary btn-block disabled" role="button">Entity Types</a>
+                <br>
+            </div>
+            <div class="col-md-2 text-center">
+                <div class="dashNumber">0</div>
+                <a href="" id="scales" class="btn btn-primary btn-block disabled" role="button">Scales</a>
+                <br>
+            </div>
+        </div>
+        <h4>Supporting Knowledge</h4>
+        <div class="row dash-text">
+            <div class="col-md-2 text-center">
+                <div class="dashNumber">@NameSpaces.getInstance().getNumOfNameSpaces</div>
+                <a href="" id="namespaces" class="btn btn-primary btn-block disabled" role="button">Namespaces</a>
+                <br>
+            </div>
+            <div class="col-md-2 text-center">
+                <div class="dashNumber">@HADatAcClass.getNumberClasses()</div>
+                <a href="" id="classes" class="btn btn-primary btn-block disabled" role="button">Classes</a>
+                <br>
+            </div>
+            <div class="col-md-2 text-center">
+                <div class="dashNumber">@HADatAcThing.getNumberInstances()</div>
+                <a href="" id="instances" class="btn btn-primary btn-block disabled" role="button">Instances</a>
+                <br>
+            </div>
+        </div>
+        <h2>Functionalities</h2>
+        <br>
+        <div class="row dash-text">
+            <div class="col-md-2 text-center">
+                <a href="@org.sirapi.console.controllers.documentation.routes.MethodList.index()" id="methods" class="btn btn-primary btn-block" role="button">Available Methods</a>
+                <br>
+            </div>
+            <div class="col-md-2 text-center">
+                <a href="@org.sirapi.console.controllers.ontologies.routes.Maintenance.index("init")" id="methods" class="btn btn-primary btn-block" role="button">Ontology Maintenance</a>
+                <br>
+            </div>
+        </div>
+    </div>
+</div>
+

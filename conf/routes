@@ -1,0 +1,34 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Home page
+GET     /                                                 org.sirapi.console.controllers.Portal.index(request: Request)
+GET     /sirapi                                           org.sirapi.console.controllers.Portal.index(request: Request)
+GET     /sirapi/                                          org.sirapi.console.controllers.Portal.index(request: Request)
+POST    /sirapi/                                          org.sirapi.console.controllers.Portal.postIndex(request: Request)
+GET     /sirapi/version                                   org.sirapi.console.controllers.Version.index()
+POST    /sirapi/version                                   org.sirapi.console.controllers.Version.postIndex()
+
+# REST API
+GET     /sirapi/api/uri/:uri                              org.sirapi.console.controllers.restapi.URIPage.getUri(uri: String)
+GET     /sirapi/api/repo                                  org.sirapi.console.controllers.restapi.RepoPage.getRepository()
+GET     /sirapi/api/instrument/all                        org.sirapi.console.controllers.restapi.InstrumentAPI.getAllInstruments()
+GET     /sirapi/api/instrument/test/create                org.sirapi.console.controllers.restapi.InstrumentAPI.createInstrumentForTesting()
+GET     /sirapi/api/instrument/test/delete                org.sirapi.console.controllers.restapi.InstrumentAPI.deleteInstrumentForTesting()
+POST    /sirapi/api/instrument/create/:json               org.sirapi.console.controllers.restapi.InstrumentAPI.createInstrument(json: String)
+POST    /sirapi/api/instrument/delete/:uri                org.sirapi.console.controllers.restapi.InstrumentAPI.deleteInstrument(uri: String)
+GET     /sirapi/api/instrumenttype/all                    org.sirapi.console.controllers.restapi.InstrumentTypeAPI.getAllInstrumentTypes()
+
+# DOCUMENTATION
+
+GET     /sirapi/documentation/methodlist                  org.sirapi.console.controllers.documentation.MethodList.index()
+GET     /sirapi/documentation/createinstrumentexample     org.sirapi.console.controllers.documentation.MethodList.createInstrumentExample()
+GET     /sirapi/documentation/deleteinstrumentexample     org.sirapi.console.controllers.documentation.MethodList.deleteInstrumentExample()
+
+# ONTOLOGIES
+
+GET     /sirapi/ontologies/maintenance                   org.sirapi.console.controllers.ontologies.Maintenance.index(oper: String)
+
+# Map static resources from the /public folder to the /assets URL path
+GET     /sirapi/assets/*file                              controllers.Assets.versioned(path="/public", file: Asset)
