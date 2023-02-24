@@ -21,6 +21,8 @@ wait $!
 docker-compose build
 wait $!
 
-docker-compose up
+docker-compose up -d
+
+
 
 
