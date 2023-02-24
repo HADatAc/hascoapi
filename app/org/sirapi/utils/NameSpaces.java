@@ -44,7 +44,8 @@ public class NameSpaces {
         RDF_NAMESPACE.setAbbreviation("rdf");
         RDF_NAMESPACE.setName("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
         RDF_NAMESPACE.setTypeUri("http://hadatac.org/ont/hasco/Ontology");
-        RDF_NAMESPACE.setMimeType("application/rdf+xml");
+        //RDF_NAMESPACE.setMimeType("application/rdf+xml");
+        RDF_NAMESPACE.setMimeType("text/turtle");
         RDF_NAMESPACE.setURL("https://www.w3.org/1999/02/22-rdf-syntax-ns#");
         RDF_NAMESPACE.setComment("W3C's Resource Description Framework");
         RDF_NAMESPACE.setVersion("1.0");
@@ -58,7 +59,8 @@ public class NameSpaces {
         RDFS_NAMESPACE.setAbbreviation("rdfs");
         RDFS_NAMESPACE.setName("http://www.w3.org/2000/01/rdf-schema#");
         RDFS_NAMESPACE.setTypeUri("http://hadatac.org/ont/hasco/Ontology");
-        RDFS_NAMESPACE.setMimeType("application/rdf+xml");
+        //RDFS_NAMESPACE.setMimeType("application/rdf+xml");
+        RDFS_NAMESPACE.setMimeType("text/turtle");
         RDFS_NAMESPACE.setURL("https://www.w3.org/2000/01/rdf-schema#");
         RDFS_NAMESPACE.setComment("W3C's RDF Schema");
         RDFS_NAMESPACE.setVersion("1.0");
