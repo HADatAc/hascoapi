@@ -8,8 +8,8 @@ It is a web app for managing an underlying instrument knowledge base. SIR is bas
 
 1. SIR's host machine requires the installation of `git` and `docker`
 
-2. Using `git`, clone SIR from github
+2. Using `git clone`, clone SIR from github
 
-3. Using `docker`, build SIR images
+3. Using `docker build .`, build SIR images
 
-4. Using `docker-compose` (that is part of `docker`), run SIR  
+4. Using `docker-compose up -d`, run SIR  
