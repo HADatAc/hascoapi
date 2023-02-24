@@ -1,7 +1,7 @@
-solr/*.zip
-blazegraph/*.zip
+fuseki/
+fuseki-yasgui/
+conf/
 logs
-uploads/
 project/project
 project/target
 target
@@ -19,12 +19,6 @@ dist
 RUNNING_PID
 .cache-main
 .cache-tests
-~
-./processed_csv/
-./unprocessed_csv/
-./downloaded_csv/
-sddtmp/
-dpltmp/
 *.swp
 *.iml
 *.xlsx
