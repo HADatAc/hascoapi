@@ -61,7 +61,7 @@ services:
             #   are persisted when the container is removed or rebuilt.
 
             # Comment out this option to use external binding
-            - sirapi-conf:/sirapi/conf
+            # - sirapi-conf:/sirapi/conf
             #            - /path in host server/conf:/root/app/conf # Uncomment this option to use external binding
             - /var/log/sirapi:/sirapi/logs
         links:
@@ -71,7 +71,7 @@ services:
 
 volumes:
     sirapi-fuseki-data:
-    sirapi-conf:
+    # sirapi-conf:
 
 networks:
     sirapi:
