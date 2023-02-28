@@ -1,7 +1,7 @@
 # The first part of this Dockerfile is inspired by an existing Dockerfile hosted at https://github.com/mozilla/docker-sbt/blob/main/Dockerfile
 # The important parts have been copied over to remove a dependency on two public Docker containers
 #FROM openjdk:11
-FROM sbtscala/scala-sbt:openjdk-11.0.16_1.7.2_2.12.17 as build-java
+FROM sbtscala/scala-sbt:eclipse-temurin-11.0.16_1.7.2_2.12.17 as build-java
 
 RUN apt-get update && apt-get install -y unzip
 ENV JAVA_OPTS="-Xms6048m -Xmx10000m"
@@ -21,7 +21,7 @@ COPY . /sirapi
 RUN sbt playUpdateSecret && sbt dist
 RUN cd /sirapi/target/universal/ && unzip sirapi-10.0.1-SNAPSHOT.zip
 
-FROM openjdk:11-jre-slim
+FROM eclipse-temurin:11-jre
 
 WORKDIR /sirapi
 
