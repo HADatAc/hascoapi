@@ -47,6 +47,11 @@ public class URIPage extends Controller {
                 if (finalResult != null) {
                     typeUri = ((Instrument) finalResult).getHascoTypeUri();
                 }
+            } else if (result.getHascoTypeUri().equals(HASCO.DETECTOR)) {
+                finalResult = Detector.find(uri);
+                if (finalResult != null) {
+                    typeUri = ((Detector) finalResult).getHascoTypeUri();
+                }
             } else {
                 finalResult = result;
                 if (finalResult != null) {
@@ -75,7 +80,7 @@ public class URIPage extends Controller {
         try {
             ObjectNode obj = mapper.convertValue(result, ObjectNode.class);
             jsonObject = mapper.convertValue(obj, JsonNode.class);
-            System.out.println(prettyPrintJsonString(jsonObject));
+            //System.out.println(prettyPrintJsonString(jsonObject));
         } catch (Exception e) {
             e.printStackTrace();
             return badRequest(ApiUtil.createResponse("Error processing the json object for URI [" + uri + "]", false));

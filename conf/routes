@@ -29,6 +29,7 @@ GET     /sirapi/api/detectortype/all                      org.sirapi.console.con
 # DOCUMENTATION
 
 GET     /sirapi/documentation/methodlist                  org.sirapi.console.controllers.documentation.MethodList.index()
+GET     /sirapi/documentation/queryuriexample             org.sirapi.console.controllers.documentation.MethodList.queryURIExample()
 GET     /sirapi/documentation/createinstrumentexample     org.sirapi.console.controllers.documentation.MethodList.createInstrumentExample()
 GET     /sirapi/documentation/deleteinstrumentexample     org.sirapi.console.controllers.documentation.MethodList.deleteInstrumentExample()
 GET     /sirapi/documentation/createdetectorexample       org.sirapi.console.controllers.documentation.MethodList.createDetectorExample()

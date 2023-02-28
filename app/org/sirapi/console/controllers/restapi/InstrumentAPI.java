@@ -89,10 +89,10 @@ public class InstrumentAPI extends Controller {
         if (results == null) {
             return notFound(ApiUtil.createResponse("No instrument has been found", false));
         } else {
-            //SimpleFilterProvider filterProvider = new SimpleFilterProvider();
-            //filterProvider.addFilter("instrumentFilter",
-            //        SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri", "hascoTypeLabel", "comment"));
-            //mapper.setFilterProvider(filterProvider);
+            SimpleFilterProvider filterProvider = new SimpleFilterProvider();
+            filterProvider.addFilter("instrumentFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri", "hascoTypeLabel", "comment"));
+            mapper.setFilterProvider(filterProvider);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));
         }
