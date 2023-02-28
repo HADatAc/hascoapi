@@ -32,34 +32,27 @@
                 <h3>Repository</h3>
                 <button type="button" class="btn btn-secondary">GET&nbsp;&nbsp;&nbsp;  <a href="/sirapi/api/repo">/sirapi/api/repo</a></button> - Return repository setting information.<br>
 
-                <h3>Retrieval of SIR Element</h3>
+                <h3>Retrieval of SIR Elements</h3>
+
                 <p><b>Note:</b>Every single SIR element is the instantiation of a concept, which is registered at SIR under an unique URI. Instances of concepts like instruments, instrument types, and detectors are example of SIR elements.</p>
 
                 <button type="button" class="btn btn-secondary">GET&nbsp;&nbsp;&nbsp;  /sirapi/api/uri/(instrUri)</button> - Return a full description of a concept as described in SIR. URI needs to be URL encoded.<br>
+                <button type="button" class="btn btn-secondary">GET&nbsp;&nbsp;&nbsp;  <a href="/sirapi/api/instrument/all">/sirapi/api/instrument/all</a></button> - Return all instruments in SIR, including their properties.<br>
+                <button type="button" class="btn btn-secondary">GET&nbsp;&nbsp;&nbsp;  <a href="/sirapi/api/instrumenttype/all">/sirapi/api/instrumenttype/all</a></button> - Return all instrument types currently loaded into SIR.<br>
+                <button type="button" class="btn btn-secondary">GET&nbsp;&nbsp;&nbsp;  <a href="/sirapi/api/detector/all">/sirapi/api/detector/all</a></button> - Return all detectors in SIR, including their properties.<br>
+                <button type="button" class="btn btn-secondary">GET&nbsp;&nbsp;&nbsp;  <a href="/sirapi/api/detectortype/all">/sirapi/api/detectortype/all</a></button> - Return all detector types currently loaded into SIR.<br>
 
                 <h3>Maintenance of SIR Elements</h3>
 
+                <p><b>Note:</b> Instrument types and detector types are loaded into SIR through the VSTOI ontology. The VSTOI ontology needs to be modified and reloaded to create instrument type and detector type or to delete an existing instrument type or detector type.</p>
+
                 <h4>Instruments</h4>
-                <button type="button" class="btn btn-secondary">GET&nbsp;&nbsp;&nbsp;  <a href="/sirapi/api/instrument/all">/sirapi/api/instrument/all</a></button> - Return all instruments in SIR, including their properties.<br>
                 <button type="button" class="btn btn-secondary">POST /sirapi/api/instrument/create/(instrumentJson)</button> - Create a new instrument according to the json specification provided. Json needs to be URL encoded. Use the <a href="@org.sirapi.console.controllers.documentation.routes.MethodList.createInstrumentExample()">Create Instrument Example</a> to see how to use a CURL with POST method to create instruments.<br>
                 <button type="button" class="btn btn-secondary">POST /sirapi/api/instrument/delete/(instrUri)</button> - Delete an existing instrument using the URI provided. URI needs to be URL encoded. Use the <a href="@org.sirapi.console.controllers.documentation.routes.MethodList.deleteInstrumentExample()">Delete Instrument Example</a> to see how to use a CURL with POST method to delete instruments.<br>
 
-                <h4>Instrument Types</h4>
-
-                <p><b>Note:</b> Instrument types are loaded into SIR through the VSTOI ontology. The VSTOI ontology needs to be modified and reloaded to create a new instrument type or to delete an existing instrument type.</p>
-
-                <button type="button" class="btn btn-secondary">GET&nbsp;&nbsp;&nbsp;  <a href="/sirapi/api/instrumenttype/all">/sirapi/api/instrumenttype/all</a></button> - Return all instrument types currently loaded into SIR.<br>
-
                 <h4>Detector</h4>
-                <button type="button" class="btn btn-secondary">GET&nbsp;&nbsp<a href="/sirapi/api/detector/all">/sirapi/api/detector/all</a></button> - Return all detectors in SIR, including their properties.<br>
                 <button type="button" class="btn btn-secondary">POST /sirapi/api/detector/create/(detectorJson)</button> - Create a new detector according to the json specification provided. Json needs to be URL encoded. Use the <a href="@org.sirapi.console.controllers.documentation.routes.MethodList.createDetectorExample()">Create Detector Example</a> to see how to use a CURL with POST method to create detectors.<br>
                 <button type="button" class="btn btn-secondary">POST /sirapi/api/detector/delete/(detectorUri)</button> - Delete an existing detector using the URI provided. URI needs to be URL encoded. Use the <a href="@org.sirapi.console.controllers.documentation.routes.MethodList.deleteDetectorExample()">Delete Instrument Example</a> to see how to use a CURL with POST method to delete detectors.<br>
-
-                <h4>Detector Types</h4>
-
-                <p><b>Note:</b> Detector types are loaded into SIR through the VSTOI ontology. The VSTOI ontology needs to be modified and reloaded to create a new detector type or to delete an existing detector type.</p>
-
-                <button type="button" class="btn btn-secondary">GET&nbsp;&nbsp;&nbsp;  <a href="/sirapi/api/detectortype/all">/sirapi/api/detectortype/all</a></button> - Return all detector types currently loaded into SIR.<br>
 
                 <h3>Interoperability of SIR Elements</h3>
 
@@ -85,12 +78,6 @@
 
                 <button type="button" class="btn btn-secondary">GET&nbsp;&nbsp;&nbsp;  <a href="/sirapi/api/instrument/test/create">/sirapi/api/instrument/test/create</a></button> - Create a test instrument.<br>
                 <button type="button" class="btn btn-secondary">GET&nbsp;&nbsp;&nbsp;  <a href="/sirapi/api/instrument/test/delete">/sirapi/api/instrument/test/delete</a></button> - Delete a test instrument.<br>
-                <button type="button" class="btn btn-secondary">GET&nbsp;&nbsp;&nbsp;  <a href="/sirapi/api/instrument/test/tordf/turtle">/sirapi/api/instrument/test/tordf/turtle</a></button> - Return RDF encoding in Turtle for requested instrument.<br>
-                <button type="button" class="btn btn-secondary">GET&nbsp;&nbsp;&nbsp;  <a href="/sirapi/api/instrument/test/tordf/owlxml">/sirapi/api/instrument/test/tordf/owlxml</a></button> - Return RDF encoding in OWL/XML for requested instrument.<br>
-                <button type="button" class="btn btn-secondary">GET&nbsp;&nbsp;&nbsp;  <a href="/sirapi/api/instrument/test/totext/pdf">/sirapi/api/instrument/test/totext/pdf</a></button> - Return Text encoding in PDF for requested instrument.<br>
-                <button type="button" class="btn btn-secondary">GET&nbsp;&nbsp;&nbsp;  <a href="/sirapi/api/instrument/test/totext/plain">/sirapi/api/instrument/test/totext/plain</a></button> - Return Text encoding in Plain for requested instrument.<br>
-                <button type="button" class="btn btn-secondary">GET&nbsp;&nbsp;&nbsp;  <a href="/sirapi/api/instrument/test/tofhir">/sirapi/api/instrument/test/tofhir</a></button> - Return FHIR encoding for requested instrument.<br>
-                <button type="button" class="btn btn-secondary">GET&nbsp;&nbsp;&nbsp;  <a href="/sirapi/api/instrument/test/toredcap">/sirapi/api/instrument/test/toredcap</a></button> - Return RedCAP encoding for requested instrument.<br>
 
                 <h4>Test Detector</h4>
 
