@@ -9,14 +9,12 @@
 
     @main("Semantic Instrument Repository","",userName) {
 
-        <script type="text/javascript" src="/hadatac/assets/javascripts/portal-text.js"></script>
-
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-1 col-xs-0"></div>
                 <div id="textTitle" class="col-md-8 col-xs-0">
                     <h3><font color="darkBlue">@ConfigFactory.load().getString("sirapi.community.pagetitle")</font></h3>
-                    <script>showText("@ConfigFactory.load().getString("sirapi.community.description")", "textTitle")</script>
+                    <p>@ConfigFactory.load().getString("sirapi.community.description")</p>
                     <hr>
                 </div>
                 <div class="col-md-1 col-xs-0"></div>
