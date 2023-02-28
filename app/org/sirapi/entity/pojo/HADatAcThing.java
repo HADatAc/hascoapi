@@ -473,7 +473,7 @@ public abstract class HADatAcThing {
             return;
         }
 
-        System.out.println("Deleting <" + getUri() + "> from triple store");
+        //System.out.println("Deleting <" + getUri() + "> from triple store");
 
         query += NameSpaces.getInstance().printSparqlNameSpaceList();
         if ( this.getNamedGraph() != null && this.getNamedGraph().length() > 0 ) {
@@ -490,7 +490,7 @@ public abstract class HADatAcThing {
             UpdateProcessor processor = UpdateExecutionFactory.createRemote(
                     request, CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
             processor.execute();
-            System.out.println("Deleting named graph <" + this.getNamedGraph() + "> ");
+            //System.out.println("Deleting named graph <" + this.getNamedGraph() + "> ");
 
         } else {
             // if ( getUri().contains("3539947") ) System.out.println("find 3539947!!!! delete without namespace!!!");
@@ -508,7 +508,7 @@ public abstract class HADatAcThing {
             UpdateProcessor processor = UpdateExecutionFactory.createRemote(
                     request, CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
             processor.execute();
-            System.out.println("Deleting query 1 [" + query1 + "]");
+            //System.out.println("Deleting query 1 [" + query1 + "]");
 
             /*
             // Added for deleting Virtual Columns
@@ -544,7 +544,7 @@ public abstract class HADatAcThing {
 
         }
 
-        System.out.println("Deleted <" + getUri() + "> from triple store");
+        //System.out.println("Deleted <" + getUri() + "> from triple store");
     }
 
     public abstract boolean saveToSolr();

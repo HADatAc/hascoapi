@@ -1,0 +1,57 @@
+@()
+
+@import helper._
+@import org.sirapi.console.views.html._
+@import org.sirapi.console.controllers._
+@import play.api.Play
+@import com.typesafe.config.ConfigFactory
+
+@main("Delete Detector Example","","") {
+
+    <div class="container-fluid">
+
+        <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-8">
+                <h3><font color="darkBlue">@ConfigFactory.load().getString("sirapi.community.shortname")'s Semantic Instrument Repository</font></h3>
+                @ConfigFactory.load().getString("sirapi.community.description")
+                <hr>
+            </div>
+            <div class="col-md-1"></div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-10">
+                <h3>Delete Detector Example</h3>
+
+                <h4>URI of an existing <i>ExampleDetector</i> to be deleted</h4>
+
+                <pre><code data-trim>http://hadatac.org/kb/test/ExampleDetector1</code></pre>
+                <br>
+
+                <h4>Encoded version of the URI</h4>
+
+                Texts can be URLencoded online with the use of apps like <a href="https://www.urlencoder.io/">https://www.urlencoder.io/</a>
+                <pre><code data-trim>http%3A%2F%2Fhadatac.org%2Fkb%2Ftest%2FExampleDetector1</code></pre>
+                <br>
+
+                <h4>CURL command to invoke /sirapi/api/detector/delete/(detectorUri) (assuming SIR API is deployed at localhost:9000)</h4>
+
+                <pre><code data-trim>curl -X POST localhost:9000/sirapi/api/detector/delete/http%3A%2F%2Fhadatac.org%2Fkb%2Ftest%2FExampleDetector1</code></pre>
+
+                <br><br><br>
+
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-10">
+            <a href="@org.sirapi.console.controllers.documentation.routes.MethodList.index()" class="btn btn-success" role="button">Back to RESTful API</a>
+        </div>
+    </div>
+
+}

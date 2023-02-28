@@ -14,10 +14,9 @@ import play.mvc.Result;
 
 import java.util.List;
 
-public class InstrumentAPI extends Controller {
+import static org.sirapi.Constants.TEST_INSTRUMENT_URI;
 
-    private final String SIR_KB = "http://hadatac.org/kb/test/";
-    private final String TEST_INSTRUMENT_URI = SIR_KB + "TestInstrument";
+public class InstrumentAPI extends Controller {
 
     private Result createInstrumentResult(Instrument inst) {
         inst.save();
@@ -43,7 +42,7 @@ public class InstrumentAPI extends Controller {
         if (json == null || json.equals("")) {
             return ok(ApiUtil.createResponse("No json content has been provided.", false));
         }
-        System.out.println("Value of json: [" + json + "]");
+        //System.out.println("Value of json: [" + json + "]");
         ObjectMapper objectMapper = new ObjectMapper();
         Instrument newInst;
         try {

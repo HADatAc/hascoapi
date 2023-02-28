@@ -18,4 +18,12 @@ public class MethodList extends Controller {
         return ok(deleteInstrumentExample.render());
     }
 
+    public Result createDetectorExample() {
+        return ok(createDetectorExample.render());
+    }
+
+    public Result deleteDetectorExample() {
+        return ok(deleteDetectorExample.render());
+    }
+
 }

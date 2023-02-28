@@ -18,6 +18,7 @@ import org.sirapi.utils.SPARQLUtils;
 import org.sirapi.vocabularies.HASCO;
 import org.sirapi.vocabularies.RDF;
 import org.sirapi.vocabularies.RDFS;
+import org.sirapi.vocabularies.VSTOI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.concurrent.java8.FuturesConvertersImpl;
@@ -228,7 +229,7 @@ public class Instrument extends HADatAcThing implements Comparable<Instrument> {
                 instrument.setTypeUri(object.asResource().getURI());
 			} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
 				instrument.setHascoTypeUri(object.asResource().getURI());
-		    } else if (statement.getPredicate().getURI().equals(HASCO.HAS_SERIAL_NUMBER)) {
+		    } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
 		    	instrument.setSerialNumber(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
                 instrument.setImage(object.asLiteral().getString());

@@ -3,47 +3,33 @@ package org.sirapi.entity.pojo;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSetRewindable;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
+import org.sirapi.annotations.PropertyField;
 import org.sirapi.utils.SPARQLUtils;
 import org.sirapi.utils.CollectionUtil;
-import org.sirapi.vocabularies.HASCO;
 import org.sirapi.utils.NameSpaces;
+import org.sirapi.vocabularies.HASCO;
+import org.sirapi.vocabularies.RDF;
+import org.sirapi.vocabularies.RDFS;
+import org.sirapi.vocabularies.VSTOI;
 
+@JsonFilter("detectorFilter")
 public class Detector extends HADatAcThing implements Comparable<Detector>  {
-    private String uri;
-    private String localName;
-    private String label;
-    private String serialNumber;
-    private String image;
-    private String isInstrumentAttachment;
 
-    public String getUri() {
-        return uri;
-    }
+    @PropertyField(uri="vstoi:hasSerialNumber")
+    String serialNumber;
 
-    public void setUri(String uri) {
-        this.uri = uri;
-    }
+    @PropertyField(uri="hasco:hasImage")
+    String image;
 
-    public String getLocalName() {
-        return localName;
-    }
-
-    public void setLocalName(String localName) {
-        this.localName = localName;
-    }
-
-    public String getLabel() {
-        return label;
-    }
-    public void setLabel(String label) {
-        this.label = label;
-    }
+    @PropertyField(uri="vstoi:isInstrumentAttachment")
+    String isInstrumentAttachment;
 
     public String getSerialNumber() {
         return serialNumber;
@@ -88,17 +74,22 @@ public class Detector extends HADatAcThing implements Comparable<Detector>  {
         List<Detector> detectors = new ArrayList<Detector>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?detModel rdfs:subClassOf+ vstoi:Detector . " +
+                " ?detModel rdfs:subClassOf* vstoi:Detector . " +
                 " ?uri a ?detModel ." +
                 "} ";
 
-        //System.out.println("Query: " + queryString);
+        System.out.println("Query: " + queryString);
 
         ResultSetRewindable resultsrw = SPARQLUtils.select(
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
+        if (!resultsrw.hasNext()) {
+            return null;
+        }
+
         while (resultsrw.hasNext()) {
             QuerySolution soln = resultsrw.next();
+            System.out.println("inside Detector.find(): found uri [" + soln.getResource("uri").getURI().toString() + "]");
             Detector detector = find(soln.getResource("uri").getURI());
             detectors.add(detector);
         }
@@ -160,23 +151,28 @@ public class Detector extends HADatAcThing implements Comparable<Detector>  {
         Model model = SPARQLUtils.describe(CollectionUtil.getCollectionPath(
                 CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
-        detector = new Detector();
         StmtIterator stmtIterator = model.listStatements();
+
+        if (!stmtIterator.hasNext()) {
+            return null;
+        }
+
+        detector = new Detector();
 
         while (stmtIterator.hasNext()) {
             statement = stmtIterator.next();
             object = statement.getObject();
-            if (statement.getPredicate().getURI().equals("http://www.w3.org/2000/01/rdf-schema#label")) {
+            if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
                 detector.setLabel(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")) {
+            } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
                 detector.setTypeUri(object.asResource().getURI());
             } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
                 detector.setHascoTypeUri(object.asResource().getURI());
-            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_SERIAL_NUMBER)) {
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
                 detector.setSerialNumber(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
                 detector.setImage(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals(HASCO.IS_INSTRUMENT_ATTACHMENT)) {
+            } else if (statement.getPredicate().getURI().equals(VSTOI.IS_INSTRUMENT_ATTACHMENT)) {
                 detector.setIsInstrumentAttachment(object.asResource().getURI());
             }
         }
