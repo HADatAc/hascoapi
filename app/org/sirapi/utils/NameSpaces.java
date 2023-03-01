@@ -16,6 +16,7 @@ import java.net.URL;
 
 import org.apache.commons.io.FileUtils;
 import org.sirapi.entity.pojo.NameSpace;
+import org.sirapi.vocabularies.HASCO;
 
 public class NameSpaces {
 
@@ -39,12 +40,10 @@ public class NameSpaces {
         List<NameSpace> namespaces = new ArrayList<NameSpace>();
 
         // RDF
-        // rdf=http://www.w3.org/1999/02/22-rdf-syntax-ns#,text/turtle,http://www.w3.org/1999/02/22-rdf-syntax-ns#
         NameSpace RDF_NAMESPACE = new NameSpace();
         RDF_NAMESPACE.setAbbreviation("rdf");
         RDF_NAMESPACE.setName("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-        RDF_NAMESPACE.setTypeUri("http://hadatac.org/ont/hasco/Ontology");
-        //RDF_NAMESPACE.setMimeType("application/rdf+xml");
+        RDF_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
         RDF_NAMESPACE.setMimeType("text/turtle");
         RDF_NAMESPACE.setURL("https://www.w3.org/1999/02/22-rdf-syntax-ns#");
         RDF_NAMESPACE.setComment("W3C's Resource Description Framework");
@@ -54,12 +53,10 @@ public class NameSpaces {
         namespaces.add(RDF_NAMESPACE);
 
         // RDFS
-        // rdfs=http://www.w3.org/2000/01/rdf-schema#,text/turtle,http://www.w3.org/2000/01/rdf-schema#
         NameSpace RDFS_NAMESPACE = new NameSpace();
         RDFS_NAMESPACE.setAbbreviation("rdfs");
         RDFS_NAMESPACE.setName("http://www.w3.org/2000/01/rdf-schema#");
-        RDFS_NAMESPACE.setTypeUri("http://hadatac.org/ont/hasco/Ontology");
-        //RDFS_NAMESPACE.setMimeType("application/rdf+xml");
+        RDFS_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
         RDFS_NAMESPACE.setMimeType("text/turtle");
         RDFS_NAMESPACE.setURL("https://www.w3.org/2000/01/rdf-schema#");
         RDFS_NAMESPACE.setComment("W3C's RDF Schema");
@@ -73,11 +70,10 @@ public class NameSpaces {
         // xsd=http://www.w3.org/2001/XMLSchema#,,
 
         // OWL
-        // owl=http://www.w3.org/2002/07/owl#,text/turtle,http://www.w3.org/2002/07/owl#
         NameSpace OWL_NAMESPACE = new NameSpace();
         OWL_NAMESPACE.setAbbreviation("owl");
         OWL_NAMESPACE.setName("http://www.w3.org/2002/07/owl#");
-        OWL_NAMESPACE.setTypeUri("http://hadatac.org/ont/hasco/Ontology");
+        OWL_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
         OWL_NAMESPACE.setMimeType("text/turtle");
         OWL_NAMESPACE.setURL("https://www.w3.org/2002/07/owl#");
         OWL_NAMESPACE.setComment("W3C's Ontology Web Language");
@@ -88,12 +84,10 @@ public class NameSpaces {
 
 
         // SKOS
-        // skos=http://www.w3.org/2004/02/skos/core#,,
         NameSpace SKOS_NAMESPACE = new NameSpace();
         SKOS_NAMESPACE.setAbbreviation("skos");
         SKOS_NAMESPACE.setName("http://www.w3.org/2004/02/skos/core#");
-        SKOS_NAMESPACE.setTypeUri("http://hadatac.org/ont/hasco/Ontology");
-        //SKOS_NAMESPACE.setURL("http://www.w3.org/2004/02/skos/core#");
+        SKOS_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
         SKOS_NAMESPACE.setComment("Simple Knowledge Organization System Namespace Document");
         SKOS_NAMESPACE.setVersion("18-August-2009");
         SKOS_NAMESPACE.updateNumberOfLoadedTriples();
@@ -116,7 +110,7 @@ public class NameSpaces {
         NameSpace HASCO_NAMESPACE = new NameSpace();
         HASCO_NAMESPACE.setAbbreviation("hasco");
         HASCO_NAMESPACE.setName("http://hadatac.org/ont/hasco/");
-        HASCO_NAMESPACE.setTypeUri("http://hadatac.org/ont/hasco/Ontology");
+        HASCO_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
         HASCO_NAMESPACE.setMimeType("text/turtle");
         HASCO_NAMESPACE.setURL("http://hadatac.org/ont/hasco/");
         HASCO_NAMESPACE.setComment("Human-Aware Science Ontology");
@@ -129,7 +123,7 @@ public class NameSpaces {
         NameSpace VSTOI_NAMESPACE = new NameSpace();
         VSTOI_NAMESPACE.setAbbreviation("vstoi");
         VSTOI_NAMESPACE.setName("http://hadatac.org/ont/vstoi#");
-        VSTOI_NAMESPACE.setTypeUri("http://hadatac.org/ont/hasco/Ontology");
+        VSTOI_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
         VSTOI_NAMESPACE.setMimeType("text/turtle");
         VSTOI_NAMESPACE.setURL("http://hadatac.org/ont/vstoi#");
         VSTOI_NAMESPACE.setComment("Virtual Terrestrial Solar Observatory - Instruments");
@@ -142,12 +136,21 @@ public class NameSpaces {
         NameSpace TEST_NAMESPACE = new NameSpace();
         TEST_NAMESPACE.setAbbreviation("test");
         TEST_NAMESPACE.setName("http://hadatac.org/kb/test/");
-        TEST_NAMESPACE.setTypeUri("http://hadatac.org/ont/hasco/Ontology");
+        TEST_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
         TEST_NAMESPACE.setComment("Human-Aware Science Ontology");
         TEST_NAMESPACE.setVersion("1.0");
         TEST_NAMESPACE.updateNumberOfLoadedTriples();
         TEST_NAMESPACE.setPriority(20);
         namespaces.add(TEST_NAMESPACE);
+
+        // Local namespace
+        NameSpace LOCAL_NAMESPACE = new NameSpace();
+        LOCAL_NAMESPACE.setAbbreviation(ConfigProp.getNSAbbreviation());
+        LOCAL_NAMESPACE.setName(ConfigProp.getNSValue());
+        LOCAL_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
+        LOCAL_NAMESPACE.updateNumberOfLoadedTriples();
+        LOCAL_NAMESPACE.setPriority(30);
+        namespaces.add(LOCAL_NAMESPACE);
 
         return namespaces;
 

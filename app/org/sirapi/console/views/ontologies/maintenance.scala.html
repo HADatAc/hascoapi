@@ -2,6 +2,7 @@
   namespaces : List[org.sirapi.entity.pojo.NameSpace])
 
 @import helper._
+@import org.sirapi.utils.ConfigProp
 @import org.sirapi.utils.NameSpaces
 @import org.sirapi.console.views.html._
 @import org.sirapi.console.controllers._
@@ -74,6 +75,8 @@
                         }
                         </tbody>
                     </table>
+                    <br>
+                    <p><b>Local namespace:</b> @ConfigProp.getNSAbbreviation()</p>
                 }
 
                 <br><br><br>

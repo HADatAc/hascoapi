@@ -78,6 +78,12 @@ public class ConfigProp {
     public static String getDescription() {
         return ConfigFactory.load().getString("sirapi.community.description");
     }
+    public static String getNSAbbreviation() {
+        return ConfigFactory.load().getString("sirapi.namespace.abbreviation");
+    }
+    public static String getNSValue() {
+        return ConfigFactory.load().getString("sirapi.namespace.value");
+    }
 
 
 }
