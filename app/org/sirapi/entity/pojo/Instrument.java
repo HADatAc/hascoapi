@@ -36,7 +36,7 @@ public class Instrument extends HADatAcThing implements Comparable<Instrument> {
 	@PropertyField(uri="hasco:hasImage")
 	private String image;
 
-	@PropertyField(uri="vstoi:hasLanguage")
+	@PropertyField(uri="vstoi:hasShortName")
 	private String hasShortName;
 
 	@PropertyField(uri="vstoi:hasInstruction")
