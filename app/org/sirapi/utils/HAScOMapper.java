@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import org.sirapi.vocabularies.HASCO;
 import org.sirapi.vocabularies.SIO;
+import org.sirapi.vocabularies.VSTOI;
 
 public class HAScOMapper {
 

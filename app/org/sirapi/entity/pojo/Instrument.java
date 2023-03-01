@@ -13,6 +13,7 @@ import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.sparql.engine.http.QueryExceptionHTTP;
+import org.sirapi.annotations.PropertyField;
 import org.sirapi.utils.CollectionUtil;
 import org.sirapi.utils.NameSpaces;
 import org.sirapi.utils.SPARQLUtils;
@@ -29,9 +30,24 @@ public class Instrument extends HADatAcThing implements Comparable<Instrument> {
 
 	private static final Logger log = LoggerFactory.getLogger(Instrument.class);
 
+	@PropertyField(uri="vstoi:hasSerialNumber")
 	private String serialNumber;
+
+	@PropertyField(uri="hasco:hasImage")
 	private String image;
-	
+
+	@PropertyField(uri="vstoi:hasLanguage")
+	private String hasShortName;
+
+	@PropertyField(uri="vstoi:hasInstruction")
+	private String hasInstruction;
+
+	@PropertyField(uri="vstoi:hasLanguage")
+	private String hasLanguage;
+
+	@PropertyField(uri="vstoi:SIROwnerEmail")
+	private String SIROwnerEmail;
+
 	public String getSerialNumber() {
 		return serialNumber;
 	}
@@ -47,8 +63,40 @@ public class Instrument extends HADatAcThing implements Comparable<Instrument> {
     public void setImage(String image) {
         this.image = image;
     }
-    
-    public String getTypeLabel() {
+
+	public String getHasShortName() {
+		return hasShortName;
+	}
+
+	public void setHasShortName(String hasShortName) {
+		this.hasShortName = hasShortName;
+	}
+
+	public String getHasInstruction() {
+		return hasInstruction;
+	}
+
+	public void setHasInstruction(String hasInstruction) {
+		this.hasInstruction = hasInstruction;
+	}
+
+	public String getHasLanguage() {
+		return hasLanguage;
+	}
+
+	public void setHasLanguage(String hasLanguage) {
+		this.hasLanguage = hasLanguage;
+	}
+
+	public String getSIROwnerEmail() {
+		return SIROwnerEmail;
+	}
+
+	public void setSIROwnerEmail(String SIROwnerEmail) {
+		this.SIROwnerEmail = SIROwnerEmail;
+	}
+
+	public String getTypeLabel() {
     	InstrumentType insType = InstrumentType.find(getTypeUri());
     	if (insType == null || insType.getLabel() == null) {
     		return "";
@@ -237,6 +285,14 @@ public class Instrument extends HADatAcThing implements Comparable<Instrument> {
                 instrument.setImage(object.asLiteral().getString());
 		    } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
 		    	instrument.setComment(object.asLiteral().getString());
+			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SHORT_NAME)) {
+				instrument.setHasShortName(object.asLiteral().getString());
+			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_INSTRUCTION)) {
+				instrument.setHasInstruction(object.asLiteral().getString());
+			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
+				instrument.setHasLanguage(object.asLiteral().getString());
+			} else if (statement.getPredicate().getURI().equals(VSTOI.SIR_OWNER_EMAIL)) {
+				instrument.setSIROwnerEmail(object.asLiteral().getString());
 		    }
 		}
 		

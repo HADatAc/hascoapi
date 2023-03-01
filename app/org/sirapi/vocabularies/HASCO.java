@@ -13,15 +13,12 @@ public class HASCO {
     public static final String DA_SCHEMA_OBJECT                       = "http://hadatac.org/ont/hasco/DASchemaObject";
     public static final String DATA_ACQUISITION                       = "http://hadatac.org/ont/hasco/DataAcquisition";
     public static final String DATA_FILE                              = "http://hadatac.org/ont/hasco/DataFile";
-    public static final String DETECTOR                               = "http://hadatac.org/ont/vstoi#Detector";
-    public static final String DEPLOYMENT                             = "http://hadatac.org/ont/vstoi#Deployment";
-    public static final String INSTRUMENT                             = "http://hadatac.org/ont/vstoi#Instrument";
+    public static final String DEPLOYMENT                             = "http://hadatac.org/ont/hasco/Deployment";
     public static final String LOCATION_COLLECTION                    = "http://hadatac.org/ont/hasco/LocationCollection";
     public static final String MATCHING_COLLECTION                    = "http://hadatac.org/ont/hasco/MatchingCollection";
     public static final String MANAGED_ONTOLOGY                       = "http://hadatac.org/ont/hasco/ManagedOntology";
     public static final String OBJECT_COLLECTION                      = "http://hadatac.org/ont/hasco/ObjectCollection";
     public static final String ONTOLOGY                               = "http://hadatac.org/ont/hasco/Ontology";
-    public static final String PLATFORM                               = "http://hadatac.org/ont/vstoi#Platform";
     public static final String REPOSITORY                             = "http://hadatac.org/ont/hasco/Repository";
     public static final String SAMPLE_COLLECTION                      = "http://hadatac.org/ont/hasco/SampleCollection";
     public static final String STUDY                                  = "http://hadatac.org/ont/hasco/Study";
@@ -66,7 +63,7 @@ public class HASCO {
     public static final String HAS_UNIT                               = "http://hadatac.org/ont/hasco/hasUnit";
     public static final String HAS_URL                                = "http://hadatac.org/ont/hasco/hasURL";
     public static final String HAS_VARIABLE                           = "http://hadatac.org/ont/hasco/hasVariable";
-    public static final String HAS_VARIABLE_SPEC                      = "http://hadatac.org/ont/hasco/hasVariableSpec";
+    public static final String HAS_META_VARIABLE                      = "http://hadatac.org/ont/hasco/hasMetaVariable";
     public static final String IS_POSSIBLE_VALUE_OF                   = "http://hadatac.org/ont/hasco/isPossibleValueOf";
     public static final String HASCO_TYPE                             = "http://hadatac.org/ont/hasco/hascoType";
     public static final String PART_OF_SCHEMA                         = "http://hadatac.org/ont/hasco/partOfSchema";

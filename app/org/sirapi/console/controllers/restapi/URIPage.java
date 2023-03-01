@@ -7,6 +7,7 @@ import org.sirapi.entity.pojo.*;
 import org.sirapi.utils.ApiUtil;
 import org.sirapi.utils.HAScOMapper;
 import org.sirapi.vocabularies.HASCO;
+import org.sirapi.vocabularies.VSTOI;
 import play.mvc.Controller;
 import play.mvc.Result;
 
@@ -42,12 +43,12 @@ public class URIPage extends Controller {
             }
              */
 
-            if (result.getHascoTypeUri().equals(HASCO.INSTRUMENT)) {
+            if (result.getHascoTypeUri().equals(VSTOI.INSTRUMENT)) {
                 finalResult = Instrument.find(uri);
                 if (finalResult != null) {
                     typeUri = ((Instrument) finalResult).getHascoTypeUri();
                 }
-            } else if (result.getHascoTypeUri().equals(HASCO.DETECTOR)) {
+            } else if (result.getHascoTypeUri().equals(VSTOI.DETECTOR)) {
                 finalResult = Detector.find(uri);
                 if (finalResult != null) {
                     typeUri = ((Detector) finalResult).getHascoTypeUri();

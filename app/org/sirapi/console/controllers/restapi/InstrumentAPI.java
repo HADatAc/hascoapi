@@ -33,7 +33,11 @@ public class InstrumentAPI extends Controller {
             testInstrument.setLabel("Test Instrument");
             testInstrument.setTypeUri(VSTOI.QUESTIONNAIRE);
             testInstrument.setHascoTypeUri(VSTOI.INSTRUMENT);
+            testInstrument.setHasShortName("TEST");
+            testInstrument.setHasInstruction("Please put a circle around the word that shows how often each of these things happens to you. There are no right or wrong answers. ");
+            testInstrument.setHasLanguage("English");
             testInstrument.setComment("This is a dummy instrument created to test the SIR API.");
+            testInstrument.setSIROwnerEmail("me@example.com");
             return createInstrumentResult(testInstrument);
         }
     }
