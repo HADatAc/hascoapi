@@ -29,6 +29,8 @@ libraryDependencies ++= Seq(
   javaWs,
   javaJdbc,
   "org.webjars" % "bootstrap" % "5.2.3",
+  "org.webjars" % "jquery" % "3.6.3",
+  "org.webjars" %% "webjars-play" % "2.8.18",
   "org.easytesting" % "fest-assert" % "1.4" % "test",
   "org.apache.commons" % "commons-text" % "1.10.0",
   "commons-validator" % "commons-validator" % "1.7",
