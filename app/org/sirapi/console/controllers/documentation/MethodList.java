@@ -26,4 +26,8 @@ public class MethodList extends Controller {
         return ok(deleteDetectorExample.render());
     }
 
+    public Result queryURIExample() {
+        return ok(queryURIExample.render());
+    }
+
 }

@@ -156,7 +156,6 @@ public class NameSpaces {
     private NameSpaces() {
 
         System.out.println("Instantiating NameSpaces");
-        System.out.println("  - Reading ontologies from SOLR");
         // LOAD NAMESPACES FROM SOLR NAMESPACE COLLECTION
 
         List<NameSpace> namespaces = InitiateNameSpaces();

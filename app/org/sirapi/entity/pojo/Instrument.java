@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSetRewindable;
 import org.apache.jena.rdf.model.Model;
@@ -23,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.concurrent.java8.FuturesConvertersImpl;
 
+@JsonFilter("instrumentFilter")
 public class Instrument extends HADatAcThing implements Comparable<Instrument> {
 
 	private static final Logger log = LoggerFactory.getLogger(Instrument.class);
