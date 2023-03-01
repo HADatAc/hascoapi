@@ -2,6 +2,9 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
+# Webjars
+->      /webjars                                          webjars.Routes
+
 # Home page
 GET     /                                                 org.sirapi.console.controllers.Portal.index(request: Request)
 GET     /sirapi                                           org.sirapi.console.controllers.Portal.index(request: Request)
