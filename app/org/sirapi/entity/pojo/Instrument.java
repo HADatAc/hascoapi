@@ -1,9 +1,7 @@
 package org.sirapi.entity.pojo;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import org.apache.jena.query.QuerySolution;
@@ -12,7 +10,6 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
-import org.apache.jena.sparql.engine.http.QueryExceptionHTTP;
 import org.sirapi.annotations.PropertyField;
 import org.sirapi.utils.CollectionUtil;
 import org.sirapi.utils.NameSpaces;
@@ -23,7 +20,6 @@ import org.sirapi.vocabularies.RDFS;
 import org.sirapi.vocabularies.VSTOI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.concurrent.java8.FuturesConvertersImpl;
 
 @JsonFilter("instrumentFilter")
 public class Instrument extends HADatAcThing implements Comparable<Instrument> {
@@ -151,25 +147,71 @@ public class Instrument extends HADatAcThing implements Comparable<Instrument> {
 		return getUri().hashCode();
 	}
 
-	public static List<Instrument> find() {
+	public static List<Instrument> findByLanguage(String language) {
+		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+				" SELECT ?uri WHERE { " +
+				" ?instModel rdfs:subClassOf+ vstoi:Instrument . " +
+				" ?uri a ?instModel ." +
+				" ?uri vstoi:hasLanguage ?language . " +
+				"   FILTER (?language = \"" + language + "\") " +
+				"} ";
+
+		return findByQuery(queryString);
+	}
+
+	public static List<Instrument> findByKeyword(String keyword) {
+		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+				" SELECT ?uri WHERE { " +
+				" ?instModel rdfs:subClassOf+ vstoi:Instrument . " +
+				" ?uri a ?instModel ." +
+				" ?uri rdfs:label ?label . " +
+				"   FILTER regex(?label, \"" + keyword + "\", \"i\") " +
+				"} ";
+
+		return findByQuery(queryString);
+	}
+
+	public static List<Instrument> findByKeywordAndLanguage(String keyword, String language) {
+		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+				" SELECT ?uri WHERE { " +
+				" ?instModel rdfs:subClassOf+ vstoi:Instrument . " +
+				" ?uri a ?instModel ." +
+				" ?uri vstoi:hasLanguage ?language . " +
+				" ?uri rdfs:label ?label . " +
+				"   FILTER (regex(?label, \"" + keyword + "\", \"i\") && (?language = \"" + language + "\")) " +
+				"} ";
+
+		return findByQuery(queryString);
+	}
+
+	private static List<Instrument> findByQuery(String queryString) {
 		List<Instrument> instruments = new ArrayList<Instrument>();
+		ResultSetRewindable resultsrw = SPARQLUtils.select(
+				CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+		if (!resultsrw.hasNext()) {
+			return null;
+		}
+
+		while (resultsrw.hasNext()) {
+			QuerySolution soln = resultsrw.next();
+			Instrument instrument = find(soln.getResource("uri").getURI());
+			instruments.add(instrument);
+		}
+
+		java.util.Collections.sort((List<Instrument>) instruments);
+		return instruments;
+
+	}
+
+	public static List<Instrument> find() {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
 		    " SELECT ?uri WHERE { " +
 		    " ?instModel rdfs:subClassOf+ vstoi:Instrument . " + 
 		    " ?uri a ?instModel ." + 
 		    "} ";
 		
-		ResultSetRewindable resultsrw = SPARQLUtils.select(
-                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
-
-		while (resultsrw.hasNext()) {
-		    QuerySolution soln = resultsrw.next();
-		    Instrument instrument = find(soln.getResource("uri").getURI());
-		    instruments.add(instrument);
-		}			
-		
-		java.util.Collections.sort((List<Instrument>) instruments);
-		return instruments;
+		return findByQuery(queryString);
 	}
 
 	public static List<Instrument> findWithPages(int pageSize, int offset) {

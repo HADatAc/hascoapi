@@ -36,7 +36,7 @@ public class InstrumentAPI extends Controller {
             testInstrument.setHascoTypeUri(VSTOI.INSTRUMENT);
             testInstrument.setHasShortName("TEST");
             testInstrument.setHasInstruction("Please put a circle around the word that shows how often each of these things happens to you. There are no right or wrong answers. ");
-            testInstrument.setHasLanguage("English");
+            testInstrument.setHasLanguage("en"); // ISO 639-1
             testInstrument.setComment("This is a dummy instrument created to test the SIR API.");
             testInstrument.setSIROwnerEmail("me@example.com");
             return createInstrumentResult(testInstrument);
@@ -88,12 +88,30 @@ public class InstrumentAPI extends Controller {
     }
 
     public Result getAllInstruments(){
-        ObjectMapper mapper = new ObjectMapper();
-
         List<Instrument> results = Instrument.find();
+        return getInstruments(results);
+    }
+
+    public Result getInstrumentsByLanguage(String language){
+        List<Instrument> results = Instrument.findByLanguage(language);
+        return getInstruments(results);
+    }
+
+    public Result getInstrumentsByKeyword(String keyword){
+        List<Instrument> results = Instrument.findByKeyword(keyword);
+        return getInstruments(results);
+    }
+
+    public Result getInstrumentsByKeywordAndLanguage(String keyword, String language){
+        List<Instrument> results = Instrument.findByKeywordAndLanguage(keyword, language);
+        return getInstruments(results);
+    }
+
+    private Result getInstruments(List<Instrument> results){
         if (results == null) {
             return notFound(ApiUtil.createResponse("No instrument has been found", false));
         } else {
+            ObjectMapper mapper = new ObjectMapper();
             SimpleFilterProvider filterProvider = new SimpleFilterProvider();
             filterProvider.addFilter("instrumentFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "hasShortName", "typeLabel", "hascoTypeUri",
@@ -104,5 +122,6 @@ public class InstrumentAPI extends Controller {
             return ok(ApiUtil.createResponse(jsonObject, true));
         }
     }
+
 
 }
