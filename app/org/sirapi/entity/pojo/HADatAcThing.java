@@ -283,6 +283,7 @@ public abstract class HADatAcThing {
             Class<?> currentClass = getClass();
             while(currentClass != null) {
                 //System.out.println("inside HADatAcThing.saveToTripleStore(): currentClass: " + currentClass.getName());
+                //System.out.println("inside HADatAcThing.saveToTripleStore(): hasURI: [" + uri + "]");
 
                 for (Field field: currentClass.getDeclaredFields()) {
                     //System.out.println("inside HADatAcThing.saveToTripleStore(): field [" + field.getName() + "] or type [" + field.getType() + "]");

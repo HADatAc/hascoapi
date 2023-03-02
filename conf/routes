@@ -16,6 +16,11 @@ POST    /sirapi/version                                   org.sirapi.console.con
 # REST API
 GET     /sirapi/api/uri/:uri                              org.sirapi.console.controllers.restapi.URIPage.getUri(uri: String)
 GET     /sirapi/api/repo                                  org.sirapi.console.controllers.restapi.RepoPage.getRepository()
+GET     /sirapi/api/repo/name/:name                       org.sirapi.console.controllers.restapi.RepoPage.updateName(name : String)
+GET     /sirapi/api/repo/title/:title                     org.sirapi.console.controllers.restapi.RepoPage.updateTitle(title : String)
+GET     /sirapi/api/repo/description/:description         org.sirapi.console.controllers.restapi.RepoPage.updateDescription(description : String)
+GET     /sirapi/api/repo/namespace/create/:abbreviation/:url    org.sirapi.console.controllers.restapi.RepoPage.updateNamespace(abbreviation : String, url : String)
+GET     /sirapi/api/repo/namespace/delete                 org.sirapi.console.controllers.restapi.RepoPage.deleteNamespace()
 GET     /sirapi/api/instrument/all                        org.sirapi.console.controllers.restapi.InstrumentAPI.getAllInstruments()
 GET     /sirapi/api/instrument/keyword/:keyword           org.sirapi.console.controllers.restapi.InstrumentAPI.getInstrumentsByKeyword(keyword : String)
 GET     /sirapi/api/instrument/language/:language         org.sirapi.console.controllers.restapi.InstrumentAPI.getInstrumentsByLanguage(language : String)

@@ -13,7 +13,7 @@ public class Version extends Controller {
 
     public Result index() {
         String code_version = "0.0.1";
-        String base_ontology = ConfigProp.getBasePrefix();
+        String base_ontology = "";
 
         String loaded_base_ontology = NameSpaces.getInstance().getNameByAbbreviation(base_ontology);
         String loaded_base_ontology_version = OntologyTripleStore.getVersionFromAbbreviation(base_ontology);

@@ -153,14 +153,14 @@ public class NameSpace extends HADatAcThing {
 
     public List<String> getOntologyURIs() {
         List<String> uris = new ArrayList<String>();
-        for(NameSpace ns : NameSpaces.getInstance().getOntologyList())
+        for(NameSpace ns : NameSpaces.getInstance().getOrderedNamespacesAsList())
             uris.add(ns.getUri());
         return uris;
     }
 
 
     public static List<NameSpace> findWithPages(int pageSize, int offset) {
-        List<NameSpace> listOntologies = NameSpaces.getInstance().getOntologyList();
+        List<NameSpace> listOntologies = NameSpaces.getInstance().getOrderedNamespacesAsList();
         if (listOntologies == null || pageSize < 1 || offset < 0) {
             return new ArrayList<NameSpace>();
         }
@@ -168,11 +168,11 @@ public class NameSpace extends HADatAcThing {
     }
 
     public static int getNumberOntologies() {
-        return NameSpaces.getInstance().getOntologyList().size();
+        return NameSpaces.getInstance().getOrderedNamespacesAsList().size();
     }
 
     public static NameSpace find(String uri) {
-        for(NameSpace ns : NameSpaces.getInstance().getOntologyList())
+        for(NameSpace ns : NameSpaces.getInstance().getOrderedNamespacesAsList())
             if (ns.getURL().equals(uri)) {
                 return ns;
             }
@@ -180,7 +180,7 @@ public class NameSpace extends HADatAcThing {
     }
 
     public static NameSpace findByAbbreviation(String abbreviation) {
-        for(NameSpace ns : NameSpaces.getInstance().getOntologyList())
+        for(NameSpace ns : NameSpaces.getInstance().getOrderedNamespacesAsList())
             if (ns.getAbbreviation().equals(abbreviation)) {
                 return ns;
             }
@@ -188,7 +188,7 @@ public class NameSpace extends HADatAcThing {
     }
 
     public static List<NameSpace> findAll() {
-        return NameSpaces.getInstance().getOntologyList();
+        return NameSpaces.getInstance().getOrderedNamespacesAsList();
     }
 
     public void updateFromTripleStore() {

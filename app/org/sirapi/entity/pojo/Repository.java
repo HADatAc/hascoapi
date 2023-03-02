@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSetRewindable;
 import org.apache.jena.sparql.engine.http.QueryExceptionHTTP;
+import org.sirapi.Constants;
 import org.sirapi.annotations.PropertyField;
 import org.sirapi.annotations.PropertyValueType;
 import org.sirapi.utils.SPARQLUtils;
@@ -32,15 +33,8 @@ public class Repository extends HADatAcThing {
 
     public static String className = HASCO.REPOSITORY;
 
-    private String uri;
-
-    private String label;
-
     @PropertyField(uri="hasco:hasTitle")
     private String title;
-
-    @PropertyField(uri="rdfs:comment")
-    private String comment;
 
     @PropertyField(uri="hasco:hasBaseOntology")
     private String hasBaseOntology;
@@ -55,33 +49,30 @@ public class Repository extends HADatAcThing {
 
     private Agent institution;
 
+    @PropertyField(uri="hasco:hasDefaultNamespaceAbbreviation")
+    private String hasDefaultNamespaceAbbreviation;
+
+    @PropertyField(uri="hasco:hasDefaultNamespaceURL", valueType=PropertyValueType.URI)
+    private String hasDefaultNamespaceURL;
+
     public Repository() {
-        this.uri = ConfigProp.getBaseURL();
+        this.uri = Constants.DEFAULT_REPOSITORY_URI;
         this.typeUri = HASCO.REPOSITORY;
         this.hascoTypeUri = HASCO.REPOSITORY;
-        this.label = ConfigProp.getShortName();
-        this.title = ConfigProp.getFullName();
-        this.comment = ConfigProp.getDescription();
-        this.hasBaseOntology = ConfigProp.getBasePrefix();
-        this.hasBaseURL =  "http://hadatac.org/kb/" + ConfigProp.getBasePrefix() + "#";
+        this.label = "";
+        this.title = "";
+        this.comment = "";
+        this.hasBaseOntology = "";
+        this.hasBaseURL = "";
+        //this.hasBaseURL =  "http://hadatac.org/kb/" + ConfigProp.getBasePrefix() + "#";
         this.institutionUri = institutionUri;
         this.startedAt = null;
-    }
-
-    public String getUri() {
-        return uri;
-    }
-
-    public String getLabel() {
-        return label;
+        this.hasDefaultNamespaceAbbreviation = "";
+        this.hasDefaultNamespaceURL = "";
     }
 
     public String getTitle() {
         return title;
-    }
-
-    public String getComment() {
-        return comment;
     }
 
     public String getBaseOntology() {
@@ -107,6 +98,20 @@ public class Repository extends HADatAcThing {
         return Agent.find(institutionUri);
     }
 
+    public String getHasDefaultNamespaceAbbreviation() {
+        if (hasDefaultNamespaceAbbreviation != null && hasDefaultNamespaceAbbreviation.equals("")) {
+            return null;
+        }
+        return hasDefaultNamespaceAbbreviation;
+    }
+
+    public String getHasDefaultNamespaceURL() {
+        if (hasDefaultNamespaceURL != null && hasDefaultNamespaceURL.equals("")) {
+            return null;
+        }
+        return hasDefaultNamespaceURL;
+    }
+
     // get Start Time Methods
     public String getStartedAt() {
         DateTimeFormatter formatter = ISODateTimeFormat.dateTime();
@@ -119,20 +124,8 @@ public class Repository extends HADatAcThing {
 
     // set Methods
 
-    public void setUri(String uri) {
-        this.uri = uri;
-    }
-
-    public void setLabel(String label) {
-        this.label = label;
-    }
-
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
     }
 
     public void setBaseOntology(String hasBaseOntology) {
@@ -149,6 +142,14 @@ public class Repository extends HADatAcThing {
                 this.institutionUri = institutionUri;
             }
         }
+    }
+
+    public void setHasDefaultNamespaceAbbreviation(String hasDefaultNamespaceAbbreviation) {
+        this.hasDefaultNamespaceAbbreviation = hasDefaultNamespaceAbbreviation;
+    }
+
+    public void setHasDefaultNamespaceURL(String hasDefaultNamespaceURL) {
+        this.hasDefaultNamespaceURL = hasDefaultNamespaceURL;
     }
 
     // set Start Time Methods
@@ -171,49 +172,37 @@ public class Repository extends HADatAcThing {
         this.startedAt = formatter.parseDateTime(startedAt);
     }
 
-    public Repository find() {
-        return new Repository();
-    }
-
-    public static Repository find(String uri) {
-        if (uri == null || uri.equals("")) {
-            System.out.println("[ERROR] No valid REPOSITORY_URI provided to retrieve Repository object: " + uri);
-            return null;
-        }
+    public static Repository getRepository() {
         Repository repository = new Repository();
 
-        // THIS NEEDS TO BE IMPLEMENTED
-        String prefixedUri = URIUtils.replacePrefixEx(uri);
-        String adjustedUri = prefixedUri;
-        if (adjustedUri.startsWith("http")) {
-            adjustedUri = "<" + adjustedUri + ">";
-        }
+        String uri = "<" + Constants.DEFAULT_REPOSITORY_URI + ">";
         String repositoryQueryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                "SELECT DISTINCT ?label ?title ?comment ?baseOntology ?baseURL ?institutionUri " +
+                "SELECT DISTINCT ?label ?title ?comment ?baseOntology ?baseURL ?institutionUri ?nsAbbreviation ?nsUrl " +
                 " WHERE {  \n" +
                 "      ?type rdfs:subClassOf* hasco:Repository . \n" +
-                "      " + adjustedUri + " a ?type . \n" +
-                "      " + adjustedUri + " hasco:hascoType ?hascoType . \n" +
-                "      OPTIONAL { " + adjustedUri + " rdfs:label ?label } . \n" +
-                "      OPTIONAL { " + adjustedUri + " hasco:hasTitle ?title } . \n" +
-                "      OPTIONAL { " + adjustedUri + " rdfs:comment ?comment } . \n" +
-                "      OPTIONAL { " + adjustedUri + " hasco:hasBaseOntology ?baseOntology } . \n" +
-                "      OPTIONAL { " + adjustedUri + " hasco:hasBaseURL ?baseURL } . \n" +
-                "      OPTIONAL { " + adjustedUri + " hasco:hasInstitution ?institutionUri } . \n" +
+                "      " + uri + " a ?type . \n" +
+                "      " + uri + " hasco:hascoType ?hascoType . \n" +
+                "      OPTIONAL { " + uri + " rdfs:label ?label } . \n" +
+                "      OPTIONAL { " + uri + " hasco:hasTitle ?title } . \n" +
+                "      OPTIONAL { " + uri + " rdfs:comment ?comment } . \n" +
+                "      OPTIONAL { " + uri + " hasco:hasBaseOntology ?baseOntology } . \n" +
+                "      OPTIONAL { " + uri + " hasco:hasBaseURL ?baseURL } . \n" +
+                "      OPTIONAL { " + uri + " hasco:hasInstitution ?institutionUri } . \n" +
+                "      OPTIONAL { " + uri + " hasco:hasDefaultNamespaceAbbreviation ?nsAbbreviation } . \n" +
+                "      OPTIONAL { " + uri + " hasco:hasDefaultNamespaceURL ?nsUrl } . \n" +
                 " } \n";
 
         try {
-            // System.out.println("Study's find() query: " + studyQueryString);
 
             ResultSetRewindable resultsrw = SPARQLUtils.select(
                     CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), repositoryQueryString);
 
             if (!resultsrw.hasNext()) {
-                System.out.println("[ERROR] STUDY_URI " + adjustedUri + " does not retrieve a study object");
+                System.out.println("[WARNING] REPOSITORY_URI " + uri + " does not retrieve a repository object");
                 return null;
             } else {
                 QuerySolution soln = resultsrw.next();
-                repository.setUri(prefixedUri);
+                repository.setUri(Constants.DEFAULT_REPOSITORY_URI);
 
                 repository.setTypeUri(HASCO.REPOSITORY);
                 repository.setHascoTypeUri(HASCO.REPOSITORY);
@@ -236,6 +225,12 @@ public class Repository extends HADatAcThing {
                 if (soln.contains("institutionUri")) {
                     repository.setInstitutionUri(soln.get("institutionUri").toString());
                 }
+                if (soln.contains("nsAbbreviation")) {
+                    repository.setHasDefaultNamespaceAbbreviation(soln.get("nsAbbreviation").toString());
+                }
+                if (soln.contains("nsUrl")) {
+                    repository.setHasDefaultNamespaceURL(soln.get("nsUrl").toString());
+                }
             }
         } catch (QueryExceptionHTTP e) {
             e.printStackTrace();
@@ -249,11 +244,6 @@ public class Repository extends HADatAcThing {
     }
 
     @Override
-    public boolean saveToTripleStore() {
-        return true;
-    }
-
-    @Override
     public boolean saveToSolr() {
         return true;
     }
@@ -261,11 +251,6 @@ public class Repository extends HADatAcThing {
     @Override
     public void delete() {
         deleteFromTripleStore();
-    }
-
-    @Override
-    public void deleteFromTripleStore() {
-        super.deleteFromTripleStore();
     }
 
     @Override
