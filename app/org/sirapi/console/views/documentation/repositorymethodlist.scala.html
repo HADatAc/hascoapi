@@ -10,7 +10,7 @@
 @import play.api.Play
 @import com.typesafe.config.ConfigFactory
 
-@main("Query URI Example","","") {
+@main("Repository RESTful API","","") {
 
     <div class="container-fluid">
 
@@ -27,13 +27,9 @@
         <div class="row">
             <div class="col-md-1"></div>
             <div class="col-md-10">
-                <h3>Query URI Example</h3>
+                <h2>Repository RESTful API</h2>
 
-                <p><b>Note:</b>The example queries below are based on the Test instrument and its detectors. Make sure you create a test instrument before running the Query URI for an instrument URI. Make sure you create test detectors before running the Query URI for the detectors' examples below.</p>
-
-                <button type="button" class="btn btn-secondary">GET&nbsp;&nbsp;<a href="/sirapi/api/uri/">/sirapi/api/uri/</a></button> - Returns the Test instrument.<br>
-                <button type="button" class="btn btn-secondary">GET&nbsp;&nbsp;<a href="/sirapi/api/uri/">/sirapi/api/uri/</a></button> - Returns Detertor 1 of Test Instrument.<br>
-                <button type="button" class="btn btn-secondary">GET&nbsp;&nbsp;<a href="/sirapi/api/uri/">/sirapi/api/uri/</a></button> - Returns Detector 2 of Test Instrument.<br>
+                <button type="button" class="btn btn-outline-primary">GET&nbsp;&nbsp;&nbsp;  <a href="/sirapi/api/repo">/sirapi/api/repo</a></button> - Return repository setting information.<br>
 
                 <br><br><br>
 
@@ -45,7 +41,7 @@
     <div class="row">
         <div class="col-md-1"></div>
         <div class="col-md-10">
-            <a href="@org.sirapi.console.controllers.documentation.routes.ElementsMethodList.index()" class="btn btn-success" role="button">Back to RESTFul API</a>
+            <a href="@org.sirapi.console.controllers.routes.Portal.index()" class="btn btn-success" role="button">Back to Main Page</a>
         </div>
     </div>
 

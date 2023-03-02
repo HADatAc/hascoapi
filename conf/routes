@@ -34,12 +34,15 @@ GET     /sirapi/api/detectortype/all                      org.sirapi.console.con
 
 # DOCUMENTATION
 
-GET     /sirapi/documentation/methodlist                  org.sirapi.console.controllers.documentation.MethodList.index()
-GET     /sirapi/documentation/queryuriexample             org.sirapi.console.controllers.documentation.MethodList.queryURIExample()
-GET     /sirapi/documentation/createinstrumentexample     org.sirapi.console.controllers.documentation.MethodList.createInstrumentExample()
-GET     /sirapi/documentation/deleteinstrumentexample     org.sirapi.console.controllers.documentation.MethodList.deleteInstrumentExample()
-GET     /sirapi/documentation/createdetectorexample       org.sirapi.console.controllers.documentation.MethodList.createDetectorExample()
-GET     /sirapi/documentation/deletedetectorexample       org.sirapi.console.controllers.documentation.MethodList.deleteDetectorExample()
+GET     /sirapi/documentation/elementsmethodlist          org.sirapi.console.controllers.documentation.ElementsMethodList.index()
+GET     /sirapi/documentation/queryuriexample             org.sirapi.console.controllers.documentation.ElementsMethodList.queryURIExample()
+GET     /sirapi/documentation/createinstrumentexample     org.sirapi.console.controllers.documentation.ElementsMethodList.createInstrumentExample()
+GET     /sirapi/documentation/deleteinstrumentexample     org.sirapi.console.controllers.documentation.ElementsMethodList.deleteInstrumentExample()
+GET     /sirapi/documentation/createdetectorexample       org.sirapi.console.controllers.documentation.ElementsMethodList.createDetectorExample()
+GET     /sirapi/documentation/deletedetectorexample       org.sirapi.console.controllers.documentation.ElementsMethodList.deleteDetectorExample()
+
+GET     /sirapi/documentation/repositorymethodlist        org.sirapi.console.controllers.documentation.RepositoryMethodList.index()
+
 
 # ONTOLOGIES
 
