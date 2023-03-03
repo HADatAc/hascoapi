@@ -31,6 +31,12 @@ public class Detector extends HADatAcThing implements Comparable<Detector>  {
     @PropertyField(uri="vstoi:isInstrumentAttachment")
     String isInstrumentAttachment;
 
+    @PropertyField(uri="vstoi:hasContent")
+    String hasContent;
+
+    @PropertyField(uri="vstoi:hasPriority")
+    String hasPriority;
+
     public String getSerialNumber() {
         return serialNumber;
     }
@@ -55,6 +61,22 @@ public class Detector extends HADatAcThing implements Comparable<Detector>  {
         this.isInstrumentAttachment = isInstrumentAttachment;
     }
 
+    public String getHasContent() {
+        return hasContent;
+    }
+
+    public void setHasContent(String hasContent) {
+        this.hasContent = hasContent;
+    }
+
+    public String getHasPriority() {
+        return hasPriority;
+    }
+
+    public void setHasPriority(String hasPriority) {
+        this.hasPriority = hasPriority;
+    }
+
     public String getTypeLabel() {
         DetectorType detType = DetectorType.find(getTypeUri());
         if (detType == null || detType.getLabel() == null) {
@@ -70,6 +92,9 @@ public class Detector extends HADatAcThing implements Comparable<Detector>  {
         }
         return detType.getURL();
     }
+
+
+
     public static List<Detector> find() {
         List<Detector> detectors = new ArrayList<Detector>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
@@ -174,6 +199,10 @@ public class Detector extends HADatAcThing implements Comparable<Detector>  {
                 detector.setImage(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(VSTOI.IS_INSTRUMENT_ATTACHMENT)) {
                 detector.setIsInstrumentAttachment(object.asResource().getURI());
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_CONTENT)) {
+                detector.setHasContent(object.asLiteral().getString());
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PRIORITY)) {
+                detector.setHasPriority(object.asLiteral().getString());
             }
         }
 
