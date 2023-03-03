@@ -152,7 +152,7 @@ public class Triplestore {
         }
         message += Feedback.println(mode," ");
         message += Feedback.println(mode, "   Triples after [loadOntologies]: " + totalTriples());
-        NameSpaces.getInstance().reload();
+        //NameSpaces.getInstance().reload();
 
         return message;
     }

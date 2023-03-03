@@ -214,6 +214,7 @@ public class NameSpaces {
     }
      */
 
+    /*
     public void reload() {
         table.clear();
         List<NameSpace> namespaces = NameSpace.findAll();
@@ -226,6 +227,7 @@ public class NameSpaces {
         sparqlNameSpaceList = getSparqlNameSpaceList();
         turtleNameSpaceList = getTurtleNameSpaceList();
     }
+     */
 
     public static List<NameSpace> loadFromFile(InputStream inputStream) {
         List<NameSpace> namespaces = new ArrayList<NameSpace>();
