@@ -5,7 +5,7 @@
   propfile                     : String)
 
 @import views.html._
-@import com.typesafe.config.ConfigFactory
+@import org.sirapi.RepositoryInstance
 
 @main("Version","","") {
 
@@ -14,7 +14,7 @@
             <div class="col-md-1"></div>
             <div class="col-md-8">
                 <ul>
-                    <li><b>Installation short name: <font color="blue">@ConfigFactory.load().getString("sirapi.community.shortname")</font></b></li>
+                    <li><b>Installation short name: <font color="blue">@RepositoryInstance.getInstance().getLabel()</font></b></li>
                     <li><b>HADatAc code's version: <font color="blue">@code_version</font></b></li>
                     <li><b>Latest loaded namespace.properties file: <font color="blue">@propfile</font></b></li>
                     <li><b>Base Ontology Prefix: <font color="blue">@base_ontology</font></b></li>

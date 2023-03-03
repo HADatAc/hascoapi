@@ -1,11 +1,11 @@
 @(userName:String)
 
     @import helper._
+    @import org.sirapi.RepositoryInstance
     @import org.sirapi.utils._
     @import org.sirapi.console.views.html._
     @import org.sirapi.console.controllers._
     @import play.api.Play
-    @import com.typesafe.config.ConfigFactory
 
     @main("Semantic Instrument Repository","",userName) {
 
@@ -13,8 +13,8 @@
             <div class="row">
                 <div class="col-md-1 col-xs-0"></div>
                 <div id="textTitle" class="col-md-8 col-xs-0">
-                    <h3><font color="darkBlue">@ConfigFactory.load().getString("sirapi.community.pagetitle")</font></h3>
-                    <p>@ConfigFactory.load().getString("sirapi.community.description")</p>
+                    <h3><font color="darkBlue">@RepositoryInstance.getInstance().getTitle()</font></h3>
+                    <p>@RepositoryInstance.getInstance().getComment()</p>
                     <hr>
                 </div>
                 <div class="col-md-1 col-xs-0"></div>

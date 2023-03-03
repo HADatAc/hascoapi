@@ -58,6 +58,7 @@ public class ConfigProp {
         return ConfigFactory.load().getString("sirapi.console.host_deploy");
     }
 
+    /*
     public static String getBasePrefix() {
         return ConfigFactory.load().getString("sirapi.community.ont_prefix");
     }
@@ -84,6 +85,7 @@ public class ConfigProp {
     public static String getNSValue() {
         return ConfigFactory.load().getString("sirapi.namespace.value");
     }
+     */
 
 
 }

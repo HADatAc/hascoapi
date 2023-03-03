@@ -8,21 +8,18 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.Comparator;
 import java.util.Collections;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 
-import org.apache.commons.io.FileUtils;
+import org.sirapi.RepositoryInstance;
 import org.sirapi.entity.pojo.NameSpace;
 import org.sirapi.vocabularies.HASCO;
 
 public class NameSpaces {
 
     private ConcurrentHashMap<String, NameSpace> table = new ConcurrentHashMap<String, NameSpace>();
-    private List<NameSpace> ontologyList = new ArrayList<NameSpace>();
-
+    private NameSpace localNamespace = null;
     private String turtleNameSpaceList = "";
     private String sparqlNameSpaceList = "";
 
@@ -132,50 +129,53 @@ public class NameSpaces {
         VSTOI_NAMESPACE.setPriority(6);
         namespaces.add(VSTOI_NAMESPACE);
 
-        // Test
+        // default
         NameSpace TEST_NAMESPACE = new NameSpace();
-        TEST_NAMESPACE.setAbbreviation("test");
-        TEST_NAMESPACE.setName("http://hadatac.org/kb/test/");
+        TEST_NAMESPACE.setAbbreviation("default");
+        TEST_NAMESPACE.setName("http://hadatac.org/kb/");
         TEST_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
-        TEST_NAMESPACE.setComment("Human-Aware Science Ontology");
+        TEST_NAMESPACE.setComment("Default Namespace");
         TEST_NAMESPACE.setVersion("1.0");
         TEST_NAMESPACE.updateNumberOfLoadedTriples();
         TEST_NAMESPACE.setPriority(20);
         namespaces.add(TEST_NAMESPACE);
 
-        // Local namespace
-        NameSpace LOCAL_NAMESPACE = new NameSpace();
-        LOCAL_NAMESPACE.setAbbreviation(ConfigProp.getNSAbbreviation());
-        LOCAL_NAMESPACE.setName(ConfigProp.getNSValue());
-        LOCAL_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
-        LOCAL_NAMESPACE.updateNumberOfLoadedTriples();
-        LOCAL_NAMESPACE.setPriority(30);
-        namespaces.add(LOCAL_NAMESPACE);
-
         return namespaces;
 
+    }
+
+    public void deleteLocalNamespace() {
+        if (localNamespace == null) {
+            return;
+        }
+        table.remove(localNamespace.getAbbreviation());
+        localNamespace = null;
+    }
+
+    public void updateLocalNamespace() {
+        // Local namespace
+        String abbrev = RepositoryInstance.getInstance().getHasDefaultNamespaceAbbreviation();
+        String url = RepositoryInstance.getInstance().getHasDefaultNamespaceURL();
+        if (RepositoryInstance.getInstance() != null &&
+            abbrev != null && !abbrev.equals("") &&
+            url != null && !url.equals("")) {
+            NameSpace LOCAL_NAMESPACE = new NameSpace();
+            LOCAL_NAMESPACE.setAbbreviation(abbrev);
+            LOCAL_NAMESPACE.setName(url);
+            LOCAL_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
+            LOCAL_NAMESPACE.updateNumberOfLoadedTriples();
+            LOCAL_NAMESPACE.setPriority(30);
+            localNamespace = LOCAL_NAMESPACE;
+
+            table.put(abbrev, localNamespace);
+        }
     }
 
     private NameSpaces() {
 
         System.out.println("Instantiating NameSpaces");
-        // LOAD NAMESPACES FROM SOLR NAMESPACE COLLECTION
 
         List<NameSpace> namespaces = InitiateNameSpaces();
-
-        // IF NAMESPACES IS EMPTY THEN LOAD FROM NAMESPACE.PROPERTIES
-        /*
-        if (namespaces.isEmpty()) {
-            System.out.println("Reading namespaces from namespace.properties");
-            InputStream inputStream = getClass().getClassLoader()
-                    .getResourceAsStream("namespaces.properties");
-            namespaces = loadFromFile(inputStream);
-            for (NameSpace ns : namespaces) {
-                System.out.println("  - Updating " + namespaces.size() + " namespaces with number of Triples");
-                ns.updateNumberOfLoadedTriples();
-            }
-        }
-        */
 
         // ADD NAMESPACES INTO CACHE
         for (NameSpace ns : namespaces) {
@@ -184,15 +184,8 @@ public class NameSpaces {
 
         System.out.println("  - Generating ordered list of ontologies");
         // CREATE AN ORDERED LIST OF NAMESPACES (ONTOLOGIES)
-        ontologyList = getOrderedNamespacesAsList();
+        //ontologyList = getOrderedNamespacesAsList();
 
-        //System.out.println("  - Update ontologies with content from the ontology itself");
-        // UPDATE THE NAMESPACES WITH CONTENT COMING FROM THE ONTOLOGIES AS PUBLISHED ON THE WEB
-        /**
-         for (NameSpace ns: ontologyList) {
-         ns.updateFromTripleStore();
-         }
-         **/
     }
 
     public String getNameByAbbreviation(String abbr) {
@@ -215,9 +208,11 @@ public class NameSpaces {
         return loadedOntologies;
     }
 
+    /*
     public List<NameSpace> getOntologyList() {
         return ontologyList;
     }
+     */
 
     public void reload() {
         table.clear();
@@ -227,7 +222,7 @@ public class NameSpaces {
             table.put(ns.getAbbreviation(), ns);
         }
 
-        ontologyList = getOrderedNamespacesAsList();
+        //ontologyList = getOrderedNamespacesAsList();
         sparqlNameSpaceList = getSparqlNameSpaceList();
         turtleNameSpaceList = getTurtleNameSpaceList();
     }
@@ -284,7 +279,7 @@ public class NameSpaces {
         return table;
     }
 
-    private List<NameSpace> getOrderedNamespacesAsList() {
+    public List<NameSpace> getOrderedNamespacesAsList() {
         List<NameSpace> orderedList = new ArrayList<NameSpace>(table.values());
         orderedList.sort(new Comparator<NameSpace>() {
             @Override

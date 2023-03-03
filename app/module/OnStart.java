@@ -1,4 +1,5 @@
 package module;
+
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
@@ -6,6 +7,8 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import org.sirapi.RepositoryInstance;
+import org.sirapi.utils.NameSpaces;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +20,8 @@ public class OnStart {
     @Inject
     public OnStart() {
         initDirectoryStructure();
-
+        RepositoryInstance.getInstance();
+        NameSpaces.getInstance().updateLocalNamespace();
     }
 
     private void initDirectoryStructure() {

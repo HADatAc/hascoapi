@@ -2,7 +2,7 @@
   namespaces : List[org.sirapi.entity.pojo.NameSpace])
 
 @import helper._
-@import org.sirapi.utils.ConfigProp
+@import org.sirapi.RepositoryInstance
 @import org.sirapi.utils.NameSpaces
 @import org.sirapi.console.views.html._
 @import org.sirapi.console.controllers._
@@ -11,21 +11,12 @@
 @import org.sirapi.entity.pojo.HADatAcThing
 @import org.sirapi.entity.pojo.Instrument
 @import play.api.Play
-@import com.typesafe.config.ConfigFactory
 
 @main("RESTful API","","") {
 
     <div class="container-fluid">
 
-        <div class="row">
-            <div class="col-md-1"></div>
-            <div class="col-md-8">
-                <h3><font color="darkBlue">@ConfigFactory.load().getString("sirapi.community.shortname")'s Semantic Instrument Repository</font></h3>
-                @ConfigFactory.load().getString("sirapi.community.description")
-                <hr>
-            </div>
-            <div class="col-md-1"></div>
-        </div>
+        @header()
 
         <div class="row">
             <div class="col-md-1"></div>
@@ -77,7 +68,7 @@
                         </tbody>
                     </table>
                     <br>
-                    <p><b>Local namespace:</b> @ConfigProp.getNSAbbreviation()</p>
+                    <p><b>Local namespace:</b> @RepositoryInstance.getInstance().getHasDefaultNamespaceAbbreviation()</p>
                 }
 
                 <br><br><br>
