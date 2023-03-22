@@ -36,11 +36,11 @@ public class VSTOI {
      *    PROPERTIES
      */
 
-    public static final String SIR_OWNER_EMAIL                          = "http://hadatac.org/ont/vstoi#SIROwnerEmail";
-    public static final String HAS_SHORT_NAME                           = "http://hadatac.org/ont/vstoi#hasShortName";
-    public static final String HAS_LANGUAGE                             = "http://hadatac.org/ont/vstoi#hasLanguage";
-    public static final String HAS_INSTRUCTION                          = "http://hadatac.org/ont/vstoi#hasInstruction";
     public static final String HAS_CONTENT                              = "http://hadatac.org/ont/vstoi#hasContent";
+    public static final String HAS_INSTRUCTION                          = "http://hadatac.org/ont/vstoi#hasInstruction";
+    public static final String HAS_LANGUAGE                             = "http://hadatac.org/ont/vstoi#hasLanguage";
     public static final String HAS_PRIORITY                             = "http://hadatac.org/ont/vstoi#hasPriority";
+    public static final String HAS_SHORT_NAME                           = "http://hadatac.org/ont/vstoi#hasShortName";
+    public static final String HAS_SIR_OWNER_EMAIL                      = "http://hadatac.org/ont/vstoi#hasSIROwnerEmail";
 
 }

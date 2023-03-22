@@ -103,7 +103,7 @@ public class Detector extends HADatAcThing implements Comparable<Detector>  {
                 " ?uri a ?detModel ." +
                 "} ";
 
-        System.out.println("Query: " + queryString);
+        //System.out.println("Query: " + queryString);
 
         ResultSetRewindable resultsrw = SPARQLUtils.select(
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
@@ -114,7 +114,7 @@ public class Detector extends HADatAcThing implements Comparable<Detector>  {
 
         while (resultsrw.hasNext()) {
             QuerySolution soln = resultsrw.next();
-            System.out.println("inside Detector.find(): found uri [" + soln.getResource("uri").getURI().toString() + "]");
+            //System.out.println("inside Detector.find(): found uri [" + soln.getResource("uri").getURI().toString() + "]");
             Detector detector = find(soln.getResource("uri").getURI());
             detectors.add(detector);
         }

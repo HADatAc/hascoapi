@@ -25,6 +25,7 @@ GET     /sirapi/api/instrument/all                        org.sirapi.console.con
 GET     /sirapi/api/instrument/keyword/:keyword           org.sirapi.console.controllers.restapi.InstrumentAPI.getInstrumentsByKeyword(keyword : String)
 GET     /sirapi/api/instrument/language/:language         org.sirapi.console.controllers.restapi.InstrumentAPI.getInstrumentsByLanguage(language : String)
 GET     /sirapi/api/instrument/keywordlanguage/:keyword/:language   org.sirapi.console.controllers.restapi.InstrumentAPI.getInstrumentsByKeywordAndLanguage(keyword : String, language : String)
+GET     /sirapi/api/instrument/owneremail/:owneremail     org.sirapi.console.controllers.restapi.InstrumentAPI.getInstrumentsByOwnerEmail(owneremail : String)
 GET     /sirapi/api/instrument/test/create                org.sirapi.console.controllers.restapi.InstrumentAPI.createInstrumentForTesting()
 GET     /sirapi/api/instrument/test/delete                org.sirapi.console.controllers.restapi.InstrumentAPI.deleteInstrumentForTesting()
 POST    /sirapi/api/instrument/create/:json               org.sirapi.console.controllers.restapi.InstrumentAPI.createInstrument(json: String)
