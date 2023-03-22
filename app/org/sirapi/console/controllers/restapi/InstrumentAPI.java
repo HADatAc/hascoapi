@@ -114,7 +114,7 @@ public class InstrumentAPI extends Controller {
 
     private Result getInstruments(List<Instrument> results){
         if (results == null) {
-            return notFound(ApiUtil.createResponse("No instrument has been found", false));
+            return ok(ApiUtil.createResponse("No instrument has been found", false));
         } else {
             ObjectMapper mapper = new ObjectMapper();
             SimpleFilterProvider filterProvider = new SimpleFilterProvider();
