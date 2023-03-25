@@ -128,5 +128,29 @@ public class InstrumentAPI extends Controller {
         }
     }
 
+    public Result toTextPlain(String uri) {
+        if (uri  == null || uri.equals("")) {
+            return ok(ApiUtil.createResponse("No URI has been provided", false));
+        }
+        String instrumentText = Instrument.toString(uri, 80);
+        if (instrumentText == null || instrumentText.equals("")) {
+            return ok(ApiUtil.createResponse("No instrument has been found", false));
+        } else {
+            return ok(instrumentText).as("text/plain");
+        }
+    }
+
+    public Result toTextHTML(String uri) {
+        if (uri  == null || uri.equals("")) {
+            return ok(ApiUtil.createResponse("No URI has been provided", false));
+        }
+        String instrumentText = Instrument.toHTML(uri, 80);
+        if (instrumentText == null || instrumentText.equals("")) {
+            return ok(ApiUtil.createResponse("No instrument has been found", false));
+        } else {
+            return ok(instrumentText).as("text/html");
+        }
+    }
+
 
 }

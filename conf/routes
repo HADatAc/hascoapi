@@ -30,6 +30,8 @@ GET     /sirapi/api/instrument/test/create                org.sirapi.console.con
 GET     /sirapi/api/instrument/test/delete                org.sirapi.console.controllers.restapi.InstrumentAPI.deleteInstrumentForTesting()
 POST    /sirapi/api/instrument/create/:json               org.sirapi.console.controllers.restapi.InstrumentAPI.createInstrument(json: String)
 POST    /sirapi/api/instrument/delete/:uri                org.sirapi.console.controllers.restapi.InstrumentAPI.deleteInstrument(uri: String)
+GET     /sirapi/api/instrument/totext/plain/:uri          org.sirapi.console.controllers.restapi.InstrumentAPI.toTextPlain(uri: String)
+GET     /sirapi/api/instrument/totext/html/:uri           org.sirapi.console.controllers.restapi.InstrumentAPI.toTextHTML(uri: String)
 GET     /sirapi/api/instrumenttype/all                    org.sirapi.console.controllers.restapi.InstrumentTypeAPI.getAllInstrumentTypes()
 GET     /sirapi/api/detector/all                          org.sirapi.console.controllers.restapi.DetectorAPI.getAllDetectors()
 GET     /sirapi/api/detector/test/create                  org.sirapi.console.controllers.restapi.DetectorAPI.createDetectorsForTesting()
@@ -42,6 +44,7 @@ GET     /sirapi/api/detectortype/all                      org.sirapi.console.con
 
 GET     /sirapi/documentation/elementsmethodlist          org.sirapi.console.controllers.documentation.ElementsMethodList.index()
 GET     /sirapi/documentation/queryuriexample             org.sirapi.console.controllers.documentation.ElementsMethodList.queryURIExample()
+GET     /sirapi/documentation/instrumentrenderingexample  org.sirapi.console.controllers.documentation.ElementsMethodList.instrumentRenderingExample()
 GET     /sirapi/documentation/createinstrumentexample     org.sirapi.console.controllers.documentation.ElementsMethodList.createInstrumentExample()
 GET     /sirapi/documentation/deleteinstrumentexample     org.sirapi.console.controllers.documentation.ElementsMethodList.deleteInstrumentExample()
 GET     /sirapi/documentation/createdetectorexample       org.sirapi.console.controllers.documentation.ElementsMethodList.createDetectorExample()

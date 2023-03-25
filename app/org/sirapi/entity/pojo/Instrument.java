@@ -2,6 +2,7 @@ package org.sirapi.entity.pojo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import org.apache.jena.query.QuerySolution;
@@ -353,6 +354,87 @@ public class Instrument extends HADatAcThing implements Comparable<Instrument> {
 		instrument.setUri(uri);
 		
 		return instrument;
+	}
+
+	private static String centerText(String str, int width) {
+		if (str == null) {
+			str = "";
+		}
+		if (str.length() > width) {
+			return str;
+		}
+		int left = (width - str.length()) / 2;
+		StringBuffer newStr = new StringBuffer();
+		for (int i=0; i < left; i++) {
+			newStr.append(" ");
+		}
+		newStr.append(str);
+		return newStr.toString();
+	}
+
+	private static List<String> breakString(String str, int width) {
+		List<String> lines = new ArrayList<String>();
+		StringTokenizer st = new StringTokenizer(str);
+		String newLine = "";
+		String nextWord = "";
+		while (st.hasMoreTokens()) {
+			nextWord = st.nextToken();
+			if (nextWord.length() >= width) {
+				if (newLine.equals("")) {
+					newLine = nextWord;
+				} else {
+					newLine = newLine + " " + nextWord;
+				}
+				lines.add(newLine);
+				newLine = "";
+			} else if (newLine.length() + nextWord.length() > width) {
+				lines.add(newLine);
+				newLine = nextWord;
+			} else {
+				if (newLine.equals("")) {
+					newLine = nextWord;
+				} else {
+					newLine = newLine + " " + nextWord;
+				}
+			}
+
+		}
+		if (newLine.length() > 0) {
+			lines.add(newLine);
+		}
+		return lines;
+	}
+
+	public static String toString(String uri, int width) {
+		Instrument instr = Instrument.find(uri);
+		if (instr == null) {
+			return "";
+		}
+		String str = "";
+
+		str += centerText(instr.getHasShortName(), width) + "\n";
+		str += "\n";
+
+		for (String line : breakString("Instructions: " + instr.getHasInstruction(), width)) {
+			str += line + "\n";
+		}
+		str += "\n";
+		return str;
+	}
+
+	public static String toHTML(String uri, int width) {
+		Instrument instr = Instrument.find(uri);
+		if (instr == null) {
+			return "";
+		}
+		String html = "";
+
+		html += "<h2 style=\"text-align: center;\">" + instr.getHasShortName() + "</h2>";
+		html += "<br>";
+
+		html += "<b>Instructions</b>: " + instr.getHasInstruction() + "<br>";
+		html += "<br>";
+		return html;
 	}
 
 	public static int getNumberInstruments() {

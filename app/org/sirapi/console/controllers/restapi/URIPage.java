@@ -16,7 +16,7 @@ public class URIPage extends Controller {
     public Result getUri(String uri){
 
         if (!uri.startsWith("http://") && !uri.startsWith("https://")) {
-            return badRequest(ApiUtil.createResponse("[" + uri + "] is an invalid URI", false));
+            return ok(ApiUtil.createResponse("[" + uri + "] is an invalid URI", false));
         }
 
         try {
@@ -31,7 +31,7 @@ public class URIPage extends Controller {
             System.out.println("inside getUri(): URI [" + uri + "]");
 
             if (result == null) {
-                return notFound(ApiUtil.createResponse("No generic instance found for uri [" + uri + "]", false));
+                return ok(ApiUtil.createResponse("No generic instance found for uri [" + uri + "]", false));
             }
 
             /*
@@ -45,11 +45,13 @@ public class URIPage extends Controller {
 
             if (result.getHascoTypeUri().equals(VSTOI.INSTRUMENT)) {
                 finalResult = Instrument.find(uri);
+                System.out.println("URIPage: object is INSTRUMENT");
                 if (finalResult != null) {
                     typeUri = ((Instrument) finalResult).getHascoTypeUri();
                 }
             } else if (result.getHascoTypeUri().equals(VSTOI.DETECTOR)) {
                 finalResult = Detector.find(uri);
+                System.out.println("URIPage: object is DETECTOR");
                 if (finalResult != null) {
                     typeUri = ((Detector) finalResult).getHascoTypeUri();
                 }
@@ -60,7 +62,7 @@ public class URIPage extends Controller {
                 }
             }
             if (finalResult == null || typeUri == null || typeUri.equals("")){
-                return notFound(ApiUtil.createResponse("No type-specific instance found for uri [" + uri + "]", false));
+                return ok(ApiUtil.createResponse("No type-specific instance found for uri [" + uri + "]", false));
             }
 
             // list object properties and associated classes
@@ -84,7 +86,7 @@ public class URIPage extends Controller {
             //System.out.println(prettyPrintJsonString(jsonObject));
         } catch (Exception e) {
             e.printStackTrace();
-            return badRequest(ApiUtil.createResponse("Error processing the json object for URI [" + uri + "]", false));
+            return ok(ApiUtil.createResponse("Error processing the json object for URI [" + uri + "]", false));
         }
         return ok(ApiUtil.createResponse(jsonObject, true));
     }

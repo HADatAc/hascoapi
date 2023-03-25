@@ -30,4 +30,9 @@ public class ElementsMethodList extends Controller {
         return ok(queryURIExample.render());
     }
 
+    public Result instrumentRenderingExample() {
+        return ok(instrumentRenderingExample.render());
+    }
+
+
 }

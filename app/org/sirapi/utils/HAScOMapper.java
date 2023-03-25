@@ -113,6 +113,22 @@ public class HAScOMapper {
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri", "hascoTypeLabel", "comment"));
         }
 
+        // INSTRUMENT
+        if (typeResult.equals(VSTOI.INSTRUMENT)) {
+            filterProvider.addFilter("instrumentFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("instrumentFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri", "hascoTypeLabel", "comment"));
+        }
+
+        // DETECTOR
+        if (typeResult.equals(VSTOI.DETECTOR)) {
+            filterProvider.addFilter("detectorFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("detectorFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri", "hascoTypeLabel", "comment"));
+        }
+
         mapper.setFilterProvider(filterProvider);
 
         return mapper;
