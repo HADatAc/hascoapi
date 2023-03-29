@@ -39,6 +39,16 @@ GET     /sirapi/api/detector/test/delete                  org.sirapi.console.con
 POST    /sirapi/api/detector/create/:json                 org.sirapi.console.controllers.restapi.DetectorAPI.createDetector(json: String)
 POST    /sirapi/api/detector/delete/:uri                  org.sirapi.console.controllers.restapi.DetectorAPI.deleteDetector(uri: String)
 GET     /sirapi/api/detectortype/all                      org.sirapi.console.controllers.restapi.DetectorTypeAPI.getAllDetectorTypes()
+GET     /sirapi/api/experience/all                        org.sirapi.console.controllers.restapi.ExperienceAPI.getAllExperiences()
+GET     /sirapi/api/experience/test/create                org.sirapi.console.controllers.restapi.ExperienceAPI.createExperienceForTesting()
+GET     /sirapi/api/experience/test/delete                org.sirapi.console.controllers.restapi.ExperienceAPI.deleteExperienceForTesting()
+POST    /sirapi/api/experience/create/:json               org.sirapi.console.controllers.restapi.ExperienceAPI.createExperience(json: String)
+POST    /sirapi/api/experience/delete/:uri                org.sirapi.console.controllers.restapi.ExperienceAPI.deleteExperience(uri: String)
+GET     /sirapi/api/responseoption/all                    org.sirapi.console.controllers.restapi.ResponseOptionAPI.getAllResponseOptions()
+GET     /sirapi/api/responseoption/test/create            org.sirapi.console.controllers.restapi.ResponseOptionAPI.createResponseOptionsForTesting()
+GET     /sirapi/api/responseoption/test/delete            org.sirapi.console.controllers.restapi.ResponseOptionAPI.deleteResponseOptionsForTesting()
+POST    /sirapi/api/responseoption/create/:json           org.sirapi.console.controllers.restapi.ResponseOptionAPI.createResponseOption(json: String)
+POST    /sirapi/api/responseoption/delete/:uri            org.sirapi.console.controllers.restapi.ResponseOptionAPI.deleteResponseOption(uri: String)
 
 # DOCUMENTATION
 

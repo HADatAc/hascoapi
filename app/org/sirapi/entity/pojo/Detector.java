@@ -37,6 +37,9 @@ public class Detector extends HADatAcThing implements Comparable<Detector>  {
     @PropertyField(uri="vstoi:hasPriority")
     String hasPriority;
 
+    @PropertyField(uri="vstoi:hasExperience")
+    String hasExperience;
+
     public String getSerialNumber() {
         return serialNumber;
     }
@@ -77,6 +80,22 @@ public class Detector extends HADatAcThing implements Comparable<Detector>  {
         this.hasPriority = hasPriority;
     }
 
+    public String getHasExperience() {
+        return hasExperience;
+    }
+
+    public void setHasExperience(String hasExperience) {
+        this.hasExperience = hasExperience;
+    }
+
+    public Experience getExperience() {
+        if (hasExperience == null || hasExperience.equals("")) {
+            return null;
+        }
+        Experience experience = Experience.find(hasExperience);
+        return experience;
+    }
+
     public String getTypeLabel() {
         DetectorType detType = DetectorType.find(getTypeUri());
         if (detType == null || detType.getLabel() == null) {
@@ -92,8 +111,6 @@ public class Detector extends HADatAcThing implements Comparable<Detector>  {
         }
         return detType.getURL();
     }
-
-
 
     public static List<Detector> find() {
         List<Detector> detectors = new ArrayList<Detector>();
@@ -203,6 +220,8 @@ public class Detector extends HADatAcThing implements Comparable<Detector>  {
                 detector.setHasContent(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PRIORITY)) {
                 detector.setHasPriority(object.asLiteral().getString());
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_EXPERIENCE)) {
+                detector.setHasExperience(object.asResource().getURI());
             }
         }
 

@@ -36,6 +36,8 @@
                 <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/instrumenttype/all" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/api/instrumenttype/all</a> - Return all instrument types currently loaded into SIR.<br>
                 <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/detector/all" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/api/detector/all</a> - Return all detectors in SIR, including their properties.<br>
                 <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/detectortype/all" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/api/detectortype/all</a> - Return all detector types currently loaded into SIR.<br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/experience/all" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/api/experience/all</a> - Return all experiences currently loaded into SIR.<br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/responseoption/all" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/api/responseoption/all</a> - Return all responseoptions currently loaded into SIR.<br>
                 <br>
                 <h3>Maintenance of SIR Elements</h3>
 
@@ -47,9 +49,19 @@
                 <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/instrument/delete/(instrUri)</button> - Delete an existing instrument using the URI provided. URI needs to be URL encoded. Use the <a href="@org.sirapi.console.controllers.documentation.routes.ElementsMethodList.deleteInstrumentExample()">Delete Instrument Example</a> to see how to use a CURL with POST method to delete instruments.<br>
 
                 <br>
-                <h4>Detector</h4>
+                <h4>Detectors</h4>
                 <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/detector/create/(detectorJson)</button> - Create a new detector according to the json specification provided. Json needs to be URL encoded. Use the <a href="@org.sirapi.console.controllers.documentation.routes.ElementsMethodList.createDetectorExample()">Create Detector Example</a> to see how to use a CURL with POST method to create detectors.<br>
                 <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/detector/delete/(detectorUri)</button> - Delete an existing detector using the URI provided. URI needs to be URL encoded. Use the <a href="@org.sirapi.console.controllers.documentation.routes.ElementsMethodList.deleteDetectorExample()">Delete Instrument Example</a> to see how to use a CURL with POST method to delete detectors.<br>
+
+                <br>
+                <h4>Experiences</h4>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/experience/create/(experinceJson)</button> - Create a new experience according to the json specification provided. Json needs to be URL encoded.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/experience/delete/(experienceUri)</button> - Delete an existing experience using the URI provided. URI needs to be URL encoded.<br>
+
+                <br>
+                <h4>Response Options</h4>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/responseoption/create/(responseOptionJson)</button> - Create a new response option according to the json specification provided. Json needs to be URL encoded.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/responseoption/delete/(responseOptionUri)</button> - Delete an existing response option using the URI provided. URI needs to be URL encoded.<br>
 
                 <br>
                 <h3>Interoperability of SIR Elements</h3>
@@ -88,10 +100,24 @@
                 <br>
                 <h4>Test Detector</h4>
 
-                <p><b>Note:</b> Create a test instrument before creating a test detector since </p>
+                <p><b>Note:</b> Create a test instrument before creating test detectors</p>
 
                 <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/detector/test/create" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/api/detector/test/create</a> - Create test detector 1 and 2 for a test instrument.<br>
                 <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/detector/test/delete" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/api/detector/test/delete</a> - Delete test detector 1 and 2.<br>
+
+                <br>
+                <h4>Test Experiment</h4>
+
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/experience/test/create" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/api/experience/test/create</a> - Create test experiment.<br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/experience/test/delete" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/api/experience/test/delete</a> - Delete test experiment.<br>
+
+                <br>
+                <h4>Test Response Option</h4>
+
+                <p><b>Note:</b> Create a test experience before creating test response options</p>
+
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/responseoption/test/create" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/api/responseoption/test/create</a> - Create test response options 1 and 2 for a test instrument.<br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/responseoption/test/delete" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/api/responseoption/test/delete</a> - Delete test response options 1 and 2.<br>
 
                 <br><br><br>
 

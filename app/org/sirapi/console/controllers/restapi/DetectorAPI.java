@@ -35,6 +35,7 @@ public class DetectorAPI extends Controller {
             testDetector1.setHascoTypeUri(VSTOI.DETECTOR);
             testDetector1.setComment("This is a dummy Detector 1 created to test the SIR API.");
             testDetector1.setHasContent("During the last 2 weeks, have you lost appetite?");
+            testDetector1.setHasExperience(TEST_EXPERIENCE_URI);
             testDetector1.setHasPriority("1");
             testDetector1.setIsInstrumentAttachment(TEST_INSTRUMENT_URI);
             testDetector1.save();
@@ -44,9 +45,10 @@ public class DetectorAPI extends Controller {
             testDetector2.setTypeUri(VSTOI.DETECTOR);
             testDetector2.setHascoTypeUri(VSTOI.DETECTOR);
             testDetector2.setComment("This is a dummy Detector 2 created to test the SIR API.");
+            testDetector2.setHasExperience(TEST_EXPERIENCE_URI);
             testDetector2.setIsInstrumentAttachment(TEST_INSTRUMENT_URI);
-            testDetector1.setHasContent("During the last 2 weeks, have you gain appetite?");
-            testDetector1.setHasPriority("2");
+            testDetector2.setHasContent("During the last 2 weeks, have you gain appetite?");
+            testDetector2.setHasPriority("2");
             testDetector2.save();
             return ok(ApiUtil.createResponse("Test Detectors 1 and 2 have been CREATED.", true));
         }
@@ -109,7 +111,7 @@ public class DetectorAPI extends Controller {
         } else {
             SimpleFilterProvider filterProvider = new SimpleFilterProvider();
             filterProvider.addFilter("detectorFilter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri", "hascoTypeLabel", "comment", "isInstrumentAttachment", "hasContent", "hasPriority"));
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri", "hascoTypeLabel", "comment", "isInstrumentAttachment", "hasContent", "hasExperience", "hasPriority"));
             mapper.setFilterProvider(filterProvider);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));
