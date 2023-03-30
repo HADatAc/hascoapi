@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import org.sirapi.entity.pojo.Detector;
+import org.sirapi.entity.pojo.Instrument;
 import org.sirapi.utils.ApiUtil;
 import org.sirapi.vocabularies.VSTOI;
 import play.mvc.Controller;
@@ -38,6 +39,8 @@ public class DetectorAPI extends Controller {
             testDetector1.setHasExperience(TEST_EXPERIENCE_URI);
             testDetector1.setHasPriority("1");
             testDetector1.setIsInstrumentAttachment(TEST_INSTRUMENT_URI);
+            testDetector1.setHasLanguage("en"); // ISO 639-1
+            testDetector1.setHasSIRMaintainerEmail("me@example.com");
             testDetector1.save();
             testDetector2 = new Detector();
             testDetector2.setUri(TEST_DETECTOR2_URI);
@@ -45,10 +48,12 @@ public class DetectorAPI extends Controller {
             testDetector2.setTypeUri(VSTOI.DETECTOR);
             testDetector2.setHascoTypeUri(VSTOI.DETECTOR);
             testDetector2.setComment("This is a dummy Detector 2 created to test the SIR API.");
-            testDetector2.setHasExperience(TEST_EXPERIENCE_URI);
-            testDetector2.setIsInstrumentAttachment(TEST_INSTRUMENT_URI);
             testDetector2.setHasContent("During the last 2 weeks, have you gain appetite?");
+            testDetector2.setHasExperience(TEST_EXPERIENCE_URI);
             testDetector2.setHasPriority("2");
+            testDetector2.setIsInstrumentAttachment(TEST_INSTRUMENT_URI);
+            testDetector1.setHasLanguage("en"); // ISO 639-1
+            testDetector1.setHasSIRMaintainerEmail("me@example.com");
             testDetector2.save();
             return ok(ApiUtil.createResponse("Test Detectors 1 and 2 have been CREATED.", true));
         }
@@ -111,11 +116,54 @@ public class DetectorAPI extends Controller {
         } else {
             SimpleFilterProvider filterProvider = new SimpleFilterProvider();
             filterProvider.addFilter("detectorFilter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri", "hascoTypeLabel", "comment", "isInstrumentAttachment", "hasContent", "hasExperience", "hasPriority"));
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
+                            "hascoTypeLabel", "comment", "hasContent", "hasSerialNumber", "hasLanguage", "hasPriority", "hasSIRMaintainerEmail"));
             mapper.setFilterProvider(filterProvider);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));
         }
     }
+
+    public Result getDetectorsByLanguage(String language){
+        List<Detector> results = Detector.findByLanguage(language);
+        return getDetectors(results);
+    }
+
+    public Result getDetectorsByKeyword(String keyword){
+        List<Detector> results = Detector.findByKeyword(keyword);
+        return getDetectors(results);
+    }
+
+    public Result getDetectorsByKeywordAndLanguage(String keyword, String language){
+        List<Detector> results = Detector.findByKeywordAndLanguage(keyword, language);
+        return getDetectors(results);
+    }
+
+    public Result getDetectorsByMaintainerEmail(String maintainerEmail){
+        List<Detector> results = Detector.findByMaintainerEmail(maintainerEmail);
+        return getDetectors(results);
+    }
+
+    public Result getDetectorsByInstrument(String instrumentUri){
+        List<Detector> results = Detector.findByInstrument(instrumentUri);
+        return getDetectors(results);
+    }
+
+    private Result getDetectors(List<Detector> results){
+        if (results == null) {
+            return ok(ApiUtil.createResponse("No detector has been found", false));
+        } else {
+            ObjectMapper mapper = new ObjectMapper();
+            SimpleFilterProvider filterProvider = new SimpleFilterProvider();
+            filterProvider.addFilter("detectorFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
+                            "hascoTypeLabel", "comment", "hasContent", "hasSerialNumber", "hasLanguage", "hasPriority", "hasSIRMaintainerEmail"));
+            mapper.setFilterProvider(filterProvider);
+            JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
+            return ok(ApiUtil.createResponse(jsonObject, true));
+        }
+    }
+
+
 
 }

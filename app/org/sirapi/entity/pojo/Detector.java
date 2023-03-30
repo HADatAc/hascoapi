@@ -37,8 +37,30 @@ public class Detector extends HADatAcThing implements Comparable<Detector>  {
     @PropertyField(uri="vstoi:hasPriority")
     String hasPriority;
 
+    @PropertyField(uri="vstoi:hasLanguage")
+    private String hasLanguage;
+
+    @PropertyField(uri="vstoi:hasSIRMaintainerEmail")
+    private String hasSIRMaintainerEmail;
+
     @PropertyField(uri="vstoi:hasExperience")
     String hasExperience;
+
+    public String getHasLanguage() {
+        return hasLanguage;
+    }
+
+    public void setHasLanguage(String hasLanguage) {
+        this.hasLanguage = hasLanguage;
+    }
+
+    public String getHasSIRMaintainerEmail() {
+        return hasSIRMaintainerEmail;
+    }
+
+    public void setHasSIRMaintainerEmail(String hasSIRMaintainerEmail) {
+        this.hasSIRMaintainerEmail = hasSIRMaintainerEmail;
+    }
 
     public String getSerialNumber() {
         return serialNumber;
@@ -184,6 +206,117 @@ public class Detector extends HADatAcThing implements Comparable<Detector>  {
         return detectors;
     }
 
+
+    public static List<Detector> findByLanguage(String language) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT ?uri WHERE { " +
+                " ?detModel rdfs:subClassOf+ vstoi:Detector . " +
+                " ?uri a ?detModel ." +
+                " ?uri vstoi:hasLanguage ?language . " +
+                "   FILTER (?language = \"" + language + "\") " +
+                "} ";
+
+        return findByQuery(queryString);
+    }
+
+    public static List<Detector> findByKeyword(String keyword) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT ?uri WHERE { " +
+                " ?detModel rdfs:subClassOf+ vstoi:Detector . " +
+                " ?uri a ?detModel ." +
+                " ?uri rdfs:label ?label . " +
+                "   FILTER regex(?label, \"" + keyword + "\", \"i\") " +
+                "} ";
+
+        return findByQuery(queryString);
+    }
+
+    public static List<Detector> findByKeywordAndLanguage(String keyword, String language) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT ?uri WHERE { " +
+                " ?detModel rdfs:subClassOf+ vstoi:Detector . " +
+                " ?uri a ?detModel ." +
+                " ?uri vstoi:hasLanguage ?language . " +
+                " ?uri rdfs:label ?label . " +
+                "   FILTER (regex(?label, \"" + keyword + "\", \"i\") && (?language = \"" + language + "\")) " +
+                "} ";
+
+        return findByQuery(queryString);
+    }
+
+    public static List<Detector> findByMaintainerEmail(String maintainerEmail) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT ?uri WHERE { " +
+                " ?detModel rdfs:subClassOf+ vstoi:Detector . " +
+                " ?uri a ?detModel ." +
+                " ?uri vstoi:hasSIRMaintainerEmail ?maintainerEmail . " +
+                "   FILTER (?maintainerEmail = \"" + maintainerEmail + "\") " +
+                "} ";
+
+        return findByQuery(queryString);
+    }
+
+    public static List<Detector> findByInstrument(String instrumentUri) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT ?uri WHERE { " +
+                " ?detModel rdfs:subClassOf+ vstoi:Detector . " +
+                " ?uri a ?detModel ." +
+                " ?uri vstoi:isInstrumentAttachment <" + instrumentUri + ">. " +
+                "} ";
+
+        return findByQuery(queryString);
+    }
+
+    public static List<Detector> findAvailable() {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT ?uri WHERE { " +
+                "   { ?detModel rdfs:subClassOf+ vstoi:Detector . " +
+                "     ?uri a ?detModel ." +
+                "   } MINUS { " +
+                "     ?dep_uri a vstoi:Deployment . " +
+                "     ?dep_uri hasco:hasDetector ?uri .  " +
+                "     FILTER NOT EXISTS { ?dep_uri prov:endedAtTime ?enddatetime . } " +
+                "    } " +
+                "} " +
+                "ORDER BY DESC(?datetime) ";
+
+        return findByQuery(queryString);
+    }
+
+    public static List<Detector> findDeployed() {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT ?uri WHERE { " +
+                "   ?detModel rdfs:subClassOf+ vstoi:Detector . " +
+                "   ?uri a ?detModel ." +
+                "   ?dep_uri a vstoi:Deployment . " +
+                "   ?dep_uri hasco:hasDetector ?uri .  " +
+                "   FILTER NOT EXISTS { ?dep_uri prov:endedAtTime ?enddatetime . } " +
+                "} " +
+                "ORDER BY DESC(?datetime) ";
+
+        return findByQuery(queryString);
+    }
+
+    private static List<Detector> findByQuery(String queryString) {
+        List<Detector> detectors = new ArrayList<Detector>();
+        ResultSetRewindable resultsrw = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+        if (!resultsrw.hasNext()) {
+            return null;
+        }
+
+        while (resultsrw.hasNext()) {
+            QuerySolution soln = resultsrw.next();
+            Detector detector = find(soln.getResource("uri").getURI());
+            detectors.add(detector);
+        }
+
+        java.util.Collections.sort((List<Detector>) detectors);
+        return detectors;
+
+    }
+
     public static Detector find(String uri) {
         Detector detector = null;
         Statement statement;
@@ -220,6 +353,10 @@ public class Detector extends HADatAcThing implements Comparable<Detector>  {
                 detector.setHasContent(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PRIORITY)) {
                 detector.setHasPriority(object.asLiteral().getString());
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
+                detector.setHasLanguage(object.asLiteral().getString());
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MAINTAINER_EMAIL)) {
+                detector.setHasSIRMaintainerEmail(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_EXPERIENCE)) {
                 detector.setHasExperience(object.asResource().getURI());
             }
@@ -233,58 +370,6 @@ public class Detector extends HADatAcThing implements Comparable<Detector>  {
     @Override
     public int compareTo(Detector another) {
         return this.getLabel().compareTo(another.getLabel());
-    }
-
-    public static List<Detector> findAvailable() {
-        List<Detector> detectors = new ArrayList<Detector>();
-        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                " SELECT ?uri WHERE { " +
-                "   { ?detModel rdfs:subClassOf+ vstoi:Detector . " +
-                "     ?uri a ?detModel ." +
-                "   } MINUS { " +
-                "     ?dep_uri a vstoi:Deployment . " +
-                "     ?dep_uri hasco:hasDetector ?uri .  " +
-                "     FILTER NOT EXISTS { ?dep_uri prov:endedAtTime ?enddatetime . } " +
-                "    } " +
-                "} " +
-                "ORDER BY DESC(?datetime) ";
-
-        ResultSetRewindable resultsrw = SPARQLUtils.select(
-                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
-
-        while (resultsrw.hasNext()) {
-            QuerySolution soln = resultsrw.next();
-            Detector detector = find(soln.getResource("uri").getURI());
-            detectors.add(detector);
-        }
-
-        java.util.Collections.sort((List<Detector>) detectors);
-        return detectors;
-    }
-
-    public static List<Detector> findDeployed() {
-        List<Detector> detectors = new ArrayList<Detector>();
-        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                " SELECT ?uri WHERE { " +
-                "   ?detModel rdfs:subClassOf+ vstoi:Detector . " +
-                "   ?uri a ?detModel ." +
-                "   ?dep_uri a vstoi:Deployment . " +
-                "   ?dep_uri hasco:hasDetector ?uri .  " +
-                "   FILTER NOT EXISTS { ?dep_uri prov:endedAtTime ?enddatetime . } " +
-                "} " +
-                "ORDER BY DESC(?datetime) ";
-
-        ResultSetRewindable resultsrw = SPARQLUtils.select(
-                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
-
-        while (resultsrw.hasNext()) {
-            QuerySolution soln = resultsrw.next();
-            Detector detector = find(soln.getResource("uri").getURI());
-            detectors.add(detector);
-        }
-
-        java.util.Collections.sort((List<Detector>) detectors);
-        return detectors;
     }
 
     @Override public void save() {

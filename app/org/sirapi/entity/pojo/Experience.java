@@ -23,7 +23,13 @@ import java.util.List;
 public class Experience extends HADatAcThing implements Comparable<Experience>  {
 
     @PropertyField(uri="vstoi:hasSerialNumber")
-    String serialNumber;
+    private String serialNumber;
+
+    @PropertyField(uri="vstoi:hasLanguage")
+    private String hasLanguage;
+
+    @PropertyField(uri="vstoi:hasSIRMaintainerEmail")
+    private String hasSIRMaintainerEmail;
 
     public String getSerialNumber() {
         return serialNumber;
@@ -33,20 +39,88 @@ public class Experience extends HADatAcThing implements Comparable<Experience>  
         this.serialNumber = serialNumber;
     }
 
+    public String getHasLanguage() {
+        return hasLanguage;
+    }
+
+    public void setHasLanguage(String hasLanguage) {
+        this.hasLanguage = hasLanguage;
+    }
+
+    public String getHasSIRMaintainerEmail() {
+        return hasSIRMaintainerEmail;
+    }
+
+    public void setHasSIRMaintainerEmail(String hasSIRMaintainerEmail) {
+        this.hasSIRMaintainerEmail = hasSIRMaintainerEmail;
+    }
+
     public List<ResponseOption> getResponseOptions() {
         return ResponseOption.findByExperience(getUri());
     }
 
+    public static List<Experience> findByLanguage(String language) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT ?uri WHERE { " +
+                " ?experience rdfs:subClassOf* vstoi:Experience . " +
+                " ?uri a ?experience ." +
+                " ?uri vstoi:hasLanguage ?language . " +
+                "   FILTER (?language = \"" + language + "\") " +
+                "} ";
+
+        return findByQuery(queryString);
+    }
+
+    public static List<Experience> findByKeyword(String keyword) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT ?uri WHERE { " +
+                " ?experienceType rdfs:subClassOf* vstoi:Experience . " +
+                " ?uri a ?experienceType ." +
+                " ?uri rdfs:label ?label . " +
+                "   FILTER regex(?label, \"" + keyword + "\", \"i\") " +
+                "} ";
+
+        return findByQuery(queryString);
+    }
+
+    public static List<Experience> findByKeywordAndLanguage(String keyword, String language) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT ?uri WHERE { " +
+                " ?experienceType rdfs:subClassOf* vstoi:Experience . " +
+                " ?uri a ?experienceType ." +
+                " ?uri vstoi:hasLanguage ?language . " +
+                " ?uri rdfs:label ?label . " +
+                "   FILTER (regex(?label, \"" + keyword + "\", \"i\") && (?language = \"" + language + "\")) " +
+                "} ";
+
+        return findByQuery(queryString);
+    }
+
+    public static List<Experience> findByMaintainerEmail(String maintainerEmail) {
+        System.out.println("Owner emmail: [" + maintainerEmail + "]");
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT ?uri WHERE { " +
+                " ?experienceType rdfs:subClassOf* vstoi:Experience . " +
+                " ?uri a ?experienceType ." +
+                " ?uri vstoi:hasSIRMaintainerEmail ?maintainerEmail . " +
+                "   FILTER (?maintainerEmail = \"" + maintainerEmail + "\") " +
+                "} ";
+
+        return findByQuery(queryString);
+    }
+
     public static List<Experience> find() {
-        List<Experience> experiences = new ArrayList<Experience>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
                 " ?experience rdfs:subClassOf* vstoi:Experience . " +
                 " ?uri a ?experience ." +
                 "} ";
 
-        //System.out.println("Query: " + queryString);
+        return findByQuery(queryString);
+    }
 
+    private static List<Experience> findByQuery(String queryString) {
+        List<Experience> experiences = new ArrayList<Experience>();
         ResultSetRewindable resultsrw = SPARQLUtils.select(
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
@@ -57,6 +131,7 @@ public class Experience extends HADatAcThing implements Comparable<Experience>  
         while (resultsrw.hasNext()) {
             QuerySolution soln = resultsrw.next();
             Experience experience = find(soln.getResource("uri").getURI());
+            System.out.println("Found [" + experience.getUri() + "]");
             experiences.add(experience);
         }
 
@@ -136,6 +211,10 @@ public class Experience extends HADatAcThing implements Comparable<Experience>  
                 experience.setHascoTypeUri(object.asResource().getURI());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
                 experience.setSerialNumber(object.asLiteral().getString());
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
+                experience.setHasLanguage(object.asLiteral().getString());
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MAINTAINER_EMAIL)) {
+                experience.setHasSIRMaintainerEmail(object.asLiteral().getString());
             }
         }
 

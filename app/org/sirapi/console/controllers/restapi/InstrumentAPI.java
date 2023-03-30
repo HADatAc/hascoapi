@@ -38,7 +38,7 @@ public class InstrumentAPI extends Controller {
             testInstrument.setHasInstruction("Please put a circle around the word that shows how often each of these things happens to you. There are no right or wrong answers. ");
             testInstrument.setHasLanguage("en"); // ISO 639-1
             testInstrument.setComment("This is a dummy instrument created to test the SIR API.");
-            testInstrument.setHasSIROwnerEmail("me@example.com");
+            testInstrument.setHasSIRMaintainerEmail("me@example.com");
             return createInstrumentResult(testInstrument);
         }
     }
@@ -107,8 +107,8 @@ public class InstrumentAPI extends Controller {
         return getInstruments(results);
     }
 
-    public Result getInstrumentsByOwnerEmail(String ownerEmail){
-        List<Instrument> results = Instrument.findByOwnerEmail(ownerEmail);
+    public Result getInstrumentsByMaintainerEmail(String maintainerEmail){
+        List<Instrument> results = Instrument.findByMaintainerEmail(maintainerEmail);
         return getInstruments(results);
     }
 
@@ -121,7 +121,7 @@ public class InstrumentAPI extends Controller {
             filterProvider.addFilter("instrumentFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "hasShortName", "typeLabel", "hascoTypeUri",
                             "hascoTypeLabel", "comment", "hasSerialNumber", "hasImage",
-                            "hasLanguage", "hasInstruction", "hasSIROwnerEmail"));
+                            "hasLanguage", "hasInstruction", "hasSIRMaintainerEmail"));
             mapper.setFilterProvider(filterProvider);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));

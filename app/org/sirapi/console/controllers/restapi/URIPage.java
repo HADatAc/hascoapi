@@ -55,6 +55,18 @@ public class URIPage extends Controller {
                 if (finalResult != null) {
                     typeUri = ((Detector) finalResult).getHascoTypeUri();
                 }
+            } else if (result.getHascoTypeUri().equals(VSTOI.EXPERIENCE)) {
+                finalResult = Experience.find(uri);
+                System.out.println("URIPage: object is EXPERIENCE");
+                if (finalResult != null) {
+                    typeUri = ((Experience) finalResult).getHascoTypeUri();
+                }
+            } else if (result.getHascoTypeUri().equals(VSTOI.RESPONSE_OPTION)) {
+                finalResult = ResponseOption.find(uri);
+                System.out.println("URIPage: object is RESPONSE_OPTION");
+                if (finalResult != null) {
+                    typeUri = ((ResponseOption) finalResult).getHascoTypeUri();
+                }
             } else {
                 finalResult = result;
                 if (finalResult != null) {

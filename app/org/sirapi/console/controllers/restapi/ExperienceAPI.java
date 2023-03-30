@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import org.sirapi.entity.pojo.Experience;
+import org.sirapi.entity.pojo.Instrument;
 import org.sirapi.utils.ApiUtil;
 import org.sirapi.vocabularies.VSTOI;
 import play.mvc.Controller;
@@ -41,13 +42,15 @@ public class ExperienceAPI extends Controller {
         if (json == null || json.equals("")) {
             return ok(ApiUtil.createResponse("No json content has been provided.", false));
         }
-        //System.out.println("Value of json: [" + json + "]");
+        System.out.println("[createExperience] Value of json: [" + json + "]");
         ObjectMapper objectMapper = new ObjectMapper();
         Experience newExperience;
         try {
             //convert json string to Instrument instance
             newExperience  = objectMapper.readValue(json, Experience.class);
+            System.out.println("done");
         } catch (Exception e) {
+            e.printStackTrace();
             return ok(ApiUtil.createResponse("Failed to parse json.", false));
         }
         return createExperienceResult(newExperience);
@@ -81,6 +84,41 @@ public class ExperienceAPI extends Controller {
         }
     }
 
+    public Result getExperienceByLanguage(String language){
+        List<Experience> results = Experience.findByLanguage(language);
+        return getExperiences(results);
+    }
+
+    public Result getExperienceByKeyword(String keyword){
+        List<Experience> results = Experience.findByKeyword(keyword);
+        return getExperiences(results);
+    }
+
+    public Result getExperienceByKeywordAndLanguage(String keyword, String language){
+        List<Experience> results = Experience.findByKeywordAndLanguage(keyword, language);
+        return getExperiences(results);
+    }
+
+    public Result getExperienceByMaintainerEmail(String maintainerEmail){
+        List<Experience> results = Experience.findByMaintainerEmail(maintainerEmail);
+        return getExperiences(results);
+    }
+
+    private Result getExperiences(List<Experience> results){
+        if (results == null) {
+            return ok(ApiUtil.createResponse("No experience has been found", false));
+        } else {
+            ObjectMapper mapper = new ObjectMapper();
+            SimpleFilterProvider filterProvider = new SimpleFilterProvider();
+            filterProvider.addFilter("experienceFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
+                            "hascoTypeLabel", "comment", "hasSerialNumber", "hasLanguage", "hasSIRMaintainerEmail"));
+            mapper.setFilterProvider(filterProvider);
+            JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
+            return ok(ApiUtil.createResponse(jsonObject, true));
+        }
+    }
+
     public Result getAllExperiences(){
         ObjectMapper mapper = new ObjectMapper();
 
@@ -90,7 +128,7 @@ public class ExperienceAPI extends Controller {
         } else {
             SimpleFilterProvider filterProvider = new SimpleFilterProvider();
             filterProvider.addFilter("experienceFilter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri", "hascoTypeLabel", "comment"));
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri", "hascoTypeLabel", "comment", "hasSIRMaintainerEmail"));
             mapper.setFilterProvider(filterProvider);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));

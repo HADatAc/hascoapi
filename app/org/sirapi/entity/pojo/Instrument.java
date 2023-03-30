@@ -42,8 +42,8 @@ public class Instrument extends HADatAcThing implements Comparable<Instrument> {
 	@PropertyField(uri="vstoi:hasLanguage")
 	private String hasLanguage;
 
-	@PropertyField(uri="vstoi:hasSIROwnerEmail")
-	private String hasSIROwnerEmail;
+	@PropertyField(uri="vstoi:hasSIRMaintainerEmail")
+	private String hasSIRMaintainerEmail;
 
 	public String getSerialNumber() {
 		return serialNumber;
@@ -85,12 +85,12 @@ public class Instrument extends HADatAcThing implements Comparable<Instrument> {
 		this.hasLanguage = hasLanguage;
 	}
 
-	public String getHasSIROwnerEmail() {
-		return hasSIROwnerEmail;
+	public String getHasSIRMaintainerEmail() {
+		return hasSIRMaintainerEmail;
 	}
 
-	public void setHasSIROwnerEmail(String hasSIROwnerEmail) {
-		this.hasSIROwnerEmail = hasSIROwnerEmail;
+	public void setHasSIRMaintainerEmail(String hasSIRMaintainerEmail) {
+		this.hasSIRMaintainerEmail = hasSIRMaintainerEmail;
 	}
 
 	public String getTypeLabel() {
@@ -185,13 +185,13 @@ public class Instrument extends HADatAcThing implements Comparable<Instrument> {
 		return findByQuery(queryString);
 	}
 
-	public static List<Instrument> findByOwnerEmail(String ownerEmail) {
+	public static List<Instrument> findByMaintainerEmail(String maintainerEmail) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
 				" SELECT ?uri WHERE { " +
 				" ?instModel rdfs:subClassOf+ vstoi:Instrument . " +
 				" ?uri a ?instModel ." +
-				" ?uri vstoi:hasSIROwnerEmail ?ownerEmail . " +
-				"   FILTER (?ownerEmail = \"" + ownerEmail + "\") " +
+				" ?uri vstoi:hasSIRMaintainerEmail ?maintainerEmail . " +
+				"   FILTER (?maintainerEmail = \"" + maintainerEmail + "\") " +
 				"} ";
 
 		return findByQuery(queryString);
@@ -346,8 +346,8 @@ public class Instrument extends HADatAcThing implements Comparable<Instrument> {
 				instrument.setHasInstruction(object.asLiteral().getString());
 			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
 				instrument.setHasLanguage(object.asLiteral().getString());
-			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_OWNER_EMAIL)) {
-				instrument.setHasSIROwnerEmail(object.asLiteral().getString());
+			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MAINTAINER_EMAIL)) {
+				instrument.setHasSIRMaintainerEmail(object.asLiteral().getString());
 		    }
 		}
 		

@@ -118,7 +118,7 @@ public class HAScOMapper {
             filterProvider.addFilter("instrumentFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("instrumentFilter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri", "hascoTypeLabel", "comment", "hasSerialNumber"));
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri", "hascoTypeLabel", "comment", "hasSerialNumber", "hasLanguage", "hasSIRMaintainerEmail"));
         }
 
         // DETECTOR
@@ -126,7 +126,7 @@ public class HAScOMapper {
             filterProvider.addFilter("detectorFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("detectorFilter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri", "hascoTypeLabel", "comment", "hasPriority",  "hasSerialNumber", "hasContent", "hasExperience"));
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri", "hascoTypeLabel", "comment", "hasPriority",  "hasSerialNumber", "hasContent", "hasLanguage", "hasSIRMaintainerEmail", "hasExperience", "experience"));
         }
 
         // EXPERIENCE
@@ -134,7 +134,7 @@ public class HAScOMapper {
             filterProvider.addFilter("experienceFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("experienceFilter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri", "hascoTypeLabel", "comment",  "hasSerialNumber"));
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri", "hascoTypeLabel", "comment",  "hasSerialNumber", "responseOptions", "hasSIRMaintainerEmail"));
         }
 
         // DETECTOR
@@ -142,7 +142,7 @@ public class HAScOMapper {
             filterProvider.addFilter("responseOptionFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("responseOptionFilter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri", "hascoTypeLabel", "comment", "hasPriority",  "hasSerialNumber"));
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri", "hascoTypeLabel", "comment", "hasContent", "hasPriority",  "hasSerialNumber"));
         }
 
         mapper.setFilterProvider(filterProvider);
