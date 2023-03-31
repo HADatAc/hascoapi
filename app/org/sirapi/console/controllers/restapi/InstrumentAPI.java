@@ -121,7 +121,7 @@ public class InstrumentAPI extends Controller {
             filterProvider.addFilter("instrumentFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "hasShortName", "typeLabel", "hascoTypeUri",
                             "hascoTypeLabel", "comment", "hasSerialNumber", "hasImage",
-                            "hasLanguage", "hasInstruction", "hasSIRMaintainerEmail"));
+                            "hasLanguage", "hasVersion", "hasInstruction", "hasSIRMaintainerEmail"));
             mapper.setFilterProvider(filterProvider);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));

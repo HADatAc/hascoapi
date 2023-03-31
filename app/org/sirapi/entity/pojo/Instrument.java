@@ -42,6 +42,9 @@ public class Instrument extends HADatAcThing implements Comparable<Instrument> {
 	@PropertyField(uri="vstoi:hasLanguage")
 	private String hasLanguage;
 
+	@PropertyField(uri="vstoi:hasVersion")
+	private String hasVersion;
+
 	@PropertyField(uri="vstoi:hasSIRMaintainerEmail")
 	private String hasSIRMaintainerEmail;
 
@@ -83,6 +86,14 @@ public class Instrument extends HADatAcThing implements Comparable<Instrument> {
 
 	public void setHasLanguage(String hasLanguage) {
 		this.hasLanguage = hasLanguage;
+	}
+
+	public String getHasVersion() {
+		return hasVersion;
+	}
+
+	public void setHasVersion(String hasVersion) {
+		this.hasLanguage = hasVersion;
 	}
 
 	public String getHasSIRMaintainerEmail() {
@@ -346,6 +357,8 @@ public class Instrument extends HADatAcThing implements Comparable<Instrument> {
 				instrument.setHasInstruction(object.asLiteral().getString());
 			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
 				instrument.setHasLanguage(object.asLiteral().getString());
+			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
+				instrument.setHasVersion(object.asLiteral().getString());
 			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MAINTAINER_EMAIL)) {
 				instrument.setHasSIRMaintainerEmail(object.asLiteral().getString());
 		    }
