@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import org.sirapi.entity.pojo.Detector;
 import org.sirapi.entity.pojo.ResponseOption;
 import org.sirapi.utils.ApiUtil;
 import org.sirapi.vocabularies.VSTOI;
@@ -39,6 +40,8 @@ public class ResponseOptionAPI extends Controller {
             testResponseOption1.setHasContent("Never");
             testResponseOption1.setHasPriority("1");
             testResponseOption1.setOfExperience(TEST_EXPERIENCE_URI);
+            testResponseOption1.setHasLanguage("en"); // ISO 639-1
+            testResponseOption1.setHasSIRMaintainerEmail("me@example.com");
             testResponseOption1.save();
             testResponseOption2 = new ResponseOption();
             testResponseOption2.setUri(TEST_RESPONSE_OPTION2_URI);
@@ -49,6 +52,8 @@ public class ResponseOptionAPI extends Controller {
             testResponseOption2.setOfExperience(TEST_EXPERIENCE_URI);
             testResponseOption2.setHasContent("Always");
             testResponseOption2.setHasPriority("2");
+            testResponseOption2.setHasLanguage("en"); // ISO 639-1
+            testResponseOption2.setHasSIRMaintainerEmail("me@example.com");
             testResponseOption2.save();
             return ok(ApiUtil.createResponse("Test ResponseOptions 1 and 2 have been CREATED.", true));
         }
@@ -110,7 +115,47 @@ public class ResponseOptionAPI extends Controller {
         } else {
             SimpleFilterProvider filterProvider = new SimpleFilterProvider();
             filterProvider.addFilter("responseOptionFilter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri", "hascoTypeLabel", "comment", "ofExperience", "hasContent", "hasPriority"));
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri", "hascoTypeLabel", "comment", "ofExperience", "hasContent", "hasPriority", "hasLanguage", "hasSIRMaintainerEmail"));
+            mapper.setFilterProvider(filterProvider);
+            JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
+            return ok(ApiUtil.createResponse(jsonObject, true));
+        }
+    }
+
+    public Result getResponseOptionsByLanguage(String language){
+        List<ResponseOption> results = ResponseOption.findByLanguage(language);
+        return getResponseOptions(results);
+    }
+
+    public Result getResponseOptionsByKeyword(String keyword){
+        List<ResponseOption> results = ResponseOption.findByKeyword(keyword);
+        return getResponseOptions(results);
+    }
+
+    public Result getResponseOptionsByKeywordAndLanguage(String keyword, String language){
+        List<ResponseOption> results = ResponseOption.findByKeywordAndLanguage(keyword, language);
+        return getResponseOptions(results);
+    }
+
+    public Result getResponseOptionsByMaintainerEmail(String maintainerEmail){
+        List<ResponseOption> results = ResponseOption.findByMaintainerEmail(maintainerEmail);
+        return getResponseOptions(results);
+    }
+
+    public Result getResponseOptionsByExperience(String experienceUri){
+        List<ResponseOption> results = ResponseOption.findByExperience(experienceUri);
+        return getResponseOptions(results);
+    }
+
+    private Result getResponseOptions(List<ResponseOption> results){
+        if (results == null) {
+            return ok(ApiUtil.createResponse("No response option has been found", false));
+        } else {
+            ObjectMapper mapper = new ObjectMapper();
+            SimpleFilterProvider filterProvider = new SimpleFilterProvider();
+            filterProvider.addFilter("responseoptionFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
+                            "hascoTypeLabel", "comment", "hasContent", "hasSerialNumber", "hasLanguage", "hasPriority", "hasSIRMaintainerEmail"));
             mapper.setFilterProvider(filterProvider);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));

@@ -37,6 +37,12 @@ public class ResponseOption extends HADatAcThing implements Comparable<ResponseO
     @PropertyField(uri="vstoi:hasPriority")
     String hasPriority;
 
+    @PropertyField(uri="vstoi:hasLanguage")
+    private String hasLanguage;
+
+    @PropertyField(uri="vstoi:hasSIRMaintainerEmail")
+    private String hasSIRMaintainerEmail;
+
     public String getSerialNumber() {
         return serialNumber;
     }
@@ -77,6 +83,22 @@ public class ResponseOption extends HADatAcThing implements Comparable<ResponseO
         this.hasPriority = hasPriority;
     }
 
+    public String getHasLanguage() {
+        return hasLanguage;
+    }
+
+    public void setHasLanguage(String hasLanguage) {
+        this.hasLanguage = hasLanguage;
+    }
+
+    public String getHasSIRMaintainerEmail() {
+        return hasSIRMaintainerEmail;
+    }
+
+    public void setHasSIRMaintainerEmail(String hasSIRMaintainerEmail) {
+        this.hasSIRMaintainerEmail = hasSIRMaintainerEmail;
+    }
+
     public static List<ResponseOption> findByExperience(String experienceUri) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
@@ -99,6 +121,67 @@ public class ResponseOption extends HADatAcThing implements Comparable<ResponseO
         return findByQuery(queryString);
     }
 
+
+    public static List<ResponseOption> findByLanguage(String language) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT ?uri WHERE { " +
+                " ?respOption rdfs:subClassOf+ vstoi:ResponseOption . " +
+                " ?uri a ?respOption ." +
+                " ?uri vstoi:hasLanguage ?language . " +
+                "   FILTER (?language = \"" + language + "\") " +
+                "} ";
+
+        return findByQuery(queryString);
+    }
+
+    public static List<ResponseOption> findByKeyword(String keyword) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT ?uri WHERE { " +
+                " ?respOption rdfs:subClassOf+ vstoi:ResponseOption . " +
+                " ?uri a ?respOption ." +
+                " ?uri rdfs:label ?label . " +
+                "   FILTER regex(?label, \"" + keyword + "\", \"i\") " +
+                "} ";
+
+        return findByQuery(queryString);
+    }
+
+    public static List<ResponseOption> findByKeywordAndLanguage(String keyword, String language) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT ?uri WHERE { " +
+                " ?respOption rdfs:subClassOf+ vstoi:ResponseOption . " +
+                " ?uri a ?respOption ." +
+                " ?uri vstoi:hasLanguage ?language . " +
+                " ?uri rdfs:label ?label . " +
+                "   FILTER (regex(?label, \"" + keyword + "\", \"i\") && (?language = \"" + language + "\")) " +
+                "} ";
+
+        return findByQuery(queryString);
+    }
+
+    public static List<ResponseOption> findByMaintainerEmail(String maintainerEmail) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT ?uri WHERE { " +
+                " ?respOption rdfs:subClassOf+ vstoi:ResponseOption . " +
+                " ?uri a ?respOption ." +
+                " ?uri vstoi:hasSIRMaintainerEmail ?maintainerEmail . " +
+                "   FILTER (?maintainerEmail = \"" + maintainerEmail + "\") " +
+                "} ";
+
+        return findByQuery(queryString);
+    }
+
+    public static List<ResponseOption> findByExperiment(String experimentUri) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT ?uri WHERE { " +
+                " ?respOption rdfs:subClassOf+ vstoi:ResponseOption . " +
+                " ?uri a ?respOption ." +
+                " ?uri vstoi:isInstrumentAttachment <" + experimentUri + ">. " +
+                "} ";
+
+        return findByQuery(queryString);
+    }
+
     private static List<ResponseOption> findByQuery(String queryString) {
         List<ResponseOption> options = new ArrayList<ResponseOption>();
         //System.out.println("Query: " + queryString);
@@ -112,7 +195,7 @@ public class ResponseOption extends HADatAcThing implements Comparable<ResponseO
 
         while (resultsrw.hasNext()) {
             QuerySolution soln = resultsrw.next();
-            //System.out.println("inside Detector.find(): found uri [" + soln.getResource("uri").getURI().toString() + "]");
+            //System.out.println("inside ResponseOption.find(): found uri [" + soln.getResource("uri").getURI().toString() + "]");
             ResponseOption responseOption = find(soln.getResource("uri").getURI());
             options.add(responseOption);
         }
@@ -201,6 +284,10 @@ public class ResponseOption extends HADatAcThing implements Comparable<ResponseO
                 responseOption.setHasContent(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PRIORITY)) {
                 responseOption.setHasPriority(object.asLiteral().getString());
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
+                responseOption.setHasLanguage(object.asLiteral().getString());
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MAINTAINER_EMAIL)) {
+                responseOption.setHasSIRMaintainerEmail(object.asLiteral().getString());
             }
         }
 

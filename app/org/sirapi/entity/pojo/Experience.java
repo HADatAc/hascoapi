@@ -97,7 +97,6 @@ public class Experience extends HADatAcThing implements Comparable<Experience>  
     }
 
     public static List<Experience> findByMaintainerEmail(String maintainerEmail) {
-        System.out.println("Owner emmail: [" + maintainerEmail + "]");
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
                 " ?experienceType rdfs:subClassOf* vstoi:Experience . " +
@@ -131,7 +130,6 @@ public class Experience extends HADatAcThing implements Comparable<Experience>  
         while (resultsrw.hasNext()) {
             QuerySolution soln = resultsrw.next();
             Experience experience = find(soln.getResource("uri").getURI());
-            System.out.println("Found [" + experience.getUri() + "]");
             experiences.add(experience);
         }
 
