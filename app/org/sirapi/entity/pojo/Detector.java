@@ -341,6 +341,8 @@ public class Detector extends HADatAcThing implements Comparable<Detector>  {
                 detector.setLabel(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
                 detector.setTypeUri(object.asResource().getURI());
+            } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
+                detector.setComment(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
                 detector.setHascoTypeUri(object.asResource().getURI());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {

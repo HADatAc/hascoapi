@@ -93,7 +93,7 @@ public class Instrument extends HADatAcThing implements Comparable<Instrument> {
 	}
 
 	public void setHasVersion(String hasVersion) {
-		this.hasLanguage = hasVersion;
+		this.hasVersion = hasVersion;
 	}
 
 	public String getHasSIRMaintainerEmail() {

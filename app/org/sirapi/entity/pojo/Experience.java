@@ -28,6 +28,9 @@ public class Experience extends HADatAcThing implements Comparable<Experience>  
     @PropertyField(uri="vstoi:hasLanguage")
     private String hasLanguage;
 
+    @PropertyField(uri="vstoi:hasVersion")
+    private String hasVersion;
+
     @PropertyField(uri="vstoi:hasSIRMaintainerEmail")
     private String hasSIRMaintainerEmail;
 
@@ -45,6 +48,14 @@ public class Experience extends HADatAcThing implements Comparable<Experience>  
 
     public void setHasLanguage(String hasLanguage) {
         this.hasLanguage = hasLanguage;
+    }
+
+    public String getHasVersion() {
+        return hasVersion;
+    }
+
+    public void setHasVersion(String hasVersion) {
+        this.hasVersion = hasVersion;
     }
 
     public String getHasSIRMaintainerEmail() {
@@ -205,12 +216,16 @@ public class Experience extends HADatAcThing implements Comparable<Experience>  
                 experience.setLabel(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
                 experience.setTypeUri(object.asResource().getURI());
+            } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
+                experience.setComment(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
                 experience.setHascoTypeUri(object.asResource().getURI());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
                 experience.setSerialNumber(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
                 experience.setHasLanguage(object.asLiteral().getString());
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
+                experience.setHasVersion(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MAINTAINER_EMAIL)) {
                 experience.setHasSIRMaintainerEmail(object.asLiteral().getString());
             }

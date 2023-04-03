@@ -38,6 +38,7 @@ public class InstrumentAPI extends Controller {
             testInstrument.setHasInstruction("Please put a circle around the word that shows how often each of these things happens to you. There are no right or wrong answers. ");
             testInstrument.setHasLanguage("en"); // ISO 639-1
             testInstrument.setComment("This is a dummy instrument created to test the SIR API.");
+            testInstrument.setHasVersion("1");
             testInstrument.setHasSIRMaintainerEmail("me@example.com");
             return createInstrumentResult(testInstrument);
         }
@@ -47,13 +48,14 @@ public class InstrumentAPI extends Controller {
         if (json == null || json.equals("")) {
             return ok(ApiUtil.createResponse("No json content has been provided.", false));
         }
-        //System.out.println("Value of json: [" + json + "]");
+        System.out.println("(InstrumentAPI) Value of json in createInstrument: [" + json + "]");
         ObjectMapper objectMapper = new ObjectMapper();
         Instrument newInst;
         try {
             //convert json string to Instrument instance
             newInst  = objectMapper.readValue(json, Instrument.class);
         } catch (Exception e) {
+            System.out.println("(InstrumentAPI) Failed to parse json for [" + json + "]");
             return ok(ApiUtil.createResponse("Failed to parse json.", false));
         }
         return createInstrumentResult(newInst);

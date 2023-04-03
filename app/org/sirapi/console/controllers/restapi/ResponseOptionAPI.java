@@ -20,6 +20,7 @@ public class ResponseOptionAPI extends Controller {
 
     private Result createResponseOptionResult(ResponseOption responseOption) {
         responseOption.save();
+        System.out.println("ResponseOption <" + responseOption.getUri() + "> has been CREATED.");
         return ok(ApiUtil.createResponse("ResponseOption <" + responseOption.getUri() + "> has been CREATED.", true));
     }
 
@@ -41,6 +42,7 @@ public class ResponseOptionAPI extends Controller {
             testResponseOption1.setHasPriority("1");
             testResponseOption1.setOfExperience(TEST_EXPERIENCE_URI);
             testResponseOption1.setHasLanguage("en"); // ISO 639-1
+            testResponseOption1.setHasVersion("1");
             testResponseOption1.setHasSIRMaintainerEmail("me@example.com");
             testResponseOption1.save();
             testResponseOption2 = new ResponseOption();
@@ -53,6 +55,7 @@ public class ResponseOptionAPI extends Controller {
             testResponseOption2.setHasContent("Always");
             testResponseOption2.setHasPriority("2");
             testResponseOption2.setHasLanguage("en"); // ISO 639-1
+            testResponseOption2.setHasVersion("1");
             testResponseOption2.setHasSIRMaintainerEmail("me@example.com");
             testResponseOption2.save();
             return ok(ApiUtil.createResponse("Test ResponseOptions 1 and 2 have been CREATED.", true));
@@ -63,12 +66,13 @@ public class ResponseOptionAPI extends Controller {
         if (json == null || json.equals("")) {
             return ok(ApiUtil.createResponse("No json content has been provided.", false));
         }
-        //System.out.println("Value of json: [" + json + "]");
+        System.out.println("(createResponseOption) Value of json: [" + json + "]");
         ObjectMapper objectMapper = new ObjectMapper();
         ResponseOption newResponseOption;
         try {
             newResponseOption  = objectMapper.readValue(json, ResponseOption.class);
         } catch (Exception e) {
+            System.out.println("(createResponseOption) failed to parse JSON");
             return ok(ApiUtil.createResponse("Failed to parse json.", false));
         }
         return createResponseOptionResult(newResponseOption);
@@ -115,7 +119,8 @@ public class ResponseOptionAPI extends Controller {
         } else {
             SimpleFilterProvider filterProvider = new SimpleFilterProvider();
             filterProvider.addFilter("responseOptionFilter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri", "hascoTypeLabel", "comment", "ofExperience", "hasContent", "hasPriority", "hasLanguage", "hasSIRMaintainerEmail"));
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri", "hascoTypeLabel", "comment", "ofExperience",
+                            "hasContent", "hasPriority", "hasLanguage", "hasVersion", "hasSIRMaintainerEmail"));
             mapper.setFilterProvider(filterProvider);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));
@@ -153,9 +158,9 @@ public class ResponseOptionAPI extends Controller {
         } else {
             ObjectMapper mapper = new ObjectMapper();
             SimpleFilterProvider filterProvider = new SimpleFilterProvider();
-            filterProvider.addFilter("responseoptionFilter",
+            filterProvider.addFilter("responseOptionFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "hasContent", "hasSerialNumber", "hasLanguage", "hasPriority", "hasSIRMaintainerEmail"));
+                            "hascoTypeLabel", "comment", "hasContent", "hasSerialNumber", "hasLanguage", "hasPriority", "hasVersion", "hasSIRMaintainerEmail"));
             mapper.setFilterProvider(filterProvider);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));

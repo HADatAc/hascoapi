@@ -17,6 +17,8 @@ import org.sirapi.vocabularies.RDFS;
 import org.sirapi.vocabularies.VSTOI;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 @JsonFilter("responseOptionFilter")
@@ -39,6 +41,9 @@ public class ResponseOption extends HADatAcThing implements Comparable<ResponseO
 
     @PropertyField(uri="vstoi:hasLanguage")
     private String hasLanguage;
+
+    @PropertyField(uri="vstoi:hasVersion")
+    String hasVersion;
 
     @PropertyField(uri="vstoi:hasSIRMaintainerEmail")
     private String hasSIRMaintainerEmail;
@@ -91,6 +96,14 @@ public class ResponseOption extends HADatAcThing implements Comparable<ResponseO
         this.hasLanguage = hasLanguage;
     }
 
+    public String getHasVersion() {
+        return hasVersion;
+    }
+
+    public void setHasVersion(String hasVersion) {
+        this.hasVersion = hasVersion;
+    }
+
     public String getHasSIRMaintainerEmail() {
         return hasSIRMaintainerEmail;
     }
@@ -107,7 +120,7 @@ public class ResponseOption extends HADatAcThing implements Comparable<ResponseO
                 " ?uri vstoi:ofExperience <" + experienceUri + "> . " +
                 "} ";
 
-        return findByQuery(queryString);
+        return findByQueryOrderedByPriority(queryString);
 
     }
 
@@ -171,17 +184,6 @@ public class ResponseOption extends HADatAcThing implements Comparable<ResponseO
         return findByQuery(queryString);
     }
 
-    public static List<ResponseOption> findByExperiment(String experimentUri) {
-        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                " SELECT ?uri WHERE { " +
-                " ?respOption rdfs:subClassOf+ vstoi:ResponseOption . " +
-                " ?uri a ?respOption ." +
-                " ?uri vstoi:isInstrumentAttachment <" + experimentUri + ">. " +
-                "} ";
-
-        return findByQuery(queryString);
-    }
-
     private static List<ResponseOption> findByQuery(String queryString) {
         List<ResponseOption> options = new ArrayList<ResponseOption>();
         //System.out.println("Query: " + queryString);
@@ -201,6 +203,38 @@ public class ResponseOption extends HADatAcThing implements Comparable<ResponseO
         }
 
         java.util.Collections.sort((List<ResponseOption>) options);
+        return options;
+    }
+
+    private static List<ResponseOption> findByQueryOrderedByPriority(String queryString) {
+        List<ResponseOption> options = new ArrayList<ResponseOption>();
+        //System.out.println("Query: " + queryString);
+
+        ResultSetRewindable resultsrw = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+        if (!resultsrw.hasNext()) {
+            return null;
+        }
+
+        while (resultsrw.hasNext()) {
+            QuerySolution soln = resultsrw.next();
+            //System.out.println("inside ResponseOption.find(): found uri [" + soln.getResource("uri").getURI().toString() + "]");
+            ResponseOption responseOption = find(soln.getResource("uri").getURI());
+            options.add(responseOption);
+        }
+
+        java.util.Collections.sort(options, new Comparator<ResponseOption>() {
+            @Override
+            public int compare(ResponseOption lhs, ResponseOption rhs) {
+                int left = Integer.parseInt(lhs.getHasPriority());
+                int right = Integer.parseInt(rhs.getHasPriority());
+                return left < right ? -1 : (left > right) ? 1 : 0;
+            }
+        });
+
+        System.out.println(Arrays.toString(options.toArray()));
+
         return options;
     }
 
@@ -272,6 +306,8 @@ public class ResponseOption extends HADatAcThing implements Comparable<ResponseO
                 responseOption.setLabel(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
                 responseOption.setTypeUri(object.asResource().getURI());
+            } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
+                responseOption.setComment(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
                 responseOption.setHascoTypeUri(object.asResource().getURI());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
@@ -286,6 +322,8 @@ public class ResponseOption extends HADatAcThing implements Comparable<ResponseO
                 responseOption.setHasPriority(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
                 responseOption.setHasLanguage(object.asLiteral().getString());
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
+                responseOption.setHasVersion(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MAINTAINER_EMAIL)) {
                 responseOption.setHasSIRMaintainerEmail(object.asLiteral().getString());
             }
