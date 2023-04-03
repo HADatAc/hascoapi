@@ -162,7 +162,7 @@ public class Instrument extends HADatAcThing implements Comparable<Instrument> {
 	public static List<Instrument> findByLanguage(String language) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
 				" SELECT ?uri WHERE { " +
-				" ?instModel rdfs:subClassOf+ vstoi:Instrument . " +
+				" ?instModel rdfs:subClassOf* vstoi:Instrument . " +
 				" ?uri a ?instModel ." +
 				" ?uri vstoi:hasLanguage ?language . " +
 				"   FILTER (?language = \"" + language + "\") " +
@@ -174,7 +174,7 @@ public class Instrument extends HADatAcThing implements Comparable<Instrument> {
 	public static List<Instrument> findByKeyword(String keyword) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
 				" SELECT ?uri WHERE { " +
-				" ?instModel rdfs:subClassOf+ vstoi:Instrument . " +
+				" ?instModel rdfs:subClassOf* vstoi:Instrument . " +
 				" ?uri a ?instModel ." +
 				" ?uri rdfs:label ?label . " +
 				"   FILTER regex(?label, \"" + keyword + "\", \"i\") " +
@@ -186,7 +186,7 @@ public class Instrument extends HADatAcThing implements Comparable<Instrument> {
 	public static List<Instrument> findByKeywordAndLanguage(String keyword, String language) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
 				" SELECT ?uri WHERE { " +
-				" ?instModel rdfs:subClassOf+ vstoi:Instrument . " +
+				" ?instModel rdfs:subClassOf* vstoi:Instrument . " +
 				" ?uri a ?instModel ." +
 				" ?uri vstoi:hasLanguage ?language . " +
 				" ?uri rdfs:label ?label . " +
@@ -199,7 +199,7 @@ public class Instrument extends HADatAcThing implements Comparable<Instrument> {
 	public static List<Instrument> findByMaintainerEmail(String maintainerEmail) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
 				" SELECT ?uri WHERE { " +
-				" ?instModel rdfs:subClassOf+ vstoi:Instrument . " +
+				" ?instModel rdfs:subClassOf* vstoi:Instrument . " +
 				" ?uri a ?instModel ." +
 				" ?uri vstoi:hasSIRMaintainerEmail ?maintainerEmail . " +
 				"   FILTER (?maintainerEmail = \"" + maintainerEmail + "\") " +
@@ -231,7 +231,7 @@ public class Instrument extends HADatAcThing implements Comparable<Instrument> {
 	public static List<Instrument> find() {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
 		    " SELECT ?uri WHERE { " +
-		    " ?instModel rdfs:subClassOf+ vstoi:Instrument . " + 
+		    " ?instModel rdfs:subClassOf* vstoi:Instrument . " +
 		    " ?uri a ?instModel ." + 
 		    "} ";
 		
@@ -271,7 +271,7 @@ public class Instrument extends HADatAcThing implements Comparable<Instrument> {
 		List<Instrument> instruments = new ArrayList<Instrument>();
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
 		    " SELECT ?uri WHERE { " +
-		    "   { ?instModel rdfs:subClassOf+ vstoi:Instrument . " + 
+		    "   { ?instModel rdfs:subClassOf* vstoi:Instrument . " +
 		    "     ?uri a ?instModel ." + 
 		    "   } MINUS { " + 
 		    "     ?dep_uri a vstoi:Deployment . " + 
@@ -298,7 +298,7 @@ public class Instrument extends HADatAcThing implements Comparable<Instrument> {
 		List<Instrument> instruments = new ArrayList<Instrument>();
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
 		    " SELECT ?uri WHERE { " +
-		    "   ?instModel rdfs:subClassOf+ vstoi:Instrument . " + 
+		    "   ?instModel rdfs:subClassOf* vstoi:Instrument . " +
 		    "   ?uri a ?instModel ." + 
 		    "   ?dep_uri a vstoi:Deployment . " + 
 		    "   ?dep_uri hasco:hasInstrument ?uri .  " +

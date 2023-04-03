@@ -40,6 +40,7 @@ public class DetectorAPI extends Controller {
             testDetector1.setHasPriority("1");
             testDetector1.setIsInstrumentAttachment(TEST_INSTRUMENT_URI);
             testDetector1.setHasLanguage("en"); // ISO 639-1
+            testDetector1.setHasVersion("1");
             testDetector1.setHasSIRMaintainerEmail("me@example.com");
             testDetector1.save();
             testDetector2 = new Detector();
@@ -52,8 +53,9 @@ public class DetectorAPI extends Controller {
             testDetector2.setHasExperience(TEST_EXPERIENCE_URI);
             testDetector2.setHasPriority("2");
             testDetector2.setIsInstrumentAttachment(TEST_INSTRUMENT_URI);
-            testDetector1.setHasLanguage("en"); // ISO 639-1
-            testDetector1.setHasSIRMaintainerEmail("me@example.com");
+            testDetector2.setHasLanguage("en"); // ISO 639-1
+            testDetector2.setHasVersion("1");
+            testDetector2.setHasSIRMaintainerEmail("me@example.com");
             testDetector2.save();
             return ok(ApiUtil.createResponse("Test Detectors 1 and 2 have been CREATED.", true));
         }
@@ -63,13 +65,14 @@ public class DetectorAPI extends Controller {
         if (json == null || json.equals("")) {
             return ok(ApiUtil.createResponse("No json content has been provided.", false));
         }
-        //System.out.println("Value of json: [" + json + "]");
+        System.out.println("(CreateDetector) Value of json: [" + json + "]");
         ObjectMapper objectMapper = new ObjectMapper();
         Detector newDetector;
         try {
             //convert json string to Instrument instance
             newDetector  = objectMapper.readValue(json, Detector.class);
         } catch (Exception e) {
+            System.out.println("(createDetector) Failed to parse json.");
             return ok(ApiUtil.createResponse("Failed to parse json.", false));
         }
         return createDetectorResult(newDetector);
@@ -117,7 +120,7 @@ public class DetectorAPI extends Controller {
             SimpleFilterProvider filterProvider = new SimpleFilterProvider();
             filterProvider.addFilter("detectorFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "hasContent", "hasSerialNumber", "hasLanguage", "hasPriority", "hasSIRMaintainerEmail"));
+                            "hascoTypeLabel", "comment", "hasContent", "hasSerialNumber", "hasLanguage", "hasVersion", "hasPriority", "hasSIRMaintainerEmail"));
             mapper.setFilterProvider(filterProvider);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));
@@ -157,7 +160,7 @@ public class DetectorAPI extends Controller {
             SimpleFilterProvider filterProvider = new SimpleFilterProvider();
             filterProvider.addFilter("detectorFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "hasContent", "hasSerialNumber", "hasLanguage", "hasPriority", "hasSIRMaintainerEmail"));
+                            "hascoTypeLabel", "comment", "hasContent", "hasSerialNumber", "hasLanguage", "hasVersion", "hasPriority", "hasSIRMaintainerEmail"));
             mapper.setFilterProvider(filterProvider);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));

@@ -48,14 +48,14 @@ public class InstrumentAPI extends Controller {
         if (json == null || json.equals("")) {
             return ok(ApiUtil.createResponse("No json content has been provided.", false));
         }
-        System.out.println("(InstrumentAPI) Value of json in createInstrument: [" + json + "]");
+        //System.out.println("(InstrumentAPI) Value of json in createInstrument: [" + json + "]");
         ObjectMapper objectMapper = new ObjectMapper();
         Instrument newInst;
         try {
             //convert json string to Instrument instance
             newInst  = objectMapper.readValue(json, Instrument.class);
         } catch (Exception e) {
-            System.out.println("(InstrumentAPI) Failed to parse json for [" + json + "]");
+            //System.out.println("(InstrumentAPI) Failed to parse json for [" + json + "]");
             return ok(ApiUtil.createResponse("Failed to parse json.", false));
         }
         return createInstrumentResult(newInst);

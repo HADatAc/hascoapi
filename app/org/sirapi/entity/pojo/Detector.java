@@ -40,27 +40,14 @@ public class Detector extends HADatAcThing implements Comparable<Detector>  {
     @PropertyField(uri="vstoi:hasLanguage")
     private String hasLanguage;
 
+    @PropertyField(uri="vstoi:hasVersion")
+    private String hasVersion;
+
     @PropertyField(uri="vstoi:hasSIRMaintainerEmail")
     private String hasSIRMaintainerEmail;
 
     @PropertyField(uri="vstoi:hasExperience")
     String hasExperience;
-
-    public String getHasLanguage() {
-        return hasLanguage;
-    }
-
-    public void setHasLanguage(String hasLanguage) {
-        this.hasLanguage = hasLanguage;
-    }
-
-    public String getHasSIRMaintainerEmail() {
-        return hasSIRMaintainerEmail;
-    }
-
-    public void setHasSIRMaintainerEmail(String hasSIRMaintainerEmail) {
-        this.hasSIRMaintainerEmail = hasSIRMaintainerEmail;
-    }
 
     public String getSerialNumber() {
         return serialNumber;
@@ -108,6 +95,30 @@ public class Detector extends HADatAcThing implements Comparable<Detector>  {
 
     public void setHasExperience(String hasExperience) {
         this.hasExperience = hasExperience;
+    }
+
+    public String getHasLanguage() {
+        return hasLanguage;
+    }
+
+    public void setHasLanguage(String hasLanguage) {
+        this.hasLanguage = hasLanguage;
+    }
+
+    public String getHasVersion() {
+        return hasVersion;
+    }
+
+    public void setHasVersion(String hasVersion) {
+        this.hasVersion = hasVersion;
+    }
+
+    public String getHasSIRMaintainerEmail() {
+        return hasSIRMaintainerEmail;
+    }
+
+    public void setHasSIRMaintainerEmail(String hasSIRMaintainerEmail) {
+        this.hasSIRMaintainerEmail = hasSIRMaintainerEmail;
     }
 
     public Experience getExperience() {
@@ -210,7 +221,7 @@ public class Detector extends HADatAcThing implements Comparable<Detector>  {
     public static List<Detector> findByLanguage(String language) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?detModel rdfs:subClassOf+ vstoi:Detector . " +
+                " ?detModel rdfs:subClassOf* vstoi:Detector . " +
                 " ?uri a ?detModel ." +
                 " ?uri vstoi:hasLanguage ?language . " +
                 "   FILTER (?language = \"" + language + "\") " +
@@ -222,7 +233,7 @@ public class Detector extends HADatAcThing implements Comparable<Detector>  {
     public static List<Detector> findByKeyword(String keyword) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?detModel rdfs:subClassOf+ vstoi:Detector . " +
+                " ?detModel rdfs:subClassOf* vstoi:Detector . " +
                 " ?uri a ?detModel ." +
                 " ?uri rdfs:label ?label . " +
                 "   FILTER regex(?label, \"" + keyword + "\", \"i\") " +
@@ -234,7 +245,7 @@ public class Detector extends HADatAcThing implements Comparable<Detector>  {
     public static List<Detector> findByKeywordAndLanguage(String keyword, String language) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?detModel rdfs:subClassOf+ vstoi:Detector . " +
+                " ?detModel rdfs:subClassOf* vstoi:Detector . " +
                 " ?uri a ?detModel ." +
                 " ?uri vstoi:hasLanguage ?language . " +
                 " ?uri rdfs:label ?label . " +
@@ -247,7 +258,7 @@ public class Detector extends HADatAcThing implements Comparable<Detector>  {
     public static List<Detector> findByMaintainerEmail(String maintainerEmail) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?detModel rdfs:subClassOf+ vstoi:Detector . " +
+                " ?detModel rdfs:subClassOf* vstoi:Detector . " +
                 " ?uri a ?detModel ." +
                 " ?uri vstoi:hasSIRMaintainerEmail ?maintainerEmail . " +
                 "   FILTER (?maintainerEmail = \"" + maintainerEmail + "\") " +
@@ -257,9 +268,10 @@ public class Detector extends HADatAcThing implements Comparable<Detector>  {
     }
 
     public static List<Detector> findByInstrument(String instrumentUri) {
+        System.out.println("findByInstrument: [" + instrumentUri + "]");
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?detModel rdfs:subClassOf+ vstoi:Detector . " +
+                " ?detModel rdfs:subClassOf* vstoi:Detector . " +
                 " ?uri a ?detModel ." +
                 " ?uri vstoi:isInstrumentAttachment <" + instrumentUri + ">. " +
                 "} ";
@@ -270,7 +282,7 @@ public class Detector extends HADatAcThing implements Comparable<Detector>  {
     public static List<Detector> findAvailable() {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                "   { ?detModel rdfs:subClassOf+ vstoi:Detector . " +
+                "   { ?detModel rdfs:subClassOf* vstoi:Detector . " +
                 "     ?uri a ?detModel ." +
                 "   } MINUS { " +
                 "     ?dep_uri a vstoi:Deployment . " +
@@ -286,7 +298,7 @@ public class Detector extends HADatAcThing implements Comparable<Detector>  {
     public static List<Detector> findDeployed() {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                "   ?detModel rdfs:subClassOf+ vstoi:Detector . " +
+                "   ?detModel rdfs:subClassOf* vstoi:Detector . " +
                 "   ?uri a ?detModel ." +
                 "   ?dep_uri a vstoi:Deployment . " +
                 "   ?dep_uri hasco:hasDetector ?uri .  " +
@@ -357,6 +369,8 @@ public class Detector extends HADatAcThing implements Comparable<Detector>  {
                 detector.setHasPriority(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
                 detector.setHasLanguage(object.asLiteral().getString());
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
+                detector.setHasVersion(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MAINTAINER_EMAIL)) {
                 detector.setHasSIRMaintainerEmail(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_EXPERIENCE)) {
