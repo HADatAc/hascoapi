@@ -142,7 +142,7 @@ public class HAScOMapper {
             filterProvider.addFilter("responseOptionFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("responseOptionFilter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri", "hascoTypeLabel", "comment", "hasContent", "hasPriority",  "hasSerialNumber", "hasLanguage", "hasVersion", "hasSIRMaintainerEmail"));
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri", "hascoTypeLabel", "comment", "hasContent", "hasPriority",  "hasSerialNumber", "hasExperience", "hasLanguage", "hasVersion", "hasSIRMaintainerEmail"));
         }
 
         mapper.setFilterProvider(filterProvider);

@@ -20,7 +20,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @JsonFilter("experienceFilter")
-public class Experience extends HADatAcThing implements Comparable<Experience>  {
+public class Experience extends HADatAcThing implements SIRElement, Comparable<Experience>  {
+
+    @PropertyField(uri="vstoi:hasStatus")
+    private String hasStatus;
 
     @PropertyField(uri="vstoi:hasSerialNumber")
     private String serialNumber;
@@ -33,6 +36,14 @@ public class Experience extends HADatAcThing implements Comparable<Experience>  
 
     @PropertyField(uri="vstoi:hasSIRMaintainerEmail")
     private String hasSIRMaintainerEmail;
+
+    public String getHasStatus() {
+        return hasStatus;
+    }
+
+    public void setHasStatus(String hasStatus) {
+        this.hasStatus = hasStatus;
+    }
 
     public String getSerialNumber() {
         return serialNumber;
@@ -220,6 +231,8 @@ public class Experience extends HADatAcThing implements Comparable<Experience>  
                 experience.setComment(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
                 experience.setHascoTypeUri(object.asResource().getURI());
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
+                experience.setHasStatus(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
                 experience.setSerialNumber(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {

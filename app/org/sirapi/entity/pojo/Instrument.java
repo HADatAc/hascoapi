@@ -23,9 +23,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @JsonFilter("instrumentFilter")
-public class Instrument extends HADatAcThing implements Comparable<Instrument> {
+public class Instrument extends HADatAcThing implements SIRElement, Comparable<Instrument> {
 
 	private static final Logger log = LoggerFactory.getLogger(Instrument.class);
+
+	@PropertyField(uri="vstoi:hasStatus")
+	private String hasStatus;
 
 	@PropertyField(uri="vstoi:hasSerialNumber")
 	private String serialNumber;
@@ -47,6 +50,14 @@ public class Instrument extends HADatAcThing implements Comparable<Instrument> {
 
 	@PropertyField(uri="vstoi:hasSIRMaintainerEmail")
 	private String hasSIRMaintainerEmail;
+
+	public String getHasStatus() {
+		return hasStatus;
+	}
+
+	public void setHasStatus(String hasStatus) {
+		this.hasStatus = hasStatus;
+	}
 
 	public String getSerialNumber() {
 		return serialNumber;
@@ -345,6 +356,8 @@ public class Instrument extends HADatAcThing implements Comparable<Instrument> {
                 instrument.setTypeUri(object.asResource().getURI());
 			} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
 				instrument.setHascoTypeUri(object.asResource().getURI());
+			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
+				instrument.setHasStatus(object.asLiteral().getString());
 		    } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
 		    	instrument.setSerialNumber(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {

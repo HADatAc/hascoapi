@@ -120,7 +120,8 @@ public class DetectorAPI extends Controller {
             SimpleFilterProvider filterProvider = new SimpleFilterProvider();
             filterProvider.addFilter("detectorFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "hasContent", "hasSerialNumber", "hasLanguage", "hasVersion", "hasPriority", "hasSIRMaintainerEmail"));
+                            "hascoTypeLabel", "comment", "hasContent", "hasSerialNumber", "hasExperience", "hasLanguage", "hasVersion",
+                            "hasPriority", "hasSIRMaintainerEmail"));
             mapper.setFilterProvider(filterProvider);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));
@@ -160,7 +161,8 @@ public class DetectorAPI extends Controller {
             SimpleFilterProvider filterProvider = new SimpleFilterProvider();
             filterProvider.addFilter("detectorFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "hasContent", "hasSerialNumber", "hasLanguage", "hasVersion", "hasPriority", "hasSIRMaintainerEmail"));
+                            "hascoTypeLabel", "comment", "hasContent", "hasSerialNumber", "hasLanguage","hasExperience",
+                            "hasVersion", "hasPriority", "hasSIRMaintainerEmail"));
             mapper.setFilterProvider(filterProvider);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));

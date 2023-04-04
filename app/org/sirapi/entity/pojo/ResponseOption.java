@@ -22,7 +22,10 @@ import java.util.Comparator;
 import java.util.List;
 
 @JsonFilter("responseOptionFilter")
-public class ResponseOption extends HADatAcThing implements Comparable<ResponseOption>  {
+public class ResponseOption extends HADatAcThing implements SIRElement, Comparable<ResponseOption>  {
+
+    @PropertyField(uri="vstoi:hasStatus")
+    private String hasStatus;
 
     @PropertyField(uri="vstoi:hasSerialNumber")
     String serialNumber;
@@ -47,6 +50,14 @@ public class ResponseOption extends HADatAcThing implements Comparable<ResponseO
 
     @PropertyField(uri="vstoi:hasSIRMaintainerEmail")
     private String hasSIRMaintainerEmail;
+
+    public String getHasStatus() {
+        return hasStatus;
+    }
+
+    public void setHasStatus(String hasStatus) {
+        this.hasStatus = hasStatus;
+    }
 
     public String getSerialNumber() {
         return serialNumber;
@@ -310,6 +321,8 @@ public class ResponseOption extends HADatAcThing implements Comparable<ResponseO
                 responseOption.setComment(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
                 responseOption.setHascoTypeUri(object.asResource().getURI());
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
+                responseOption.setHasStatus(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
                 responseOption.setSerialNumber(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {

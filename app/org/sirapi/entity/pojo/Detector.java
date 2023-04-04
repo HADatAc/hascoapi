@@ -20,22 +20,25 @@ import org.sirapi.vocabularies.RDFS;
 import org.sirapi.vocabularies.VSTOI;
 
 @JsonFilter("detectorFilter")
-public class Detector extends HADatAcThing implements Comparable<Detector>  {
+public class Detector extends HADatAcThing implements SIRElement, Comparable<Detector>  {
+
+    @PropertyField(uri="vstoi:hasStatus")
+    private String hasStatus;
 
     @PropertyField(uri="vstoi:hasSerialNumber")
-    String serialNumber;
+    private String serialNumber;
 
     @PropertyField(uri="hasco:hasImage")
-    String image;
+    private String image;
 
     @PropertyField(uri="vstoi:isInstrumentAttachment")
-    String isInstrumentAttachment;
+    private String isInstrumentAttachment;
 
     @PropertyField(uri="vstoi:hasContent")
-    String hasContent;
+    private String hasContent;
 
     @PropertyField(uri="vstoi:hasPriority")
-    String hasPriority;
+    private String hasPriority;
 
     @PropertyField(uri="vstoi:hasLanguage")
     private String hasLanguage;
@@ -47,7 +50,15 @@ public class Detector extends HADatAcThing implements Comparable<Detector>  {
     private String hasSIRMaintainerEmail;
 
     @PropertyField(uri="vstoi:hasExperience")
-    String hasExperience;
+    private String hasExperience;
+
+    public String getHasStatus() {
+        return hasStatus;
+    }
+
+    public void setHasStatus(String hasStatus) {
+        this.hasStatus = hasStatus;
+    }
 
     public String getSerialNumber() {
         return serialNumber;
@@ -357,6 +368,8 @@ public class Detector extends HADatAcThing implements Comparable<Detector>  {
                 detector.setComment(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
                 detector.setHascoTypeUri(object.asResource().getURI());
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
+                detector.setHasStatus(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
                 detector.setSerialNumber(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
@@ -374,7 +387,12 @@ public class Detector extends HADatAcThing implements Comparable<Detector>  {
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MAINTAINER_EMAIL)) {
                 detector.setHasSIRMaintainerEmail(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_EXPERIENCE)) {
-                detector.setHasExperience(object.asResource().getURI());
+                try {
+                    detector.setHasExperience(object.asResource().getURI());
+                } catch (Exception e) {
+                    detector.setHasExperience(null);
+                }
+
             }
         }
 
