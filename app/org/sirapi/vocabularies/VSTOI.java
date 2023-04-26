@@ -45,7 +45,7 @@ public class VSTOI {
     public static final String HAS_PRIORITY                             = "http://hadatac.org/ont/vstoi#hasPriority";
     public static final String HAS_SHORT_NAME                           = "http://hadatac.org/ont/vstoi#hasShortName";
     public static final String HAS_STATUS                               = "http://hadatac.org/ont/vstoi#hasStatus";
-    public static final String HAS_SIR_MAINTAINER_EMAIL                      = "http://hadatac.org/ont/vstoi#hasSIRMaintainerEmail";
+    public static final String HAS_SIR_MAINTAINER_EMAIL                 = "http://hadatac.org/ont/vstoi#hasSIRMaintainerEmail";
     public static final String HAS_VERSION                              = "http://hadatac.org/ont/vstoi#hasVersion";
     public static final String OF_EXPERIENCE                            = "http://hadatac.org/ont/vstoi#ofExperience";
 
