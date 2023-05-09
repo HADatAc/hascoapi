@@ -2,6 +2,8 @@ package org.sirapi;
 
 public class Constants {
 
+    public static final String REPOSITORY_VERSION = "0.1";
+
     public static final String FLASH_MESSAGE_KEY = "message";
     public static final String FLASH_ERROR_KEY = "error";
     public static final String SIR_KB = "http://hadatac.org/kb/test/";

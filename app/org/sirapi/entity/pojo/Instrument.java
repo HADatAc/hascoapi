@@ -445,6 +445,22 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 			str += line + "\n";
 		}
 		str += "\n";
+		if (instr.getAttachments() != null) {
+			for (Detector detector : instr.getAttachments()) {
+				str += " " + detector.getHasPriority() + ". " + detector.getHasContent() + " ";
+				Experience experience = detector.getExperience();
+				if (experience != null) {
+					if (experience.getResponseOptions() != null) {
+						str += "\n     ";
+						for (ResponseOption responseOption : experience.getResponseOptions()) {
+							str += " " + responseOption.getHasContent() + "( )  ";
+						}
+					}
+				}
+				str += "\n\n";
+			}
+			str += "\n";
+		}
 		return str;
 	}
 
@@ -455,11 +471,47 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 		}
 		String html = "";
 
+		html += "<!DOCTYPE html>\n" +
+				"<html>\n" +
+				"<head>\n" +
+				"<style>\n" +
+				"table, tr, td {\n" +
+				"  border: 1px solid;\n" +
+				"  border-collapse: collapse;\n" +
+				"  padding: 5px;\n" +
+				"}\n" +
+				"tr:nth-child(even) {\n" +
+				"  background-color: #f2f2f2;\n" +
+	            "}\n" +
+				"</style>\n" +
+				"</head>\n" +
+				"<body>\n";
+
 		html += "<h2 style=\"text-align: center;\">" + instr.getHasShortName() + "</h2>";
-		html += "<br>";
+		html += "<br>\n";
 
 		html += "<b>Instructions</b>: " + instr.getHasInstruction() + "<br>";
-		html += "<br>";
+		html += "<br>\n";
+
+		if (instr.getAttachments() != null) {
+			html += "<table>\n";
+			for (Detector detector : instr.getAttachments()) {
+				html += "<tr>";
+				html += "<td>" + detector.getHasPriority() + ". " + detector.getHasContent() + "</td>";
+				Experience experience = detector.getExperience();
+				if (experience != null) {
+					if (experience.getResponseOptions() != null) {
+						for (ResponseOption responseOption : experience.getResponseOptions()) {
+							html += "<td>" + responseOption.getHasContent() + "</td>";
+						}
+					}
+				}
+				html += "</tr>\n";
+			}
+			html += "</table>\n";
+		}
+		html += "</body>\n" +
+				"</html>";
 		return html;
 	}
 
