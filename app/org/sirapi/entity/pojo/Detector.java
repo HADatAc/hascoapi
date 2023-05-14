@@ -37,8 +37,8 @@ public class Detector extends HADatAcThing implements SIRElement, Comparable<Det
     @PropertyField(uri="vstoi:hasContent")
     private String hasContent;
 
-    @PropertyField(uri="vstoi:hasPriority")
-    private String hasPriority;
+    //@PropertyField(uri="vstoi:hasPriority")
+    //private String hasPriority;
 
     @PropertyField(uri="vstoi:hasLanguage")
     private String hasLanguage;
@@ -92,13 +92,13 @@ public class Detector extends HADatAcThing implements SIRElement, Comparable<Det
         this.hasContent = hasContent;
     }
 
-    public String getHasPriority() {
-        return hasPriority;
-    }
+    //public String getHasPriority() {
+    //    return hasPriority;
+    //}
 
-    public void setHasPriority(String hasPriority) {
-        this.hasPriority = hasPriority;
-    }
+    //public void setHasPriority(String hasPriority) {
+    //    this.hasPriority = hasPriority;
+    //}
 
     public String getHasExperience() {
         return hasExperience;
@@ -378,8 +378,8 @@ public class Detector extends HADatAcThing implements SIRElement, Comparable<Det
                 detector.setIsInstrumentAttachment(object.asResource().getURI());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_CONTENT)) {
                 detector.setHasContent(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PRIORITY)) {
-                detector.setHasPriority(object.asLiteral().getString());
+//            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PRIORITY)) {
+//                detector.setHasPriority(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
                 detector.setHasLanguage(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {

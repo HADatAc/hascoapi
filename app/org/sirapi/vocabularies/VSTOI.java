@@ -29,6 +29,7 @@ public class VSTOI {
      *    CLASSES
      */
 
+    public static final String ATTACHMENT                             = "http://hadatac.org/ont/vstoi#Attachment";
     public static final String EXPERIENCE                              = "http://hadatac.org/ont/vstoi#Experience";
     public static final String ITEM                                    = "http://hadatac.org/ont/vstoi#Item";
     public static final String PSYCHOMETRIC_QUESTIONNAIRE              = "http://hadatac.org/ont/vstoi#PsychometricQuestionnaire";
@@ -38,7 +39,9 @@ public class VSTOI {
      *    PROPERTIES
      */
 
+    public static final String BELONGS_TO                               = "http://hadatac.org/ont/vstoi#belongsTo";
     public static final String HAS_CONTENT                              = "http://hadatac.org/ont/vstoi#hasContent";
+    public static final String HAS_DETECTOR                             = "http://hadatac.org/ont/vstoi#hasDetector";
     public static final String HAS_EXPERIENCE                           = "http://hadatac.org/ont/vstoi#hasExperience";
     public static final String HAS_INSTRUCTION                          = "http://hadatac.org/ont/vstoi#hasInstruction";
     public static final String HAS_LANGUAGE                             = "http://hadatac.org/ont/vstoi#hasLanguage";

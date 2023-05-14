@@ -37,7 +37,7 @@ public class DetectorAPI extends Controller {
             testDetector1.setComment("This is a dummy Detector 1 created to test the SIR API.");
             testDetector1.setHasContent("During the last 2 weeks, have you lost appetite?");
             testDetector1.setHasExperience(TEST_EXPERIENCE_URI);
-            testDetector1.setHasPriority("1");
+            //testDetector1.setHasPriority("1");
             testDetector1.setIsInstrumentAttachment(TEST_INSTRUMENT_URI);
             testDetector1.setHasLanguage("en"); // ISO 639-1
             testDetector1.setHasVersion("1");
@@ -51,7 +51,7 @@ public class DetectorAPI extends Controller {
             testDetector2.setComment("This is a dummy Detector 2 created to test the SIR API.");
             testDetector2.setHasContent("During the last 2 weeks, have you gain appetite?");
             testDetector2.setHasExperience(TEST_EXPERIENCE_URI);
-            testDetector2.setHasPriority("2");
+            //testDetector2.setHasPriority("2");
             testDetector2.setIsInstrumentAttachment(TEST_INSTRUMENT_URI);
             testDetector2.setHasLanguage("en"); // ISO 639-1
             testDetector2.setHasVersion("1");
