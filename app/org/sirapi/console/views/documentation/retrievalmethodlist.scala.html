@@ -1,0 +1,96 @@
+@()
+
+@import helper._
+@import org.sirapi.utils.NameSpaces
+@import org.sirapi.console.views.html._
+@import org.sirapi.console.controllers._
+@import org.sirapi.entity.pojo.HADatAcClass
+@import org.sirapi.entity.pojo.HADatAcThing
+@import org.sirapi.entity.pojo.Instrument
+@import play.api.Play
+@import com.typesafe.config.ConfigFactory
+
+@main("Elements RESTful API","","") {
+    <div class="container-fluid">
+
+        <div class="row">
+
+            @header()
+
+            <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-10">
+                <h2>Elements Retrieval RESTful API</h2>
+
+                <br>
+                <h3>Retrieval of SIR Elements</h3>
+
+                <p><b>Note:</b>Every single SIR element is the instantiation of a concept, which is registered at SIR under an unique URI. Instances of concepts like instruments, instrument types, and detectors are example of SIR elements.</p>
+
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>GET&nbsp;&nbsp;&nbsp;  /sirapi/api/uri/(instrUri)</button> - Return a full description of a concept as described in SIR. URI needs to be URL encoded. Use the <a href="@org.sirapi.console.controllers.documentation.routes.RetrievalMethodList.queryURIExample()">Query URI Example</a> to query different kinds of URI Elements<br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/instrument/all" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/api/instrument/all</a> - Return all instruments in SIR, including their properties.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>GET&nbsp;&nbsp;&nbsp;  /sirapi/api/instrument/keyword/(keyword)</button> - Return instruments in SIR that have the keyword as part of their labels, including their properties.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>GET&nbsp;&nbsp;&nbsp;  /sirapi/api/instrument/language/(language)</button> - Return instruments in SIR that are in the requested language, including their properties.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>GET&nbsp;&nbsp;&nbsp;  /sirapi/api/instrument/keywordlanguage/(keyword)/(language)</button> - Return instruments in SIR that simultaneously have the keyword as part of their labels and that are in the requested language, including their properties.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>GET&nbsp;&nbsp;&nbsp;  /sirapi/api/instrument/maintaineremail/(maintaineremail)</button> - Return instruments in SIR that have the requested maintainer email.<br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/instrumenttype/all" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/api/instrumenttype/all</a> - Return all instrument types currently loaded into SIR.<br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/attachment/all" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/api/attachment/all</a> - Return all attachments in SIR, including their properties.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>GET&nbsp;&nbsp;&nbsp;  /sirapi/api/attachment/byinstrument/(instruri)</button> - Return attachments that belong to an instrument with the given URI. URI needs to be URL encoded.<br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/detector/all" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/api/detector/all</a> - Return all detectors in SIR, including their properties.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>GET&nbsp;&nbsp;&nbsp;  /sirapi/api/detector/keyword/(keyword)</button> - Return detectors in SIR that have the keyword as part of their labels, including their properties.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>GET&nbsp;&nbsp;&nbsp;  /sirapi/api/detector/language/(language)</button> - Return detectors in SIR that are in the requested language, including their properties.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>GET&nbsp;&nbsp;&nbsp;  /sirapi/api/detector/keywordlanguage/(keyword)/(language)</button> - Return detectors in SIR that simultaneously have the keyword as part of their labels and that are in the requested language, including their properties.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>GET&nbsp;&nbsp;&nbsp;  /sirapi/api/detector/maintaineremail/(maintaineremail)</button> - Return detectors in SIR that have the requested maintainer email.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>GET&nbsp;&nbsp;&nbsp;  /sirapi/api/detector/byinstrument/(instruri)</button> - Return detectors that belong to an instrument with the given URI. URI needs to be URL encoded.<br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/detectortype/all" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/api/detectortype/all</a> - Return all detector types currently loaded into SIR.<br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/experience/all" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/api/experience/all</a> - Return all experiences currently loaded into SIR.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>GET&nbsp;&nbsp;&nbsp;  /sirapi/api/experience/keyword/(keyword)</button> - Return experiences in SIR that have the keyword as part of their labels, including their properties.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>GET&nbsp;&nbsp;&nbsp;  /sirapi/api/experience/language/(language)</button> - Return experiences in SIR that are in the requested language, including their properties.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>GET&nbsp;&nbsp;&nbsp;  /sirapi/api/experience/keywordlanguage/(keyword)/(language)</button> - Return experiences in SIR that simultaneously have the keyword as part of their labels and that are in the requested language, including their properties.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>GET&nbsp;&nbsp;&nbsp;  /sirapi/api/experience/maintaineremail/(maintaineremail)</button> - Return experiences in SIR that have the requested maintainer email.<br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/responseoption/all" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/api/responseoption/all</a> - Return all responseoptions currently loaded into SIR.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>GET&nbsp;&nbsp;&nbsp;  /sirapi/api/responseoption/keyword/(keyword)</button> - Return responseoptions in SIR that have the keyword as part of their labels, including their properties.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>GET&nbsp;&nbsp;&nbsp;  /sirapi/api/responseoption/language/(language)</button> - Return responseoptions in SIR that are in the requested language, including their properties.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>GET&nbsp;&nbsp;&nbsp;  /sirapi/api/responseoption/keywordlanguage/(keyword)/(language)</button> - Return responseoptions in SIR that simultaneously have the keyword as part of their labels and that are in the requested language, including their properties.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>GET&nbsp;&nbsp;&nbsp;  /sirapi/api/responseoption/maintaineremail/(maintaineremail)</button> - Return responseoptions in SIR that have the requested maintainer email.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>GET&nbsp;&nbsp;&nbsp;  /sirapi/api/responseoption/byexperience/(experienceuri)</button> - Return responseoptions that belong to an experience with the given URI. URI needs to be URL encoded.<br>
+                <br>
+                <h3>Interoperability of SIR Elements</h3>
+
+                <br>
+                <h4>Semantic Support for Instrument Interoperability</h4>
+
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>GET&nbsp;&nbsp;&nbsp;  /sirapi/api/instrument/tordf/turtle/(instrUri)</button> - Return RDF encoding in Turtle for requested instrument.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>GET&nbsp;&nbsp;&nbsp;  /sirapi/api/instrument/tordf/owlxml/(instrUri)</button> - Return RDF encoding in OWL/XML for requested instrument.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>GET&nbsp;&nbsp;&nbsp;  /sirapi/api/instrument/tofhir/(instrUri)</button> - Return FHIR encoding for requested instrument.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>GET&nbsp;&nbsp;&nbsp;  /sirapi/api/instrument/toredcap/(instrUri)</button> - Return RedCAP encoding for requested instrument.<br>
+
+                <br>
+                <h4>Semantic Support for Instrument Response Interoperability</h4>
+
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>GET&nbsp;&nbsp;&nbsp;  /sirapi/api/response/sdd/(instrUri)</button> - Return Semantic Data Dictionary of instrument response for requested instrument.<br>
+
+                <br>
+                <h4>Instrument Rendering (for Instruments that are not Physical Devices)</h4>
+
+                <p><b>Note:</b> Use the <a href="@org.sirapi.console.controllers.documentation.routes.RetrievalMethodList.instrumentRenderingExample()">Instrument Rendering Examples</a> to see how to render the Test Instrument using different kinds of formats.<br>
+
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>GET&nbsp;&nbsp;&nbsp;  /sirapi/api/instrument/totext/plain/(instrUri)</button> - Return Text encoding in Plain for requested instrument.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>GET&nbsp;&nbsp;&nbsp;  /sirapi/api/instrument/totext/html/(instrUri)</button> - Return Text encoding in HTML for requested instrument.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>GET&nbsp;&nbsp;&nbsp;  /sirapi/api/instrument/totext/pdf/(instrUri)</button> - Return Text encoding in PDF for requested instrument.<br>
+
+                <br><br><br>
+
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-10">
+            <a href="@org.sirapi.console.controllers.routes.Portal.index()" class="btn btn-success" role="button">Back to Main Page</a>
+        </div>
+    </div>
+
+}

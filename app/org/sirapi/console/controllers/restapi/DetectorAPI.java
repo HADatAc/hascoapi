@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import org.sirapi.entity.pojo.Attachment;
 import org.sirapi.entity.pojo.Detector;
 import org.sirapi.entity.pojo.Instrument;
 import org.sirapi.utils.ApiUtil;
@@ -37,8 +38,6 @@ public class DetectorAPI extends Controller {
             testDetector1.setComment("This is a dummy Detector 1 created to test the SIR API.");
             testDetector1.setHasContent("During the last 2 weeks, have you lost appetite?");
             testDetector1.setHasExperience(TEST_EXPERIENCE_URI);
-            testDetector1.setHasPriority("1");
-            testDetector1.setIsInstrumentAttachment(TEST_INSTRUMENT_URI);
             testDetector1.setHasLanguage("en"); // ISO 639-1
             testDetector1.setHasVersion("1");
             testDetector1.setHasSIRMaintainerEmail("me@example.com");
@@ -51,8 +50,6 @@ public class DetectorAPI extends Controller {
             testDetector2.setComment("This is a dummy Detector 2 created to test the SIR API.");
             testDetector2.setHasContent("During the last 2 weeks, have you gain appetite?");
             testDetector2.setHasExperience(TEST_EXPERIENCE_URI);
-            testDetector2.setHasPriority("2");
-            testDetector2.setIsInstrumentAttachment(TEST_INSTRUMENT_URI);
             testDetector2.setHasLanguage("en"); // ISO 639-1
             testDetector2.setHasVersion("1");
             testDetector2.setHasSIRMaintainerEmail("me@example.com");
@@ -65,7 +62,7 @@ public class DetectorAPI extends Controller {
         if (json == null || json.equals("")) {
             return ok(ApiUtil.createResponse("No json content has been provided.", false));
         }
-        System.out.println("(CreateDetector) Value of json: [" + json + "]");
+        //System.out.println("(CreateDetector) Value of json: [" + json + "]");
         ObjectMapper objectMapper = new ObjectMapper();
         Detector newDetector;
         try {
@@ -98,6 +95,113 @@ public class DetectorAPI extends Controller {
         }
     }
 
+    public Result attach(String uri, String instrUri, String priority){
+        if (uri == null || uri.equals("")) {
+            return ok(ApiUtil.createResponse("No detector URI has been provided.", false));
+        }
+        Detector detector = Detector.find(uri);
+        if (detector == null) {
+            return ok(ApiUtil.createResponse("There is no detector with URI <" + uri + "> to be attached.", false));
+        }
+        if (instrUri == null || instrUri.equals("")) {
+            return ok(ApiUtil.createResponse("No instrument URI has been provided.", false));
+        }
+        Instrument instrument = Instrument.find(instrUri);
+        if (instrument == null) {
+            return ok(ApiUtil.createResponse("There is no instrument with URI <" + uri + "> to have a detector attached to it.", false));
+        }
+        if (priority == null || priority.equals("")) {
+            return ok(ApiUtil.createResponse("No attachment priority has been provided.", false));
+        }
+        Attachment attachment = Attachment.findByInstrumentAndPriority(instrUri, priority);
+        if (attachment == null) {
+            return ok(ApiUtil.createResponse("There is no attachment with priority <" + priority + "> to instrument <" + instrUri + ">.", false));
+        }
+        if (Detector.attach(instrUri, uri, priority)) {
+            return ok(ApiUtil.createResponse("Detector <" + uri + "> successfully attached to instrument <" + instrUri + ">.", true));
+        }
+        return ok(ApiUtil.createResponse("Detector <" + uri + "> failed to be attached to instrument <" + instrUri + ">.", false));
+    }
+
+    public Result attachForTesting(){
+        Instrument testInst = Instrument.find(TEST_INSTRUMENT_URI);
+        if (testInst == null) {
+            return ok(ApiUtil.createResponse("create test instrument before trying to attach detectors.", false));
+        }
+        if (testInst.getAttachments() == null) {
+            return ok(ApiUtil.createResponse("Create attachments for test instrument before trying to attach detectors.", false));
+        }
+        Detector test1 = Detector.find(TEST_DETECTOR1_URI);
+        Detector test2 = Detector.find(TEST_DETECTOR2_URI);
+        if (test1 == null) {
+            return ok(ApiUtil.createResponse("There is no Test Detector 1 to be attached to test instrument.", false));
+        } else if (test2 == null) {
+            return ok(ApiUtil.createResponse("There is no Test Detector 2 to be attached to test instrument.", false));
+        } else {
+            boolean done = Detector.attach(TEST_INSTRUMENT_URI, TEST_DETECTOR1_URI, "1");
+            if (!done) {
+                return ok(ApiUtil.createResponse("The attachment of Test Detector 1 to Test Instrument HAS FAILED.", false));
+            } else {
+                done = Detector.attach(TEST_INSTRUMENT_URI, TEST_DETECTOR2_URI, "2");
+                if (!done) {
+                    return ok(ApiUtil.createResponse("The attachment of Test Detector 2 to Test Instrument HAS FAILED.", false));
+                }
+            }
+        }
+        return ok(ApiUtil.createResponse("Test Detectors 1 and 2 have been ATTACHED to Test Instrument.", true));
+    }
+
+    public Result detach(String uri, String instrUri){
+        if (uri == null || uri.equals("")) {
+            return ok(ApiUtil.createResponse("No detector URI has been provided.", false));
+        }
+        Detector detector = Detector.find(uri);
+        if (detector == null) {
+            return ok(ApiUtil.createResponse("There is no detector with URI <" + uri + "> to be detached", false));
+        }
+        if (instrUri == null || instrUri.equals("")) {
+            return ok(ApiUtil.createResponse("No instrument URI has been provided.", false));
+        }
+        Instrument instrument = Instrument.find(instrUri);
+        if (instrument == null) {
+            return ok(ApiUtil.createResponse("There is no instrument with URI <" + uri + "> to have a detector attached to it.", false));
+        }
+        Attachment attachment = Attachment.findByInstrumentAndDetector(instrUri, uri);
+        if (attachment == null) {
+            return ok(ApiUtil.createResponse("There is no attachment with detector <" + uri + "> to instrument <" + instrUri + ">.", false));
+        }
+        if (Detector.detach(instrUri, uri)) {
+            return ok(ApiUtil.createResponse("Detector <" + uri + "> successfully detached from instrument <" + instrUri + ">.", true));
+        }
+        return ok(ApiUtil.createResponse("Detector <" + uri + "> failed to be detached from instrument <" + instrUri + ">.", false));
+    }
+
+    public Result detachForTesting(){
+        Instrument testInst = Instrument.find(TEST_INSTRUMENT_URI);
+        if (testInst == null) {
+            return ok(ApiUtil.createResponse("There is no test instrument to detach detectors.", false));
+        }
+        if (testInst.getAttachments() == null) {
+            return ok(ApiUtil.createResponse("Test instrument has no attachments for detectors.", false));
+        }
+        Detector test1 = Detector.find(TEST_DETECTOR1_URI);
+        Detector test2 = Detector.find(TEST_DETECTOR2_URI);
+        if (test1 == null) {
+            return ok(ApiUtil.createResponse("There is no Test Detector 1 to be detached from test instrument.", false));
+        } else if (test2 == null) {
+            return ok(ApiUtil.createResponse("There is no Test Detector 2 to be detached from test instrument.", false));
+        } else {
+            boolean done = Detector.detach(TEST_INSTRUMENT_URI, TEST_DETECTOR1_URI);
+            if (done) {
+                done = Detector.detach(TEST_INSTRUMENT_URI, TEST_DETECTOR2_URI);
+            }
+            if (done) {
+                return ok(ApiUtil.createResponse("Test Detectors 1 and 2 have been DETACHED from Test Instrument.", true));
+            }
+        }
+        return ok(ApiUtil.createResponse("The detachment of Test Detectors 1 and 2 from Test Instrument HAS FAILED.", false));
+    }
+
     public Result deleteDetector(String uri){
         if (uri == null || uri.equals("")) {
             return ok(ApiUtil.createResponse("No detector URI has been provided.", false));
@@ -107,24 +211,6 @@ public class DetectorAPI extends Controller {
             return ok(ApiUtil.createResponse("There is no detector with URI <" + uri + "> to be deleted.", false));
         } else {
             return deleteDetectorResult(detector);
-        }
-    }
-
-    public Result getAllDetectors(){
-        ObjectMapper mapper = new ObjectMapper();
-
-        List<Detector> results = Detector.find();
-        if (results == null) {
-            return notFound(ApiUtil.createResponse("No detector has been found", false));
-        } else {
-            SimpleFilterProvider filterProvider = new SimpleFilterProvider();
-            filterProvider.addFilter("detectorFilter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "hasContent", "hasSerialNumber", "hasExperience", "hasLanguage", "hasVersion",
-                            "hasPriority", "hasSIRMaintainerEmail"));
-            mapper.setFilterProvider(filterProvider);
-            JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
-            return ok(ApiUtil.createResponse(jsonObject, true));
         }
     }
 
@@ -153,6 +239,11 @@ public class DetectorAPI extends Controller {
         return getDetectors(results);
     }
 
+    public Result getAllDetectors(){
+        List<Detector> results = Detector.find();
+        return getDetectors(results);
+    }
+
     private Result getDetectors(List<Detector> results){
         if (results == null) {
             return ok(ApiUtil.createResponse("No detector has been found", false));
@@ -162,7 +253,32 @@ public class DetectorAPI extends Controller {
             filterProvider.addFilter("detectorFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
                             "hascoTypeLabel", "comment", "hasContent", "hasSerialNumber", "hasLanguage","hasExperience",
-                            "hasVersion", "hasPriority", "hasSIRMaintainerEmail"));
+                            "hasVersion", "hasSIRMaintainerEmail"));
+            mapper.setFilterProvider(filterProvider);
+            JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
+            return ok(ApiUtil.createResponse(jsonObject, true));
+        }
+    }
+
+    public Result getAllAttachments(){
+        List<Attachment> results = Attachment.find();
+        return getAttachments(results);
+    }
+
+    public Result getAttachmentsByInstrument(String instrumentUri){
+        List<Attachment> results = Attachment.findByInstrument(instrumentUri);
+        return getAttachments(results);
+    }
+
+    private Result getAttachments(List<Attachment> results){
+        if (results == null) {
+            return ok(ApiUtil.createResponse("No attachment has been found", false));
+        } else {
+            ObjectMapper mapper = new ObjectMapper();
+            SimpleFilterProvider filterProvider = new SimpleFilterProvider();
+            filterProvider.addFilter("attachmentFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
+                            "hascoTypeLabel", "comment", "hasPriority", "hasDetector"));
             mapper.setFilterProvider(filterProvider);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));

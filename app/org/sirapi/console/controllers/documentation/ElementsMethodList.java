@@ -26,13 +26,4 @@ public class ElementsMethodList extends Controller {
         return ok(deleteDetectorExample.render());
     }
 
-    public Result queryURIExample() {
-        return ok(queryURIExample.render());
-    }
-
-    public Result instrumentRenderingExample() {
-        return ok(instrumentRenderingExample.render());
-    }
-
-
 }

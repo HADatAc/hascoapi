@@ -115,7 +115,7 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 		this.hasSIRMaintainerEmail = hasSIRMaintainerEmail;
 	}
 
-	public String getTypeLabel() {
+	public String geattachmenttTypeLabel() {
     	InstrumentType insType = InstrumentType.find(getTypeUri());
     	if (insType == null || insType.getLabel() == null) {
     		return "";
@@ -131,29 +131,9 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
     	return insType.getURL();
     }
 
-    public List<Detector> getAttachments() {
-    	List<Detector> dets = new ArrayList<Detector>();
-    	if (uri == null || uri.isEmpty()) {
-    		return dets;
-    	}
-    	String iUri = uri;
-    	if (uri.startsWith("http")) {
-    		iUri = "<" + uri + ">";
-    	}
-		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-			    "SELECT ?detUri WHERE { " +
-			    "   ?detUri vstoi:isInstrumentAttachment " + iUri + " . " + 
-			    "} ";
-			
-		ResultSetRewindable resultsrw = SPARQLUtils.select(
-				CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
-				
-		while (resultsrw.hasNext()) {
-			QuerySolution soln = resultsrw.next();
-			Detector det = Detector.find(soln.getResource("detUri").getURI());
-			dets.add(det);
-		}			
-    	return dets;
+    public List<Attachment> getAttachments() {
+    	List<Attachment> atts = Attachment.findByInstrument(uri);
+    	return atts;
     }
     
 	@Override
@@ -446,14 +426,19 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 		}
 		str += "\n";
 		if (instr.getAttachments() != null) {
-			for (Detector detector : instr.getAttachments()) {
-				str += " " + detector.getHasPriority() + ". " + detector.getHasContent() + " ";
-				Experience experience = detector.getExperience();
-				if (experience != null) {
-					if (experience.getResponseOptions() != null) {
-						str += "\n     ";
-						for (ResponseOption responseOption : experience.getResponseOptions()) {
-							str += " " + responseOption.getHasContent() + "( )  ";
+			for (Attachment attachment : instr.getAttachments()) {
+				Detector detector = attachment.getDetector();
+				if (detector == null) {
+					str += " " + attachment.getHasPriority() + ".  \n  ";
+				} else {
+					str += " " + attachment.getHasPriority() + ". " + detector.getHasContent() + " ";
+					Experience experience = detector.getExperience();
+					if (experience != null) {
+						if (experience.getResponseOptions() != null) {
+							str += "\n     ";
+							for (ResponseOption responseOption : experience.getResponseOptions()) {
+								str += " " + responseOption.getHasContent() + "( )  ";
+							}
 						}
 					}
 				}
@@ -495,18 +480,23 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 
 		if (instr.getAttachments() != null) {
 			html += "<table>\n";
-			for (Detector detector : instr.getAttachments()) {
-				html += "<tr>";
-				html += "<td>" + detector.getHasPriority() + ". " + detector.getHasContent() + "</td>";
-				Experience experience = detector.getExperience();
-				if (experience != null) {
-					if (experience.getResponseOptions() != null) {
-						for (ResponseOption responseOption : experience.getResponseOptions()) {
-							html += "<td>" + responseOption.getHasContent() + "</td>";
+			for (Attachment attachment : instr.getAttachments()) {
+				Detector detector = attachment.getDetector();
+				if (detector == null) {
+					html += "<tr><td>" + attachment.getHasPriority() + ".</tr></td>\n";
+				} else {
+					html += "<tr>";
+					html += "<td>" + attachment.getHasPriority() + ". " + detector.getHasContent() + "</td>";
+					Experience experience = detector.getExperience();
+					if (experience != null) {
+						if (experience.getResponseOptions() != null) {
+							for (ResponseOption responseOption : experience.getResponseOptions()) {
+								html += "<td>" + responseOption.getHasContent() + "</td>";
+							}
 						}
 					}
+					html += "</tr>\n";
 				}
-				html += "</tr>\n";
 			}
 			html += "</table>\n";
 		}
@@ -540,7 +530,59 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 		return -1;
 	}
 
-    @Override
+	public boolean deleteAttachments() {
+		if (this.getAttachments() == null || uri == null || uri.isEmpty()) {
+			return true;
+		}
+		List<Attachment> attachments = Attachment.findByInstrument(uri);
+		if (attachments == null) {
+			return true;
+		}
+		for (Attachment attachment: attachments) {
+			attachment.delete();
+		}
+		attachments = Attachment.findByInstrument(uri);
+		return (attachments == null);
+	}
+
+	private String adjustedPriority(String priority, int totAttachments) {
+		int digits = 0;
+		if (totAttachments < 10) {
+			digits = 1;
+		} else if (totAttachments < 100) {
+			digits = 2;
+		} else if (totAttachments < 1000) {
+			digits = 3;
+		} else {
+			digits = 4;
+		}
+		String auxstr = String.valueOf(priority);
+		for (int filler = auxstr.length(); filler < digits; filler++) {
+			auxstr = "0" + auxstr;
+		}
+		return auxstr;
+	}
+
+	public boolean createAttachments(int totAttachments) {
+		if (totAttachments <= 0) {
+			return false;
+		}
+		if (this.getAttachments() != null || uri == null || uri.isEmpty()) {
+			return false;
+		}
+		for (int aux=1; aux <= totAttachments; aux++) {
+			String auxstr = adjustedPriority(String.valueOf(aux), totAttachments);
+			String newUri = uri + "/ATT/" + auxstr;
+			Attachment.createAttachment(uri, newUri, auxstr,null);
+		}
+		List<Attachment> attachmentList = Attachment.findByInstrument(uri);
+		if (attachmentList == null) {
+			return false;
+		}
+		return (attachmentList.size() == totAttachments);
+	}
+
+	@Override
     public int compareTo(Instrument another) {
         return this.getLabel().compareTo(another.getLabel());
     }
