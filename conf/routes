@@ -33,6 +33,10 @@ POST    /sirapi/api/instrument/delete/:uri                org.sirapi.console.con
 GET     /sirapi/api/instrument/totext/plain/:uri          org.sirapi.console.controllers.restapi.InstrumentAPI.toTextPlain(uri: String)
 GET     /sirapi/api/instrument/totext/html/:uri           org.sirapi.console.controllers.restapi.InstrumentAPI.toTextHTML(uri: String)
 GET     /sirapi/api/instrumenttype/all                    org.sirapi.console.controllers.restapi.InstrumentTypeAPI.getAllInstrumentTypes()
+POST    /sirapi/api/attachments/create/:instrUri/:totAttachments   org.sirapi.console.controllers.restapi.InstrumentAPI.createAttachments(instrUri: String, totAttachments : String)
+POST    /sirapi/api/attachments/delete/:instrUri          org.sirapi.console.controllers.restapi.InstrumentAPI.deleteAttachments(instrUri: String)
+GET     /sirapi/api/attachments/test/create               org.sirapi.console.controllers.restapi.InstrumentAPI.createAttachmentsForTesting()
+GET     /sirapi/api/attachments/test/delete               org.sirapi.console.controllers.restapi.InstrumentAPI.deleteAttachmentsForTesting()
 GET     /sirapi/api/detector/all                          org.sirapi.console.controllers.restapi.DetectorAPI.getAllDetectors()
 GET     /sirapi/api/detector/keyword/:keyword             org.sirapi.console.controllers.restapi.DetectorAPI.getDetectorsByKeyword(keyword : String)
 GET     /sirapi/api/detector/language/:language           org.sirapi.console.controllers.restapi.DetectorAPI.getDetectorsByLanguage(language : String)
@@ -41,7 +45,11 @@ GET     /sirapi/api/detector/maintaineremail/:maintaineremail     org.sirapi.con
 GET     /sirapi/api/detector/byinstrument/:instrUri       org.sirapi.console.controllers.restapi.DetectorAPI.getDetectorsByInstrument(instrUri : String)
 GET     /sirapi/api/detector/test/create                  org.sirapi.console.controllers.restapi.DetectorAPI.createDetectorsForTesting()
 GET     /sirapi/api/detector/test/delete                  org.sirapi.console.controllers.restapi.DetectorAPI.deleteDetectorsForTesting()
+GET     /sirapi/api/detector/test/attach                  org.sirapi.console.controllers.restapi.DetectorAPI.attachForTesting()
+GET     /sirapi/api/detector/test/detach                  org.sirapi.console.controllers.restapi.DetectorAPI.detachForTesting()
 POST    /sirapi/api/detector/create/:json                 org.sirapi.console.controllers.restapi.DetectorAPI.createDetector(json: String)
+POST    /sirapi/api/detector/attach/:uri/:instrUri/:priority      org.sirapi.console.controllers.restapi.DetectorAPI.attach(uri: String, instrUri : String, priority : String)
+POST    /sirapi/api/detector/detach/:uri/:instrUri        org.sirapi.console.controllers.restapi.DetectorAPI.detach(uri: String, instrUri : String)
 POST    /sirapi/api/detector/delete/:uri                  org.sirapi.console.controllers.restapi.DetectorAPI.deleteDetector(uri: String)
 GET     /sirapi/api/detectortype/all                      org.sirapi.console.controllers.restapi.DetectorTypeAPI.getAllDetectorTypes()
 GET     /sirapi/api/experience/all                        org.sirapi.console.controllers.restapi.ExperienceAPI.getAllExperiences()
@@ -67,12 +75,14 @@ POST    /sirapi/api/responseoption/delete/:uri            org.sirapi.console.con
 # DOCUMENTATION
 
 GET     /sirapi/documentation/elementsmethodlist          org.sirapi.console.controllers.documentation.ElementsMethodList.index()
-GET     /sirapi/documentation/queryuriexample             org.sirapi.console.controllers.documentation.ElementsMethodList.queryURIExample()
-GET     /sirapi/documentation/instrumentrenderingexample  org.sirapi.console.controllers.documentation.ElementsMethodList.instrumentRenderingExample()
 GET     /sirapi/documentation/createinstrumentexample     org.sirapi.console.controllers.documentation.ElementsMethodList.createInstrumentExample()
 GET     /sirapi/documentation/deleteinstrumentexample     org.sirapi.console.controllers.documentation.ElementsMethodList.deleteInstrumentExample()
 GET     /sirapi/documentation/createdetectorexample       org.sirapi.console.controllers.documentation.ElementsMethodList.createDetectorExample()
 GET     /sirapi/documentation/deletedetectorexample       org.sirapi.console.controllers.documentation.ElementsMethodList.deleteDetectorExample()
+
+GET     /sirapi/documentation/retrievalmethodlist         org.sirapi.console.controllers.documentation.RetrievalMethodList.index()
+GET     /sirapi/documentation/queryuriexample             org.sirapi.console.controllers.documentation.RetrievalMethodList.queryURIExample()
+GET     /sirapi/documentation/instrumentrenderingexample  org.sirapi.console.controllers.documentation.RetrievalMethodList.instrumentRenderingExample()
 
 GET     /sirapi/documentation/repositorymethodlist        org.sirapi.console.controllers.documentation.RepositoryMethodList.index()
 

@@ -28,7 +28,7 @@ public class URIPage extends Controller {
             Object finalResult = null;
             String typeUri = null;
             GenericInstance result = GenericInstance.find(uri);
-            System.out.println("inside getUri(): URI [" + uri + "]");
+            //System.out.println("inside getUri(): URI [" + uri + "]");
 
             if (result == null) {
                 return ok(ApiUtil.createResponse("No generic instance found for uri [" + uri + "]", false));
@@ -45,25 +45,25 @@ public class URIPage extends Controller {
 
             if (result.getHascoTypeUri().equals(VSTOI.INSTRUMENT)) {
                 finalResult = Instrument.find(uri);
-                System.out.println("URIPage: object is INSTRUMENT");
+                //System.out.println("URIPage: object is INSTRUMENT");
                 if (finalResult != null) {
                     typeUri = ((Instrument) finalResult).getHascoTypeUri();
                 }
             } else if (result.getHascoTypeUri().equals(VSTOI.DETECTOR)) {
                 finalResult = Detector.find(uri);
-                System.out.println("URIPage: object is DETECTOR");
+                //System.out.println("URIPage: object is DETECTOR");
                 if (finalResult != null) {
                     typeUri = ((Detector) finalResult).getHascoTypeUri();
                 }
             } else if (result.getHascoTypeUri().equals(VSTOI.EXPERIENCE)) {
                 finalResult = Experience.find(uri);
-                System.out.println("URIPage: object is EXPERIENCE");
+                //System.out.println("URIPage: object is EXPERIENCE");
                 if (finalResult != null) {
                     typeUri = ((Experience) finalResult).getHascoTypeUri();
                 }
             } else if (result.getHascoTypeUri().equals(VSTOI.RESPONSE_OPTION)) {
                 finalResult = ResponseOption.find(uri);
-                System.out.println("URIPage: object is RESPONSE_OPTION");
+                //System.out.println("URIPage: object is RESPONSE_OPTION");
                 if (finalResult != null) {
                     typeUri = ((ResponseOption) finalResult).getHascoTypeUri();
                 }
@@ -90,7 +90,7 @@ public class URIPage extends Controller {
     private Result processResult(Object result, String typeResult, String uri) {
         ObjectMapper mapper = HAScOMapper.getFiltered(typeResult);
 
-        System.out.println("[RestAPI] generating JSON for following object: " + uri);
+        //System.out.println("[RestAPI] generating JSON for following object: " + uri);
         JsonNode jsonObject = null;
         try {
             ObjectNode obj = mapper.convertValue(result, ObjectNode.class);

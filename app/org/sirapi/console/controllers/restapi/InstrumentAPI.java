@@ -16,6 +16,7 @@ import play.mvc.Result;
 import java.util.List;
 
 import static org.sirapi.Constants.TEST_INSTRUMENT_URI;
+import static org.sirapi.Constants.TEST_INSTRUMENT_TOT_ATTACHMENTS;
 
 public class InstrumentAPI extends Controller {
 
@@ -61,6 +62,47 @@ public class InstrumentAPI extends Controller {
         return createInstrumentResult(newInst);
     }
 
+    public Result createAttachments(String instrumentUri, String totAttachments) {
+        if (instrumentUri == null || instrumentUri.equals("")) {
+            return ok(ApiUtil.createResponse("No instrument URI has been provided.", false));
+        }
+        Instrument instrument = Instrument.find(instrumentUri);
+        if (instrument == null) {
+            return ok(ApiUtil.createResponse("No instrument with provided URI has been found.", false));
+        }
+        if (instrument.getAttachments() != null) {
+            return ok(ApiUtil.createResponse("Instrument already has attachments. Delete existing attachments before creating new attachments", false));
+        }
+        if (totAttachments == null || totAttachments.equals("")) {
+            return ok(ApiUtil.createResponse("No total numbers of attachments to be created has been provided.", false));
+        }
+        int total = 0;
+        try {
+            total = Integer.parseInt(totAttachments);
+        } catch (Exception e) {
+            return ok(ApiUtil.createResponse("totAttachments is not a valid number of attachments.", false));
+        }
+        if (total <= 0) {
+            return ok(ApiUtil.createResponse("Total numbers of attachments need to be greated than zero.", false));
+        }
+        if (instrument.createAttachments(total)) {
+            return ok(ApiUtil.createResponse("A total of " + total + " attachments have been created for instrument <" + instrumentUri + ">.", true));
+        } else {
+            return ok(ApiUtil.createResponse("Method failed to create attachments for instrument <" + instrumentUri + ">.", false));
+        }
+    }
+
+    public Result createAttachmentsForTesting() {
+        Instrument testInstrument = Instrument.find(TEST_INSTRUMENT_URI);
+        if (testInstrument == null) {
+            return ok(ApiUtil.createResponse("Test instrument <" + TEST_INSTRUMENT_URI + "> needs to exist before its attachments can be created.", false));
+        } else if (testInstrument.getAttachments() != null && testInstrument.getAttachments().size() > 0) {
+            return ok(ApiUtil.createResponse("Test instrument <" + TEST_INSTRUMENT_URI + "> already has attachments.", false));
+        } else {
+            return createAttachments(testInstrument.getUri(), TEST_INSTRUMENT_TOT_ATTACHMENTS);
+        }
+    }
+
     private Result deleteInstrumentResult(Instrument inst) {
         String uri = inst.getUri();
         inst.delete();
@@ -87,6 +129,32 @@ public class InstrumentAPI extends Controller {
         } else {
             return deleteInstrumentResult(inst);
         }
+    }
+
+    public Result deleteAttachmentsForTesting() {
+        Instrument testInstrument = Instrument.find(TEST_INSTRUMENT_URI);
+        if (testInstrument == null) {
+            return ok(ApiUtil.createResponse("Test instrument <" + TEST_INSTRUMENT_URI + "> needs to exist before its attachments can be deleted.", false));
+        } else if (testInstrument.getAttachments() == null || testInstrument.getAttachments().size() == 0) {
+            return ok(ApiUtil.createResponse("Test instrument <" + TEST_INSTRUMENT_URI + "> has no attachments to be deleted.", false));
+        } else {
+            return deleteAttachments(testInstrument.getUri());
+        }
+    }
+
+    public Result deleteAttachments(String instrumentUri) {
+        if (instrumentUri == null || instrumentUri.equals("")) {
+            return ok(ApiUtil.createResponse("No instrument URI has been provided.", false));
+        }
+        Instrument instrument = Instrument.find(instrumentUri);
+        if (instrument == null) {
+            return ok(ApiUtil.createResponse("No instrument with provided URI has been found.", false));
+        }
+        if (instrument.getAttachments() == null) {
+            return ok(ApiUtil.createResponse("Instrument has no attachment to be deleted.", false));
+        }
+        instrument.deleteAttachments();
+        return ok(ApiUtil.createResponse("Attachments for Instrument <" + instrument.getUri() + "> have been deleted.", true));
     }
 
     public Result getAllInstruments(){

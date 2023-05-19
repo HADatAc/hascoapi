@@ -554,9 +554,13 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 		}
 		for (int aux=1; aux <= totAttachments; aux++) {
 			String auxstr = String.valueOf(aux);
-			Attachment.createAttachment(uri, auxstr,null);
+			String newUri = uri + "/ATT/" + auxstr;
+			Attachment.createAttachment(uri, newUri, auxstr,null);
 		}
 		List<Attachment> attachmentList = Attachment.findByInstrument(uri);
+		if (attachmentList == null) {
+			return false;
+		}
 		return (attachmentList.size() == totAttachments);
 	}
 

@@ -61,12 +61,58 @@ public class Attachment extends HADatAcThing implements Comparable<Attachment>  
         return Detector.find(hasDetector);
     }
 
+    public static int getNumberAttachments() {
+        String query = "";
+        query += NameSpaces.getInstance().printSparqlNameSpaceList();
+        query += " select (count(?uri) as ?tot) where { " +
+                " ?attModel rdfs:subClassOf* vstoi:Attachment . " +
+                " ?uri a ?attModel ." +
+                "}";
+
+        try {
+            ResultSetRewindable resultsrw = SPARQLUtils.select(
+                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), query);
+
+            if (resultsrw.hasNext()) {
+                QuerySolution soln = resultsrw.next();
+                return Integer.parseInt(soln.getLiteral("tot").getString());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    public static int getNumberAttachmentsWithDetectors() {
+        String query = "";
+        query += NameSpaces.getInstance().printSparqlNameSpaceList();
+        query += " select (count(?uri) as ?tot) where { " +
+                " ?attModel rdfs:subClassOf* vstoi:Attachment . " +
+                " ?uri a ?attModel ." +
+                " ?uri vstoi:hasDetector ?detector . " +
+                "}";
+
+        try {
+            ResultSetRewindable resultsrw = SPARQLUtils.select(
+                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), query);
+
+            if (resultsrw.hasNext()) {
+                QuerySolution soln = resultsrw.next();
+                return Integer.parseInt(soln.getLiteral("tot").getString());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
     public static int getNumberAttachmentsByInstrument(String instrumentUri) {
         String query = "";
         query += NameSpaces.getInstance().printSparqlNameSpaceList();
         query += " select (count(?uri) as ?tot) where { " +
                 " ?attModel rdfs:subClassOf* vstoi:Attachment . " +
                 " ?uri a ?attModel ." +
+                " ?uri vstoi:belongsTo <" + instrumentUri + ">. " +
                 "}";
 
         try {
@@ -89,7 +135,7 @@ public class Attachment extends HADatAcThing implements Comparable<Attachment>  
                 "SELECT ?uri WHERE { " +
                 " ?attModel rdfs:subClassOf* vstoi:Attachment . " +
                 " ?uri a ?attModel . } " +
-                " ?uri vstoi:belongs>To <" + instrumentUri + ">. " +
+                " ?uri vstoi:belongsTo <" + instrumentUri + ">. " +
                 " LIMIT " + pageSize +
                 " OFFSET " + offset;
 
@@ -107,15 +153,48 @@ public class Attachment extends HADatAcThing implements Comparable<Attachment>  
     }
 
     public static List<Attachment> findByInstrument(String instrumentUri) {
-        System.out.println("findByInstrument: [" + instrumentUri + "]");
+        //System.out.println("findByInstrument: [" + instrumentUri + "]");
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?detModel rdfs:subClassOf* vstoi:Detector . " +
-                " ?uri a ?detModel ." +
-                " ?uri vstoi:belongs>To <" + instrumentUri + ">. " +
+                " ?attModel rdfs:subClassOf* vstoi:Attachment . " +
+                " ?uri a ?attModel ." +
+                " ?uri vstoi:belongsTo <" + instrumentUri + ">. " +
                 "} ";
 
         return findByQuery(queryString);
+    }
+
+    public static Attachment findByInstrumentAndPriority(String instrumentUri, String priority) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT ?uri WHERE { " +
+                " ?attModel rdfs:subClassOf* vstoi:Attachment . " +
+                " ?uri a ?attModel ." +
+                " ?uri vstoi:belongsTo <" + instrumentUri + ">. " +
+                " ?uri vstoi:hasPriority ?priority . " +
+                " FILTER (str(?priority) = \"" + priority + "\") " +
+                "} ";
+
+        List<Attachment> attachments = findByQuery(queryString);
+        if (attachments != null && attachments.size() > 0) {
+            return attachments.get(0);
+        }
+        return null;
+    }
+
+    public static Attachment findByInstrumentAndDetector(String instrumentUri, String detectorUri) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT ?uri WHERE { " +
+                " ?attModel rdfs:subClassOf* vstoi:Attachment . " +
+                " ?uri a ?attModel ." +
+                " ?uri vstoi:belongsTo <" + instrumentUri + ">. " +
+                " ?uri vstoi:hasDetector <" + detectorUri + ">. " +
+                "} ";
+
+        List<Attachment> attachments = findByQuery(queryString);
+        if (attachments != null && attachments.size() > 0) {
+            return attachments.get(0);
+        }
+        return null;
     }
 
     private static List<Attachment> findByQuery(String queryString) {
@@ -180,7 +259,7 @@ public class Attachment extends HADatAcThing implements Comparable<Attachment>  
         return attachment;
     }
 
-    static public boolean createAttachment(String instrumentUri, String priority, String hasDetector) {
+    static public boolean createAttachment(String instrumentUri, String attachmentUri, String priority, String hasDetector) {
         if (instrumentUri == null || instrumentUri.isEmpty()) {
             return false;
         }
@@ -188,6 +267,7 @@ public class Attachment extends HADatAcThing implements Comparable<Attachment>  
             return false;
         }
         Attachment att = new Attachment();
+        att.setUri(attachmentUri);
         att.setLabel("Attachment " + priority);
         att.setTypeUri(VSTOI.ATTACHMENT);
         att.setHascoTypeUri(VSTOI.ATTACHMENT);
@@ -198,24 +278,23 @@ public class Attachment extends HADatAcThing implements Comparable<Attachment>  
             att.setHasDetector(hasDetector);
         }
         att.save();
+        System.out.println("Attachment.createAttachment: creating attachment with URI [" + attachmentUri + "]" );
         return true;
     }
 
-    static public boolean updateAttachmentDetector(String attachmentUri, String hasDetector) {
-        Attachment oldAttachment = Attachment.find(attachmentUri);
-        if (oldAttachment == null) {
-            return false;
-        }
+    public boolean updateAttachmentDetector(String hasDetector) {
         Attachment newAttachment = new Attachment();
-        newAttachment.setUri(attachmentUri);
-        newAttachment.setLabel(oldAttachment.getLabel());
-        newAttachment.setTypeUri(oldAttachment.getTypeUri());
-        newAttachment.setComment(oldAttachment.getComment());
-        newAttachment.setHascoTypeUri(oldAttachment.getHascoTypeUri());
-        newAttachment.setBelongsTo(oldAttachment.getBelongsTo());
-        newAttachment.setHasPriority(oldAttachment.getHasPriority());
-        newAttachment.setHasDetector(hasDetector);
-        oldAttachment.delete();
+        newAttachment.setUri(this.uri);
+        newAttachment.setLabel(this.getLabel());
+        newAttachment.setTypeUri(this.getTypeUri());
+        newAttachment.setComment(this.getComment());
+        newAttachment.setHascoTypeUri(this.getHascoTypeUri());
+        newAttachment.setBelongsTo(this.getBelongsTo());
+        newAttachment.setHasPriority(this.getHasPriority());
+        if (hasDetector != null && !hasDetector.isEmpty()) {
+            newAttachment.setHasDetector(hasDetector);
+        }
+        this.delete();
         newAttachment.save();
         return true;
     }

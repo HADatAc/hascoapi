@@ -10,6 +10,7 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
+import org.checkerframework.checker.units.qual.A;
 import org.sirapi.annotations.PropertyField;
 import org.sirapi.utils.SPARQLUtils;
 import org.sirapi.utils.CollectionUtil;
@@ -31,8 +32,8 @@ public class Detector extends HADatAcThing implements SIRElement, Comparable<Det
     @PropertyField(uri="hasco:hasImage")
     private String image;
 
-    @PropertyField(uri="vstoi:isInstrumentAttachment")
-    private String isInstrumentAttachment;
+    //@PropertyField(uri="vstoi:isInstrumentAttachment")
+    //private String isInstrumentAttachment;
 
     @PropertyField(uri="vstoi:hasContent")
     private String hasContent;
@@ -76,13 +77,13 @@ public class Detector extends HADatAcThing implements SIRElement, Comparable<Det
         this.image = image;
     }
 
-    public String getIsInstrumentAttachment() {
-        return isInstrumentAttachment;
-    }
+    //public String getIsInstrumentAttachment() {
+    //    return isInstrumentAttachment;
+    //}
 
-    public void setIsInstrumentAttachment(String isInstrumentAttachment) {
-        this.isInstrumentAttachment = isInstrumentAttachment;
-    }
+    //public void setIsInstrumentAttachment(String isInstrumentAttachment) {
+    //    this.isInstrumentAttachment = isInstrumentAttachment;
+    //}
 
     public String getHasContent() {
         return hasContent;
@@ -374,8 +375,8 @@ public class Detector extends HADatAcThing implements SIRElement, Comparable<Det
                 detector.setSerialNumber(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
                 detector.setImage(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals(VSTOI.IS_INSTRUMENT_ATTACHMENT)) {
-                detector.setIsInstrumentAttachment(object.asResource().getURI());
+//            } else if (statement.getPredicate().getURI().equals(VSTOI.IS_INSTRUMENT_ATTACHMENT)) {
+//                detector.setIsInstrumentAttachment(object.asResource().getURI());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_CONTENT)) {
                 detector.setHasContent(object.asLiteral().getString());
 //            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PRIORITY)) {
@@ -399,6 +400,32 @@ public class Detector extends HADatAcThing implements SIRElement, Comparable<Det
         detector.setUri(uri);
 
         return detector;
+    }
+
+    public static boolean attach(String instrumentUri, String detectorUri, String priority) {
+        System.out.println("Instrument URI: [" + instrumentUri + "]  Priority [" + priority + "]");
+        if (instrumentUri == null || instrumentUri.isEmpty() || detectorUri == null || detectorUri.isEmpty() || priority == null || priority.isEmpty()) {
+            return false;
+        }
+        Attachment attachment = Attachment.findByInstrumentAndPriority(instrumentUri, priority);
+        if (attachment == null) {
+            System.out.println("Attachment.findByInstrumentAndPriority returned nothing");
+        }
+        if (attachment == null) {
+            return false;
+        }
+        return attachment.updateAttachmentDetector(detectorUri);
+    }
+
+    public static boolean detach(String instrumentUri, String detectorUri) {
+        if (instrumentUri == null || instrumentUri.isEmpty() || detectorUri == null || detectorUri.isEmpty()) {
+            return false;
+        }
+        Attachment attachment = Attachment.findByInstrumentAndDetector(instrumentUri, detectorUri);
+        if (attachment == null) {
+            return false;
+        }
+        return attachment.updateAttachmentDetector(null);
     }
 
     @Override
