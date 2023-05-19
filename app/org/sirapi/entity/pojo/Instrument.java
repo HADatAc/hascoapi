@@ -545,6 +545,24 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 		return (attachments == null);
 	}
 
+	private String adjustedPriority(String priority, int totAttachments) {
+		int digits = 0;
+		if (totAttachments < 10) {
+			digits = 1;
+		} else if (totAttachments < 100) {
+			digits = 2;
+		} else if (totAttachments < 1000) {
+			digits = 3;
+		} else {
+			digits = 4;
+		}
+		String auxstr = String.valueOf(priority);
+		for (int filler = auxstr.length(); filler < digits; filler++) {
+			auxstr = "0" + auxstr;
+		}
+		return auxstr;
+	}
+
 	public boolean createAttachments(int totAttachments) {
 		if (totAttachments <= 0) {
 			return false;
@@ -553,7 +571,7 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 			return false;
 		}
 		for (int aux=1; aux <= totAttachments; aux++) {
-			String auxstr = String.valueOf(aux);
+			String auxstr = adjustedPriority(String.valueOf(aux), totAttachments);
 			String newUri = uri + "/ATT/" + auxstr;
 			Attachment.createAttachment(uri, newUri, auxstr,null);
 		}

@@ -19,6 +19,7 @@ import org.sirapi.vocabularies.VSTOI;
 import java.util.ArrayList;
 import java.util.List;
 
+@JsonFilter("attachmentFilter")
 public class Attachment extends HADatAcThing implements Comparable<Attachment>  {
 
     @PropertyField(uri="vstoi:belongsTo")
