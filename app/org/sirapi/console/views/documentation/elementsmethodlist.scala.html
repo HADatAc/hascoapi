@@ -31,8 +31,8 @@
                 <h4>Instruments</h4>
                 <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/instrument/create/(instrumentJson)</button> - Create a new instrument according to the json specification provided. Json needs to be URL encoded. Use the <a href="@org.sirapi.console.controllers.documentation.routes.ElementsMethodList.createInstrumentExample()">Create Instrument Example</a> to see how to use a CURL with POST method to create instruments.<br>
                 <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/instrument/delete/(instrUri)</button> - Delete an existing instrument using the URI provided. URI needs to be URL encoded. Use the <a href="@org.sirapi.console.controllers.documentation.routes.ElementsMethodList.deleteInstrumentExample()">Delete Instrument Example</a> to see how to use a CURL with POST method to delete instruments.<br>
-                <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/attachments/create/:instrUri/:totAttachments</button> - For an existing instrument with the URI provided, create the given number of attachments.<br>
-                <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/attachments/delete/:instrUri</button> - For an existing instrument with the URI provided, delete all its attachment at once.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/attachment/create/:instrUri/:totAttachments</button> - For an existing instrument with the URI provided, create the given number of attachments.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/attachment/delete/:instrUri</button> - For an existing instrument with the URI provided, delete all its attachment at once.<br>
 
                 <br>
                 <h4>Detectors</h4>
@@ -59,8 +59,8 @@
 
                 <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/instrument/test/create" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/api/instrument/test/create</a> - Create a test instrument.<br>
                 <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/instrument/test/delete" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/api/instrument/test/delete</a> - Delete a test instrument.<br>
-                <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/attachments/test/create" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/api/attachments/test/create</a> - Create two attachments for the test instrument. This methods requires the test instrument to exist before it is called. <br>
-                <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/attachments/test/delete" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/api/attachments/test/delete</a> - Delete attachments of test instrument, if any. This method requires the test instrument to exist and to have attachments.<br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/attachment/test/create" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/api/attachment/test/create</a> - Create two attachments for the test instrument. This methods requires the test instrument to exist before it is called. <br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/attachment/test/delete" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/api/attachment/test/delete</a> - Delete attachments of test instrument, if any. This method requires the test instrument to exist and to have attachments.<br>
 
                 <br>
                 <h4>Test Detector</h4>

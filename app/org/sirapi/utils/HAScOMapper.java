@@ -121,12 +121,20 @@ public class HAScOMapper {
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri", "hascoTypeLabel", "comment", "hasSerialNumber", "hasLanguage", "hasVersion", "hasSIRMaintainerEmail"));
         }
 
+        // ATTACHMENT
+        if (typeResult.equals(VSTOI.ATTACHMENT)) {
+            filterProvider.addFilter("attachmentFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("attachmentFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri", "hascoTypeLabel", "comment", "hasPriority", "hasDetector"));
+        }
+
         // DETECTOR
         if (typeResult.equals(VSTOI.DETECTOR)) {
             filterProvider.addFilter("detectorFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("detectorFilter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri", "hascoTypeLabel", "comment", "hasPriority",  "hasSerialNumber", "hasContent", "hasLanguage", "hasVersion", "hasSIRMaintainerEmail", "hasExperience", "experience"));
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri", "hascoTypeLabel", "comment", "hasSerialNumber", "hasContent", "hasLanguage", "hasVersion", "hasSIRMaintainerEmail", "hasExperience", "experience"));
         }
 
         // EXPERIENCE
@@ -137,7 +145,7 @@ public class HAScOMapper {
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri", "hascoTypeLabel", "comment",  "hasSerialNumber", "responseOptions", "hasLanguage", "hasVersion", "hasSIRMaintainerEmail"));
         }
 
-        // DETECTOR
+        // RESPONSE OPTION
         if (typeResult.equals(VSTOI.RESPONSE_OPTION)) {
             filterProvider.addFilter("responseOptionFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {

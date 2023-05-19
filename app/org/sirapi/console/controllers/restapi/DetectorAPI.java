@@ -214,24 +214,6 @@ public class DetectorAPI extends Controller {
         }
     }
 
-    public Result getAllDetectors(){
-        ObjectMapper mapper = new ObjectMapper();
-
-        List<Detector> results = Detector.find();
-        if (results == null) {
-            return notFound(ApiUtil.createResponse("No detector has been found", false));
-        } else {
-            SimpleFilterProvider filterProvider = new SimpleFilterProvider();
-            filterProvider.addFilter("detectorFilter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "hasContent", "hasSerialNumber", "hasExperience", "hasLanguage", "hasVersion",
-                            "hasPriority", "hasSIRMaintainerEmail"));
-            mapper.setFilterProvider(filterProvider);
-            JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
-            return ok(ApiUtil.createResponse(jsonObject, true));
-        }
-    }
-
     public Result getDetectorsByLanguage(String language){
         List<Detector> results = Detector.findByLanguage(language);
         return getDetectors(results);
@@ -257,6 +239,11 @@ public class DetectorAPI extends Controller {
         return getDetectors(results);
     }
 
+    public Result getAllDetectors(){
+        List<Detector> results = Detector.find();
+        return getDetectors(results);
+    }
+
     private Result getDetectors(List<Detector> results){
         if (results == null) {
             return ok(ApiUtil.createResponse("No detector has been found", false));
@@ -266,7 +253,32 @@ public class DetectorAPI extends Controller {
             filterProvider.addFilter("detectorFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
                             "hascoTypeLabel", "comment", "hasContent", "hasSerialNumber", "hasLanguage","hasExperience",
-                            "hasVersion", "hasPriority", "hasSIRMaintainerEmail"));
+                            "hasVersion", "hasSIRMaintainerEmail"));
+            mapper.setFilterProvider(filterProvider);
+            JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
+            return ok(ApiUtil.createResponse(jsonObject, true));
+        }
+    }
+
+    public Result getAllAttachments(){
+        List<Attachment> results = Attachment.find();
+        return getAttachments(results);
+    }
+
+    public Result getAttachmentsByInstrument(String instrumentUri){
+        List<Attachment> results = Attachment.findByInstrument(instrumentUri);
+        return getAttachments(results);
+    }
+
+    private Result getAttachments(List<Attachment> results){
+        if (results == null) {
+            return ok(ApiUtil.createResponse("No attachment has been found", false));
+        } else {
+            ObjectMapper mapper = new ObjectMapper();
+            SimpleFilterProvider filterProvider = new SimpleFilterProvider();
+            filterProvider.addFilter("attachmentFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
+                            "hascoTypeLabel", "comment", "hasPriority", "hasDetector"));
             mapper.setFilterProvider(filterProvider);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));

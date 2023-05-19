@@ -247,8 +247,8 @@ public class Detector extends HADatAcThing implements SIRElement, Comparable<Det
                 " SELECT ?uri WHERE { " +
                 " ?detModel rdfs:subClassOf* vstoi:Detector . " +
                 " ?uri a ?detModel ." +
-                " ?uri rdfs:label ?label . " +
-                "   FILTER regex(?label, \"" + keyword + "\", \"i\") " +
+                " ?uri vstoi:hasContent ?content . " +
+                "   FILTER regex(?content, \"" + keyword + "\", \"i\") " +
                 "} ";
 
         return findByQuery(queryString);
@@ -280,12 +280,13 @@ public class Detector extends HADatAcThing implements SIRElement, Comparable<Det
     }
 
     public static List<Detector> findByInstrument(String instrumentUri) {
-        System.out.println("findByInstrument: [" + instrumentUri + "]");
+        //System.out.println("findByInstrument: [" + instrumentUri + "]");
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
                 " ?detModel rdfs:subClassOf* vstoi:Detector . " +
                 " ?uri a ?detModel ." +
-                " ?uri vstoi:isInstrumentAttachment <" + instrumentUri + ">. " +
+                " ?attUri vstoi:hasDetector ?uri . " +
+                " ?attUri vstoi:belongsTo <" + instrumentUri + ">. " +
                 "} ";
 
         return findByQuery(queryString);
@@ -375,12 +376,8 @@ public class Detector extends HADatAcThing implements SIRElement, Comparable<Det
                 detector.setSerialNumber(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
                 detector.setImage(object.asLiteral().getString());
-//            } else if (statement.getPredicate().getURI().equals(VSTOI.IS_INSTRUMENT_ATTACHMENT)) {
-//                detector.setIsInstrumentAttachment(object.asResource().getURI());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_CONTENT)) {
                 detector.setHasContent(object.asLiteral().getString());
-//            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PRIORITY)) {
-//                detector.setHasPriority(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
                 detector.setHasLanguage(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {

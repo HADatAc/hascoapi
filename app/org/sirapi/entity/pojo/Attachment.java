@@ -152,6 +152,16 @@ public class Attachment extends HADatAcThing implements Comparable<Attachment>  
         return attachments;
     }
 
+    public static List<Attachment> find() {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT ?uri WHERE { " +
+                " ?attModel rdfs:subClassOf* vstoi:Attachment . " +
+                " ?uri a ?attModel ." +
+                "} ";
+
+        return findByQuery(queryString);
+    }
+
     public static List<Attachment> findByInstrument(String instrumentUri) {
         //System.out.println("findByInstrument: [" + instrumentUri + "]");
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +

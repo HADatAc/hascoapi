@@ -49,6 +49,12 @@ public class URIPage extends Controller {
                 if (finalResult != null) {
                     typeUri = ((Instrument) finalResult).getHascoTypeUri();
                 }
+            } else if (result.getHascoTypeUri().equals(VSTOI.ATTACHMENT)) {
+                finalResult = Attachment.find(uri);
+                //System.out.println("URIPage: object is ATTACHMENT");
+                if (finalResult != null) {
+                    typeUri = ((Attachment) finalResult).getHascoTypeUri();
+                }
             } else if (result.getHascoTypeUri().equals(VSTOI.DETECTOR)) {
                 finalResult = Detector.find(uri);
                 //System.out.println("URIPage: object is DETECTOR");
