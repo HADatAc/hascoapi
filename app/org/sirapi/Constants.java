@@ -2,7 +2,7 @@ package org.sirapi;
 
 public class Constants {
 
-    public static final String REPOSITORY_VERSION = "0.2";
+    public static final String REPOSITORY_VERSION = "0.3";
 
     public static final String FLASH_MESSAGE_KEY = "message";
     public static final String FLASH_ERROR_KEY = "error";
