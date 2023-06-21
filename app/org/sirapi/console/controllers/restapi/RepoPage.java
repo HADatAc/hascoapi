@@ -2,14 +2,18 @@ package org.sirapi.console.controllers.restapi;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.sirapi.RepositoryInstance;
 import org.sirapi.entity.pojo.Instrument;
 import org.sirapi.entity.pojo.Repository;
+import org.sirapi.entity.pojo.Table;
 import org.sirapi.utils.ApiUtil;
 import org.sirapi.utils.NameSpaces;
 import play.mvc.Controller;
 import play.mvc.Result;
+
+import java.util.List;
 
 public class RepoPage extends Controller {
 
@@ -80,6 +84,25 @@ public class RepoPage extends Controller {
         RepositoryInstance.getInstance().save();
         NameSpaces.getInstance().deleteLocalNamespace();
         return ok(ApiUtil.createResponse("Repository's local namespace has been DELETED.", true));
+    }
+
+    public Result getLanguages() {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            // get the list of variables in that study
+            // serialize the Study object first as ObjectNode
+            //   as JsonNode is immutable and meant to be read-only
+            //List<Table> table = Table.find();
+            //for (Table entry: table) {
+            //    System.out.println(entry.getCode());
+            //}
+            ArrayNode array = mapper.convertValue(Table.find(), ArrayNode.class);
+            JsonNode jsonObject = mapper.convertValue(array, JsonNode.class);
+            return ok(ApiUtil.createResponse(jsonObject, true));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return badRequest(ApiUtil.createResponse("Error retrieving languages", false));
+        }
     }
 
 }

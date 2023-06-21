@@ -38,8 +38,8 @@
                 <h4>Detectors</h4>
                 <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/detector/create/(detectorJson)</button> - Create a new detector according to the json specification provided. Json needs to be URL encoded. Use the <a href="@org.sirapi.console.controllers.documentation.routes.ElementsMethodList.createDetectorExample()">Create Detector Example</a> to see how to use a CURL with POST method to create detectors.<br>
                 <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/detector/delete/(detectorUri)</button> - Delete an existing detector using the URI provided. URI needs to be URL encoded. Use the <a href="@org.sirapi.console.controllers.documentation.routes.ElementsMethodList.deleteDetectorExample()">Delete Instrument Example</a> to see how to use a CURL with POST method to delete detectors.<br>
-                <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/detector/attach/:uri/:instrUri/:priority</button> - Attach a detector to an instrument's attachment with the given priority. This method requires the detector and instrument to exist. It further requires the instrument to have an attachment with the given priority.<br>
-                <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/detector/detach/:uri/:instrUri</button> - Detach a detector from a given instrument.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/detector/attach/:uri/:attachmentUri</button> - Attach a detector to an instrument's attachment. This method requires the detector and instrument's attachment to exist.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/detector/detach/:attachmentUri</button> - Detach a detector from a given instrument's attachment.<br>
 
                 <br>
                 <h4>Experiences</h4>

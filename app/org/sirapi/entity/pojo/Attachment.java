@@ -175,39 +175,6 @@ public class Attachment extends HADatAcThing implements Comparable<Attachment>  
         return findByQuery(queryString);
     }
 
-    public static Attachment findByInstrumentAndPriority(String instrumentUri, String priority) {
-        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                " SELECT ?uri WHERE { " +
-                " ?attModel rdfs:subClassOf* vstoi:Attachment . " +
-                " ?uri a ?attModel ." +
-                " ?uri vstoi:belongsTo <" + instrumentUri + ">. " +
-                " ?uri vstoi:hasPriority ?priority . " +
-                " FILTER (str(?priority) = \"" + priority + "\") " +
-                "} ";
-
-        List<Attachment> attachments = findByQuery(queryString);
-        if (attachments != null && attachments.size() > 0) {
-            return attachments.get(0);
-        }
-        return null;
-    }
-
-    public static Attachment findByInstrumentAndDetector(String instrumentUri, String detectorUri) {
-        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                " SELECT ?uri WHERE { " +
-                " ?attModel rdfs:subClassOf* vstoi:Attachment . " +
-                " ?uri a ?attModel ." +
-                " ?uri vstoi:belongsTo <" + instrumentUri + ">. " +
-                " ?uri vstoi:hasDetector <" + detectorUri + ">. " +
-                "} ";
-
-        List<Attachment> attachments = findByQuery(queryString);
-        if (attachments != null && attachments.size() > 0) {
-            return attachments.get(0);
-        }
-        return null;
-    }
-
     private static List<Attachment> findByQuery(String queryString) {
         List<Attachment> attachments = new ArrayList<Attachment>();
         ResultSetRewindable resultsrw = SPARQLUtils.select(
@@ -294,6 +261,9 @@ public class Attachment extends HADatAcThing implements Comparable<Attachment>  
     }
 
     public boolean updateAttachmentDetector(String hasDetector) {
+        System.out.println("inside Attachment.updateAttachmentDetector(detectorUri)");
+        System.out.println("Attachment URI is [" + this.uri + "]");
+        System.out.println("Detector URI is [" + hasDetector + "]");
         Attachment newAttachment = new Attachment();
         newAttachment.setUri(this.uri);
         newAttachment.setLabel(this.getLabel());

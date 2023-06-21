@@ -8,11 +8,14 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import org.sirapi.annotations.PropertyField;
 import org.sirapi.entity.pojo.Instrument;
+import org.sirapi.transform.Renderings;
 import org.sirapi.utils.ApiUtil;
 import org.sirapi.vocabularies.VSTOI;
 import play.mvc.Controller;
 import play.mvc.Result;
 
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
 import java.util.List;
 
 import static org.sirapi.Constants.TEST_INSTRUMENT_URI;
@@ -202,7 +205,7 @@ public class InstrumentAPI extends Controller {
         if (uri  == null || uri.equals("")) {
             return ok(ApiUtil.createResponse("No URI has been provided", false));
         }
-        String instrumentText = Instrument.toString(uri, 80);
+        String instrumentText = Renderings.toString(uri, 80);
         if (instrumentText == null || instrumentText.equals("")) {
             return ok(ApiUtil.createResponse("No instrument has been found", false));
         } else {
@@ -214,7 +217,7 @@ public class InstrumentAPI extends Controller {
         if (uri  == null || uri.equals("")) {
             return ok(ApiUtil.createResponse("No URI has been provided", false));
         }
-        String instrumentText = Instrument.toHTML(uri, 80);
+        String instrumentText = Renderings.toHTML(uri, 80);
         if (instrumentText == null || instrumentText.equals("")) {
             return ok(ApiUtil.createResponse("No instrument has been found", false));
         } else {
@@ -222,5 +225,16 @@ public class InstrumentAPI extends Controller {
         }
     }
 
+    public Result toTextPDF(String uri) {
+        if (uri  == null || uri.equals("")) {
+            return ok(ApiUtil.createResponse("No URI has been provided", false));
+        }
+        ByteArrayOutputStream instrumentText = Renderings.toPDF(uri, 80);
+        if (instrumentText == null || instrumentText.equals("")) {
+            return ok(ApiUtil.createResponse("No instrument has been found", false));
+        } else {
+            return ok(instrumentText.toByteArray()).as("application/pdf");
+        }
+    }
 
 }

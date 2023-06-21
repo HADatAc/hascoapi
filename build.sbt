@@ -56,6 +56,9 @@ libraryDependencies ++= Seq(
   "org.springframework.security" % "spring-security-crypto" % "6.0.2",
   "org.apache.logging.log4j" % "log4j-api" % "2.20.0",
   "org.apache.logging.log4j" % "log4j-core" % "2.20.0",
+  "org.jsoup" % "jsoup" % "1.13.1",
+  "org.xhtmlrenderer" % "flying-saucer-pdf-openpdf" % "9.1.20",
+  // "com.itextpdf" % "itextpdf" % "5.5.13.3",
 
   //For Java > 8
   "javax.xml.bind" % "jaxb-api" % "2.3.1",

@@ -29,11 +29,12 @@ public class VSTOI {
      *    CLASSES
      */
 
-    public static final String ATTACHMENT                             = "http://hadatac.org/ont/vstoi#Attachment";
+    public static final String ATTACHMENT                              = "http://hadatac.org/ont/vstoi#Attachment";
     public static final String EXPERIENCE                              = "http://hadatac.org/ont/vstoi#Experience";
     public static final String ITEM                                    = "http://hadatac.org/ont/vstoi#Item";
     public static final String PSYCHOMETRIC_QUESTIONNAIRE              = "http://hadatac.org/ont/vstoi#PsychometricQuestionnaire";
     public static final String RESPONSE_OPTION                         = "http://hadatac.org/ont/vstoi#ResponseOption";
+    public static final String TABLE                                   = "http://hadatac.org/ont/vstoi#Table";
 
     /*
      *    PROPERTIES
