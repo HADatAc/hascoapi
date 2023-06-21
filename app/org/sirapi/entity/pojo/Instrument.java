@@ -13,6 +13,7 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
+import org.hl7.fhir.r4.model.Questionnaire;
 import org.sirapi.annotations.PropertyField;
 import org.sirapi.utils.CollectionUtil;
 import org.sirapi.utils.NameSpaces;
@@ -136,6 +137,16 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
     public List<Attachment> getAttachments() {
     	List<Attachment> atts = Attachment.findByInstrument(uri);
     	return atts;
+    }
+
+	public List<Detector> getDetectors() {
+		List<Detector> detectors = new ArrayList<Detector>();
+    	List<Attachment> atts = Attachment.findByInstrument(uri);
+		for (Attachment att : atts) {
+			Detector detector = att.getDetector();
+			detectors.add(detector);
+		} 
+    	return detectors;
     }
     
 	@Override
@@ -464,4 +475,19 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
         return 0;
     }
     
+	public Questionnaire getFHIRObject() {
+		Questionnaire questionnaire = new Questionnaire();
+		questionnaire.setUrl(getUri());
+		questionnaire.setTitle(getLabel());
+		questionnaire.setName(getComment());
+		questionnaire.setVersion(getHasVersion());
+
+		List<Attachment> attachments = getAttachments();
+		for (Attachment attachment : attachments) {
+			Detector detector = attachment.getDetector();
+			questionnaire.addItem(detector.getFHIRObject());
+		}
+
+		return questionnaire;
+	}
 }

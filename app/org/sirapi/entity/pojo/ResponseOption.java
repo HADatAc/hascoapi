@@ -7,6 +7,7 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
+import org.hl7.fhir.r4.model.Coding;
 import org.sirapi.annotations.PropertyField;
 import org.sirapi.utils.CollectionUtil;
 import org.sirapi.utils.NameSpaces;
@@ -370,4 +371,10 @@ public class ResponseOption extends HADatAcThing implements SIRElement, Comparab
         return 0;
     }
 
+    public Coding getFHIRObject() {
+        Coding coding = new Coding();
+        coding.setCode(getUri());
+        coding.setDisplay(getHasContent());
+        return coding;
+    }
 }

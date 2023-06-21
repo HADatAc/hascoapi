@@ -164,6 +164,17 @@ public class NameSpaces {
         lcc_639_1_NAMESPACE.setPriority(9);
         namespaces.add(lcc_639_1_NAMESPACE);
 
+        // FHIR
+        NameSpace FHIR_NAMESPACE = new NameSpace();
+        FHIR_NAMESPACE.setAbbreviation("fhir");
+        FHIR_NAMESPACE.setName("http://hl7.org/fhir/");
+        FHIR_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
+        FHIR_NAMESPACE.setComment("FHIR is a standard for health care data exchange, published by HL7.");
+        FHIR_NAMESPACE.setVersion("R5");
+        FHIR_NAMESPACE.updateNumberOfLoadedTriples();
+        FHIR_NAMESPACE.setPriority(7);
+        namespaces.add(FHIR_NAMESPACE);
+
         // default
         NameSpace TEST_NAMESPACE = new NameSpace();
         TEST_NAMESPACE.setAbbreviation("default");
