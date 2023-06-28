@@ -36,6 +36,7 @@ POST    /sirapi/api/instrument/delete/:uri                org.sirapi.console.con
 GET     /sirapi/api/instrument/totext/plain/:uri          org.sirapi.console.controllers.restapi.InstrumentAPI.toTextPlain(uri: String)
 GET     /sirapi/api/instrument/totext/html/:uri           org.sirapi.console.controllers.restapi.InstrumentAPI.toTextHTML(uri: String)
 GET     /sirapi/api/instrument/totext/pdf/:uri            org.sirapi.console.controllers.restapi.InstrumentAPI.toTextPDF(uri: String)
+GET     /sirapi/api/instrument/tofhir/:uri                org.sirapi.console.controllers.restapi.InstrumentAPI.toFHIR(uri: String)
 GET     /sirapi/api/instrumenttype/all                    org.sirapi.console.controllers.restapi.InstrumentTypeAPI.getAllInstrumentTypes()
 GET     /sirapi/api/attachment/all                        org.sirapi.console.controllers.restapi.DetectorAPI.getAllAttachments()
 GET     /sirapi/api/attachment/byinstrument/:instrUri     org.sirapi.console.controllers.restapi.DetectorAPI.getAttachmentsByInstrument(instrUri: String)

@@ -2,11 +2,12 @@ package org.sirapi.console.controllers.restapi;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
-import org.sirapi.annotations.PropertyField;
+
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.parser.IParser;
+
 import org.sirapi.entity.pojo.Instrument;
 import org.sirapi.transform.Renderings;
 import org.sirapi.utils.ApiUtil;
@@ -244,5 +245,20 @@ public class InstrumentAPI extends Controller {
             return ok(instrumentText.toByteArray()).as("application/pdf");
         }
     }
+    
+    public Result toFHIR(String uri) {
+        if (uri  == null || uri.equals("")) {
+            return ok(ApiUtil.createResponse("No URI has been provided", false));
+        }
+        Instrument instr = Instrument.find(uri);
+        if (instr == null) {
+            return ok(ApiUtil.createResponse("No instrument instance found for uri [" + uri + "]", false));
+        }
 
+        FhirContext ctx = FhirContext.forR4();
+        IParser parser = ctx.newJsonParser();
+        String serialized = parser.encodeResourceToString(instr.getFHIRObject());
+
+        return ok(serialized).as("application/json");
+    }
 }

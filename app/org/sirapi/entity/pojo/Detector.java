@@ -10,7 +10,10 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
-import org.checkerframework.checker.units.qual.A;
+import org.hl7.fhir.r4.model.Coding;
+import org.hl7.fhir.r4.model.Questionnaire.QuestionnaireItemAnswerOptionComponent;
+import org.hl7.fhir.r4.model.Questionnaire.QuestionnaireItemComponent;
+import org.hl7.fhir.r4.model.Questionnaire.QuestionnaireItemType;
 import org.sirapi.annotations.PropertyField;
 import org.sirapi.utils.SPARQLUtils;
 import org.sirapi.utils.CollectionUtil;
@@ -484,4 +487,21 @@ public class Detector extends HADatAcThing implements SIRElement, Comparable<Det
         return 0;
     }
 
+    public QuestionnaireItemComponent getFHIRObject() {
+        QuestionnaireItemComponent item = new QuestionnaireItemComponent();
+        Experience experience = getExperience();
+        List<ResponseOption> responseOptions = experience.getResponseOptions();
+        for (ResponseOption responseOption : responseOptions) {
+            QuestionnaireItemAnswerOptionComponent answerOption = new QuestionnaireItemAnswerOptionComponent();
+            Coding coding = responseOption.getFHIRObject();
+            answerOption.setValue(coding);
+            item.addAnswerOption(answerOption);
+        }
+
+        item.setDefinition(getUri());
+        item.setText(getHasContent());
+        item.setType(QuestionnaireItemType.CHOICE);
+
+        return item;
+    }
 }

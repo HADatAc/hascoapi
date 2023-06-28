@@ -165,6 +165,7 @@ public class NameSpaces {
         namespaces.add(lcc_639_1_NAMESPACE);
 
         // SIRT
+        /*
         NameSpace SIRT_NAMESPACE = new NameSpace();
         SIRT_NAMESPACE.setAbbreviation("sirt");
         SIRT_NAMESPACE.setName("http://www.hadatac.org/ont/sirt#");
@@ -176,6 +177,18 @@ public class NameSpaces {
         SIRT_NAMESPACE.updateNumberOfLoadedTriples();
         SIRT_NAMESPACE.setPriority(10);
         namespaces.add(SIRT_NAMESPACE);
+         */
+
+        // FHIR
+        NameSpace FHIR_NAMESPACE = new NameSpace();
+        FHIR_NAMESPACE.setAbbreviation("fhir");
+        FHIR_NAMESPACE.setName("http://hl7.org/fhir/");
+        FHIR_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
+        FHIR_NAMESPACE.setComment("FHIR is a standard for health care data exchange, published by HL7.");
+        FHIR_NAMESPACE.setVersion("R5");
+        FHIR_NAMESPACE.updateNumberOfLoadedTriples();
+        FHIR_NAMESPACE.setPriority(10);
+        namespaces.add(FHIR_NAMESPACE);
 
         // default
         NameSpace TEST_NAMESPACE = new NameSpace();
