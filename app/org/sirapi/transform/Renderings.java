@@ -115,17 +115,48 @@ public class Renderings {
 		return lines;
 	}
 
-	public static String toHTML(String uri, int width) {
-		Instrument instr = Instrument.find(uri);
-		if (instr == null) {
-			return "";
+	private static String headerHTML (Instrument instr) {
+		String dateField = "";
+		if (instr.getHasDateField() != null && !instr.getHasDateField().isEmpty()) {
+			dateField = instr.getHasDateField();
 		}
-		String html = "";
+		String subjectIDField = "";
+		if (instr.getHasSubjectIDField() != null && !instr.getHasSubjectIDField().isEmpty()) {
+			subjectIDField = instr.getHasSubjectIDField();
+		}
+		String subjectRelationshipField = "";
+		if (instr.getHasSubjectRelationshipField() != null && !instr.getHasSubjectRelationshipField().isEmpty()) {
+			subjectRelationshipField = instr.getHasSubjectRelationshipField();
+		}
+		return "<table id=\"tbl1\"> " +
+  				"  <tr id=\"tr1\"> " +
+    			"	  <td id=\"cell1\">" + dateField + "</td> " +
+    			"	  <td id=\"cell2\"><h2>" + instr.getHasShortName() + "</h2></td> " +
+    			"	  <td id=\"cell3\">" + subjectIDField + "<br>" + subjectRelationshipField + "</td> " +
+  				"  </tr>" +
+				"</table> ";
+	}
 
-		html += "<!DOCTYPE html>\n" +
-				"<html>\n" +
-				"<head>\n" +
-				"<style>\n" +
+	private static String footerHTML (Instrument instr, int page) {
+		String pageNumber = "";
+		if (instr.getHasPageNumber() != null && !instr.getHasPageNumber().isEmpty()) {
+			pageNumber = instr.getHasPageNumber() + " " + page;
+		}
+		String copyrightNotice = "";
+		if (instr.getHasCopyrightNotice() != null && !instr.getHasCopyrightNotice().isEmpty()) {
+			copyrightNotice = instr.getHasCopyrightNotice();
+		}
+		return "<table id=\"tbl1\"> " +
+				"  <tr id=\"tr1\"> " +
+				"	  <td id=\"cell1\">" + pageNumber + "</td> " +
+				"	  <td id=\"cell4\"></td> " +
+				"	  <td id=\"cell3\">" + copyrightNotice + "</td> " +
+				"  </tr>" +
+				"</table> ";
+	}
+
+	private static String styleHTML() {
+		return "<style>\n" +
 				"table, tr, td {\n" +
 				"  border: 1px solid;\n" +
 				"  border-collapse: collapse;\n" +
@@ -134,16 +165,59 @@ public class Renderings {
 				"tr:nth-child(even) {\n" +
 				"  background-color: #f2f2f2;\n" +
 				"}\n" +
-				"</style>\n" +
+				"#tbl1, #tr1, #cell1, #cell2, #cell3 , #cell4 {\n" +
+				"  border: 0px solid;\n" +
+				"  border-collapse: collapse;\n" +
+				"  padding: 5px;\n" +
+				"}\n" +
+				"#cell1 {\n" +
+				"	text-align: left;\n" +
+				"}\n" +
+				"#cell2 {\n" +
+				"   padding-right: 140px;\n" +
+				"	text-align: center;\n" +
+				"   padding-left: 160px;\n" +
+				"}\n" +
+				"#cell3 {\n" +
+				"	text-align: right;\n" +
+				"}\n" +
+				"#cell4 {\n" +
+				"   padding-right: 300px;\n" +
+				"	text-align: center;\n" +
+				"   padding-left: 300px;\n" +
+				"}\n" +
+				"</style>\n";
+	}
+
+	private static String printPage() {
+		return "";
+	}
+
+
+	public static String toHTML(String uri, int width) {
+		Instrument instr = Instrument.find(uri);
+		int page = 1;
+		if (instr == null) {
+			return "";
+		}
+		String html = "";
+
+		html += "<!DOCTYPE html>\n" +
+				"<html>\n" +
+				"<head>\n" +
+				styleHTML() +
 				"</head>\n" +
 				"<body>\n";
 
-		html += "<h2 style=\"text-align: center;\">" + instr.getHasShortName() + "</h2>";
+		// PRINT HEADER
+		html += headerHTML(instr);
 		html += "<br>\n";
 
-		html += "<b>Instructions</b>: " + instr.getHasInstruction() + "<br>";
+		html += instr.getHasInstruction() + "<br>";
 		html += "<br>\n";
 
+		// PRINT ITEMS
+		int elements = 0;
 		if (instr.getAttachments() != null) {
 			html += "<table>\n";
 			for (Attachment attachment : instr.getAttachments()) {
@@ -152,6 +226,7 @@ public class Renderings {
 					html += "<tr><td>" + attachment.getHasPriority() + ".</tr></td>\n";
 				} else {
 					html += "<tr>";
+					elements = elements + 1;
 					html += "<td>" + attachment.getHasPriority() + ". " + detector.getHasContent() + "</td>";
 					Experience experience = detector.getExperience();
 					if (experience != null) {
@@ -166,6 +241,15 @@ public class Renderings {
 			}
 			html += "</table>\n";
 		}
+
+		// FILL THE REST OF THE PAGE BLANK
+		for (int aux = 0; aux + elements <= 28; aux++) {
+			html += "<br>";
+		}
+
+		// PRINT FOOTER
+		html += footerHTML(instr, page);
+
 		html += "</body>\n" +
 				"</html>";
 		return html;

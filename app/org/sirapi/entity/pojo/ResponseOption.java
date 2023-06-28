@@ -244,7 +244,7 @@ public class ResponseOption extends HADatAcThing implements SIRElement, Comparab
             }
         });
 
-        System.out.println(Arrays.toString(options.toArray()));
+        //System.out.println(Arrays.toString(options.toArray()));
 
         return options;
     }

@@ -12,10 +12,7 @@ import org.sirapi.utils.SPARQLUtils;
 import org.sirapi.vocabularies.RDFS;
 import org.sirapi.vocabularies.VSTOI;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Table implements Comparable<Table> {
 
@@ -51,7 +48,7 @@ public class Table implements Comparable<Table> {
         this.url = url;
     }
 
-    public static List<Table> find() {
+    public static List<Table> findLanguage() {
         List<Table> tables = new ArrayList<Table>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri ?label ?definition WHERE { " +
@@ -77,12 +74,44 @@ public class Table implements Comparable<Table> {
 
     }
 
+    public static List<Table> findGenerationActivity() {
+        List<Table> tables = new ArrayList<Table>();
+        Iterator<Map.Entry<String, String>> iterator = VSTOI.wasGeneratedBy.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, String> entry = iterator.next();
+            Table newTable = new Table();
+            newTable.setURL(entry.getKey());
+            newTable.setValue(entry.getValue());
+            tables.add(newTable);
+        }
+
+        java.util.Collections.sort((List<Table>) tables);
+        return tables;
+
+    }
+
+    public static List<Table> findInformant() {
+        List<Table> tables = new ArrayList<Table>();
+        Iterator<Map.Entry<String, String>> iterator = VSTOI.informant.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, String> entry = iterator.next();
+            Table newTable = new Table();
+            newTable.setURL(entry.getKey());
+            newTable.setValue(entry.getValue());
+            tables.add(newTable);
+        }
+
+        java.util.Collections.sort((List<Table>) tables);
+        return tables;
+
+    }
+
     @Override
     public int compareTo(Table another) {
         if (this.getValue() != null && another.getValue() != null) {
             return this.getValue().compareTo(another.getValue());
         }
-        return this.getCode().compareTo(another.getCode());
+        return this.getURL().compareTo(another.getURL());
     }
 
 }

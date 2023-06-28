@@ -18,8 +18,6 @@ import java.util.List;
 public class DetectorAPI extends Controller {
 
     private Result createDetectorResult(Detector detector) {
-        System.out.println("wasDerivedFrom:" + detector.getWasDerivedFrom());
-        System.out.println("wasGeneratedBy:" + detector.getWasGeneratedBy());
         detector.save();
         return ok(ApiUtil.createResponse("Detector <" + detector.getUri() + "> has been CREATED.", true));
     }
@@ -64,14 +62,14 @@ public class DetectorAPI extends Controller {
         if (json == null || json.equals("")) {
             return ok(ApiUtil.createResponse("No json content has been provided.", false));
         }
-        System.out.println("(CreateDetector) Value of json: [" + json + "]");
+        //System.out.println("(CreateDetector) Value of json: [" + json + "]");
         ObjectMapper objectMapper = new ObjectMapper();
         Detector newDetector;
         try {
             //convert json string to Instrument instance
             newDetector  = objectMapper.readValue(json, Detector.class);
         } catch (Exception e) {
-            System.out.println("(createDetector) Failed to parse json.");
+            //System.out.println("(createDetector) Failed to parse json.");
             return ok(ApiUtil.createResponse("Failed to parse json.", false));
         }
         return createDetectorResult(newDetector);

@@ -256,14 +256,11 @@ public class Attachment extends HADatAcThing implements Comparable<Attachment>  
             att.setHasDetector(hasDetector);
         }
         att.save();
-        System.out.println("Attachment.createAttachment: creating attachment with URI [" + attachmentUri + "]" );
+        //System.out.println("Attachment.createAttachment: creating attachment with URI [" + attachmentUri + "]" );
         return true;
     }
 
     public boolean updateAttachmentDetector(String hasDetector) {
-        System.out.println("inside Attachment.updateAttachmentDetector(detectorUri)");
-        System.out.println("Attachment URI is [" + this.uri + "]");
-        System.out.println("Detector URI is [" + hasDetector + "]");
         Attachment newAttachment = new Attachment();
         newAttachment.setUri(this.uri);
         newAttachment.setLabel(this.getLabel());

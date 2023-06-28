@@ -38,12 +38,19 @@ public class InstrumentAPI extends Controller {
             testInstrument.setLabel("Test Instrument");
             testInstrument.setTypeUri(VSTOI.QUESTIONNAIRE);
             testInstrument.setHascoTypeUri(VSTOI.INSTRUMENT);
+            testInstrument.setHasInformant(VSTOI.DEFAULT_INFORMANT);
             testInstrument.setHasShortName("TEST");
             testInstrument.setHasInstruction("Please put a circle around the word that shows how often each of these things happens to you. There are no right or wrong answers. ");
-            testInstrument.setHasLanguage("en"); // ISO 639-1
+            testInstrument.setHasLanguage(VSTOI.DEFAULT_LANGUAGE); // ISO 639-1
             testInstrument.setComment("This is a dummy instrument created to test the SIR API.");
             testInstrument.setHasVersion("1");
             testInstrument.setHasSIRMaintainerEmail("me@example.com");
+            testInstrument.setHasPageNumber("Page ");
+            testInstrument.setHasDateField("Date: ____________ ");
+            testInstrument.setHasSubjectIDField("Name/ID: _____________________");
+            testInstrument.setHasSubjectRelationshipField("Relationship to Subject: ______________________");
+            testInstrument.setHasCopyrightNotice("Copyright (c) 2000 HADatAc.org");
+
             return createInstrumentResult(testInstrument);
         }
     }
@@ -193,8 +200,9 @@ public class InstrumentAPI extends Controller {
             SimpleFilterProvider filterProvider = new SimpleFilterProvider();
             filterProvider.addFilter("instrumentFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "hasShortName", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "hasSerialNumber", "hasImage",
-                            "hasLanguage", "hasVersion", "hasInstruction", "hasSIRMaintainerEmail"));
+                            "hascoTypeLabel", "comment", "hasSerialNumber", "hasInformant", "hasImage",
+                            "hasLanguage", "hasVersion", "hasInstruction", "hasSIRMaintainerEmail",
+                            "hasPageNumber", "hasDateField", "hasSubjectIDField", "hasSubjectRelatioshipField", "hasCopyrightNotice"));
             mapper.setFilterProvider(filterProvider);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));

@@ -35,6 +35,9 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 	@PropertyField(uri="vstoi:hasSerialNumber")
 	private String serialNumber;
 
+	@PropertyField(uri="vstoi:hasInformant")
+	private String hasInformant;
+
 	@PropertyField(uri="hasco:hasImage")
 	private String image;
 
@@ -49,6 +52,21 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 
 	@PropertyField(uri="vstoi:hasVersion")
 	private String hasVersion;
+
+	@PropertyField(uri="vstoi:hasPageNumber")
+	private String hasPageNumber;
+
+	@PropertyField(uri="vstoi:hasDateField")
+	private String hasDateField;
+
+	@PropertyField(uri="vstoi:hasSubjectIDField")
+	private String hasSubjectIDField;
+
+	@PropertyField(uri="vstoi:hasSubjectRelationshipField")
+	private String hasSubjectRelationshipField;
+
+	@PropertyField(uri="vstoi:hasCopyrightNotice")
+	private String hasCopyrightNotice;
 
 	@PropertyField(uri="vstoi:hasSIRMaintainerEmail")
 	private String hasSIRMaintainerEmail;
@@ -68,8 +86,16 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 	public void setSerialNumber(String serialNumber) {
 		this.serialNumber = serialNumber;
 	}
-	
-    public String getImage() {
+
+	public String getHasInformant() {
+		return hasInformant;
+	}
+
+	public void setHasInformant(String hasInformant) {
+		this.hasInformant = hasInformant;
+	}
+
+	public String getImage() {
         return image;
     }
 
@@ -107,6 +133,46 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 
 	public void setHasVersion(String hasVersion) {
 		this.hasVersion = hasVersion;
+	}
+
+	public String getHasPageNumber() {
+		return hasPageNumber;
+	}
+
+	public void setHasPageNumber(String hasPageNumber) {
+		this.hasPageNumber = hasPageNumber;
+	}
+
+	public String getHasDateField() {
+		return hasDateField;
+	}
+
+	public void setHasDateField(String hasDateField) {
+		this.hasDateField = hasDateField;
+	}
+
+	public String getHasSubjectIDField() {
+		return hasSubjectIDField;
+	}
+
+	public void setHasSubjectIDField(String hasSubjectIDField) {
+		this.hasSubjectIDField = hasSubjectIDField;
+	}
+
+	public String getHasSubjectRelationshipField() {
+		return hasSubjectRelationshipField;
+	}
+
+	public void setHasSubjectRelationshipField(String hasSubjectRelationshipField) {
+		this.hasSubjectRelationshipField = hasSubjectRelationshipField;
+	}
+
+	public String getHasCopyrightNotice() {
+		return hasCopyrightNotice;
+	}
+
+	public void setHasCopyrightNotice(String hasCopyrightNotice) {
+		this.hasCopyrightNotice = hasCopyrightNotice;
 	}
 
 	public String getHasSIRMaintainerEmail() {
@@ -342,6 +408,8 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 				instrument.setHasStatus(object.asLiteral().getString());
 		    } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
 		    	instrument.setSerialNumber(object.asLiteral().getString());
+			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_INFORMANT)) {
+				instrument.setHasInformant(object.asResource().getURI());
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
                 instrument.setImage(object.asLiteral().getString());
 		    } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
@@ -354,11 +422,21 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 				instrument.setHasLanguage(object.asLiteral().getString());
 			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
 				instrument.setHasVersion(object.asLiteral().getString());
+			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PAGE_NUMBER)) {
+				instrument.setHasPageNumber(object.asLiteral().getString());
+			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_DATE_FIELD)) {
+				instrument.setHasDateField(object.asLiteral().getString());
+			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SUBJECT_ID_FIELD)) {
+				instrument.setHasSubjectIDField(object.asLiteral().getString());
+			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SUBJECT_RELATIONSHIP_FIELD)) {
+				instrument.setHasSubjectRelationshipField(object.asLiteral().getString());
+			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_COPYRIGHT_NOTICE)) {
+				instrument.setHasCopyrightNotice(object.asLiteral().getString());
 			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MAINTAINER_EMAIL)) {
 				instrument.setHasSIRMaintainerEmail(object.asLiteral().getString());
 		    }
 		}
-		
+
 		instrument.setUri(uri);
 		
 		return instrument;

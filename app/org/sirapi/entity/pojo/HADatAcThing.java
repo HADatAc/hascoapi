@@ -1,5 +1,6 @@
 package org.sirapi.entity.pojo;
 
+import java.io.*;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,6 +11,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.NotImplementedException;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.RDFWriter;
+import org.eclipse.rdf4j.rio.Rio;
 import org.sirapi.utils.*;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSetRewindable;
@@ -263,7 +268,7 @@ public abstract class HADatAcThing {
                 return Integer.parseInt(soln.getLiteral("tot").getString());
             }
         } catch (Exception e) {
-            e.printStackTrace();
+          e.printStackTrace();
         }
 
         return -1;
@@ -272,10 +277,7 @@ public abstract class HADatAcThing {
     public void save() { throw new NotImplementedException("Used unimplemented HADatAcThing.save() method"); }
     public void delete() { throw new NotImplementedException("Used unimplemented HADatAcThing.delete() method"); }
 
-    @SuppressWarnings("unchecked")
-    public boolean saveToTripleStore() {
-        deleteFromTripleStore();
-
+    private Model generateRDFModel() {
         Map<String, Object> row = new HashMap<String, Object>();
         List<Map<String, Object>> reversed_rows = new ArrayList<Map<String, Object>>();
 
@@ -296,7 +298,7 @@ public abstract class HADatAcThing {
                             //System.out.println("inside HADatAcThing.saveToTripleStore(): hasUri=[" + uri + "]");
                         } else {
                             //System.out.println("inside HADatAcThing.saveToTripleStore(): URI IS NOT VALID");
-                            return false;
+                            return null;
                         }
                     }
 
@@ -372,7 +374,7 @@ public abstract class HADatAcThing {
         //System.out.println("inside HADatAcThing.saveToTripleStore() (4) ");
 
         if (!row.containsKey("hasURI")) {
-            return false;
+            return null;
         }
 
         //System.out.println("inside HADatAcThing.saveToTripleStore() (5) ");
@@ -392,8 +394,40 @@ public abstract class HADatAcThing {
             }
         }
         reversed_rows.add(row);
+        return MetadataFactory.createModel(reversed_rows, getNamedGraph());
+    }
 
-        Model model = MetadataFactory.createModel(reversed_rows, getNamedGraph());
+    public String printRDF() {
+        Model model = generateRDFModel();
+        ByteArrayOutputStream out = null;
+        out = new ByteArrayOutputStream();
+        RDFWriter writer = Rio.createWriter(RDFFormat.RDFXML, out);
+        try {
+            writer.startRDF();
+            for (org.eclipse.rdf4j.model.Statement st: model) {
+                writer.handleStatement(st);
+            }
+            writer.endRDF();
+        }
+        catch (RDFHandlerException e) {
+            // oh no, do something!
+        }
+        finally {
+            try {
+                out.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return out.toString();
+    }
+
+    @SuppressWarnings("unchecked")
+    public boolean saveToTripleStore() {
+        deleteFromTripleStore();
+
+        //Model model = MetadataFactory.createModel(reversed_rows, getNamedGraph());
+        Model model = generateRDFModel();
         int numCommitted = MetadataFactory.commitModelToTripleStore(
                 model, CollectionUtil.getCollectionPath(
                         CollectionUtil.Collection.SPARQL_GRAPH));

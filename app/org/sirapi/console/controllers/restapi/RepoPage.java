@@ -96,12 +96,50 @@ public class RepoPage extends Controller {
             //for (Table entry: table) {
             //    System.out.println(entry.getCode());
             //}
-            ArrayNode array = mapper.convertValue(Table.find(), ArrayNode.class);
+            ArrayNode array = mapper.convertValue(Table.findLanguage(), ArrayNode.class);
             JsonNode jsonObject = mapper.convertValue(array, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));
         } catch (Exception e) {
             e.printStackTrace();
             return badRequest(ApiUtil.createResponse("Error retrieving languages", false));
+        }
+    }
+
+    public Result getGenerationActivities() {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            // get the list of variables in that study
+            // serialize the Study object first as ObjectNode
+            //   as JsonNode is immutable and meant to be read-only
+            //List<Table> table = Table.find();
+            //for (Table entry: table) {
+            //    System.out.println(entry.getCode());
+            //}
+            ArrayNode array = mapper.convertValue(Table.findGenerationActivity(), ArrayNode.class);
+            JsonNode jsonObject = mapper.convertValue(array, JsonNode.class);
+            return ok(ApiUtil.createResponse(jsonObject, true));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return badRequest(ApiUtil.createResponse("Error retrieving generation activities", false));
+        }
+    }
+
+    public Result getInformants() {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            // get the list of variables in that study
+            // serialize the Study object first as ObjectNode
+            //   as JsonNode is immutable and meant to be read-only
+            //List<Table> table = Table.find();
+            //for (Table entry: table) {
+            //    System.out.println(entry.getCode());
+            //}
+            ArrayNode array = mapper.convertValue(Table.findInformant(), ArrayNode.class);
+            JsonNode jsonObject = mapper.convertValue(array, JsonNode.class);
+            return ok(ApiUtil.createResponse(jsonObject, true));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return badRequest(ApiUtil.createResponse("Error retrieving informants", false));
         }
     }
 

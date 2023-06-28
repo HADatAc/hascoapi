@@ -164,6 +164,19 @@ public class NameSpaces {
         lcc_639_1_NAMESPACE.setPriority(9);
         namespaces.add(lcc_639_1_NAMESPACE);
 
+        // SIRT
+        NameSpace SIRT_NAMESPACE = new NameSpace();
+        SIRT_NAMESPACE.setAbbreviation("sirt");
+        SIRT_NAMESPACE.setName("http://www.hadatac.org/ont/sirt#");
+        SIRT_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
+        SIRT_NAMESPACE.setMimeType("text/turtle");
+        SIRT_NAMESPACE.setURL("http://www.hadatac.org/ont/sirt#");
+        SIRT_NAMESPACE.setComment("SIR auxiliary tables");
+        SIRT_NAMESPACE.setVersion("0.1");
+        SIRT_NAMESPACE.updateNumberOfLoadedTriples();
+        SIRT_NAMESPACE.setPriority(10);
+        namespaces.add(SIRT_NAMESPACE);
+
         // default
         NameSpace TEST_NAMESPACE = new NameSpace();
         TEST_NAMESPACE.setAbbreviation("default");

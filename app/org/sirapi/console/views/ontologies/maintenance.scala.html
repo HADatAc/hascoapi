@@ -27,7 +27,7 @@
                     <p style='font-family: "Lucida Console", Monaco, monospace;' id='msgarea'></p>
 
                     <div id="end-process-box" style="display:none;">
-                        <h4>Refresh Ontologies complete -- check the results above to see if the operation was successful.</h4>
+                        <h4>Load Ontologies complete -- check the results above to see if the operation was successful.</h4>
                     </div>
 
                     <script>
@@ -35,10 +35,26 @@
                        $('#msgarea').html(msg.replace(/&lt;br&gt;/g, '<br>'));
                        document.getElementById('end-process-box').style.display = 'inline';
                     </script>
+                } else if(oper=="delete") {
+                    <p style='font-family: "Lucida Console", Monaco, monospace;' id='msgarea'></p>
+
+                    <div id="end-process-box" style="display:none;">
+                        <h4>Delete Ontologies complete -- check the results above to see if the operation was successful.</h4>
+                    </div>
+
+                    <script>
+                           var msg = "@LoadOnt.playLoadOntologies(oper)";
+                           $('#msgarea').html(msg.replace(/&lt;br&gt;/g, '<br>'));
+                           document.getElementById('end-process-box').style.display = 'inline';
+                    </script>
                 } else {
                     <div class="row dash-text">
                         <div class="col-md-2 text-center">
-                            <a href="@org.sirapi.console.controllers.ontologies.routes.Maintenance.index("load")" id="load" class="btn btn-primary w-100" role="button">Refresh Ontologies</a>
+                            <a href="@org.sirapi.console.controllers.ontologies.routes.Maintenance.index("load")" id="load" class="btn btn-primary w-100" role="button">Load Ontologies</a>
+                            <br>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <a href="@org.sirapi.console.controllers.ontologies.routes.Maintenance.index("delete")" id="delete" class="btn btn-primary w-100" role="button">Delete Ontologies</a>
                             <br>
                         </div>
                     </div>

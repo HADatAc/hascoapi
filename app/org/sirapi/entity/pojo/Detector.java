@@ -410,7 +410,10 @@ public class Detector extends HADatAcThing implements SIRElement, Comparable<Det
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
                 detector.setHasVersion(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(PROV.WAS_DERIVED_FROM)) {
-                detector.setWasDerivedFrom(object.asResource().getURI());
+                try {
+                    detector.setWasDerivedFrom(object.asResource().getURI());
+                } catch (Exception e) {
+                }
             } else if (statement.getPredicate().getURI().equals(PROV.WAS_GENERATED_BY)) {
                 try {
                     detector.setWasGeneratedBy(object.asResource().getURI());
