@@ -253,17 +253,64 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 		return findByQuery(queryString);
 	}
 
-	public static List<Instrument> findByKeywordAndLanguage(String keyword, String language) {
-		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-				" SELECT ?uri WHERE { " +
+	public static List<Instrument> findByKeywordAndLanguageWithPages(String keyword, String language, int pageSize, int offset) {
+		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+		queryString += " SELECT ?uri WHERE { " +
 				" ?instModel rdfs:subClassOf* vstoi:Instrument . " +
-				" ?uri a ?instModel ." +
-				" ?uri vstoi:hasLanguage ?language . " +
-				" ?uri rdfs:label ?label . " +
-				"   FILTER (regex(?label, \"" + keyword + "\", \"i\") && (?language = \"" + language + "\")) " +
-				"} ";
-
+				" ?uri a ?instModel .";
+		if (!language.isEmpty()) {
+			queryString += " ?uri vstoi:hasLanguage ?language . ";
+		}
+		if (!keyword.isEmpty()) {
+			queryString += " ?uri rdfs:label ?label . ";
+		}
+		if (!keyword.isEmpty() && !language.isEmpty()) {
+			queryString += "   FILTER (regex(?label, \"" + keyword + "\", \"i\") && (?language = \"" + language + "\")) ";
+		} else if (!keyword.isEmpty()) {
+			queryString += "   FILTER (regex(?label, \"" + keyword + "\", \"i\")) ";
+		} else if (!language.isEmpty()) {
+			queryString += "   FILTER ((?language = \"" + language + "\")) ";
+		}
+		queryString += "} " +
+				" LIMIT " + pageSize +
+				" OFFSET " + offset;
 		return findByQuery(queryString);
+	}
+
+	public static int findTotalByKeywordAndLanguage(String keyword, String language) {
+		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+		queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
+				" ?instModel rdfs:subClassOf* vstoi:Instrument . " +
+				" ?uri a ?instModel .";
+		if (!language.isEmpty()) {
+			queryString += " ?uri vstoi:hasLanguage ?language . ";
+		}
+		if (!keyword.isEmpty()) {
+			queryString += " ?uri rdfs:label ?label . ";
+		}
+		if (!keyword.isEmpty() && !language.isEmpty()) {
+			queryString += "   FILTER (regex(?label, \"" + keyword + "\", \"i\") && (?language = \"" + language + "\")) ";
+		} else if (!keyword.isEmpty()) {
+			queryString += "   FILTER (regex(?label, \"" + keyword + "\", \"i\")) ";
+		} else if (!language.isEmpty()) {
+			queryString += "   FILTER ((?language = \"" + language + "\")) ";
+		}
+		queryString += "}";
+
+		//System.out.println(queryString);
+
+		try {
+			ResultSetRewindable resultsrw = SPARQLUtils.select(
+					CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+			if (resultsrw.hasNext()) {
+				QuerySolution soln = resultsrw.next();
+				return Integer.parseInt(soln.getLiteral("tot").getString());
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return -1;
 	}
 
 	public static List<Instrument> findByMaintainerEmail(String maintainerEmail) {
@@ -552,7 +599,8 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
     public int deleteFromSolr() {
         return 0;
     }
-    
+
+    /*
 	public Questionnaire getFHIRObject() {
 		Questionnaire questionnaire = new Questionnaire();
 		questionnaire.setUrl(getUri());
@@ -563,9 +611,12 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 		List<Attachment> attachments = getAttachments();
 		for (Attachment attachment : attachments) {
 			Detector detector = attachment.getDetector();
-			questionnaire.addItem(detector.getFHIRObject());
+			if (detector != null) {
+				questionnaire.addItem(detector.getFHIRObject());
+			}
 		}
 
 		return questionnaire;
 	}
+     */
 }

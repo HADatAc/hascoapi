@@ -266,17 +266,64 @@ public class Detector extends HADatAcThing implements SIRElement, Comparable<Det
         return findByQuery(queryString);
     }
 
-    public static List<Detector> findByKeywordAndLanguage(String keyword, String language) {
-        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                " SELECT ?uri WHERE { " +
-                " ?detModel rdfs:subClassOf* vstoi:Detector . " +
-                " ?uri a ?detModel ." +
-                " ?uri vstoi:hasLanguage ?language . " +
-                " ?uri rdfs:label ?label . " +
-                "   FILTER (regex(?label, \"" + keyword + "\", \"i\") && (?language = \"" + language + "\")) " +
-                "} ";
 
+    public static List<Detector> findByKeywordAndLanguageWithPages(String keyword, String language, int pageSize, int offset) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+        queryString += " SELECT ?uri WHERE { " +
+                " ?detModel rdfs:subClassOf* vstoi:Detector . " +
+                " ?uri a ?detModel .";
+        if (!language.isEmpty()) {
+            queryString += " ?uri vstoi:hasLanguage ?language . ";
+        }
+        queryString += " ?uri vstoi:hasContent ?content . ";
+        if (!keyword.isEmpty() && !language.isEmpty()) {
+            queryString += "   FILTER (regex(?content, \"" + keyword + "\", \"i\") && (?language = \"" + language + "\")) ";
+        } else if (!keyword.isEmpty()) {
+            queryString += "   FILTER (regex(?content, \"" + keyword + "\", \"i\")) ";
+        } else if (!language.isEmpty()) {
+            queryString += "   FILTER ((?language = \"" + language + "\")) ";
+        }
+        queryString += "} " +
+                " ORDER BY ASC(?content) " +
+                " LIMIT " + pageSize +
+                " OFFSET " + offset;
         return findByQuery(queryString);
+    }
+
+    public static int findTotalByKeywordAndLanguage(String keyword, String language) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+        queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
+                " ?detModel rdfs:subClassOf* vstoi:Detector . " +
+                " ?uri a ?detModel .";
+        if (!language.isEmpty()) {
+            queryString += " ?uri vstoi:hasLanguage ?language . ";
+        }
+        if (!keyword.isEmpty()) {
+            queryString += " ?uri vstoi:hasContent ?content . ";
+        }
+        if (!keyword.isEmpty() && !language.isEmpty()) {
+            queryString += "   FILTER (regex(?content, \"" + keyword + "\", \"i\") && (?language = \"" + language + "\")) ";
+        } else if (!keyword.isEmpty()) {
+            queryString += "   FILTER (regex(?content, \"" + keyword + "\", \"i\")) ";
+        } else if (!language.isEmpty()) {
+            queryString += "   FILTER ((?language = \"" + language + "\")) ";
+        }
+        queryString += "}";
+
+        //System.out.println(queryString);
+
+        try {
+            ResultSetRewindable resultsrw = SPARQLUtils.select(
+                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+            if (resultsrw.hasNext()) {
+                QuerySolution soln = resultsrw.next();
+                return Integer.parseInt(soln.getLiteral("tot").getString());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1;
     }
 
     public static List<Detector> findByMaintainerEmail(String maintainerEmail) {
@@ -487,15 +534,18 @@ public class Detector extends HADatAcThing implements SIRElement, Comparable<Det
         return 0;
     }
 
+    /*
     public QuestionnaireItemComponent getFHIRObject() {
         QuestionnaireItemComponent item = new QuestionnaireItemComponent();
         Experience experience = getExperience();
-        List<ResponseOption> responseOptions = experience.getResponseOptions();
-        for (ResponseOption responseOption : responseOptions) {
-            QuestionnaireItemAnswerOptionComponent answerOption = new QuestionnaireItemAnswerOptionComponent();
-            Coding coding = responseOption.getFHIRObject();
-            answerOption.setValue(coding);
-            item.addAnswerOption(answerOption);
+        if (experience != null) {
+            List<ResponseOption> responseOptions = experience.getResponseOptions();
+            for (ResponseOption responseOption : responseOptions) {
+                QuestionnaireItemAnswerOptionComponent answerOption = new QuestionnaireItemAnswerOptionComponent();
+                Coding coding = responseOption.getFHIRObject();
+                answerOption.setValue(coding);
+                item.addAnswerOption(answerOption);
+            }
         }
 
         item.setDefinition(getUri());
@@ -504,4 +554,5 @@ public class Detector extends HADatAcThing implements SIRElement, Comparable<Det
 
         return item;
     }
+     */
 }

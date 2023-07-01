@@ -183,17 +183,12 @@ public class InstrumentAPI extends Controller {
         return getInstruments(results);
     }
 
-    public Result getInstrumentsByKeywordAndLanguage(String keyword, String language){
-        List<Instrument> results = Instrument.findByKeywordAndLanguage(keyword, language);
-        return getInstruments(results);
-    }
-
     public Result getInstrumentsByMaintainerEmail(String maintainerEmail){
         List<Instrument> results = Instrument.findByMaintainerEmail(maintainerEmail);
         return getInstruments(results);
     }
 
-    private Result getInstruments(List<Instrument> results){
+    public static Result getInstruments(List<Instrument> results){
         if (results == null) {
             return ok(ApiUtil.createResponse("No instrument has been found", false));
         } else {
@@ -245,7 +240,8 @@ public class InstrumentAPI extends Controller {
             return ok(instrumentText.toByteArray()).as("application/pdf");
         }
     }
-    
+
+    /*
     public Result toFHIR(String uri) {
         if (uri  == null || uri.equals("")) {
             return ok(ApiUtil.createResponse("No URI has been provided", false));
@@ -260,5 +256,20 @@ public class InstrumentAPI extends Controller {
         String serialized = parser.encodeResourceToString(instr.getFHIRObject());
 
         return ok(serialized).as("application/json");
+    }
+     */
+
+    public Result toRDF(String uri) {
+        if (uri  == null || uri.equals("")) {
+            return ok(ApiUtil.createResponse("No URI has been provided", false));
+        }
+        Instrument instr = Instrument.find(uri);
+        if (instr == null) {
+            return ok(ApiUtil.createResponse("No instrument instance found for uri [" + uri + "]", false));
+        }
+
+        String serialized = instr.printRDF();
+
+        return ok(serialized).as("application/xml");
     }
 }

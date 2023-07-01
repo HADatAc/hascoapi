@@ -371,10 +371,12 @@ public class ResponseOption extends HADatAcThing implements SIRElement, Comparab
         return 0;
     }
 
+    /*
     public Coding getFHIRObject() {
         Coding coding = new Coding();
         coding.setCode(getUri());
         coding.setDisplay(getHasContent());
         return coding;
     }
+     */
 }

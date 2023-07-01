@@ -134,7 +134,10 @@ public class Renderings {
     			"	  <td id=\"cell2\"><h2>" + instr.getHasShortName() + "</h2></td> " +
     			"	  <td id=\"cell3\">" + subjectIDField + "<br>" + subjectRelationshipField + "</td> " +
   				"  </tr>" +
-				"</table> ";
+				"</table> " +
+				instr.getHasInstruction() + "<br>" +
+				"<br>\n";
+
 	}
 
 	private static String footerHTML (Instrument instr, int page) {
@@ -152,7 +155,8 @@ public class Renderings {
 				"	  <td id=\"cell4\"></td> " +
 				"	  <td id=\"cell3\">" + copyrightNotice + "</td> " +
 				"  </tr>" +
-				"</table> ";
+				"</table> " +
+				"<br><br><br><br>";
 	}
 
 	private static String styleHTML() {
@@ -174,29 +178,91 @@ public class Renderings {
 				"	text-align: left;\n" +
 				"}\n" +
 				"#cell2 {\n" +
-				"   padding-right: 140px;\n" +
+				"   padding-right: 80px;\n" +
 				"	text-align: center;\n" +
-				"   padding-left: 160px;\n" +
+				"   padding-left: 80px;\n" +
 				"}\n" +
 				"#cell3 {\n" +
 				"	text-align: right;\n" +
 				"}\n" +
 				"#cell4 {\n" +
-				"   padding-right: 300px;\n" +
+				"   padding-right: 200px;\n" +
 				"	text-align: center;\n" +
-				"   padding-left: 300px;\n" +
+				"   padding-left: 200px;\n" +
 				"}\n" +
 				"</style>\n";
 	}
 
-	private static String printPage() {
-		return "";
-	}
+	private static String printPage(Instrument instr, int page) {
+		String html = "";
 
+		// PRINT HEADER
+		if (page == 1) {
+			html += headerHTML(instr);
+			html += "<br>\n";
+		}
+
+		int first = 0;
+		int last = 0;
+		int currentPageSize = 0;
+		if (page == 1) {
+			currentPageSize = 25;
+			first = 1;
+			if (instr.getAttachments().size() > 25) {
+				last = 25;
+			}
+		} else {
+			currentPageSize = 27;
+			int past = 25 + ((page - 2) * 27);
+			first = past + 1;
+			int rest = instr.getAttachments().size() - past;
+			if (rest > currentPageSize) {
+				last = past + 27;
+			} else {
+				last = past + rest;
+			}
+		}
+
+		//System.out.println("Page: " + page);
+		//System.out.println("  First: " + first);
+		//System.out.println("  Last: " + last);
+		//System.out.println("  CurrentPageSize: " + currentPageSize);
+		//System.out.println("");
+		html += "<table>\n";
+		for (int element = first - 1; element < last; element++) {
+			Attachment attachment = instr.getAttachments().get(element);
+			Detector detector = attachment.getDetector();
+			if (detector == null) {
+				html += "<tr><td>" + attachment.getHasPriority() + ".</tr></td>\n";
+			} else {
+				html += "<tr>";
+				html += "<td>" + attachment.getHasPriority() + ". " + detector.getHasContent() + "</td>";
+				Experience experience = detector.getExperience();
+				if (experience != null) {
+					if (experience.getResponseOptions() != null) {
+						for (ResponseOption responseOption : experience.getResponseOptions()) {
+							html += "<td>" + responseOption.getHasContent() + "</td>";
+						}
+					}
+				}
+				html += "</tr>\n";
+			}
+		}
+		html += "</table>\n";
+
+		// FILL THE REST OF THE PAGE BLANK
+		for (int aux = 0; aux + last <= currentPageSize; aux++) {
+			html += "<br>";
+		}
+
+		// PRINT FOOTER
+		html += footerHTML(instr, page);
+
+		return html;
+	}
 
 	public static String toHTML(String uri, int width) {
 		Instrument instr = Instrument.find(uri);
-		int page = 1;
 		if (instr == null) {
 			return "";
 		}
@@ -209,46 +275,26 @@ public class Renderings {
 				"</head>\n" +
 				"<body>\n";
 
-		// PRINT HEADER
-		html += headerHTML(instr);
-		html += "<br>\n";
-
-		html += instr.getHasInstruction() + "<br>";
-		html += "<br>\n";
-
 		// PRINT ITEMS
 		int elements = 0;
+		int totPages = 0;
 		if (instr.getAttachments() != null) {
-			html += "<table>\n";
-			for (Attachment attachment : instr.getAttachments()) {
-				Detector detector = attachment.getDetector();
-				if (detector == null) {
-					html += "<tr><td>" + attachment.getHasPriority() + ".</tr></td>\n";
-				} else {
-					html += "<tr>";
-					elements = elements + 1;
-					html += "<td>" + attachment.getHasPriority() + ". " + detector.getHasContent() + "</td>";
-					Experience experience = detector.getExperience();
-					if (experience != null) {
-						if (experience.getResponseOptions() != null) {
-							for (ResponseOption responseOption : experience.getResponseOptions()) {
-								html += "<td>" + responseOption.getHasContent() + "</td>";
-							}
-						}
-					}
-					html += "</tr>\n";
+
+			// total of pages
+			if (instr.getAttachments().size() <= 25) {
+				totPages = 1;
+			} else {
+				totPages = 1 + ((instr.getAttachments().size() - 25) / 27);
+				if (((instr.getAttachments().size() - 25) % 27) > 0) {
+					totPages = totPages + 1;
 				}
 			}
-			html += "</table>\n";
-		}
 
-		// FILL THE REST OF THE PAGE BLANK
-		for (int aux = 0; aux + elements <= 28; aux++) {
-			html += "<br>";
+			// print pages
+			for (int page = 1; page <= totPages; page++) {
+				html += printPage(instr, page);
+			}
 		}
-
-		// PRINT FOOTER
-		html += footerHTML(instr, page);
 
 		html += "</body>\n" +
 				"</html>";

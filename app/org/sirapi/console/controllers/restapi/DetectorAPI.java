@@ -206,8 +206,8 @@ public class DetectorAPI extends Controller {
         return getDetectors(results);
     }
 
-    public Result getDetectorsByKeywordAndLanguage(String keyword, String language){
-        List<Detector> results = Detector.findByKeywordAndLanguage(keyword, language);
+    public Result getDetectorsByKeywordAndLanguage(String keyword, String language, int pageSize, int offset){
+        List<Detector> results = Detector.findByKeywordAndLanguageWithPages(keyword, language, pageSize, offset);
         return getDetectors(results);
     }
 
@@ -226,7 +226,7 @@ public class DetectorAPI extends Controller {
         return getDetectors(results);
     }
 
-    private Result getDetectors(List<Detector> results){
+    public static Result getDetectors(List<Detector> results){
         if (results == null) {
             return ok(ApiUtil.createResponse("No detector has been found", false));
         } else {
