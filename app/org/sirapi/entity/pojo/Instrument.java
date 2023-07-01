@@ -1,10 +1,7 @@
 package org.sirapi.entity.pojo;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import org.apache.jena.query.QuerySolution;
@@ -13,7 +10,6 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
-import org.hl7.fhir.r4.model.Questionnaire;
 import org.sirapi.annotations.PropertyField;
 import org.sirapi.utils.CollectionUtil;
 import org.sirapi.utils.NameSpaces;
@@ -599,24 +595,4 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
     public int deleteFromSolr() {
         return 0;
     }
-
-    /*
-	public Questionnaire getFHIRObject() {
-		Questionnaire questionnaire = new Questionnaire();
-		questionnaire.setUrl(getUri());
-		questionnaire.setTitle(getLabel());
-		questionnaire.setName(getComment());
-		questionnaire.setVersion(getHasVersion());
-
-		List<Attachment> attachments = getAttachments();
-		for (Attachment attachment : attachments) {
-			Detector detector = attachment.getDetector();
-			if (detector != null) {
-				questionnaire.addItem(detector.getFHIRObject());
-			}
-		}
-
-		return questionnaire;
-	}
-     */
 }

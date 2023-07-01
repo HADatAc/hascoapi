@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 
+import org.sirapi.entity.fhir.Questionnaire;
 import org.sirapi.entity.pojo.Instrument;
 import org.sirapi.transform.Renderings;
 import org.sirapi.utils.ApiUtil;
@@ -16,7 +17,6 @@ import play.mvc.Controller;
 import play.mvc.Result;
 
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
 import java.util.List;
 
 import static org.sirapi.Constants.TEST_INSTRUMENT_URI;
@@ -241,7 +241,6 @@ public class InstrumentAPI extends Controller {
         }
     }
 
-    /*
     public Result toFHIR(String uri) {
         if (uri  == null || uri.equals("")) {
             return ok(ApiUtil.createResponse("No URI has been provided", false));
@@ -251,13 +250,14 @@ public class InstrumentAPI extends Controller {
             return ok(ApiUtil.createResponse("No instrument instance found for uri [" + uri + "]", false));
         }
 
+        Questionnaire quest = new Questionnaire(instr);
+
         FhirContext ctx = FhirContext.forR4();
         IParser parser = ctx.newJsonParser();
-        String serialized = parser.encodeResourceToString(instr.getFHIRObject());
+        String serialized = parser.encodeResourceToString(quest.getFHIRObject());
 
         return ok(serialized).as("application/json");
     }
-     */
 
     public Result toRDF(String uri) {
         if (uri  == null || uri.equals("")) {
