@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSetRewindable;
 import org.apache.jena.rdf.model.Model;
@@ -18,6 +19,7 @@ import org.sirapi.annotations.PropertyField;
 import org.sirapi.utils.CollectionUtil;
 import org.sirapi.utils.NameSpaces;
 import org.sirapi.utils.SPARQLUtils;
+import org.sirapi.utils.Utils;
 import org.sirapi.vocabularies.HASCO;
 import org.sirapi.vocabularies.RDF;
 import org.sirapi.vocabularies.RDFS;
@@ -205,6 +207,7 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
     	return atts;
     }
 
+    @JsonIgnore
 	public List<Detector> getDetectors() {
 		List<Detector> detectors = new ArrayList<Detector>();
     	List<Attachment> atts = Attachment.findByInstrument(uri);
@@ -298,6 +301,44 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 		queryString += "}";
 
 		//System.out.println(queryString);
+
+		try {
+			ResultSetRewindable resultsrw = SPARQLUtils.select(
+					CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+			if (resultsrw.hasNext()) {
+				QuerySolution soln = resultsrw.next();
+				return Integer.parseInt(soln.getLiteral("tot").getString());
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return -1;
+	}
+
+	public static List<Instrument> findByMaintainerEmailWithPages(String maintainerEmail, int pageSize, int offset) {
+		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+		queryString += " SELECT ?uri WHERE { " +
+				" ?instModel rdfs:subClassOf* vstoi:Instrument . " +
+				" ?uri a ?instModel ." +
+				" ?uri rdfs:label ?label . " +
+				" ?uri vstoi:hasSIRMaintainerEmail ?maintainerEmail . " +
+				"   FILTER (?maintainerEmail = \"" + maintainerEmail + "\") " +
+				"}" +
+				" ORDER BY ASC(?label) " +
+				" LIMIT " + pageSize +
+				" OFFSET " + offset;
+		return findByQuery(queryString);
+	}
+
+	public static int findTotalByMaintainerEmail(String maintainerEmail) {
+		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+		queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
+				" ?instModel rdfs:subClassOf* vstoi:Instrument . " +
+				" ?uri a ?instModel ." +
+				" ?uri vstoi:hasSIRMaintainerEmail ?maintainerEmail . " +
+				"   FILTER (?maintainerEmail = \"" + maintainerEmail + "\") " +
+				"}";
 
 		try {
 			ResultSetRewindable resultsrw = SPARQLUtils.select(
@@ -540,24 +581,6 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 		return (attachments == null);
 	}
 
-	private String adjustedPriority(String priority, int totAttachments) {
-		int digits = 0;
-		if (totAttachments < 10) {
-			digits = 1;
-		} else if (totAttachments < 100) {
-			digits = 2;
-		} else if (totAttachments < 1000) {
-			digits = 3;
-		} else {
-			digits = 4;
-		}
-		String auxstr = String.valueOf(priority);
-		for (int filler = auxstr.length(); filler < digits; filler++) {
-			auxstr = "0" + auxstr;
-		}
-		return auxstr;
-	}
-
 	public boolean createAttachments(int totAttachments) {
 		if (totAttachments <= 0) {
 			return false;
@@ -566,7 +589,7 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 			return false;
 		}
 		for (int aux=1; aux <= totAttachments; aux++) {
-			String auxstr = adjustedPriority(String.valueOf(aux), totAttachments);
+			String auxstr = Utils.adjustedPriority(String.valueOf(aux), totAttachments);
 			String newUri = uri + "/ATT/" + auxstr;
 			Attachment.createAttachment(uri, newUri, auxstr,null);
 		}

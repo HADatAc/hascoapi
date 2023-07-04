@@ -266,7 +266,6 @@ public class Detector extends HADatAcThing implements SIRElement, Comparable<Det
         return findByQuery(queryString);
     }
 
-
     public static List<Detector> findByKeywordAndLanguageWithPages(String keyword, String language, int pageSize, int offset) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
         queryString += " SELECT ?uri WHERE { " +
@@ -326,20 +325,6 @@ public class Detector extends HADatAcThing implements SIRElement, Comparable<Det
         return -1;
     }
 
-    public static List<Detector> findByMaintainerEmail(String maintainerEmail) {
-        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                " SELECT ?uri WHERE { " +
-                " ?detModel rdfs:subClassOf* vstoi:Detector . " +
-                " ?uri a ?detModel ." +
-                " ?uri vstoi:hasSIRMaintainerEmail ?maintainerEmail . " +
-                " ?uri vstoi:hasContent ?content . " +
-                "   FILTER (?maintainerEmail = \"" + maintainerEmail + "\") " +
-                "} " +
-                " ORDER BY ASC(?content) ";
-
-        return findByQuery(queryString);
-    }
-
     public static List<Detector> findByMaintainerEmailWithPages(String maintainerEmail, int pageSize, int offset) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
@@ -352,6 +337,43 @@ public class Detector extends HADatAcThing implements SIRElement, Comparable<Det
                 " ORDER BY ASC(?content) " +
                 " LIMIT " + pageSize +
                 " OFFSET " + offset;
+
+        return findByQuery(queryString);
+    }
+
+    public static int findTotalByMaintainerEmail(String maintainerEmail) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+        queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
+                " ?detModel rdfs:subClassOf* vstoi:Detector . " +
+                " ?uri a ?detModel ." +
+                " ?uri vstoi:hasSIRMaintainerEmail ?maintainerEmail . " +
+                "   FILTER (?maintainerEmail = \"" + maintainerEmail + "\") " +
+                "}";
+
+        try {
+            ResultSetRewindable resultsrw = SPARQLUtils.select(
+                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+            if (resultsrw.hasNext()) {
+                QuerySolution soln = resultsrw.next();
+                return Integer.parseInt(soln.getLiteral("tot").getString());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    public static List<Detector> findByMaintainerEmail(String maintainerEmail) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT ?uri WHERE { " +
+                " ?detModel rdfs:subClassOf* vstoi:Detector . " +
+                " ?uri a ?detModel ." +
+                " ?uri vstoi:hasSIRMaintainerEmail ?maintainerEmail . " +
+                " ?uri vstoi:hasContent ?content . " +
+                "   FILTER (?maintainerEmail = \"" + maintainerEmail + "\") " +
+                "} " +
+                " ORDER BY ASC(?content) ";
 
         return findByQuery(queryString);
     }

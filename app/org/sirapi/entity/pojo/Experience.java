@@ -11,6 +11,7 @@ import org.sirapi.annotations.PropertyField;
 import org.sirapi.utils.CollectionUtil;
 import org.sirapi.utils.NameSpaces;
 import org.sirapi.utils.SPARQLUtils;
+import org.sirapi.utils.Utils;
 import org.sirapi.vocabularies.HASCO;
 import org.sirapi.vocabularies.RDF;
 import org.sirapi.vocabularies.RDFS;
@@ -77,9 +78,51 @@ public class Experience extends HADatAcThing implements SIRElement, Comparable<E
         this.hasSIRMaintainerEmail = hasSIRMaintainerEmail;
     }
 
+    public List<CodebookSlot> getCodebookSlots() {
+        List<CodebookSlot> slots = CodebookSlot.findByExperience(uri);
+        return slots;
+    }
+
+    /*
     public List<ResponseOption> getResponseOptions() {
         return ResponseOption.findByExperience(getUri());
     }
+     */
+
+    public boolean createCodebookSlots(int totSlots) {
+        if (totSlots <= 0) {
+            return false;
+        }
+        if (this.getCodebookSlots() != null || uri == null || uri.isEmpty()) {
+            return false;
+        }
+        for (int aux=1; aux <= totSlots; aux++) {
+            String auxstr = Utils.adjustedPriority(String.valueOf(aux), totSlots);
+            String newUri = uri + "/CBS/" + auxstr;
+            CodebookSlot.createCodebookSlot(uri, newUri, auxstr,null);
+        }
+        List<CodebookSlot> slotList = CodebookSlot.findByExperience(uri);
+        if (slotList == null) {
+            return false;
+        }
+        return (slotList.size() == totSlots);
+    }
+
+    public boolean deleteCodebookSlots() {
+        if (this.getCodebookSlots() == null || uri == null || uri.isEmpty()) {
+            return true;
+        }
+        List<CodebookSlot> slots = CodebookSlot.findByExperience(uri);
+        if (slots == null) {
+            return true;
+        }
+        for (CodebookSlot slot: slots) {
+            slot.delete();
+        }
+        slots = CodebookSlot.findByExperience(uri);
+        return (slots == null);
+    }
+
 
     public static List<Experience> findByLanguage(String language) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
@@ -105,17 +148,99 @@ public class Experience extends HADatAcThing implements SIRElement, Comparable<E
         return findByQuery(queryString);
     }
 
-    public static List<Experience> findByKeywordAndLanguage(String keyword, String language) {
-        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                " SELECT ?uri WHERE { " +
-                " ?experienceType rdfs:subClassOf* vstoi:Experience . " +
-                " ?uri a ?experienceType ." +
-                " ?uri vstoi:hasLanguage ?language . " +
-                " ?uri rdfs:label ?label . " +
-                "   FILTER (regex(?label, \"" + keyword + "\", \"i\") && (?language = \"" + language + "\")) " +
-                "} ";
-
+    public static List<Experience> findByKeywordAndLanguageWithPages(String keyword, String language, int pageSize, int offset) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+        queryString += " SELECT ?uri WHERE { " +
+                " ?expModel rdfs:subClassOf* vstoi:Experience . " +
+                " ?uri a ?expModel .";
+        if (!language.isEmpty()) {
+            queryString += " ?uri vstoi:hasLanguage ?language . ";
+        }
+        if (!keyword.isEmpty()) {
+            queryString += " ?uri rdfs:label ?label . ";
+        }
+        if (!keyword.isEmpty() && !language.isEmpty()) {
+            queryString += "   FILTER (regex(?label, \"" + keyword + "\", \"i\") && (?language = \"" + language + "\")) ";
+        } else if (!keyword.isEmpty()) {
+            queryString += "   FILTER (regex(?label, \"" + keyword + "\", \"i\")) ";
+        } else if (!language.isEmpty()) {
+            queryString += "   FILTER ((?language = \"" + language + "\")) ";
+        }
+        queryString += "} " +
+                " LIMIT " + pageSize +
+                " OFFSET " + offset;
         return findByQuery(queryString);
+    }
+
+    public static int findTotalByKeywordAndLanguage(String keyword, String language) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+        queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
+                " ?expModel rdfs:subClassOf* vstoi:Experience . " +
+                " ?uri a ?expModel .";
+        if (!language.isEmpty()) {
+            queryString += " ?uri vstoi:hasLanguage ?language . ";
+        }
+        if (!keyword.isEmpty()) {
+            queryString += " ?uri rdfs:label ?label . ";
+        }
+        if (!keyword.isEmpty() && !language.isEmpty()) {
+            queryString += "   FILTER (regex(?label, \"" + keyword + "\", \"i\") && (?language = \"" + language + "\")) ";
+        } else if (!keyword.isEmpty()) {
+            queryString += "   FILTER (regex(?label, \"" + keyword + "\", \"i\")) ";
+        } else if (!language.isEmpty()) {
+            queryString += "   FILTER ((?language = \"" + language + "\")) ";
+        }
+        queryString += "}";
+
+        //System.out.println(queryString);
+
+        try {
+            ResultSetRewindable resultsrw = SPARQLUtils.select(
+                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+            if (resultsrw.hasNext()) {
+                QuerySolution soln = resultsrw.next();
+                return Integer.parseInt(soln.getLiteral("tot").getString());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    public static List<Experience> findByMaintainerEmailWithPages(String maintainerEmail, int pageSize, int offset) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+        queryString += " SELECT ?uri WHERE { " +
+                " ?expModel rdfs:subClassOf* vstoi:Experience . " +
+                " ?uri a ?expModel ." +
+                " ?uri vstoi:hasSIRMaintainerEmail ?maintainerEmail . " +
+                "   FILTER (?maintainerEmail = \"" + maintainerEmail + "\") " +
+                "} " +
+                " LIMIT " + pageSize +
+                " OFFSET " + offset;
+        return findByQuery(queryString);
+    }
+
+    public static int findTotalByMaintainerEmail(String maintainerEmail) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+        queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
+                " ?expModel rdfs:subClassOf* vstoi:Experience . " +
+                " ?uri a ?expModel ." +
+                " ?uri vstoi:hasSIRMaintainerEmail ?maintainerEmail . " +
+                "   FILTER (?maintainerEmail = \"" + maintainerEmail + "\") " +
+                "} ";
+        try {
+            ResultSetRewindable resultsrw = SPARQLUtils.select(
+                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+            if (resultsrw.hasNext()) {
+                QuerySolution soln = resultsrw.next();
+                return Integer.parseInt(soln.getLiteral("tot").getString());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1;
     }
 
     public static List<Experience> findByMaintainerEmail(String maintainerEmail) {

@@ -55,6 +55,12 @@ public class Repository extends HADatAcThing {
     @PropertyField(uri="hasco:hasDefaultNamespaceURL", valueType=PropertyValueType.URI)
     private String hasDefaultNamespaceURL;
 
+    @PropertyField(uri="hasco:hasNamespaceAbbreviation")
+    private String hasNamespaceAbbreviation;
+
+    @PropertyField(uri="hasco:hasNamespaceURL", valueType=PropertyValueType.URI)
+    private String hasNamespaceURL;
+
     @PropertyField(uri="vstoi:hasVersion")
     private String hasVersion;
 
@@ -72,6 +78,8 @@ public class Repository extends HADatAcThing {
         this.startedAt = null;
         this.hasDefaultNamespaceAbbreviation = "";
         this.hasDefaultNamespaceURL = "";
+        this.hasNamespaceAbbreviation = "";
+        this.hasNamespaceURL = "";
         this.hasVersion = Constants.REPOSITORY_VERSION;
     }
 
@@ -114,6 +122,20 @@ public class Repository extends HADatAcThing {
             return null;
         }
         return hasDefaultNamespaceURL;
+    }
+
+    public String getHasNamespaceAbbreviation() {
+        if (hasNamespaceAbbreviation != null && hasNamespaceAbbreviation.equals("")) {
+            return null;
+        }
+        return hasNamespaceAbbreviation;
+    }
+
+    public String getHasNamespaceURL() {
+        if (hasNamespaceURL != null && hasNamespaceURL.equals("")) {
+            return null;
+        }
+        return hasNamespaceURL;
     }
 
     public String getHasVersion() {
@@ -160,6 +182,14 @@ public class Repository extends HADatAcThing {
         this.hasDefaultNamespaceURL = hasDefaultNamespaceURL;
     }
 
+    public void setHasNamespaceAbbreviation(String hasNamespaceAbbreviation) {
+        this.hasNamespaceAbbreviation = hasNamespaceAbbreviation;
+    }
+
+    public void setHasNamespaceURL(String hasNamespaceURL) {
+        this.hasNamespaceURL = hasNamespaceURL;
+    }
+
     public void setHasVersion(String hasVersion) {
         this.hasVersion = hasVersion;
     }
@@ -189,7 +219,7 @@ public class Repository extends HADatAcThing {
 
         String uri = "<" + Constants.DEFAULT_REPOSITORY_URI + ">";
         String repositoryQueryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                "SELECT DISTINCT ?label ?title ?comment ?baseOntology ?baseURL ?institutionUri ?nsAbbreviation ?nsUrl ?version " +
+                "SELECT DISTINCT ?label ?title ?comment ?baseOntology ?baseURL ?institutionUri ?defaultNsAbbreviation ?defaultNsUrl ?nsAbbreviation ?nsUrl ?version " +
                 " WHERE {  \n" +
                 "      ?type rdfs:subClassOf* hasco:Repository . \n" +
                 "      " + uri + " a ?type . \n" +
@@ -200,8 +230,10 @@ public class Repository extends HADatAcThing {
                 "      OPTIONAL { " + uri + " hasco:hasBaseOntology ?baseOntology } . \n" +
                 "      OPTIONAL { " + uri + " hasco:hasBaseURL ?baseURL } . \n" +
                 "      OPTIONAL { " + uri + " hasco:hasInstitution ?institutionUri } . \n" +
-                "      OPTIONAL { " + uri + " hasco:hasDefaultNamespaceAbbreviation ?nsAbbreviation } . \n" +
-                "      OPTIONAL { " + uri + " hasco:hasDefaultNamespaceURL ?nsUrl } . \n" +
+                "      OPTIONAL { " + uri + " hasco:hasDefaultNamespaceAbbreviation ?defaultNsAbbreviation } . \n" +
+                "      OPTIONAL { " + uri + " hasco:hasDefaultNamespaceURL ?defaultNsUrl } . \n" +
+                "      OPTIONAL { " + uri + " hasco:hasNamespaceAbbreviation ?nsAbbreviation } . \n" +
+                "      OPTIONAL { " + uri + " hasco:hasNamespaceURL ?nsUrl } . \n" +
                 "      OPTIONAL { " + uri + " vstoi:hasVersion ?version } . \n" +
                 " } \n";
 
@@ -238,11 +270,17 @@ public class Repository extends HADatAcThing {
                 if (soln.contains("institutionUri")) {
                     repository.setInstitutionUri(soln.get("institutionUri").toString());
                 }
+                if (soln.contains("defaultNsAbbreviation")) {
+                    repository.setHasDefaultNamespaceAbbreviation(soln.get("defaultNsAbbreviation").toString());
+                }
+                if (soln.contains("defaultNsUrl")) {
+                    repository.setHasDefaultNamespaceURL(soln.get("defaultNsUrl").toString());
+                }
                 if (soln.contains("nsAbbreviation")) {
-                    repository.setHasDefaultNamespaceAbbreviation(soln.get("nsAbbreviation").toString());
+                    repository.setHasNamespaceAbbreviation(soln.get("nsAbbreviation").toString());
                 }
                 if (soln.contains("nsUrl")) {
-                    repository.setHasDefaultNamespaceURL(soln.get("nsUrl").toString());
+                    repository.setHasNamespaceURL(soln.get("nsUrl").toString());
                 }
                 if (soln.contains("version")) {
                     repository.setHasVersion(soln.get("version").toString());

@@ -32,11 +32,11 @@ public class RepoPage extends Controller {
         }
     }
 
-    public Result updateName(String name){
-        if (name == null || name.equals("")) {
+    public Result updateLabel(String label){
+        if (label == null || label.equals("")) {
             return ok(ApiUtil.createResponse("No (name) has been provided.", false));
         }
-        RepositoryInstance.getInstance().setLabel(name);
+        RepositoryInstance.getInstance().setLabel(label);
         RepositoryInstance.getInstance().save();
         return ok(ApiUtil.createResponse("Repository's (name) has been UPDATED.", true));
     }
@@ -59,7 +59,7 @@ public class RepoPage extends Controller {
         return ok(ApiUtil.createResponse("Repository's (description) has been UPDATED.", true));
     }
 
-    public Result updateNamespace(String abbreviation, String url){
+    public Result updateDefaultNamespace(String abbreviation, String url){
         if (abbreviation == null || abbreviation.equals("")) {
             return ok(ApiUtil.createResponse("No (abbreviation) has been provided.", false));
         }
@@ -68,6 +68,20 @@ public class RepoPage extends Controller {
         }
         RepositoryInstance.getInstance().setHasDefaultNamespaceAbbreviation(abbreviation);
         RepositoryInstance.getInstance().setHasDefaultNamespaceURL(url);
+        RepositoryInstance.getInstance().save();
+        NameSpaces.getInstance().updateLocalNamespace();
+        return ok(ApiUtil.createResponse("Repository's local namespace has been UPDATED.", true));
+    }
+
+    public Result updateNamespace(String abbreviation, String url){
+        if (abbreviation == null || abbreviation.equals("")) {
+            return ok(ApiUtil.createResponse("No (abbreviation) has been provided.", false));
+        }
+        if (url == null || url.equals("")) {
+            return ok(ApiUtil.createResponse("No (url) has been provided.", false));
+        }
+        RepositoryInstance.getInstance().setHasNamespaceAbbreviation(abbreviation);
+        RepositoryInstance.getInstance().setHasNamespaceURL(url);
         RepositoryInstance.getInstance().save();
         NameSpaces.getInstance().updateLocalNamespace();
         return ok(ApiUtil.createResponse("Repository's local namespace has been UPDATED.", true));

@@ -35,6 +35,7 @@ public class VSTOI {
      */
 
     public static final String ATTACHMENT                               = "http://hadatac.org/ont/vstoi#Attachment";
+    public static final String CODEBOOK_SLOT                            = "http://hadatac.org/ont/vstoi#CodebookSlot";
     public static final String EXPERIENCE                               = "http://hadatac.org/ont/vstoi#Experience";
     public static final String INFORMANT                                = "http://hadatac.org/ont/vstoi#Informant";
     public static final String ITEM                                     = "http://hadatac.org/ont/vstoi#Item";
@@ -57,6 +58,7 @@ public class VSTOI {
     public static final String HAS_LANGUAGE                             = "http://hadatac.org/ont/vstoi#hasLanguage";
     public static final String HAS_PAGE_NUMBER                          = "http://hadatac.org/ont/vstoi#hasPageNumber";
     public static final String HAS_PRIORITY                             = "http://hadatac.org/ont/vstoi#hasPriority";
+    public static final String HAS_RESPONSE_OPTION                      = "http://hadatac.org/ont/vstoi#hasResponseOption";
     public static final String HAS_SHORT_NAME                           = "http://hadatac.org/ont/vstoi#hasShortName";
     public static final String HAS_STATUS                               = "http://hadatac.org/ont/vstoi#hasStatus";
     public static final String HAS_SIR_MAINTAINER_EMAIL                 = "http://hadatac.org/ont/vstoi#hasSIRMaintainerEmail";

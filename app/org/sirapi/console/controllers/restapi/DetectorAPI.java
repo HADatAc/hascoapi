@@ -206,11 +206,6 @@ public class DetectorAPI extends Controller {
         return getDetectors(results);
     }
 
-    public Result getDetectorsByKeywordAndLanguage(String keyword, String language, int pageSize, int offset){
-        List<Detector> results = Detector.findByKeywordAndLanguageWithPages(keyword, language, pageSize, offset);
-        return getDetectors(results);
-    }
-
     public Result getDetectorsByMaintainerEmail(String maintainerEmail){
         List<Detector> results = Detector.findByMaintainerEmail(maintainerEmail);
         return getDetectors(results);

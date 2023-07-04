@@ -22,10 +22,11 @@
                 <h2>Repository RESTful API</h2>
 
                 <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/repo" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/api/repo</a> - Return repository setting information.<br>
-                <button type="button" class="btn btn-outline-primary btn-sm" disabled>GET&nbsp;&nbsp;&nbsp;  /sirapi/api/repo/name/(name)</button> - Set a new internal name for the repository. (name) needs to be URL encoded.<br>
-                <button type="button" class="btn btn-outline-primary btn-sm" disabled>GET&nbsp;&nbsp;&nbsp;  /sirapi/api/repo/title/(title)</button> - Set a new title for the repository that appears in SIR API's GUI. (name) needs to be URL encoded.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>GET&nbsp;&nbsp;&nbsp;  /sirapi/api/repo/label/(label)</button> - Set a new internal name for the repository. (label) needs to be URL encoded.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>GET&nbsp;&nbsp;&nbsp;  /sirapi/api/repo/title/(title)</button> - Set a new title for the repository that appears in SIR API's GUI. (title) needs to be URL encoded.<br>
                 <button type="button" class="btn btn-outline-primary btn-sm" disabled>GET&nbsp;&nbsp;&nbsp;  /sirapi/api/repo/description/(description)</button> - Set a new description for the repository that appears in the SIR API's GUI. (description) needs to be URL encoded.<br>
-                <button type="button" class="btn btn-outline-primary btn-sm" disabled>GET&nbsp;&nbsp;&nbsp;  /sirapi/api/repo/namespace/create/(abbreviation)/(url)</button> - Set a new abbreviation and URL for the repository's default namespace. (abbreviation) and (url) need to be URL encoded.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>GET&nbsp;&nbsp;&nbsp;  /sirapi/api/repo/namespace/default/(abbreviation)/(url)</button> - Set a new abbreviation and URL for the repository's default namespace. (abbreviation) and (url) need to be URL encoded.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>GET&nbsp;&nbsp;&nbsp;  /sirapi/api/repo/namespace/create/(abbreviation)/(url)</button> - Set a new abbreviation and URL for the repository's list of namespaces. (abbreviation) and (url) need to be URL encoded.<br>
                 <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/repo/namespace/delete" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/api/repo/namespace/delete</a> - Delete the repository's default namespace, if any.<br>
 
                 <br>

@@ -2,6 +2,8 @@ package org.sirapi.console.controllers.restapi;
 
 import org.sirapi.entity.pojo.Detector;
 import org.sirapi.entity.pojo.Instrument;
+import org.sirapi.entity.pojo.Experience;
+import org.sirapi.entity.pojo.ResponseOption;
 import org.sirapi.utils.ApiUtil;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -22,6 +24,12 @@ public class SIRElementAPI extends Controller {
         } else if (elementType.equals("detector")) {
             List<Detector> results = Detector.findByKeywordAndLanguageWithPages(keyword, language, pageSize, offset);
             return DetectorAPI.getDetectors(results);
+        } else if (elementType.equals("experience")) {
+            List<Experience> results = Experience.findByKeywordAndLanguageWithPages(keyword, language, pageSize, offset);
+            return ExperienceAPI.getExperiences(results);
+        } else if (elementType.equals("responseoption")) {
+            List<ResponseOption> results = ResponseOption.findByKeywordAndLanguageWithPages(keyword, language, pageSize, offset);
+            return ResponseOptionAPI.getResponseOptions(results);
         }
         return ok("No valid element type.");
     }
@@ -41,6 +49,52 @@ public class SIRElementAPI extends Controller {
             int totalDetectors = Detector.findTotalByKeywordAndLanguage(keyword, language);
             String totalDetectorsJSON = "{\"total\":" + totalDetectors + "}";
             return ok(ApiUtil.createResponse(totalDetectorsJSON, true));
+        } else if (elementType.equals("experience")) {
+            int totalExperiences = Experience.findTotalByKeywordAndLanguage(keyword, language);
+            String totalExperiencesJSON = "{\"total\":" + totalExperiences + "}";
+            return ok(ApiUtil.createResponse(totalExperiencesJSON, true));
+        } else if (elementType.equals("responseoption")) {
+            int totalResponseOptions = ResponseOption.findTotalByKeywordAndLanguage(keyword, language);
+            String totalResponseOptionsJSON = "{\"total\":" + totalResponseOptions + "}";
+            return ok(ApiUtil.createResponse(totalResponseOptionsJSON, true));
+        }
+        return ok("No valid element type.");
+    }
+
+    public Result getElementsByMaintainerEmail(String elementType, String maintainerEmail, int pageSize, int offset) {
+        if (elementType.equals("instrument")) {
+            List<Instrument> results = Instrument.findByMaintainerEmailWithPages(maintainerEmail, pageSize, offset);
+            return InstrumentAPI.getInstruments(results);
+        } else if (elementType.equals("detector")) {
+            List<Detector> results = Detector.findByMaintainerEmailWithPages(maintainerEmail, pageSize, offset);
+            return DetectorAPI.getDetectors(results);
+        } else if (elementType.equals("experience")) {
+           List<Experience> results = Experience.findByMaintainerEmailWithPages(maintainerEmail, pageSize, offset);
+           return ExperienceAPI.getExperiences(results);
+        } else if (elementType.equals("responseoption")) {
+            List<ResponseOption> results = ResponseOption.findByMaintainerEmailWithPages(maintainerEmail, pageSize, offset);
+            return ResponseOptionAPI.getResponseOptions(results);
+        }
+        return ok("No valid element type.");
+    }
+
+    public Result getTotalElementsByMaintainerEmail(String elementType, String maintainerEmail){
+        if (elementType.equals("instrument")) {
+            int totalInstruments = Instrument.findTotalByMaintainerEmail(maintainerEmail);
+            String totalInstrumentsJSON = "{\"total\":" + totalInstruments + "}";
+            return ok(ApiUtil.createResponse(totalInstrumentsJSON, true));
+        } else if (elementType.equals("detector")) {
+            int totalDetectors = Detector.findTotalByMaintainerEmail(maintainerEmail);
+            String totalDetectorsJSON = "{\"total\":" + totalDetectors + "}";
+            return ok(ApiUtil.createResponse(totalDetectorsJSON, true));
+        } else if (elementType.equals("experience")) {
+            int totalExperiences = Experience.findTotalByMaintainerEmail(maintainerEmail);
+            String totalExperiencesJSON = "{\"total\":" + totalExperiences + "}";
+            return ok(ApiUtil.createResponse(totalExperiencesJSON, true));
+        } else if (elementType.equals("responseoption")) {
+            int totalResponseOptions = ResponseOption.findTotalByMaintainerEmail(maintainerEmail);
+            String totalResponseOptionsJSON = "{\"total\":" + totalResponseOptions + "}";
+            return ok(ApiUtil.createResponse(totalResponseOptionsJSON, true));
         }
         return ok("No valid element type.");
     }

@@ -67,6 +67,12 @@ public class URIPage extends Controller {
                 if (finalResult != null) {
                     typeUri = ((Experience) finalResult).getHascoTypeUri();
                 }
+            } else if (result.getHascoTypeUri().equals(VSTOI.CODEBOOK_SLOT)) {
+                finalResult = CodebookSlot.find(uri);
+                //System.out.println("URIPage: object is CODEBOOK_SLOT");
+                if (finalResult != null) {
+                    typeUri = ((CodebookSlot) finalResult).getHascoTypeUri();
+                }
             } else if (result.getHascoTypeUri().equals(VSTOI.RESPONSE_OPTION)) {
                 finalResult = ResponseOption.find(uri);
                 //System.out.println("URIPage: object is RESPONSE_OPTION");

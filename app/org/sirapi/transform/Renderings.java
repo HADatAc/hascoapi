@@ -2,11 +2,7 @@ package org.sirapi.transform;
 
 //import com.itextpdf.text.*;
 //import com.itextpdf.text.pdf.PdfWriter;
-import org.sirapi.entity.pojo.Attachment;
-import org.sirapi.entity.pojo.Detector;
-import org.sirapi.entity.pojo.Experience;
-import org.sirapi.entity.pojo.Instrument;
-import org.sirapi.entity.pojo.ResponseOption;
+import org.sirapi.entity.pojo.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -50,10 +46,12 @@ public class Renderings {
 				} else {
 					str += " " + attachment.getHasPriority() + ". " + detector.getHasContent() + " ";
 					Experience experience = detector.getExperience();
+
 					if (experience != null) {
-						if (experience.getResponseOptions() != null) {
-							str += "\n     ";
-							for (ResponseOption responseOption : experience.getResponseOptions()) {
+						List<CodebookSlot> slots = experience.getCodebookSlots();
+						for (CodebookSlot slot: slots) {
+							if (slot.getResponseOption() != null) {
+								ResponseOption responseOption = slot.getResponseOption();
 								str += " " + responseOption.getHasContent() + "( )  ";
 							}
 						}
@@ -239,8 +237,10 @@ public class Renderings {
 				html += "<td>" + attachment.getHasPriority() + ". " + detector.getHasContent() + "</td>";
 				Experience experience = detector.getExperience();
 				if (experience != null) {
-					if (experience.getResponseOptions() != null) {
-						for (ResponseOption responseOption : experience.getResponseOptions()) {
+					List<CodebookSlot> slots = experience.getCodebookSlots();
+					for (CodebookSlot slot: slots) {
+						if (slot.getResponseOption() != null) {
+							ResponseOption responseOption = slot.getResponseOption();
 							html += "<td>" + responseOption.getHasContent() + "</td>";
 						}
 					}
