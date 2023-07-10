@@ -118,6 +118,10 @@ public class Renderings {
 		if (instr.getHasDateField() != null && !instr.getHasDateField().isEmpty()) {
 			dateField = instr.getHasDateField();
 		}
+		String shortName = "";
+		if (instr.getHasShortName() != null && !instr.getHasShortName().isEmpty()) {
+			shortName = instr.getHasShortName();
+		}
 		String subjectIDField = "";
 		if (instr.getHasSubjectIDField() != null && !instr.getHasSubjectIDField().isEmpty()) {
 			subjectIDField = instr.getHasSubjectIDField();
@@ -126,14 +130,18 @@ public class Renderings {
 		if (instr.getHasSubjectRelationshipField() != null && !instr.getHasSubjectRelationshipField().isEmpty()) {
 			subjectRelationshipField = instr.getHasSubjectRelationshipField();
 		}
+		String instruction = "";
+		if (instr.getHasInstruction() != null && !instr.getHasInstruction().isEmpty()) {
+			instruction = instr.getHasInstruction();
+		}
 		return "<table id=\"tbl1\"> " +
   				"  <tr id=\"tr1\"> " +
     			"	  <td id=\"cell1\">" + dateField + "</td> " +
-    			"	  <td id=\"cell2\"><h2>" + instr.getHasShortName() + "</h2></td> " +
+    			"	  <td id=\"cell2\"><h2>" + shortName + "</h2></td> " +
     			"	  <td id=\"cell3\">" + subjectIDField + "<br>" + subjectRelationshipField + "</td> " +
   				"  </tr>" +
 				"</table> " +
-				instr.getHasInstruction() + "<br>" +
+				instruction + "<br>" +
 				"<br>\n";
 
 	}
@@ -206,8 +214,14 @@ public class Renderings {
 		if (page == 1) {
 			currentPageSize = 25;
 			first = 1;
-			if (instr.getAttachments().size() > 25) {
+			if (instr.getAttachments() != null && instr.getAttachments().size() > 25) {
 				last = 25;
+			} else {
+				if (instr.getAttachments() != null) {
+					last = instr.getAttachments().size();
+				} else {
+					last = 0;
+				}
 			}
 		} else {
 			currentPageSize = 27;
@@ -227,25 +241,36 @@ public class Renderings {
 		//System.out.println("  CurrentPageSize: " + currentPageSize);
 		//System.out.println("");
 		html += "<table>\n";
-		for (int element = first - 1; element < last; element++) {
-			Attachment attachment = instr.getAttachments().get(element);
-			Detector detector = attachment.getDetector();
-			if (detector == null) {
-				html += "<tr><td>" + attachment.getHasPriority() + ".</tr></td>\n";
-			} else {
-				html += "<tr>";
-				html += "<td>" + attachment.getHasPriority() + ". " + detector.getHasContent() + "</td>";
-				Experience experience = detector.getExperience();
-				if (experience != null) {
-					List<CodebookSlot> slots = experience.getCodebookSlots();
-					for (CodebookSlot slot: slots) {
-						if (slot.getResponseOption() != null) {
-							ResponseOption responseOption = slot.getResponseOption();
-							html += "<td>" + responseOption.getHasContent() + "</td>";
+		if (instr.getAttachments() == null || instr.getAttachments().size() <= 0) {
+			html += "<p>EMPTY TABLE</p>";
+		} else {
+			//System.out.println("Renderings.java: total attachments: " + instr.getAttachments().size());
+			for (int element = first - 1; element < last; element++) {
+				Attachment attachment = instr.getAttachments().get(element);
+				Detector detector = attachment.getDetector();
+				if (detector == null) {
+					if (attachment.getHasPriority() != null) {
+						html += "<tr><td>" + attachment.getHasPriority() + ".</tr></td>\n";
+					}
+				} else {
+					html += "<tr>";
+					html += "<td>" + attachment.getHasPriority() + ". " + detector.getHasContent() + "</td>";
+					Experience experience = detector.getExperience();
+					if (experience != null) {
+						List<CodebookSlot> slots = experience.getCodebookSlots();
+						if (slots != null && slots.size() > 0) {
+							for (CodebookSlot slot : slots) {
+								if (slot.getResponseOption() != null) {
+									ResponseOption responseOption = slot.getResponseOption();
+									if (responseOption != null && responseOption.getHasContent() != null) {
+										html += "<td>" + responseOption.getHasContent() + "</td>";
+									}
+								}
+							}
 						}
 					}
+					html += "</tr>\n";
 				}
-				html += "</tr>\n";
 			}
 		}
 		html += "</table>\n";
@@ -262,10 +287,11 @@ public class Renderings {
 	}
 
 	public static String toHTML(String uri, int width) {
+
+		//System.out.println("Rendering.java: rendering [" + uri + "]");
+
 		Instrument instr = Instrument.find(uri);
-		if (instr == null) {
-			return "";
-		}
+
 		String html = "";
 
 		html += "<!DOCTYPE html>\n" +
@@ -275,10 +301,20 @@ public class Renderings {
 				"</head>\n" +
 				"<body>\n";
 
+
+		if (instr == null) {
+			html += "<p>EMPTY INSTRUMENT RENDERING</P>";
+			html += "</body>\n" +
+					"</html>";
+			return html;
+		}
+
 		// PRINT ITEMS
 		int elements = 0;
 		int totPages = 0;
-		if (instr.getAttachments() != null) {
+		if (instr.getAttachments() == null) {
+			html += printPage(instr,1);
+		} else {
 
 			// total of pages
 			if (instr.getAttachments().size() <= 25) {
@@ -290,8 +326,11 @@ public class Renderings {
 				}
 			}
 
+			//System.out.println("Rendering.java: total pages [" + totPages + "]");
+
 			// print pages
 			for (int page = 1; page <= totPages; page++) {
+				//System.out.println("Rendering.java: print page [" + page + "]");
 				html += printPage(instr, page);
 			}
 		}
