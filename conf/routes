@@ -29,6 +29,7 @@ GET     /sirapi/api/repo/namespace/delete                 org.sirapi.console.con
 GET     /sirapi/api/repo/table/informants                 org.sirapi.console.controllers.restapi.RepoPage.getInformants()
 GET     /sirapi/api/repo/table/languages                  org.sirapi.console.controllers.restapi.RepoPage.getLanguages()
 GET     /sirapi/api/repo/table/generationactivities       org.sirapi.console.controllers.restapi.RepoPage.getGenerationActivities()
+GET     /sirapi/api/repo/table/namespaces                 org.sirapi.console.controllers.restapi.RepoPage.getNamespaces()
 GET     /sirapi/api/instrument/all                        org.sirapi.console.controllers.restapi.InstrumentAPI.getAllInstruments()
 GET     /sirapi/api/instrument/keyword/:keyword           org.sirapi.console.controllers.restapi.InstrumentAPI.getInstrumentsByKeyword(keyword : String)
 GET     /sirapi/api/instrument/language/:language         org.sirapi.console.controllers.restapi.InstrumentAPI.getInstrumentsByLanguage(language : String)

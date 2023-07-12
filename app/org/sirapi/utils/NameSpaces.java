@@ -192,8 +192,8 @@ public class NameSpaces {
 
         // default
         NameSpace TEST_NAMESPACE = new NameSpace();
-        TEST_NAMESPACE.setAbbreviation("default");
-        TEST_NAMESPACE.setName("http://hadatac.org/kb/");
+        TEST_NAMESPACE.setAbbreviation("test");
+        TEST_NAMESPACE.setName("http://hadatac.org/kb/test/");
         TEST_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
         TEST_NAMESPACE.setComment("Default Namespace");
         TEST_NAMESPACE.setVersion("1.0");

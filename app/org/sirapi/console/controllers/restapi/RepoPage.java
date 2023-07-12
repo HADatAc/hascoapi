@@ -157,4 +157,16 @@ public class RepoPage extends Controller {
         }
     }
 
+    public Result getNamespaces() {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            ArrayNode array = mapper.convertValue(NameSpaces.getInstance().getOrderedNamespacesAsList(), ArrayNode.class);
+            JsonNode jsonObject = mapper.convertValue(array, JsonNode.class);
+            return ok(ApiUtil.createResponse(jsonObject, true));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return badRequest(ApiUtil.createResponse("Error retrieving namespaces", false));
+        }
+    }
+
 }

@@ -34,8 +34,10 @@ public class Renderings {
 		str += centerText(instr.getHasShortName(), width) + "\n";
 		str += "\n";
 
-		for (String line : breakString("Instructions: " + instr.getHasInstruction(), width)) {
-			str += line + "\n";
+		if (instr.getHasInstruction() != null) {
+			for (String line : breakString("Instructions: " + instr.getHasInstruction(), width)) {
+				str += line + "\n";
+			}
 		}
 		str += "\n";
 		if (instr.getAttachments() != null) {
@@ -46,13 +48,14 @@ public class Renderings {
 				} else {
 					str += " " + attachment.getHasPriority() + ". " + detector.getHasContent() + " ";
 					Experience experience = detector.getExperience();
-
-					if (experience != null) {
+					if (experience != null && experience.getCodebookSlots() != null) {
 						List<CodebookSlot> slots = experience.getCodebookSlots();
-						for (CodebookSlot slot: slots) {
-							if (slot.getResponseOption() != null) {
-								ResponseOption responseOption = slot.getResponseOption();
-								str += " " + responseOption.getHasContent() + "( )  ";
+						if (slots != null && slots.size() > 0) {
+							for (CodebookSlot slot : slots) {
+								if (slot.getResponseOption() != null) {
+									ResponseOption responseOption = slot.getResponseOption();
+									str += " " + responseOption.getHasContent() + "( )  ";
+								}
 							}
 						}
 					}
