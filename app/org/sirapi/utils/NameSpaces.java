@@ -164,21 +164,6 @@ public class NameSpaces {
         lcc_639_1_NAMESPACE.setPriority(9);
         namespaces.add(lcc_639_1_NAMESPACE);
 
-        // SIRT
-        /*
-        NameSpace SIRT_NAMESPACE = new NameSpace();
-        SIRT_NAMESPACE.setAbbreviation("sirt");
-        SIRT_NAMESPACE.setName("http://www.hadatac.org/ont/sirt#");
-        SIRT_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
-        SIRT_NAMESPACE.setMimeType("text/turtle");
-        SIRT_NAMESPACE.setURL("http://www.hadatac.org/ont/sirt#");
-        SIRT_NAMESPACE.setComment("SIR auxiliary tables");
-        SIRT_NAMESPACE.setVersion("0.1");
-        SIRT_NAMESPACE.updateNumberOfLoadedTriples();
-        SIRT_NAMESPACE.setPriority(10);
-        namespaces.add(SIRT_NAMESPACE);
-         */
-
         // FHIR
         NameSpace FHIR_NAMESPACE = new NameSpace();
         FHIR_NAMESPACE.setAbbreviation("fhir");
@@ -190,12 +175,23 @@ public class NameSpaces {
         FHIR_NAMESPACE.setPriority(10);
         namespaces.add(FHIR_NAMESPACE);
 
-        // default
+        // DEFAULT
+        NameSpace DEFAULT_NAMESPACE = new NameSpace();
+        DEFAULT_NAMESPACE.setAbbreviation("default");
+        DEFAULT_NAMESPACE.setName("http://hadatac.org/kb/default/");
+        DEFAULT_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
+        DEFAULT_NAMESPACE.setComment("Default Namespace");
+        DEFAULT_NAMESPACE.setVersion("0.1");
+        DEFAULT_NAMESPACE.updateNumberOfLoadedTriples();
+        DEFAULT_NAMESPACE.setPriority(11);
+        namespaces.add(DEFAULT_NAMESPACE);
+
+        // TEST
         NameSpace TEST_NAMESPACE = new NameSpace();
         TEST_NAMESPACE.setAbbreviation("test");
         TEST_NAMESPACE.setName("http://hadatac.org/kb/test/");
         TEST_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
-        TEST_NAMESPACE.setComment("Default Namespace");
+        TEST_NAMESPACE.setComment("Test Namespace");
         TEST_NAMESPACE.setVersion("1.0");
         TEST_NAMESPACE.updateNumberOfLoadedTriples();
         TEST_NAMESPACE.setPriority(20);

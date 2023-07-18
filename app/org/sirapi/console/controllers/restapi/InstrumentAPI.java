@@ -60,7 +60,7 @@ public class InstrumentAPI extends Controller {
         if (json == null || json.equals("")) {
             return ok(ApiUtil.createResponse("No json content has been provided.", false));
         }
-        //System.out.println("(InstrumentAPI) Value of json in createInstrument: [" + json + "]");
+        System.out.println("(InstrumentAPI) Value of json in createInstrument: [" + json + "]");
         ObjectMapper objectMapper = new ObjectMapper();
         Instrument newInst;
         try {

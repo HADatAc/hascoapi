@@ -67,13 +67,17 @@ public class GSPClient {
 
     public void postModel(Model model) {
         final RDFFormat defaultFormat = RDFFormat.TURTLE;
-        for (Resource context : model.contexts()) {
-            Model subGraph = model.filter(null, null, null, context);
-            postInputStream(
-                    () -> new SerializedModelInputStream(subGraph, defaultFormat),
-                    defaultFormat.getDefaultMIMEType(),
-                    Optional.ofNullable(context).map(Resource::toString).orElse(null)
-            );
+        if (model == null || model.contexts() == null) {
+            System.out.println("[ERROR] GSPClient.java: model.contexts() is NULL.");
+        } else {
+            for (Resource context : model.contexts()) {
+                Model subGraph = model.filter(null, null, null, context);
+                postInputStream(
+                        () -> new SerializedModelInputStream(subGraph, defaultFormat),
+                        defaultFormat.getDefaultMIMEType(),
+                        Optional.ofNullable(context).map(Resource::toString).orElse(null)
+                );
+            }
         }
     }
 

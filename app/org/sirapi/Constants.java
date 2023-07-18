@@ -19,7 +19,8 @@ public class Constants {
     public static final String TEST_CODEBOOK_SLOT2_URI = TEST_EXPERIENCE_URI + "/CBS/2";
     public static final String TEST_RESPONSE_OPTION1_URI = SIR_KB + "TestResponseOption1";
     public static final String TEST_RESPONSE_OPTION2_URI = SIR_KB + "TestResponseOption2";
-    public static final String DEFAULT_REPOSITORY_URI = "http://hadatac.org/kb/defaultrepository";
+    public static final String DEFAULT_KB = "http://hadatac.org/kb/default/";
+    public static final String DEFAULT_REPOSITORY = DEFAULT_KB + "repository";
 
 
 }

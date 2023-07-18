@@ -62,7 +62,7 @@ public class DetectorAPI extends Controller {
         if (json == null || json.equals("")) {
             return ok(ApiUtil.createResponse("No json content has been provided.", false));
         }
-        //System.out.println("(CreateDetector) Value of json: [" + json + "]");
+        System.out.println("(CreateDetector) Value of json: [" + json + "]");
         ObjectMapper objectMapper = new ObjectMapper();
         Detector newDetector;
         try {
@@ -247,7 +247,7 @@ public class DetectorAPI extends Controller {
         return getAttachments(results);
     }
 
-    private Result getAttachments(List<Attachment> results){
+    public static Result getAttachments(List<Attachment> results){
         if (results == null) {
             return ok(ApiUtil.createResponse("No attachment has been found", false));
         } else {
@@ -255,11 +255,16 @@ public class DetectorAPI extends Controller {
             SimpleFilterProvider filterProvider = new SimpleFilterProvider();
             filterProvider.addFilter("attachmentFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "hasPriority", "hasDetector"));
+                            "hascoTypeLabel", "comment", "hasPriority", "hasDetector", "belongsTo"));
             mapper.setFilterProvider(filterProvider);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));
         }
+    }
+
+    public Result getUsage(String detectorUri){
+        List<Attachment> results = Detector.usage(detectorUri);
+        return DetectorAPI.getAttachments(results);
     }
 
 }

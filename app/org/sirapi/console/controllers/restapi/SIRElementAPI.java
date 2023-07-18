@@ -1,10 +1,8 @@
 package org.sirapi.console.controllers.restapi;
 
-import org.sirapi.entity.pojo.Detector;
-import org.sirapi.entity.pojo.Instrument;
-import org.sirapi.entity.pojo.Experience;
-import org.sirapi.entity.pojo.ResponseOption;
+import org.sirapi.entity.pojo.*;
 import org.sirapi.utils.ApiUtil;
+import org.sirapi.vocabularies.VSTOI;
 import play.mvc.Controller;
 import play.mvc.Result;
 import java.util.List;
@@ -96,6 +94,25 @@ public class SIRElementAPI extends Controller {
             String totalResponseOptionsJSON = "{\"total\":" + totalResponseOptions + "}";
             return ok(ApiUtil.createResponse(totalResponseOptionsJSON, true));
         }
+        return ok("No valid element type.");
+    }
+
+    public Result usage(String elementUri){
+        HADatAcThing object = URIPage.objectFromUri(elementUri);
+        if (object == null || object.getHascoTypeUri() == null) {
+            return ok("No valid element type.");
+        }
+        String elementType = object.getHascoTypeUri();
+        //System.out.println("SIREelementAPI: element type is " + elementType);
+        if (elementType.equals(VSTOI.DETECTOR)) {
+            List<Attachment> results = Detector.usage(elementUri);
+            //System.out.println("SIREelementAPI: Results is " + results.size());
+            return DetectorAPI.getAttachments(results);
+        } //else if (elementType.equals("detector")) {
+        //    int totalDetectors = Detector.findTotalByMaintainerEmail(maintainerEmail);
+        //    String totalDetectorsJSON = "{\"total\":" + totalDetectors + "}";
+        //    return ok(ApiUtil.createResponse(totalDetectorsJSON, true));
+        //}
         return ok("No valid element type.");
     }
 

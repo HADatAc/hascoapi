@@ -504,6 +504,39 @@ public class Detector extends HADatAcThing implements SIRElement, Comparable<Det
         return detector;
     }
 
+    public static List<Attachment> usage(String detectoruri) {
+        if (detectoruri == null || detectoruri.isEmpty()) {
+            return null;
+        }
+        List<Attachment> attachments = new ArrayList<Attachment>();
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT ?attUri WHERE { " +
+                " ?attModel rdfs:subClassOf* vstoi:Attachment . " +
+                " ?attUri a ?attModel ." +
+                " ?attUri vstoi:hasDetector <" + detectoruri + "> . " +
+                " ?attUri vstoi:belongsTo ?instUri . " +
+                " ?instUri rdfs:label ?instLabel . " +
+                "} " +
+                "ORDER BY ASC(?instLabel) ";
+
+        //System.out.println("Query: " + queryString);
+
+        ResultSetRewindable resultsrw = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+        if (!resultsrw.hasNext()) {
+            return null;
+        }
+
+        while (resultsrw.hasNext()) {
+            QuerySolution soln = resultsrw.next();
+            //System.out.println("inside Detector.usage(): found uri [" + soln.getResource("uri").getURI().toString() + "]");
+            Attachment attachment = Attachment.find(soln.getResource("attUri").getURI());
+            attachments.add(attachment);
+        }
+        return attachments;
+    }
+
     public static boolean attach(String attachmentUri, String detectorUri) {
         if (attachmentUri == null || attachmentUri.isEmpty()) {
             return false;

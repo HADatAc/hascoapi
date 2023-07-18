@@ -8,9 +8,7 @@ import org.sirapi.Constants;
 import org.sirapi.annotations.PropertyField;
 import org.sirapi.annotations.PropertyValueType;
 import org.sirapi.utils.SPARQLUtils;
-import org.sirapi.utils.URIUtils;
 import org.sirapi.utils.CollectionUtil;
-import org.sirapi.utils.ConfigProp;
 import org.sirapi.vocabularies.HASCO;
 import org.sirapi.utils.NameSpaces;
 import org.joda.time.DateTime;
@@ -20,12 +18,6 @@ import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 
 public class Repository extends HADatAcThing {
 
@@ -65,7 +57,7 @@ public class Repository extends HADatAcThing {
     private String hasVersion;
 
     public Repository() {
-        this.uri = Constants.DEFAULT_REPOSITORY_URI;
+        this.uri = Constants.DEFAULT_REPOSITORY;
         this.typeUri = HASCO.REPOSITORY;
         this.hascoTypeUri = HASCO.REPOSITORY;
         this.label = "";
@@ -217,7 +209,7 @@ public class Repository extends HADatAcThing {
     public static Repository getRepository() {
         Repository repository = new Repository();
 
-        String uri = "<" + Constants.DEFAULT_REPOSITORY_URI + ">";
+        String uri = "<" + Constants.DEFAULT_REPOSITORY + ">";
         String repositoryQueryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 "SELECT DISTINCT ?label ?title ?comment ?baseOntology ?baseURL ?institutionUri ?defaultNsAbbreviation ?defaultNsUrl ?nsAbbreviation ?nsUrl ?version " +
                 " WHERE {  \n" +
@@ -247,7 +239,7 @@ public class Repository extends HADatAcThing {
                 return null;
             } else {
                 QuerySolution soln = resultsrw.next();
-                repository.setUri(Constants.DEFAULT_REPOSITORY_URI);
+                repository.setUri(Constants.DEFAULT_REPOSITORY);
 
                 repository.setTypeUri(HASCO.REPOSITORY);
                 repository.setHascoTypeUri(HASCO.REPOSITORY);
