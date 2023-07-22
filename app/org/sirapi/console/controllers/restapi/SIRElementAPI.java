@@ -116,4 +116,23 @@ public class SIRElementAPI extends Controller {
         return ok("No valid element type.");
     }
 
+    public Result derivation(String elementUri){
+        HADatAcThing object = URIPage.objectFromUri(elementUri);
+        if (object == null || object.getHascoTypeUri() == null) {
+            return ok("No valid element type.");
+        }
+        String elementType = object.getHascoTypeUri();
+        //System.out.println("SIREelementAPI: element type is " + elementType);
+        if (elementType.equals(VSTOI.DETECTOR)) {
+            List<Detector> results = Detector.derivation(elementUri);
+            //System.out.println("SIREelementAPI: Results is " + results.size());
+            return DetectorAPI.getDetectors(results);
+        } //else if (elementType.equals("detector")) {
+        //    int totalDetectors = Detector.findTotalByMaintainerEmail(maintainerEmail);
+        //    String totalDetectorsJSON = "{\"total\":" + totalDetectors + "}";
+        //    return ok(ApiUtil.createResponse(totalDetectorsJSON, true));
+        //}
+        return ok("No valid element type.");
+    }
+
 }

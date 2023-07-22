@@ -305,11 +305,11 @@ public abstract class HADatAcThing {
         try {
             Class<?> currentClass = getClass();
             while(currentClass != null) {
-                System.out.println("inside HADatAcThing.generateRDFModel: currentClass: " + currentClass.getName());
-                System.out.println("inside HADatAcThing.generateRDFModel(): hasURI: [" + uri + "]");
+                //System.out.println("inside HADatAcThing.generateRDFModel: currentClass: " + currentClass.getName());
+                //System.out.println("inside HADatAcThing.generateRDFModel(): hasURI: [" + uri + "]");
 
                 for (Field field: currentClass.getDeclaredFields()) {
-                    System.out.println("inside HADatAcThing.saveToTripleStore(): field [" + field.getName() + "] or type [" + field.getType() + "]");
+                    //System.out.println("inside HADatAcThing.saveToTripleStore(): field [" + field.getName() + "] or type [" + field.getType() + "]");
                     field.setAccessible(true);
                     if (field.isAnnotationPresent(Subject.class)) {
                         String uri = (String)field.get(this);
@@ -340,7 +340,7 @@ public abstract class HADatAcThing {
                     if (field.isAnnotationPresent(PropertyField.class)) {
                         PropertyField propertyField = field.getAnnotation(PropertyField.class);
                         String propertyUri = propertyField.uri();
-                        System.out.println("inside HADatAcThing.saveToTripleStore(): propertyUri=" + propertyField.uri());
+                        //System.out.println("inside HADatAcThing.saveToTripleStore(): propertyUri=" + propertyField.uri());
 
                         if (field.getType().equals(String.class)) {
                             String value = (String)field.get(this);
@@ -350,7 +350,7 @@ public abstract class HADatAcThing {
                             }
                         }
 
-                        System.out.println("inside HADatAcThing.saveToTripleStore() (1) ");
+                        //System.out.println("inside HADatAcThing.saveToTripleStore() (1) ");
 
                         if (field.getType().equals(List.class)) {
                             List<?> list = (List<?>)field.get(this);
@@ -364,7 +364,7 @@ public abstract class HADatAcThing {
                             }
                         }
 
-                        System.out.println("inside HADatAcThing.saveToTripleStore() (2) ");
+                        //System.out.println("inside HADatAcThing.saveToTripleStore() (2) ");
 
                         if (field.getType().equals(Integer.class)) {
                             row.put(propertyUri, ((Integer)field.get(this)).toString());
@@ -378,7 +378,7 @@ public abstract class HADatAcThing {
                             row.put(propertyUri, ((Long)field.get(this)).toString());
                         }
 
-                        System.out.println("inside HADatAcThing.saveToTripleStore() (3) ");
+                        //System.out.println("inside HADatAcThing.saveToTripleStore() (3) ");
                     }
                 }
 
@@ -394,13 +394,13 @@ public abstract class HADatAcThing {
             e.printStackTrace();
         }
 
-        System.out.println("inside HADatAcThing.saveToTripleStore() (4) ");
+        //System.out.println("inside HADatAcThing.saveToTripleStore() (4) ");
 
         if (!row.containsKey("hasURI")) {
             return null;
         }
 
-        System.out.println("inside HADatAcThing.saveToTripleStore() (5) ");
+        //System.out.println("inside HADatAcThing.saveToTripleStore() (5) ");
 
 
         String objUri = (String)row.get("hasURI");
@@ -451,22 +451,17 @@ public abstract class HADatAcThing {
 
     @SuppressWarnings("unchecked")
     public boolean saveToTripleStore() {
-        System.out.println("inside HADatAcThing.saveToTripleStore(): calling deleteFromTripleStore().");
+        //System.out.println("inside HADatAcThing.saveToTripleStore(): calling deleteFromTripleStore().");
         deleteFromTripleStore();
 
         //Model model = MetadataFactory.createModel(reversed_rows, getNamedGraph());
-        System.out.println("inside HADatAcThing.saveToTripleStore(): calling generateRDFModel().");
         Model model = generateRDFModel();
         if (model == null) {
             System.out.println("[ERROR] inside HADatAcThing.saveToTripleStore(): MetadataFactory.commitModelToTripleStore() received EMPTY model");
-        } else {
-            System.out.println("inside HADatAcThing.saveToTripleStore(): calling MetadataFactory.commitModelToTripleStore(). Model " + model.size());
         }
         int numCommitted = MetadataFactory.commitModelToTripleStore(
                 model, CollectionUtil.getCollectionPath(
                         CollectionUtil.Collection.SPARQL_GRAPH));
-
-        //System.out.println("Inside HADatAcThing.saveToTripleStore()");
 
         return numCommitted >= 0;
     }
@@ -542,12 +537,11 @@ public abstract class HADatAcThing {
             return;
         }
 
-        System.out.println("Deleting <" + getUri() + "> from triple store");
+        //System.out.println("Deleting <" + getUri() + "> from triple store");
 
         query += NameSpaces.getInstance().printSparqlNameSpaceList();
-        System.out.println("Deleting query namespaces [" + query + "]");
+        //System.out.println("Deleting query namespaces [" + query + "]");
         if ( this.getNamedGraph() != null && this.getNamedGraph().length() > 0 ) {
-            System.out.println("Deleting option 0");
             query += "DELETE WHERE { \n" + " " +
                     "    GRAPH <" + this.getNamedGraph() + "> { \n";
             if (getUri().startsWith("http")) {
@@ -557,16 +551,13 @@ public abstract class HADatAcThing {
             }
             query += " ?p ?o . } \n";
             query += " } ";
-            System.out.println("Deleting query 0 [" + query + "]");
             UpdateRequest request = UpdateFactory.create(query);
             UpdateProcessor processor = UpdateExecutionFactory.createRemote(
                     request, CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
             processor.execute();
-            //System.out.println("Deleting named graph <" + this.getNamedGraph() + "> ");
 
         } else {
             // if ( getUri().contains("3539947") ) System.out.println("find 3539947!!!! delete without namespace!!!");
-            System.out.println("Deleting step A");
 
             String query1 = query+ " DELETE WHERE { \n " +
                    "    GRAPH <" + GSPClient.defaultGraphUri + "> { \n";
@@ -577,18 +568,14 @@ public abstract class HADatAcThing {
             }
             query1 += " ?p ?o . } \n";
             query1 += " } ";
-            System.out.println("Deleting step B");
             UpdateRequest request = UpdateFactory.create(query1);
-            System.out.println("Deleting step C : [" + CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE) + "]");
             UpdateProcessor processor = UpdateExecutionFactory.createRemote(
                     request, CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
-            System.out.println("Deleting step D");
             try {
                 processor.execute();
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            System.out.println("Deleting step E");
 
             /*
             // Added for deleting Virtual Columns
@@ -624,7 +611,7 @@ public abstract class HADatAcThing {
 
         }
 
-        System.out.println("Deleted <" + getUri() + "> from triple store");
+        //System.out.println("Deleted <" + getUri() + "> from triple store");
     }
 
     public abstract boolean saveToSolr();

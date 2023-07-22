@@ -16,6 +16,7 @@ POST    /sirapi/version                                   org.sirapi.console.con
 # REST API
 GET     /sirapi/api/uri/:uri                              org.sirapi.console.controllers.restapi.URIPage.getUri(uri: String)
 GET     /sirapi/api/usage/:uri                            org.sirapi.console.controllers.restapi.SIRElementAPI.usage(uri: String)
+GET     /sirapi/api/derivation/:uri                       org.sirapi.console.controllers.restapi.SIRElementAPI.derivation(uri: String)
 GET     /sirapi/api/:elementType/keywordlanguage/:keyword/:language/:pageSize/:offset   org.sirapi.console.controllers.restapi.SIRElementAPI.getElementsByKeywordAndLanguage(elementType: String, keyword : String, language : String, pageSize : Integer, offset : Integer)
 GET     /sirapi/api/:elementType/keywordlanguage/total/:keyword/:language               org.sirapi.console.controllers.restapi.SIRElementAPI.getTotalElementsByKeywordAndLanguage(elementType : String, keyword : String, language : String)
 GET     /sirapi/api/:elementType/maintaineremail/:maintainerEmail/:pageSize/:offset     org.sirapi.console.controllers.restapi.SIRElementAPI.getElementsByMaintainerEmail(elementType: String, maintainerEmail : String, pageSize : Integer, offset : Integer)

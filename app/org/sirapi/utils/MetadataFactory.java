@@ -16,14 +16,14 @@ public class MetadataFactory {
 
         if (rows == null) {
             System.out.println("[ERROR] MetadataFactory.createModel() received null ROWS");
-        } else {
-            System.out.println("MetadataFactory.createModel() received ROWS with [" + rows.size() + "] entries");
-        }
+        } //else {
+        //    System.out.println("MetadataFactory.createModel() received ROWS with [" + rows.size() + "] entries");
+        //}
         if (namedGraphUri == null || namedGraphUri.isEmpty()) {
             System.out.println("[ERROR] MetadataFactory.createModel() received null namedGraphUri");
-        } else {
-            System.out.println("MetadataFactory.createModel() received namedGraphUri [" + namedGraphUri + "]");
-        }
+        } //else {
+         //   System.out.println("MetadataFactory.createModel() received namedGraphUri [" + namedGraphUri + "]");
+        //}
         ModelFactory modelFactory = new LinkedHashModelFactory();
         Model model = modelFactory.createEmptyModel();
 

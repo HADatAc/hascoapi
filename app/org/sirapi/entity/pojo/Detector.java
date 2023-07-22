@@ -537,6 +537,24 @@ public class Detector extends HADatAcThing implements SIRElement, Comparable<Det
         return attachments;
     }
 
+    public static List<Detector> derivation(String detectoruri) {
+        if (detectoruri == null || detectoruri.isEmpty()) {
+            return null;
+        }
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT ?uri WHERE { " +
+                " ?detModel rdfs:subClassOf* vstoi:Detector . " +
+                " ?uri a ?detModel ." +
+                " ?uri prov:wasDerivedFrom <" + detectoruri + "> . " +
+                " ?uri vstoi:hasContent ?content . " +
+                "} " +
+                "ORDER BY ASC(?content) ";
+
+        //System.out.println("Query: " + queryString);
+
+        return findByQuery(queryString);
+    }
+
     public static boolean attach(String attachmentUri, String detectorUri) {
         if (attachmentUri == null || attachmentUri.isEmpty()) {
             return false;
