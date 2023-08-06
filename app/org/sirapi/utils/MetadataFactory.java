@@ -14,6 +14,16 @@ public class MetadataFactory {
 
     public static Model createModel(List<Map<String, Object>> rows, String namedGraphUri) {
 
+        if (rows == null) {
+            System.out.println("[ERROR] MetadataFactory.createModel() received null ROWS");
+        } //else {
+        //    System.out.println("MetadataFactory.createModel() received ROWS with [" + rows.size() + "] entries");
+        //}
+        if (namedGraphUri == null || namedGraphUri.isEmpty()) {
+            System.out.println("[ERROR] MetadataFactory.createModel() received null namedGraphUri");
+        } //else {
+         //   System.out.println("MetadataFactory.createModel() received namedGraphUri [" + namedGraphUri + "]");
+        //}
         ModelFactory modelFactory = new LinkedHashModelFactory();
         Model model = modelFactory.createEmptyModel();
 
@@ -115,6 +125,9 @@ public class MetadataFactory {
     }
 
     public static int commitModelToTripleStore(Model model, String endpointUrl) {
+        if (model == null) {
+            System.out.println("[ERROR] MetadataFactory.commitModelToTripleStore is receiving a NULL model.");
+        }
         try {
             GSPClient gspClient = new GSPClient(endpointUrl);
             gspClient.postModel(model);
@@ -122,6 +135,9 @@ public class MetadataFactory {
             throw new RuntimeException(e);
         }
 
+        if (model == null) {
+            return 0;
+        }
         return model.size();
     }
 }

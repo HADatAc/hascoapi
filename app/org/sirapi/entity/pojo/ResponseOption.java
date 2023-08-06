@@ -17,7 +17,6 @@ import org.sirapi.vocabularies.RDFS;
 import org.sirapi.vocabularies.VSTOI;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
@@ -33,14 +32,8 @@ public class ResponseOption extends HADatAcThing implements SIRElement, Comparab
     @PropertyField(uri="hasco:hasImage")
     String image;
 
-    @PropertyField(uri="vstoi:ofExperience")
-    String ofExperience;
-
     @PropertyField(uri="vstoi:hasContent")
     String hasContent;
-
-    @PropertyField(uri="vstoi:hasPriority")
-    String hasPriority;
 
     @PropertyField(uri="vstoi:hasLanguage")
     private String hasLanguage;
@@ -75,28 +68,12 @@ public class ResponseOption extends HADatAcThing implements SIRElement, Comparab
         this.image = image;
     }
 
-    public String getOfExperience() {
-        return ofExperience;
-    }
-
-    public void setOfExperience(String ofExperience) {
-        this.ofExperience = ofExperience;
-    }
-
     public String getHasContent() {
         return hasContent;
     }
 
     public void setHasContent(String hasContent) {
         this.hasContent = hasContent;
-    }
-
-    public String getHasPriority() {
-        return hasPriority;
-    }
-
-    public void setHasPriority(String hasPriority) {
-        this.hasPriority = hasPriority;
     }
 
     public String getHasLanguage() {
@@ -123,18 +100,6 @@ public class ResponseOption extends HADatAcThing implements SIRElement, Comparab
         this.hasSIRMaintainerEmail = hasSIRMaintainerEmail;
     }
 
-    public static List<ResponseOption> findByExperience(String experienceUri) {
-        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                " SELECT ?uri WHERE { " +
-                " ?respOption rdfs:subClassOf* vstoi:ResponseOption . " +
-                " ?uri a ?respOption ." +
-                " ?uri vstoi:ofExperience <" + experienceUri + "> . " +
-                "} ";
-
-        return findByQueryOrderedByPriority(queryString);
-
-    }
-
     public static List<ResponseOption> find() {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
@@ -145,11 +110,10 @@ public class ResponseOption extends HADatAcThing implements SIRElement, Comparab
         return findByQuery(queryString);
     }
 
-
     public static List<ResponseOption> findByLanguage(String language) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?respOption rdfs:subClassOf+ vstoi:ResponseOption . " +
+                " ?respOption rdfs:subClassOf* vstoi:ResponseOption . " +
                 " ?uri a ?respOption ." +
                 " ?uri vstoi:hasLanguage ?language . " +
                 "   FILTER (?language = \"" + language + "\") " +
@@ -161,26 +125,106 @@ public class ResponseOption extends HADatAcThing implements SIRElement, Comparab
     public static List<ResponseOption> findByKeyword(String keyword) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?respOption rdfs:subClassOf+ vstoi:ResponseOption . " +
-                " ?uri a ?respOption ." +
-                " ?uri rdfs:label ?label . " +
-                "   FILTER regex(?label, \"" + keyword + "\", \"i\") " +
+                " ?respModel rdfs:subClassOf* vstoi:ResponseOption . " +
+                " ?uri a ?respModel ." +
+                " ?uri vstoi:hasContent ?content . " +
+                "   FILTER regex(?content, \"" + keyword + "\", \"i\") " +
                 "} ";
 
         return findByQuery(queryString);
     }
 
-    public static List<ResponseOption> findByKeywordAndLanguage(String keyword, String language) {
-        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                " SELECT ?uri WHERE { " +
-                " ?respOption rdfs:subClassOf+ vstoi:ResponseOption . " +
-                " ?uri a ?respOption ." +
-                " ?uri vstoi:hasLanguage ?language . " +
-                " ?uri rdfs:label ?label . " +
-                "   FILTER (regex(?label, \"" + keyword + "\", \"i\") && (?language = \"" + language + "\")) " +
-                "} ";
-
+    public static List<ResponseOption> findByKeywordAndLanguageWithPages(String keyword, String language, int pageSize, int offset) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+        queryString += " SELECT ?uri WHERE { " +
+                " ?respModel rdfs:subClassOf* vstoi:ResponseOption . " +
+                " ?uri a ?respModel .";
+        if (!language.isEmpty()) {
+            queryString += " ?uri vstoi:hasLanguage ?language . ";
+        }
+        queryString += " ?uri vstoi:hasContent ?content . ";
+        if (!keyword.isEmpty() && !language.isEmpty()) {
+            queryString += "   FILTER (regex(?content, \"" + keyword + "\", \"i\") && (?language = \"" + language + "\")) ";
+        } else if (!keyword.isEmpty()) {
+            queryString += "   FILTER (regex(?content, \"" + keyword + "\", \"i\")) ";
+        } else if (!language.isEmpty()) {
+            queryString += "   FILTER ((?language = \"" + language + "\")) ";
+        }
+        queryString += "} " +
+                " ORDER BY ASC(?content) " +
+                " LIMIT " + pageSize +
+                " OFFSET " + offset;
         return findByQuery(queryString);
+    }
+
+    public static int findTotalByKeywordAndLanguage(String keyword, String language) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+        queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
+                " ?respModel rdfs:subClassOf* vstoi:ResponseOption . " +
+                " ?uri a ?respModel .";
+        if (!language.isEmpty()) {
+            queryString += " ?uri vstoi:hasLanguage ?language . ";
+        }
+        if (!keyword.isEmpty()) {
+            queryString += " ?uri vstoi:hasContent ?content . ";
+        }
+        if (!keyword.isEmpty() && !language.isEmpty()) {
+            queryString += "   FILTER (regex(?content, \"" + keyword + "\", \"i\") && (?language = \"" + language + "\")) ";
+        } else if (!keyword.isEmpty()) {
+            queryString += "   FILTER (regex(?content, \"" + keyword + "\", \"i\")) ";
+        } else if (!language.isEmpty()) {
+            queryString += "   FILTER ((?language = \"" + language + "\")) ";
+        }
+        queryString += "}";
+
+        try {
+            ResultSetRewindable resultsrw = SPARQLUtils.select(
+                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+            if (resultsrw.hasNext()) {
+                QuerySolution soln = resultsrw.next();
+                return Integer.parseInt(soln.getLiteral("tot").getString());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    public static List<ResponseOption> findByMaintainerEmailWithPages(String maintainerEmail, int pageSize, int offset) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+        queryString += " SELECT ?uri WHERE { " +
+                " ?respModel rdfs:subClassOf* vstoi:ResponseOption . " +
+                " ?uri a ?respModel ." +
+                " ?uri vstoi:hasContent ?content . " +
+                " ?uri vstoi:hasSIRMaintainerEmail ?maintainerEmail . " +
+                "   FILTER (?maintainerEmail = \"" + maintainerEmail + "\") " +
+                "}";
+        queryString += " ORDER BY ASC(?content) " +
+                " LIMIT " + pageSize +
+                " OFFSET " + offset;
+        return findByQuery(queryString);
+    }
+
+    public static int findTotalByMaintainerEmail(String maintainerEmail) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+        queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
+                " ?respModel rdfs:subClassOf* vstoi:ResponseOption . " +
+                " ?uri a ?respModel ." +
+                " ?uri vstoi:hasSIRMaintainerEmail ?maintainerEmail . " +
+                "   FILTER (?maintainerEmail = \"" + maintainerEmail + "\") " +
+                "}";
+        try {
+            ResultSetRewindable resultsrw = SPARQLUtils.select(
+                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+            if (resultsrw.hasNext()) {
+                QuerySolution soln = resultsrw.next();
+                return Integer.parseInt(soln.getLiteral("tot").getString());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1;
     }
 
     public static List<ResponseOption> findByMaintainerEmail(String maintainerEmail) {
@@ -197,7 +241,6 @@ public class ResponseOption extends HADatAcThing implements SIRElement, Comparab
 
     private static List<ResponseOption> findByQuery(String queryString) {
         List<ResponseOption> options = new ArrayList<ResponseOption>();
-        //System.out.println("Query: " + queryString);
 
         ResultSetRewindable resultsrw = SPARQLUtils.select(
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
@@ -209,43 +252,13 @@ public class ResponseOption extends HADatAcThing implements SIRElement, Comparab
         while (resultsrw.hasNext()) {
             QuerySolution soln = resultsrw.next();
             //System.out.println("inside ResponseOption.find(): found uri [" + soln.getResource("uri").getURI().toString() + "]");
-            ResponseOption responseOption = find(soln.getResource("uri").getURI());
-            options.add(responseOption);
+            if (soln != null && soln.getResource("uri") != null) {
+                ResponseOption responseOption = find(soln.getResource("uri").getURI());
+                options.add(responseOption);
+            }
         }
 
         java.util.Collections.sort((List<ResponseOption>) options);
-        return options;
-    }
-
-    private static List<ResponseOption> findByQueryOrderedByPriority(String queryString) {
-        List<ResponseOption> options = new ArrayList<ResponseOption>();
-        //System.out.println("Query: " + queryString);
-
-        ResultSetRewindable resultsrw = SPARQLUtils.select(
-                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
-
-        if (!resultsrw.hasNext()) {
-            return null;
-        }
-
-        while (resultsrw.hasNext()) {
-            QuerySolution soln = resultsrw.next();
-            //System.out.println("inside ResponseOption.find(): found uri [" + soln.getResource("uri").getURI().toString() + "]");
-            ResponseOption responseOption = find(soln.getResource("uri").getURI());
-            options.add(responseOption);
-        }
-
-        java.util.Collections.sort(options, new Comparator<ResponseOption>() {
-            @Override
-            public int compare(ResponseOption lhs, ResponseOption rhs) {
-                int left = Integer.parseInt(lhs.getHasPriority());
-                int right = Integer.parseInt(rhs.getHasPriority());
-                return left < right ? -1 : (left > right) ? 1 : 0;
-            }
-        });
-
-        System.out.println(Arrays.toString(options.toArray()));
-
         return options;
     }
 
@@ -327,12 +340,8 @@ public class ResponseOption extends HADatAcThing implements SIRElement, Comparab
                 responseOption.setSerialNumber(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
                 responseOption.setImage(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals(VSTOI.OF_EXPERIENCE)) {
-                responseOption.setOfExperience(object.asResource().getURI());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_CONTENT)) {
                 responseOption.setHasContent(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PRIORITY)) {
-                responseOption.setHasPriority(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
                 responseOption.setHasLanguage(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
@@ -346,6 +355,33 @@ public class ResponseOption extends HADatAcThing implements SIRElement, Comparab
 
         return responseOption;
     }
+
+    public static boolean attach(String codebookSlotUri, String responseOptionUri) {
+        if (codebookSlotUri == null || codebookSlotUri.isEmpty()) {
+            return false;
+        }
+        CodebookSlot codebookSlot = CodebookSlot.find(codebookSlotUri);
+        if (codebookSlot == null) {
+            System.out.println("CodebookSlot.find returned nothing");
+        }
+        if (codebookSlot == null) {
+            return false;
+        }
+        return codebookSlot.updateCodebookSlotResponseOption(responseOptionUri);
+    }
+
+    public static boolean detach(String codebookSlotUri) {
+        if (codebookSlotUri == null || codebookSlotUri.isEmpty()) {
+            return false;
+        }
+        CodebookSlot codebookSlot = CodebookSlot.find(codebookSlotUri);
+        if (codebookSlot == null) {
+            return false;
+        }
+        return codebookSlot.updateCodebookSlotResponseOption(null);
+    }
+
+
 
     @Override
     public int compareTo(ResponseOption another) {
@@ -369,5 +405,4 @@ public class ResponseOption extends HADatAcThing implements SIRElement, Comparab
     public int deleteFromSolr() {
         return 0;
     }
-
 }

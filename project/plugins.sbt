@@ -22,3 +22,5 @@ addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.10.0-RC1")
 addSbtPlugin("com.typesafe.sbt" %% "sbt-play-ebean" % "6.1.0-RC3")
 
 //addSbtPlugin("com.typesafe.sbt" % "sbt-play-enhancer" % "1.2.2")
+
+addSbtPlugin("com.github.sbt" % "sbt-eclipse" % "6.0.0")

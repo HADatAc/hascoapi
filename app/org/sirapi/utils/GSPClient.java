@@ -46,14 +46,14 @@ public class GSPClient {
             }
             requestUriBuilder.addParameter("graph", graph);
             URI requestUri = requestUriBuilder.build();
-//            System.out.println("REQUEST URI: " + requestUri);
+            //System.out.println("REQUEST URI: " + requestUri);
             HttpRequest request = HttpRequest.newBuilder(requestUri)
                     .POST(HttpRequest.BodyPublishers.ofInputStream(streamSupplier))
                     .header("Content-Type", mimeType)
                     .build();
             HttpResponse<String> response = HttpClient.newHttpClient()
                     .send(request, HttpResponse.BodyHandlers.ofString());
-//            System.out.println("Resp: " + response.statusCode() + ". '" + response.body() + "'");
+            //System.out.println("Resp: " + response.statusCode() + ". '" + response.body() + "'");
         } catch (URISyntaxException | IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -61,19 +61,23 @@ public class GSPClient {
 
     public void postFile(File file, String mimeType, String graph) throws FileNotFoundException {
         FileInputStream fileInputStream = new FileInputStream(file);
-        System.out.println("Posting file input stream. Type: " + mimeType + "  graph: " + graph + "  file: " + file);
+        //System.out.println("Posting file input stream. Type: " + mimeType + "  graph: " + graph + "  file: " + file);
         postInputStream(() -> fileInputStream, mimeType, graph);
     }
 
     public void postModel(Model model) {
         final RDFFormat defaultFormat = RDFFormat.TURTLE;
-        for (Resource context : model.contexts()) {
-            Model subGraph = model.filter(null, null, null, context);
-            postInputStream(
-                    () -> new SerializedModelInputStream(subGraph, defaultFormat),
-                    defaultFormat.getDefaultMIMEType(),
-                    Optional.ofNullable(context).map(Resource::toString).orElse(null)
-            );
+        if (model == null || model.contexts() == null) {
+            System.out.println("[ERROR] GSPClient.java: model.contexts() is NULL.");
+        } else {
+            for (Resource context : model.contexts()) {
+                Model subGraph = model.filter(null, null, null, context);
+                postInputStream(
+                        () -> new SerializedModelInputStream(subGraph, defaultFormat),
+                        defaultFormat.getDefaultMIMEType(),
+                        Optional.ofNullable(context).map(Resource::toString).orElse(null)
+                );
+            }
         }
     }
 

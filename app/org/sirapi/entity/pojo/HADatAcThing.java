@@ -1,5 +1,6 @@
 package org.sirapi.entity.pojo;
 
+import java.io.*;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,6 +11,31 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.NotImplementedException;
+import org.sirapi.utils.MetadataFactory;
+import org.apache.jena.query.QuerySolution;
+import org.apache.jena.query.ResultSetRewindable;
+import org.apache.jena.rdf.model.Statement;
+import org.apache.jena.update.UpdateExecutionFactory;
+import org.apache.jena.update.UpdateFactory;
+import org.apache.jena.update.UpdateProcessor;
+import org.apache.jena.update.UpdateRequest;
+import org.eclipse.rdf4j.model.Model;
+import org.sirapi.utils.CollectionUtil;
+import org.sirapi.utils.GSPClient;
+import org.sirapi.utils.NameSpaces;
+import org.sirapi.utils.URIUtils;
+import org.sirapi.utils.SPARQLUtils;
+
+import org.sirapi.annotations.PropertyField;
+import org.sirapi.annotations.ReversedPropertyField;
+import org.sirapi.annotations.Subject;
+
+/*
+import org.apache.commons.lang3.NotImplementedException;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.eclipse.rdf4j.rio.RDFWriter;
+import org.eclipse.rdf4j.rio.Rio;
 import org.sirapi.utils.*;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSetRewindable;
@@ -23,7 +49,7 @@ import org.eclipse.rdf4j.model.Model;
 import org.sirapi.annotations.PropertyField;
 import org.sirapi.annotations.ReversedPropertyField;
 import org.sirapi.annotations.Subject;
-
+*/
 
 public abstract class HADatAcThing {
 
@@ -263,7 +289,7 @@ public abstract class HADatAcThing {
                 return Integer.parseInt(soln.getLiteral("tot").getString());
             }
         } catch (Exception e) {
-            e.printStackTrace();
+          e.printStackTrace();
         }
 
         return -1;
@@ -272,18 +298,15 @@ public abstract class HADatAcThing {
     public void save() { throw new NotImplementedException("Used unimplemented HADatAcThing.save() method"); }
     public void delete() { throw new NotImplementedException("Used unimplemented HADatAcThing.delete() method"); }
 
-    @SuppressWarnings("unchecked")
-    public boolean saveToTripleStore() {
-        deleteFromTripleStore();
-
+    private Model generateRDFModel() {
         Map<String, Object> row = new HashMap<String, Object>();
         List<Map<String, Object>> reversed_rows = new ArrayList<Map<String, Object>>();
 
         try {
             Class<?> currentClass = getClass();
             while(currentClass != null) {
-                //System.out.println("inside HADatAcThing.saveToTripleStore(): currentClass: " + currentClass.getName());
-                //System.out.println("inside HADatAcThing.saveToTripleStore(): hasURI: [" + uri + "]");
+                //System.out.println("inside HADatAcThing.generateRDFModel: currentClass: " + currentClass.getName());
+                //System.out.println("inside HADatAcThing.generateRDFModel(): hasURI: [" + uri + "]");
 
                 for (Field field: currentClass.getDeclaredFields()) {
                     //System.out.println("inside HADatAcThing.saveToTripleStore(): field [" + field.getName() + "] or type [" + field.getType() + "]");
@@ -295,8 +318,8 @@ public abstract class HADatAcThing {
                             row.put("hasURI", uri);
                             //System.out.println("inside HADatAcThing.saveToTripleStore(): hasUri=[" + uri + "]");
                         } else {
-                            //System.out.println("inside HADatAcThing.saveToTripleStore(): URI IS NOT VALID");
-                            return false;
+                            System.out.println("[ERROR] URI [" + uri + "] IS NOT VALID");
+                            return null;
                         }
                     }
 
@@ -367,12 +390,14 @@ public abstract class HADatAcThing {
         } catch (IllegalAccessException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         //System.out.println("inside HADatAcThing.saveToTripleStore() (4) ");
 
         if (!row.containsKey("hasURI")) {
-            return false;
+            return null;
         }
 
         //System.out.println("inside HADatAcThing.saveToTripleStore() (5) ");
@@ -392,13 +417,51 @@ public abstract class HADatAcThing {
             }
         }
         reversed_rows.add(row);
+        return MetadataFactory.createModel(reversed_rows, getNamedGraph());
+    }
 
-        Model model = MetadataFactory.createModel(reversed_rows, getNamedGraph());
+    public String printRDF() {
+/*
+        Model model = generateRDFModel();
+        ByteArrayOutputStream out = null;
+        out = new ByteArrayOutputStream();
+        RDFWriter writer = Rio.createWriter(RDFFormat.RDFXML, out);
+        try {
+            writer.startRDF();
+            for (org.eclipse.rdf4j.model.Statement st: model) {
+                writer.handleStatement(st);
+            }
+            writer.endRDF();
+        }
+        catch (RDFHandlerException e) {
+            // oh no, do something!
+        }
+        finally {
+            try {
+                out.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return out.toString();
+
+ */
+        return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    public boolean saveToTripleStore() {
+        //System.out.println("inside HADatAcThing.saveToTripleStore(): calling deleteFromTripleStore().");
+        deleteFromTripleStore();
+
+        //Model model = MetadataFactory.createModel(reversed_rows, getNamedGraph());
+        Model model = generateRDFModel();
+        if (model == null) {
+            System.out.println("[ERROR] inside HADatAcThing.saveToTripleStore(): MetadataFactory.commitModelToTripleStore() received EMPTY model");
+        }
         int numCommitted = MetadataFactory.commitModelToTripleStore(
                 model, CollectionUtil.getCollectionPath(
                         CollectionUtil.Collection.SPARQL_GRAPH));
-
-        //System.out.println("inside HADatAcThing.saveToTripleStore() (6) ");
 
         return numCommitted >= 0;
     }
@@ -477,6 +540,7 @@ public abstract class HADatAcThing {
         //System.out.println("Deleting <" + getUri() + "> from triple store");
 
         query += NameSpaces.getInstance().printSparqlNameSpaceList();
+        //System.out.println("Deleting query namespaces [" + query + "]");
         if ( this.getNamedGraph() != null && this.getNamedGraph().length() > 0 ) {
             query += "DELETE WHERE { \n" + " " +
                     "    GRAPH <" + this.getNamedGraph() + "> { \n";
@@ -491,7 +555,6 @@ public abstract class HADatAcThing {
             UpdateProcessor processor = UpdateExecutionFactory.createRemote(
                     request, CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
             processor.execute();
-            //System.out.println("Deleting named graph <" + this.getNamedGraph() + "> ");
 
         } else {
             // if ( getUri().contains("3539947") ) System.out.println("find 3539947!!!! delete without namespace!!!");
@@ -508,8 +571,11 @@ public abstract class HADatAcThing {
             UpdateRequest request = UpdateFactory.create(query1);
             UpdateProcessor processor = UpdateExecutionFactory.createRemote(
                     request, CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
-            processor.execute();
-            //System.out.println("Deleting query 1 [" + query1 + "]");
+            try {
+                processor.execute();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
             /*
             // Added for deleting Virtual Columns

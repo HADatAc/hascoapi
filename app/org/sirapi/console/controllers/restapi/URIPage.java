@@ -19,6 +19,19 @@ public class URIPage extends Controller {
             return ok(ApiUtil.createResponse("[" + uri + "] is an invalid URI", false));
         }
 
+        HADatAcThing finalResult = URIPage.objectFromUri(uri);
+        String typeUri = finalResult.getHascoTypeUri();
+
+        if (finalResult == null || typeUri == null || typeUri.equals("")){
+            return ok(ApiUtil.createResponse("No type-specific instance found for uri [" + uri + "]", false));
+        }
+
+        return processResult(finalResult, finalResult.getHascoTypeUri(), uri);
+
+    }
+
+    public static HADatAcThing objectFromUri(String uri) {
+        String typeUri = "";
         try {
 
             /*
@@ -26,12 +39,12 @@ public class URIPage extends Controller {
              */
 
             Object finalResult = null;
-            String typeUri = null;
             GenericInstance result = GenericInstance.find(uri);
             //System.out.println("inside getUri(): URI [" + uri + "]");
 
             if (result == null) {
-                return ok(ApiUtil.createResponse("No generic instance found for uri [" + uri + "]", false));
+                System.out.println("No generic instance found for uri [" + uri + "]");
+                return null;
             }
 
             /*
@@ -45,52 +58,25 @@ public class URIPage extends Controller {
 
             if (result.getHascoTypeUri().equals(VSTOI.INSTRUMENT)) {
                 finalResult = Instrument.find(uri);
-                //System.out.println("URIPage: object is INSTRUMENT");
-                if (finalResult != null) {
-                    typeUri = ((Instrument) finalResult).getHascoTypeUri();
-                }
             } else if (result.getHascoTypeUri().equals(VSTOI.ATTACHMENT)) {
                 finalResult = Attachment.find(uri);
-                //System.out.println("URIPage: object is ATTACHMENT");
-                if (finalResult != null) {
-                    typeUri = ((Attachment) finalResult).getHascoTypeUri();
-                }
             } else if (result.getHascoTypeUri().equals(VSTOI.DETECTOR)) {
                 finalResult = Detector.find(uri);
-                //System.out.println("URIPage: object is DETECTOR");
-                if (finalResult != null) {
-                    typeUri = ((Detector) finalResult).getHascoTypeUri();
-                }
             } else if (result.getHascoTypeUri().equals(VSTOI.EXPERIENCE)) {
                 finalResult = Experience.find(uri);
-                //System.out.println("URIPage: object is EXPERIENCE");
-                if (finalResult != null) {
-                    typeUri = ((Experience) finalResult).getHascoTypeUri();
-                }
+            } else if (result.getHascoTypeUri().equals(VSTOI.CODEBOOK_SLOT)) {
+                finalResult = CodebookSlot.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.RESPONSE_OPTION)) {
                 finalResult = ResponseOption.find(uri);
-                //System.out.println("URIPage: object is RESPONSE_OPTION");
-                if (finalResult != null) {
-                    typeUri = ((ResponseOption) finalResult).getHascoTypeUri();
-                }
             } else {
                 finalResult = result;
-                if (finalResult != null) {
-                    typeUri = ((GenericInstance) finalResult).getHascoTypeUri();
-                }
             }
-            if (finalResult == null || typeUri == null || typeUri.equals("")){
-                return ok(ApiUtil.createResponse("No type-specific instance found for uri [" + uri + "]", false));
-            }
+            return (HADatAcThing)finalResult;
 
-            // list object properties and associated classes
-
-            return processResult(finalResult, result.getHascoTypeUri(), uri);
         } catch (Exception e) {
             e.printStackTrace();
-            return badRequest(ApiUtil.createResponse("Error processing URI [" + uri + "]", false));
+            return null;
         }
-
     }
 
     private Result processResult(Object result, String typeResult, String uri) {

@@ -19,14 +19,14 @@ import org.sirapi.vocabularies.VSTOI;
 import java.util.ArrayList;
 import java.util.List;
 
-@JsonFilter("attachmentFilter")
-public class Attachment extends HADatAcThing implements Comparable<Attachment>  {
+@JsonFilter("codebookSlotFilter")
+public class CodebookSlot extends HADatAcThing implements Comparable<CodebookSlot>  {
 
     @PropertyField(uri="vstoi:belongsTo")
     private String belongsTo;
 
-    @PropertyField(uri="vstoi:hasDetector")
-    private String hasDetector;
+    @PropertyField(uri="vstoi:hasResponseOption")
+    private String hasResponseOption;
 
     @PropertyField(uri="vstoi:hasPriority")
     private String hasPriority;
@@ -39,12 +39,12 @@ public class Attachment extends HADatAcThing implements Comparable<Attachment>  
         this.belongsTo = belongsTo;
     }
 
-    public String getHasDetector() {
-        return hasDetector;
+    public String getHasResponseOption() {
+        return hasResponseOption;
     }
 
-    public void setHasDetector(String hasDetector) {
-        this.hasDetector = hasDetector;
+    public void setHasResponseOption(String hasResponseOption) {
+        this.hasResponseOption = hasResponseOption;
     }
 
     public String getHasPriority() {
@@ -55,19 +55,19 @@ public class Attachment extends HADatAcThing implements Comparable<Attachment>  
         this.hasPriority = hasPriority;
     }
 
-    public Detector getDetector() {
-        if (hasDetector == null || hasDetector.isEmpty()) {
+    public ResponseOption getResponseOption() {
+        if (hasResponseOption == null || hasResponseOption.isEmpty()) {
             return null;
         }
-        return Detector.find(hasDetector);
+        return ResponseOption.find(hasResponseOption);
     }
 
-    public static int getNumberAttachments() {
+    public static int getNumberCodebookSlots() {
         String query = "";
         query += NameSpaces.getInstance().printSparqlNameSpaceList();
         query += " select (count(?uri) as ?tot) where { " +
-                " ?attModel rdfs:subClassOf* vstoi:Attachment . " +
-                " ?uri a ?attModel ." +
+                " ?slotModel rdfs:subClassOf* vstoi:CodebookSlot . " +
+                " ?uri a ?slotModel ." +
                 "}";
 
         try {
@@ -84,13 +84,13 @@ public class Attachment extends HADatAcThing implements Comparable<Attachment>  
         return -1;
     }
 
-    public static int getNumberAttachmentsWithDetectors() {
+    public static int getNumberCodebookSlotsWithResponseOptions() {
         String query = "";
         query += NameSpaces.getInstance().printSparqlNameSpaceList();
         query += " select (count(?uri) as ?tot) where { " +
-                " ?attModel rdfs:subClassOf* vstoi:Attachment . " +
-                " ?uri a ?attModel ." +
-                " ?uri vstoi:hasDetector ?detector . " +
+                " ?slotModel rdfs:subClassOf* vstoi:CodebookSlot . " +
+                " ?uri a ?slotModel ." +
+                " ?uri vstoi:hasResponseOption ?codebook . " +
                 "}";
 
         try {
@@ -107,13 +107,13 @@ public class Attachment extends HADatAcThing implements Comparable<Attachment>  
         return -1;
     }
 
-    public static int getNumberAttachmentsByInstrument(String instrumentUri) {
+    public static int getNumberCodebookSlotsByInstrument(String codebookUri) {
         String query = "";
         query += NameSpaces.getInstance().printSparqlNameSpaceList();
         query += " select (count(?uri) as ?tot) where { " +
-                " ?attModel rdfs:subClassOf* vstoi:Attachment . " +
-                " ?uri a ?attModel ." +
-                " ?uri vstoi:belongsTo <" + instrumentUri + ">. " +
+                " ?slotModel rdfs:subClassOf* vstoi:CodebookSlot . " +
+                " ?uri a ?slotModel ." +
+                " ?uri vstoi:belongsTo <" + codebookUri + ">. " +
                 "}";
 
         try {
@@ -130,13 +130,13 @@ public class Attachment extends HADatAcThing implements Comparable<Attachment>  
         return -1;
     }
 
-    public static List<Attachment> findByInstrumentWithPages(String instrumentUri, int pageSize, int offset) {
-        List<Attachment> attachments = new ArrayList<Attachment>();
+    public static List<CodebookSlot> findByCodebookWithPages(String codebookUri, int pageSize, int offset) {
+        List<CodebookSlot> slots = new ArrayList<CodebookSlot>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 "SELECT ?uri WHERE { " +
-                " ?attModel rdfs:subClassOf* vstoi:Attachment . " +
-                " ?uri a ?attModel . } " +
-                " ?uri vstoi:belongsTo <" + instrumentUri + ">. " +
+                " ?slotModel rdfs:subClassOf* vstoi:CodebookSlot . " +
+                " ?uri a ?slotModel . } " +
+                " ?uri vstoi:belongsTo <" + codebookUri + ">. " +
                 " LIMIT " + pageSize +
                 " OFFSET " + offset;
 
@@ -146,37 +146,37 @@ public class Attachment extends HADatAcThing implements Comparable<Attachment>  
         while (resultsrw.hasNext()) {
             QuerySolution soln = resultsrw.next();
             if (soln != null && soln.getResource("uri").getURI() != null) {
-                Attachment attachment = Attachment.find(soln.getResource("uri").getURI());
-                attachments.add(attachment);
+                CodebookSlot slot = CodebookSlot.find(soln.getResource("uri").getURI());
+                slots.add(slot);
             }
         }
-        return attachments;
+        return slots;
     }
 
-    public static List<Attachment> find() {
+    public static List<CodebookSlot> find() {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?attModel rdfs:subClassOf* vstoi:Attachment . " +
-                " ?uri a ?attModel ." +
+                " ?slotModel rdfs:subClassOf* vstoi:CodebookSlot . " +
+                " ?uri a ?slotModel ." +
                 "} ";
 
         return findByQuery(queryString);
     }
 
-    public static List<Attachment> findByInstrument(String instrumentUri) {
-        //System.out.println("findByInstrument: [" + instrumentUri + "]");
+    public static List<CodebookSlot> findByExperience(String experienceUri) {
+        //System.out.println("findByExperiment: [" + experimentUri + "]");
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?attModel rdfs:subClassOf* vstoi:Attachment . " +
-                " ?uri a ?attModel ." +
-                " ?uri vstoi:belongsTo <" + instrumentUri + ">. " +
+                " ?slotModel rdfs:subClassOf* vstoi:CodebookSlot . " +
+                " ?uri a ?slotModel ." +
+                " ?uri vstoi:belongsTo <" + experienceUri + ">. " +
                 "} ";
 
         return findByQuery(queryString);
     }
 
-    private static List<Attachment> findByQuery(String queryString) {
-        List<Attachment> attachments = new ArrayList<Attachment>();
+    private static List<CodebookSlot> findByQuery(String queryString) {
+        List<CodebookSlot> slots = new ArrayList<CodebookSlot>();
         ResultSetRewindable resultsrw = SPARQLUtils.select(
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
@@ -186,17 +186,17 @@ public class Attachment extends HADatAcThing implements Comparable<Attachment>  
 
         while (resultsrw.hasNext()) {
             QuerySolution soln = resultsrw.next();
-            Attachment attachment = find(soln.getResource("uri").getURI());
-            attachments.add(attachment);
+            CodebookSlot slot = find(soln.getResource("uri").getURI());
+            slots.add(slot);
         }
 
-        java.util.Collections.sort((List<Attachment>) attachments);
-        return attachments;
+        java.util.Collections.sort((List<CodebookSlot>) slots);
+        return slots;
 
     }
 
-    public static Attachment find(String uri) {
-        Attachment attachment = null;
+    public static CodebookSlot find(String uri) {
+        CodebookSlot slot = null;
         Statement statement;
         RDFNode object;
 
@@ -210,75 +210,76 @@ public class Attachment extends HADatAcThing implements Comparable<Attachment>  
             return null;
         }
 
-        attachment = new Attachment();
+        slot = new CodebookSlot();
 
         while (stmtIterator.hasNext()) {
             statement = stmtIterator.next();
             object = statement.getObject();
             if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-                attachment.setLabel(object.asLiteral().getString());
+                slot.setLabel(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
-                attachment.setTypeUri(object.asResource().getURI());
+                slot.setTypeUri(object.asResource().getURI());
             } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
-                attachment.setComment(object.asLiteral().getString());
+                slot.setComment(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
-                attachment.setHascoTypeUri(object.asResource().getURI());
+                slot.setHascoTypeUri(object.asResource().getURI());
             } else if (statement.getPredicate().getURI().equals(VSTOI.BELONGS_TO)) {
-                attachment.setBelongsTo(object.asResource().getURI());
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_DETECTOR)) {
-                attachment.setHasDetector(object.asResource().getURI());
+                slot.setBelongsTo(object.asResource().getURI());
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_RESPONSE_OPTION)) {
+                slot.setHasResponseOption(object.asResource().getURI());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PRIORITY)){
-                attachment.setHasPriority(object.asLiteral().getString());
+                slot.setHasPriority(object.asLiteral().getString());
             }
         }
 
-        attachment.setUri(uri);
+        slot.setUri(uri);
 
-        return attachment;
+        return slot;
     }
 
-    static public boolean createAttachment(String instrumentUri, String attachmentUri, String priority, String hasDetector) {
-        if (instrumentUri == null || instrumentUri.isEmpty()) {
+    static public boolean createCodebookSlot(String experienceUri, String slotUri, String priority, String hasResponseOption) {
+        if (experienceUri == null || experienceUri.isEmpty()) {
             return false;
         }
         if (priority == null || priority.isEmpty()) {
             return false;
         }
-        Attachment att = new Attachment();
-        att.setUri(attachmentUri);
-        att.setLabel("Attachment " + priority);
-        att.setTypeUri(VSTOI.ATTACHMENT);
-        att.setHascoTypeUri(VSTOI.ATTACHMENT);
-        att.setComment("Attachment " + priority + " of instrument with URI " + instrumentUri);
-        att.setBelongsTo(instrumentUri);
-        att.setHasPriority(priority);
-        if (hasDetector != null) {
-            att.setHasDetector(hasDetector);
+        CodebookSlot cbs = new CodebookSlot();
+        cbs.setUri(slotUri);
+        cbs.setLabel("CodebookSlot " + priority);
+        cbs.setTypeUri(VSTOI.CODEBOOK_SLOT);
+        cbs.setHascoTypeUri(VSTOI.CODEBOOK_SLOT);
+        cbs.setComment("CodebookSlot " + priority + " of codebook with URI " + experienceUri);
+        cbs.setBelongsTo(experienceUri);
+        cbs.setHasPriority(priority);
+        if (hasResponseOption != null) {
+            cbs.setHasResponseOption(hasResponseOption);
         }
-        att.save();
-        //System.out.println("Attachment.createAttachment: creating attachment with URI [" + attachmentUri + "]" );
+        cbs.save();
+        System.out.println("CodebookSlot.createCodebookSlot: creating slot " + priority + " with URI [" + slotUri + "]" );
         return true;
     }
 
-    public boolean updateAttachmentDetector(String hasDetector) {
-        Attachment newAttachment = new Attachment();
-        newAttachment.setUri(this.uri);
-        newAttachment.setLabel(this.getLabel());
-        newAttachment.setTypeUri(this.getTypeUri());
-        newAttachment.setComment(this.getComment());
-        newAttachment.setHascoTypeUri(this.getHascoTypeUri());
-        newAttachment.setBelongsTo(this.getBelongsTo());
-        newAttachment.setHasPriority(this.getHasPriority());
-        if (hasDetector != null && !hasDetector.isEmpty()) {
-            newAttachment.setHasDetector(hasDetector);
+    public boolean updateCodebookSlotResponseOption(String responseOptionUri) {
+        CodebookSlot newCodebookSlot = new CodebookSlot();
+        newCodebookSlot.setUri(this.uri);
+        newCodebookSlot.setLabel(this.getLabel());
+        newCodebookSlot.setTypeUri(this.getTypeUri());
+        newCodebookSlot.setComment(this.getComment());
+        newCodebookSlot.setHascoTypeUri(this.getHascoTypeUri());
+        newCodebookSlot.setBelongsTo(this.getBelongsTo());
+        newCodebookSlot.setHasPriority(this.getHasPriority());
+        if (responseOptionUri != null && !responseOptionUri.isEmpty()) {
+            newCodebookSlot.setHasResponseOption(responseOptionUri);
         }
         this.delete();
-        newAttachment.save();
+        newCodebookSlot.save();
+        System.out.println("In ResponseOption.updateCodebookSlotResponseOption(): value of hasResponseOption[" + newCodebookSlot.getHasResponseOption() + "]");
         return true;
     }
 
     @Override
-    public int compareTo(Attachment another) {
+    public int compareTo(CodebookSlot another) {
         return this.getHasPriority().compareTo(another.getHasPriority());
     }
 

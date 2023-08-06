@@ -95,10 +95,32 @@ public class NameSpaces {
         // dcterms=http://purl.org/dc/terms/,,
 
         // PROV
-        // prov=http://www.w3.org/ns/prov#,text/turtle,http://hadatac.org/ont/prov/
+        NameSpace PROV_NAMESPACE = new NameSpace();
+        PROV_NAMESPACE.setAbbreviation("prov");
+        PROV_NAMESPACE.setName("http://www.w3.org/ns/prov#");
+        PROV_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
+        PROV_NAMESPACE.setMimeType("text/turtle");
+        PROV_NAMESPACE.setURL("http://hadatac.org/ont/prov/");
+        PROV_NAMESPACE.setComment("The W3C Provenance Ontology");
+        PROV_NAMESPACE.setVersion("30-April-2013");
+        PROV_NAMESPACE.updateNumberOfLoadedTriples();
+        PROV_NAMESPACE.setPriority(5);
+        namespaces.add(PROV_NAMESPACE);
+
 
         // SIO
-        // sio=http://semanticscience.org/resource/,application/rdf+xml,https://raw.githubusercontent.com/MaastrichtU-IDS/semanticscience/master/ontology/sio.owl
+        NameSpace SIO_NAMESPACE = new NameSpace();
+        SIO_NAMESPACE.setAbbreviation("sio");
+        SIO_NAMESPACE.setName("http://semanticscience.org/resource/");
+        SIO_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
+        SIO_NAMESPACE.setMimeType("application/rdf+xml");
+        SIO_NAMESPACE.setURL("https://raw.githubusercontent.com/MaastrichtU-IDS/semanticscience/master/ontology/sio.owl");
+        SIO_NAMESPACE.setComment("Semanticscience Integrated Ontology");
+        SIO_NAMESPACE.setVersion("1.59");
+        SIO_NAMESPACE.updateNumberOfLoadedTriples();
+        SIO_NAMESPACE.setPriority(6);
+        namespaces.add(SIO_NAMESPACE);
+
 
         // UO
         // uo=http://purl.obolibrary.org/obo/UO_,application/rdf+xml,https://raw.githubusercontent.com/bio-ontology-research-group/unit-ontology/master/uo.owl
@@ -113,7 +135,7 @@ public class NameSpaces {
         HASCO_NAMESPACE.setComment("Human-Aware Science Ontology");
         HASCO_NAMESPACE.setVersion("1.0");
         HASCO_NAMESPACE.updateNumberOfLoadedTriples();
-        HASCO_NAMESPACE.setPriority(5);
+        HASCO_NAMESPACE.setPriority(7);
         namespaces.add(HASCO_NAMESPACE);
 
         // VSTOI
@@ -126,15 +148,50 @@ public class NameSpaces {
         VSTOI_NAMESPACE.setComment("Virtual Terrestrial Solar Observatory - Instruments");
         VSTOI_NAMESPACE.setVersion("1.0");
         VSTOI_NAMESPACE.updateNumberOfLoadedTriples();
-        VSTOI_NAMESPACE.setPriority(6);
+        VSTOI_NAMESPACE.setPriority(8);
         namespaces.add(VSTOI_NAMESPACE);
 
-        // default
+        // Languages
+        NameSpace lcc_639_1_NAMESPACE = new NameSpace();
+        lcc_639_1_NAMESPACE.setAbbreviation("lcc-639-1");
+        lcc_639_1_NAMESPACE.setName("https://www.omg.org/spec/LCC/Languages/ISO639-1-LanguageCodes/");
+        lcc_639_1_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
+        lcc_639_1_NAMESPACE.setMimeType("text/turtle");
+        lcc_639_1_NAMESPACE.setURL("https://www.omg.org/spec/LCC/20211101/Languages/ISO639-1-LanguageCodes.ttl");
+        lcc_639_1_NAMESPACE.setComment("Language codes from ISO 639-1, as expressed in https://www.w3schools.com/tags/ref_language_codes.asp");
+        lcc_639_1_NAMESPACE.setVersion("1.0");
+        lcc_639_1_NAMESPACE.updateNumberOfLoadedTriples();
+        lcc_639_1_NAMESPACE.setPriority(9);
+        namespaces.add(lcc_639_1_NAMESPACE);
+
+        // FHIR
+        NameSpace FHIR_NAMESPACE = new NameSpace();
+        FHIR_NAMESPACE.setAbbreviation("fhir");
+        FHIR_NAMESPACE.setName("http://hl7.org/fhir/");
+        FHIR_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
+        FHIR_NAMESPACE.setComment("FHIR is a standard for health care data exchange, published by HL7.");
+        FHIR_NAMESPACE.setVersion("R5");
+        FHIR_NAMESPACE.updateNumberOfLoadedTriples();
+        FHIR_NAMESPACE.setPriority(10);
+        namespaces.add(FHIR_NAMESPACE);
+
+        // DEFAULT
+        NameSpace DEFAULT_NAMESPACE = new NameSpace();
+        DEFAULT_NAMESPACE.setAbbreviation("default");
+        DEFAULT_NAMESPACE.setName("http://hadatac.org/kb/default/");
+        DEFAULT_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
+        DEFAULT_NAMESPACE.setComment("Default Namespace");
+        DEFAULT_NAMESPACE.setVersion("0.1");
+        DEFAULT_NAMESPACE.updateNumberOfLoadedTriples();
+        DEFAULT_NAMESPACE.setPriority(11);
+        namespaces.add(DEFAULT_NAMESPACE);
+
+        // TEST
         NameSpace TEST_NAMESPACE = new NameSpace();
-        TEST_NAMESPACE.setAbbreviation("default");
-        TEST_NAMESPACE.setName("http://hadatac.org/kb/");
+        TEST_NAMESPACE.setAbbreviation("test");
+        TEST_NAMESPACE.setName("http://hadatac.org/kb/test/");
         TEST_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
-        TEST_NAMESPACE.setComment("Default Namespace");
+        TEST_NAMESPACE.setComment("Test Namespace");
         TEST_NAMESPACE.setVersion("1.0");
         TEST_NAMESPACE.updateNumberOfLoadedTriples();
         TEST_NAMESPACE.setPriority(20);

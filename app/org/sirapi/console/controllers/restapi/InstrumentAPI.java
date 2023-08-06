@@ -2,17 +2,21 @@ package org.sirapi.console.controllers.restapi;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
-import org.sirapi.annotations.PropertyField;
+
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.parser.IParser;
+
+import org.sirapi.entity.fhir.Questionnaire;
 import org.sirapi.entity.pojo.Instrument;
+import org.sirapi.transform.Renderings;
 import org.sirapi.utils.ApiUtil;
 import org.sirapi.vocabularies.VSTOI;
 import play.mvc.Controller;
 import play.mvc.Result;
 
+import java.io.ByteArrayOutputStream;
 import java.util.List;
 
 import static org.sirapi.Constants.TEST_INSTRUMENT_URI;
@@ -35,12 +39,19 @@ public class InstrumentAPI extends Controller {
             testInstrument.setLabel("Test Instrument");
             testInstrument.setTypeUri(VSTOI.QUESTIONNAIRE);
             testInstrument.setHascoTypeUri(VSTOI.INSTRUMENT);
+            testInstrument.setHasInformant(VSTOI.DEFAULT_INFORMANT);
             testInstrument.setHasShortName("TEST");
             testInstrument.setHasInstruction("Please put a circle around the word that shows how often each of these things happens to you. There are no right or wrong answers. ");
-            testInstrument.setHasLanguage("en"); // ISO 639-1
+            testInstrument.setHasLanguage(VSTOI.DEFAULT_LANGUAGE); // ISO 639-1
             testInstrument.setComment("This is a dummy instrument created to test the SIR API.");
             testInstrument.setHasVersion("1");
             testInstrument.setHasSIRMaintainerEmail("me@example.com");
+            testInstrument.setHasPageNumber("Page ");
+            testInstrument.setHasDateField("Date: ____________ ");
+            testInstrument.setHasSubjectIDField("Name/ID: _____________________");
+            testInstrument.setHasSubjectRelationshipField("Relationship to Subject: ______________________");
+            testInstrument.setHasCopyrightNotice("Copyright (c) 2000 HADatAc.org");
+
             return createInstrumentResult(testInstrument);
         }
     }
@@ -49,7 +60,7 @@ public class InstrumentAPI extends Controller {
         if (json == null || json.equals("")) {
             return ok(ApiUtil.createResponse("No json content has been provided.", false));
         }
-        //System.out.println("(InstrumentAPI) Value of json in createInstrument: [" + json + "]");
+        System.out.println("(InstrumentAPI) Value of json in createInstrument: [" + json + "]");
         ObjectMapper objectMapper = new ObjectMapper();
         Instrument newInst;
         try {
@@ -172,17 +183,12 @@ public class InstrumentAPI extends Controller {
         return getInstruments(results);
     }
 
-    public Result getInstrumentsByKeywordAndLanguage(String keyword, String language){
-        List<Instrument> results = Instrument.findByKeywordAndLanguage(keyword, language);
-        return getInstruments(results);
-    }
-
     public Result getInstrumentsByMaintainerEmail(String maintainerEmail){
         List<Instrument> results = Instrument.findByMaintainerEmail(maintainerEmail);
         return getInstruments(results);
     }
 
-    private Result getInstruments(List<Instrument> results){
+    public static Result getInstruments(List<Instrument> results){
         if (results == null) {
             return ok(ApiUtil.createResponse("No instrument has been found", false));
         } else {
@@ -190,8 +196,9 @@ public class InstrumentAPI extends Controller {
             SimpleFilterProvider filterProvider = new SimpleFilterProvider();
             filterProvider.addFilter("instrumentFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "hasShortName", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "hasSerialNumber", "hasImage",
-                            "hasLanguage", "hasVersion", "hasInstruction", "hasSIRMaintainerEmail"));
+                            "hascoTypeLabel", "comment", "hasSerialNumber", "hasInformant", "hasImage",
+                            "hasLanguage", "hasVersion", "hasInstruction", "hasSIRMaintainerEmail",
+                            "hasPageNumber", "hasDateField", "hasSubjectIDField", "hasSubjectRelatioshipField", "hasCopyrightNotice"));
             mapper.setFilterProvider(filterProvider);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));
@@ -202,7 +209,7 @@ public class InstrumentAPI extends Controller {
         if (uri  == null || uri.equals("")) {
             return ok(ApiUtil.createResponse("No URI has been provided", false));
         }
-        String instrumentText = Instrument.toString(uri, 80);
+        String instrumentText = Renderings.toString(uri, 80);
         if (instrumentText == null || instrumentText.equals("")) {
             return ok(ApiUtil.createResponse("No instrument has been found", false));
         } else {
@@ -214,7 +221,7 @@ public class InstrumentAPI extends Controller {
         if (uri  == null || uri.equals("")) {
             return ok(ApiUtil.createResponse("No URI has been provided", false));
         }
-        String instrumentText = Instrument.toHTML(uri, 80);
+        String instrumentText = Renderings.toHTML(uri, 80);
         if (instrumentText == null || instrumentText.equals("")) {
             return ok(ApiUtil.createResponse("No instrument has been found", false));
         } else {
@@ -222,5 +229,47 @@ public class InstrumentAPI extends Controller {
         }
     }
 
+    public Result toTextPDF(String uri) {
+        if (uri  == null || uri.equals("")) {
+            return ok(ApiUtil.createResponse("No URI has been provided", false));
+        }
+        ByteArrayOutputStream instrumentText = Renderings.toPDF(uri, 80);
+        if (instrumentText == null || instrumentText.equals("")) {
+            return ok(ApiUtil.createResponse("No instrument has been found", false));
+        } else {
+            return ok(instrumentText.toByteArray()).as("application/pdf");
+        }
+    }
 
+    public Result toFHIR(String uri) {
+        if (uri  == null || uri.equals("")) {
+            return ok(ApiUtil.createResponse("No URI has been provided", false));
+        }
+        Instrument instr = Instrument.find(uri);
+        if (instr == null) {
+            return ok(ApiUtil.createResponse("No instrument instance found for uri [" + uri + "]", false));
+        }
+
+        Questionnaire quest = new Questionnaire(instr);
+
+        FhirContext ctx = FhirContext.forR4();
+        IParser parser = ctx.newJsonParser();
+        String serialized = parser.encodeResourceToString(quest.getFHIRObject());
+
+        return ok(serialized).as("application/json");
+    }
+
+    public Result toRDF(String uri) {
+        if (uri  == null || uri.equals("")) {
+            return ok(ApiUtil.createResponse("No URI has been provided", false));
+        }
+        Instrument instr = Instrument.find(uri);
+        if (instr == null) {
+            return ok(ApiUtil.createResponse("No instrument instance found for uri [" + uri + "]", false));
+        }
+
+        String serialized = instr.printRDF();
+
+        return ok(serialized).as("application/xml");
+    }
 }

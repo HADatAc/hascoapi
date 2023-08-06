@@ -2,9 +2,9 @@ package org.sirapi.entity.pojo;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSetRewindable;
 import org.apache.jena.rdf.model.Model;
@@ -15,6 +15,7 @@ import org.sirapi.annotations.PropertyField;
 import org.sirapi.utils.CollectionUtil;
 import org.sirapi.utils.NameSpaces;
 import org.sirapi.utils.SPARQLUtils;
+import org.sirapi.utils.Utils;
 import org.sirapi.vocabularies.HASCO;
 import org.sirapi.vocabularies.RDF;
 import org.sirapi.vocabularies.RDFS;
@@ -33,6 +34,9 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 	@PropertyField(uri="vstoi:hasSerialNumber")
 	private String serialNumber;
 
+	@PropertyField(uri="vstoi:hasInformant")
+	private String hasInformant;
+
 	@PropertyField(uri="hasco:hasImage")
 	private String image;
 
@@ -47,6 +51,21 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 
 	@PropertyField(uri="vstoi:hasVersion")
 	private String hasVersion;
+
+	@PropertyField(uri="vstoi:hasPageNumber")
+	private String hasPageNumber;
+
+	@PropertyField(uri="vstoi:hasDateField")
+	private String hasDateField;
+
+	@PropertyField(uri="vstoi:hasSubjectIDField")
+	private String hasSubjectIDField;
+
+	@PropertyField(uri="vstoi:hasSubjectRelationshipField")
+	private String hasSubjectRelationshipField;
+
+	@PropertyField(uri="vstoi:hasCopyrightNotice")
+	private String hasCopyrightNotice;
 
 	@PropertyField(uri="vstoi:hasSIRMaintainerEmail")
 	private String hasSIRMaintainerEmail;
@@ -66,8 +85,16 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 	public void setSerialNumber(String serialNumber) {
 		this.serialNumber = serialNumber;
 	}
-	
-    public String getImage() {
+
+	public String getHasInformant() {
+		return hasInformant;
+	}
+
+	public void setHasInformant(String hasInformant) {
+		this.hasInformant = hasInformant;
+	}
+
+	public String getImage() {
         return image;
     }
 
@@ -107,6 +134,46 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 		this.hasVersion = hasVersion;
 	}
 
+	public String getHasPageNumber() {
+		return hasPageNumber;
+	}
+
+	public void setHasPageNumber(String hasPageNumber) {
+		this.hasPageNumber = hasPageNumber;
+	}
+
+	public String getHasDateField() {
+		return hasDateField;
+	}
+
+	public void setHasDateField(String hasDateField) {
+		this.hasDateField = hasDateField;
+	}
+
+	public String getHasSubjectIDField() {
+		return hasSubjectIDField;
+	}
+
+	public void setHasSubjectIDField(String hasSubjectIDField) {
+		this.hasSubjectIDField = hasSubjectIDField;
+	}
+
+	public String getHasSubjectRelationshipField() {
+		return hasSubjectRelationshipField;
+	}
+
+	public void setHasSubjectRelationshipField(String hasSubjectRelationshipField) {
+		this.hasSubjectRelationshipField = hasSubjectRelationshipField;
+	}
+
+	public String getHasCopyrightNotice() {
+		return hasCopyrightNotice;
+	}
+
+	public void setHasCopyrightNotice(String hasCopyrightNotice) {
+		this.hasCopyrightNotice = hasCopyrightNotice;
+	}
+
 	public String getHasSIRMaintainerEmail() {
 		return hasSIRMaintainerEmail;
 	}
@@ -134,6 +201,17 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
     public List<Attachment> getAttachments() {
     	List<Attachment> atts = Attachment.findByInstrument(uri);
     	return atts;
+    }
+
+    @JsonIgnore
+	public List<Detector> getDetectors() {
+		List<Detector> detectors = new ArrayList<Detector>();
+    	List<Attachment> atts = Attachment.findByInstrument(uri);
+		for (Attachment att : atts) {
+			Detector detector = att.getDetector();
+			detectors.add(detector);
+		} 
+    	return detectors;
     }
     
 	@Override
@@ -174,17 +252,102 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 		return findByQuery(queryString);
 	}
 
-	public static List<Instrument> findByKeywordAndLanguage(String keyword, String language) {
-		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-				" SELECT ?uri WHERE { " +
+	public static List<Instrument> findByKeywordAndLanguageWithPages(String keyword, String language, int pageSize, int offset) {
+		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+		queryString += " SELECT ?uri WHERE { " +
+				" ?instModel rdfs:subClassOf* vstoi:Instrument . " +
+				" ?uri a ?instModel .";
+		if (!language.isEmpty()) {
+			queryString += " ?uri vstoi:hasLanguage ?language . ";
+		}
+		if (!keyword.isEmpty()) {
+			queryString += " ?uri rdfs:label ?label . ";
+		}
+		if (!keyword.isEmpty() && !language.isEmpty()) {
+			queryString += "   FILTER (regex(?label, \"" + keyword + "\", \"i\") && (?language = \"" + language + "\")) ";
+		} else if (!keyword.isEmpty()) {
+			queryString += "   FILTER (regex(?label, \"" + keyword + "\", \"i\")) ";
+		} else if (!language.isEmpty()) {
+			queryString += "   FILTER ((?language = \"" + language + "\")) ";
+		}
+		queryString += "} " +
+				" LIMIT " + pageSize +
+				" OFFSET " + offset;
+		return findByQuery(queryString);
+	}
+
+	public static int findTotalByKeywordAndLanguage(String keyword, String language) {
+		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+		queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
+				" ?instModel rdfs:subClassOf* vstoi:Instrument . " +
+				" ?uri a ?instModel .";
+		if (!language.isEmpty()) {
+			queryString += " ?uri vstoi:hasLanguage ?language . ";
+		}
+		if (!keyword.isEmpty()) {
+			queryString += " ?uri rdfs:label ?label . ";
+		}
+		if (!keyword.isEmpty() && !language.isEmpty()) {
+			queryString += "   FILTER (regex(?label, \"" + keyword + "\", \"i\") && (?language = \"" + language + "\")) ";
+		} else if (!keyword.isEmpty()) {
+			queryString += "   FILTER (regex(?label, \"" + keyword + "\", \"i\")) ";
+		} else if (!language.isEmpty()) {
+			queryString += "   FILTER ((?language = \"" + language + "\")) ";
+		}
+		queryString += "}";
+
+		//System.out.println(queryString);
+
+		try {
+			ResultSetRewindable resultsrw = SPARQLUtils.select(
+					CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+			if (resultsrw.hasNext()) {
+				QuerySolution soln = resultsrw.next();
+				return Integer.parseInt(soln.getLiteral("tot").getString());
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return -1;
+	}
+
+	public static List<Instrument> findByMaintainerEmailWithPages(String maintainerEmail, int pageSize, int offset) {
+		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+		queryString += " SELECT ?uri WHERE { " +
 				" ?instModel rdfs:subClassOf* vstoi:Instrument . " +
 				" ?uri a ?instModel ." +
-				" ?uri vstoi:hasLanguage ?language . " +
 				" ?uri rdfs:label ?label . " +
-				"   FILTER (regex(?label, \"" + keyword + "\", \"i\") && (?language = \"" + language + "\")) " +
-				"} ";
-
+				" ?uri vstoi:hasSIRMaintainerEmail ?maintainerEmail . " +
+				"   FILTER (?maintainerEmail = \"" + maintainerEmail + "\") " +
+				"}" +
+				" ORDER BY ASC(?label) " +
+				" LIMIT " + pageSize +
+				" OFFSET " + offset;
 		return findByQuery(queryString);
+	}
+
+	public static int findTotalByMaintainerEmail(String maintainerEmail) {
+		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+		queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
+				" ?instModel rdfs:subClassOf* vstoi:Instrument . " +
+				" ?uri a ?instModel ." +
+				" ?uri vstoi:hasSIRMaintainerEmail ?maintainerEmail . " +
+				"   FILTER (?maintainerEmail = \"" + maintainerEmail + "\") " +
+				"}";
+
+		try {
+			ResultSetRewindable resultsrw = SPARQLUtils.select(
+					CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+			if (resultsrw.hasNext()) {
+				QuerySolution soln = resultsrw.next();
+				return Integer.parseInt(soln.getLiteral("tot").getString());
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return -1;
 	}
 
 	public static List<Instrument> findByMaintainerEmail(String maintainerEmail) {
@@ -340,6 +503,8 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 				instrument.setHasStatus(object.asLiteral().getString());
 		    } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
 		    	instrument.setSerialNumber(object.asLiteral().getString());
+			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_INFORMANT)) {
+				instrument.setHasInformant(object.asResource().getURI());
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
                 instrument.setImage(object.asLiteral().getString());
 		    } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
@@ -352,157 +517,24 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 				instrument.setHasLanguage(object.asLiteral().getString());
 			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
 				instrument.setHasVersion(object.asLiteral().getString());
+			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PAGE_NUMBER)) {
+				instrument.setHasPageNumber(object.asLiteral().getString());
+			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_DATE_FIELD)) {
+				instrument.setHasDateField(object.asLiteral().getString());
+			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SUBJECT_ID_FIELD)) {
+				instrument.setHasSubjectIDField(object.asLiteral().getString());
+			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SUBJECT_RELATIONSHIP_FIELD)) {
+				instrument.setHasSubjectRelationshipField(object.asLiteral().getString());
+			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_COPYRIGHT_NOTICE)) {
+				instrument.setHasCopyrightNotice(object.asLiteral().getString());
 			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MAINTAINER_EMAIL)) {
 				instrument.setHasSIRMaintainerEmail(object.asLiteral().getString());
 		    }
 		}
-		
+
 		instrument.setUri(uri);
 		
 		return instrument;
-	}
-
-	private static String centerText(String str, int width) {
-		if (str == null) {
-			str = "";
-		}
-		if (str.length() > width) {
-			return str;
-		}
-		int left = (width - str.length()) / 2;
-		StringBuffer newStr = new StringBuffer();
-		for (int i=0; i < left; i++) {
-			newStr.append(" ");
-		}
-		newStr.append(str);
-		return newStr.toString();
-	}
-
-	private static List<String> breakString(String str, int width) {
-		List<String> lines = new ArrayList<String>();
-		StringTokenizer st = new StringTokenizer(str);
-		String newLine = "";
-		String nextWord = "";
-		while (st.hasMoreTokens()) {
-			nextWord = st.nextToken();
-			if (nextWord.length() >= width) {
-				if (newLine.equals("")) {
-					newLine = nextWord;
-				} else {
-					newLine = newLine + " " + nextWord;
-				}
-				lines.add(newLine);
-				newLine = "";
-			} else if (newLine.length() + nextWord.length() > width) {
-				lines.add(newLine);
-				newLine = nextWord;
-			} else {
-				if (newLine.equals("")) {
-					newLine = nextWord;
-				} else {
-					newLine = newLine + " " + nextWord;
-				}
-			}
-
-		}
-		if (newLine.length() > 0) {
-			lines.add(newLine);
-		}
-		return lines;
-	}
-
-	public static String toString(String uri, int width) {
-		Instrument instr = Instrument.find(uri);
-		if (instr == null) {
-			return "";
-		}
-		String str = "";
-
-		str += centerText(instr.getHasShortName(), width) + "\n";
-		str += "\n";
-
-		for (String line : breakString("Instructions: " + instr.getHasInstruction(), width)) {
-			str += line + "\n";
-		}
-		str += "\n";
-		if (instr.getAttachments() != null) {
-			for (Attachment attachment : instr.getAttachments()) {
-				Detector detector = attachment.getDetector();
-				if (detector == null) {
-					str += " " + attachment.getHasPriority() + ".  \n  ";
-				} else {
-					str += " " + attachment.getHasPriority() + ". " + detector.getHasContent() + " ";
-					Experience experience = detector.getExperience();
-					if (experience != null) {
-						if (experience.getResponseOptions() != null) {
-							str += "\n     ";
-							for (ResponseOption responseOption : experience.getResponseOptions()) {
-								str += " " + responseOption.getHasContent() + "( )  ";
-							}
-						}
-					}
-				}
-				str += "\n\n";
-			}
-			str += "\n";
-		}
-		return str;
-	}
-
-	public static String toHTML(String uri, int width) {
-		Instrument instr = Instrument.find(uri);
-		if (instr == null) {
-			return "";
-		}
-		String html = "";
-
-		html += "<!DOCTYPE html>\n" +
-				"<html>\n" +
-				"<head>\n" +
-				"<style>\n" +
-				"table, tr, td {\n" +
-				"  border: 1px solid;\n" +
-				"  border-collapse: collapse;\n" +
-				"  padding: 5px;\n" +
-				"}\n" +
-				"tr:nth-child(even) {\n" +
-				"  background-color: #f2f2f2;\n" +
-	            "}\n" +
-				"</style>\n" +
-				"</head>\n" +
-				"<body>\n";
-
-		html += "<h2 style=\"text-align: center;\">" + instr.getHasShortName() + "</h2>";
-		html += "<br>\n";
-
-		html += "<b>Instructions</b>: " + instr.getHasInstruction() + "<br>";
-		html += "<br>\n";
-
-		if (instr.getAttachments() != null) {
-			html += "<table>\n";
-			for (Attachment attachment : instr.getAttachments()) {
-				Detector detector = attachment.getDetector();
-				if (detector == null) {
-					html += "<tr><td>" + attachment.getHasPriority() + ".</tr></td>\n";
-				} else {
-					html += "<tr>";
-					html += "<td>" + attachment.getHasPriority() + ". " + detector.getHasContent() + "</td>";
-					Experience experience = detector.getExperience();
-					if (experience != null) {
-						if (experience.getResponseOptions() != null) {
-							for (ResponseOption responseOption : experience.getResponseOptions()) {
-								html += "<td>" + responseOption.getHasContent() + "</td>";
-							}
-						}
-					}
-					html += "</tr>\n";
-				}
-			}
-			html += "</table>\n";
-		}
-		html += "</body>\n" +
-				"</html>";
-		return html;
 	}
 
 	public static int getNumberInstruments() {
@@ -545,24 +577,6 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 		return (attachments == null);
 	}
 
-	private String adjustedPriority(String priority, int totAttachments) {
-		int digits = 0;
-		if (totAttachments < 10) {
-			digits = 1;
-		} else if (totAttachments < 100) {
-			digits = 2;
-		} else if (totAttachments < 1000) {
-			digits = 3;
-		} else {
-			digits = 4;
-		}
-		String auxstr = String.valueOf(priority);
-		for (int filler = auxstr.length(); filler < digits; filler++) {
-			auxstr = "0" + auxstr;
-		}
-		return auxstr;
-	}
-
 	public boolean createAttachments(int totAttachments) {
 		if (totAttachments <= 0) {
 			return false;
@@ -571,7 +585,7 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 			return false;
 		}
 		for (int aux=1; aux <= totAttachments; aux++) {
-			String auxstr = adjustedPriority(String.valueOf(aux), totAttachments);
+			String auxstr = Utils.adjustedPriority(String.valueOf(aux), totAttachments);
 			String newUri = uri + "/ATT/" + auxstr;
 			Attachment.createAttachment(uri, newUri, auxstr,null);
 		}
@@ -604,5 +618,4 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
     public int deleteFromSolr() {
         return 0;
     }
-    
 }

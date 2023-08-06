@@ -94,17 +94,12 @@ public class ExperienceAPI extends Controller {
         return getExperiences(results);
     }
 
-    public Result getExperienceByKeywordAndLanguage(String keyword, String language){
-        List<Experience> results = Experience.findByKeywordAndLanguage(keyword, language);
-        return getExperiences(results);
-    }
-
     public Result getExperienceByMaintainerEmail(String maintainerEmail){
         List<Experience> results = Experience.findByMaintainerEmail(maintainerEmail);
         return getExperiences(results);
     }
 
-    private Result getExperiences(List<Experience> results){
+    public static Result getExperiences(List<Experience> results){
         if (results == null) {
             return ok(ApiUtil.createResponse("No experience has been found", false));
         } else {
@@ -134,5 +129,73 @@ public class ExperienceAPI extends Controller {
             return ok(ApiUtil.createResponse(jsonObject, true));
         }
     }
+
+    public Result createCodebookSlots(String experienceUri, String totCodebookSlots) {
+        if (experienceUri == null || experienceUri.equals("")) {
+            return ok(ApiUtil.createResponse("No experience URI has been provided.", false));
+        }
+        Experience experience = Experience.find(experienceUri);
+        if (experience == null) {
+            return ok(ApiUtil.createResponse("No experience with provided URI has been found.", false));
+        }
+        if (experience.getCodebookSlots() != null) {
+            return ok(ApiUtil.createResponse("Experience already has attachments. Delete existing attachments before creating new attachments", false));
+        }
+        if (totCodebookSlots == null || totCodebookSlots.equals("")) {
+            return ok(ApiUtil.createResponse("No total numbers of attachments to be created has been provided.", false));
+        }
+        int total = 0;
+        try {
+            total = Integer.parseInt(totCodebookSlots);
+        } catch (Exception e) {
+            return ok(ApiUtil.createResponse("totCodebookSlots is not a valid number of attachments.", false));
+        }
+        if (total <= 0) {
+            return ok(ApiUtil.createResponse("Total numbers of codebook slots need to be greater than zero.", false));
+        }
+        if (experience.createCodebookSlots(total)) {
+            return ok(ApiUtil.createResponse("A total of " + total + " codebook slots have been created for experience <" + experienceUri + ">.", true));
+        } else {
+            return ok(ApiUtil.createResponse("Method failed to create codebook slots for experience <" + experienceUri + ">.", false));
+        }
+    }
+
+    public Result createCodebookSlotsForTesting() {
+        Experience testExperience = Experience.find(TEST_EXPERIENCE_URI);
+        if (testExperience == null) {
+            return ok(ApiUtil.createResponse("Test experience <" + TEST_EXPERIENCE_URI + "> needs to exist before its codebook slots can be created.", false));
+        } else if (testExperience.getCodebookSlots() != null && testExperience.getCodebookSlots().size() > 0) {
+            return ok(ApiUtil.createResponse("Test experience <" + TEST_EXPERIENCE_URI + "> already has codebook slots.", false));
+        } else {
+            return createCodebookSlots(testExperience.getUri(), TEST_EXPERIENCE_TOT_CODEBOOK_SLOTS);
+        }
+    }
+
+    public Result deleteCodebookSlots(String experienceUri) {
+        if (experienceUri == null || experienceUri.equals("")) {
+            return ok(ApiUtil.createResponse("No experience URI has been provided.", false));
+        }
+        Experience experience = Experience.find(experienceUri);
+        if (experience == null) {
+            return ok(ApiUtil.createResponse("No experience with provided URI has been found.", false));
+        }
+        if (experience.getCodebookSlots() == null) {
+            return ok(ApiUtil.createResponse("Experience has no codebook slots to be deleted.", false));
+        }
+        experience.deleteCodebookSlots();
+        return ok(ApiUtil.createResponse("CodebookSlots for Experience <" + experience.getUri() + "> have been deleted.", true));
+    }
+
+    public Result deleteCodebookSlotsForTesting() {
+        Experience testExperience = Experience.find(TEST_EXPERIENCE_URI);
+        if (testExperience == null) {
+            return ok(ApiUtil.createResponse("Test experience <" + TEST_EXPERIENCE_URI + "> needs to exist before its codebook slots can be deleted.", false));
+        } else if (testExperience.getCodebookSlots() == null || testExperience.getCodebookSlots().size() == 0) {
+            return ok(ApiUtil.createResponse("Test experience <" + TEST_EXPERIENCE_URI + "> has no codebook slots to be deleted.", false));
+        } else {
+            return deleteCodebookSlots(testExperience.getUri());
+        }
+    }
+
 
 }
