@@ -27,6 +27,11 @@
     <appender-ref ref="APP_ASYNCFILE" />
   </root>
 
+  <!--logger name="play" level="INFO" />
+  <logger name="application" level="INFO" /-->
+  <!--logger name="org.pac4j.play" level="DEBUG" />
+  <logger name="org.pac4j.core.engine" level="DEBUG" /-->
+
   <appender name="ACCESS_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <file>${application.home:-.}/logs/access.log</file>
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
