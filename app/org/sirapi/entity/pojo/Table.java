@@ -51,10 +51,13 @@ public class Table implements Comparable<Table> {
     public static List<Table> findLanguage() {
         List<Table> tables = new ArrayList<Table>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                " SELECT ?uri ?label ?definition WHERE { " +
-                " ?uri a skos:Concept . " +
-                " ?uri skos:prefLabel ?label . " +
+                " SELECT ?uri ?label ?definition ?sameas WHERE { " +
+                //" ?uri a skos:Concept . " +
+                " ?uri a <https://www.omg.org/spec/LCC/Languages/LanguageRepresentation/IndividualLanguage> . " +
+                //" ?uri skos:prefLabel ?label . " +
+                " ?uri rdfs:label ?label . " +
                 " ?uri skos:definition ?definition . " +
+                " ?uri owl:sameAs ?sameas . " +
                 "} ";
 
         ResultSetRewindable resultsrw = SPARQLUtils.select(
@@ -64,14 +67,25 @@ public class Table implements Comparable<Table> {
             QuerySolution soln = resultsrw.next();
             Table newTable = new Table();
             newTable.setURL(soln.getResource("uri").getURI());
-            newTable.setCode(soln.getLiteral("label").getString());
-            newTable.setValue(soln.getLiteral("definition").getString());
+            String sameas = soln.getResource("sameas").getURI();
+            if (sameas != null) {
+                newTable.setCode(getLastToken(sameas,"/"));
+            } else {
+                newTable.setCode("");
+            }
+            
+            newTable.setValue(soln.getLiteral("label").getString());
             tables.add(newTable);
         }
 
         java.util.Collections.sort((List<Table>) tables);
         return tables;
 
+    }
+
+    private static String getLastToken(String strValue, String splitter )  {        
+        String[] strArray = strValue.split(splitter);  
+        return strArray[strArray.length -1];            
     }
 
     public static List<Table> findGenerationActivity() {

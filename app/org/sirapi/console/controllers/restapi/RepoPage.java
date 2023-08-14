@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.sirapi.RepositoryInstance;
+import org.sirapi.console.controllers.ontologies.LoadOnt;
 import org.sirapi.entity.pojo.Instrument;
 import org.sirapi.entity.pojo.Repository;
 import org.sirapi.entity.pojo.Table;
@@ -100,18 +101,30 @@ public class RepoPage extends Controller {
         return ok(ApiUtil.createResponse("Repository's local namespace has been DELETED.", true));
     }
 
+    public Result loadOntologies(){
+        LoadOnt.playLoadOntologies("load");
+        return ok(ApiUtil.createResponse("Repository's ontologies have been LOADED.", true));
+    }
+
+    public Result deleteOntologies(){
+        LoadOnt.playLoadOntologies("delete");
+        return ok(ApiUtil.createResponse("Repository's ontologies have been DELETED.", true));
+    }
+
     public Result getLanguages() {
         ObjectMapper mapper = new ObjectMapper();
         try {
             // get the list of variables in that study
             // serialize the Study object first as ObjectNode
             //   as JsonNode is immutable and meant to be read-only
-            //List<Table> table = Table.find();
+            //List<Table> table = Table.findLanguage();
             //for (Table entry: table) {
             //    System.out.println(entry.getCode());
-            //}
+            // }
+            //System.out.println("inside getLanguages");
             ArrayNode array = mapper.convertValue(Table.findLanguage(), ArrayNode.class);
             JsonNode jsonObject = mapper.convertValue(array, JsonNode.class);
+            //System.out.println("inside getLanguages [" + jsonObject + "]");
             return ok(ApiUtil.createResponse(jsonObject, true));
         } catch (Exception e) {
             e.printStackTrace();

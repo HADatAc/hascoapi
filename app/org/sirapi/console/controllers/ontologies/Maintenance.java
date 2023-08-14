@@ -7,12 +7,12 @@ import play.mvc.Result;
 
 public class Maintenance extends Controller {
 
-    public Result index(String oper) {
-        return ok(maintenance.render(oper, NameSpaces.getInstance().getOrderedNamespacesAsList()));
+    public Result index() {
+        return ok(maintenance.render(NameSpaces.getInstance().getOrderedNamespacesAsList()));
     }
 
-    public Result postIndex(String oper) {
-        return index(oper);
+    public Result postIndex() {
+        return index();
     }
 
 }

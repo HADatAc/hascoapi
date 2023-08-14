@@ -45,7 +45,7 @@ public class LoadOnt extends Controller {
         ns.updateNumberOfLoadedTriples();
         ns.updateFromTripleStore();
 
-        return redirect(routes.Maintenance.index("init"));
+        return redirect(routes.Maintenance.index());
     }
 
     public Result deleteNamedGraph(String abbreviation) {
@@ -54,7 +54,7 @@ public class LoadOnt extends Controller {
         ns.updateNumberOfLoadedTriples();
         ns.updateFromTripleStore();
 
-        return redirect(routes.Maintenance.index("init"));
+        return redirect(routes.Maintenance.index());
     }
 
     public Result deleteAllNamedGraphs() {
@@ -64,7 +64,7 @@ public class LoadOnt extends Controller {
             ns.updateFromTripleStore();
         }
 
-        return redirect(routes.Maintenance.index("init"));
+        return redirect(routes.Maintenance.index());
     }
 
 }
