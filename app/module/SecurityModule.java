@@ -24,6 +24,8 @@ import authorizers.Roles;
 import play.Environment;
 
 import play.cache.SyncCacheApi;
+
+import org.sirapi.utils.ConfigProp;
 import org.sirapi.utils.Utils;
 import org.sirapi.console.views.html.*;
 import static play.mvc.Results.forbidden;
@@ -31,8 +33,6 @@ import static play.mvc.Results.unauthorized;
 
 
 public class SecurityModule extends AbstractModule {
-
-    public final static String JWT_SALT = "qwertyuiopasdfghjklzxcvbnm123456";
 
     private final com.typesafe.config.Config configuration;
 
@@ -43,6 +43,7 @@ public class SecurityModule extends AbstractModule {
         this.baseUrl = configuration.getString("sirapi.console.host");
     }
 
+ 
     @Override
     protected void configure() {
         bind(SessionStore.class).to(PlayCacheSessionStore.class);
@@ -51,7 +52,7 @@ public class SecurityModule extends AbstractModule {
     @Provides
     protected HeaderClient provideHeaderClient() {
         final HeaderClient headerClient = new HeaderClient("Authorization", "Bearer ",
-                new JwtAuthenticator(new SecretSignatureConfiguration(JWT_SALT)));
+                new JwtAuthenticator(new SecretSignatureConfiguration(ConfigProp.getJWTSecret())));
         return headerClient;
     }
 
