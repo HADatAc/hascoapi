@@ -13,8 +13,10 @@ import org.sirapi.utils.ApiUtil;
 import org.sirapi.utils.NameSpaces;
 import play.mvc.Controller;
 import play.mvc.Result;
+import com.typesafe.config.ConfigFactory;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class RepoPage extends Controller {
 
@@ -101,14 +103,30 @@ public class RepoPage extends Controller {
         return ok(ApiUtil.createResponse("Repository's local namespace has been DELETED.", true));
     }
 
+
+    private Long manageTriples(String oper, String kb) {
+        LoadOnt.playLoadOntologiesAsync(oper, kb);
+        return 0L;
+    }
+    
     public Result loadOntologies(){
-        LoadOnt.playLoadOntologies("load");
-        return ok(ApiUtil.createResponse("Repository's ontologies have been LOADED.", true));
+        String kb = ConfigFactory.load().getString("sirapi.repository.triplestore");
+        CompletableFuture<Long> completableFuture = CompletableFuture.supplyAsync(() -> manageTriples("load", kb));
+        //while (!completableFuture.isDone()) {
+        //    System.out.println("CompletableFuture is not finished yet...");
+        //}
+        //long result = completableFuture.get();
+        return ok(ApiUtil.createResponse("Repository's ontologies has been requested to be LOADED.", true));
     }
 
     public Result deleteOntologies(){
-        LoadOnt.playLoadOntologies("delete");
-        return ok(ApiUtil.createResponse("Repository's ontologies have been DELETED.", true));
+        String kb = ConfigFactory.load().getString("sirapi.repository.triplestore");
+        CompletableFuture<Long> completableFuture = CompletableFuture.supplyAsync(() -> manageTriples("delete", kb));
+        //while (!completableFuture.isDone()) {
+        //    System.out.println("CompletableFuture is not finished yet...");
+        //}
+        //long result = completableFuture.get();
+        return ok(ApiUtil.createResponse("Repository's ontologies have been requested to be DELETED.", true));
     }
 
     public Result getLanguages() {

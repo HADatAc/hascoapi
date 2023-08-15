@@ -147,7 +147,10 @@ public class Triplestore {
                 path = nsURL;
                 Long newTotal = totalTriples();
                 message += Feedback.println(mode, "   Added " + (newTotal - total) + " triples from " + path + " .");
+                //System.out.println("   Added " + (newTotal - total) + " triples from " + path + " .");
                 total = newTotal;
+                ns.updateNumberOfLoadedTriples();
+                ns.updateFromTripleStore();
             }
         }
         message += Feedback.println(mode," ");

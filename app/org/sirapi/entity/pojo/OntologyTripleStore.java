@@ -89,7 +89,7 @@ public class OntologyTripleStore {
         RDFNode object;
 
         String queryString = "DESCRIBE <" + uri + ">";
-        System.out.println(queryString);
+        //System.out.println(queryString);
         Query query = QueryFactory.create(queryString);
         QueryExecution qexec = QueryExecutionFactory.sparqlService(
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), query);
