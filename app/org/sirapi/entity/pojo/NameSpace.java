@@ -222,7 +222,7 @@ public class NameSpace extends HADatAcThing {
         Optional<File> tempFileOpt = Optional.empty();
         RDFFormat format = getRioFormat(getMimeType());
         try {
-            System.out.println("Loading triples from " + address);
+            //System.out.println("Loading triples from " + address);
             File tripleFile;
             if (fromRemote) {
                 tempFileOpt = Optional.of(File.createTempFile("remoteTriples", "." + format.getDefaultFileExtension()));
@@ -235,7 +235,7 @@ public class NameSpace extends HADatAcThing {
             String endpointUrl = CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_GRAPH);
             GSPClient gspClient = new GSPClient(endpointUrl);
             gspClient.postFile(tripleFile, format.getDefaultMIMEType(), getName());
-            System.out.println("Loaded triples from " + address + " \n");
+            //System.out.println("Loaded triples from " + address + " \n");
             //System.out.println("Loaded triples from " + address + " \n");
         } catch (Exception e) {
             e.printStackTrace();

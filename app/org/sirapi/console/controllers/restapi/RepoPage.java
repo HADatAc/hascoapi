@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.sirapi.RepositoryInstance;
+import org.sirapi.console.controllers.ontologies.LoadOnt;
 import org.sirapi.entity.pojo.Instrument;
 import org.sirapi.entity.pojo.Repository;
 import org.sirapi.entity.pojo.Table;
@@ -12,8 +13,10 @@ import org.sirapi.utils.ApiUtil;
 import org.sirapi.utils.NameSpaces;
 import play.mvc.Controller;
 import play.mvc.Result;
+import com.typesafe.config.ConfigFactory;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class RepoPage extends Controller {
 
@@ -100,18 +103,46 @@ public class RepoPage extends Controller {
         return ok(ApiUtil.createResponse("Repository's local namespace has been DELETED.", true));
     }
 
+
+    private Long manageTriples(String oper, String kb) {
+        LoadOnt.playLoadOntologiesAsync(oper, kb);
+        return 0L;
+    }
+    
+    public Result loadOntologies(){
+        String kb = ConfigFactory.load().getString("sirapi.repository.triplestore");
+        CompletableFuture<Long> completableFuture = CompletableFuture.supplyAsync(() -> manageTriples("load", kb));
+        //while (!completableFuture.isDone()) {
+        //    System.out.println("CompletableFuture is not finished yet...");
+        //}
+        //long result = completableFuture.get();
+        return ok(ApiUtil.createResponse("Repository's ontologies has been requested to be LOADED.", true));
+    }
+
+    public Result deleteOntologies(){
+        String kb = ConfigFactory.load().getString("sirapi.repository.triplestore");
+        CompletableFuture<Long> completableFuture = CompletableFuture.supplyAsync(() -> manageTriples("delete", kb));
+        //while (!completableFuture.isDone()) {
+        //    System.out.println("CompletableFuture is not finished yet...");
+        //}
+        //long result = completableFuture.get();
+        return ok(ApiUtil.createResponse("Repository's ontologies have been requested to be DELETED.", true));
+    }
+
     public Result getLanguages() {
         ObjectMapper mapper = new ObjectMapper();
         try {
             // get the list of variables in that study
             // serialize the Study object first as ObjectNode
             //   as JsonNode is immutable and meant to be read-only
-            //List<Table> table = Table.find();
+            //List<Table> table = Table.findLanguage();
             //for (Table entry: table) {
             //    System.out.println(entry.getCode());
-            //}
+            // }
+            //System.out.println("inside getLanguages");
             ArrayNode array = mapper.convertValue(Table.findLanguage(), ArrayNode.class);
             JsonNode jsonObject = mapper.convertValue(array, JsonNode.class);
+            //System.out.println("inside getLanguages [" + jsonObject + "]");
             return ok(ApiUtil.createResponse(jsonObject, true));
         } catch (Exception e) {
             e.printStackTrace();

@@ -58,7 +58,11 @@ public class ConfigProp {
         return ConfigFactory.load().getString("sirapi.console.host_deploy");
     }
 
-    /*
+    public static String getJWTSecret() {
+        return ConfigFactory.load().getString("pac4j.jwt.secret");
+    }
+
+    /**
     public static String getBasePrefix() {
         return ConfigFactory.load().getString("sirapi.community.ont_prefix");
     }

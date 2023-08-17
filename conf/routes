@@ -32,6 +32,9 @@ GET     /sirapi/api/repo/table/informants                 org.sirapi.console.con
 GET     /sirapi/api/repo/table/languages                  org.sirapi.console.controllers.restapi.RepoPage.getLanguages()
 GET     /sirapi/api/repo/table/generationactivities       org.sirapi.console.controllers.restapi.RepoPage.getGenerationActivities()
 GET     /sirapi/api/repo/table/namespaces                 org.sirapi.console.controllers.restapi.RepoPage.getNamespaces()
+GET     /sirapi/api/repo/ont/load                         org.sirapi.console.controllers.restapi.RepoPage.loadOntologies()
+GET     /sirapi/api/repo/ont/delete                       org.sirapi.console.controllers.restapi.RepoPage.deleteOntologies()
+
 GET     /sirapi/api/instrument/all                        org.sirapi.console.controllers.restapi.InstrumentAPI.getAllInstruments()
 GET     /sirapi/api/instrument/keyword/:keyword           org.sirapi.console.controllers.restapi.InstrumentAPI.getInstrumentsByKeyword(keyword : String)
 GET     /sirapi/api/instrument/language/:language         org.sirapi.console.controllers.restapi.InstrumentAPI.getInstrumentsByLanguage(language : String)
@@ -111,7 +114,7 @@ GET     /sirapi/documentation/repositorymethodlist        org.sirapi.console.con
 
 # ONTOLOGIES
 
-GET     /sirapi/ontologies/maintenance                   org.sirapi.console.controllers.ontologies.Maintenance.index(oper: String)
+GET     /sirapi/ontologies/maintenance                   org.sirapi.console.controllers.ontologies.Maintenance.index()
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /sirapi/assets/*file                              controllers.Assets.versioned(path="/public", file: Asset)
