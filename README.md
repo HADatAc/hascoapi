@@ -32,5 +32,24 @@ It is the back-end part of SIR. Canonical representation of instruments and inst
 4. Delete triplestore volume: `docker volume rm sirapi_sirapi-fuseki-data`
 5. Restart sirapi: `docker compose up -d`
 
-## How to copy a triplestore from one environment to another?
+## How to create a SIRAPI backup file?
+
+In the example below, we named the backup file with the date of the backup. This can be any date and it may also include the time of the backup. 
+
+1. log into SIRAPI hosting machine
+2. Go to sirapi folder: `cd /sirapi`
+3. Bring down sirapi containers: `docker compose down`
+4. Go to home folder: `cd ~`
+5. Generate the backup file: `docker run --rm --volumes-from sirapi_fuseki -v $PWD:/bkp ubuntu bash -c "tar -zcvf /bkp/fuseki-data_17Aug2023.tar.gz"`
+6. Use sftp to copy the backup file `/bkp/fuseki-data_17Aug2023.tar.gz` out of the host machine
+
+## How to restore a SIRAPI backup file?
+
+6. Use sftp to copy a backup file, e.g., `/bkp/fuseki-data_17Aug2023.tar.gz` into the SIRAPI host machine
+1. log into SIRAPI hosting machine
+2. Go to sirapi folder: `cd /sirapi`
+3. Bring down sirapi containers: `docker compose down`
+4. Go to home folder: `cd ~`
+5. Restore the backup file: `docker run --rm --volumes-from sirapi_fuseki -v $PWD:/bkp ubuntu bash -c "tar -zxvf /bkp/fuseki-data_17Aug2023.tar.gz"`
+
 
