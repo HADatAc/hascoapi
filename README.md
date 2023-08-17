@@ -12,8 +12,10 @@ It is the back-end part of SIR. Canonical representation of instruments and inst
 
 1. SIRAPI's host machine requires the installation of `git` and `docker`
 2. Using `git clone`, clone SIRAPI from github
-3. Using `docker build .`, build SIRAPI images
-4. Using `docker-compose up -d`, run SIRAPI
+3. Edit `/sirapi/app/conf/application.conf' and replace the value of the variable `pac4.jwt.secret` with another random string of around 40 characters. This is the JWT API token that needs to be shared with the SIR application (https://github.com/HADatAc/sir)
+4. Using `docker build .`, build SIRAPI images
+5. Using `docker-compose up -d`, run SIRAPI
+6. record the value of the 
 
 ## How to upgrade SIRAPI?
 
