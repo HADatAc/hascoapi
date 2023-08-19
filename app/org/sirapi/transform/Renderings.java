@@ -47,9 +47,9 @@ public class Renderings {
 					str += " " + attachment.getHasPriority() + ".  \n  ";
 				} else {
 					str += " " + attachment.getHasPriority() + ". " + detector.getHasContent() + " ";
-					Experience experience = detector.getExperience();
-					if (experience != null && experience.getCodebookSlots() != null) {
-						List<CodebookSlot> slots = experience.getCodebookSlots();
+					Codebook codebook = detector.getCodebook();
+					if (codebook != null && codebook.getCodebookSlots() != null) {
+						List<CodebookSlot> slots = codebook.getCodebookSlots();
 						if (slots != null && slots.size() > 0) {
 							for (CodebookSlot slot : slots) {
 								if (slot.getResponseOption() != null) {
@@ -258,9 +258,9 @@ public class Renderings {
 				} else {
 					html += "<tr>";
 					html += "<td>" + attachment.getHasPriority() + ". " + detector.getHasContent() + "</td>";
-					Experience experience = detector.getExperience();
-					if (experience != null) {
-						List<CodebookSlot> slots = experience.getCodebookSlots();
+					Codebook codebook = detector.getCodebook();
+					if (codebook != null) {
+						List<CodebookSlot> slots = codebook.getCodebookSlots();
 						if (slots != null && slots.size() > 0) {
 							for (CodebookSlot slot : slots) {
 								if (slot.getResponseOption() != null) {

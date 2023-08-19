@@ -20,8 +20,8 @@ import org.sirapi.vocabularies.VSTOI;
 import java.util.ArrayList;
 import java.util.List;
 
-@JsonFilter("experienceFilter")
-public class Experience extends HADatAcThing implements SIRElement, Comparable<Experience>  {
+@JsonFilter("codebookFilter")
+public class Codebook extends HADatAcThing implements SIRElement, Comparable<Codebook>  {
 
     @PropertyField(uri="vstoi:hasStatus")
     private String hasStatus;
@@ -79,13 +79,13 @@ public class Experience extends HADatAcThing implements SIRElement, Comparable<E
     }
 
     public List<CodebookSlot> getCodebookSlots() {
-        List<CodebookSlot> slots = CodebookSlot.findByExperience(uri);
+        List<CodebookSlot> slots = CodebookSlot.findByCodebook(uri);
         return slots;
     }
 
     /*
     public List<ResponseOption> getResponseOptions() {
-        return ResponseOption.findByExperience(getUri());
+        return ResponseOption.findByCodebook(getUri());
     }
      */
 
@@ -101,7 +101,7 @@ public class Experience extends HADatAcThing implements SIRElement, Comparable<E
             String newUri = uri + "/CBS/" + auxstr;
             CodebookSlot.createCodebookSlot(uri, newUri, auxstr,null);
         }
-        List<CodebookSlot> slotList = CodebookSlot.findByExperience(uri);
+        List<CodebookSlot> slotList = CodebookSlot.findByCodebook(uri);
         if (slotList == null) {
             return false;
         }
@@ -112,23 +112,23 @@ public class Experience extends HADatAcThing implements SIRElement, Comparable<E
         if (this.getCodebookSlots() == null || uri == null || uri.isEmpty()) {
             return true;
         }
-        List<CodebookSlot> slots = CodebookSlot.findByExperience(uri);
+        List<CodebookSlot> slots = CodebookSlot.findByCodebook(uri);
         if (slots == null) {
             return true;
         }
         for (CodebookSlot slot: slots) {
             slot.delete();
         }
-        slots = CodebookSlot.findByExperience(uri);
+        slots = CodebookSlot.findByCodebook(uri);
         return (slots == null);
     }
 
 
-    public static List<Experience> findByLanguage(String language) {
+    public static List<Codebook> findByLanguage(String language) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?experience rdfs:subClassOf* vstoi:Experience . " +
-                " ?uri a ?experience ." +
+                " ?codebook rdfs:subClassOf* vstoi:Codebook . " +
+                " ?uri a ?codebook ." +
                 " ?uri vstoi:hasLanguage ?language . " +
                 "   FILTER (?language = \"" + language + "\") " +
                 "} ";
@@ -136,11 +136,11 @@ public class Experience extends HADatAcThing implements SIRElement, Comparable<E
         return findByQuery(queryString);
     }
 
-    public static List<Experience> findByKeyword(String keyword) {
+    public static List<Codebook> findByKeyword(String keyword) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?experienceType rdfs:subClassOf* vstoi:Experience . " +
-                " ?uri a ?experienceType ." +
+                " ?codebookType rdfs:subClassOf* vstoi:Codebook . " +
+                " ?uri a ?codebookType ." +
                 " ?uri rdfs:label ?label . " +
                 "   FILTER regex(?label, \"" + keyword + "\", \"i\") " +
                 "} ";
@@ -148,10 +148,10 @@ public class Experience extends HADatAcThing implements SIRElement, Comparable<E
         return findByQuery(queryString);
     }
 
-    public static List<Experience> findByKeywordAndLanguageWithPages(String keyword, String language, int pageSize, int offset) {
+    public static List<Codebook> findByKeywordAndLanguageWithPages(String keyword, String language, int pageSize, int offset) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
         queryString += " SELECT ?uri WHERE { " +
-                " ?expModel rdfs:subClassOf* vstoi:Experience . " +
+                " ?expModel rdfs:subClassOf* vstoi:Codebook . " +
                 " ?uri a ?expModel .";
         if (!language.isEmpty()) {
             queryString += " ?uri vstoi:hasLanguage ?language . ";
@@ -175,7 +175,7 @@ public class Experience extends HADatAcThing implements SIRElement, Comparable<E
     public static int findTotalByKeywordAndLanguage(String keyword, String language) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
         queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
-                " ?expModel rdfs:subClassOf* vstoi:Experience . " +
+                " ?expModel rdfs:subClassOf* vstoi:Codebook . " +
                 " ?uri a ?expModel .";
         if (!language.isEmpty()) {
             queryString += " ?uri vstoi:hasLanguage ?language . ";
@@ -208,10 +208,10 @@ public class Experience extends HADatAcThing implements SIRElement, Comparable<E
         return -1;
     }
 
-    public static List<Experience> findByMaintainerEmailWithPages(String maintainerEmail, int pageSize, int offset) {
+    public static List<Codebook> findByMaintainerEmailWithPages(String maintainerEmail, int pageSize, int offset) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
         queryString += " SELECT ?uri WHERE { " +
-                " ?expModel rdfs:subClassOf* vstoi:Experience . " +
+                " ?expModel rdfs:subClassOf* vstoi:Codebook . " +
                 " ?uri a ?expModel ." +
                 " ?uri vstoi:hasSIRMaintainerEmail ?maintainerEmail . " +
                 "   FILTER (?maintainerEmail = \"" + maintainerEmail + "\") " +
@@ -224,7 +224,7 @@ public class Experience extends HADatAcThing implements SIRElement, Comparable<E
     public static int findTotalByMaintainerEmail(String maintainerEmail) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
         queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
-                " ?expModel rdfs:subClassOf* vstoi:Experience . " +
+                " ?expModel rdfs:subClassOf* vstoi:Codebook . " +
                 " ?uri a ?expModel ." +
                 " ?uri vstoi:hasSIRMaintainerEmail ?maintainerEmail . " +
                 "   FILTER (?maintainerEmail = \"" + maintainerEmail + "\") " +
@@ -243,11 +243,11 @@ public class Experience extends HADatAcThing implements SIRElement, Comparable<E
         return -1;
     }
 
-    public static List<Experience> findByMaintainerEmail(String maintainerEmail) {
+    public static List<Codebook> findByMaintainerEmail(String maintainerEmail) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?experienceType rdfs:subClassOf* vstoi:Experience . " +
-                " ?uri a ?experienceType ." +
+                " ?codebookType rdfs:subClassOf* vstoi:Codebook . " +
+                " ?uri a ?codebookType ." +
                 " ?uri vstoi:hasSIRMaintainerEmail ?maintainerEmail . " +
                 "   FILTER (?maintainerEmail = \"" + maintainerEmail + "\") " +
                 "} ";
@@ -255,18 +255,18 @@ public class Experience extends HADatAcThing implements SIRElement, Comparable<E
         return findByQuery(queryString);
     }
 
-    public static List<Experience> find() {
+    public static List<Codebook> find() {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?experience rdfs:subClassOf* vstoi:Experience . " +
-                " ?uri a ?experience ." +
+                " ?codebook rdfs:subClassOf* vstoi:Codebook . " +
+                " ?uri a ?codebook ." +
                 "} ";
 
         return findByQuery(queryString);
     }
 
-    private static List<Experience> findByQuery(String queryString) {
-        List<Experience> experiences = new ArrayList<Experience>();
+    private static List<Codebook> findByQuery(String queryString) {
+        List<Codebook> codebooks = new ArrayList<Codebook>();
         ResultSetRewindable resultsrw = SPARQLUtils.select(
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
@@ -276,20 +276,20 @@ public class Experience extends HADatAcThing implements SIRElement, Comparable<E
 
         while (resultsrw.hasNext()) {
             QuerySolution soln = resultsrw.next();
-            Experience experience = find(soln.getResource("uri").getURI());
-            experiences.add(experience);
+            Codebook codebook = find(soln.getResource("uri").getURI());
+            codebooks.add(codebook);
         }
 
-        java.util.Collections.sort((List<Experience>) experiences);
-        return experiences;
+        java.util.Collections.sort((List<Codebook>) codebooks);
+        return codebooks;
     }
 
-    public static int getNumberExperiences() {
+    public static int getNumberCodebooks() {
         String query = "";
         query += NameSpaces.getInstance().printSparqlNameSpaceList();
         query += " select (count(?uri) as ?tot) where { " +
-                " ?experience rdfs:subClassOf* vstoi:Experience . " +
-                " ?uri a ?experience ." +
+                " ?codebook rdfs:subClassOf* vstoi:Codebook . " +
+                " ?uri a ?codebook ." +
                 "}";
 
         try {
@@ -306,11 +306,11 @@ public class Experience extends HADatAcThing implements SIRElement, Comparable<E
         return -1;
     }
 
-    public static List<Experience> findWithPages(int pageSize, int offset) {
-        List<Experience> options = new ArrayList<Experience>();
+    public static List<Codebook> findWithPages(int pageSize, int offset) {
+        List<Codebook> options = new ArrayList<Codebook>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 "SELECT ?uri WHERE { " +
-                " ?experience rdfs:subClassOf* vstoi:Experience . " +
+                " ?codebook rdfs:subClassOf* vstoi:Codebook . " +
                 " ?uri a ?option . } " +
                 " LIMIT " + pageSize +
                 " OFFSET " + offset;
@@ -321,15 +321,15 @@ public class Experience extends HADatAcThing implements SIRElement, Comparable<E
         while (resultsrw.hasNext()) {
             QuerySolution soln = resultsrw.next();
             if (soln != null && soln.getResource("uri").getURI() != null) {
-                Experience responseOption = Experience.find(soln.getResource("uri").getURI());
+                Codebook responseOption = Codebook.find(soln.getResource("uri").getURI());
                 options.add(responseOption);
             }
         }
         return options;
     }
 
-    public static Experience find(String uri) {
-        Experience experience = null;
+    public static Codebook find(String uri) {
+        Codebook codebook = null;
         Statement statement;
         RDFNode object;
 
@@ -343,39 +343,39 @@ public class Experience extends HADatAcThing implements SIRElement, Comparable<E
             return null;
         }
 
-        experience = new Experience();
+        codebook = new Codebook();
 
         while (stmtIterator.hasNext()) {
             statement = stmtIterator.next();
             object = statement.getObject();
             if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-                experience.setLabel(object.asLiteral().getString());
+                codebook.setLabel(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
-                experience.setTypeUri(object.asResource().getURI());
+                codebook.setTypeUri(object.asResource().getURI());
             } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
-                experience.setComment(object.asLiteral().getString());
+                codebook.setComment(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
-                experience.setHascoTypeUri(object.asResource().getURI());
+                codebook.setHascoTypeUri(object.asResource().getURI());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
-                experience.setHasStatus(object.asLiteral().getString());
+                codebook.setHasStatus(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
-                experience.setSerialNumber(object.asLiteral().getString());
+                codebook.setSerialNumber(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
-                experience.setHasLanguage(object.asLiteral().getString());
+                codebook.setHasLanguage(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
-                experience.setHasVersion(object.asLiteral().getString());
+                codebook.setHasVersion(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MAINTAINER_EMAIL)) {
-                experience.setHasSIRMaintainerEmail(object.asLiteral().getString());
+                codebook.setHasSIRMaintainerEmail(object.asLiteral().getString());
             }
         }
 
-        experience.setUri(uri);
+        codebook.setUri(uri);
 
-        return experience;
+        return codebook;
     }
 
     @Override
-    public int compareTo(Experience another) {
+    public int compareTo(Codebook another) {
         return this.getLabel().compareTo(another.getLabel());
     }
 

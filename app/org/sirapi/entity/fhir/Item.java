@@ -18,9 +18,9 @@ public class Item {
         this.detector = detector;
         if (this.detector != null) {
             answerOptions = new ArrayList<AnswerOption>();
-            Experience experience = detector.getExperience();
-            if (experience != null) {
-                List<CodebookSlot> slots = experience.getCodebookSlots();
+            Codebook codebook = detector.getCodebook();
+            if (codebook != null) {
+                List<CodebookSlot> slots = codebook.getCodebookSlots();
                 if (slots != null) {
                     for (CodebookSlot slot : slots) {
                         ResponseOption responseOption = slot.getResponseOption();

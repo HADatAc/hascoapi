@@ -174,17 +174,17 @@ public class ResponseOptionAPI extends Controller {
     }
 
     public Result attachForTesting(){
-        Experience testExp = Experience.find(TEST_EXPERIENCE_URI);
+        Codebook testExp = Codebook.find(TEST_CODEBOOK_URI);
         if (testExp == null) {
-            return ok(ApiUtil.createResponse("create test experience before trying to attach response options.", false));
+            return ok(ApiUtil.createResponse("create test codebook before trying to attach response options.", false));
         }
         if (testExp.getCodebookSlots() == null) {
-            return ok(ApiUtil.createResponse("Create codebook slots for test experiment before trying to attach response options.", false));
+            return ok(ApiUtil.createResponse("Create codebook slots for test codebook before trying to attach response options.", false));
         }
         CodebookSlot slot1 = CodebookSlot.find(TEST_CODEBOOK_SLOT1_URI);
         CodebookSlot slot2 = CodebookSlot.find(TEST_CODEBOOK_SLOT2_URI);
         if (slot1 == null || slot2 == null) {
-            return ok(ApiUtil.createResponse("Either Test Codebook Slot 1 or 2 is unavailable to allow the attachment of ResponseOptions 1 and 2 to test experience.", false));
+            return ok(ApiUtil.createResponse("Either Test Codebook Slot 1 or 2 is unavailable to allow the attachment of ResponseOptions 1 and 2 to test codebook.", false));
         }
         if (slot1.getHasResponseOption() != null) {
             return ok(ApiUtil.createResponse("Test Codebook Slot 1 already has an attached Response Option", false));
@@ -195,7 +195,7 @@ public class ResponseOptionAPI extends Controller {
         ResponseOption test1 = ResponseOption.find(TEST_RESPONSE_OPTION1_URI);
         ResponseOption test2 = ResponseOption.find(TEST_RESPONSE_OPTION2_URI);
         if (test1 == null || test2 == null) {
-            return ok(ApiUtil.createResponse("Either Test Response Option 1 or 2 is unavailable to be attached to test experience.", false));
+            return ok(ApiUtil.createResponse("Either Test Response Option 1 or 2 is unavailable to be attached to test codebook.", false));
         } else {
             boolean done = ResponseOption.attach(TEST_CODEBOOK_SLOT1_URI, TEST_RESPONSE_OPTION1_URI);
             if (!done) {
@@ -225,12 +225,12 @@ public class ResponseOptionAPI extends Controller {
     }
 
     public Result detachForTesting(){
-        Experience testExp = Experience.find(TEST_EXPERIENCE_URI);
+        Codebook testExp = Codebook.find(TEST_CODEBOOK_URI);
         if (testExp == null) {
-            return ok(ApiUtil.createResponse("There is no test experience to have their response options detached.", false));
+            return ok(ApiUtil.createResponse("There is no test codebook to have their response options detached.", false));
         }
         if (testExp.getCodebookSlots() == null) {
-            return ok(ApiUtil.createResponse("Test experience has no CodebookSlots for Response Options.", false));
+            return ok(ApiUtil.createResponse("Test codebook has no CodebookSlots for Response Options.", false));
         }
         ResponseOption test1 = ResponseOption.find(TEST_RESPONSE_OPTION1_URI);
         ResponseOption test2 = ResponseOption.find(TEST_RESPONSE_OPTION2_URI);
@@ -255,8 +255,8 @@ public class ResponseOptionAPI extends Controller {
         return getCodebookSlots(results);
     }
 
-    public Result getCodebookSlotsByExperience(String experienceUri){
-        List<CodebookSlot> results = CodebookSlot.findByExperience(experienceUri);
+    public Result getCodebookSlotsByCodebook(String codebookUri){
+        List<CodebookSlot> results = CodebookSlot.findByCodebook(codebookUri);
         return getCodebookSlots(results);
     }
 

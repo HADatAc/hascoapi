@@ -42,9 +42,9 @@
                 <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/detector/detach/:attachmentUri</button> - Detach a detector from a given instrument's attachment.<br>
 
                 <br>
-                <h4>Experiences</h4>
-                <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/experience/create/(experinceJson)</button> - Create a new experience according to the json specification provided. Json needs to be URL encoded.<br>
-                <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/experience/delete/(experienceUri)</button> - Delete an existing experience using the URI provided. URI needs to be URL encoded.<br>
+                <h4>Codebooks</h4>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/codebook/create/(experinceJson)</button> - Create a new codebook according to the json specification provided. Json needs to be URL encoded.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/codebook/delete/(codebookUri)</button> - Delete an existing codebook using the URI provided. URI needs to be URL encoded.<br>
 
                 <br>
                 <h4>Response Options</h4>
@@ -57,38 +57,38 @@
                 <br>
                 <h4>Test Instrument</h4>
 
-                <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/instrument/test/create" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/api/instrument/test/create</a> - Create a test instrument.<br>
-                <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/instrument/test/delete" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/api/instrument/test/delete</a> - Delete a test instrument.<br>
-                <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/attachment/test/create" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/api/attachment/test/create</a> - Create two attachments for the test instrument. This methods requires the test instrument to exist before it is called. <br>
-                <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/attachment/test/delete" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/api/attachment/test/delete</a> - Delete attachments of test instrument, if any. This method requires the test instrument to exist and to have attachments.<br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/instrument/create" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/instrument/create</a> - Create a test instrument.<br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/instrument/delete" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/instrument/delete</a> - Delete a test instrument.<br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/attachment/create" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/attachment/create</a> - Create two attachments for the test instrument. This methods requires the test instrument to exist before it is called. <br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/attachment/delete" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/attachment/delete</a> - Delete attachments of test instrument, if any. This method requires the test instrument to exist and to have attachments.<br>
 
                 <br>
                 <h4>Test Detector</h4>
 
                 <p><b>Note:</b> Create a test instrument along with its attachments before creating test detectors</p>
 
-                <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/detector/test/create" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/api/detector/test/create</a> - Create test detector 1 and 2 for a test instrument.<br>
-                <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/detector/test/delete" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/api/detector/test/delete</a> - Delete test detector 1 and 2.<br>
-                <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/detector/test/attach" role="button">GET     /sirapi/api/detector/test/attach</a> - Attach test detectors 1 and 2 to test instrument.<br>
-                <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/detector/test/detach" role="button">GET     /sirapi/api/detector/test/detach</a> - Detach test detectors 1 and 2 from test instrument.<br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/detector/create" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/detector/create</a> - Create test detector 1 and 2 for a test instrument.<br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/detector/delete" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/detector/delete</a> - Delete test detector 1 and 2.<br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/detector/attach" role="button">GET     /sirapi/test/detector/attach</a> - Attach test detectors 1 and 2 to test instrument.<br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/detector/detach" role="button">GET     /sirapi/test/detector/detach</a> - Detach test detectors 1 and 2 from test instrument.<br>
 
                 <br>
-                <h4>Test Experiment</h4>
+                <h4>Test Codebook</h4>
 
-                <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/experience/test/create" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/api/experience/test/create</a> - Create test experiment.<br>
-                <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/experience/test/delete" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/api/experience/test/delete</a> - Delete test experiment.<br>
-                <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/codebookslot/test/create" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/api/codebookslot/test/create</a> - Create two codebook slots for the test experience. This methods requires the test experience to exist before it is called. <br>
-                <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/codebookslot/test/delete" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/api/codebookslot/test/delete</a> - Delete codebook slots of test experience, if any. This method requires the test experience to exist and to have codebook slots.<br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/codebook/create" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/codebook/create</a> - Create test codebook.<br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/codebook/delete" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/codebook/delete</a> - Delete test codebook.<br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/codebookslot/create" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/codebookslot/create</a> - Create two codebook slots for the test codebook. This methods requires the test codebook to exist before it is called. <br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/codebookslot/delete" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/codebookslot/delete</a> - Delete codebook slots of test codebook, if any. This method requires the test codebook to exist and to have codebook slots.<br>
 
                 <br>
                 <h4>Test Response Option</h4>
 
-                <p><b>Note:</b> Create a test experience before creating test response options</p>
+                <p><b>Note:</b> Create a test codebook before creating test response options</p>
 
-                <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/responseoption/test/create" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/api/responseoption/test/create</a> - Create test response options 1 and 2 for a test experience.<br>
-                <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/responseoption/test/delete" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/api/responseoption/test/delete</a> - Delete test response options 1 and 2.<br>
-                <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/responseoption/test/attach" role="button">GET     /sirapi/api/responseoption/test/attach</a> - Attach test response options 1 and 2 to test experience.<br>
-                <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/responseoption/test/detach" role="button">GET     /sirapi/api/responseoption/test/detach</a> - Detach test response options 1 and 2 from test experience.<br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/responseoption/create" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/responseoption/create</a> - Create test response options 1 and 2 for a test codebook.<br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/responseoption/delete" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/responseoption/delete</a> - Delete test response options 1 and 2.<br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/responseoption/attach" role="button">GET     /sirapi/test/responseoption/attach</a> - Attach test response options 1 and 2 to test codebook.<br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/responseoption/detach" role="button">GET     /sirapi/test/responseoption/detach</a> - Detach test response options 1 and 2 from test codebook.<br>
 
                 <br><br><br>
 

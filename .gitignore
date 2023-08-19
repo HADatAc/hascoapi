@@ -4,6 +4,7 @@ conf/
 logs
 project/project
 project/target
+project/.bloop/
 target
 tmp
 .history
@@ -25,3 +26,4 @@ RUNNING_PID
 *.csv
 .bsp
 .vscode
+.bloop

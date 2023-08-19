@@ -134,14 +134,14 @@ public class HAScOMapper {
             filterProvider.addFilter("detectorFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("detectorFilter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri", "hascoTypeLabel", "comment", "hasSerialNumber", "hasContent", "hasLanguage", "hasVersion", "wasDerivedFrom", "wasGeneratedBy", "hasSIRMaintainerEmail", "hasExperience", "experience"));
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri", "hascoTypeLabel", "comment", "hasSerialNumber", "hasContent", "hasLanguage", "hasVersion", "wasDerivedFrom", "wasGeneratedBy", "hasSIRMaintainerEmail", "hasCodebook", "codebook"));
         }
 
-        // EXPERIENCE
-        if (typeResult.equals(VSTOI.EXPERIENCE)) {
-            filterProvider.addFilter("experienceFilter", SimpleBeanPropertyFilter.serializeAll());
+        // CODEBOOK
+        if (typeResult.equals(VSTOI.CODEBOOK)) {
+            filterProvider.addFilter("codebookFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
-            filterProvider.addFilter("experienceFilter",
+            filterProvider.addFilter("codebookFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri", "hascoTypeLabel", "comment",  "hasSerialNumber", "responseOptions", "hasLanguage", "hasVersion", "hasSIRMaintainerEmail", "codebookSlots"));
         }
 

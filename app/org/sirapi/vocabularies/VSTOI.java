@@ -36,7 +36,7 @@ public class VSTOI {
 
     public static final String ATTACHMENT                               = "http://hadatac.org/ont/vstoi#Attachment";
     public static final String CODEBOOK_SLOT                            = "http://hadatac.org/ont/vstoi#CodebookSlot";
-    public static final String EXPERIENCE                               = "http://hadatac.org/ont/vstoi#Experience";
+    public static final String CODEBOOK                               = "http://hadatac.org/ont/vstoi#Codebook";
     public static final String INFORMANT                                = "http://hadatac.org/ont/vstoi#Informant";
     public static final String ITEM                                     = "http://hadatac.org/ont/vstoi#Item";
     public static final String PSYCHOMETRIC_QUESTIONNAIRE               = "http://hadatac.org/ont/vstoi#PsychometricQuestionnaire";
@@ -52,7 +52,7 @@ public class VSTOI {
     public static final String HAS_COPYRIGHT_NOTICE                     = "http://hadatac.org/ont/vstoi#hasCopyrightNotice";
     public static final String HAS_DATE_FIELD                           = "http://hadatac.org/ont/vstoi#hasDateField";
     public static final String HAS_DETECTOR                             = "http://hadatac.org/ont/vstoi#hasDetector";
-    public static final String HAS_EXPERIENCE                           = "http://hadatac.org/ont/vstoi#hasExperience";
+    public static final String HAS_CODEBOOK                           = "http://hadatac.org/ont/vstoi#hasCodebook";
     public static final String HAS_INFORMANT                            = "http://hadatac.org/ont/vstoi#hasInformant";
     public static final String HAS_INSTRUCTION                          = "http://hadatac.org/ont/vstoi#hasInstruction";
     public static final String HAS_LANGUAGE                             = "http://hadatac.org/ont/vstoi#hasLanguage";
@@ -65,7 +65,7 @@ public class VSTOI {
     public static final String HAS_SUBJECT_ID_FIELD                     = "http://hadatac.org/ont/vstoi#hasSubjectIDField";
     public static final String HAS_SUBJECT_RELATIONSHIP_FIELD           = "http://hadatac.org/ont/vstoi#hasSubjectRelationshipField";
     public static final String HAS_VERSION                              = "http://hadatac.org/ont/vstoi#hasVersion";
-    public static final String OF_EXPERIENCE                            = "http://hadatac.org/ont/vstoi#ofExperience";
+    public static final String OF_CODEBOOK                            = "http://hadatac.org/ont/vstoi#ofCodebook";
 
     /**
      *    INSTANCES

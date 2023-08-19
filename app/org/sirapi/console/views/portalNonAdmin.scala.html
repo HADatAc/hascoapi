@@ -11,7 +11,7 @@
 @import org.sirapi.entity.pojo.Attachment
 @import org.sirapi.entity.pojo.Detector
 @import org.sirapi.entity.pojo.DetectorType
-@import org.sirapi.entity.pojo.Experience
+@import org.sirapi.entity.pojo.Codebook
 @import org.sirapi.entity.pojo.ResponseOption
 @import play.api.Play
 @import com.typesafe.config.ConfigFactory
@@ -76,8 +76,8 @@
                 <br>
             </div>
             <div class="col-md-2 text-center">
-                <div class="dashNumber">@Experience.getNumberExperiences()</div>
-                <a href="" id="experiences" class="btn btn-primary w-100 disabled" role="button">Experiences</a>
+                <div class="dashNumber">@Codebook.getNumberCodebooks()</div>
+                <a href="" id="codebooks" class="btn btn-primary w-100 disabled" role="button">Codebooks</a>
                 <br>
             </div>
             <div class="col-md-2 text-center">

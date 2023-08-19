@@ -37,7 +37,7 @@ public class DetectorAPI extends Controller {
             testDetector1.setHascoTypeUri(VSTOI.DETECTOR);
             testDetector1.setComment("This is a dummy Detector 1 created to test the SIR API.");
             testDetector1.setHasContent("During the last 2 weeks, have you lost appetite?");
-            testDetector1.setHasExperience(TEST_EXPERIENCE_URI);
+            testDetector1.setHasCodebook(TEST_CODEBOOK_URI);
             testDetector1.setHasLanguage("en"); // ISO 639-1
             testDetector1.setHasVersion("1");
             testDetector1.setHasSIRMaintainerEmail("me@example.com");
@@ -49,7 +49,7 @@ public class DetectorAPI extends Controller {
             testDetector2.setHascoTypeUri(VSTOI.DETECTOR);
             testDetector2.setComment("This is a dummy Detector 2 created to test the SIR API.");
             testDetector2.setHasContent("During the last 2 weeks, have you gain appetite?");
-            testDetector2.setHasExperience(TEST_EXPERIENCE_URI);
+            testDetector2.setHasCodebook(TEST_CODEBOOK_URI);
             testDetector2.setHasLanguage("en"); // ISO 639-1
             testDetector2.setHasVersion("1");
             testDetector2.setHasSIRMaintainerEmail("me@example.com");
@@ -229,7 +229,7 @@ public class DetectorAPI extends Controller {
             SimpleFilterProvider filterProvider = new SimpleFilterProvider();
             filterProvider.addFilter("detectorFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "hasContent", "hasSerialNumber", "hasLanguage","hasExperience",
+                            "hascoTypeLabel", "comment", "hasContent", "hasSerialNumber", "hasLanguage","hasCodebook",
                             "hasVersion", "wasDerivedFrom", "wasGeneratedBy", "hasSIRMaintainerEmail"));
             mapper.setFilterProvider(filterProvider);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);

@@ -22,9 +22,9 @@ public class SIRElementAPI extends Controller {
         } else if (elementType.equals("detector")) {
             List<Detector> results = Detector.findByKeywordAndLanguageWithPages(keyword, language, pageSize, offset);
             return DetectorAPI.getDetectors(results);
-        } else if (elementType.equals("experience")) {
-            List<Experience> results = Experience.findByKeywordAndLanguageWithPages(keyword, language, pageSize, offset);
-            return ExperienceAPI.getExperiences(results);
+        } else if (elementType.equals("codebook")) {
+            List<Codebook> results = Codebook.findByKeywordAndLanguageWithPages(keyword, language, pageSize, offset);
+            return CodebookAPI.getCodebooks(results);
         } else if (elementType.equals("responseoption")) {
             List<ResponseOption> results = ResponseOption.findByKeywordAndLanguageWithPages(keyword, language, pageSize, offset);
             return ResponseOptionAPI.getResponseOptions(results);
@@ -47,10 +47,10 @@ public class SIRElementAPI extends Controller {
             int totalDetectors = Detector.findTotalByKeywordAndLanguage(keyword, language);
             String totalDetectorsJSON = "{\"total\":" + totalDetectors + "}";
             return ok(ApiUtil.createResponse(totalDetectorsJSON, true));
-        } else if (elementType.equals("experience")) {
-            int totalExperiences = Experience.findTotalByKeywordAndLanguage(keyword, language);
-            String totalExperiencesJSON = "{\"total\":" + totalExperiences + "}";
-            return ok(ApiUtil.createResponse(totalExperiencesJSON, true));
+        } else if (elementType.equals("codebook")) {
+            int totalCodebooks = Codebook.findTotalByKeywordAndLanguage(keyword, language);
+            String totalCodebooksJSON = "{\"total\":" + totalCodebooks + "}";
+            return ok(ApiUtil.createResponse(totalCodebooksJSON, true));
         } else if (elementType.equals("responseoption")) {
             int totalResponseOptions = ResponseOption.findTotalByKeywordAndLanguage(keyword, language);
             String totalResponseOptionsJSON = "{\"total\":" + totalResponseOptions + "}";
@@ -66,9 +66,9 @@ public class SIRElementAPI extends Controller {
         } else if (elementType.equals("detector")) {
             List<Detector> results = Detector.findByMaintainerEmailWithPages(maintainerEmail, pageSize, offset);
             return DetectorAPI.getDetectors(results);
-        } else if (elementType.equals("experience")) {
-           List<Experience> results = Experience.findByMaintainerEmailWithPages(maintainerEmail, pageSize, offset);
-           return ExperienceAPI.getExperiences(results);
+        } else if (elementType.equals("codebook")) {
+           List<Codebook> results = Codebook.findByMaintainerEmailWithPages(maintainerEmail, pageSize, offset);
+           return CodebookAPI.getCodebooks(results);
         } else if (elementType.equals("responseoption")) {
             List<ResponseOption> results = ResponseOption.findByMaintainerEmailWithPages(maintainerEmail, pageSize, offset);
             return ResponseOptionAPI.getResponseOptions(results);
@@ -85,10 +85,10 @@ public class SIRElementAPI extends Controller {
             int totalDetectors = Detector.findTotalByMaintainerEmail(maintainerEmail);
             String totalDetectorsJSON = "{\"total\":" + totalDetectors + "}";
             return ok(ApiUtil.createResponse(totalDetectorsJSON, true));
-        } else if (elementType.equals("experience")) {
-            int totalExperiences = Experience.findTotalByMaintainerEmail(maintainerEmail);
-            String totalExperiencesJSON = "{\"total\":" + totalExperiences + "}";
-            return ok(ApiUtil.createResponse(totalExperiencesJSON, true));
+        } else if (elementType.equals("codebook")) {
+            int totalCodebooks = Codebook.findTotalByMaintainerEmail(maintainerEmail);
+            String totalCodebooksJSON = "{\"total\":" + totalCodebooks + "}";
+            return ok(ApiUtil.createResponse(totalCodebooksJSON, true));
         } else if (elementType.equals("responseoption")) {
             int totalResponseOptions = ResponseOption.findTotalByMaintainerEmail(maintainerEmail);
             String totalResponseOptionsJSON = "{\"total\":" + totalResponseOptions + "}";

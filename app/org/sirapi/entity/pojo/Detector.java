@@ -52,8 +52,8 @@ public class Detector extends HADatAcThing implements SIRElement, Comparable<Det
     @PropertyField(uri="vstoi:hasSIRMaintainerEmail")
     private String hasSIRMaintainerEmail;
 
-    @PropertyField(uri="vstoi:hasExperience")
-    private String hasExperience;
+    @PropertyField(uri="vstoi:hasCodebook")
+    private String hasCodebook;
 
     public String getHasStatus() {
         return hasStatus;
@@ -103,12 +103,12 @@ public class Detector extends HADatAcThing implements SIRElement, Comparable<Det
     //    this.hasPriority = hasPriority;
     //}
 
-    public String getHasExperience() {
-        return hasExperience;
+    public String getHasCodebook() {
+        return hasCodebook;
     }
 
-    public void setHasExperience(String hasExperience) {
-        this.hasExperience = hasExperience;
+    public void setHasCodebook(String hasCodebook) {
+        this.hasCodebook = hasCodebook;
     }
 
     public String getHasLanguage() {
@@ -151,12 +151,12 @@ public class Detector extends HADatAcThing implements SIRElement, Comparable<Det
         this.hasSIRMaintainerEmail = hasSIRMaintainerEmail;
     }
 
-    public Experience getExperience() {
-        if (hasExperience == null || hasExperience.equals("")) {
+    public Codebook getCodebook() {
+        if (hasCodebook == null || hasCodebook.equals("")) {
             return null;
         }
-        Experience experience = Experience.find(hasExperience);
-        return experience;
+        Codebook codebook = Codebook.find(hasCodebook);
+        return codebook;
     }
 
     public String getTypeLabel() {
@@ -489,11 +489,11 @@ public class Detector extends HADatAcThing implements SIRElement, Comparable<Det
                 }
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MAINTAINER_EMAIL)) {
                 detector.setHasSIRMaintainerEmail(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_EXPERIENCE)) {
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_CODEBOOK)) {
                 try {
-                    detector.setHasExperience(object.asResource().getURI());
+                    detector.setHasCodebook(object.asResource().getURI());
                 } catch (Exception e) {
-                    detector.setHasExperience(null);
+                    detector.setHasCodebook(null);
                 }
 
             }

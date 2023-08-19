@@ -163,13 +163,13 @@ public class CodebookSlot extends HADatAcThing implements Comparable<CodebookSlo
         return findByQuery(queryString);
     }
 
-    public static List<CodebookSlot> findByExperience(String experienceUri) {
-        //System.out.println("findByExperiment: [" + experimentUri + "]");
+    public static List<CodebookSlot> findByCodebook(String codebookUri) {
+        //System.out.println("findByCodebook: [" + codebookUri + "]");
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
                 " ?slotModel rdfs:subClassOf* vstoi:CodebookSlot . " +
                 " ?uri a ?slotModel ." +
-                " ?uri vstoi:belongsTo <" + experienceUri + ">. " +
+                " ?uri vstoi:belongsTo <" + codebookUri + ">. " +
                 "} ";
 
         return findByQuery(queryString);
@@ -237,8 +237,8 @@ public class CodebookSlot extends HADatAcThing implements Comparable<CodebookSlo
         return slot;
     }
 
-    static public boolean createCodebookSlot(String experienceUri, String slotUri, String priority, String hasResponseOption) {
-        if (experienceUri == null || experienceUri.isEmpty()) {
+    static public boolean createCodebookSlot(String codebookUri, String slotUri, String priority, String hasResponseOption) {
+        if (codebookUri == null || codebookUri.isEmpty()) {
             return false;
         }
         if (priority == null || priority.isEmpty()) {
@@ -249,8 +249,8 @@ public class CodebookSlot extends HADatAcThing implements Comparable<CodebookSlo
         cbs.setLabel("CodebookSlot " + priority);
         cbs.setTypeUri(VSTOI.CODEBOOK_SLOT);
         cbs.setHascoTypeUri(VSTOI.CODEBOOK_SLOT);
-        cbs.setComment("CodebookSlot " + priority + " of codebook with URI " + experienceUri);
-        cbs.setBelongsTo(experienceUri);
+        cbs.setComment("CodebookSlot " + priority + " of codebook with URI " + codebookUri);
+        cbs.setBelongsTo(codebookUri);
         cbs.setHasPriority(priority);
         if (hasResponseOption != null) {
             cbs.setHasResponseOption(hasResponseOption);
