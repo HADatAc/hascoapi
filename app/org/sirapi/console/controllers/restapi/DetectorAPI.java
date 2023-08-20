@@ -40,7 +40,7 @@ public class DetectorAPI extends Controller {
             testDetector1.setHasCodebook(TEST_CODEBOOK_URI);
             testDetector1.setHasLanguage("en"); // ISO 639-1
             testDetector1.setHasVersion("1");
-            testDetector1.setHasSIRMaintainerEmail("me@example.com");
+            testDetector1.setHasSIRManagerEmail("me@example.com");
             testDetector1.save();
             testDetector2 = new Detector();
             testDetector2.setUri(TEST_DETECTOR2_URI);
@@ -52,7 +52,7 @@ public class DetectorAPI extends Controller {
             testDetector2.setHasCodebook(TEST_CODEBOOK_URI);
             testDetector2.setHasLanguage("en"); // ISO 639-1
             testDetector2.setHasVersion("1");
-            testDetector2.setHasSIRMaintainerEmail("me@example.com");
+            testDetector2.setHasSIRManagerEmail("me@example.com");
             testDetector2.save();
             return ok(ApiUtil.createResponse("Test Detectors 1 and 2 have been CREATED.", true));
         }
@@ -206,8 +206,8 @@ public class DetectorAPI extends Controller {
         return getDetectors(results);
     }
 
-    public Result getDetectorsByMaintainerEmail(String maintainerEmail){
-        List<Detector> results = Detector.findByMaintainerEmail(maintainerEmail);
+    public Result getDetectorsByManagerEmail(String managerEmail){
+        List<Detector> results = Detector.findByManagerEmail(managerEmail);
         return getDetectors(results);
     }
 
@@ -230,7 +230,7 @@ public class DetectorAPI extends Controller {
             filterProvider.addFilter("detectorFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
                             "hascoTypeLabel", "comment", "hasContent", "hasSerialNumber", "hasLanguage","hasCodebook",
-                            "hasVersion", "wasDerivedFrom", "wasGeneratedBy", "hasSIRMaintainerEmail"));
+                            "hasVersion", "wasDerivedFrom", "wasGeneratedBy", "hasSIRManagerEmail"));
             mapper.setFilterProvider(filterProvider);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));

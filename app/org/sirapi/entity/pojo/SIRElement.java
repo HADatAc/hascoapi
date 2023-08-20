@@ -8,6 +8,6 @@ public interface SIRElement {
     public String getHasStatus();
     public String getHasVersion();
     public String getHasLanguage();
-    public String getHasSIRMaintainerEmail();
+    public String getHasSIRManagerEmail();
 
 }

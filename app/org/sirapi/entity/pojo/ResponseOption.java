@@ -41,8 +41,8 @@ public class ResponseOption extends HADatAcThing implements SIRElement, Comparab
     @PropertyField(uri = "vstoi:hasVersion")
     String hasVersion;
 
-    @PropertyField(uri = "vstoi:hasSIRMaintainerEmail")
-    private String hasSIRMaintainerEmail;
+    @PropertyField(uri = "vstoi:hasSIRManagerEmail")
+    private String hasSIRManagerEmail;
 
     public String getHasStatus() {
         return hasStatus;
@@ -92,12 +92,12 @@ public class ResponseOption extends HADatAcThing implements SIRElement, Comparab
         this.hasVersion = hasVersion;
     }
 
-    public String getHasSIRMaintainerEmail() {
-        return hasSIRMaintainerEmail;
+    public String getHasSIRManagerEmail() {
+        return hasSIRManagerEmail;
     }
 
-    public void setHasSIRMaintainerEmail(String hasSIRMaintainerEmail) {
-        this.hasSIRMaintainerEmail = hasSIRMaintainerEmail;
+    public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
+        this.hasSIRManagerEmail = hasSIRManagerEmail;
     }
 
     public static List<ResponseOption> find() {
@@ -194,15 +194,15 @@ public class ResponseOption extends HADatAcThing implements SIRElement, Comparab
         return -1;
     }
 
-    public static List<ResponseOption> findByMaintainerEmailWithPages(String maintainerEmail, int pageSize,
+    public static List<ResponseOption> findByManagerEmailWithPages(String managerEmail, int pageSize,
             int offset) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
         queryString += " SELECT ?uri WHERE { " +
                 " ?respModel rdfs:subClassOf* vstoi:ResponseOption . " +
                 " ?uri a ?respModel ." +
                 " ?uri vstoi:hasContent ?content . " +
-                " ?uri vstoi:hasSIRMaintainerEmail ?maintainerEmail . " +
-                "   FILTER (?maintainerEmail = \"" + maintainerEmail + "\") " +
+                " ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
+                "   FILTER (?managerEmail = \"" + managerEmail + "\") " +
                 "}";
         queryString += " ORDER BY ASC(?content) " +
                 " LIMIT " + pageSize +
@@ -210,13 +210,13 @@ public class ResponseOption extends HADatAcThing implements SIRElement, Comparab
         return findByQuery(queryString);
     }
 
-    public static int findTotalByMaintainerEmail(String maintainerEmail) {
+    public static int findTotalByManagerEmail(String managerEmail) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
         queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
                 " ?respModel rdfs:subClassOf* vstoi:ResponseOption . " +
                 " ?uri a ?respModel ." +
-                " ?uri vstoi:hasSIRMaintainerEmail ?maintainerEmail . " +
-                "   FILTER (?maintainerEmail = \"" + maintainerEmail + "\") " +
+                " ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
+                "   FILTER (?managerEmail = \"" + managerEmail + "\") " +
                 "}";
         try {
             ResultSetRewindable resultsrw = SPARQLUtils.select(
@@ -231,13 +231,13 @@ public class ResponseOption extends HADatAcThing implements SIRElement, Comparab
         return -1;
     }
 
-    public static List<ResponseOption> findByMaintainerEmail(String maintainerEmail) {
+    public static List<ResponseOption> findByManagerEmail(String managerEmail) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
                 " ?respOption rdfs:subClassOf+ vstoi:ResponseOption . " +
                 " ?uri a ?respOption ." +
-                " ?uri vstoi:hasSIRMaintainerEmail ?maintainerEmail . " +
-                "   FILTER (?maintainerEmail = \"" + maintainerEmail + "\") " +
+                " ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
+                "   FILTER (?managerEmail = \"" + managerEmail + "\") " +
                 "} ";
 
         return findByQuery(queryString);
@@ -352,7 +352,7 @@ public class ResponseOption extends HADatAcThing implements SIRElement, Comparab
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
                 responseOption.setHasVersion(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MAINTAINER_EMAIL)) {
-                responseOption.setHasSIRMaintainerEmail(object.asLiteral().getString());
+                responseOption.setHasSIRManagerEmail(object.asLiteral().getString());
             }
         }
 

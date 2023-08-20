@@ -135,7 +135,7 @@ public class HAScOMapper {
             filterProvider.addFilter("instrumentFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
                             "hascoTypeLabel", "hasInformant", "comment", "hasSerialNumber", "hasLanguage", "hasVersion",
-                            "hasSIRMaintainerEmail", "hasPageNumber", "hasDateField", "hasSubjectIDField",
+                            "hasSIRManagerEmail", "hasPageNumber", "hasDateField", "hasSubjectIDField",
                             "hasSubjectRelatioshipField", "hasCopyrightNotice"));
         }
 
@@ -155,7 +155,7 @@ public class HAScOMapper {
             filterProvider.addFilter("detectorFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
                             "hascoTypeLabel", "comment", "hasSerialNumber", "hasContent", "hasLanguage", "hasVersion",
-                            "wasDerivedFrom", "wasGeneratedBy", "hasSIRMaintainerEmail", "hasCodebook", "codebook"));
+                            "wasDerivedFrom", "wasGeneratedBy", "hasSIRManagerEmail", "hasCodebook", "codebook"));
         }
 
         // CODEBOOK
@@ -165,7 +165,7 @@ public class HAScOMapper {
             filterProvider.addFilter("codebookFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
                             "hascoTypeLabel", "comment", "hasSerialNumber", "responseOptions", "hasLanguage",
-                            "hasVersion", "hasSIRMaintainerEmail", "ResponseOptionSlots"));
+                            "hasVersion", "hasSIRManagerEmail", "ResponseOptionSlots"));
         }
 
         // RESPONSEOPTION SLOT
@@ -184,7 +184,7 @@ public class HAScOMapper {
             filterProvider.addFilter("responseOptionFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
                             "hascoTypeLabel", "comment", "hasContent", "hasSerialNumber", "hasLanguage", "hasVersion",
-                            "hasSIRMaintainerEmail"));
+                            "hasSIRManagerEmail"));
         }
 
         mapper.setFilterProvider(filterProvider);

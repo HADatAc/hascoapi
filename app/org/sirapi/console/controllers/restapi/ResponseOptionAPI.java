@@ -40,7 +40,7 @@ public class ResponseOptionAPI extends Controller {
             testResponseOption1.setHasContent("Never");
             testResponseOption1.setHasLanguage("en"); // ISO 639-1
             testResponseOption1.setHasVersion("1");
-            testResponseOption1.setHasSIRMaintainerEmail("me@example.com");
+            testResponseOption1.setHasSIRManagerEmail("me@example.com");
             testResponseOption1.save();
             testResponseOption2 = new ResponseOption();
             testResponseOption2.setUri(TEST_RESPONSE_OPTION2_URI);
@@ -51,7 +51,7 @@ public class ResponseOptionAPI extends Controller {
             testResponseOption2.setHasContent("Always");
             testResponseOption2.setHasLanguage("en"); // ISO 639-1
             testResponseOption2.setHasVersion("1");
-            testResponseOption2.setHasSIRMaintainerEmail("me@example.com");
+            testResponseOption2.setHasSIRManagerEmail("me@example.com");
             testResponseOption2.save();
             return ok(ApiUtil.createResponse("Test ResponseOptions 1 and 2 have been CREATED.", true));
         }
@@ -117,7 +117,7 @@ public class ResponseOptionAPI extends Controller {
             filterProvider.addFilter("responseOptionFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
                             "hascoTypeLabel", "comment",
-                            "hasContent", "hasLanguage", "hasVersion", "hasSIRMaintainerEmail"));
+                            "hasContent", "hasLanguage", "hasVersion", "hasSIRManagerEmail"));
             mapper.setFilterProvider(filterProvider);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));
@@ -134,8 +134,8 @@ public class ResponseOptionAPI extends Controller {
         return getResponseOptions(results);
     }
 
-    public Result getResponseOptionsByMaintainerEmail(String maintainerEmail) {
-        List<ResponseOption> results = ResponseOption.findByMaintainerEmail(maintainerEmail);
+    public Result getResponseOptionsByManagerEmail(String managerEmail) {
+        List<ResponseOption> results = ResponseOption.findByManagerEmail(managerEmail);
         return getResponseOptions(results);
     }
 
@@ -148,7 +148,7 @@ public class ResponseOptionAPI extends Controller {
             filterProvider.addFilter("responseOptionFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
                             "hascoTypeLabel", "comment", "hasContent", "hasLanguage", "hasVersion",
-                            "hasSIRMaintainerEmail"));
+                            "hasSIRManagerEmail"));
             mapper.setFilterProvider(filterProvider);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));

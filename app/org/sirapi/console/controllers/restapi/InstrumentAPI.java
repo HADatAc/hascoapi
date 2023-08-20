@@ -45,7 +45,7 @@ public class InstrumentAPI extends Controller {
             testInstrument.setHasLanguage(VSTOI.DEFAULT_LANGUAGE); // ISO 639-1
             testInstrument.setComment("This is a dummy instrument created to test the SIR API.");
             testInstrument.setHasVersion("1");
-            testInstrument.setHasSIRMaintainerEmail("me@example.com");
+            testInstrument.setHasSIRManagerEmail("me@example.com");
             testInstrument.setHasPageNumber("Page ");
             testInstrument.setHasDateField("Date: ____________ ");
             testInstrument.setHasSubjectIDField("Name/ID: _____________________");
@@ -183,8 +183,8 @@ public class InstrumentAPI extends Controller {
         return getInstruments(results);
     }
 
-    public Result getInstrumentsByMaintainerEmail(String maintainerEmail){
-        List<Instrument> results = Instrument.findByMaintainerEmail(maintainerEmail);
+    public Result getInstrumentsByManagerEmail(String managerEmail){
+        List<Instrument> results = Instrument.findByManagerEmail(managerEmail);
         return getInstruments(results);
     }
 
@@ -197,7 +197,7 @@ public class InstrumentAPI extends Controller {
             filterProvider.addFilter("instrumentFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "hasShortName", "typeLabel", "hascoTypeUri",
                             "hascoTypeLabel", "comment", "hasSerialNumber", "hasInformant", "hasImage",
-                            "hasLanguage", "hasVersion", "hasInstruction", "hasSIRMaintainerEmail",
+                            "hasLanguage", "hasVersion", "hasInstruction", "hasSIRManagerEmail",
                             "hasPageNumber", "hasDateField", "hasSubjectIDField", "hasSubjectRelatioshipField", "hasCopyrightNotice"));
             mapper.setFilterProvider(filterProvider);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);

@@ -59,38 +59,38 @@ public class SIRElementAPI extends Controller {
         return ok("No valid element type.");
     }
 
-    public Result getElementsByMaintainerEmail(String elementType, String maintainerEmail, int pageSize, int offset) {
+    public Result getElementsByManagerEmail(String elementType, String managerEmail, int pageSize, int offset) {
         if (elementType.equals("instrument")) {
-            List<Instrument> results = Instrument.findByMaintainerEmailWithPages(maintainerEmail, pageSize, offset);
+            List<Instrument> results = Instrument.findByManagerEmailWithPages(managerEmail, pageSize, offset);
             return InstrumentAPI.getInstruments(results);
         } else if (elementType.equals("detector")) {
-            List<Detector> results = Detector.findByMaintainerEmailWithPages(maintainerEmail, pageSize, offset);
+            List<Detector> results = Detector.findByManagerEmailWithPages(managerEmail, pageSize, offset);
             return DetectorAPI.getDetectors(results);
         } else if (elementType.equals("codebook")) {
-           List<Codebook> results = Codebook.findByMaintainerEmailWithPages(maintainerEmail, pageSize, offset);
+           List<Codebook> results = Codebook.findByManagerEmailWithPages(managerEmail, pageSize, offset);
            return CodebookAPI.getCodebooks(results);
         } else if (elementType.equals("responseoption")) {
-            List<ResponseOption> results = ResponseOption.findByMaintainerEmailWithPages(maintainerEmail, pageSize, offset);
+            List<ResponseOption> results = ResponseOption.findByManagerEmailWithPages(managerEmail, pageSize, offset);
             return ResponseOptionAPI.getResponseOptions(results);
         }
         return ok("No valid element type.");
     }
 
-    public Result getTotalElementsByMaintainerEmail(String elementType, String maintainerEmail){
+    public Result getTotalElementsByManagerEmail(String elementType, String managerEmail){
         if (elementType.equals("instrument")) {
-            int totalInstruments = Instrument.findTotalByMaintainerEmail(maintainerEmail);
+            int totalInstruments = Instrument.findTotalByManagerEmail(managerEmail);
             String totalInstrumentsJSON = "{\"total\":" + totalInstruments + "}";
             return ok(ApiUtil.createResponse(totalInstrumentsJSON, true));
         } else if (elementType.equals("detector")) {
-            int totalDetectors = Detector.findTotalByMaintainerEmail(maintainerEmail);
+            int totalDetectors = Detector.findTotalByManagerEmail(managerEmail);
             String totalDetectorsJSON = "{\"total\":" + totalDetectors + "}";
             return ok(ApiUtil.createResponse(totalDetectorsJSON, true));
         } else if (elementType.equals("codebook")) {
-            int totalCodebooks = Codebook.findTotalByMaintainerEmail(maintainerEmail);
+            int totalCodebooks = Codebook.findTotalByManagerEmail(managerEmail);
             String totalCodebooksJSON = "{\"total\":" + totalCodebooks + "}";
             return ok(ApiUtil.createResponse(totalCodebooksJSON, true));
         } else if (elementType.equals("responseoption")) {
-            int totalResponseOptions = ResponseOption.findTotalByMaintainerEmail(maintainerEmail);
+            int totalResponseOptions = ResponseOption.findTotalByManagerEmail(managerEmail);
             String totalResponseOptionsJSON = "{\"total\":" + totalResponseOptions + "}";
             return ok(ApiUtil.createResponse(totalResponseOptionsJSON, true));
         }
@@ -109,7 +109,7 @@ public class SIRElementAPI extends Controller {
             //System.out.println("SIREelementAPI: Results is " + results.size());
             return DetectorAPI.getAttachments(results);
         } //else if (elementType.equals("detector")) {
-        //    int totalDetectors = Detector.findTotalByMaintainerEmail(maintainerEmail);
+        //    int totalDetectors = Detector.findTotalByManagerEmail(managerEmail);
         //    String totalDetectorsJSON = "{\"total\":" + totalDetectors + "}";
         //    return ok(ApiUtil.createResponse(totalDetectorsJSON, true));
         //}
@@ -128,7 +128,7 @@ public class SIRElementAPI extends Controller {
             //System.out.println("SIREelementAPI: Results is " + results.size());
             return DetectorAPI.getDetectors(results);
         } //else if (elementType.equals("detector")) {
-        //    int totalDetectors = Detector.findTotalByMaintainerEmail(maintainerEmail);
+        //    int totalDetectors = Detector.findTotalByManagerEmail(managerEmail);
         //    String totalDetectorsJSON = "{\"total\":" + totalDetectors + "}";
         //    return ok(ApiUtil.createResponse(totalDetectorsJSON, true));
         //}

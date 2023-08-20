@@ -35,8 +35,8 @@ public class Codebook extends HADatAcThing implements SIRElement, Comparable<Cod
     @PropertyField(uri = "vstoi:hasVersion")
     private String hasVersion;
 
-    @PropertyField(uri = "vstoi:hasSIRMaintainerEmail")
-    private String hasSIRMaintainerEmail;
+    @PropertyField(uri = "vstoi:hasSIRManagerEmail")
+    private String hasSIRManagerEmail;
 
     public String getHasStatus() {
         return hasStatus;
@@ -70,12 +70,12 @@ public class Codebook extends HADatAcThing implements SIRElement, Comparable<Cod
         this.hasVersion = hasVersion;
     }
 
-    public String getHasSIRMaintainerEmail() {
-        return hasSIRMaintainerEmail;
+    public String getHasSIRManagerEmail() {
+        return hasSIRManagerEmail;
     }
 
-    public void setHasSIRMaintainerEmail(String hasSIRMaintainerEmail) {
-        this.hasSIRMaintainerEmail = hasSIRMaintainerEmail;
+    public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
+        this.hasSIRManagerEmail = hasSIRManagerEmail;
     }
 
     public List<ResponseOptionSlot> getResponseOptionSlots() {
@@ -210,26 +210,26 @@ public class Codebook extends HADatAcThing implements SIRElement, Comparable<Cod
         return -1;
     }
 
-    public static List<Codebook> findByMaintainerEmailWithPages(String maintainerEmail, int pageSize, int offset) {
+    public static List<Codebook> findByManagerEmailWithPages(String managerEmail, int pageSize, int offset) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
         queryString += " SELECT ?uri WHERE { " +
                 " ?expModel rdfs:subClassOf* vstoi:Codebook . " +
                 " ?uri a ?expModel ." +
-                " ?uri vstoi:hasSIRMaintainerEmail ?maintainerEmail . " +
-                "   FILTER (?maintainerEmail = \"" + maintainerEmail + "\") " +
+                " ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
+                "   FILTER (?managerEmail = \"" + managerEmail + "\") " +
                 "} " +
                 " LIMIT " + pageSize +
                 " OFFSET " + offset;
         return findByQuery(queryString);
     }
 
-    public static int findTotalByMaintainerEmail(String maintainerEmail) {
+    public static int findTotalByManagerEmail(String managerEmail) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
         queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
                 " ?expModel rdfs:subClassOf* vstoi:Codebook . " +
                 " ?uri a ?expModel ." +
-                " ?uri vstoi:hasSIRMaintainerEmail ?maintainerEmail . " +
-                "   FILTER (?maintainerEmail = \"" + maintainerEmail + "\") " +
+                " ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
+                "   FILTER (?managerEmail = \"" + managerEmail + "\") " +
                 "} ";
         try {
             ResultSetRewindable resultsrw = SPARQLUtils.select(
@@ -245,13 +245,13 @@ public class Codebook extends HADatAcThing implements SIRElement, Comparable<Cod
         return -1;
     }
 
-    public static List<Codebook> findByMaintainerEmail(String maintainerEmail) {
+    public static List<Codebook> findByManagerEmail(String managerEmail) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
                 " ?codebookType rdfs:subClassOf* vstoi:Codebook . " +
                 " ?uri a ?codebookType ." +
-                " ?uri vstoi:hasSIRMaintainerEmail ?maintainerEmail . " +
-                "   FILTER (?maintainerEmail = \"" + maintainerEmail + "\") " +
+                " ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
+                "   FILTER (?managerEmail = \"" + managerEmail + "\") " +
                 "} ";
 
         return findByQuery(queryString);
@@ -367,7 +367,7 @@ public class Codebook extends HADatAcThing implements SIRElement, Comparable<Cod
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
                 codebook.setHasVersion(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MAINTAINER_EMAIL)) {
-                codebook.setHasSIRMaintainerEmail(object.asLiteral().getString());
+                codebook.setHasSIRManagerEmail(object.asLiteral().getString());
             }
         }
 

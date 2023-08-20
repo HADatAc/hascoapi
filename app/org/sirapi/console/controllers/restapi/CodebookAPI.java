@@ -93,8 +93,8 @@ public class CodebookAPI extends Controller {
         return getCodebooks(results);
     }
 
-    public Result getCodebookByMaintainerEmail(String maintainerEmail) {
-        List<Codebook> results = Codebook.findByMaintainerEmail(maintainerEmail);
+    public Result getCodebookByManagerEmail(String managerEmail) {
+        List<Codebook> results = Codebook.findByManagerEmail(managerEmail);
         return getCodebooks(results);
     }
 
@@ -107,7 +107,7 @@ public class CodebookAPI extends Controller {
             filterProvider.addFilter("codebookFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
                             "hascoTypeLabel", "comment", "hasSerialNumber", "hasLanguage", "hasVersion",
-                            "hasSIRMaintainerEmail"));
+                            "hasSIRManagerEmail"));
             mapper.setFilterProvider(filterProvider);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));
@@ -125,7 +125,7 @@ public class CodebookAPI extends Controller {
             filterProvider.addFilter("codebookFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
                             "hascoTypeLabel", "comment", "hasSerialNumber", "hasLanguage", "hasVersion",
-                            "hasSIRMaintainerEmail"));
+                            "hasSIRManagerEmail"));
             mapper.setFilterProvider(filterProvider);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));

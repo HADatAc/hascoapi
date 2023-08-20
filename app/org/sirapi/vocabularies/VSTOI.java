@@ -61,7 +61,7 @@ public class VSTOI {
     public static final String HAS_RESPONSE_OPTION = "http://hadatac.org/ont/vstoi#hasResponseOption";
     public static final String HAS_SHORT_NAME = "http://hadatac.org/ont/vstoi#hasShortName";
     public static final String HAS_STATUS = "http://hadatac.org/ont/vstoi#hasStatus";
-    public static final String HAS_SIR_MAINTAINER_EMAIL = "http://hadatac.org/ont/vstoi#hasSIRMaintainerEmail";
+    public static final String HAS_SIR_MAINTAINER_EMAIL = "http://hadatac.org/ont/vstoi#hasSIRManagerEmail";
     public static final String HAS_SUBJECT_ID_FIELD = "http://hadatac.org/ont/vstoi#hasSubjectIDField";
     public static final String HAS_SUBJECT_RELATIONSHIP_FIELD = "http://hadatac.org/ont/vstoi#hasSubjectRelationshipField";
     public static final String HAS_VERSION = "http://hadatac.org/ont/vstoi#hasVersion";

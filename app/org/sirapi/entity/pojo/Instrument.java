@@ -67,8 +67,8 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 	@PropertyField(uri="vstoi:hasCopyrightNotice")
 	private String hasCopyrightNotice;
 
-	@PropertyField(uri="vstoi:hasSIRMaintainerEmail")
-	private String hasSIRMaintainerEmail;
+	@PropertyField(uri="vstoi:hasSIRManagerEmail")
+	private String hasSIRManagerEmail;
 
 	public String getHasStatus() {
 		return hasStatus;
@@ -174,12 +174,12 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 		this.hasCopyrightNotice = hasCopyrightNotice;
 	}
 
-	public String getHasSIRMaintainerEmail() {
-		return hasSIRMaintainerEmail;
+	public String getHasSIRManagerEmail() {
+		return hasSIRManagerEmail;
 	}
 
-	public void setHasSIRMaintainerEmail(String hasSIRMaintainerEmail) {
-		this.hasSIRMaintainerEmail = hasSIRMaintainerEmail;
+	public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
+		this.hasSIRManagerEmail = hasSIRManagerEmail;
 	}
 
 	public String geattachmenttTypeLabel() {
@@ -312,14 +312,14 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 		return -1;
 	}
 
-	public static List<Instrument> findByMaintainerEmailWithPages(String maintainerEmail, int pageSize, int offset) {
+	public static List<Instrument> findByManagerEmailWithPages(String managerEmail, int pageSize, int offset) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
 		queryString += " SELECT ?uri WHERE { " +
 				" ?instModel rdfs:subClassOf* vstoi:Instrument . " +
 				" ?uri a ?instModel ." +
 				" ?uri rdfs:label ?label . " +
-				" ?uri vstoi:hasSIRMaintainerEmail ?maintainerEmail . " +
-				"   FILTER (?maintainerEmail = \"" + maintainerEmail + "\") " +
+				" ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
+				"   FILTER (?managerEmail = \"" + managerEmail + "\") " +
 				"}" +
 				" ORDER BY ASC(?label) " +
 				" LIMIT " + pageSize +
@@ -327,13 +327,13 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 		return findByQuery(queryString);
 	}
 
-	public static int findTotalByMaintainerEmail(String maintainerEmail) {
+	public static int findTotalByManagerEmail(String managerEmail) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
 		queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
 				" ?instModel rdfs:subClassOf* vstoi:Instrument . " +
 				" ?uri a ?instModel ." +
-				" ?uri vstoi:hasSIRMaintainerEmail ?maintainerEmail . " +
-				"   FILTER (?maintainerEmail = \"" + maintainerEmail + "\") " +
+				" ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
+				"   FILTER (?managerEmail = \"" + managerEmail + "\") " +
 				"}";
 
 		try {
@@ -350,13 +350,13 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 		return -1;
 	}
 
-	public static List<Instrument> findByMaintainerEmail(String maintainerEmail) {
+	public static List<Instrument> findByManagerEmail(String managerEmail) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
 				" SELECT ?uri WHERE { " +
 				" ?instModel rdfs:subClassOf* vstoi:Instrument . " +
 				" ?uri a ?instModel ." +
-				" ?uri vstoi:hasSIRMaintainerEmail ?maintainerEmail . " +
-				"   FILTER (?maintainerEmail = \"" + maintainerEmail + "\") " +
+				" ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
+				"   FILTER (?managerEmail = \"" + managerEmail + "\") " +
 				"} ";
 
 		return findByQuery(queryString);
@@ -528,7 +528,7 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_COPYRIGHT_NOTICE)) {
 				instrument.setHasCopyrightNotice(object.asLiteral().getString());
 			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MAINTAINER_EMAIL)) {
-				instrument.setHasSIRMaintainerEmail(object.asLiteral().getString());
+				instrument.setHasSIRManagerEmail(object.asLiteral().getString());
 		    }
 		}
 
