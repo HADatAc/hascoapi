@@ -17,12 +17,17 @@ import java.util.StringTokenizer;
 public class Renderings {
 
 	/*
-	private static Font catFont = new Font(Font.FontFamily.TIMES_ROMAN, 18, Font.BOLD);
-	private static Font redFont = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.NORMAL, BaseColor.RED);
-	private static Font subFont = new Font(Font.FontFamily.TIMES_ROMAN, 16, Font.BOLD);
-	private static Font smallBold = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD);
-	private static Font smallNormal = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.NORMAL);
-	*/
+	 * private static Font catFont = new Font(Font.FontFamily.TIMES_ROMAN, 18,
+	 * Font.BOLD);
+	 * private static Font redFont = new Font(Font.FontFamily.TIMES_ROMAN, 12,
+	 * Font.NORMAL, BaseColor.RED);
+	 * private static Font subFont = new Font(Font.FontFamily.TIMES_ROMAN, 16,
+	 * Font.BOLD);
+	 * private static Font smallBold = new Font(Font.FontFamily.TIMES_ROMAN, 12,
+	 * Font.BOLD);
+	 * private static Font smallNormal = new Font(Font.FontFamily.TIMES_ROMAN, 12,
+	 * Font.NORMAL);
+	 */
 
 	public static String toString(String uri, int width) {
 		Instrument instr = Instrument.find(uri);
@@ -48,10 +53,10 @@ public class Renderings {
 				} else {
 					str += " " + attachment.getHasPriority() + ". " + detector.getHasContent() + " ";
 					Codebook codebook = detector.getCodebook();
-					if (codebook != null && codebook.getCodebookSlots() != null) {
-						List<CodebookSlot> slots = codebook.getCodebookSlots();
+					if (codebook != null && codebook.getResponseOptionSlots() != null) {
+						List<ResponseOptionSlot> slots = codebook.getResponseOptionSlots();
 						if (slots != null && slots.size() > 0) {
-							for (CodebookSlot slot : slots) {
+							for (ResponseOptionSlot slot : slots) {
 								if (slot.getResponseOption() != null) {
 									ResponseOption responseOption = slot.getResponseOption();
 									str += " " + responseOption.getHasContent() + "( )  ";
@@ -76,7 +81,7 @@ public class Renderings {
 		}
 		int left = (width - str.length()) / 2;
 		StringBuffer newStr = new StringBuffer();
-		for (int i=0; i < left; i++) {
+		for (int i = 0; i < left; i++) {
 			newStr.append(" ");
 		}
 		newStr.append(str);
@@ -116,7 +121,7 @@ public class Renderings {
 		return lines;
 	}
 
-	private static String headerHTML (Instrument instr) {
+	private static String headerHTML(Instrument instr) {
 		String dateField = "";
 		if (instr.getHasDateField() != null && !instr.getHasDateField().isEmpty()) {
 			dateField = instr.getHasDateField();
@@ -138,18 +143,18 @@ public class Renderings {
 			instruction = instr.getHasInstruction();
 		}
 		return "<table id=\"tbl1\"> " +
-  				"  <tr id=\"tr1\"> " +
-    			"	  <td id=\"cell1\">" + dateField + "</td> " +
-    			"	  <td id=\"cell2\"><h2>" + shortName + "</h2></td> " +
-    			"	  <td id=\"cell3\">" + subjectIDField + "<br>" + subjectRelationshipField + "</td> " +
-  				"  </tr>" +
+				"  <tr id=\"tr1\"> " +
+				"	  <td id=\"cell1\">" + dateField + "</td> " +
+				"	  <td id=\"cell2\"><h2>" + shortName + "</h2></td> " +
+				"	  <td id=\"cell3\">" + subjectIDField + "<br>" + subjectRelationshipField + "</td> " +
+				"  </tr>" +
 				"</table> " +
 				instruction + "<br>" +
 				"<br>\n";
 
 	}
 
-	private static String footerHTML (Instrument instr, int page) {
+	private static String footerHTML(Instrument instr, int page) {
 		String pageNumber = "";
 		if (instr.getHasPageNumber() != null && !instr.getHasPageNumber().isEmpty()) {
 			pageNumber = instr.getHasPageNumber() + " " + page;
@@ -238,16 +243,17 @@ public class Renderings {
 			}
 		}
 
-		//System.out.println("Page: " + page);
-		//System.out.println("  First: " + first);
-		//System.out.println("  Last: " + last);
-		//System.out.println("  CurrentPageSize: " + currentPageSize);
-		//System.out.println("");
+		// System.out.println("Page: " + page);
+		// System.out.println(" First: " + first);
+		// System.out.println(" Last: " + last);
+		// System.out.println(" CurrentPageSize: " + currentPageSize);
+		// System.out.println("");
 		html += "<table>\n";
 		if (instr.getAttachments() == null || instr.getAttachments().size() <= 0) {
 			html += "<p>EMPTY TABLE</p>";
 		} else {
-			//System.out.println("Renderings.java: total attachments: " + instr.getAttachments().size());
+			// System.out.println("Renderings.java: total attachments: " +
+			// instr.getAttachments().size());
 			for (int element = first - 1; element < last; element++) {
 				Attachment attachment = instr.getAttachments().get(element);
 				Detector detector = attachment.getDetector();
@@ -260,9 +266,9 @@ public class Renderings {
 					html += "<td>" + attachment.getHasPriority() + ". " + detector.getHasContent() + "</td>";
 					Codebook codebook = detector.getCodebook();
 					if (codebook != null) {
-						List<CodebookSlot> slots = codebook.getCodebookSlots();
+						List<ResponseOptionSlot> slots = codebook.getResponseOptionSlots();
 						if (slots != null && slots.size() > 0) {
-							for (CodebookSlot slot : slots) {
+							for (ResponseOptionSlot slot : slots) {
 								if (slot.getResponseOption() != null) {
 									ResponseOption responseOption = slot.getResponseOption();
 									if (responseOption != null && responseOption.getHasContent() != null) {
@@ -291,7 +297,7 @@ public class Renderings {
 
 	public static String toHTML(String uri, int width) {
 
-		//System.out.println("Rendering.java: rendering [" + uri + "]");
+		// System.out.println("Rendering.java: rendering [" + uri + "]");
 
 		Instrument instr = Instrument.find(uri);
 
@@ -304,7 +310,6 @@ public class Renderings {
 				"</head>\n" +
 				"<body>\n";
 
-
 		if (instr == null) {
 			html += "<p>EMPTY INSTRUMENT RENDERING</P>";
 			html += "</body>\n" +
@@ -316,7 +321,7 @@ public class Renderings {
 		int elements = 0;
 		int totPages = 0;
 		if (instr.getAttachments() == null) {
-			html += printPage(instr,1);
+			html += printPage(instr, 1);
 		} else {
 
 			// total of pages
@@ -329,11 +334,11 @@ public class Renderings {
 				}
 			}
 
-			//System.out.println("Rendering.java: total pages [" + totPages + "]");
+			// System.out.println("Rendering.java: total pages [" + totPages + "]");
 
 			// print pages
 			for (int page = 1; page <= totPages; page++) {
-				//System.out.println("Rendering.java: print page [" + page + "]");
+				// System.out.println("Rendering.java: print page [" + page + "]");
 				html += printPage(instr, page);
 			}
 		}
@@ -350,14 +355,14 @@ public class Renderings {
 		}
 		String fileName = "https://example.com/" + instr.getHasShortName() + "_V" + instr.getHasVersion() + ".pdf";
 
-		Document document = Jsoup.parse(Renderings.toHTML(uri,width), "UTF-8");
+		Document document = Jsoup.parse(Renderings.toHTML(uri, width), "UTF-8");
 		document.outputSettings().syntax(Document.OutputSettings.Syntax.xml);
 		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 			ITextRenderer renderer = new ITextRenderer();
 			SharedContext sharedContext = renderer.getSharedContext();
 			sharedContext.setPrint(true);
 			sharedContext.setInteractive(false);
-			renderer.setDocumentFromString(document.html(),fileName);
+			renderer.setDocumentFromString(document.html(), fileName);
 			renderer.layout();
 			renderer.createPDF(outputStream);
 			return outputStream;
@@ -365,59 +370,61 @@ public class Renderings {
 			e.printStackTrace();
 		}
 		/*
-		Document document = new Document();
-		try {
-			PdfWriter.getInstance(document, new FileOutputStream(fileName));
-		} catch (DocumentException e) {
-			e.printStackTrace();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-
-		document.open();
-		Font font = FontFactory.getFont(FontFactory.COURIER, 16, BaseColor.BLACK);
-		Chunk chunk = new Chunk(Renderings.toString(uri,width), font);
-
-		try {
-			//document.add(chunk);
-			Renderings.addTitlePage(document, instr);
-		} catch (DocumentException e) {
-			e.printStackTrace();
-		}
-		document.close();
+		 * Document document = new Document();
+		 * try {
+		 * PdfWriter.getInstance(document, new FileOutputStream(fileName));
+		 * } catch (DocumentException e) {
+		 * e.printStackTrace();
+		 * } catch (FileNotFoundException e) {
+		 * e.printStackTrace();
+		 * }
+		 * 
+		 * document.open();
+		 * Font font = FontFactory.getFont(FontFactory.COURIER, 16, BaseColor.BLACK);
+		 * Chunk chunk = new Chunk(Renderings.toString(uri,width), font);
+		 * 
+		 * try {
+		 * //document.add(chunk);
+		 * Renderings.addTitlePage(document, instr);
+		 * } catch (DocumentException e) {
+		 * e.printStackTrace();
+		 * }
+		 * document.close();
 		 */
 
 		return null;
 	}
 
 	/*
-	private static void addTitlePage(Document document, Instrument instr)
-			throws DocumentException {
-		Paragraph preface = new Paragraph();
-		// We add one empty line
-		addEmptyLine(preface, 1);
-		// Lets write a big header
-		preface.add(new Paragraph(instr.getHasShortName(), catFont));
-
-		addEmptyLine(preface, 1);
-		// Will create: Report generated by: _name, _date
-		//preface.add(new Paragraph("Report generated by: " + System.getProperty("user.name") + smallBold));
-		//addEmptyLine(preface, 3);
-		preface.add(new Paragraph(instr.getHasInstruction(), smallNormal));
-		addEmptyLine(preface, 1);
-		//preface.add(new Paragraph("This document is a preliminary version and not subject to your license agreement or any other agreement with vogella.com ;-).", redFont));
-
-		document.add(preface);
-		// Start a new page
-		document.newPage();
-	}
-
-	private static void addEmptyLine(Paragraph paragraph, int number) {
-		for (int i = 0; i < number; i++) {
-			paragraph.add(new Paragraph(" "));
-		}
-	}
+	 * private static void addTitlePage(Document document, Instrument instr)
+	 * throws DocumentException {
+	 * Paragraph preface = new Paragraph();
+	 * // We add one empty line
+	 * addEmptyLine(preface, 1);
+	 * // Lets write a big header
+	 * preface.add(new Paragraph(instr.getHasShortName(), catFont));
+	 * 
+	 * addEmptyLine(preface, 1);
+	 * // Will create: Report generated by: _name, _date
+	 * //preface.add(new Paragraph("Report generated by: " +
+	 * System.getProperty("user.name") + smallBold));
+	 * //addEmptyLine(preface, 3);
+	 * preface.add(new Paragraph(instr.getHasInstruction(), smallNormal));
+	 * addEmptyLine(preface, 1);
+	 * //preface.add(new
+	 * Paragraph("This document is a preliminary version and not subject to your license agreement or any other agreement with vogella.com ;-)."
+	 * , redFont));
+	 * 
+	 * document.add(preface);
+	 * // Start a new page
+	 * document.newPage();
+	 * }
+	 * 
+	 * private static void addEmptyLine(Paragraph paragraph, int number) {
+	 * for (int i = 0; i < number; i++) {
+	 * paragraph.add(new Paragraph(" "));
+	 * }
+	 * }
 	 */
-
 
 }

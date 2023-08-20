@@ -14,12 +14,12 @@ import java.util.List;
 
 import static org.sirapi.Constants.*;
 
-
 public class ResponseOptionAPI extends Controller {
 
     private Result createResponseOptionResult(ResponseOption responseOption) {
         responseOption.save();
-        //System.out.println("ResponseOption <" + responseOption.getUri() + "> has been CREATED.");
+        // System.out.println("ResponseOption <" + responseOption.getUri() + "> has been
+        // CREATED.");
         return ok(ApiUtil.createResponse("ResponseOption <" + responseOption.getUri() + "> has been CREATED.", true));
     }
 
@@ -61,11 +61,11 @@ public class ResponseOptionAPI extends Controller {
         if (json == null || json.equals("")) {
             return ok(ApiUtil.createResponse("No json content has been provided.", false));
         }
-        //System.out.println("(createResponseOption) Value of json: [" + json + "]");
+        // System.out.println("(createResponseOption) Value of json: [" + json + "]");
         ObjectMapper objectMapper = new ObjectMapper();
         ResponseOption newResponseOption;
         try {
-            newResponseOption  = objectMapper.readValue(json, ResponseOption.class);
+            newResponseOption = objectMapper.readValue(json, ResponseOption.class);
         } catch (Exception e) {
             System.out.println("(createResponseOption) failed to parse JSON");
             return ok(ApiUtil.createResponse("Failed to parse json.", false));
@@ -79,7 +79,7 @@ public class ResponseOptionAPI extends Controller {
         return ok(ApiUtil.createResponse("ResponseOption <" + uri + "> has been DELETED.", true));
     }
 
-    public Result deleteResponseOptionsForTesting(){
+    public Result deleteResponseOptionsForTesting() {
         ResponseOption test1 = ResponseOption.find(TEST_RESPONSE_OPTION1_URI);
         ResponseOption test2 = ResponseOption.find(TEST_RESPONSE_OPTION2_URI);
         if (test1 == null) {
@@ -93,19 +93,20 @@ public class ResponseOptionAPI extends Controller {
         }
     }
 
-    public Result deleteResponseOption(String uri){
+    public Result deleteResponseOption(String uri) {
         if (uri == null || uri.equals("")) {
             return ok(ApiUtil.createResponse("No ResponseOption URI has been provided.", false));
         }
         ResponseOption responseOption = ResponseOption.find(uri);
         if (responseOption == null) {
-            return ok(ApiUtil.createResponse("There is no ResponseOption with URI <" + uri + "> to be deleted.", false));
+            return ok(
+                    ApiUtil.createResponse("There is no ResponseOption with URI <" + uri + "> to be deleted.", false));
         } else {
             return deleteResponseOptionResult(responseOption);
         }
     }
 
-    public Result getAllResponseOptions(){
+    public Result getAllResponseOptions() {
         ObjectMapper mapper = new ObjectMapper();
 
         List<ResponseOption> results = ResponseOption.find();
@@ -114,7 +115,8 @@ public class ResponseOptionAPI extends Controller {
         } else {
             SimpleFilterProvider filterProvider = new SimpleFilterProvider();
             filterProvider.addFilter("responseOptionFilter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri", "hascoTypeLabel", "comment",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
+                            "hascoTypeLabel", "comment",
                             "hasContent", "hasLanguage", "hasVersion", "hasSIRMaintainerEmail"));
             mapper.setFilterProvider(filterProvider);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
@@ -122,22 +124,22 @@ public class ResponseOptionAPI extends Controller {
         }
     }
 
-    public Result getResponseOptionsByLanguage(String language){
+    public Result getResponseOptionsByLanguage(String language) {
         List<ResponseOption> results = ResponseOption.findByLanguage(language);
         return getResponseOptions(results);
     }
 
-    public Result getResponseOptionsByKeyword(String keyword){
+    public Result getResponseOptionsByKeyword(String keyword) {
         List<ResponseOption> results = ResponseOption.findByKeyword(keyword);
         return getResponseOptions(results);
     }
 
-    public Result getResponseOptionsByMaintainerEmail(String maintainerEmail){
+    public Result getResponseOptionsByMaintainerEmail(String maintainerEmail) {
         List<ResponseOption> results = ResponseOption.findByMaintainerEmail(maintainerEmail);
         return getResponseOptions(results);
     }
 
-    public static Result getResponseOptions(List<ResponseOption> results){
+    public static Result getResponseOptions(List<ResponseOption> results) {
         if (results == null) {
             return ok(ApiUtil.createResponse("No response option has been found", false));
         } else {
@@ -145,14 +147,15 @@ public class ResponseOptionAPI extends Controller {
             SimpleFilterProvider filterProvider = new SimpleFilterProvider();
             filterProvider.addFilter("responseOptionFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "hasContent", "hasLanguage", "hasVersion", "hasSIRMaintainerEmail"));
+                            "hascoTypeLabel", "comment", "hasContent", "hasLanguage", "hasVersion",
+                            "hasSIRMaintainerEmail"));
             mapper.setFilterProvider(filterProvider);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));
         }
     }
 
-    public Result attach(String uri, String codebookSlotUri){
+    public Result attach(String uri, String responseOptionSlotUri) {
         if (uri == null || uri.equals("")) {
             return ok(ApiUtil.createResponse("No response option URI has been provided.", false));
         }
@@ -160,113 +163,132 @@ public class ResponseOptionAPI extends Controller {
         if (responseOption == null) {
             return ok(ApiUtil.createResponse("There is no detector with URI <" + uri + "> to be attached.", false));
         }
-        if (codebookSlotUri == null || codebookSlotUri.equals("")) {
-            return ok(ApiUtil.createResponse("No codebookSlot URI has been provided.", false));
+        if (responseOptionSlotUri == null || responseOptionSlotUri.equals("")) {
+            return ok(ApiUtil.createResponse("No ResponseOptionSlot URI has been provided.", false));
         }
-        CodebookSlot codebookSlot = CodebookSlot.find(codebookSlotUri);
-        if (codebookSlot == null) {
-            return ok(ApiUtil.createResponse("There is no CodebookSlot with uri <" + codebookSlotUri + ">.", false));
+        ResponseOptionSlot responseOptionSlot = ResponseOptionSlot.find(responseOptionSlotUri);
+        if (responseOptionSlot == null) {
+            return ok(ApiUtil.createResponse("There is no ResponseOptionSlot with uri <" + responseOptionSlotUri + ">.",
+                    false));
         }
-        if (ResponseOption.attach(codebookSlotUri, uri)) {
-            return ok(ApiUtil.createResponse("ResponseOption <" + uri + "> successfully attached to CodebookSlot <" + codebookSlotUri + ">.", true));
+        if (ResponseOption.attach(responseOptionSlotUri, uri)) {
+            return ok(ApiUtil.createResponse("ResponseOption <" + uri
+                    + "> successfully attached to ResponseOptionSlot <" + responseOptionSlotUri + ">.", true));
         }
-        return ok(ApiUtil.createResponse("ResponseOption <" + uri + "> failed to associate with CodebookSlot  <" + codebookSlotUri + ">.", false));
+        return ok(ApiUtil.createResponse("ResponseOption <" + uri + "> failed to associate with ResponseOptionSlot  <"
+                + responseOptionSlotUri + ">.", false));
     }
 
-    public Result attachForTesting(){
+    public Result attachForTesting() {
         Codebook testExp = Codebook.find(TEST_CODEBOOK_URI);
         if (testExp == null) {
             return ok(ApiUtil.createResponse("create test codebook before trying to attach response options.", false));
         }
-        if (testExp.getCodebookSlots() == null) {
-            return ok(ApiUtil.createResponse("Create codebook slots for test codebook before trying to attach response options.", false));
+        if (testExp.getResponseOptionSlots() == null) {
+            return ok(ApiUtil.createResponse(
+                    "Create responseoption slots for test codebook before trying to attach response options.", false));
         }
-        CodebookSlot slot1 = CodebookSlot.find(TEST_CODEBOOK_SLOT1_URI);
-        CodebookSlot slot2 = CodebookSlot.find(TEST_CODEBOOK_SLOT2_URI);
+        ResponseOptionSlot slot1 = ResponseOptionSlot.find(TEST_RESPONSEOPTION_SLOT1_URI);
+        ResponseOptionSlot slot2 = ResponseOptionSlot.find(TEST_RESPONSEOPTION_SLOT2_URI);
         if (slot1 == null || slot2 == null) {
-            return ok(ApiUtil.createResponse("Either Test Codebook Slot 1 or 2 is unavailable to allow the attachment of ResponseOptions 1 and 2 to test codebook.", false));
+            return ok(ApiUtil.createResponse(
+                    "Either Test ResponseOption Slot 1 or 2 is unavailable to allow the attachment of ResponseOptions 1 and 2 to test codebook.",
+                    false));
         }
         if (slot1.getHasResponseOption() != null) {
-            return ok(ApiUtil.createResponse("Test Codebook Slot 1 already has an attached Response Option", false));
+            return ok(ApiUtil.createResponse("Test ResponseOption Slot 1 already has an attached Response Option", false));
         }
         if (slot2.getHasResponseOption() != null) {
-            return ok(ApiUtil.createResponse("Test Codebook Slot 2 already has an attached Response Option", false));
+            return ok(ApiUtil.createResponse("Test ResponseOption Slot 2 already has an attached Response Option", false));
         }
         ResponseOption test1 = ResponseOption.find(TEST_RESPONSE_OPTION1_URI);
         ResponseOption test2 = ResponseOption.find(TEST_RESPONSE_OPTION2_URI);
         if (test1 == null || test2 == null) {
-            return ok(ApiUtil.createResponse("Either Test Response Option 1 or 2 is unavailable to be attached to test codebook.", false));
+            return ok(ApiUtil.createResponse(
+                    "Either Test Response Option 1 or 2 is unavailable to be attached to test codebook.", false));
         } else {
-            boolean done = ResponseOption.attach(TEST_CODEBOOK_SLOT1_URI, TEST_RESPONSE_OPTION1_URI);
+            boolean done = ResponseOption.attach(TEST_RESPONSEOPTION_SLOT1_URI, TEST_RESPONSE_OPTION1_URI);
             if (!done) {
-                return ok(ApiUtil.createResponse("The attachment of Test Response Option 1 to Test CodebookSlot1 HAS FAILED.", false));
+                return ok(ApiUtil.createResponse(
+                        "The attachment of Test Response Option 1 to Test ResponseOptionSlot1 HAS FAILED.", false));
             } else {
-                done = ResponseOption.attach(TEST_CODEBOOK_SLOT2_URI, TEST_RESPONSE_OPTION2_URI);
+                done = ResponseOption.attach(TEST_RESPONSEOPTION_SLOT2_URI, TEST_RESPONSE_OPTION2_URI);
                 if (!done) {
-                    return ok(ApiUtil.createResponse("The attachment of Test Response Option 2 to Test CodebookSlot2 HAS FAILED.", false));
+                    return ok(ApiUtil.createResponse(
+                            "The attachment of Test Response Option 2 to Test ResponseOptionSlot2 HAS FAILED.", false));
                 }
             }
         }
-        return ok(ApiUtil.createResponse("Test Response Options 1 and 2 have been ATTACHED to Test Codebook Slots 1 and 2.", true));
+        return ok(ApiUtil.createResponse(
+                "Test Response Options 1 and 2 have been ATTACHED to Test ResponseOption Slots 1 and 2.", true));
     }
 
-    public Result detach(String codebookSlotUri){
-        if (codebookSlotUri == null || codebookSlotUri.equals("")) {
+    public Result detach(String responseOptionSlotUri) {
+        if (responseOptionSlotUri == null || responseOptionSlotUri.equals("")) {
             return ok(ApiUtil.createResponse("No attachment URI has been provided.", false));
         }
-        CodebookSlot codebookSlot = CodebookSlot.find(codebookSlotUri);
-        if (codebookSlot == null) {
-            return ok(ApiUtil.createResponse("There is no Codebook Slot with URI <" + codebookSlotUri + ">.", false));
+        ResponseOptionSlot responseOptionSlot = ResponseOptionSlot.find(responseOptionSlotUri);
+        if (responseOptionSlot == null) {
+            return ok(ApiUtil.createResponse("There is no ResponseOption Slot with URI <" + responseOptionSlotUri + ">.",
+                    false));
         }
-        if (ResponseOption.detach(codebookSlotUri)) {
-            return ok(ApiUtil.createResponse("No Response Option is associated with Codebook Slot <" + codebookSlotUri + ">.", true));
+        if (ResponseOption.detach(responseOptionSlotUri)) {
+            return ok(ApiUtil.createResponse(
+                    "No Response Option is associated with ResponseOption Slot <" + responseOptionSlotUri + ">.", true));
         }
-        return ok(ApiUtil.createResponse("A Response Option has failed to be removed from Codebook Slot <" + codebookSlotUri + ">.", false));
+        return ok(ApiUtil.createResponse(
+                "A Response Option has failed to be removed from ResponseOption Slot <" + responseOptionSlotUri + ">.",
+                false));
     }
 
-    public Result detachForTesting(){
+    public Result detachForTesting() {
         Codebook testExp = Codebook.find(TEST_CODEBOOK_URI);
         if (testExp == null) {
-            return ok(ApiUtil.createResponse("There is no test codebook to have their response options detached.", false));
+            return ok(ApiUtil.createResponse("There is no test codebook to have their response options detached.",
+                    false));
         }
-        if (testExp.getCodebookSlots() == null) {
-            return ok(ApiUtil.createResponse("Test codebook has no CodebookSlots for Response Options.", false));
+        if (testExp.getResponseOptionSlots() == null) {
+            return ok(ApiUtil.createResponse("Test codebook has no ResponseOptionSlots for Response Options.", false));
         }
         ResponseOption test1 = ResponseOption.find(TEST_RESPONSE_OPTION1_URI);
         ResponseOption test2 = ResponseOption.find(TEST_RESPONSE_OPTION2_URI);
         if (test1 == null) {
-            return ok(ApiUtil.createResponse("There is no Test Response Option 1 to be detached from test code book slot.", false));
+            return ok(ApiUtil.createResponse(
+                    "There is no Test Response Option 1 to be detached from test code book slot.", false));
         } else if (test2 == null) {
-            return ok(ApiUtil.createResponse("There is no Test Response Option 2 to be detached from test code book slot.", false));
+            return ok(ApiUtil.createResponse(
+                    "There is no Test Response Option 2 to be detached from test code book slot.", false));
         } else {
-            boolean done = ResponseOption.detach(TEST_CODEBOOK_SLOT1_URI);
+            boolean done = ResponseOption.detach(TEST_RESPONSEOPTION_SLOT1_URI);
             if (done) {
-                done = ResponseOption.detach(TEST_CODEBOOK_SLOT2_URI);
+                done = ResponseOption.detach(TEST_RESPONSEOPTION_SLOT2_URI);
             }
             if (done) {
-                return ok(ApiUtil.createResponse("Test Response Options 1 and 2 have been DETACHED from Test Codebook Slot 1.", true));
+                return ok(ApiUtil.createResponse(
+                        "Test Response Options 1 and 2 have been DETACHED from Test ResponseOption Slot 1.", true));
             }
         }
-        return ok(ApiUtil.createResponse("The detachment of Test Detectors 1 and 2 from Test Instrument HAS FAILED.", false));
+        return ok(ApiUtil.createResponse("The detachment of Test Detectors 1 and 2 from Test Instrument HAS FAILED.",
+                false));
     }
 
-    public Result getAllCodebookSlots(){
-        List<CodebookSlot> results = CodebookSlot.find();
-        return getCodebookSlots(results);
+    public Result getAllResponseOptionSlots() {
+        List<ResponseOptionSlot> results = ResponseOptionSlot.find();
+        return getResponseOptionSlots(results);
     }
 
-    public Result getCodebookSlotsByCodebook(String codebookUri){
-        List<CodebookSlot> results = CodebookSlot.findByCodebook(codebookUri);
-        return getCodebookSlots(results);
+    public Result getResponseOptionSlotsByCodebook(String codebookUri) {
+        List<ResponseOptionSlot> results = ResponseOptionSlot.findByCodebook(codebookUri);
+        return getResponseOptionSlots(results);
     }
 
-    private Result getCodebookSlots(List<CodebookSlot> results){
+    private Result getResponseOptionSlots(List<ResponseOptionSlot> results) {
         if (results == null) {
-            return ok(ApiUtil.createResponse("No codebook slot has been found", false));
+            return ok(ApiUtil.createResponse("No responseoption slot has been found", false));
         } else {
             ObjectMapper mapper = new ObjectMapper();
             SimpleFilterProvider filterProvider = new SimpleFilterProvider();
-            filterProvider.addFilter("codebookSlotFilter",
+            filterProvider.addFilter("ResponseOptionSlotFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
                             "hascoTypeLabel", "comment", "hasPriority", "hasResponseOption"));
             mapper.setFilterProvider(filterProvider);
@@ -274,7 +296,5 @@ public class ResponseOptionAPI extends Controller {
             return ok(ApiUtil.createResponse(jsonObject, true));
         }
     }
-
-
 
 }

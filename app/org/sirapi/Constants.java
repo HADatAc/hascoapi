@@ -14,9 +14,9 @@ public class Constants {
     public static final String TEST_DETECTOR1_URI = SIR_KB + "TestDetector1";
     public static final String TEST_DETECTOR2_URI = SIR_KB + "TestDetector2";
     public static final String TEST_CODEBOOK_URI = SIR_KB + "TestCodebook";
-    public static final String TEST_CODEBOOK_TOT_CODEBOOK_SLOTS = "2";
-    public static final String TEST_CODEBOOK_SLOT1_URI = TEST_CODEBOOK_URI + "/CBS/1";
-    public static final String TEST_CODEBOOK_SLOT2_URI = TEST_CODEBOOK_URI + "/CBS/2";
+    public static final String TEST_CODEBOOK_TOT_RESPONSEOPTION_SLOTS = "2";
+    public static final String TEST_RESPONSEOPTION_SLOT1_URI = TEST_CODEBOOK_URI + "/ROS/1";
+    public static final String TEST_RESPONSEOPTION_SLOT2_URI = TEST_CODEBOOK_URI + "/ROS/2";
     public static final String TEST_RESPONSE_OPTION1_URI = SIR_KB + "TestResponseOption1";
     public static final String TEST_RESPONSE_OPTION2_URI = SIR_KB + "TestResponseOption2";
     public static final String DEFAULT_KB = "http://hadatac.org/kb/default/";

@@ -15,7 +15,6 @@ import java.util.List;
 
 import static org.sirapi.Constants.*;
 
-
 public class CodebookAPI extends Controller {
 
     private Result createCodebookResult(Codebook codebook) {
@@ -46,8 +45,8 @@ public class CodebookAPI extends Controller {
         ObjectMapper objectMapper = new ObjectMapper();
         Codebook newCodebook;
         try {
-            //convert json string to Instrument instance
-            newCodebook  = objectMapper.readValue(json, Codebook.class);
+            // convert json string to Instrument instance
+            newCodebook = objectMapper.readValue(json, Codebook.class);
             System.out.println("done");
         } catch (Exception e) {
             e.printStackTrace();
@@ -62,7 +61,7 @@ public class CodebookAPI extends Controller {
         return ok(ApiUtil.createResponse("Codebook <" + uri + "> has been DELETED.", true));
     }
 
-    public Result deleteCodebookForTesting(){
+    public Result deleteCodebookForTesting() {
         Codebook codebook = Codebook.find(TEST_CODEBOOK_URI);
         if (codebook == null) {
             return ok(ApiUtil.createResponse("There is no Test Codebook to be deleted.", false));
@@ -72,7 +71,7 @@ public class CodebookAPI extends Controller {
         }
     }
 
-    public Result deleteCodebook(String uri){
+    public Result deleteCodebook(String uri) {
         if (uri == null || uri.equals("")) {
             return ok(ApiUtil.createResponse("No codebook URI has been provided.", false));
         }
@@ -84,22 +83,22 @@ public class CodebookAPI extends Controller {
         }
     }
 
-    public Result getCodebookByLanguage(String language){
+    public Result getCodebookByLanguage(String language) {
         List<Codebook> results = Codebook.findByLanguage(language);
         return getCodebooks(results);
     }
 
-    public Result getCodebookByKeyword(String keyword){
+    public Result getCodebookByKeyword(String keyword) {
         List<Codebook> results = Codebook.findByKeyword(keyword);
         return getCodebooks(results);
     }
 
-    public Result getCodebookByMaintainerEmail(String maintainerEmail){
+    public Result getCodebookByMaintainerEmail(String maintainerEmail) {
         List<Codebook> results = Codebook.findByMaintainerEmail(maintainerEmail);
         return getCodebooks(results);
     }
 
-    public static Result getCodebooks(List<Codebook> results){
+    public static Result getCodebooks(List<Codebook> results) {
         if (results == null) {
             return ok(ApiUtil.createResponse("No codebook has been found", false));
         } else {
@@ -107,14 +106,15 @@ public class CodebookAPI extends Controller {
             SimpleFilterProvider filterProvider = new SimpleFilterProvider();
             filterProvider.addFilter("codebookFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "hasSerialNumber", "hasLanguage", "hasVersion", "hasSIRMaintainerEmail"));
+                            "hascoTypeLabel", "comment", "hasSerialNumber", "hasLanguage", "hasVersion",
+                            "hasSIRMaintainerEmail"));
             mapper.setFilterProvider(filterProvider);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));
         }
     }
 
-    public Result getAllCodebooks(){
+    public Result getAllCodebooks() {
         ObjectMapper mapper = new ObjectMapper();
 
         List<Codebook> results = Codebook.find();
@@ -123,14 +123,16 @@ public class CodebookAPI extends Controller {
         } else {
             SimpleFilterProvider filterProvider = new SimpleFilterProvider();
             filterProvider.addFilter("codebookFilter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri", "hascoTypeLabel", "comment", "hasSerialNumber", "hasLanguage", "hasVersion", "hasSIRMaintainerEmail"));
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
+                            "hascoTypeLabel", "comment", "hasSerialNumber", "hasLanguage", "hasVersion",
+                            "hasSIRMaintainerEmail"));
             mapper.setFilterProvider(filterProvider);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));
         }
     }
 
-    public Result createCodebookSlots(String codebookUri, String totCodebookSlots) {
+    public Result createResponseOptionSlots(String codebookUri, String totResponseOptionSlots) {
         if (codebookUri == null || codebookUri.equals("")) {
             return ok(ApiUtil.createResponse("No codebook URI has been provided.", false));
         }
@@ -138,40 +140,48 @@ public class CodebookAPI extends Controller {
         if (codebook == null) {
             return ok(ApiUtil.createResponse("No codebook with provided URI has been found.", false));
         }
-        if (codebook.getCodebookSlots() != null) {
-            return ok(ApiUtil.createResponse("Codebook already has attachments. Delete existing attachments before creating new attachments", false));
+        if (codebook.getResponseOptionSlots() != null) {
+            return ok(ApiUtil.createResponse(
+                    "Codebook already has attachments. Delete existing attachments before creating new attachments",
+                    false));
         }
-        if (totCodebookSlots == null || totCodebookSlots.equals("")) {
-            return ok(ApiUtil.createResponse("No total numbers of attachments to be created has been provided.", false));
+        if (totResponseOptionSlots == null || totResponseOptionSlots.equals("")) {
+            return ok(
+                    ApiUtil.createResponse("No total numbers of attachments to be created has been provided.", false));
         }
         int total = 0;
         try {
-            total = Integer.parseInt(totCodebookSlots);
+            total = Integer.parseInt(totResponseOptionSlots);
         } catch (Exception e) {
-            return ok(ApiUtil.createResponse("totCodebookSlots is not a valid number of attachments.", false));
+            return ok(ApiUtil.createResponse("totResponseOptionSlots is not a valid number of attachments.", false));
         }
         if (total <= 0) {
-            return ok(ApiUtil.createResponse("Total numbers of codebook slots need to be greater than zero.", false));
+            return ok(ApiUtil.createResponse("Total numbers of responseoption slots need to be greater than zero.", false));
         }
-        if (codebook.createCodebookSlots(total)) {
-            return ok(ApiUtil.createResponse("A total of " + total + " codebook slots have been created for codebook <" + codebookUri + ">.", true));
+        if (codebook.createResponseOptionSlots(total)) {
+            return ok(ApiUtil.createResponse(
+                    "A total of " + total + " responseoption slots have been created for codebook <" + codebookUri + ">.",
+                    true));
         } else {
-            return ok(ApiUtil.createResponse("Method failed to create codebook slots for codebook <" + codebookUri + ">.", false));
+            return ok(ApiUtil.createResponse(
+                    "Method failed to create responseoption slots for codebook <" + codebookUri + ">.", false));
         }
     }
 
-    public Result createCodebookSlotsForTesting() {
+    public Result createResponseOptionSlotsForTesting() {
         Codebook testCodebook = Codebook.find(TEST_CODEBOOK_URI);
         if (testCodebook == null) {
-            return ok(ApiUtil.createResponse("Test codebook <" + TEST_CODEBOOK_URI + "> needs to exist before its codebook slots can be created.", false));
-        } else if (testCodebook.getCodebookSlots() != null && testCodebook.getCodebookSlots().size() > 0) {
-            return ok(ApiUtil.createResponse("Test codebook <" + TEST_CODEBOOK_URI + "> already has codebook slots.", false));
+            return ok(ApiUtil.createResponse("Test codebook <" + TEST_CODEBOOK_URI
+                    + "> needs to exist before its responseoption slots can be created.", false));
+        } else if (testCodebook.getResponseOptionSlots() != null && testCodebook.getResponseOptionSlots().size() > 0) {
+            return ok(ApiUtil.createResponse("Test codebook <" + TEST_CODEBOOK_URI + "> already has responseoption slots.",
+                    false));
         } else {
-            return createCodebookSlots(testCodebook.getUri(), TEST_CODEBOOK_TOT_CODEBOOK_SLOTS);
+            return createResponseOptionSlots(testCodebook.getUri(), TEST_CODEBOOK_TOT_RESPONSEOPTION_SLOTS);
         }
     }
 
-    public Result deleteCodebookSlots(String codebookUri) {
+    public Result deleteResponseOptionSlots(String codebookUri) {
         if (codebookUri == null || codebookUri.equals("")) {
             return ok(ApiUtil.createResponse("No codebook URI has been provided.", false));
         }
@@ -179,23 +189,25 @@ public class CodebookAPI extends Controller {
         if (codebook == null) {
             return ok(ApiUtil.createResponse("No codebook with provided URI has been found.", false));
         }
-        if (codebook.getCodebookSlots() == null) {
-            return ok(ApiUtil.createResponse("Codebook has no codebook slots to be deleted.", false));
+        if (codebook.getResponseOptionSlots() == null) {
+            return ok(ApiUtil.createResponse("Codebook has no responseoption slots to be deleted.", false));
         }
-        codebook.deleteCodebookSlots();
-        return ok(ApiUtil.createResponse("CodebookSlots for Codebook <" + codebook.getUri() + "> have been deleted.", true));
+        codebook.deleteResponseOptionSlots();
+        return ok(ApiUtil.createResponse(
+                "ResponseOptionSlots for Codebook <" + codebook.getUri() + "> have been deleted.", true));
     }
 
-    public Result deleteCodebookSlotsForTesting() {
+    public Result deleteResponseOptionSlotsForTesting() {
         Codebook testCodebook = Codebook.find(TEST_CODEBOOK_URI);
         if (testCodebook == null) {
-            return ok(ApiUtil.createResponse("Test codebook <" + TEST_CODEBOOK_URI + "> needs to exist before its codebook slots can be deleted.", false));
-        } else if (testCodebook.getCodebookSlots() == null || testCodebook.getCodebookSlots().size() == 0) {
-            return ok(ApiUtil.createResponse("Test codebook <" + TEST_CODEBOOK_URI + "> has no codebook slots to be deleted.", false));
+            return ok(ApiUtil.createResponse("Test codebook <" + TEST_CODEBOOK_URI
+                    + "> needs to exist before its responseoption slots can be deleted.", false));
+        } else if (testCodebook.getResponseOptionSlots() == null || testCodebook.getResponseOptionSlots().size() == 0) {
+            return ok(ApiUtil.createResponse(
+                    "Test codebook <" + TEST_CODEBOOK_URI + "> has no responseoption slots to be deleted.", false));
         } else {
-            return deleteCodebookSlots(testCodebook.getUri());
+            return deleteResponseOptionSlots(testCodebook.getUri());
         }
     }
-
 
 }

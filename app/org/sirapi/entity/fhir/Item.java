@@ -20,9 +20,9 @@ public class Item {
             answerOptions = new ArrayList<AnswerOption>();
             Codebook codebook = detector.getCodebook();
             if (codebook != null) {
-                List<CodebookSlot> slots = codebook.getCodebookSlots();
+                List<ResponseOptionSlot> slots = codebook.getResponseOptionSlots();
                 if (slots != null) {
-                    for (CodebookSlot slot : slots) {
+                    for (ResponseOptionSlot slot : slots) {
                         ResponseOption responseOption = slot.getResponseOption();
                         AnswerOption answerOption = new AnswerOption(responseOption);
                         answerOptions.add(answerOption);
@@ -40,8 +40,7 @@ public class Item {
         item.setType(QuestionnaireItemType.CHOICE);
 
         for (AnswerOption answerOption : answerOptions) {
-            QuestionnaireItemAnswerOptionComponent questionnaireItemAnswerOptionComponent
-                = new QuestionnaireItemAnswerOptionComponent();
+            QuestionnaireItemAnswerOptionComponent questionnaireItemAnswerOptionComponent = new QuestionnaireItemAnswerOptionComponent();
             Coding coding = answerOption.getFHIRObject();
             questionnaireItemAnswerOptionComponent.setValue(coding);
             item.addAnswerOption(questionnaireItemAnswerOptionComponent);

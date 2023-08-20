@@ -13,7 +13,7 @@ import play.mvc.Result;
 
 public class URIPage extends Controller {
 
-    public Result getUri(String uri){
+    public Result getUri(String uri) {
 
         if (!uri.startsWith("http://") && !uri.startsWith("https://")) {
             return ok(ApiUtil.createResponse("[" + uri + "] is an invalid URI", false));
@@ -22,7 +22,7 @@ public class URIPage extends Controller {
         HADatAcThing finalResult = URIPage.objectFromUri(uri);
         String typeUri = finalResult.getHascoTypeUri();
 
-        if (finalResult == null || typeUri == null || typeUri.equals("")){
+        if (finalResult == null || typeUri == null || typeUri.equals("")) {
             return ok(ApiUtil.createResponse("No type-specific instance found for uri [" + uri + "]", false));
         }
 
@@ -35,12 +35,12 @@ public class URIPage extends Controller {
         try {
 
             /*
-             *  Now uses GenericInstance to process URI against TripleStore content
+             * Now uses GenericInstance to process URI against TripleStore content
              */
 
             Object finalResult = null;
             GenericInstance result = GenericInstance.find(uri);
-            //System.out.println("inside getUri(): URI [" + uri + "]");
+            // System.out.println("inside getUri(): URI [" + uri + "]");
 
             if (result == null) {
                 System.out.println("No generic instance found for uri [" + uri + "]");
@@ -48,12 +48,13 @@ public class URIPage extends Controller {
             }
 
             /*
-            if (result.getHascoTypeUri() == null || result.getHascoTypeUri().isEmpty()) {
-                System.out.println("inside getUri(): typeUri [" + result.getTypeUri() + "]");
-                if (!result.getTypeUri().equals("http://www.w3.org/2002/07/owl#Class")) {
-                    return notFound(ApiUtil.createResponse("No valid HASCO type found for uri [" + uri + "]", false));
-                }
-            }
+             * if (result.getHascoTypeUri() == null || result.getHascoTypeUri().isEmpty()) {
+             * System.out.println("inside getUri(): typeUri [" + result.getTypeUri() + "]");
+             * if (!result.getTypeUri().equals("http://www.w3.org/2002/07/owl#Class")) {
+             * return notFound(ApiUtil.createResponse("No valid HASCO type found for uri ["
+             * + uri + "]", false));
+             * }
+             * }
              */
 
             if (result.getHascoTypeUri().equals(VSTOI.INSTRUMENT)) {
@@ -64,14 +65,14 @@ public class URIPage extends Controller {
                 finalResult = Detector.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.CODEBOOK)) {
                 finalResult = Codebook.find(uri);
-            } else if (result.getHascoTypeUri().equals(VSTOI.CODEBOOK_SLOT)) {
-                finalResult = CodebookSlot.find(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.RESPONSEOPTION_SLOT)) {
+                finalResult = ResponseOptionSlot.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.RESPONSE_OPTION)) {
                 finalResult = ResponseOption.find(uri);
             } else {
                 finalResult = result;
             }
-            return (HADatAcThing)finalResult;
+            return (HADatAcThing) finalResult;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -82,12 +83,12 @@ public class URIPage extends Controller {
     private Result processResult(Object result, String typeResult, String uri) {
         ObjectMapper mapper = HAScOMapper.getFiltered(typeResult);
 
-        //System.out.println("[RestAPI] generating JSON for following object: " + uri);
+        // System.out.println("[RestAPI] generating JSON for following object: " + uri);
         JsonNode jsonObject = null;
         try {
             ObjectNode obj = mapper.convertValue(result, ObjectNode.class);
             jsonObject = mapper.convertValue(obj, JsonNode.class);
-            //System.out.println(prettyPrintJsonString(jsonObject));
+            // System.out.println(prettyPrintJsonString(jsonObject));
         } catch (Exception e) {
             e.printStackTrace();
             return ok(ApiUtil.createResponse("Error processing the json object for URI [" + uri + "]", false));

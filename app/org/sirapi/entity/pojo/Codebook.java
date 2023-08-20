@@ -21,21 +21,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 @JsonFilter("codebookFilter")
-public class Codebook extends HADatAcThing implements SIRElement, Comparable<Codebook>  {
+public class Codebook extends HADatAcThing implements SIRElement, Comparable<Codebook> {
 
-    @PropertyField(uri="vstoi:hasStatus")
+    @PropertyField(uri = "vstoi:hasStatus")
     private String hasStatus;
 
-    @PropertyField(uri="vstoi:hasSerialNumber")
+    @PropertyField(uri = "vstoi:hasSerialNumber")
     private String serialNumber;
 
-    @PropertyField(uri="vstoi:hasLanguage")
+    @PropertyField(uri = "vstoi:hasLanguage")
     private String hasLanguage;
 
-    @PropertyField(uri="vstoi:hasVersion")
+    @PropertyField(uri = "vstoi:hasVersion")
     private String hasVersion;
 
-    @PropertyField(uri="vstoi:hasSIRMaintainerEmail")
+    @PropertyField(uri = "vstoi:hasSIRMaintainerEmail")
     private String hasSIRMaintainerEmail;
 
     public String getHasStatus() {
@@ -78,51 +78,50 @@ public class Codebook extends HADatAcThing implements SIRElement, Comparable<Cod
         this.hasSIRMaintainerEmail = hasSIRMaintainerEmail;
     }
 
-    public List<CodebookSlot> getCodebookSlots() {
-        List<CodebookSlot> slots = CodebookSlot.findByCodebook(uri);
+    public List<ResponseOptionSlot> getResponseOptionSlots() {
+        List<ResponseOptionSlot> slots = ResponseOptionSlot.findByCodebook(uri);
         return slots;
     }
 
     /*
-    public List<ResponseOption> getResponseOptions() {
-        return ResponseOption.findByCodebook(getUri());
-    }
+     * public List<ResponseOption> getResponseOptions() {
+     * return ResponseOption.findByCodebook(getUri());
+     * }
      */
 
-    public boolean createCodebookSlots(int totSlots) {
+    public boolean createResponseOptionSlots(int totSlots) {
         if (totSlots <= 0) {
             return false;
         }
-        if (this.getCodebookSlots() != null || uri == null || uri.isEmpty()) {
+        if (this.getResponseOptionSlots() != null || uri == null || uri.isEmpty()) {
             return false;
         }
-        for (int aux=1; aux <= totSlots; aux++) {
+        for (int aux = 1; aux <= totSlots; aux++) {
             String auxstr = Utils.adjustedPriority(String.valueOf(aux), totSlots);
-            String newUri = uri + "/CBS/" + auxstr;
-            CodebookSlot.createCodebookSlot(uri, newUri, auxstr,null);
+            String newUri = uri + "/ROS/" + auxstr;
+            ResponseOptionSlot.createResponseOptionSlot(uri, newUri, auxstr, null);
         }
-        List<CodebookSlot> slotList = CodebookSlot.findByCodebook(uri);
+        List<ResponseOptionSlot> slotList = ResponseOptionSlot.findByCodebook(uri);
         if (slotList == null) {
             return false;
         }
         return (slotList.size() == totSlots);
     }
 
-    public boolean deleteCodebookSlots() {
-        if (this.getCodebookSlots() == null || uri == null || uri.isEmpty()) {
+    public boolean deleteResponseOptionSlots() {
+        if (this.getResponseOptionSlots() == null || uri == null || uri.isEmpty()) {
             return true;
         }
-        List<CodebookSlot> slots = CodebookSlot.findByCodebook(uri);
+        List<ResponseOptionSlot> slots = ResponseOptionSlot.findByCodebook(uri);
         if (slots == null) {
             return true;
         }
-        for (CodebookSlot slot: slots) {
+        for (ResponseOptionSlot slot : slots) {
             slot.delete();
         }
-        slots = CodebookSlot.findByCodebook(uri);
+        slots = ResponseOptionSlot.findByCodebook(uri);
         return (slots == null);
     }
-
 
     public static List<Codebook> findByLanguage(String language) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
@@ -148,7 +147,8 @@ public class Codebook extends HADatAcThing implements SIRElement, Comparable<Cod
         return findByQuery(queryString);
     }
 
-    public static List<Codebook> findByKeywordAndLanguageWithPages(String keyword, String language, int pageSize, int offset) {
+    public static List<Codebook> findByKeywordAndLanguageWithPages(String keyword, String language, int pageSize,
+            int offset) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
         queryString += " SELECT ?uri WHERE { " +
                 " ?expModel rdfs:subClassOf* vstoi:Codebook . " +
@@ -160,7 +160,8 @@ public class Codebook extends HADatAcThing implements SIRElement, Comparable<Cod
             queryString += " ?uri rdfs:label ?label . ";
         }
         if (!keyword.isEmpty() && !language.isEmpty()) {
-            queryString += "   FILTER (regex(?label, \"" + keyword + "\", \"i\") && (?language = \"" + language + "\")) ";
+            queryString += "   FILTER (regex(?label, \"" + keyword + "\", \"i\") && (?language = \"" + language
+                    + "\")) ";
         } else if (!keyword.isEmpty()) {
             queryString += "   FILTER (regex(?label, \"" + keyword + "\", \"i\")) ";
         } else if (!language.isEmpty()) {
@@ -184,7 +185,8 @@ public class Codebook extends HADatAcThing implements SIRElement, Comparable<Cod
             queryString += " ?uri rdfs:label ?label . ";
         }
         if (!keyword.isEmpty() && !language.isEmpty()) {
-            queryString += "   FILTER (regex(?label, \"" + keyword + "\", \"i\") && (?language = \"" + language + "\")) ";
+            queryString += "   FILTER (regex(?label, \"" + keyword + "\", \"i\") && (?language = \"" + language
+                    + "\")) ";
         } else if (!keyword.isEmpty()) {
             queryString += "   FILTER (regex(?label, \"" + keyword + "\", \"i\")) ";
         } else if (!language.isEmpty()) {
@@ -192,7 +194,7 @@ public class Codebook extends HADatAcThing implements SIRElement, Comparable<Cod
         }
         queryString += "}";
 
-        //System.out.println(queryString);
+        // System.out.println(queryString);
 
         try {
             ResultSetRewindable resultsrw = SPARQLUtils.select(
@@ -379,11 +381,13 @@ public class Codebook extends HADatAcThing implements SIRElement, Comparable<Cod
         return this.getLabel().compareTo(another.getLabel());
     }
 
-    @Override public void save() {
+    @Override
+    public void save() {
         saveToTripleStore();
     }
 
-    @Override public void delete() {
+    @Override
+    public void delete() {
         deleteFromTripleStore();
     }
 

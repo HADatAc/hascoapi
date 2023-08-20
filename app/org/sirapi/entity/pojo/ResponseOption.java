@@ -21,27 +21,27 @@ import java.util.Comparator;
 import java.util.List;
 
 @JsonFilter("responseOptionFilter")
-public class ResponseOption extends HADatAcThing implements SIRElement, Comparable<ResponseOption>  {
+public class ResponseOption extends HADatAcThing implements SIRElement, Comparable<ResponseOption> {
 
-    @PropertyField(uri="vstoi:hasStatus")
+    @PropertyField(uri = "vstoi:hasStatus")
     private String hasStatus;
 
-    @PropertyField(uri="vstoi:hasSerialNumber")
+    @PropertyField(uri = "vstoi:hasSerialNumber")
     String serialNumber;
 
-    @PropertyField(uri="hasco:hasImage")
+    @PropertyField(uri = "hasco:hasImage")
     String image;
 
-    @PropertyField(uri="vstoi:hasContent")
+    @PropertyField(uri = "vstoi:hasContent")
     String hasContent;
 
-    @PropertyField(uri="vstoi:hasLanguage")
+    @PropertyField(uri = "vstoi:hasLanguage")
     private String hasLanguage;
 
-    @PropertyField(uri="vstoi:hasVersion")
+    @PropertyField(uri = "vstoi:hasVersion")
     String hasVersion;
 
-    @PropertyField(uri="vstoi:hasSIRMaintainerEmail")
+    @PropertyField(uri = "vstoi:hasSIRMaintainerEmail")
     private String hasSIRMaintainerEmail;
 
     public String getHasStatus() {
@@ -134,7 +134,8 @@ public class ResponseOption extends HADatAcThing implements SIRElement, Comparab
         return findByQuery(queryString);
     }
 
-    public static List<ResponseOption> findByKeywordAndLanguageWithPages(String keyword, String language, int pageSize, int offset) {
+    public static List<ResponseOption> findByKeywordAndLanguageWithPages(String keyword, String language, int pageSize,
+            int offset) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
         queryString += " SELECT ?uri WHERE { " +
                 " ?respModel rdfs:subClassOf* vstoi:ResponseOption . " +
@@ -144,7 +145,8 @@ public class ResponseOption extends HADatAcThing implements SIRElement, Comparab
         }
         queryString += " ?uri vstoi:hasContent ?content . ";
         if (!keyword.isEmpty() && !language.isEmpty()) {
-            queryString += "   FILTER (regex(?content, \"" + keyword + "\", \"i\") && (?language = \"" + language + "\")) ";
+            queryString += "   FILTER (regex(?content, \"" + keyword + "\", \"i\") && (?language = \"" + language
+                    + "\")) ";
         } else if (!keyword.isEmpty()) {
             queryString += "   FILTER (regex(?content, \"" + keyword + "\", \"i\")) ";
         } else if (!language.isEmpty()) {
@@ -169,7 +171,8 @@ public class ResponseOption extends HADatAcThing implements SIRElement, Comparab
             queryString += " ?uri vstoi:hasContent ?content . ";
         }
         if (!keyword.isEmpty() && !language.isEmpty()) {
-            queryString += "   FILTER (regex(?content, \"" + keyword + "\", \"i\") && (?language = \"" + language + "\")) ";
+            queryString += "   FILTER (regex(?content, \"" + keyword + "\", \"i\") && (?language = \"" + language
+                    + "\")) ";
         } else if (!keyword.isEmpty()) {
             queryString += "   FILTER (regex(?content, \"" + keyword + "\", \"i\")) ";
         } else if (!language.isEmpty()) {
@@ -191,7 +194,8 @@ public class ResponseOption extends HADatAcThing implements SIRElement, Comparab
         return -1;
     }
 
-    public static List<ResponseOption> findByMaintainerEmailWithPages(String maintainerEmail, int pageSize, int offset) {
+    public static List<ResponseOption> findByMaintainerEmailWithPages(String maintainerEmail, int pageSize,
+            int offset) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
         queryString += " SELECT ?uri WHERE { " +
                 " ?respModel rdfs:subClassOf* vstoi:ResponseOption . " +
@@ -251,7 +255,8 @@ public class ResponseOption extends HADatAcThing implements SIRElement, Comparab
 
         while (resultsrw.hasNext()) {
             QuerySolution soln = resultsrw.next();
-            //System.out.println("inside ResponseOption.find(): found uri [" + soln.getResource("uri").getURI().toString() + "]");
+            // System.out.println("inside ResponseOption.find(): found uri [" +
+            // soln.getResource("uri").getURI().toString() + "]");
             if (soln != null && soln.getResource("uri") != null) {
                 ResponseOption responseOption = find(soln.getResource("uri").getURI());
                 options.add(responseOption);
@@ -356,43 +361,43 @@ public class ResponseOption extends HADatAcThing implements SIRElement, Comparab
         return responseOption;
     }
 
-    public static boolean attach(String codebookSlotUri, String responseOptionUri) {
-        if (codebookSlotUri == null || codebookSlotUri.isEmpty()) {
+    public static boolean attach(String ResponseOptionSlotUri, String responseOptionUri) {
+        if (ResponseOptionSlotUri == null || ResponseOptionSlotUri.isEmpty()) {
             return false;
         }
-        CodebookSlot codebookSlot = CodebookSlot.find(codebookSlotUri);
-        if (codebookSlot == null) {
-            System.out.println("CodebookSlot.find returned nothing");
+        ResponseOptionSlot responseOptionSlot = ResponseOptionSlot.find(ResponseOptionSlotUri);
+        if (responseOptionSlot == null) {
+            System.out.println("ResponseOptionSlot.find returned nothing");
         }
-        if (codebookSlot == null) {
+        if (responseOptionSlot == null) {
             return false;
         }
-        return codebookSlot.updateCodebookSlotResponseOption(responseOptionUri);
+        return responseOptionSlot.updateResponseOptionSlotResponseOption(responseOptionUri);
     }
 
-    public static boolean detach(String codebookSlotUri) {
-        if (codebookSlotUri == null || codebookSlotUri.isEmpty()) {
+    public static boolean detach(String responseOptionSlotUri) {
+        if (responseOptionSlotUri == null || responseOptionSlotUri.isEmpty()) {
             return false;
         }
-        CodebookSlot codebookSlot = CodebookSlot.find(codebookSlotUri);
-        if (codebookSlot == null) {
+        ResponseOptionSlot responseOptionSlot = ResponseOptionSlot.find(responseOptionSlotUri);
+        if (responseOptionSlot == null) {
             return false;
         }
-        return codebookSlot.updateCodebookSlotResponseOption(null);
+        return responseOptionSlot.updateResponseOptionSlotResponseOption(null);
     }
-
-
 
     @Override
     public int compareTo(ResponseOption another) {
         return this.getLabel().compareTo(another.getLabel());
     }
 
-    @Override public void save() {
+    @Override
+    public void save() {
         saveToTripleStore();
     }
 
-    @Override public void delete() {
+    @Override
+    public void delete() {
         deleteFromTripleStore();
     }
 
