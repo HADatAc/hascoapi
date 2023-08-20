@@ -139,11 +139,11 @@ public class HAScOMapper {
                             "hasSubjectRelatioshipField", "hasCopyrightNotice"));
         }
 
-        // ATTACHMENT
-        if (typeResult.equals(VSTOI.ATTACHMENT)) {
-            filterProvider.addFilter("attachmentFilter", SimpleBeanPropertyFilter.serializeAll());
+        // DETECTOR_SLOT
+        if (typeResult.equals(VSTOI.DETECTOR_SLOT)) {
+            filterProvider.addFilter("detectorSlotFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
-            filterProvider.addFilter("attachmentFilter",
+            filterProvider.addFilter("detectorSlotFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
                             "hascoTypeLabel", "comment", "hasPriority", "hasDetector", "detector", "belongsTo"));
         }
@@ -169,7 +169,7 @@ public class HAScOMapper {
         }
 
         // RESPONSEOPTION SLOT
-        if (typeResult.equals(VSTOI.RESPONSEOPTION_SLOT)) {
+        if (typeResult.equals(VSTOI.RESPONSE_OPTION_SLOT)) {
             filterProvider.addFilter("ResponseOptionSlotFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("ResponseOptionSlotFilter",

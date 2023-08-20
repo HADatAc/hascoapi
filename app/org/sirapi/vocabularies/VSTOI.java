@@ -21,7 +21,7 @@ public class VSTOI {
      * PROPERTIES
      */
 
-    public static final String IS_INSTRUMENT_ATTACHMENT = "http://hadatac.org/ont/vstoi#isInstrumentAttachment";
+    public static final String IS_INSTRUMENT_ATTACHMENT = "http://hadatac.org/ont/vstoi#isInstrumentDetectorSlot";
     public static final String HAS_PLATFORM = "http://hadatac.org/ont/vstoi#hasPlatform";
     public static final String HAS_SERIAL_NUMBER = "http://hadatac.org/ont/vstoi#hasSerialNumber";
     public static final String HAS_WEB_DOCUMENTATION = "http://hadatac.org/ont/vstoi#hasWebDocumentation";
@@ -34,8 +34,8 @@ public class VSTOI {
      * CLASSES
      */
 
-    public static final String ATTACHMENT = "http://hadatac.org/ont/vstoi#Attachment";
-    public static final String RESPONSEOPTION_SLOT = "http://hadatac.org/ont/vstoi#ResponseOptionSlot";
+    public static final String DETECTOR_SLOT = "http://hadatac.org/ont/vstoi#DetectorSlot";
+    public static final String RESPONSE_OPTION_SLOT = "http://hadatac.org/ont/vstoi#ResponseOptionSlot";
     public static final String CODEBOOK = "http://hadatac.org/ont/vstoi#Codebook";
     public static final String INFORMANT = "http://hadatac.org/ont/vstoi#Informant";
     public static final String ITEM = "http://hadatac.org/ont/vstoi#Item";

@@ -20,7 +20,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.List;
 
 import static org.sirapi.Constants.TEST_INSTRUMENT_URI;
-import static org.sirapi.Constants.TEST_INSTRUMENT_TOT_ATTACHMENTS;
+import static org.sirapi.Constants.TEST_INSTRUMENT_TOT_DETECTOR_SLOTS;
 
 public class InstrumentAPI extends Controller {
 
@@ -73,7 +73,7 @@ public class InstrumentAPI extends Controller {
         return createInstrumentResult(newInst);
     }
 
-    public Result createAttachments(String instrumentUri, String totAttachments) {
+    public Result createDetectorSlots(String instrumentUri, String totDetectorSlots) {
         if (instrumentUri == null || instrumentUri.equals("")) {
             return ok(ApiUtil.createResponse("No instrument URI has been provided.", false));
         }
@@ -81,36 +81,36 @@ public class InstrumentAPI extends Controller {
         if (instrument == null) {
             return ok(ApiUtil.createResponse("No instrument with provided URI has been found.", false));
         }
-        if (instrument.getAttachments() != null) {
-            return ok(ApiUtil.createResponse("Instrument already has attachments. Delete existing attachments before creating new attachments", false));
+        if (instrument.getDetectorSlots() != null) {
+            return ok(ApiUtil.createResponse("Instrument already has detectorSlots. Delete existing detectorSlots before creating new detectorSlots", false));
         }
-        if (totAttachments == null || totAttachments.equals("")) {
-            return ok(ApiUtil.createResponse("No total numbers of attachments to be created has been provided.", false));
+        if (totDetectorSlots == null || totDetectorSlots.equals("")) {
+            return ok(ApiUtil.createResponse("No total numbers of detectorSlots to be created has been provided.", false));
         }
         int total = 0;
         try {
-            total = Integer.parseInt(totAttachments);
+            total = Integer.parseInt(totDetectorSlots);
         } catch (Exception e) {
-            return ok(ApiUtil.createResponse("totAttachments is not a valid number of attachments.", false));
+            return ok(ApiUtil.createResponse("totDetectorSlots is not a valid number of detectorSlots.", false));
         }
         if (total <= 0) {
-            return ok(ApiUtil.createResponse("Total numbers of attachments need to be greated than zero.", false));
+            return ok(ApiUtil.createResponse("Total numbers of detectorSlots need to be greated than zero.", false));
         }
-        if (instrument.createAttachments(total)) {
-            return ok(ApiUtil.createResponse("A total of " + total + " attachments have been created for instrument <" + instrumentUri + ">.", true));
+        if (instrument.createDetectorSlots(total)) {
+            return ok(ApiUtil.createResponse("A total of " + total + " detectorSlots have been created for instrument <" + instrumentUri + ">.", true));
         } else {
-            return ok(ApiUtil.createResponse("Method failed to create attachments for instrument <" + instrumentUri + ">.", false));
+            return ok(ApiUtil.createResponse("Method failed to create detectorSlots for instrument <" + instrumentUri + ">.", false));
         }
     }
 
-    public Result createAttachmentsForTesting() {
+    public Result createDetectorSlotsForTesting() {
         Instrument testInstrument = Instrument.find(TEST_INSTRUMENT_URI);
         if (testInstrument == null) {
-            return ok(ApiUtil.createResponse("Test instrument <" + TEST_INSTRUMENT_URI + "> needs to exist before its attachments can be created.", false));
-        } else if (testInstrument.getAttachments() != null && testInstrument.getAttachments().size() > 0) {
-            return ok(ApiUtil.createResponse("Test instrument <" + TEST_INSTRUMENT_URI + "> already has attachments.", false));
+            return ok(ApiUtil.createResponse("Test instrument <" + TEST_INSTRUMENT_URI + "> needs to exist before its detectorSlots can be created.", false));
+        } else if (testInstrument.getDetectorSlots() != null && testInstrument.getDetectorSlots().size() > 0) {
+            return ok(ApiUtil.createResponse("Test instrument <" + TEST_INSTRUMENT_URI + "> already has detectorSlots.", false));
         } else {
-            return createAttachments(testInstrument.getUri(), TEST_INSTRUMENT_TOT_ATTACHMENTS);
+            return createDetectorSlots(testInstrument.getUri(), TEST_INSTRUMENT_TOT_DETECTOR_SLOTS);
         }
     }
 
@@ -142,18 +142,18 @@ public class InstrumentAPI extends Controller {
         }
     }
 
-    public Result deleteAttachmentsForTesting() {
+    public Result deleteDetectorSlotsForTesting() {
         Instrument testInstrument = Instrument.find(TEST_INSTRUMENT_URI);
         if (testInstrument == null) {
-            return ok(ApiUtil.createResponse("Test instrument <" + TEST_INSTRUMENT_URI + "> needs to exist before its attachments can be deleted.", false));
-        } else if (testInstrument.getAttachments() == null || testInstrument.getAttachments().size() == 0) {
-            return ok(ApiUtil.createResponse("Test instrument <" + TEST_INSTRUMENT_URI + "> has no attachments to be deleted.", false));
+            return ok(ApiUtil.createResponse("Test instrument <" + TEST_INSTRUMENT_URI + "> needs to exist before its detectorSlots can be deleted.", false));
+        } else if (testInstrument.getDetectorSlots() == null || testInstrument.getDetectorSlots().size() == 0) {
+            return ok(ApiUtil.createResponse("Test instrument <" + TEST_INSTRUMENT_URI + "> has no detectorSlots to be deleted.", false));
         } else {
-            return deleteAttachments(testInstrument.getUri());
+            return deleteDetectorSlots(testInstrument.getUri());
         }
     }
 
-    public Result deleteAttachments(String instrumentUri) {
+    public Result deleteDetectorSlots(String instrumentUri) {
         if (instrumentUri == null || instrumentUri.equals("")) {
             return ok(ApiUtil.createResponse("No instrument URI has been provided.", false));
         }
@@ -161,11 +161,11 @@ public class InstrumentAPI extends Controller {
         if (instrument == null) {
             return ok(ApiUtil.createResponse("No instrument with provided URI has been found.", false));
         }
-        if (instrument.getAttachments() == null) {
-            return ok(ApiUtil.createResponse("Instrument has no attachment to be deleted.", false));
+        if (instrument.getDetectorSlots() == null) {
+            return ok(ApiUtil.createResponse("Instrument has no detectorSlot to be deleted.", false));
         }
-        instrument.deleteAttachments();
-        return ok(ApiUtil.createResponse("Attachments for Instrument <" + instrument.getUri() + "> have been deleted.", true));
+        instrument.deleteDetectorSlots();
+        return ok(ApiUtil.createResponse("DetectorSlots for Instrument <" + instrument.getUri() + "> have been deleted.", true));
     }
 
     public Result getAllInstruments(){

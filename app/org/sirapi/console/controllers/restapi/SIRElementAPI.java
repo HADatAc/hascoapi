@@ -105,9 +105,9 @@ public class SIRElementAPI extends Controller {
         String elementType = object.getHascoTypeUri();
         //System.out.println("SIREelementAPI: element type is " + elementType);
         if (elementType.equals(VSTOI.DETECTOR)) {
-            List<Attachment> results = Detector.usage(elementUri);
+            List<DetectorSlot> results = Detector.usage(elementUri);
             //System.out.println("SIREelementAPI: Results is " + results.size());
-            return DetectorAPI.getAttachments(results);
+            return DetectorAPI.getDetectorSlots(results);
         } //else if (elementType.equals("detector")) {
         //    int totalDetectors = Detector.findTotalByManagerEmail(managerEmail);
         //    String totalDetectorsJSON = "{\"total\":" + totalDetectors + "}";

@@ -188,11 +188,11 @@ public class ResponseOptionAPI extends Controller {
             return ok(ApiUtil.createResponse(
                     "Create responseoption slots for test codebook before trying to attach response options.", false));
         }
-        ResponseOptionSlot slot1 = ResponseOptionSlot.find(TEST_RESPONSEOPTION_SLOT1_URI);
-        ResponseOptionSlot slot2 = ResponseOptionSlot.find(TEST_RESPONSEOPTION_SLOT2_URI);
+        ResponseOptionSlot slot1 = ResponseOptionSlot.find(TEST_RESPONSE_OPTION_SLOT1_URI);
+        ResponseOptionSlot slot2 = ResponseOptionSlot.find(TEST_RESPONSE_OPTION_SLOT2_URI);
         if (slot1 == null || slot2 == null) {
             return ok(ApiUtil.createResponse(
-                    "Either Test ResponseOption Slot 1 or 2 is unavailable to allow the attachment of ResponseOptions 1 and 2 to test codebook.",
+                    "Either Test ResponseOption Slot 1 or 2 is unavailable to allow the detectorSlot of ResponseOptions 1 and 2 to test codebook.",
                     false));
         }
         if (slot1.getHasResponseOption() != null) {
@@ -207,15 +207,15 @@ public class ResponseOptionAPI extends Controller {
             return ok(ApiUtil.createResponse(
                     "Either Test Response Option 1 or 2 is unavailable to be attached to test codebook.", false));
         } else {
-            boolean done = ResponseOption.attach(TEST_RESPONSEOPTION_SLOT1_URI, TEST_RESPONSE_OPTION1_URI);
+            boolean done = ResponseOption.attach(TEST_RESPONSE_OPTION_SLOT1_URI, TEST_RESPONSE_OPTION1_URI);
             if (!done) {
                 return ok(ApiUtil.createResponse(
-                        "The attachment of Test Response Option 1 to Test ResponseOptionSlot1 HAS FAILED.", false));
+                        "The detectorSlot of Test Response Option 1 to Test ResponseOptionSlot1 HAS FAILED.", false));
             } else {
-                done = ResponseOption.attach(TEST_RESPONSEOPTION_SLOT2_URI, TEST_RESPONSE_OPTION2_URI);
+                done = ResponseOption.attach(TEST_RESPONSE_OPTION_SLOT2_URI, TEST_RESPONSE_OPTION2_URI);
                 if (!done) {
                     return ok(ApiUtil.createResponse(
-                            "The attachment of Test Response Option 2 to Test ResponseOptionSlot2 HAS FAILED.", false));
+                            "The detectorSlot of Test Response Option 2 to Test ResponseOptionSlot2 HAS FAILED.", false));
                 }
             }
         }
@@ -225,7 +225,7 @@ public class ResponseOptionAPI extends Controller {
 
     public Result detach(String responseOptionSlotUri) {
         if (responseOptionSlotUri == null || responseOptionSlotUri.equals("")) {
-            return ok(ApiUtil.createResponse("No attachment URI has been provided.", false));
+            return ok(ApiUtil.createResponse("No detectorSlot URI has been provided.", false));
         }
         ResponseOptionSlot responseOptionSlot = ResponseOptionSlot.find(responseOptionSlotUri);
         if (responseOptionSlot == null) {
@@ -259,9 +259,9 @@ public class ResponseOptionAPI extends Controller {
             return ok(ApiUtil.createResponse(
                     "There is no Test Response Option 2 to be detached from test code book slot.", false));
         } else {
-            boolean done = ResponseOption.detach(TEST_RESPONSEOPTION_SLOT1_URI);
+            boolean done = ResponseOption.detach(TEST_RESPONSE_OPTION_SLOT1_URI);
             if (done) {
-                done = ResponseOption.detach(TEST_RESPONSEOPTION_SLOT2_URI);
+                done = ResponseOption.detach(TEST_RESPONSE_OPTION_SLOT2_URI);
             }
             if (done) {
                 return ok(ApiUtil.createResponse(

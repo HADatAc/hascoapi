@@ -45,13 +45,13 @@ public class Renderings {
 			}
 		}
 		str += "\n";
-		if (instr.getAttachments() != null) {
-			for (Attachment attachment : instr.getAttachments()) {
-				Detector detector = attachment.getDetector();
+		if (instr.getDetectorSlots() != null) {
+			for (DetectorSlot detectorSlot : instr.getDetectorSlots()) {
+				Detector detector = detectorSlot.getDetector();
 				if (detector == null) {
-					str += " " + attachment.getHasPriority() + ".  \n  ";
+					str += " " + detectorSlot.getHasPriority() + ".  \n  ";
 				} else {
-					str += " " + attachment.getHasPriority() + ". " + detector.getHasContent() + " ";
+					str += " " + detectorSlot.getHasPriority() + ". " + detector.getHasContent() + " ";
 					Codebook codebook = detector.getCodebook();
 					if (codebook != null && codebook.getResponseOptionSlots() != null) {
 						List<ResponseOptionSlot> slots = codebook.getResponseOptionSlots();
@@ -222,11 +222,11 @@ public class Renderings {
 		if (page == 1) {
 			currentPageSize = 25;
 			first = 1;
-			if (instr.getAttachments() != null && instr.getAttachments().size() > 25) {
+			if (instr.getDetectorSlots() != null && instr.getDetectorSlots().size() > 25) {
 				last = 25;
 			} else {
-				if (instr.getAttachments() != null) {
-					last = instr.getAttachments().size();
+				if (instr.getDetectorSlots() != null) {
+					last = instr.getDetectorSlots().size();
 				} else {
 					last = 0;
 				}
@@ -235,7 +235,7 @@ public class Renderings {
 			currentPageSize = 27;
 			int past = 25 + ((page - 2) * 27);
 			first = past + 1;
-			int rest = instr.getAttachments().size() - past;
+			int rest = instr.getDetectorSlots().size() - past;
 			if (rest > currentPageSize) {
 				last = past + 27;
 			} else {
@@ -249,21 +249,21 @@ public class Renderings {
 		// System.out.println(" CurrentPageSize: " + currentPageSize);
 		// System.out.println("");
 		html += "<table>\n";
-		if (instr.getAttachments() == null || instr.getAttachments().size() <= 0) {
+		if (instr.getDetectorSlots() == null || instr.getDetectorSlots().size() <= 0) {
 			html += "<p>EMPTY TABLE</p>";
 		} else {
-			// System.out.println("Renderings.java: total attachments: " +
-			// instr.getAttachments().size());
+			// System.out.println("Renderings.java: total detectorSlots: " +
+			// instr.getDetectorSlots().size());
 			for (int element = first - 1; element < last; element++) {
-				Attachment attachment = instr.getAttachments().get(element);
-				Detector detector = attachment.getDetector();
+				DetectorSlot detectorSlot = instr.getDetectorSlots().get(element);
+				Detector detector = detectorSlot.getDetector();
 				if (detector == null) {
-					if (attachment.getHasPriority() != null) {
-						html += "<tr><td>" + attachment.getHasPriority() + ".</tr></td>\n";
+					if (detectorSlot.getHasPriority() != null) {
+						html += "<tr><td>" + detectorSlot.getHasPriority() + ".</tr></td>\n";
 					}
 				} else {
 					html += "<tr>";
-					html += "<td>" + attachment.getHasPriority() + ". " + detector.getHasContent() + "</td>";
+					html += "<td>" + detectorSlot.getHasPriority() + ". " + detector.getHasContent() + "</td>";
 					Codebook codebook = detector.getCodebook();
 					if (codebook != null) {
 						List<ResponseOptionSlot> slots = codebook.getResponseOptionSlots();
@@ -320,16 +320,16 @@ public class Renderings {
 		// PRINT ITEMS
 		int elements = 0;
 		int totPages = 0;
-		if (instr.getAttachments() == null) {
+		if (instr.getDetectorSlots() == null) {
 			html += printPage(instr, 1);
 		} else {
 
 			// total of pages
-			if (instr.getAttachments().size() <= 25) {
+			if (instr.getDetectorSlots().size() <= 25) {
 				totPages = 1;
 			} else {
-				totPages = 1 + ((instr.getAttachments().size() - 25) / 27);
-				if (((instr.getAttachments().size() - 25) % 27) > 0) {
+				totPages = 1 + ((instr.getDetectorSlots().size() - 25) / 27);
+				if (((instr.getDetectorSlots().size() - 25) % 27) > 0) {
 					totPages = totPages + 1;
 				}
 			}

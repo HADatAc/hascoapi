@@ -59,13 +59,13 @@ public class URIPage extends Controller {
 
             if (result.getHascoTypeUri().equals(VSTOI.INSTRUMENT)) {
                 finalResult = Instrument.find(uri);
-            } else if (result.getHascoTypeUri().equals(VSTOI.ATTACHMENT)) {
-                finalResult = Attachment.find(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.DETECTOR_SLOT)) {
+                finalResult = DetectorSlot.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.DETECTOR)) {
                 finalResult = Detector.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.CODEBOOK)) {
                 finalResult = Codebook.find(uri);
-            } else if (result.getHascoTypeUri().equals(VSTOI.RESPONSEOPTION_SLOT)) {
+            } else if (result.getHascoTypeUri().equals(VSTOI.RESPONSE_OPTION_SLOT)) {
                 finalResult = ResponseOptionSlot.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.RESPONSE_OPTION)) {
                 finalResult = ResponseOption.find(uri);

@@ -31,15 +31,15 @@
                 <h4>Instruments</h4>
                 <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/instrument/create/(instrumentJson)</button> - Create a new instrument according to the json specification provided. Json needs to be URL encoded. Use the <a href="@org.sirapi.console.controllers.documentation.routes.ElementsMethodList.createInstrumentExample()">Create Instrument Example</a> to see how to use a CURL with POST method to create instruments.<br>
                 <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/instrument/delete/(instrUri)</button> - Delete an existing instrument using the URI provided. URI needs to be URL encoded. Use the <a href="@org.sirapi.console.controllers.documentation.routes.ElementsMethodList.deleteInstrumentExample()">Delete Instrument Example</a> to see how to use a CURL with POST method to delete instruments.<br>
-                <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/attachment/create/:instrUri/:totAttachments</button> - For an existing instrument with the URI provided, create the given number of attachments.<br>
-                <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/attachment/delete/:instrUri</button> - For an existing instrument with the URI provided, delete all its attachment at once.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/detectorSlot/create/:instrUri/:totDetectorSlots</button> - For an existing instrument with the URI provided, create the given number of detectorSlots.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/detectorSlot/delete/:instrUri</button> - For an existing instrument with the URI provided, delete all its detectorSlot at once.<br>
 
                 <br>
                 <h4>Detectors</h4>
                 <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/detector/create/(detectorJson)</button> - Create a new detector according to the json specification provided. Json needs to be URL encoded. Use the <a href="@org.sirapi.console.controllers.documentation.routes.ElementsMethodList.createDetectorExample()">Create Detector Example</a> to see how to use a CURL with POST method to create detectors.<br>
                 <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/detector/delete/(detectorUri)</button> - Delete an existing detector using the URI provided. URI needs to be URL encoded. Use the <a href="@org.sirapi.console.controllers.documentation.routes.ElementsMethodList.deleteDetectorExample()">Delete Instrument Example</a> to see how to use a CURL with POST method to delete detectors.<br>
-                <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/detector/attach/:uri/:attachmentUri</button> - Attach a detector to an instrument's attachment. This method requires the detector and instrument's attachment to exist.<br>
-                <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/detector/detach/:attachmentUri</button> - Detach a detector from a given instrument's attachment.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/detector/attach/:uri/:detectorSlotUri</button> - Attach a detector to an instrument's detectorSlot. This method requires the detector and instrument's detectorSlot to exist.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/detector/detach/:detectorSlotUri</button> - Detach a detector from a given instrument's detectorSlot.<br>
 
                 <br>
                 <h4>Codebooks</h4>
@@ -59,13 +59,13 @@
 
                 <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/instrument/create" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/instrument/create</a> - Create a test instrument.<br>
                 <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/instrument/delete" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/instrument/delete</a> - Delete a test instrument.<br>
-                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/attachment/create" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/attachment/create</a> - Create two attachments for the test instrument. This methods requires the test instrument to exist before it is called. <br>
-                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/attachment/delete" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/attachment/delete</a> - Delete attachments of test instrument, if any. This method requires the test instrument to exist and to have attachments.<br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/detectorSlot/create" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/detectorSlot/create</a> - Create two detectorSlots for the test instrument. This methods requires the test instrument to exist before it is called. <br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/detectorSlot/delete" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/detectorSlot/delete</a> - Delete detectorSlots of test instrument, if any. This method requires the test instrument to exist and to have detectorSlots.<br>
 
                 <br>
                 <h4>Test Detector</h4>
 
-                <p><b>Note:</b> Create a test instrument along with its attachments before creating test detectors</p>
+                <p><b>Note:</b> Create a test instrument along with its detectorSlots before creating test detectors</p>
 
                 <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/detector/create" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/detector/create</a> - Create test detector 1 and 2 for a test instrument.<br>
                 <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/detector/delete" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/detector/delete</a> - Delete test detector 1 and 2.<br>

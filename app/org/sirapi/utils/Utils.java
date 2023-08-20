@@ -18,13 +18,13 @@ public class Utils {
         return wait;
     }
 
-    public static String adjustedPriority(String priority, int totAttachments) {
+    public static String adjustedPriority(String priority, int totDetectorSlots) {
         int digits = 0;
-        if (totAttachments < 10) {
+        if (totDetectorSlots < 10) {
             digits = 1;
-        } else if (totAttachments < 100) {
+        } else if (totDetectorSlots < 100) {
             digits = 2;
-        } else if (totAttachments < 1000) {
+        } else if (totDetectorSlots < 1000) {
             digits = 3;
         } else {
             digits = 4;

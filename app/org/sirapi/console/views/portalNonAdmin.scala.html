@@ -8,7 +8,7 @@
 @import org.sirapi.entity.pojo.HADatAcThing
 @import org.sirapi.entity.pojo.Instrument
 @import org.sirapi.entity.pojo.InstrumentType
-@import org.sirapi.entity.pojo.Attachment
+@import org.sirapi.entity.pojo.DetectorSlot
 @import org.sirapi.entity.pojo.Detector
 @import org.sirapi.entity.pojo.DetectorType
 @import org.sirapi.entity.pojo.Codebook
@@ -54,13 +54,13 @@
                 <br>
             </div>
             <div class="col-md-2 text-center">
-                <div class="dashNumber">@Attachment.getNumberAttachments()</div>
-                <a href="" id="attachments" class="btn btn-primary w-100 disabled" role="button">Attachments</a>
+                <div class="dashNumber">@DetectorSlot.getNumberDetectorSlots()</div>
+                <a href="" id="detectorSlots" class="btn btn-primary w-100 disabled" role="button">DetectorSlots</a>
                 <br>
             </div>
             <div class="col-md-2 text-center">
-                <div class="dashNumber">@Attachment.getNumberAttachmentsWithDetectors()</div>
-                <a href="" id="attachmentsWithDetectors" class="btn btn-primary w-100 disabled" role="button">Attachments w/ Detectors</a>
+                <div class="dashNumber">@DetectorSlot.getNumberDetectorSlotsWithDetectors()</div>
+                <a href="" id="detectorSlotsWithDetectors" class="btn btn-primary w-100 disabled" role="button">DetectorSlots w/ Detectors</a>
                 <br>
             </div>
         </div>

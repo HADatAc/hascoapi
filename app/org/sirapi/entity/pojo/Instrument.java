@@ -182,7 +182,7 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 		this.hasSIRManagerEmail = hasSIRManagerEmail;
 	}
 
-	public String geattachmenttTypeLabel() {
+	public String gedetectorSlottTypeLabel() {
     	InstrumentType insType = InstrumentType.find(getTypeUri());
     	if (insType == null || insType.getLabel() == null) {
     		return "";
@@ -198,16 +198,16 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
     	return insType.getURL();
     }
 
-    public List<Attachment> getAttachments() {
-    	List<Attachment> atts = Attachment.findByInstrument(uri);
+    public List<DetectorSlot> getDetectorSlots() {
+    	List<DetectorSlot> atts = DetectorSlot.findByInstrument(uri);
     	return atts;
     }
 
     @JsonIgnore
 	public List<Detector> getDetectors() {
 		List<Detector> detectors = new ArrayList<Detector>();
-    	List<Attachment> atts = Attachment.findByInstrument(uri);
-		for (Attachment att : atts) {
+    	List<DetectorSlot> atts = DetectorSlot.findByInstrument(uri);
+		for (DetectorSlot att : atts) {
 			Detector detector = att.getDetector();
 			detectors.add(detector);
 		} 
@@ -562,38 +562,38 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 		return -1;
 	}
 
-	public boolean deleteAttachments() {
-		if (this.getAttachments() == null || uri == null || uri.isEmpty()) {
+	public boolean deleteDetectorSlots() {
+		if (this.getDetectorSlots() == null || uri == null || uri.isEmpty()) {
 			return true;
 		}
-		List<Attachment> attachments = Attachment.findByInstrument(uri);
-		if (attachments == null) {
+		List<DetectorSlot> detectorSlots = DetectorSlot.findByInstrument(uri);
+		if (detectorSlots == null) {
 			return true;
 		}
-		for (Attachment attachment: attachments) {
-			attachment.delete();
+		for (DetectorSlot detectorSlot: detectorSlots) {
+			detectorSlot.delete();
 		}
-		attachments = Attachment.findByInstrument(uri);
-		return (attachments == null);
+		detectorSlots = DetectorSlot.findByInstrument(uri);
+		return (detectorSlots == null);
 	}
 
-	public boolean createAttachments(int totAttachments) {
-		if (totAttachments <= 0) {
+	public boolean createDetectorSlots(int totDetectorSlots) {
+		if (totDetectorSlots <= 0) {
 			return false;
 		}
-		if (this.getAttachments() != null || uri == null || uri.isEmpty()) {
+		if (this.getDetectorSlots() != null || uri == null || uri.isEmpty()) {
 			return false;
 		}
-		for (int aux=1; aux <= totAttachments; aux++) {
-			String auxstr = Utils.adjustedPriority(String.valueOf(aux), totAttachments);
+		for (int aux=1; aux <= totDetectorSlots; aux++) {
+			String auxstr = Utils.adjustedPriority(String.valueOf(aux), totDetectorSlots);
 			String newUri = uri + "/ATT/" + auxstr;
-			Attachment.createAttachment(uri, newUri, auxstr,null);
+			DetectorSlot.createDetectorSlot(uri, newUri, auxstr,null);
 		}
-		List<Attachment> attachmentList = Attachment.findByInstrument(uri);
-		if (attachmentList == null) {
+		List<DetectorSlot> detectorSlotList = DetectorSlot.findByInstrument(uri);
+		if (detectorSlotList == null) {
 			return false;
 		}
-		return (attachmentList.size() == totAttachments);
+		return (detectorSlotList.size() == totDetectorSlots);
 	}
 
 	@Override

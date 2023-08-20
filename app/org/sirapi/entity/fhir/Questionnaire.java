@@ -3,7 +3,7 @@ package org.sirapi.entity.fhir;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.sirapi.entity.pojo.Attachment;
+import org.sirapi.entity.pojo.DetectorSlot;
 import org.sirapi.entity.pojo.Detector;
 import org.sirapi.entity.pojo.Instrument;
 
@@ -15,9 +15,9 @@ public class Questionnaire {
     public Questionnaire(Instrument instrument) {
         this.instrument = instrument;
         items = new ArrayList<Item>();
-        List<Attachment> attachments = instrument.getAttachments();
-		for (Attachment attachment : attachments) {
-			Detector detector = attachment.getDetector();
+        List<DetectorSlot> detectorSlots = instrument.getDetectorSlots();
+		for (DetectorSlot detectorSlot : detectorSlots) {
+			Detector detector = detectorSlot.getDetector();
             Item item = new Item(detector);
             items.add(item);
 		}

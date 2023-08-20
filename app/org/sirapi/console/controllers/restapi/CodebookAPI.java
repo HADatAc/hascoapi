@@ -142,18 +142,18 @@ public class CodebookAPI extends Controller {
         }
         if (codebook.getResponseOptionSlots() != null) {
             return ok(ApiUtil.createResponse(
-                    "Codebook already has attachments. Delete existing attachments before creating new attachments",
+                    "Codebook already has detectorSlots. Delete existing detectorSlots before creating new detectorSlots",
                     false));
         }
         if (totResponseOptionSlots == null || totResponseOptionSlots.equals("")) {
             return ok(
-                    ApiUtil.createResponse("No total numbers of attachments to be created has been provided.", false));
+                    ApiUtil.createResponse("No total numbers of detectorSlots to be created has been provided.", false));
         }
         int total = 0;
         try {
             total = Integer.parseInt(totResponseOptionSlots);
         } catch (Exception e) {
-            return ok(ApiUtil.createResponse("totResponseOptionSlots is not a valid number of attachments.", false));
+            return ok(ApiUtil.createResponse("totResponseOptionSlots is not a valid number of detectorSlots.", false));
         }
         if (total <= 0) {
             return ok(ApiUtil.createResponse("Total numbers of responseoption slots need to be greater than zero.", false));
@@ -177,7 +177,7 @@ public class CodebookAPI extends Controller {
             return ok(ApiUtil.createResponse("Test codebook <" + TEST_CODEBOOK_URI + "> already has responseoption slots.",
                     false));
         } else {
-            return createResponseOptionSlots(testCodebook.getUri(), TEST_CODEBOOK_TOT_RESPONSEOPTION_SLOTS);
+            return createResponseOptionSlots(testCodebook.getUri(), TEST_CODEBOOK_TOT_RESPONSE_OPTION_SLOTS);
         }
     }
 

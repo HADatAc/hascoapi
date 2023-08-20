@@ -28,8 +28,8 @@ public class Detector extends HADatAcThing implements SIRElement, Comparable<Det
     @PropertyField(uri="hasco:hasImage")
     private String image;
 
-    //@PropertyField(uri="vstoi:isInstrumentAttachment")
-    //private String isInstrumentAttachment;
+    //@PropertyField(uri="vstoi:isInstrumentDetectorSlot")
+    //private String isInstrumentDetectorSlot;
 
     @PropertyField(uri="vstoi:hasContent")
     private String hasContent;
@@ -79,12 +79,12 @@ public class Detector extends HADatAcThing implements SIRElement, Comparable<Det
         this.image = image;
     }
 
-    //public String getIsInstrumentAttachment() {
-    //    return isInstrumentAttachment;
+    //public String getIsInstrumentDetectorSlot() {
+    //    return isInstrumentDetectorSlot;
     //}
 
-    //public void setIsInstrumentAttachment(String isInstrumentAttachment) {
-    //    this.isInstrumentAttachment = isInstrumentAttachment;
+    //public void setIsInstrumentDetectorSlot(String isInstrumentDetectorSlot) {
+    //    this.isInstrumentDetectorSlot = isInstrumentDetectorSlot;
     //}
 
     public String getHasContent() {
@@ -504,14 +504,14 @@ public class Detector extends HADatAcThing implements SIRElement, Comparable<Det
         return detector;
     }
 
-    public static List<Attachment> usage(String detectoruri) {
+    public static List<DetectorSlot> usage(String detectoruri) {
         if (detectoruri == null || detectoruri.isEmpty()) {
             return null;
         }
-        List<Attachment> attachments = new ArrayList<Attachment>();
+        List<DetectorSlot> detectorSlots = new ArrayList<DetectorSlot>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?attUri WHERE { " +
-                " ?attModel rdfs:subClassOf* vstoi:Attachment . " +
+                " ?attModel rdfs:subClassOf* vstoi:DetectorSlot . " +
                 " ?attUri a ?attModel ." +
                 " ?attUri vstoi:hasDetector <" + detectoruri + "> . " +
                 " ?attUri vstoi:belongsTo ?instUri . " +
@@ -531,10 +531,10 @@ public class Detector extends HADatAcThing implements SIRElement, Comparable<Det
         while (resultsrw.hasNext()) {
             QuerySolution soln = resultsrw.next();
             //System.out.println("inside Detector.usage(): found uri [" + soln.getResource("uri").getURI().toString() + "]");
-            Attachment attachment = Attachment.find(soln.getResource("attUri").getURI());
-            attachments.add(attachment);
+            DetectorSlot detectorSlot = DetectorSlot.find(soln.getResource("attUri").getURI());
+            detectorSlots.add(detectorSlot);
         }
-        return attachments;
+        return detectorSlots;
     }
 
     public static List<Detector> derivation(String detectoruri) {
@@ -555,29 +555,29 @@ public class Detector extends HADatAcThing implements SIRElement, Comparable<Det
         return findByQuery(queryString);
     }
 
-    public static boolean attach(String attachmentUri, String detectorUri) {
-        if (attachmentUri == null || attachmentUri.isEmpty()) {
+    public static boolean attach(String detectorSlotUri, String detectorUri) {
+        if (detectorSlotUri == null || detectorSlotUri.isEmpty()) {
             return false;
         }
-        Attachment attachment = Attachment.find(attachmentUri);
-        if (attachment == null) {
-            System.out.println("Attachment.find returned nothing");
+        DetectorSlot detectorSlot = DetectorSlot.find(detectorSlotUri);
+        if (detectorSlot == null) {
+            System.out.println("DetectorSlot.find returned nothing");
         }
-        if (attachment == null) {
+        if (detectorSlot == null) {
             return false;
         }
-        return attachment.updateAttachmentDetector(detectorUri);
+        return detectorSlot.updateDetectorSlotDetector(detectorUri);
     }
 
-    public static boolean detach(String attachmentUri) {
-        if (attachmentUri == null || attachmentUri.isEmpty()) {
+    public static boolean detach(String detectorSlotUri) {
+        if (detectorSlotUri == null || detectorSlotUri.isEmpty()) {
             return false;
         }
-        Attachment attachment = Attachment.find(attachmentUri);
-        if (attachment == null) {
+        DetectorSlot detectorSlot = DetectorSlot.find(detectorSlotUri);
+        if (detectorSlot == null) {
             return false;
         }
-        return attachment.updateAttachmentDetector(null);
+        return detectorSlot.updateDetectorSlotDetector(null);
     }
 
     @Override

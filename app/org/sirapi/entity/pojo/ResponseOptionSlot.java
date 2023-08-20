@@ -248,8 +248,8 @@ public class ResponseOptionSlot extends HADatAcThing implements Comparable<Respo
         ResponseOptionSlot ros = new ResponseOptionSlot();
         ros.setUri(slotUri);
         ros.setLabel("ResponseOptionSlot " + priority);
-        ros.setTypeUri(VSTOI.RESPONSEOPTION_SLOT);
-        ros.setHascoTypeUri(VSTOI.RESPONSEOPTION_SLOT);
+        ros.setTypeUri(VSTOI.RESPONSE_OPTION_SLOT);
+        ros.setHascoTypeUri(VSTOI.RESPONSE_OPTION_SLOT);
         ros.setComment("ResponseOptionSlot " + priority + " of codebook with URI " + codebookUri);
         ros.setBelongsTo(codebookUri);
         ros.setHasPriority(priority);
