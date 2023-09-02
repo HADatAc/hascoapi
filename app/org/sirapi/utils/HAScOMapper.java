@@ -102,10 +102,10 @@ public class HAScOMapper {
         }
 
         // VARIABLE_SPEC
-        if (typeResult.equals(HASCO.VARIABLE_SPEC)) {
-            filterProvider.addFilter("variableSpecFilter", SimpleBeanPropertyFilter.serializeAll());
+        if (typeResult.equals(HASCO.SEMANTIC_VARIABLE)) {
+            filterProvider.addFilter("semanticVariableFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
-            filterProvider.addFilter("variableSpecFilter",
+            filterProvider.addFilter("semanticVariableFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
                             "hascoTypeLabel", "comment"));
         }

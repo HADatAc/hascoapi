@@ -27,13 +27,14 @@ public class HASCO {
     public static final String TIME_COLLECTION                        = "http://hadatac.org/ont/hasco/TimeCollection";
     public static final String USER                                   = "http://hadatac.org/ont/hasco/User";
     public static final String VALUE                                  = "http://hadatac.org/ont/hasco/Value";
-    public static final String VARIABLE_SPEC                          = "http://hadatac.org/ont/hasco/VariableSpec";
+    public static final String SEMANTIC_VARIABLE                      = "http://hadatac.org/ont/hasco/SemanticVariable";
     public static final String VIRTUAL_COLUMN                         = "http://hadatac.org/ont/hasco/VirtualColumn";
 
     /*
      *    PROPERTIES
      */
 
+    public static final String DETECTS                                = "http://hadatac.org/ont/hasco/detects";
     public static final String HAS_CLASS                              = "http://hadatac.org/ont/hasco/hasClass";
     public static final String HAS_CODE                               = "http://hadatac.org/ont/hasco/hasCode";
     public static final String HAS_CODE_LABEL                         = "http://hadatac.org/ont/hasco/hasCodeLabel";
@@ -63,7 +64,6 @@ public class HASCO {
     public static final String HAS_UNIT                               = "http://hadatac.org/ont/hasco/hasUnit";
     public static final String HAS_URL                                = "http://hadatac.org/ont/hasco/hasURL";
     public static final String HAS_VARIABLE                           = "http://hadatac.org/ont/hasco/hasVariable";
-    public static final String HAS_META_VARIABLE                      = "http://hadatac.org/ont/hasco/hasMetaVariable";
     public static final String IS_POSSIBLE_VALUE_OF                   = "http://hadatac.org/ont/hasco/isPossibleValueOf";
     public static final String HASCO_TYPE                             = "http://hadatac.org/ont/hasco/hascoType";
     public static final String PART_OF_SCHEMA                         = "http://hadatac.org/ont/hasco/partOfSchema";

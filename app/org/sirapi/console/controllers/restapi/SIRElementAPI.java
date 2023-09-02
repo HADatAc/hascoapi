@@ -19,8 +19,11 @@ public class SIRElementAPI extends Controller {
         if (elementType.equals("instrument")) {
             List<Instrument> results = Instrument.findByKeywordAndLanguageWithPages(keyword, language, pageSize, offset);
             return InstrumentAPI.getInstruments(results);
+        } else if (elementType.equals("detectorstem")) {
+            List<DetectorStem> results = DetectorStem.findByKeywordAndLanguageWithPages(keyword, language, pageSize, offset);
+            return DetectorStemAPI.getDetectorStems(results);
         } else if (elementType.equals("detector")) {
-            List<Detector> results = Detector.findByKeywordAndLanguageWithPages(keyword, language, pageSize, offset);
+            List<Detector> results = Detector.findDetectorsByKeywordAndLanguageWithPages(keyword, language, pageSize, offset);
             return DetectorAPI.getDetectors(results);
         } else if (elementType.equals("codebook")) {
             List<Codebook> results = Codebook.findByKeywordAndLanguageWithPages(keyword, language, pageSize, offset);
@@ -43,8 +46,12 @@ public class SIRElementAPI extends Controller {
             int totalInstruments = Instrument.findTotalByKeywordAndLanguage(keyword, language);
             String totalInstrumentsJSON = "{\"total\":" + totalInstruments + "}";
             return ok(ApiUtil.createResponse(totalInstrumentsJSON, true));
+        } else if (elementType.equals("detectorstem")) {
+            int totalDetectorStems = DetectorStem.findTotalByKeywordAndLanguage(keyword, language);
+            String totalDetectorStemsJSON = "{\"total\":" + totalDetectorStems + "}";
+            return ok(ApiUtil.createResponse(totalDetectorStemsJSON, true));
         } else if (elementType.equals("detector")) {
-            int totalDetectors = Detector.findTotalByKeywordAndLanguage(keyword, language);
+            int totalDetectors = Detector.findTotalDetectorsByKeywordAndLanguage(keyword, language);
             String totalDetectorsJSON = "{\"total\":" + totalDetectors + "}";
             return ok(ApiUtil.createResponse(totalDetectorsJSON, true));
         } else if (elementType.equals("codebook")) {
@@ -63,8 +70,11 @@ public class SIRElementAPI extends Controller {
         if (elementType.equals("instrument")) {
             List<Instrument> results = Instrument.findByManagerEmailWithPages(managerEmail, pageSize, offset);
             return InstrumentAPI.getInstruments(results);
+        } else if (elementType.equals("detectorStem")) {
+            List<DetectorStem> results = DetectorStem.findByManagerEmailWithPages(managerEmail, pageSize, offset);
+            return DetectorStemAPI.getDetectorStems(results);
         } else if (elementType.equals("detector")) {
-            List<Detector> results = Detector.findByManagerEmailWithPages(managerEmail, pageSize, offset);
+            List<Detector> results = Detector.findDetectorsByManagerEmailWithPages(managerEmail, pageSize, offset);
             return DetectorAPI.getDetectors(results);
         } else if (elementType.equals("codebook")) {
            List<Codebook> results = Codebook.findByManagerEmailWithPages(managerEmail, pageSize, offset);
@@ -81,6 +91,10 @@ public class SIRElementAPI extends Controller {
             int totalInstruments = Instrument.findTotalByManagerEmail(managerEmail);
             String totalInstrumentsJSON = "{\"total\":" + totalInstruments + "}";
             return ok(ApiUtil.createResponse(totalInstrumentsJSON, true));
+        } else if (elementType.equals("detectorstem")) {
+            int totalDetectorStems = Detector.findTotalByManagerEmail(managerEmail);
+            String totalDetectorStemsJSON = "{\"total\":" + totalDetectorStems + "}";
+            return ok(ApiUtil.createResponse(totalDetectorStemsJSON, true));
         } else if (elementType.equals("detector")) {
             int totalDetectors = Detector.findTotalByManagerEmail(managerEmail);
             String totalDetectorsJSON = "{\"total\":" + totalDetectors + "}";
@@ -124,7 +138,7 @@ public class SIRElementAPI extends Controller {
         String elementType = object.getHascoTypeUri();
         //System.out.println("SIREelementAPI: element type is " + elementType);
         if (elementType.equals(VSTOI.DETECTOR)) {
-            List<Detector> results = Detector.derivation(elementUri);
+            List<Detector> results = Detector.derivationDetector(elementUri);
             //System.out.println("SIREelementAPI: Results is " + results.size());
             return DetectorAPI.getDetectors(results);
         } //else if (elementType.equals("detector")) {

@@ -59,7 +59,7 @@ public class DetectorSlot extends HADatAcThing implements Comparable<DetectorSlo
         if (hasDetector == null || hasDetector.isEmpty()) {
             return null;
         }
-        return Detector.find(hasDetector);
+        return Detector.findDetector(hasDetector);
     }
 
     public static int getNumberDetectorSlots() {

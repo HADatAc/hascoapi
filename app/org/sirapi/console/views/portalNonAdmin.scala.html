@@ -10,28 +10,28 @@
 @import org.sirapi.entity.pojo.InstrumentType
 @import org.sirapi.entity.pojo.DetectorSlot
 @import org.sirapi.entity.pojo.Detector
-@import org.sirapi.entity.pojo.DetectorType
+@import org.sirapi.entity.pojo.DetectorStem
+@import org.sirapi.entity.pojo.DetectorStemType
 @import org.sirapi.entity.pojo.Codebook
 @import org.sirapi.entity.pojo.ResponseOption
+@import org.sirapi.entity.pojo.ResponseOptionSlot
 @import play.api.Play
 @import com.typesafe.config.ConfigFactory
 
 <style>
-    .dashNumber
-    {
+    .dashNumber {
        font-family:    Arial, Helvetica, sans-serif;
        font-size:      48px;
        font-weight:    bold;
        color:          Black;
     }
-    .dashText
-    {
+    .dashText {
        font-family:    Arial, Helvetica, sans-serif;
        font-size:      28px;
        font-weight:    bold;
        padding:        1px 15px 35px 15px;
     }
-    .glyphicon-comment{
+    .glyphicon-comment {
        font-size: 24px
     }
 </style>
@@ -44,45 +44,62 @@
         <h4>Instrument Elements</h4>
         <div class="row dash-text">
             <div class="col-md-2 text-center">
-                <div class="dashNumber">@Instrument.getNumberInstruments()</div>
-                <a href="" id="instruments" class="btn btn-primary w-100 disabled" role="button">Instruments</a>
+                <div class="dashNumber">@InstrumentType.getNumberInstrumentTypes()</div>
+                <a href="" id="instrumentTypes" class="btn btn-primary w-100 disabled" role="button">Instrument<br>Types</a>
                 <br>
             </div>
             <div class="col-md-2 text-center">
-                <div class="dashNumber">@InstrumentType.getNumberInstrumentTypes()</div>
-                <a href="" id="instrumentTypes" class="btn btn-primary w-100 disabled" role="button">Instrument Types</a>
+                <div class="dashNumber">@Instrument.getNumberInstruments()</div>
+                <a href="" id="instruments" class="btn btn-primary w-100 disabled" role="button">Instruments<br>&nbsp; </a>
                 <br>
             </div>
             <div class="col-md-2 text-center">
                 <div class="dashNumber">@DetectorSlot.getNumberDetectorSlots()</div>
-                <a href="" id="detectorSlots" class="btn btn-primary w-100 disabled" role="button">DetectorSlots</a>
+                <a href="" id="detectorSlots" class="btn btn-primary w-100 disabled" role="button">Detector Slots<br>&nbsp; </a>
                 <br>
             </div>
             <div class="col-md-2 text-center">
                 <div class="dashNumber">@DetectorSlot.getNumberDetectorSlotsWithDetectors()</div>
-                <a href="" id="detectorSlotsWithDetectors" class="btn btn-primary w-100 disabled" role="button">DetectorSlots w/ Detectors</a>
+                <a href="" id="detectorSlotsWithDetectors" class="btn btn-primary w-100 disabled" role="button">Detector Slots<br>w/ Detectors</a>
                 <br>
             </div>
         </div>
         <div class="row dash-text">
             <div class="col-md-2 text-center">
-                <div class="dashNumber">@Detector.getNumberDetectors()</div>
-                <a href="" id="detectors" class="btn btn-primary w-100 disabled" role="button">Detectors</a>
+                <div class="dashNumber">@DetectorStemType.getNumberDetectorStemTypes()</div>
+                <a href="" id="detectorStemTypes" class="btn btn-primary w-100 disabled" role="button">DetectorStem<br>Types</a>
                 <br>
             </div>
             <div class="col-md-2 text-center">
-                <div class="dashNumber">@DetectorType.getNumberDetectorTypes()</div>
-                <a href="" id="detectorTypes" class="btn btn-primary w-100 disabled" role="button">Detector Types</a>
+                <div class="dashNumber">@DetectorStem.getNumberDetectorStems()</div>
+                <a href="" id="detectorStems" class="btn btn-primary w-100 disabled" role="button">Detector Stems<br>&nbsp; </a>
                 <br>
             </div>
+            <div class="col-md-2 text-center">
+                <div class="dashNumber">@Detector.getNumberDetectors()</div>
+                <a href="" id="detectors" class="btn btn-primary w-100 disabled" role="button">Detectors<br>&nbsp; </a>
+                <br>
+            </div>
+        </div>
+        <div class="row dash-text">
             <div class="col-md-2 text-center">
                 <div class="dashNumber">@Codebook.getNumberCodebooks()</div>
-                <a href="" id="codebooks" class="btn btn-primary w-100 disabled" role="button">Codebooks</a>
+                <a href="" id="codebooks" class="btn btn-primary w-100 disabled" role="button">Codebooks<br>&nbsp; </a>
                 <br>
             </div>
             <div class="col-md-2 text-center">
                 <div class="dashNumber">@ResponseOption.getNumberResponseOptions</div>
-                <a href="" id="responseoptions" class="btn btn-primary w-100 disabled" role="button">Response Options</a>
+                <a href="" id="responseoptions" class="btn btn-primary w-100 disabled" role="button">Response Options<br>&nbsp; </a>
+                <br>
+            </div>
+            <div class="col-md-2 text-center">
+                <div class="dashNumber">@ResponseOptionSlot.getNumberResponseOptionSlots()</div>
+                <a href="" id="responseOptionSlots" class="btn btn-primary w-100 disabled" role="button">Response Option Slots<br>&nbsp; </a>
+                <br>
+            </div>
+            <div class="col-md-2 text-center">
+                <div class="dashNumber">@ResponseOptionSlot.getNumberResponseOptionSlotsWithResponseOptions()</div>
+                <a href="" id="responseOptionSlotsWithResponseOptions" class="btn btn-primary w-100 disabled" role="button">Response Option Slots<br>w/ Response Options</a>
                 <br>
             </div>
         </div>
@@ -96,7 +113,7 @@
             </div>
             <div class="col-md-2 text-center">
                 <div class="dashNumber">0</div>
-                <a href="" id="metavariables" class="btn btn-primary w-100 disabled" role="button">Meta Variables</a>
+                <a href="" id="semanticvariables" class="btn btn-primary w-100 disabled" role="button">Semantic Variables</a>
                 <br>
             </div>
             <div class="col-md-2 text-center">

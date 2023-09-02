@@ -62,51 +62,6 @@ public class ResponseOptionSlot extends HADatAcThing implements Comparable<Respo
         return ResponseOption.find(hasResponseOption);
     }
 
-    public static int getNumberResponseOptionSlots() {
-        String query = "";
-        query += NameSpaces.getInstance().printSparqlNameSpaceList();
-        query += " select (count(?uri) as ?tot) where { " +
-                " ?slotModel rdfs:subClassOf* vstoi:ResponseOptionSlot . " +
-                " ?uri a ?slotModel ." +
-                "}";
-
-        try {
-            ResultSetRewindable resultsrw = SPARQLUtils.select(
-                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), query);
-
-            if (resultsrw.hasNext()) {
-                QuerySolution soln = resultsrw.next();
-                return Integer.parseInt(soln.getLiteral("tot").getString());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return -1;
-    }
-
-    public static int getNumberResponseOptionSlotsWithResponseOptions() {
-        String query = "";
-        query += NameSpaces.getInstance().printSparqlNameSpaceList();
-        query += " select (count(?uri) as ?tot) where { " +
-                " ?slotModel rdfs:subClassOf* vstoi:ResponseOptionSlot . " +
-                " ?uri a ?slotModel ." +
-                " ?uri vstoi:hasResponseOption ?codebook . " +
-                "}";
-
-        try {
-            ResultSetRewindable resultsrw = SPARQLUtils.select(
-                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), query);
-
-            if (resultsrw.hasNext()) {
-                QuerySolution soln = resultsrw.next();
-                return Integer.parseInt(soln.getLiteral("tot").getString());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return -1;
-    }
-
     public static int getNumberResponseOptionSlotsByInstrument(String codebookUri) {
         String query = "";
         query += NameSpaces.getInstance().printSparqlNameSpaceList();
@@ -236,6 +191,53 @@ public class ResponseOptionSlot extends HADatAcThing implements Comparable<Respo
 
         return slot;
     }
+
+    public static int getNumberResponseOptionSlots() {
+        String query = "";
+        query += NameSpaces.getInstance().printSparqlNameSpaceList();
+        query += " select (count(?uri) as ?tot) where { " +
+                " ?rosModel rdfs:subClassOf* vstoi:ResponseOptionSlot . " +
+                " ?uri a ?rosModel ." +
+                "}";
+
+        try {
+            ResultSetRewindable resultsrw = SPARQLUtils.select(
+                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), query);
+
+            if (resultsrw.hasNext()) {
+                QuerySolution soln = resultsrw.next();
+                return Integer.parseInt(soln.getLiteral("tot").getString());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    public static int getNumberResponseOptionSlotsWithResponseOptions() {
+        String query = "";
+        query += NameSpaces.getInstance().printSparqlNameSpaceList();
+        query += " select (count(?uri) as ?tot) where { " +
+                " ?rosModel rdfs:subClassOf* vstoi:ResponseOptionSlot . " +
+                " ?uri a ?rosModel ." +
+                " ?uri vstoi:hasResponseOption ?ros . " +
+                "}";
+
+        try {
+            ResultSetRewindable resultsrw = SPARQLUtils.select(
+                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), query);
+
+            if (resultsrw.hasNext()) {
+                QuerySolution soln = resultsrw.next();
+                return Integer.parseInt(soln.getLiteral("tot").getString());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+
 
     static public boolean createResponseOptionSlot(String codebookUri, String slotUri, String priority,
             String hasResponseOption) {

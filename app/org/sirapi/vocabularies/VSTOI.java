@@ -34,13 +34,14 @@ public class VSTOI {
      * CLASSES
      */
 
-    public static final String DETECTOR_SLOT = "http://hadatac.org/ont/vstoi#DetectorSlot";
-    public static final String RESPONSE_OPTION_SLOT = "http://hadatac.org/ont/vstoi#ResponseOptionSlot";
     public static final String CODEBOOK = "http://hadatac.org/ont/vstoi#Codebook";
+    public static final String DETECTOR_STEM = "http://hadatac.org/ont/vstoi#DetectorStem";
+    public static final String DETECTOR_SLOT = "http://hadatac.org/ont/vstoi#DetectorSlot";
     public static final String INFORMANT = "http://hadatac.org/ont/vstoi#Informant";
     public static final String ITEM = "http://hadatac.org/ont/vstoi#Item";
     public static final String PSYCHOMETRIC_QUESTIONNAIRE = "http://hadatac.org/ont/vstoi#PsychometricQuestionnaire";
     public static final String RESPONSE_OPTION = "http://hadatac.org/ont/vstoi#ResponseOption";
+    public static final String RESPONSE_OPTION_SLOT = "http://hadatac.org/ont/vstoi#ResponseOptionSlot";
     public static final String TABLE = "http://hadatac.org/ont/vstoi#Table";
 
     /*
@@ -52,6 +53,7 @@ public class VSTOI {
     public static final String HAS_COPYRIGHT_NOTICE = "http://hadatac.org/ont/vstoi#hasCopyrightNotice";
     public static final String HAS_DATE_FIELD = "http://hadatac.org/ont/vstoi#hasDateField";
     public static final String HAS_DETECTOR = "http://hadatac.org/ont/vstoi#hasDetector";
+    public static final String HAS_DETECTOR_STEM = "http://hadatac.org/ont/vstoi#hasDetectorStem";
     public static final String HAS_CODEBOOK = "http://hadatac.org/ont/vstoi#hasCodebook";
     public static final String HAS_INFORMANT = "http://hadatac.org/ont/vstoi#hasInformant";
     public static final String HAS_INSTRUCTION = "http://hadatac.org/ont/vstoi#hasInstruction";

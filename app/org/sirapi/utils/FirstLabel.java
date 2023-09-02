@@ -43,7 +43,7 @@ public class FirstLabel {
                     CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
         //} else {
         //    resultsrw = SPARQLUtilsFacetSearch.select(
-        //            CollectionUtil.getCollectionPath(CollectionUtil.Collection.METADATA_SPARQL), queryString);
+        //            CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
         //}
 
         if ( resultsrw == null || resultsrw.size() == 0) {
@@ -59,7 +59,7 @@ public class FirstLabel {
                         CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString2);
             //} else {
             //    resultsrw2 = SPARQLUtilsFacetSearch.select(
-            //            CollectionUtil.getCollectionPath(CollectionUtil.Collection.METADATA_SPARQL), queryString2);
+            //            CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString2);
             //}
             if ( resultsrw2 == null || resultsrw2.size() == 0) {
                 log.warn("URI " + uri + " does not have any label in the graph.");

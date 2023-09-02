@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import org.sirapi.entity.pojo.DetectorSlot;
+import org.sirapi.entity.pojo.DetectorStem;
 import org.sirapi.entity.pojo.Detector;
 import org.sirapi.entity.pojo.Instrument;
 import org.sirapi.utils.ApiUtil;
@@ -23,37 +24,42 @@ public class DetectorAPI extends Controller {
     }
 
     public Result createDetectorsForTesting() {
-        Detector testDetector1 = Detector.find(TEST_DETECTOR1_URI);
-        Detector testDetector2 = Detector.find(TEST_DETECTOR2_URI);
+        Detector testDetector1 = Detector.findDetector(TEST_DETECTOR1_URI);
+        Detector testDetector2 = Detector.findDetector(TEST_DETECTOR2_URI);
         if (testDetector1 != null) {
             return ok(ApiUtil.createResponse("Test detector 1 already exists.", false));
         } else if (testDetector2 != null) {
             return ok(ApiUtil.createResponse("Test detector 2 already exists.", false));
         } else {
-            testDetector1 = new Detector();
-            testDetector1.setUri(TEST_DETECTOR1_URI);
-            testDetector1.setLabel("Test Detector 1");
-            testDetector1.setTypeUri(VSTOI.DETECTOR);
-            testDetector1.setHascoTypeUri(VSTOI.DETECTOR);
-            testDetector1.setComment("This is a dummy Detector 1 created to test the SIR API.");
-            testDetector1.setHasContent("During the last 2 weeks, have you lost appetite?");
-            testDetector1.setHasCodebook(TEST_CODEBOOK_URI);
-            testDetector1.setHasLanguage("en"); // ISO 639-1
-            testDetector1.setHasVersion("1");
-            testDetector1.setHasSIRManagerEmail("me@example.com");
-            testDetector1.save();
-            testDetector2 = new Detector();
-            testDetector2.setUri(TEST_DETECTOR2_URI);
-            testDetector2.setLabel("Test Detector 2");
-            testDetector2.setTypeUri(VSTOI.DETECTOR);
-            testDetector2.setHascoTypeUri(VSTOI.DETECTOR);
-            testDetector2.setComment("This is a dummy Detector 2 created to test the SIR API.");
-            testDetector2.setHasContent("During the last 2 weeks, have you gain appetite?");
-            testDetector2.setHasCodebook(TEST_CODEBOOK_URI);
-            testDetector2.setHasLanguage("en"); // ISO 639-1
-            testDetector2.setHasVersion("1");
-            testDetector2.setHasSIRManagerEmail("me@example.com");
-            testDetector2.save();
+            DetectorStem testDetectorStem1 = DetectorStem.find(TEST_DETECTOR_STEM1_URI);
+            DetectorStem testDetectorStem2 = DetectorStem.find(TEST_DETECTOR_STEM2_URI);
+            if (testDetectorStem1 != null) {
+              return ok(ApiUtil.createResponse("Required TestDetectorStem1 does not exist.", false));
+            } else if (testDetector2 != null) {
+              return ok(ApiUtil.createResponse("Required TestDetectorStem2 does not exist.", false));
+            } else {
+                testDetector1 = new Detector();
+                testDetector1.setUri(TEST_DETECTOR1_URI);
+                testDetector1.setLabel("Test Detector 1");
+                testDetector1.setTypeUri(VSTOI.DETECTOR);
+                testDetector1.setHascoTypeUri(VSTOI.DETECTOR);
+                testDetector1.setComment("This is a dummy Detector 1 created to test the SIR API.");
+                testDetector1.setHasDetectorStem(TEST_DETECTOR_STEM1_URI);
+                testDetector1.setHasCodebook(TEST_CODEBOOK_URI);
+                testDetector1.setHasVersion("1");
+                testDetector1.setHasSIRManagerEmail("me@example.com");
+                testDetector1.save();
+                testDetector2 = new Detector();
+                testDetector2.setUri(TEST_DETECTOR2_URI);
+                testDetector2.setLabel("Test Detector 2");
+                testDetector2.setTypeUri(VSTOI.DETECTOR);
+                testDetector2.setHascoTypeUri(VSTOI.DETECTOR);
+                testDetector2.setComment("This is a dummy Detector 2 created to test the SIR API.");
+                testDetector2.setHasDetectorStem(TEST_DETECTOR_STEM2_URI);
+                testDetector2.setHasCodebook(TEST_CODEBOOK_URI);
+                testDetector2.setHasSIRManagerEmail("me@example.com");
+                testDetector2.save();
+            }
             return ok(ApiUtil.createResponse("Test Detectors 1 and 2 have been CREATED.", true));
         }
     }
@@ -82,8 +88,8 @@ public class DetectorAPI extends Controller {
     }
 
     public Result deleteDetectorsForTesting(){
-        Detector test1 = Detector.find(TEST_DETECTOR1_URI);
-        Detector test2 = Detector.find(TEST_DETECTOR2_URI);
+        Detector test1 = Detector.findDetector(TEST_DETECTOR1_URI);
+        Detector test2 = Detector.findDetector(TEST_DETECTOR2_URI);
         if (test1 == null) {
             return ok(ApiUtil.createResponse("There is no Test Detector 1 to be deleted.", false));
         } else if (test2 == null) {
@@ -99,7 +105,7 @@ public class DetectorAPI extends Controller {
         if (uri == null || uri.equals("")) {
             return ok(ApiUtil.createResponse("No detector URI has been provided.", false));
         }
-        Detector detector = Detector.find(uri);
+        Detector detector = Detector.findDetector(uri);
         if (detector == null) {
             return ok(ApiUtil.createResponse("There is no detector with URI <" + uri + "> to be attached.", false));
         }
@@ -124,8 +130,8 @@ public class DetectorAPI extends Controller {
         if (testInst.getDetectorSlots() == null) {
             return ok(ApiUtil.createResponse("Create detectorSlots for test instrument before trying to attach detectors.", false));
         }
-        Detector test1 = Detector.find(TEST_DETECTOR1_URI);
-        Detector test2 = Detector.find(TEST_DETECTOR2_URI);
+        Detector test1 = Detector.findDetector(TEST_DETECTOR1_URI);
+        Detector test2 = Detector.findDetector(TEST_DETECTOR2_URI);
         if (test1 == null) {
             return ok(ApiUtil.createResponse("There is no Test Detector 1 to be attached to test instrument.", false));
         } else if (test2 == null) {
@@ -166,8 +172,8 @@ public class DetectorAPI extends Controller {
         if (testInst.getDetectorSlots() == null) {
             return ok(ApiUtil.createResponse("Test instrument has no detectorSlots for detectors.", false));
         }
-        Detector test1 = Detector.find(TEST_DETECTOR1_URI);
-        Detector test2 = Detector.find(TEST_DETECTOR2_URI);
+        Detector test1 = Detector.findDetector(TEST_DETECTOR1_URI);
+        Detector test2 = Detector.findDetector(TEST_DETECTOR2_URI);
         if (test1 == null) {
             return ok(ApiUtil.createResponse("There is no Test Detector 1 to be detached from test instrument.", false));
         } else if (test2 == null) {
@@ -188,7 +194,7 @@ public class DetectorAPI extends Controller {
         if (uri == null || uri.equals("")) {
             return ok(ApiUtil.createResponse("No detector URI has been provided.", false));
         }
-        Detector detector = Detector.find(uri);
+        Detector detector = Detector.findDetector(uri);
         if (detector == null) {
             return ok(ApiUtil.createResponse("There is no detector with URI <" + uri + "> to be deleted.", false));
         } else {
@@ -197,27 +203,27 @@ public class DetectorAPI extends Controller {
     }
 
     public Result getDetectorsByLanguage(String language){
-        List<Detector> results = Detector.findByLanguage(language);
+        List<Detector> results = Detector.findDetectorsByLanguage(language);
         return getDetectors(results);
     }
 
     public Result getDetectorsByKeyword(String keyword){
-        List<Detector> results = Detector.findByKeyword(keyword);
+        List<Detector> results = Detector.findDetectorsByKeyword(keyword);
         return getDetectors(results);
     }
 
     public Result getDetectorsByManagerEmail(String managerEmail){
-        List<Detector> results = Detector.findByManagerEmail(managerEmail);
+        List<Detector> results = Detector.findDetectorsByManagerEmail(managerEmail);
         return getDetectors(results);
     }
 
     public Result getDetectorsByInstrument(String instrumentUri){
-        List<Detector> results = Detector.findByInstrument(instrumentUri);
+        List<Detector> results = Detector.findDetectorsByInstrument(instrumentUri);
         return getDetectors(results);
     }
 
     public Result getAllDetectors(){
-        List<Detector> results = Detector.find();
+        List<Detector> results = Detector.findDetectors();
         return getDetectors(results);
     }
 
@@ -229,7 +235,7 @@ public class DetectorAPI extends Controller {
             SimpleFilterProvider filterProvider = new SimpleFilterProvider();
             filterProvider.addFilter("detectorFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "hasContent", "hasSerialNumber", "hasLanguage","hasCodebook",
+                            "hascoTypeLabel", "comment", "hasSerialNumber", "hasDetectorStem","hasCodebook",
                             "hasVersion", "wasDerivedFrom", "wasGeneratedBy", "hasSIRManagerEmail"));
             mapper.setFilterProvider(filterProvider);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
