@@ -282,7 +282,7 @@ public class ResponseOptionAPI extends Controller {
         return getResponseOptionSlots(results);
     }
 
-    private Result getResponseOptionSlots(List<ResponseOptionSlot> results) {
+    public static Result getResponseOptionSlots(List<ResponseOptionSlot> results) {
         if (results == null) {
             return ok(ApiUtil.createResponse("No responseoption slot has been found", false));
         } else {

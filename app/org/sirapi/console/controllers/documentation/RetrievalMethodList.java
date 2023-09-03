@@ -14,6 +14,10 @@ public class RetrievalMethodList extends Controller {
         return ok(queryURIExample.render());
     }
 
+    public Result queryAllExample() {
+        return ok(queryAllExample.render());
+    }
+
     public Result instrumentRenderingExample() {
         return ok(instrumentRenderingExample.render());
     }

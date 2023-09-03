@@ -13,7 +13,7 @@ import java.util.List;
 
 public class DetectorStemTypeAPI extends Controller {
 
-    public Result getAllDetectorStemTypes(){
+    public static Result getDetectorStemTypes(){
         ObjectMapper mapper = new ObjectMapper();
 
         List<DetectorStemType> results = DetectorStemType.find();

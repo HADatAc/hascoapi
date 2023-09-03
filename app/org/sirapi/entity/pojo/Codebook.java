@@ -20,6 +20,8 @@ import org.sirapi.vocabularies.VSTOI;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.sirapi.Constants.*;
+
 @JsonFilter("codebookFilter")
 public class Codebook extends HADatAcThing implements SIRElement, Comparable<Codebook> {
 
@@ -98,7 +100,7 @@ public class Codebook extends HADatAcThing implements SIRElement, Comparable<Cod
         }
         for (int aux = 1; aux <= totSlots; aux++) {
             String auxstr = Utils.adjustedPriority(String.valueOf(aux), totSlots);
-            String newUri = uri + "/ROS/" + auxstr;
+            String newUri = uri + "/" + RESPONSE_OPTION_SLOT_PREFIX + "/" + auxstr;
             ResponseOptionSlot.createResponseOptionSlot(uri, newUri, auxstr, null);
         }
         List<ResponseOptionSlot> slotList = ResponseOptionSlot.findByCodebook(uri);

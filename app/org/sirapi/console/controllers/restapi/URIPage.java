@@ -61,8 +61,10 @@ public class URIPage extends Controller {
                 finalResult = Instrument.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.DETECTOR_SLOT)) {
                 finalResult = DetectorSlot.find(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.DETECTOR_STEM)) {
+                finalResult = DetectorStem.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.DETECTOR)) {
-                finalResult = Detector.find(uri);
+                finalResult = Detector.findDetector(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.CODEBOOK)) {
                 finalResult = Codebook.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.RESPONSE_OPTION_SLOT)) {

@@ -23,6 +23,8 @@ import org.sirapi.vocabularies.VSTOI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.sirapi.Constants.*;
+
 @JsonFilter("instrumentFilter")
 public class Instrument extends HADatAcThing implements SIRElement, Comparable<Instrument> {
 
@@ -586,7 +588,7 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 		}
 		for (int aux=1; aux <= totDetectorSlots; aux++) {
 			String auxstr = Utils.adjustedPriority(String.valueOf(aux), totDetectorSlots);
-			String newUri = uri + "/ATT/" + auxstr;
+			String newUri = uri + "/" + DETECTOR_SLOT_PREFIX + "/" + auxstr;
 			DetectorSlot.createDetectorSlot(uri, newUri, auxstr,null);
 		}
 		List<DetectorSlot> detectorSlotList = DetectorSlot.findByInstrument(uri);

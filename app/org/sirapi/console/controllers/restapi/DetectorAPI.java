@@ -33,9 +33,9 @@ public class DetectorAPI extends Controller {
         } else {
             DetectorStem testDetectorStem1 = DetectorStem.find(TEST_DETECTOR_STEM1_URI);
             DetectorStem testDetectorStem2 = DetectorStem.find(TEST_DETECTOR_STEM2_URI);
-            if (testDetectorStem1 != null) {
+            if (testDetectorStem1 == null) {
               return ok(ApiUtil.createResponse("Required TestDetectorStem1 does not exist.", false));
-            } else if (testDetector2 != null) {
+            } else if (testDetectorStem2 == null) {
               return ok(ApiUtil.createResponse("Required TestDetectorStem2 does not exist.", false));
             } else {
                 testDetector1 = new Detector();
@@ -139,11 +139,11 @@ public class DetectorAPI extends Controller {
         } else {
             boolean done = Detector.attach(TEST_DETECTOR_SLOT1_URI, TEST_DETECTOR1_URI);
             if (!done) {
-                return ok(ApiUtil.createResponse("The detectorSlot of Test Detector 1 to Test Instrument HAS FAILED.", false));
+                return ok(ApiUtil.createResponse("The use of DetectorSlot1 to attach TestDetector1 to TestInstrument HAS FAILED.", false));
             } else {
                 done = Detector.attach(TEST_DETECTOR_SLOT2_URI, TEST_DETECTOR2_URI);
                 if (!done) {
-                    return ok(ApiUtil.createResponse("The detectorSlot of Test Detector 2 to Test Instrument HAS FAILED.", false));
+                    return ok(ApiUtil.createResponse("The use of DetectorSlot2 to attach TestDetector2 to TestInstrument HAS FAILED.", false));
                 }
             }
         }

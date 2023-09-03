@@ -27,7 +27,7 @@ public class HAScOMapper {
         ObjectMapper mapper = new ObjectMapper();
         SimpleFilterProvider filterProvider = new SimpleFilterProvider();
 
-        // STUDY OBJECT
+        // STUDY
         if (typeResult.equals(HASCO.STUDY)) {
             filterProvider.addFilter("studyFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
@@ -101,7 +101,7 @@ public class HAScOMapper {
                             "hascoTypeLabel", "comment", "variableSpec"));
         }
 
-        // VARIABLE_SPEC
+        // SEMANTIC_VARIABLE
         if (typeResult.equals(HASCO.SEMANTIC_VARIABLE)) {
             filterProvider.addFilter("semanticVariableFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
@@ -148,14 +148,24 @@ public class HAScOMapper {
                             "hascoTypeLabel", "comment", "hasPriority", "hasDetector", "detector", "belongsTo"));
         }
 
+        // DETECTOR_STEM
+        if (typeResult.equals(VSTOI.DETECTOR)) {
+            filterProvider.addFilter("detectorStemFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("detectorStemFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
+                            "hascoTypeLabel", "comment", "hasContent", "hasLanguage", "hasVersion",
+                            "wasDerivedFrom", "wasGeneratedBy", "hasSIRManagerEmail"));
+        }
+
         // DETECTOR
         if (typeResult.equals(VSTOI.DETECTOR)) {
             filterProvider.addFilter("detectorFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("detectorFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "hasSerialNumber", "hasContent", "hasLanguage", "hasVersion",
-                            "wasDerivedFrom", "wasGeneratedBy", "hasSIRManagerEmail", "hasCodebook", "codebook"));
+                            "hascoTypeLabel", "comment", "hasSerialNumber", "hasVersion",
+                            "wasDerivedFrom", "wasGeneratedBy", "hasSIRManagerEmail", "hasDetectorStem", "detectorStem", "hasCodebook", "codebook"));
         }
 
         // CODEBOOK

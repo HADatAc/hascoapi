@@ -482,9 +482,7 @@ public class Detector extends DetectorStem {
         }
         DetectorSlot detectorSlot = DetectorSlot.find(detectorSlotUri);
         if (detectorSlot == null) {
-            System.out.println("DetectorSlot.find returned nothing");
-        }
-        if (detectorSlot == null) {
+            System.out.println("DetectorSlot.find returned nothing for URI [" + detectorSlotUri + "]");
             return false;
         }
         return detectorSlot.updateDetectorSlotDetector(detectorUri);

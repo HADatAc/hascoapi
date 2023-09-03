@@ -9,6 +9,36 @@ import java.util.List;
 
 public class SIRElementAPI extends Controller {
 
+    public Result getElementsAll(String elementType) {
+        if (elementType.equals("instrumenttype")) {
+            return InstrumentTypeAPI.getInstrumentTypes();
+        } else if (elementType.equals("instrument")) {
+            List<Instrument> results = Instrument.find();
+            return InstrumentAPI.getInstruments(results);
+        } else if (elementType.equals("detectorstemtype")) {
+            return DetectorStemTypeAPI.getDetectorStemTypes();
+        } else if (elementType.equals("detectorstem")) {
+            List<DetectorStem> results = DetectorStem.find();
+            return DetectorStemAPI.getDetectorStems(results);
+        } else if (elementType.equals("detector")) {
+            List<Detector> results = Detector.findDetectors();
+            return DetectorAPI.getDetectors(results);
+        } else if (elementType.equals("detectorslot")) {
+            List<DetectorSlot> results = DetectorSlot.find();
+            return DetectorAPI.getDetectorSlots(results);
+        } else if (elementType.equals("codebook")) {
+            List<Codebook> results = Codebook.find();
+            return CodebookAPI.getCodebooks(results);
+        } else if (elementType.equals("responseoption")) {
+            List<ResponseOption> results = ResponseOption.find();
+            return ResponseOptionAPI.getResponseOptions(results);
+        } else if (elementType.equals("responseoptionslot")) {
+            List<ResponseOptionSlot> results = ResponseOptionSlot.find();
+            return ResponseOptionAPI.getResponseOptionSlots(results);
+        }
+        return ok("No valid element type.");
+    }
+
     public Result getElementsByKeywordAndLanguage(String elementType, String keyword, String language, int pageSize, int offset) {
         if (keyword.equals("_")) {
             keyword = "";
@@ -107,6 +137,52 @@ public class SIRElementAPI extends Controller {
             int totalResponseOptions = ResponseOption.findTotalByManagerEmail(managerEmail);
             String totalResponseOptionsJSON = "{\"total\":" + totalResponseOptions + "}";
             return ok(ApiUtil.createResponse(totalResponseOptionsJSON, true));
+        }
+        return ok("No valid element type.");
+    }
+
+    public Result getElementsByKeyword(String elementType, String keyword) {
+        if (keyword.equals("_")) {
+            keyword = "";
+        }
+        if (elementType.equals("instrument")) {
+            List<Instrument> results = Instrument.findByKeyword(keyword);
+            return InstrumentAPI.getInstruments(results);
+        } else if (elementType.equals("detectorstem")) {
+            List<DetectorStem> results = DetectorStem.findByKeyword(keyword);
+            return DetectorStemAPI.getDetectorStems(results);
+        } else if (elementType.equals("detector")) {
+            List<Detector> results = Detector.findDetectorsByKeyword(keyword);
+            return DetectorAPI.getDetectors(results);
+        } else if (elementType.equals("codebook")) {
+            List<Codebook> results = Codebook.findByKeyword(keyword);
+            return CodebookAPI.getCodebooks(results);
+        } else if (elementType.equals("responseoption")) {
+            List<ResponseOption> results = ResponseOption.findByKeyword(keyword);
+            return ResponseOptionAPI.getResponseOptions(results);
+        }
+        return ok("No valid element type.");
+    }
+
+    public Result getElementsByLanguage(String elementType, String language) {
+        if (language.equals("_")) {
+            language = "";
+        }
+        if (elementType.equals("instrument")) {
+            List<Instrument> results = Instrument.findByLanguage(language);
+            return InstrumentAPI.getInstruments(results);
+        } else if (elementType.equals("detectorstem")) {
+            List<DetectorStem> results = DetectorStem.findByLanguage(language);
+            return DetectorStemAPI.getDetectorStems(results);
+        } else if (elementType.equals("detector")) {
+            List<Detector> results = Detector.findDetectorsByLanguage(language);
+            return DetectorAPI.getDetectors(results);
+        } else if (elementType.equals("codebook")) {
+            List<Codebook> results = Codebook.findByLanguage(language);
+            return CodebookAPI.getCodebooks(results);
+        } else if (elementType.equals("responseoption")) {
+            List<ResponseOption> results = ResponseOption.findByLanguage(language);
+            return ResponseOptionAPI.getResponseOptions(results);
         }
         return ok("No valid element type.");
     }
