@@ -47,7 +47,7 @@ GET     /sirapi/api/instrument/totext/pdf/:uri            org.sirapi.console.con
 GET     /sirapi/api/instrument/tordf/:uri                 org.sirapi.console.controllers.restapi.InstrumentAPI.toRDF(uri: String)
 GET     /sirapi/api/instrument/tofhir/:uri                org.sirapi.console.controllers.restapi.InstrumentAPI.toFHIR(uri: String)
 GET     /sirapi/api/detectorslot/byinstrument/:instrUri   org.sirapi.console.controllers.restapi.DetectorAPI.getDetectorSlotsByInstrument(instrUri: String)
-POST    /sirapi/api/detectorslot/create/:instrUri/:totDetectorSlots   org.sirapi.console.controllers.restapi.InstrumentAPI.createDetectorSlots(instrUri: String, totDetectorSlots : String)
+POST    /sirapi/api/detectorslot/create/:instrUri/:totSlots   org.sirapi.console.controllers.restapi.InstrumentAPI.createDetectorSlots(instrUri: String, totSlots : String)
 POST    /sirapi/api/detectorslot/delete/:instrUri         org.sirapi.console.controllers.restapi.InstrumentAPI.deleteDetectorSlots(instrUri: String)
 GET     /sirapi/api/detectorstem/manageremail/:manageremail   org.sirapi.console.controllers.restapi.DetectorStemAPI.getDetectorStemsByManagerEmail(manageremail : String)
 # GET     /sirapi/api/detectorstem/byinstrument/:instrUri     org.sirapi.console.controllers.restapi.DetectorStemAPI.getDetectorStemsByInstrument(instrUri : String)
@@ -107,6 +107,8 @@ GET     /sirapi/documentation/retrievalmethodlist         org.sirapi.console.con
 GET     /sirapi/documentation/queryuriexample             org.sirapi.console.controllers.documentation.RetrievalMethodList.queryURIExample()
 GET     /sirapi/documentation/queryallexample             org.sirapi.console.controllers.documentation.RetrievalMethodList.queryAllExample()
 GET     /sirapi/documentation/instrumentrenderingexample  org.sirapi.console.controllers.documentation.RetrievalMethodList.instrumentRenderingExample()
+
+GET     /sirapi/documentation/testingmethodlist           org.sirapi.console.controllers.documentation.TestingMethodList.index()
 
 GET     /sirapi/documentation/repositorymethodlist        org.sirapi.console.controllers.documentation.RepositoryMethodList.index()
 

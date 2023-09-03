@@ -1,0 +1,81 @@
+@()
+
+@import helper._
+@import org.sirapi.utils.NameSpaces
+@import org.sirapi.console.views.html._
+@import org.sirapi.console.controllers._
+@import org.sirapi.entity.pojo.HADatAcClass
+@import org.sirapi.entity.pojo.HADatAcThing
+@import org.sirapi.entity.pojo.Instrument
+@import play.api.Play
+@import com.typesafe.config.ConfigFactory
+
+@main("Testing RESTful API","","") {
+    <div class="container-fluid">
+
+        <div class="row">
+
+            @header()
+
+            <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-10">
+                <h2>Testing RESTful API</h2>
+
+                <h4>Test Instrument</h4>
+
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/instrument/create" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/instrument/create</a> - Create a test instrument.<br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/instrument/delete" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/instrument/delete</a> - Delete a test instrument.<br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/detectorslot/create" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/detectorslot/create</a> - Create two detectorSlots for the test instrument. This methods requires the test instrument to exist before it is called. <br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/detectorslot/delete" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/detectorslot/delete</a> - Delete detectorSlots of test instrument, if any. This method requires the test instrument to exist and to have detectorSlots.<br>
+
+                <br>
+                <h4>Test Detector Stem</h4>
+
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/detectorstem/create" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/detectorstem/create</a> - Create test detector stem 1 and 2 for a test instrument.<br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/detectorstem/delete" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/detectorstem/delete</a> - Delete test detector stem 1 and 2.<br>
+
+                <br>
+                <h4>Test Detector</h4>
+
+                <p><b>Note1:</b> Create test detector stems 1 and 2 before creating test detectors</p>
+                <p><b>Note2:</b> Create a test instrument along with its detectorSlots before creating test detectors</p>
+
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/detector/create" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/detector/create</a> - Create test detector 1 and 2 for a test instrument.<br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/detector/delete" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/detector/delete</a> - Delete test detector 1 and 2.<br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/detector/attach" role="button">GET     /sirapi/test/detector/attach</a> - Attach test detectors 1 and 2 to test instrument.<br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/detector/detach" role="button">GET     /sirapi/test/detector/detach</a> - Detach test detectors 1 and 2 from test instrument.<br>
+
+                <br>
+                <h4>Test Codebook</h4>
+
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/codebook/create" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/codebook/create</a> - Create test codebook.<br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/codebook/delete" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/codebook/delete</a> - Delete test codebook.<br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/responseoptionslot/create" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/responseoptionslot/create</a> - Create two responseoption slots for the test codebook. This methods requires the test codebook to exist before it is called. <br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/responseoptionslot/delete" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/responseoptionslot/delete</a> - Delete responseoption slots of test codebook, if any. This method requires the test codebook to exist and to have responseoption slots.<br>
+
+                <br>
+                <h4>Test Response Option</h4>
+
+                <p><b>Note:</b> Create a test codebook before creating test response options</p>
+
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/responseoption/create" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/responseoption/create</a> - Create test response options 1 and 2 for a test codebook.<br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/responseoption/delete" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/responseoption/delete</a> - Delete test response options 1 and 2.<br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/responseoption/attach" role="button">GET     /sirapi/test/responseoption/attach</a> - Attach test response options 1 and 2 to test codebook.<br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/responseoption/detach" role="button">GET     /sirapi/test/responseoption/detach</a> - Detach test response options 1 and 2 from test codebook.<br>
+
+                <br><br><br>
+
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-10">
+            <a href="@org.sirapi.console.controllers.routes.Portal.index()" class="btn btn-success" role="button">Back to Main Page</a>
+        </div>
+    </div>
+
+}

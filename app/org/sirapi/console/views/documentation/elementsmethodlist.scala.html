@@ -22,16 +22,13 @@
             <div class="col-md-10">
                 <h2>Element Management RESTful API</h2>
 
-                <br>
-                <h3>Maintenance of SIR Elements</h3>
-
                 <p><b>Note:</b> Instrument types and detector types are loaded into SIR through the VSTOI ontology. The VSTOI ontology needs to be modified and reloaded to create instrument type and detector type or to delete an existing instrument type or detector type.</p>
 
                 <br>
                 <h4>Instruments</h4>
                 <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/instrument/create/(instrumentJson)</button> - Create a new instrument according to the json specification provided. Json needs to be URL encoded. Use the <a href="@org.sirapi.console.controllers.documentation.routes.ElementsMethodList.createInstrumentExample()">Create Instrument Example</a> to see how to use a CURL with POST method to create instruments.<br>
                 <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/instrument/delete/(instrUri)</button> - Delete an existing instrument using the URI provided. URI needs to be URL encoded. Use the <a href="@org.sirapi.console.controllers.documentation.routes.ElementsMethodList.deleteInstrumentExample()">Delete Instrument Example</a> to see how to use a CURL with POST method to delete instruments.<br>
-                <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/detectorslot/create/:instrUri/:totDetectorSlots</button> - For an existing instrument with the URI provided, create the given number of detectorSlots.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/detectorslot/create/:instrUri/:totSlots</button> - For an existing instrument with the URI provided, create the given number of detectorSlots.<br>
                 <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/detectorslot/delete/:instrUri</button> - For an existing instrument with the URI provided, delete all its detectorSlot at once.<br>
 
                 <br>
@@ -50,57 +47,13 @@
                 <h4>Codebooks</h4>
                 <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/codebook/create/(experinceJson)</button> - Create a new codebook according to the json specification provided. Json needs to be URL encoded.<br>
                 <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/codebook/delete/(codebookUri)</button> - Delete an existing codebook using the URI provided. URI needs to be URL encoded.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/responseoptionslot/create/:codebookUri/:totSlots</button> - For an existing codebook with the URI provided, create the given number of responseOptionSlots.<br>
+                <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/responseoptionslot/delete/:codebookUri</button> - For an existing codebook with the URI provided, delete all its responseOptionSlots at once.<br>
 
                 <br>
                 <h4>Response Options</h4>
                 <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/responseoption/create/(responseOptionJson)</button> - Create a new response option according to the json specification provided. Json needs to be URL encoded.<br>
                 <button type="button" class="btn btn-outline-primary btn-sm" disabled>POST /sirapi/api/responseoption/delete/(responseOptionUri)</button> - Delete an existing response option using the URI provided. URI needs to be URL encoded.<br>
-
-                <br>
-                <h3>Testing of SIR Elements</h3>
-
-                <br>
-                <h4>Test Instrument</h4>
-
-                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/instrument/create" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/instrument/create</a> - Create a test instrument.<br>
-                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/instrument/delete" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/instrument/delete</a> - Delete a test instrument.<br>
-                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/detectorslot/create" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/detectorslot/create</a> - Create two detectorSlots for the test instrument. This methods requires the test instrument to exist before it is called. <br>
-                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/detectorslot/delete" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/detectorslot/delete</a> - Delete detectorSlots of test instrument, if any. This method requires the test instrument to exist and to have detectorSlots.<br>
-
-                <br>
-                <h4>Test Detector Stem</h4>
-
-                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/detectorstem/create" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/detectorstem/create</a> - Create test detector stem 1 and 2 for a test instrument.<br>
-                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/detectorstem/delete" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/detectorstem/delete</a> - Delete test detector stem 1 and 2.<br>
-
-                <br>
-                <h4>Test Detector</h4>
-
-                <p><b>Note1:</b> Create test detector stems 1 and 2 before creating test detectors</p>
-                <p><b>Note2:</b> Create a test instrument along with its detectorSlots before creating test detectors</p>
-
-                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/detector/create" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/detector/create</a> - Create test detector 1 and 2 for a test instrument.<br>
-                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/detector/delete" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/detector/delete</a> - Delete test detector 1 and 2.<br>
-                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/detector/attach" role="button">GET     /sirapi/test/detector/attach</a> - Attach test detectors 1 and 2 to test instrument.<br>
-                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/detector/detach" role="button">GET     /sirapi/test/detector/detach</a> - Detach test detectors 1 and 2 from test instrument.<br>
-
-                <br>
-                <h4>Test Codebook</h4>
-
-                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/codebook/create" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/codebook/create</a> - Create test codebook.<br>
-                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/codebook/delete" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/codebook/delete</a> - Delete test codebook.<br>
-                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/responseoptionslot/create" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/responseoptionslot/create</a> - Create two responseoption slots for the test codebook. This methods requires the test codebook to exist before it is called. <br>
-                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/responseoptionslot/delete" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/responseoptionslot/delete</a> - Delete responseoption slots of test codebook, if any. This method requires the test codebook to exist and to have responseoption slots.<br>
-
-                <br>
-                <h4>Test Response Option</h4>
-
-                <p><b>Note:</b> Create a test codebook before creating test response options</p>
-
-                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/responseoption/create" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/responseoption/create</a> - Create test response options 1 and 2 for a test codebook.<br>
-                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/responseoption/delete" role="button">GET&nbsp;&nbsp;&nbsp; /sirapi/test/responseoption/delete</a> - Delete test response options 1 and 2.<br>
-                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/responseoption/attach" role="button">GET     /sirapi/test/responseoption/attach</a> - Attach test response options 1 and 2 to test codebook.<br>
-                <a class="btn btn-outline-primary btn-sm" href="/sirapi/test/responseoption/detach" role="button">GET     /sirapi/test/responseoption/detach</a> - Detach test response options 1 and 2 from test codebook.<br>
 
                 <br><br><br>
 
