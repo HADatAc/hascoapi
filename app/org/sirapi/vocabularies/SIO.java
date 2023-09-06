@@ -8,7 +8,9 @@ public class SIO {
      *    CLASSES
      */
 
+    public static final String ATTRIBUTE     = "http://semanticscience.org/resource/SIO_000614";
     public static final String ENTITY        = "http://semanticscience.org/resource/SIO_000776";
+    public static final String UNIT          = "http://semanticscience.org/resource/SIO_000052";
 
 
 }

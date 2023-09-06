@@ -5,14 +5,13 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestClassOrder;
 import play.mvc.Result;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.sirapi.console.controllers.restapi.InstrumentAPI;
 import static play.test.Helpers.contentAsString;
 
 import static test.Responses.*;
 
-@TestClassOrder(ClassOrderer.OrderAnnotation.class)
-@Order(001)
+@Order(value = 001)
 public class ResetInstrument {
 
     // Unit test deleteInstrumentForTesting

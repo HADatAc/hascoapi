@@ -24,6 +24,7 @@ import org.sirapi.utils.FirstLabel;
 import org.sirapi.utils.NameSpaces;
 import org.sirapi.vocabularies.DCTERMS;
 import org.sirapi.vocabularies.RDFS;
+import org.sirapi.vocabularies.SIO;
 import org.sirapi.vocabularies.SKOS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,7 @@ public class Attribute extends HADatAcClass implements Comparable<Attribute> {
 
     private static final Logger log = LoggerFactory.getLogger(Attribute.class);
 
-    static String className = "sio:SIO_000614";
+    static String className = SIO.ATTRIBUTE;
 
     public static String INSERT_LINE1 = "INSERT DATA {  ";
     public static String DELETE_LINE1 = "DELETE WHERE {  ";

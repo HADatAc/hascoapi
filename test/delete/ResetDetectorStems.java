@@ -5,14 +5,13 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestClassOrder;
 import play.mvc.Result;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.sirapi.console.controllers.restapi.DetectorStemAPI;
 import static play.test.Helpers.contentAsString;
 
 import static test.Responses.*;
 
-@TestClassOrder(ClassOrderer.OrderAnnotation.class)
-@Order(003)
+@Order(value = 003)
 public class ResetDetectorStems {
 
     // Unit test deleteDetectorStemsForTesting

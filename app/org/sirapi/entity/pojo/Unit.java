@@ -14,11 +14,12 @@ import org.apache.jena.rdf.model.StmtIterator;
 import org.sirapi.utils.SPARQLUtils;
 import org.sirapi.utils.CollectionUtil;
 import org.sirapi.utils.NameSpaces;
+import org.sirapi.vocabularies.SIO;
 
 
 public class Unit extends HADatAcClass implements Comparable<Unit> {
 
-    static String className = "uo:0000000";
+    static String className = SIO.UNIT;
 
     public Unit() {
         super(className);

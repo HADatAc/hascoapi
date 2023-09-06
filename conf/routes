@@ -13,23 +13,28 @@ POST    /sirapi/                                          org.sirapi.console.con
 GET     /sirapi/version                                   org.sirapi.console.controllers.Version.index()
 POST    /sirapi/version                                   org.sirapi.console.controllers.Version.postIndex()
 
-# REST API
+# RETRIEVAL GENERIC
+
 GET     /sirapi/api/uri/:uri                              org.sirapi.console.controllers.restapi.URIPage.getUri(uri: String)
 GET     /sirapi/api/usage/:uri                            org.sirapi.console.controllers.restapi.SIRElementAPI.usage(uri: String)
 GET     /sirapi/api/derivation/:uri                       org.sirapi.console.controllers.restapi.SIRElementAPI.derivation(uri: String)
 GET     /sirapi/api/:elementType/all                                                    org.sirapi.console.controllers.restapi.SIRElementAPI.getElementsAll(elementType: String)
+GET     /sirapi/api/:elementType/total                                                  org.sirapi.console.controllers.restapi.SIRElementAPI.getTotalElements(elementType: String)
 GET     /sirapi/api/:elementType/keywordlanguage/:keyword/:language/:pageSize/:offset   org.sirapi.console.controllers.restapi.SIRElementAPI.getElementsByKeywordAndLanguage(elementType: String, keyword : String, language : String, pageSize : Integer, offset : Integer)
 GET     /sirapi/api/:elementType/keywordlanguage/total/:keyword/:language               org.sirapi.console.controllers.restapi.SIRElementAPI.getTotalElementsByKeywordAndLanguage(elementType : String, keyword : String, language : String)
 GET     /sirapi/api/:elementType/keyword/:keyword                                       org.sirapi.console.controllers.restapi.SIRElementAPI.getElementsByKeyword(elementType: String, keyword : String)
 GET     /sirapi/api/:elementType/language/:language                                     org.sirapi.console.controllers.restapi.SIRElementAPI.getElementsByLanguage(elementType: String, language : String)
 GET     /sirapi/api/:elementType/manageremail/:managerEmail/:pageSize/:offset           org.sirapi.console.controllers.restapi.SIRElementAPI.getElementsByManagerEmail(elementType: String, managerEmail : String, pageSize : Integer, offset : Integer)
 GET     /sirapi/api/:elementType/manageremail/total/:managerEmail                       org.sirapi.console.controllers.restapi.SIRElementAPI.getTotalElementsByManagerEmail(elementType : String, managerEmail : String)
+
+# RETRIEVAL REPO
+
 GET     /sirapi/api/repo                                  org.sirapi.console.controllers.restapi.RepoPage.getRepository()
 GET     /sirapi/api/repo/label/:label                     org.sirapi.console.controllers.restapi.RepoPage.updateLabel(label : String)
 GET     /sirapi/api/repo/title/:title                     org.sirapi.console.controllers.restapi.RepoPage.updateTitle(title : String)
 GET     /sirapi/api/repo/description/:description         org.sirapi.console.controllers.restapi.RepoPage.updateDescription(description : String)
 GET     /sirapi/api/repo/namespace/default/:abbreviation/:url    org.sirapi.console.controllers.restapi.RepoPage.updateDefaultNamespace(abbreviation : String, url : String)
-GET     /sirapi/api/repo/namespace/create/:abbreviation/:url    org.sirapi.console.controllers.restapi.RepoPage.updateNamespace(abbreviation : String, url : String)
+GET     /sirapi/api/repo/namespace/create/:abbreviation/:url     org.sirapi.console.controllers.restapi.RepoPage.updateNamespace(abbreviation : String, url : String)
 GET     /sirapi/api/repo/namespace/delete                 org.sirapi.console.controllers.restapi.RepoPage.deleteNamespace()
 GET     /sirapi/api/repo/table/informants                 org.sirapi.console.controllers.restapi.RepoPage.getInformants()
 GET     /sirapi/api/repo/table/languages                  org.sirapi.console.controllers.restapi.RepoPage.getLanguages()
@@ -37,6 +42,8 @@ GET     /sirapi/api/repo/table/generationactivities       org.sirapi.console.con
 GET     /sirapi/api/repo/table/namespaces                 org.sirapi.console.controllers.restapi.RepoPage.getNamespaces()
 GET     /sirapi/api/repo/ont/load                         org.sirapi.console.controllers.restapi.RepoPage.loadOntologies()
 GET     /sirapi/api/repo/ont/delete                       org.sirapi.console.controllers.restapi.RepoPage.deleteOntologies()
+
+# RETRIEVAL CONCEPT-SPECIFIC
 
 GET     /sirapi/api/instrument/manageremail/:manageremail org.sirapi.console.controllers.restapi.InstrumentAPI.getInstrumentsByManagerEmail(manageremail : String)
 POST    /sirapi/api/instrument/create/:json               org.sirapi.console.controllers.restapi.InstrumentAPI.createInstrument(json: String)

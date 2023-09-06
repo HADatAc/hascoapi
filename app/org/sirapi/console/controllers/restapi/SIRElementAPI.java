@@ -9,6 +9,15 @@ import java.util.List;
 
 public class SIRElementAPI extends Controller {
 
+    public Result getTotalElements(String elementType) {
+        int totalElements = SIRElement.getNumberElements(elementType);
+        if (totalElements >= 0) {
+            String totalElementsJSON = "{\"total\":" + totalElements + "}";
+            return ok(ApiUtil.createResponse(totalElementsJSON, true));
+        }
+        return ok("No valid element type.");
+    }
+
     public Result getElementsAll(String elementType) {
         if (elementType.equals("instrumenttype")) {
             return InstrumentTypeAPI.getInstrumentTypes();
@@ -36,6 +45,30 @@ public class SIRElementAPI extends Controller {
             List<ResponseOptionSlot> results = ResponseOptionSlot.find();
             return ResponseOptionAPI.getResponseOptionSlots(results);
         }
+        return ok("No valid element type.");
+    }
+
+    public Result getElementsByKeywordWithPages(String elementType, String keyword, int pageSize, int offset) {
+        if (keyword.equals("_")) {
+            keyword = "";
+        }
+        if (elementType.equals("instrument")) {
+            GenericFind<Instrument> query = new GenericFind<Instrument>();
+            List<Instrument> results = query.findByKeywordWithPages(Instrument.class,keyword, pageSize, offset);
+            return InstrumentAPI.getInstruments(results);
+        } /* else if (elementType.equals("detectorstem")) {
+            List<DetectorStem> results = DetectorStem.findByKeywordAndLanguageWithPages(keyword, language, pageSize, offset);
+            return DetectorStemAPI.getDetectorStems(results);
+        } else if (elementType.equals("detector")) {
+            List<Detector> results = Detector.findDetectorsByKeywordAndLanguageWithPages(keyword, language, pageSize, offset);
+            return DetectorAPI.getDetectors(results);
+        } else if (elementType.equals("codebook")) {
+            List<Codebook> results = Codebook.findByKeywordAndLanguageWithPages(keyword, language, pageSize, offset);
+            return CodebookAPI.getCodebooks(results);
+        } else if (elementType.equals("responseoption")) {
+            List<ResponseOption> results = ResponseOption.findByKeywordAndLanguageWithPages(keyword, language, pageSize, offset);
+            return ResponseOptionAPI.getResponseOptions(results);
+        }*/
         return ok("No valid element type.");
     }
 

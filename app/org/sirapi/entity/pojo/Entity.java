@@ -23,11 +23,8 @@ public class Entity extends HADatAcClass implements Comparable<Entity> {
 
     static String className = SIO.ENTITY;
 
-    public List<Characteristic> characteristics;
-
     public Entity() {
         super(className);
-        characteristics = new ArrayList<Characteristic>();
     }
 
     public static List<Entity> find() {
