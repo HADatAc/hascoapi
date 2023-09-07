@@ -9,11 +9,94 @@ import java.util.List;
 
 public class SIRElementAPI extends Controller {
 
-    public Result getTotalElements(String elementType) {
+    public static Class getElementClass(String elementType) {
+        
+        if (elementType.equals("instrumenttype")) {
+            return InstrumentType.class;
+        } else if (elementType.equals("instrument")) {
+            return Instrument.class;
+        } else if (elementType.equals("detectorstemtype")) {
+            return DetectorStemType.class;
+        } else if (elementType.equals("detectorstem")) {
+            return DetectorStem.class;
+        } else if (elementType.equals("detector")) {
+            return Detector.class;
+        } else if (elementType.equals("detectorslot")) {
+            return DetectorSlot.class;
+        } else if (elementType.equals("codebook")) {
+            return Codebook.class;
+        } else if (elementType.equals("responseoption")) {
+            return ResponseOption.class;
+        } else if (elementType.equals("responseoptionslot")) {
+            return ResponseOptionSlot.class;
+        }
+        return null;
+    }
+
+    /*
+    public Result getTotalElements2(String elementType) {
         int totalElements = SIRElement.getNumberElements(elementType);
         if (totalElements >= 0) {
             String totalElementsJSON = "{\"total\":" + totalElements + "}";
             return ok(ApiUtil.createResponse(totalElementsJSON, true));
+        }
+        return ok("No valid element type.");
+    }
+    */
+
+    public Result getTotalElements(String elementType) {
+        if (elementType == null || elementType.isEmpty()) {
+            return ok(ApiUtil.createResponse("No elementType has been provided", false));
+        }
+        Class clazz = getElementClass(elementType);
+        if (clazz == null) {        
+            return ok(ApiUtil.createResponse("[" + elementType + "] is not a valid elementType", false));
+        }
+        int totalElements = GenericFind.findTotal(clazz);
+        if (totalElements >= 0) {
+            String totalElementsJSON = "{\"total\":" + totalElements + "}";
+            return ok(ApiUtil.createResponse(totalElementsJSON, true));
+        }
+        return ok(ApiUtil.createResponse("query failed to retrieve number of element", false));
+    }
+        
+    public static int getNumberElements(String elementType) {
+        if (elementType == null || elementType.isEmpty()) {
+            return -1   ;
+        }
+        Class clazz = getElementClass(elementType);
+        if (clazz == null) {        
+            return -1;
+        }
+        return GenericFind.findTotal(clazz);
+    }
+
+    public Result getElementsWithPages(String elementType, int pageSize, int offset) {
+        if (elementType.equals("instrumenttype")) {
+            return InstrumentTypeAPI.getInstrumentTypes();
+        } else if (elementType.equals("instrument")) {
+            List<Instrument> results = Instrument.find();
+            return InstrumentAPI.getInstruments(results);
+        } else if (elementType.equals("detectorstemtype")) {
+            return DetectorStemTypeAPI.getDetectorStemTypes();
+        } else if (elementType.equals("detectorstem")) {
+            List<DetectorStem> results = DetectorStem.find();
+            return DetectorStemAPI.getDetectorStems(results);
+        } else if (elementType.equals("detector")) {
+            List<Detector> results = Detector.findDetectors();
+            return DetectorAPI.getDetectors(results);
+        } else if (elementType.equals("detectorslot")) {
+            List<DetectorSlot> results = DetectorSlot.find();
+          /*  return DetectorAPI.getDetectorSlots(results); */ 
+        } else if (elementType.equals("codebook")) {
+            List<Codebook> results = Codebook.find();
+            return CodebookAPI.getCodebooks(results);
+        } else if (elementType.equals("responseoption")) {
+            List<ResponseOption> results = ResponseOption.find();
+            return ResponseOptionAPI.getResponseOptions(results);
+        } else if (elementType.equals("responseoptionslot")) {
+            List<ResponseOptionSlot> results = ResponseOptionSlot.find();
+            return ResponseOptionAPI.getResponseOptionSlots(results);
         }
         return ok("No valid element type.");
     }

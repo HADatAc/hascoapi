@@ -51,6 +51,33 @@ public class GenericFind<T> {
         return "";
     }
 
+    /**
+     *     QUERY SPECIFICATION
+     */
+
+    public static <T> List<T> findWithPages(List<T> list, Class clazz, int pageSize, int offset) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT ?uri WHERE { " +
+                " ?type rdfs:subClassOf* " + classNameWithNamespace(clazz) + " . " +
+                " ?uri a ?type ." +
+                " ?uri rdfs:label ?label . " +
+                "} " +
+                " ORDER BY ASC(?label) " +
+                " LIMIT " + pageSize +
+                " OFFSET " + offset;
+        return findByQuery(list, clazz, queryString);
+    }
+
+    public static int findTotal(Class clazz) {
+        String queryString = "";
+        queryString += NameSpaces.getInstance().printSparqlNameSpaceList();
+        queryString += " select (count(?uri) as ?tot) where { " +
+                " ?type rdfs:subClassOf* " + classNameWithNamespace(clazz) + " . " +
+                " ?uri a ?type ." +
+                "}";
+        return findTotalByQuery(queryString);
+    }
+
     public List<T> findByKeywordWithPages(Class clazz, String keyword, int pageSize, int offset) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
@@ -59,33 +86,23 @@ public class GenericFind<T> {
                 " ?uri rdfs:label ?label . " +
                 "   FILTER regex(?label, \"" + keyword + "\", \"i\") " +
                 "} " +
-                " ORDER BY ASC(?content) " +
+                " ORDER BY ASC(?label) " +
                 " LIMIT " + pageSize +
                 " OFFSET " + offset;
 
-        return findByQuery(clazz, queryString);
+        return findByQuery(new ArrayList<T>(), clazz, queryString);
     }
 
-    public static int getNumberElements(Class clazz) {
-        String query = "";
-        query += NameSpaces.getInstance().printSparqlNameSpaceList();
-        query += " select (count(?uri) as ?tot) where { " +
+    public int findTotalByKeyword(Class clazz, String keyword) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT (count(?uri) as ?tot) WHERE { " +
                 " ?type rdfs:subClassOf* " + classNameWithNamespace(clazz) + " . " +
                 " ?uri a ?type ." +
-                "}";
+                " ?uri rdfs:label ?label . " +
+                "   FILTER regex(?label, \"" + keyword + "\", \"i\") " +
+                "} ";
 
-        try {
-            ResultSetRewindable resultsrw = SPARQLUtils.select(
-                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), query);
-
-            if (resultsrw.hasNext()) {
-                QuerySolution soln = resultsrw.next();
-                return Integer.parseInt(soln.getLiteral("tot").getString());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return -1;
+        return findTotalByQuery(queryString);
     }
 
 	public List<T> findByKeywordAndLanguageWithPages(Class clazz, String keyword, String language, int pageSize, int offset) {
@@ -109,7 +126,7 @@ public class GenericFind<T> {
 		queryString += "} " +
 				" LIMIT " + pageSize +
 				" OFFSET " + offset;
-		return findByQuery(clazz, queryString);
+		return findByQuery(new ArrayList<T>(), clazz, queryString);
 	}
 
 	public static int findTotalByKeywordAndLanguage(Class clazz, String keyword, String language) {
@@ -131,7 +148,43 @@ public class GenericFind<T> {
 			queryString += "   FILTER ((?language = \"" + language + "\")) ";
 		}
 		queryString += "}";
+        return findTotalByQuery(queryString);
+	}
 
+    /** 
+     *    QUERY EXECUTION
+     */
+
+
+    private static <T> List<T> findByQuery(List<T> list, Class clazz,String queryString) {
+        ResultSetRewindable resultsrw = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+        if (!resultsrw.hasNext()) {
+            return null;
+        }
+
+        while (resultsrw.hasNext()) {
+            QuerySolution soln = resultsrw.next();
+            //T element = findElement(clazz, soln.getResource("uri").getURI());
+            //list.add(element);
+        }
+
+        return list;
+    }
+
+/*
+    private static <T> findElement(List<T> list, Class clazz, String uri) {
+        if (clazz == Entity.class) {
+            list = (T)Entity.find(uri);
+            return list;
+        }
+        return null;
+    
+    }
+*/
+
+    private static int findTotalByQuery(String queryString) {
 		try {
 			ResultSetRewindable resultsrw = SPARQLUtils.select(
 					CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
@@ -144,32 +197,6 @@ public class GenericFind<T> {
 			e.printStackTrace();
 		}
 		return -1;
-	}
-
-    private List<T> findByQuery(Class clazz,String queryString) {
-        List<T> list = new ArrayList<T>();
-        ResultSetRewindable resultsrw = SPARQLUtils.select(
-                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
-
-        if (!resultsrw.hasNext()) {
-            return null;
-        }
-
-        while (resultsrw.hasNext()) {
-            QuerySolution soln = resultsrw.next();
-            T element = findElement(clazz, soln.getResource("uri").getURI());
-            list.add(element);
-        }
-
-        return list;
-    }
-
-    private T findElement(Class clazz, String uri) {
-        if (clazz == Entity.class) {
-            return (T)Entity.find(uri);
-        }
-        return null;
-    
     }
 
 }

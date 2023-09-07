@@ -13,9 +13,10 @@
 @import org.sirapi.entity.pojo.DetectorStem
 @import org.sirapi.entity.pojo.DetectorStemType
 @import org.sirapi.entity.pojo.Codebook
+@import org.sirapi.entity.pojo.GenericFind
 @import org.sirapi.entity.pojo.ResponseOption
 @import org.sirapi.entity.pojo.ResponseOptionSlot
-@import org.sirapi.entity.pojo.SIRElement
+@import org.sirapi.console.controllers.restapi.SIRElementAPI
 @import play.api.Play
 @import com.typesafe.config.ConfigFactory
 
@@ -50,17 +51,18 @@
                 <br>
             </div>
             <div class="col-md-2 text-center">
-                <div class="dashNumber">@SIRElement.getNumberElements("instrument")</div>
+                @* <div class="dashNumber">@SIRElementAPI.getNumberElements("instrument")</div> *@
+                <div class="dashNumber">0</div>
                 <a href="" id="instruments" class="btn btn-primary w-100 disabled" role="button">Instruments</a>
                 <br>
             </div>
             <div class="col-md-2 text-center">
-                <div class="dashNumber">@SIRElement.getNumberElements("detectorslot")</div>
+                <div class="dashNumber">@SIRElementAPI.getNumberElements("detectorslot")</div>
                 <a href="" id="detectorSlots" class="btn btn-primary w-100 disabled" role="button">Detector Slots</a>
                 <br>
             </div>
             <div class="col-md-2 text-center">
-                <div class="dashNumber">@DetectorSlot.getNumberDetectorSlotsWithDetectors()</div>
+                <div class="dashNumber">0</div>
                 <a href="" id="detectorSlotsWithDetectors" class="btn btn-primary w-100 disabled" role="button">Used Detector Slots</a>
                 <br>
             </div>
@@ -72,29 +74,29 @@
                 <br>
             </div>
             <div class="col-md-2 text-center">
-                <div class="dashNumber">@SIRElement.getNumberElements("detectorstem")</div>
+                <div class="dashNumber">@SIRElementAPI.getNumberElements("detectorstem")</div>
                 <a href="" id="detectorStems" class="btn btn-primary w-100 disabled" role="button">Detector Stems</a>
                 <br>
             </div>
             <div class="col-md-2 text-center">
-                <div class="dashNumber">@SIRElement.getNumberElements("detector")</div>
+                <div class="dashNumber">@SIRElementAPI.getNumberElements("detector")</div>
                 <a href="" id="detectors" class="btn btn-primary w-100 disabled" role="button">Detectors</a>
                 <br>
             </div>
         </div>
         <div class="row dash-text">
             <div class="col-md-2 text-center">
-                <div class="dashNumber">@SIRElement.getNumberElements("codebook")</div>
+                <div class="dashNumber">@SIRElementAPI.getNumberElements("codebook")</div>
                 <a href="" id="codebooks" class="btn btn-primary w-100 disabled" role="button">Codebooks</a>
                 <br>
             </div>
             <div class="col-md-2 text-center">
-                <div class="dashNumber">@SIRElement.getNumberElements("responseoption")</div>
+                <div class="dashNumber">@SIRElementAPI.getNumberElements("responseoption")</div>
                 <a href="" id="responseoptions" class="btn btn-primary w-100 disabled" role="button">Response Options</a>
                 <br>
             </div>
             <div class="col-md-2 text-center">
-                <div class="dashNumber">@SIRElement.getNumberElements("responseoptionslot")</div>
+                <div class="dashNumber">@SIRElementAPI.getNumberElements("responseoptionslot")</div>
                 <a href="" id="responseOptionSlots" class="btn btn-primary w-100 disabled" role="button">Response Option Slots</a>
                 <br>
             </div>
@@ -118,24 +120,24 @@
                 <br>
             </div>
             <div class="col-md-2 text-center">
-                <div class="dashNumber">@SIRElement.getNumberElements("semanticvariable")</div>
+                <div class="dashNumber">@SIRElementAPI.getNumberElements("semanticvariable")</div>
                 <a href="" id="semanticvariables" class="btn btn-primary w-100 disabled" role="button">Semantic Variables</a>
                 <br>
             </div>
         </div>
         <div class="row dash-text">
             <div class="col-md-2 text-center">
-                <div class="dashNumber">@SIRElement.getNumberElements("entity")</div>
+                <div class="dashNumber">@SIRElementAPI.getNumberElements("entity")</div> 
                 <a href="" id="entitytypes" class="btn btn-primary w-100 disabled" role="button">Entity Types</a>
                 <br>
             </div>
             <div class="col-md-2 text-center">
-                <div class="dashNumber">@SIRElement.getNumberElements("attribute")</div>
+                <div class="dashNumber">@SIRElementAPI.getNumberElements("attribute")</div>
                 <a href="" id="attributetypes" class="btn btn-primary w-100 disabled" role="button">Attribute Types</a>
                 <br>
             </div>
             <div class="col-md-2 text-center">
-                <div class="dashNumber">@SIRElement.getNumberElements("unit")</div>
+                <div class="dashNumber">0</div>
                 <a href="" id="units" class="btn btn-primary w-100 disabled" role="button">Units</a>
                 <br>
             </div>
