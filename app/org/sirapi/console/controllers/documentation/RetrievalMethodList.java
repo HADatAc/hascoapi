@@ -1,6 +1,7 @@
 package org.sirapi.console.controllers.documentation;
 
 import org.sirapi.console.views.html.documentation.*;
+import org.sirapi.console.views.html.documentation.examples.*;
 import play.mvc.Controller;
 import play.mvc.Result;
 

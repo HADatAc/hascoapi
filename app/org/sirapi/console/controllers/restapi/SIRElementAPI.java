@@ -1,22 +1,24 @@
 package org.sirapi.console.controllers.restapi;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import org.sirapi.entity.pojo.*;
 import org.sirapi.utils.ApiUtil;
+import org.sirapi.utils.HAScOMapper;
 import org.sirapi.vocabularies.VSTOI;
 import play.mvc.Controller;
 import play.mvc.Result;
 import java.util.List;
+import java.util.ArrayList;
 
 public class SIRElementAPI extends Controller {
 
     public static Class getElementClass(String elementType) {
         
-        if (elementType.equals("instrumenttype")) {
-            return InstrumentType.class;
-        } else if (elementType.equals("instrument")) {
+        if (elementType.equals("instrument")) {
             return Instrument.class;
-        } else if (elementType.equals("detectorstemtype")) {
-            return DetectorStemType.class;
         } else if (elementType.equals("detectorstem")) {
             return DetectorStem.class;
         } else if (elementType.equals("detector")) {
@@ -29,20 +31,59 @@ public class SIRElementAPI extends Controller {
             return ResponseOption.class;
         } else if (elementType.equals("responseoptionslot")) {
             return ResponseOptionSlot.class;
+        } else if (elementType.equals("semanticvariable")) {
+            return SemanticVariable.class;
+        } else if (elementType.equals("entity")) {
+            return Entity.class;
+        } else if (elementType.equals("attribute")) {
+            return Attribute.class;
+        } else if (elementType.equals("unit")) {
+            return Unit.class;
         }
         return null;
     }
 
-    /*
-    public Result getTotalElements2(String elementType) {
-        int totalElements = SIRElement.getNumberElements(elementType);
-        if (totalElements >= 0) {
-            String totalElementsJSON = "{\"total\":" + totalElements + "}";
-            return ok(ApiUtil.createResponse(totalElementsJSON, true));
-        }
-        return ok("No valid element type.");
+    public static Class getSubclassClass(String elementType) {
+        
+        if (elementType.equals("instrument")) {
+            return InstrumentType.class;
+        } else if (elementType.equals("detectorstem")) {
+            return DetectorStemType.class;
+        } 
+        return null;
     }
-    */
+
+    public Result getElements(String elementType) {
+        if (elementType == null || elementType.isEmpty()) {
+            return ok(ApiUtil.createResponse("No elementType has been provided", false));
+        }
+        Class clazz = getElementClass(elementType);
+        if (clazz == null) {        
+            return ok(ApiUtil.createResponse("[" + elementType + "] is not a valid elementType", false));
+        }
+        List<Object> results = (List<Object>)GenericFind.findWithPages(clazz,12,0);
+        if (results != null && results.size() >= 0) {
+            ObjectMapper mapper = HAScOMapper.getFilteredByClass("essential", clazz);
+            JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
+            return ok(ApiUtil.createResponse(jsonObject, true));
+        }
+        return ok(ApiUtil.createResponse("method getElements() failed to retrieve elements", false));    }
+
+    public Result getSubclasses(String elementType) {
+        if (elementType == null || elementType.isEmpty()) {
+            return ok(ApiUtil.createResponse("No elementType has been provided", false));
+        }
+        Class clazz = getSubclassClass(elementType);
+        if (clazz == null) {        
+            return ok(ApiUtil.createResponse("[" + elementType + "] is not a superclass", false));
+        }
+        List<Object> results = (List<Object>)GenericFind.findSubclassesWithPages(clazz,12,0);
+        if (results != null && results.size() >= 0) {
+            ObjectMapper mapper = HAScOMapper.getFilteredByClass("essential", clazz);
+            JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
+            return ok(ApiUtil.createResponse(jsonObject, true));
+        }
+        return ok(ApiUtil.createResponse("method getSubclasses() failed to retrieve subclasses", false));    }
 
     public Result getTotalElements(String elementType) {
         if (elementType == null || elementType.isEmpty()) {
@@ -57,7 +98,7 @@ public class SIRElementAPI extends Controller {
             String totalElementsJSON = "{\"total\":" + totalElements + "}";
             return ok(ApiUtil.createResponse(totalElementsJSON, true));
         }
-        return ok(ApiUtil.createResponse("query failed to retrieve number of element", false));
+        return ok(ApiUtil.createResponse("querymethod getTotalElements() failed to retrieve total number of element", false));
     }
         
     public static int getNumberElements(String elementType) {
@@ -101,7 +142,7 @@ public class SIRElementAPI extends Controller {
         return ok("No valid element type.");
     }
 
-    public Result getElementsAll(String elementType) {
+    public Result getElementsAll2(String elementType) {
         if (elementType.equals("instrumenttype")) {
             return InstrumentTypeAPI.getInstrumentTypes();
         } else if (elementType.equals("instrument")) {

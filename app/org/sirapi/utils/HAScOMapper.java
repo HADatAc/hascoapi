@@ -3,11 +3,16 @@ package org.sirapi.utils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import org.sirapi.entity.pojo.*;
 import org.sirapi.vocabularies.HASCO;
 import org.sirapi.vocabularies.SIO;
 import org.sirapi.vocabularies.VSTOI;
 
 public class HAScOMapper {
+
+    private static final String FULL = "full";
+
+    private static final String ESSENTIAL = "essential";
 
     /**
      *
@@ -21,14 +26,15 @@ public class HAScOMapper {
      * non-main concept.
      *
      * @param typeResult
+     * @param mode 'full' 'essential'
      * @return filtered Jackson's ObjectMapper
      */
-    public static ObjectMapper getFiltered(String typeResult) {
+    public static ObjectMapper getFiltered(String mode, String typeResult) {
         ObjectMapper mapper = new ObjectMapper();
         SimpleFilterProvider filterProvider = new SimpleFilterProvider();
 
         // STUDY
-        if (typeResult.equals(HASCO.STUDY)) {
+        if (mode.equals(FULL) && typeResult.equals(HASCO.STUDY)) {
             filterProvider.addFilter("studyFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("studyFilter",
@@ -37,7 +43,7 @@ public class HAScOMapper {
         }
 
         // STUDY OBJECT
-        if (typeResult.equals(HASCO.OBJECT_COLLECTION)) {
+        if (mode.equals(FULL) && typeResult.equals(HASCO.OBJECT_COLLECTION)) {
             filterProvider.addFilter("studyObjectFilter", SimpleBeanPropertyFilter.serializeAllExcept("measurements"));
         } else if (typeResult.equals(HASCO.STUDY_OBJECT)) {
             filterProvider.addFilter("studyObjectFilter", SimpleBeanPropertyFilter.serializeAll());
@@ -48,7 +54,7 @@ public class HAScOMapper {
         }
 
         // VALUE
-        if (typeResult.equals(HASCO.VALUE)) {
+        if (mode.equals(FULL) && typeResult.equals(HASCO.VALUE)) {
             filterProvider.addFilter("valueFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("valueFilter",
@@ -57,7 +63,7 @@ public class HAScOMapper {
         }
 
         // DEPLOYMENT
-        if (typeResult.equals(HASCO.DEPLOYMENT)) {
+        if (mode.equals(FULL) && typeResult.equals(HASCO.DEPLOYMENT)) {
             filterProvider.addFilter("deploymentFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("deploymentFilter",
@@ -66,7 +72,7 @@ public class HAScOMapper {
         }
 
         // STR
-        if (typeResult.equals(HASCO.DATA_ACQUISITION)) {
+        if (mode.equals(FULL) && typeResult.equals(HASCO.DATA_ACQUISITION)) {
             filterProvider.addFilter("strFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("strFilter",
@@ -75,7 +81,7 @@ public class HAScOMapper {
         }
 
         // DATA FILE
-        if (typeResult.equals(HASCO.DATA_FILE)) {
+        if (mode.equals(FULL) && typeResult.equals(HASCO.DATA_FILE)) {
             filterProvider.addFilter("dataFileFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("dataFileFilter",
@@ -84,7 +90,7 @@ public class HAScOMapper {
         }
 
         // DA_SCHEMA
-        if (typeResult.equals(HASCO.DA_SCHEMA)) {
+        if (mode.equals(FULL) && typeResult.equals(HASCO.DA_SCHEMA)) {
             filterProvider.addFilter("sddFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("sddFilter",
@@ -93,7 +99,7 @@ public class HAScOMapper {
         }
 
         // DA_SCHEMA_ATTRIBUTE
-        if (typeResult.equals(HASCO.DA_SCHEMA_ATTRIBUTE)) {
+        if (mode.equals(FULL) && typeResult.equals(HASCO.DA_SCHEMA_ATTRIBUTE)) {
             filterProvider.addFilter("variableFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("variableFilter",
@@ -102,7 +108,7 @@ public class HAScOMapper {
         }
 
         // SEMANTIC_VARIABLE
-        if (typeResult.equals(HASCO.SEMANTIC_VARIABLE)) {
+        if (mode.equals(FULL) && typeResult.equals(HASCO.SEMANTIC_VARIABLE)) {
             filterProvider.addFilter("semanticVariableFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("semanticVariableFilter",
@@ -111,7 +117,7 @@ public class HAScOMapper {
         }
 
         // DA_SCHEMA_OBJECT
-        if (typeResult.equals(HASCO.DA_SCHEMA_OBJECT)) {
+        if (mode.equals(FULL) && typeResult.equals(HASCO.DA_SCHEMA_OBJECT)) {
             filterProvider.addFilter("sddObjectFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("sddObjectFilter",
@@ -120,7 +126,7 @@ public class HAScOMapper {
         }
 
         // ENTITY
-        if (typeResult.equals(SIO.ENTITY)) {
+        if (mode.equals(FULL) && typeResult.equals(SIO.ENTITY)) {
             filterProvider.addFilter("entityFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("entityFilter",
@@ -129,7 +135,7 @@ public class HAScOMapper {
         }
 
         // INSTRUMENT
-        if (typeResult.equals(VSTOI.INSTRUMENT)) {
+        if (mode.equals(FULL) && typeResult.equals(VSTOI.INSTRUMENT)) {
             filterProvider.addFilter("instrumentFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("instrumentFilter",
@@ -140,7 +146,7 @@ public class HAScOMapper {
         }
 
         // DETECTOR_SLOT
-        if (typeResult.equals(VSTOI.DETECTOR_SLOT)) {
+        if (mode.equals(FULL) && typeResult.equals(VSTOI.DETECTOR_SLOT)) {
             filterProvider.addFilter("detectorSlotFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("detectorSlotFilter",
@@ -149,7 +155,7 @@ public class HAScOMapper {
         }
 
         // DETECTOR_STEM
-        if (typeResult.equals(VSTOI.DETECTOR)) {
+        if (mode.equals(FULL) && typeResult.equals(VSTOI.DETECTOR)) {
             filterProvider.addFilter("detectorStemFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("detectorStemFilter",
@@ -159,7 +165,7 @@ public class HAScOMapper {
         }
 
         // DETECTOR
-        if (typeResult.equals(VSTOI.DETECTOR)) {
+        if (mode.equals(FULL) && typeResult.equals(VSTOI.DETECTOR)) {
             filterProvider.addFilter("detectorFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("detectorFilter",
@@ -169,7 +175,7 @@ public class HAScOMapper {
         }
 
         // CODEBOOK
-        if (typeResult.equals(VSTOI.CODEBOOK)) {
+        if (mode.equals(FULL) && typeResult.equals(VSTOI.CODEBOOK)) {
             filterProvider.addFilter("codebookFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("codebookFilter",
@@ -179,7 +185,7 @@ public class HAScOMapper {
         }
 
         // RESPONSEOPTION SLOT
-        if (typeResult.equals(VSTOI.RESPONSE_OPTION_SLOT)) {
+        if (mode.equals(FULL) && typeResult.equals(VSTOI.RESPONSE_OPTION_SLOT)) {
             filterProvider.addFilter("ResponseOptionSlotFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("ResponseOptionSlotFilter",
@@ -188,7 +194,7 @@ public class HAScOMapper {
         }
 
         // RESPONSE OPTION
-        if (typeResult.equals(VSTOI.RESPONSE_OPTION)) {
+        if (mode.equals(FULL) && typeResult.equals(VSTOI.RESPONSE_OPTION)) {
             filterProvider.addFilter("responseOptionFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("responseOptionFilter",
@@ -200,6 +206,56 @@ public class HAScOMapper {
         mapper.setFilterProvider(filterProvider);
 
         return mapper;
+    }
+
+    public static ObjectMapper getFilteredByClass(String mode, Class clazz) {
+        ObjectMapper mapper = new ObjectMapper();
+        SimpleFilterProvider filterProvider = new SimpleFilterProvider();
+
+        // STUDY
+        //if (clazz == Study.class) {
+        //    return getFiltered(HASCO.STUDY);
+        //} else if (clazz == ObjectCollection.class) {
+        //    return getFiltered(HASCO.OBJECT_COLLECTION);
+        //} else if (clazz == Value.class) {
+        //    return getFiltered(HASCO.VALUE);
+        //} else if (clazz == Deployment.class) {
+        //    return getFiltered(HASCO.DEPLOYMENT);
+        //} else if (clazz == ObjectCollection.class) {
+        //    return getFiltered(HASCO.OBJECT_COLLECTION);
+        //} else if (clazz == DataAcquisition.class) {
+        //    return getFiltered(HASCO.DATA_ACQUISITION);
+        //} else if (clazz == Datafile.class) {
+        //    return getFiltered(HASCO.DATA_FILE);
+        //} else if (clazz == DataAcquisitionSchema.class) {
+        //    return getFiltered(HASCO.DA_SCHEMA);
+        //} else if (clazz == DataAcquisitionSchemaAttribute.class) {
+        //    return getFiltered(HASCO.DA_SCHEMA_ATTRIBUTE);
+        //} else if (clazz == DataAcquisitionSchemaObject.class) {
+        //    return getFiltered(HASCO.DA_SCHEMA_OBJECT);
+        //} else 
+        if (clazz == SemanticVariable.class) {
+            return getFiltered(mode, HASCO.SEMANTIC_VARIABLE);
+        } else if (clazz == Entity.class) {
+            return getFiltered(mode, SIO.ENTITY);
+        } else if (clazz == Attribute.class) {
+            return getFiltered(mode, SIO.ATTRIBUTE);
+        } else if (clazz == Instrument.class) {
+            return getFiltered(mode, VSTOI.INSTRUMENT);
+        } else if (clazz == DetectorSlot.class) {
+            return getFiltered(mode, VSTOI.DETECTOR_SLOT);
+        } else if (clazz == DetectorStem.class) {
+            return getFiltered(mode, VSTOI.DETECTOR_STEM);
+        } else if (clazz == Detector.class) {
+            return getFiltered(mode, VSTOI.DETECTOR);
+        } else if (clazz == Codebook.class) {
+            return getFiltered(mode, VSTOI.CODEBOOK);
+        } else if (clazz == ResponseOption.class) {
+            return getFiltered(mode, VSTOI.RESPONSE_OPTION);
+        } else if (clazz == ResponseOptionSlot.class) {
+            return getFiltered(mode, VSTOI.RESPONSE_OPTION_SLOT);
+        }
+        return null;
     }
 
 }

@@ -83,7 +83,7 @@ public class URIPage extends Controller {
     }
 
     private Result processResult(Object result, String typeResult, String uri) {
-        ObjectMapper mapper = HAScOMapper.getFiltered(typeResult);
+        ObjectMapper mapper = HAScOMapper.getFiltered("full",typeResult);
 
         // System.out.println("[RestAPI] generating JSON for following object: " + uri);
         JsonNode jsonObject = null;

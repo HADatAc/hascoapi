@@ -6,6 +6,9 @@ import java.util.Map;
 import java.util.HashMap;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSetRewindable;
 import org.apache.jena.rdf.model.Model;
@@ -23,6 +26,7 @@ import org.sirapi.vocabularies.SIO;
 import org.sirapi.vocabularies.VSTOI;
 
 public class GenericFind<T> {
+
 
     private static String classNameWithNamespace (Class clazz) {
         if (clazz == Instrument.class) {
@@ -51,21 +55,38 @@ public class GenericFind<T> {
         return "";
     }
 
+    private static String superclassNameWithNamespace (Class clazz) {
+        if (clazz == InstrumentType.class) {
+            return URIUtils.replaceNameSpace(VSTOI.INSTRUMENT);
+        } else if (clazz == DetectorStemType.class) {
+            return URIUtils.replaceNameSpace(VSTOI.DETECTOR_STEM);
+        } 
+        return "";
+    }
+
     /**
      *     QUERY SPECIFICATION
      */
 
-    public static <T> List<T> findWithPages(List<T> list, Class clazz, int pageSize, int offset) {
+    public static <T> List<T> findWithPages(Class clazz, int pageSize, int offset) {
+        if (clazz == null) {
+            return null;
+        }
+        String className = classNameWithNamespace(clazz);
+        //System.out.println("Class name:" + className);
+        if (className.equals("")) {
+            return null;
+        }
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?type rdfs:subClassOf* " + classNameWithNamespace(clazz) + " . " +
+                " ?type rdfs:subClassOf* " + className + " . " +
                 " ?uri a ?type ." +
                 " ?uri rdfs:label ?label . " +
                 "} " +
                 " ORDER BY ASC(?label) " +
                 " LIMIT " + pageSize +
                 " OFFSET " + offset;
-        return findByQuery(list, clazz, queryString);
+        return findByQuery(clazz, queryString);
     }
 
     public static int findTotal(Class clazz) {
@@ -77,6 +98,22 @@ public class GenericFind<T> {
                 "}";
         return findTotalByQuery(queryString);
     }
+
+    public static <T> List<T> findSubclassesWithPages(Class clazz, int pageSize, int offset) {
+        if (clazz == null) {
+            return null;
+        }
+        String superclassName = superclassNameWithNamespace(clazz);
+        //System.out.println("Class name:" + className);
+        if (superclassName.equals("")) {
+            return null;
+        }
+		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+				" SELECT ?uri WHERE { " +
+				" ?uri rdfs:subClassOf* " + superclassName + " . " +
+				"} ";
+		return findByQuery(clazz, queryString);
+	}
 
     public List<T> findByKeywordWithPages(Class clazz, String keyword, int pageSize, int offset) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
@@ -90,7 +127,7 @@ public class GenericFind<T> {
                 " LIMIT " + pageSize +
                 " OFFSET " + offset;
 
-        return findByQuery(new ArrayList<T>(), clazz, queryString);
+        return findByQuery(clazz, queryString);
     }
 
     public int findTotalByKeyword(Class clazz, String keyword) {
@@ -126,7 +163,7 @@ public class GenericFind<T> {
 		queryString += "} " +
 				" LIMIT " + pageSize +
 				" OFFSET " + offset;
-		return findByQuery(new ArrayList<T>(), clazz, queryString);
+		return findByQuery(clazz, queryString);
 	}
 
 	public static int findTotalByKeywordAndLanguage(Class clazz, String keyword, String language) {
@@ -156,7 +193,9 @@ public class GenericFind<T> {
      */
 
 
-    private static <T> List<T> findByQuery(List<T> list, Class clazz,String queryString) {
+    private static <T> List<T> findByQuery(Class clazz,String queryString) {
+        List<T> list = new ArrayList<T>();
+        //System.out.println("Here 1");
         ResultSetRewindable resultsrw = SPARQLUtils.select(
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
@@ -166,23 +205,43 @@ public class GenericFind<T> {
 
         while (resultsrw.hasNext()) {
             QuerySolution soln = resultsrw.next();
-            //T element = findElement(clazz, soln.getResource("uri").getURI());
-            //list.add(element);
+            T element = findElement(clazz, soln.getResource("uri").getURI());
+            //System.out.println("Here 3");
+            if (element != null) {                        
+                //System.out.println("Here 4");
+                list.add(element);
+            }
         }
-
         return list;
     }
 
-/*
-    private static <T> findElement(List<T> list, Class clazz, String uri) {
-        if (clazz == Entity.class) {
-            list = (T)Entity.find(uri);
-            return list;
+    private static <T> T findElement(Class clazz, String uri) {
+        if (clazz == Instrument.class) {
+            return (T)Instrument.find(uri);
+        } else if (clazz == DetectorSlot.class) {
+            return (T)DetectorSlot.find(uri);
+        } else if (clazz == DetectorStem.class) {
+            return (T)DetectorStem.find(uri);
+        } else if (clazz == Detector.class) {
+            return (T)Detector.find(uri);
+        } else if (clazz == Codebook.class) {
+            return (T)Codebook.find(uri);
+        } else if (clazz == ResponseOptionSlot.class) {
+            return (T)ResponseOptionSlot.find(uri);
+        } else if (clazz == ResponseOption.class) {
+            return (T)ResponseOption.find(uri);
+        } else if (clazz == SemanticVariable.class) {
+            return (T)SemanticVariable.find(uri);
+        } else if (clazz == Entity.class) {
+            return (T)Entity.find(uri);
+        } else if (clazz == Attribute.class) {
+            return (T)Attribute.find(uri);
+        } else if (clazz == Unit.class) {
+            return (T)Unit.find(uri);
         }
         return null;
     
     }
-*/
 
     private static int findTotalByQuery(String queryString) {
 		try {

@@ -171,10 +171,10 @@ public class NameSpace extends HADatAcThing {
         return NameSpaces.getInstance().getOrderedNamespacesAsList().size();
     }
 
-    public static NameSpace find(String uri) {
+    public static HADatAcThing find(String uri) {
         for(NameSpace ns : NameSpaces.getInstance().getOrderedNamespacesAsList())
             if (ns.getURL().equals(uri)) {
-                return ns;
+                return (HADatAcThing) ns;
             }
         return null;
     }
