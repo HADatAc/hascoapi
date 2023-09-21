@@ -33,35 +33,35 @@ public class SIRElementAPI extends Controller {
             return ResponseOptionSlot.class;
         } else if (elementType.equals("semanticvariable")) {
             return SemanticVariable.class;
+        } else if (elementType.equals("instrumenttype")) {
+            return InstrumentType.class;
+        } else if (elementType.equals("detectorstemtype")) {
+            return DetectorStemType.class;
         } else if (elementType.equals("entity")) {
             return Entity.class;
         } else if (elementType.equals("attribute")) {
             return Attribute.class;
         } else if (elementType.equals("unit")) {
             return Unit.class;
-        }
-        return null;
-    }
-
-    public static Class getSubclassClass(String elementType) {
-        
-        if (elementType.equals("instrument")) {
-            return InstrumentType.class;
-        } else if (elementType.equals("detectorstem")) {
-            return DetectorStemType.class;
         } 
         return null;
     }
 
-    public Result getElements(String elementType) {
+    public Result getElementsWithPage(String elementType, int pageSize, int offset) {
         if (elementType == null || elementType.isEmpty()) {
             return ok(ApiUtil.createResponse("No elementType has been provided", false));
+        }
+        if (pageSize <=0) {
+            return ok(ApiUtil.createResponse("Page size needs to be greated than zero", false));
+        }
+        if (offset < 0) {
+            return ok(ApiUtil.createResponse("Offset needs to be igual or greater than zero", false));
         }
         Class clazz = getElementClass(elementType);
         if (clazz == null) {        
             return ok(ApiUtil.createResponse("[" + elementType + "] is not a valid elementType", false));
         }
-        List<Object> results = (List<Object>)GenericFind.findWithPages(clazz,12,0);
+        List<Object> results = (List<Object>)GenericFind.findWithPages(clazz,pageSize,offset);
         if (results != null && results.size() >= 0) {
             ObjectMapper mapper = HAScOMapper.getFilteredByClass("essential", clazz);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
@@ -69,6 +69,7 @@ public class SIRElementAPI extends Controller {
         }
         return ok(ApiUtil.createResponse("method getElements() failed to retrieve elements", false));    }
 
+    /*
     public Result getSubclasses(String elementType) {
         if (elementType == null || elementType.isEmpty()) {
             return ok(ApiUtil.createResponse("No elementType has been provided", false));
@@ -78,12 +79,14 @@ public class SIRElementAPI extends Controller {
             return ok(ApiUtil.createResponse("[" + elementType + "] is not a superclass", false));
         }
         List<Object> results = (List<Object>)GenericFind.findSubclassesWithPages(clazz,12,0);
+        System.out.println("size results: " + results.size());
         if (results != null && results.size() >= 0) {
             ObjectMapper mapper = HAScOMapper.getFilteredByClass("essential", clazz);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));
         }
         return ok(ApiUtil.createResponse("method getSubclasses() failed to retrieve subclasses", false));    }
+    */
 
     public Result getTotalElements(String elementType) {
         if (elementType == null || elementType.isEmpty()) {
@@ -112,6 +115,7 @@ public class SIRElementAPI extends Controller {
         return GenericFind.findTotal(clazz);
     }
 
+    /*
     public Result getElementsWithPages(String elementType, int pageSize, int offset) {
         if (elementType.equals("instrumenttype")) {
             return InstrumentTypeAPI.getInstrumentTypes();
@@ -128,7 +132,7 @@ public class SIRElementAPI extends Controller {
             return DetectorAPI.getDetectors(results);
         } else if (elementType.equals("detectorslot")) {
             List<DetectorSlot> results = DetectorSlot.find();
-          /*  return DetectorAPI.getDetectorSlots(results); */ 
+          //  return DetectorAPI.getDetectorSlots(results);  
         } else if (elementType.equals("codebook")) {
             List<Codebook> results = Codebook.find();
             return CodebookAPI.getCodebooks(results);
@@ -171,6 +175,7 @@ public class SIRElementAPI extends Controller {
         }
         return ok("No valid element type.");
     }
+    */
 
     public Result getElementsByKeywordWithPages(String elementType, String keyword, int pageSize, int offset) {
         if (keyword.equals("_")) {

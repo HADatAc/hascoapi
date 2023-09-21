@@ -134,6 +134,10 @@ public class HAScOMapper {
                             "hascoTypeLabel", "comment"));
         }
 
+        // INSTRUMENT_TYPE
+        filterProvider.addFilter("instrumentTypeFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "className", "superUri", "superLabel", "comment"));
+
         // INSTRUMENT
         if (mode.equals(FULL) && typeResult.equals(VSTOI.INSTRUMENT)) {
             filterProvider.addFilter("instrumentFilter", SimpleBeanPropertyFilter.serializeAll());
@@ -153,6 +157,10 @@ public class HAScOMapper {
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
                             "hascoTypeLabel", "comment", "hasPriority", "hasDetector", "detector", "belongsTo"));
         }
+
+        // DETECTOR_STEM_TYPE
+        filterProvider.addFilter("detectorStemTypeFilter", 
+            SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "className", "superUri", "superLabel", "comment"));
 
         // DETECTOR_STEM
         if (mode.equals(FULL) && typeResult.equals(VSTOI.DETECTOR)) {
@@ -254,8 +262,8 @@ public class HAScOMapper {
             return getFiltered(mode, VSTOI.RESPONSE_OPTION);
         } else if (clazz == ResponseOptionSlot.class) {
             return getFiltered(mode, VSTOI.RESPONSE_OPTION_SLOT);
-        }
-        return null;
+        } 
+        return getFiltered(mode, "NONE");
     }
 
 }

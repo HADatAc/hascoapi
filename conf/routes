@@ -18,13 +18,13 @@ POST    /sirapi/version                                   org.sirapi.console.con
 GET     /sirapi/api/uri/:uri                              org.sirapi.console.controllers.restapi.URIPage.getUri(uri: String)
 GET     /sirapi/api/usage/:uri                            org.sirapi.console.controllers.restapi.SIRElementAPI.usage(uri: String)
 GET     /sirapi/api/derivation/:uri                       org.sirapi.console.controllers.restapi.SIRElementAPI.derivation(uri: String)
-GET     /sirapi/api/:elementType/all                                                    org.sirapi.console.controllers.restapi.SIRElementAPI.getElements(elementType: String)
-GET     /sirapi/api/:elementType/total                                                  org.sirapi.console.controllers.restapi.SIRElementAPI.getTotalElements(elementType: String)
-GET     /sirapi/api/:elementType/subclasses                                             org.sirapi.console.controllers.restapi.SIRElementAPI.getSubclasses(elementType: String)
+GET     /sirapi/api/:elementType/elements/:pageSize/:offset                             org.sirapi.console.controllers.restapi.SIRElementAPI.getElementsWithPage(elementType: String, pageSize : Integer, offset : Integer)
+GET     /sirapi/api/:elementType/elements/total                                         org.sirapi.console.controllers.restapi.SIRElementAPI.getTotalElements(elementType: String)
+# GET     /sirapi/api/:elementType/subclasses                                           org.sirapi.console.controllers.restapi.SIRElementAPI.getSubclasses(elementType: String)
 GET     /sirapi/api/:elementType/keywordlanguage/:keyword/:language/:pageSize/:offset   org.sirapi.console.controllers.restapi.SIRElementAPI.getElementsByKeywordAndLanguage(elementType: String, keyword : String, language : String, pageSize : Integer, offset : Integer)
 GET     /sirapi/api/:elementType/keywordlanguage/total/:keyword/:language               org.sirapi.console.controllers.restapi.SIRElementAPI.getTotalElementsByKeywordAndLanguage(elementType : String, keyword : String, language : String)
-GET     /sirapi/api/:elementType/keyword/:keyword                                       org.sirapi.console.controllers.restapi.SIRElementAPI.getElementsByKeyword(elementType: String, keyword : String)
-GET     /sirapi/api/:elementType/language/:language                                     org.sirapi.console.controllers.restapi.SIRElementAPI.getElementsByLanguage(elementType: String, language : String)
+# GET     /sirapi/api/:elementType/keyword/:keyword                                     org.sirapi.console.controllers.restapi.SIRElementAPI.getElementsByKeyword(elementType: String, keyword : String)
+# GET     /sirapi/api/:elementType/language/:language                                   org.sirapi.console.controllers.restapi.SIRElementAPI.getElementsByLanguage(elementType: String, language : String)
 GET     /sirapi/api/:elementType/manageremail/:managerEmail/:pageSize/:offset           org.sirapi.console.controllers.restapi.SIRElementAPI.getElementsByManagerEmail(elementType: String, managerEmail : String, pageSize : Integer, offset : Integer)
 GET     /sirapi/api/:elementType/manageremail/total/:managerEmail                       org.sirapi.console.controllers.restapi.SIRElementAPI.getTotalElementsByManagerEmail(elementType : String, managerEmail : String)
 
@@ -100,6 +100,12 @@ GET     /sirapi/test/responseoption/attach                org.sirapi.console.con
 GET     /sirapi/test/responseoption/detach                org.sirapi.console.controllers.restapi.ResponseOptionAPI.detachForTesting()
 GET     /sirapi/test/responseoptionslot/create            org.sirapi.console.controllers.restapi.CodebookAPI.createResponseOptionSlotsForTesting()
 GET     /sirapi/test/responseoptionslot/delete            org.sirapi.console.controllers.restapi.CodebookAPI.deleteResponseOptionSlotsForTesting()
+GET     /sirapi/test/entity/create                        org.sirapi.console.controllers.restapi.EntityAPI.createEntityForTesting()
+GET     /sirapi/test/entity/delete                        org.sirapi.console.controllers.restapi.EntityAPI.deleteEntityForTesting()
+GET     /sirapi/test/attribute/create                     org.sirapi.console.controllers.restapi.AttributeAPI.createAttributesForTesting()
+GET     /sirapi/test/attribute/delete                     org.sirapi.console.controllers.restapi.AttributeAPI.deleteAttributesForTesting()
+GET     /sirapi/test/unit/create                          org.sirapi.console.controllers.restapi.UnitAPI.createUnitForTesting()
+GET     /sirapi/test/unit/delete                          org.sirapi.console.controllers.restapi.UnitAPI.deleteUnitForTesting()
 
 # DOCUMENTATION METHODS
 
@@ -113,7 +119,8 @@ GET     /sirapi/documentation/deletedetectorexample       org.sirapi.console.con
 
 GET     /sirapi/documentation/retrievalmethodlist         org.sirapi.console.controllers.documentation.RetrievalMethodList.index()
 GET     /sirapi/documentation/queryuriexample             org.sirapi.console.controllers.documentation.RetrievalMethodList.queryURIExample()
-GET     /sirapi/documentation/queryallexample             org.sirapi.console.controllers.documentation.RetrievalMethodList.queryAllExample()
+GET     /sirapi/documentation/queryelementindividualsexample     org.sirapi.console.controllers.documentation.RetrievalMethodList.queryElementIndividualsExample()
+GET     /sirapi/documentation/queryelementsubclassesexample    org.sirapi.console.controllers.documentation.RetrievalMethodList.queryElementSubclassesExample()
 GET     /sirapi/documentation/instrumentrenderingexample  org.sirapi.console.controllers.documentation.RetrievalMethodList.instrumentRenderingExample()
 
 GET     /sirapi/documentation/testingmethodlist           org.sirapi.console.controllers.documentation.TestingMethodList.index()

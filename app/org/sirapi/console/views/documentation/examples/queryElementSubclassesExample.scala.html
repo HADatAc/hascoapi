@@ -1,0 +1,41 @@
+@()
+
+@import helper._
+@import org.sirapi.utils.NameSpaces
+@import org.sirapi.console.views.html._
+@import org.sirapi.console.controllers._
+@import org.sirapi.entity.pojo.HADatAcClass
+@import org.sirapi.entity.pojo.HADatAcThing
+@import org.sirapi.entity.pojo.Instrument
+@import play.api.Play
+@import com.typesafe.config.ConfigFactory
+
+@main("Query Element Subclasses Example","","") {
+
+    <div class="container-fluid">
+
+        @header()
+
+        <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-10">
+                <h3>Query Element Subclasses Example</h3>
+
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/instrument/subclasses" role="button">GET /sirapi/api/instrument/subclasses</a> - Returns all subclasses of 'instrument'.<br>
+                <a class="btn btn-outline-primary btn-sm" href="/sirapi/api/detectorstem/subclasses" role="button">GET /sirapi/api/detectorstem/subclasses</a> - Returns all subclasses of 'detectorstem'.<br>
+
+                <br><br><br>
+
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-10">
+            <a href="@org.sirapi.console.controllers.documentation.routes.RetrievalMethodList.index()" class="btn btn-success" role="button">Back to RESTFul API</a>
+        </div>
+    </div>
+
+}

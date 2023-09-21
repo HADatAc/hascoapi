@@ -239,6 +239,10 @@ public class Attribute extends HADatAcClass implements Comparable<Attribute> {
         attribute = new Attribute();
         StmtIterator stmtIterator = model.listStatements();
 
+        if (!stmtIterator.hasNext()) {
+            return null;
+        }
+
         while (stmtIterator.hasNext()) {
             statement = stmtIterator.next();
             object = statement.getObject();

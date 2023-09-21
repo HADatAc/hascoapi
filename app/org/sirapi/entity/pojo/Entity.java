@@ -15,6 +15,8 @@ import org.apache.jena.rdf.model.StmtIterator;
 import org.sirapi.utils.SPARQLUtils;
 import org.sirapi.utils.CollectionUtil;
 import org.sirapi.utils.NameSpaces;
+import org.sirapi.vocabularies.HASCO;
+import org.sirapi.vocabularies.RDF;
 import org.sirapi.vocabularies.RDFS;
 import org.sirapi.vocabularies.SIO;
 
@@ -84,6 +86,10 @@ public class Entity extends HADatAcClass implements Comparable<Entity> {
         Entity entity = new Entity();
         StmtIterator stmtIterator = model.listStatements();
 
+        if (!stmtIterator.hasNext()) {
+            return null;
+        }
+
         while (stmtIterator.hasNext()) {
             Statement statement = stmtIterator.next();
             RDFNode object = statement.getObject();
@@ -96,7 +102,14 @@ public class Entity extends HADatAcClass implements Comparable<Entity> {
                 }
             } else if (statement.getPredicate().getURI().equals(RDFS.SUBCLASS_OF)) {
                 entity.setSuperUri(object.asResource().getURI());
-            }
+            } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
+                entity.setTypeUri(object.asResource().getURI());
+			} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
+				entity.setHascoTypeUri(object.asResource().getURI());
+		    } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
+		    	entity.setComment(object.asLiteral().getString());
+		    }
+
         }
 
         entity.setUri(uri);

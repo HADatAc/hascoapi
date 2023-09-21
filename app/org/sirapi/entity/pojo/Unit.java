@@ -14,6 +14,9 @@ import org.apache.jena.rdf.model.StmtIterator;
 import org.sirapi.utils.SPARQLUtils;
 import org.sirapi.utils.CollectionUtil;
 import org.sirapi.utils.NameSpaces;
+import org.sirapi.vocabularies.HASCO;
+import org.sirapi.vocabularies.RDF;
+import org.sirapi.vocabularies.RDFS;
 import org.sirapi.vocabularies.SIO;
 
 
@@ -55,6 +58,7 @@ public class Unit extends HADatAcClass implements Comparable<Unit> {
 	}
 
 	public static Unit find(String uri) {
+		System.out.println("Unit.find(uri) with uri [" + uri + "]");
 		Unit unit = null;
 		Model model;
 		Statement statement;
@@ -65,19 +69,37 @@ public class Unit extends HADatAcClass implements Comparable<Unit> {
 		    model = SPARQLUtils.describe(CollectionUtil.getCollectionPath(
 		            CollectionUtil.Collection.SPARQL_QUERY), queryString);
 		} catch (Exception e) {
-		    System.out.println("[ERROR] Unit.find(uri) failed to execute descrive query");
+		    System.out.println("[ERROR] Unit.find(uri) failed to execute describe query");
 		    return null;
 		}
+
+		System.out.println("Unit.find(uri) [1]");
 		StmtIterator stmtIterator = model.listStatements();
+
+        if (!stmtIterator.hasNext()) {
+            return null;
+        }
+
+		System.out.println("Unit.find(uri) [2]");
 		if (model.size() > 0) {
 			unit = new Unit();
 			while (stmtIterator.hasNext()) {
+				System.out.println("Unit.find(uri) [3]");
+
 				statement = stmtIterator.next();
 				object = statement.getObject();
-				if (statement.getPredicate().getURI().equals("http://www.w3.org/2000/01/rdf-schema#label")) {
-					unit.setLabel(object.asLiteral().getString());
-				} else if (statement.getPredicate().getURI().equals("http://www.w3.org/2000/01/rdf-schema#subClassOf")) {
+				System.out.println("Unit.find(uri) " + statement.getPredicate().getURI());
+				if (statement.getPredicate().getURI().equals(RDFS.SUBCLASS_OF)) {
 					unit.setSuperUri(object.asResource().getURI());
+					System.out.println("Unit.find(uri): subClassOf is " + object.asResource().getURI());
+				} else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
+					unit.setTypeUri(object.asResource().getURI());
+				} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
+					unit.setHascoTypeUri(object.asResource().getURI());
+				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
+					unit.setComment(object.asLiteral().getString());
+				} else if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
+					unit.setLabel(object.asLiteral().getString());
 				}
 			}
 

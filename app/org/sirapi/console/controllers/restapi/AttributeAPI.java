@@ -1,0 +1,111 @@
+package org.sirapi.console.controllers.restapi;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.parser.IParser;
+
+import org.sirapi.entity.pojo.Attribute;
+import org.sirapi.transform.Renderings;
+import org.sirapi.utils.ApiUtil;
+import org.sirapi.vocabularies.SIO;
+import org.sirapi.vocabularies.VSTOI;
+import play.mvc.Controller;
+import play.mvc.Result;
+
+import java.io.ByteArrayOutputStream;
+import java.util.List;
+
+import static org.sirapi.Constants.TEST_ATTRIBUTE1_URI;
+import static org.sirapi.Constants.TEST_ATTRIBUTE2_URI;
+
+public class AttributeAPI extends Controller {
+
+    private Result createAttributeResult(Attribute attribute) {
+        attribute.save();
+        return ok(ApiUtil.createResponse("Attribute <" + attribute.getUri() + "> has been CREATED.", true));
+    }
+
+    public Result createAttribute(String json) {
+        if (json == null || json.equals("")) {
+            return ok(ApiUtil.createResponse("No json content has been provided.", false));
+        }
+        System.out.println("(AttributeAPI) Value of json in createAttribute: [" + json + "]");
+        ObjectMapper objectMapper = new ObjectMapper();
+        Attribute newInst;
+        try {
+            //convert json string to Attribute attributeance
+            newInst  = objectMapper.readValue(json, Attribute.class);
+        } catch (Exception e) {
+            //System.out.println("(AttributeAPI) Failed to parse json for [" + json + "]");
+            return ok(ApiUtil.createResponse("Failed to parse json.", false));
+        }
+        return createAttributeResult(newInst);
+    }
+
+    public Result createAttributesForTesting() {
+        Attribute testAttribute1 = Attribute.find(TEST_ATTRIBUTE1_URI);
+        Attribute testAttribute2 = Attribute.find(TEST_ATTRIBUTE2_URI);
+        if (testAttribute1 != null) {
+            return ok(ApiUtil.createResponse("Test attribute <" + TEST_ATTRIBUTE1_URI + "> already exists.", false));
+        } else if (testAttribute2 != null) {
+            return ok(ApiUtil.createResponse("Test attribute <" + TEST_ATTRIBUTE2_URI + "> already exists.", false));
+        } else {            
+            testAttribute1 = new Attribute();
+            testAttribute1.setUri(TEST_ATTRIBUTE1_URI);
+            testAttribute1.setSuperUri(SIO.ATTRIBUTE);
+            testAttribute1.setLabel("Test Attribute");
+            testAttribute1.setTypeUri(SIO.ATTRIBUTE);
+            testAttribute1.setHascoTypeUri(SIO.ATTRIBUTE);
+            testAttribute1.setComment("This is a dummy attribute created to test the SIR API.");
+//            testAttribute1.setHasSIRManagerEmail("me@example.com");
+            testAttribute1.save();
+            testAttribute2 = new Attribute();
+            testAttribute2.setUri(TEST_ATTRIBUTE1_URI);
+            testAttribute2.setSuperUri(SIO.ATTRIBUTE);
+            testAttribute2.setLabel("Test Attribute");
+            testAttribute2.setTypeUri(SIO.ATTRIBUTE);
+            testAttribute2.setHascoTypeUri(SIO.ATTRIBUTE);
+            testAttribute2.setComment("This is a dummy attribute created to test the SIR API.");
+//            testAttribute2.setHasSIRManagerEmail("me@example.com");
+            testAttribute2.save();
+            return ok(ApiUtil.createResponse("Testing attributes 1 and 2 have been CREATED.", true));
+        }
+    }
+
+    private Result deleteAttributeResult(Attribute attribute) {
+        String uri = attribute.getUri();
+        attribute.delete();
+        return ok(ApiUtil.createResponse("Attribute <" + uri + "> has been DELETED.", true));
+    }
+
+    public Result deleteAttribute(String uri){
+        if (uri == null || uri.equals("")) {
+            return ok(ApiUtil.createResponse("No attribute URI has been provided.", false));
+        }
+        Attribute attribute = Attribute.find(uri);
+        if (attribute == null) {
+            return ok(ApiUtil.createResponse("There is no attribute with URI <" + uri + "> to be deleted.", false));
+        } else {
+            return deleteAttributeResult(attribute);
+        }
+    }
+
+    public Result deleteAttributesForTesting(){
+        Attribute test1 = Attribute.find(TEST_ATTRIBUTE1_URI);
+        Attribute test2 = Attribute.find(TEST_ATTRIBUTE2_URI);
+        if (test1 == null) {
+            return ok(ApiUtil.createResponse("There is no Test attribute 1 to be deleted.", false));
+        } else if (test2 == null) {
+            return ok(ApiUtil.createResponse("There is no Test attribute 2 to be deleted.", false));
+        } else {
+            test1.delete();
+            test2.delete();
+            return ok(ApiUtil.createResponse("Testing attributes 1 and 2 have been DELETED.", true));
+        }
+    }
+
+}

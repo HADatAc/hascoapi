@@ -45,14 +45,8 @@ public class GenericFind<T> {
             return URIUtils.replaceNameSpace(VSTOI.RESPONSE_OPTION);
         } else if (clazz == SemanticVariable.class) {
             return URIUtils.replaceNameSpace(HASCO.SEMANTIC_VARIABLE);
-        } else if (clazz == Entity.class) {
-            return URIUtils.replaceNameSpace(SIO.ENTITY);
-        } else if (clazz == Attribute.class) {
-            return URIUtils.replaceNameSpace(SIO.ATTRIBUTE);
-        } else if (clazz == Unit.class) {
-            return URIUtils.replaceNameSpace(SIO.UNIT);
         }
-        return "";
+        return null;
     }
 
     private static String superclassNameWithNamespace (Class clazz) {
@@ -60,8 +54,14 @@ public class GenericFind<T> {
             return URIUtils.replaceNameSpace(VSTOI.INSTRUMENT);
         } else if (clazz == DetectorStemType.class) {
             return URIUtils.replaceNameSpace(VSTOI.DETECTOR_STEM);
+        } else if (clazz == Entity.class) {
+            return URIUtils.replaceNameSpace(SIO.ENTITY);
+        } else if (clazz == Attribute.class) {
+            return URIUtils.replaceNameSpace(SIO.ATTRIBUTE);
+        } else if (clazz == Unit.class) {
+            return URIUtils.replaceNameSpace(SIO.UNIT);
         } 
-        return "";
+        return null;
     }
 
     /**
@@ -89,14 +89,36 @@ public class GenericFind<T> {
         return findByQuery(clazz, queryString);
     }
 
-    public static int findTotal(Class clazz) {
+    public static int findTotalInstances(String className) {
+        System.out.println("GenericFind.findTotalInstances - ClassName: " + className);
         String queryString = "";
         queryString += NameSpaces.getInstance().printSparqlNameSpaceList();
         queryString += " select (count(?uri) as ?tot) where { " +
-                " ?type rdfs:subClassOf* " + classNameWithNamespace(clazz) + " . " +
+                " ?type rdfs:subClassOf* " + className + " . " +
                 " ?uri a ?type ." +
                 "}";
         return findTotalByQuery(queryString);
+    }
+
+	public static int findTotalSubclasses(String superClassName) {
+        String queryString = "";
+        queryString += NameSpaces.getInstance().printSparqlNameSpaceList();
+        queryString += " select (count(?type) as ?tot) where { " +
+                " ?type rdfs:subClassOf* " + superClassName + " . " +
+                "}";
+        return findTotalByQuery(queryString);
+	}
+
+    public static int findTotal(Class clazz) {
+        String className = classNameWithNamespace(clazz);
+        if (className != null) {
+            return findTotalInstances(className);
+        }
+        String superClassName = superclassNameWithNamespace(clazz);
+        if (superClassName != null) {
+            return findTotalSubclasses(superClassName);
+        }
+        return -1;
     }
 
     public static <T> List<T> findSubclassesWithPages(Class clazz, int pageSize, int offset) {
@@ -104,7 +126,8 @@ public class GenericFind<T> {
             return null;
         }
         String superclassName = superclassNameWithNamespace(clazz);
-        //System.out.println("Class name:" + className);
+        System.out.println("SuperClass name:" + superclassName);
+        System.out.println("Class name:" + clazz.getName());
         if (superclassName.equals("")) {
             return null;
         }
@@ -192,10 +215,9 @@ public class GenericFind<T> {
      *    QUERY EXECUTION
      */
 
-
     private static <T> List<T> findByQuery(Class clazz,String queryString) {
         List<T> list = new ArrayList<T>();
-        //System.out.println("Here 1");
+        System.out.println("FindByQuery: query = [" + queryString + "]");
         ResultSetRewindable resultsrw = SPARQLUtils.select(
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
@@ -206,9 +228,9 @@ public class GenericFind<T> {
         while (resultsrw.hasNext()) {
             QuerySolution soln = resultsrw.next();
             T element = findElement(clazz, soln.getResource("uri").getURI());
-            //System.out.println("Here 3");
+            System.out.println("  - retrieved element");
             if (element != null) {                        
-                //System.out.println("Here 4");
+                System.out.println("  - element is not null");
                 list.add(element);
             }
         }
@@ -216,7 +238,21 @@ public class GenericFind<T> {
     }
 
     private static <T> T findElement(Class clazz, String uri) {
-        if (clazz == Instrument.class) {
+
+        // List of subclasses 
+        if (clazz == InstrumentType.class) {
+            return (T)InstrumentType.find(uri);
+        } else if (clazz == DetectorStemType.class) {
+            return (T)DetectorStemType.find(uri);
+        } else if (clazz == Entity.class) {
+            return (T)Entity.find(uri);
+        } else if (clazz == Attribute.class) {
+            return (T)Attribute.find(uri);
+        } else if (clazz == Unit.class) {
+            return (T)Unit.find(uri);
+
+        // List of elements
+        } else if (clazz == Instrument.class) {
             return (T)Instrument.find(uri);
         } else if (clazz == DetectorSlot.class) {
             return (T)DetectorSlot.find(uri);
@@ -232,12 +268,6 @@ public class GenericFind<T> {
             return (T)ResponseOption.find(uri);
         } else if (clazz == SemanticVariable.class) {
             return (T)SemanticVariable.find(uri);
-        } else if (clazz == Entity.class) {
-            return (T)Entity.find(uri);
-        } else if (clazz == Attribute.class) {
-            return (T)Attribute.find(uri);
-        } else if (clazz == Unit.class) {
-            return (T)Unit.find(uri);
         }
         return null;
     
