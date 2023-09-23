@@ -519,7 +519,6 @@ public class SemanticVariable extends HADatAcThing {
 
 	@Override
 	public void save() {
-		System.out.println("inside SemanticVariable.save()");
 		this.saveToTripleStore();
 	}
 

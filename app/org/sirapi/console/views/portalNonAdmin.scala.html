@@ -4,17 +4,9 @@
 @import org.sirapi.utils.NameSpaces
 @import org.sirapi.console.views.html._
 @import org.sirapi.console.controllers._
+@import org.sirapi.entity.pojo.DetectorSlot
 @import org.sirapi.entity.pojo.HADatAcClass
 @import org.sirapi.entity.pojo.HADatAcThing
-@import org.sirapi.entity.pojo.Instrument
-@import org.sirapi.entity.pojo.InstrumentType
-@import org.sirapi.entity.pojo.DetectorSlot
-@import org.sirapi.entity.pojo.Detector
-@import org.sirapi.entity.pojo.DetectorStem
-@import org.sirapi.entity.pojo.DetectorStemType
-@import org.sirapi.entity.pojo.Codebook
-@import org.sirapi.entity.pojo.GenericFind
-@import org.sirapi.entity.pojo.ResponseOption
 @import org.sirapi.entity.pojo.ResponseOptionSlot
 @import org.sirapi.console.controllers.restapi.SIRElementAPI
 @import play.api.Play
@@ -43,149 +35,187 @@
     <div class="col-md-10">
         <h2>Dashboard</h2>
         <br>
-        <h4>Instrument Elements</h4>
+        <h2>Functionalities</h2>
+        <br>
         <div class="row dash-text">
-            <div class="col-md-2 text-center">
-                <div class="dashNumber">@SIRElementAPI.getNumberElements("instrumenttype")</div>
-                <a href="" id="instrumentTypes" class="btn btn-primary w-100 disabled" role="button">Instrument Types</a>
+            <div class="col-md-1 text-center">
+                <a href="@org.sirapi.console.controllers.documentation.routes.RetrievalMethodList.index()" id="retrievalAPI" class="btn btn-success w-100" role="button">Element Retrieval API</a>
                 <br>
             </div>
-            <div class="col-md-2 text-center">
-                <div class="dashNumber">@SIRElementAPI.getNumberElements("instrument")</div>
-                <a href="" id="instruments" class="btn btn-primary w-100 disabled" role="button">Instruments</a>
+            <div class="col-md-1 text-center">
+                <a href="@org.sirapi.console.controllers.documentation.routes.ElementsMethodList.index()" id="elementsAPI" class="btn btn-success w-100" role="button">Element Mngt. API</a>
                 <br>
             </div>
-            <div class="col-md-2 text-center">
-                <div class="dashNumber">@SIRElementAPI.getNumberElements("detectorslot")</div>
-                <a href="" id="detectorSlots" class="btn btn-primary w-100 disabled" role="button">Detector Slots</a>
+            <div class="col-md-1 text-center">
+                <a href="@org.sirapi.console.controllers.documentation.routes.TestingMethodList.index()" id="elementsAPI" class="btn btn-success w-100" role="button">Testing API</a>
                 <br>
             </div>
-            <div class="col-md-2 text-center">
-                <div class="dashNumber">0</div>
-                <a href="" id="detectorSlotsWithDetectors" class="btn btn-primary w-100 disabled" role="button">Used Detector Slots</a>
+            <div class="col-md-1 text-center">
+                <a href="@org.sirapi.console.controllers.documentation.routes.RepositoryMethodList.index()" id="repositoryAPI" class="btn btn-success w-100" role="button">Repo Config API</a>
                 <br>
             </div>
-        </div>
-        <div class="row dash-text">
-            <div class="col-md-2 text-center">
-                <div class="dashNumber">@SIRElementAPI.getNumberElements("detectorstemtype")</div>
-                <a href="" id="detectorStemTypes" class="btn btn-primary w-100 disabled" role="button">DetectorStem Types</a>
-                <br>
-            </div>
-            <div class="col-md-2 text-center">
-                <div class="dashNumber">@SIRElementAPI.getNumberElements("detectorstem")</div>
-                <a href="" id="detectorStems" class="btn btn-primary w-100 disabled" role="button">Detector Stems</a>
-                <br>
-            </div>
-            <div class="col-md-2 text-center">
-                <div class="dashNumber">@SIRElementAPI.getNumberElements("detector")</div>
-                <a href="" id="detectors" class="btn btn-primary w-100 disabled" role="button">Detectors</a>
-                <br>
-            </div>
-        </div>
-        <div class="row dash-text">
-            <div class="col-md-2 text-center">
-                <div class="dashNumber">@SIRElementAPI.getNumberElements("codebook")</div>
-                <a href="" id="codebooks" class="btn btn-primary w-100 disabled" role="button">Codebooks</a>
-                <br>
-            </div>
-            <div class="col-md-2 text-center">
-                <div class="dashNumber">@SIRElementAPI.getNumberElements("responseoption")</div>
-                <a href="" id="responseoptions" class="btn btn-primary w-100 disabled" role="button">Response Options</a>
-                <br>
-            </div>
-            <div class="col-md-2 text-center">
-                <div class="dashNumber">@SIRElementAPI.getNumberElements("responseoptionslot")</div>
-                <a href="" id="responseOptionSlots" class="btn btn-primary w-100 disabled" role="button">Response Option Slots</a>
-                <br>
-            </div>
-            <div class="col-md-2 text-center">
-                <div class="dashNumber">@ResponseOptionSlot.getNumberResponseOptionSlotsWithResponseOptions()</div>
-                <a href="" id="responseOptionSlotsWithResponseOptions" class="btn btn-primary w-100 disabled" role="button">Used Response Option Slots</a>
+            <div class="col-md-1 text-center">
+                <a href="@org.sirapi.console.controllers.ontologies.routes.Maintenance.index()" id="methods" class="btn btn-success w-100" role="button">Ontology Mngt.</a>
                 <br>
             </div>
         </div>
         <br>
+        <h4>Instrument Elements</h4>
+        <div style=" padding: 10px; background-color: lightgray;">
+            <div class="row dash-text">
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@SIRElementAPI.getNumberElements("instrumenttype")</div>
+                    <a href="" id="instrumentTypes" class="btn btn-primary w-100 disabled" role="button">Instrument Types</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@SIRElementAPI.getNumberElements("instrument")</div>
+                    <a href="" id="instruments" class="btn btn-primary w-100 disabled" role="button">Instruments</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@SIRElementAPI.getNumberElements("detectorslot")</div>
+                    <a href="" id="detectorSlots" class="btn btn-primary w-100 disabled" role="button">Detector Slots</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@DetectorSlot.getNumberDetectorSlotsWithDetectors()</div>
+                    <a href="" id="detectorSlotsWithDetectors" class="btn btn-primary w-100 disabled" role="button">Used Detector Slots</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@SIRElementAPI.getNumberElements("detectorstemtype")</div>
+                    <a href="" id="detectorStemTypes" class="btn btn-primary w-100 disabled" role="button">DetectorStem Types</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@SIRElementAPI.getNumberElements("detectorstem")</div>
+                    <a href="" id="detectorStems" class="btn btn-primary w-100 disabled" role="button">Detector Stems</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@SIRElementAPI.getNumberElements("detector")</div>
+                    <a href="" id="detectors" class="btn btn-primary w-100 disabled" role="button">Detectors</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@SIRElementAPI.getNumberElements("codebook")</div>
+                    <a href="" id="codebooks" class="btn btn-primary w-100 disabled" role="button">Codebooks</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@SIRElementAPI.getNumberElements("responseoption")</div>
+                    <a href="" id="responseoptions" class="btn btn-primary w-100 disabled" role="button">Response Options</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@SIRElementAPI.getNumberElements("responseoptionslot")</div>
+                    <a href="" id="responseOptionSlots" class="btn btn-primary w-100 disabled" role="button">Response Option Slots</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@ResponseOptionSlot.getNumberResponseOptionSlotsWithResponseOptions()</div>
+                    <a href="" id="responseOptionSlotsWithResponseOptions" class="btn btn-primary w-100 disabled" role="button">Used Resp. Option Slots</a>
+                    <br>
+                </div>
+            </div>
+        </div>        
+        <br>
         <h4>Semantic Elements</h4>
-        <div class="row dash-text">
-            <div class="col-md-2 text-center">
-                <div class="dashNumber">0</div>
-                <a href="" id="sdds" class="btn btn-primary w-100 disabled" role="button">Data Dictionaries</a>
-                <br>
-            </div>
-            <div class="col-md-2 text-center">
-                <div class="dashNumber">0</div>
-                <a href="" id="variables" class="btn btn-primary w-100 disabled" role="button">Variables</a>
-                <br>
-            </div>
-            <div class="col-md-2 text-center">
-                <div class="dashNumber">@SIRElementAPI.getNumberElements("semanticvariable")</div>
-                <a href="" id="semanticvariables" class="btn btn-primary w-100 disabled" role="button">Semantic Variables</a>
-                <br>
+        <div style=" padding: 10px; background-color: lightgray;">
+            <div class="row dash-text">
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">0</div>
+                    <a href="" id="sdds" class="btn btn-primary w-100 disabled" role="button">Semantic Data Dict.</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@SIRElementAPI.getNumberElements("semanticvariable")</div>
+                    <a href="" id="semanticvariables" class="btn btn-primary w-100 disabled" role="button">Semantic Variables</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@SIRElementAPI.getNumberElements("entity")</div> 
+                    <a href="" id="entitytypes" class="btn btn-primary w-100 disabled" role="button">Entity Types</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@SIRElementAPI.getNumberElements("attribute")</div>
+                    <a href="" id="attributetypes" class="btn btn-primary w-100 disabled" role="button">Attribute Types</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@SIRElementAPI.getNumberElements("unit")</div>
+                    <a href="" id="units" class="btn btn-primary w-100 disabled" role="button">Units</a>
+                    <br>
+                </div>
             </div>
         </div>
-        <div class="row dash-text">
-            <div class="col-md-2 text-center">
-                <div class="dashNumber">@SIRElementAPI.getNumberElements("entity")</div> 
-                <a href="" id="entitytypes" class="btn btn-primary w-100 disabled" role="button">Entity Types</a>
-                <br>
-            </div>
-            <div class="col-md-2 text-center">
-                <div class="dashNumber">@SIRElementAPI.getNumberElements("attribute")</div>
-                <a href="" id="attributetypes" class="btn btn-primary w-100 disabled" role="button">Attribute Types</a>
-                <br>
-            </div>
-            <div class="col-md-2 text-center">
-                <div class="dashNumber">0</div>
-                <a href="" id="units" class="btn btn-primary w-100 disabled" role="button">Units</a>
-                <br>
+        <br>
+        <h4>Study Elements</h4>
+        <div style=" padding: 10px; background-color: lightgray;">
+            <div class="row dash-text">
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">0</div>
+                    <a href="" id="study" class="btn btn-primary w-100 disabled" role="button">Studies</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">0</div>
+                    <a href="" id="objectcollection" class="btn btn-primary w-100 disabled" role="button">Object Collections</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">0</div>
+                    <a href="" id="object" class="btn btn-primary w-100 disabled" role="button">Objects</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">0</div> 
+                    <a href="" id="deployment" class="btn btn-primary w-100 disabled" role="button">Deployments</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">0</div>
+                    <a href="" id="DD" class="btn btn-primary w-100 disabled" role="button">Data Dictionaries</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">0</div>
+                    <a href="" id="variables" class="btn btn-primary w-100 disabled" role="button">Variables</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">0</div>
+                    <a href="" id="stream" class="btn btn-primary w-100 disabled" role="button">Streams</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">0</div>
+                    <a href="" id="value" class="btn btn-primary w-100 disabled" role="button">Values</a>
+                    <br>
+                </div>
             </div>
         </div>
         <br>
         <h4>Supporting Knowledge</h4>
-        <div class="row dash-text">
-            <div class="col-md-2 text-center">
-                <div class="dashNumber">@NameSpaces.getInstance().getNumOfNameSpaces</div>
-                <a href="" id="namespaces" class="btn btn-primary w-100 disabled" role="button">Namespaces</a>
-                <br>
-            </div>
-            <div class="col-md-2 text-center">
-                <div class="dashNumber">@HADatAcClass.getNumberClasses()</div>
-                <a href="" id="classes" class="btn btn-primary w-100 disabled" role="button">Classes</a>
-                <br>
-            </div>
-            <div class="col-md-2 text-center">
-                <div class="dashNumber">@HADatAcThing.getNumberInstances()</div>
-                <a href="" id="instances" class="btn btn-primary w-100 disabled" role="button">Instances</a>
-                <br>
-            </div>
-        </div>
-        <br>
-        <h2>Functionalities</h2>
-        <br>
-        <div class="row dash-text">
-            <div class="col-md-2 text-center">
-                <a href="@org.sirapi.console.controllers.documentation.routes.RetrievalMethodList.index()" id="retrievalAPI" class="btn btn-primary w-100" role="button">Element Retrieval API</a>
-                <br>
-            </div>
-            <div class="col-md-2 text-center">
-                <a href="@org.sirapi.console.controllers.documentation.routes.ElementsMethodList.index()" id="elementsAPI" class="btn btn-primary w-100" role="button">Element Management API</a>
-                <br>
-            </div>
-            <div class="col-md-2 text-center">
-                <a href="@org.sirapi.console.controllers.documentation.routes.TestingMethodList.index()" id="elementsAPI" class="btn btn-primary w-100" role="button">Testing API</a>
-                <br>
-            </div>
-        </div>
-        <br>
-        <div class="row dash-text">
-            <div class="col-md-2 text-center">
-                <a href="@org.sirapi.console.controllers.documentation.routes.RepositoryMethodList.index()" id="repositoryAPI" class="btn btn-primary w-100" role="button">Repo Config API</a>
-                <br>
-            </div>
-            <div class="col-md-2 text-center">
-                <a href="@org.sirapi.console.controllers.ontologies.routes.Maintenance.index()" id="methods" class="btn btn-primary w-100" role="button">Ontology Maintenance</a>
-                <br>
+        <div style=" padding: 10px; background-color: lightgray;">
+            <div class="row dash-text">
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@NameSpaces.getInstance().getNumOfNameSpaces</div>
+                    <a href="" id="namespaces" class="btn btn-primary w-100 disabled" role="button">Namespaces</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@HADatAcClass.getNumberClasses()</div>
+                    <a href="" id="classes" class="btn btn-primary w-100 disabled" role="button">Classes</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@HADatAcThing.getNumberInstances()</div>
+                    <a href="" id="instances" class="btn btn-primary w-100 disabled" role="button">Instances</a>
+                    <br>
+                </div>
             </div>
         </div>
         <br>

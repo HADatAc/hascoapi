@@ -61,6 +61,7 @@ public class GenericInstance extends HADatAcThing implements Comparable<GenericI
         QueryExecution qexec = QueryExecutionFactory.sparqlService(
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), query);
         model = qexec.execDescribe();
+        //System.out.println("GenericInstance.find() [1]");
 
         StmtIterator stmtIterator = model.listStatements();
         if (!stmtIterator.hasNext()) {
@@ -119,7 +120,7 @@ public class GenericInstance extends HADatAcThing implements Comparable<GenericI
                 " ?uri a ?model ." +
                 " } " +
                 " GROUP BY ?modelName ";
-        System.out.println(query);
+        //System.out.println(query);
         try {
             ResultSetRewindable resultsrw = SPARQLUtils.select(
                     CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), query);

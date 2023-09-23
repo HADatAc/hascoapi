@@ -179,7 +179,7 @@ public class FirstLabel {
     }
 
     public static String differentQuery(String uri) {
-        System.out.println(uri);
+        //System.out.println(uri);
         if ((uri == null) || (uri.equals(""))) {
             return "";
         }

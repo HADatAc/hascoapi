@@ -58,7 +58,7 @@ public class Unit extends HADatAcClass implements Comparable<Unit> {
 	}
 
 	public static Unit find(String uri) {
-		System.out.println("Unit.find(uri) with uri [" + uri + "]");
+		//System.out.println("Unit.find(uri) with uri [" + uri + "]");
 		Unit unit = null;
 		Model model;
 		Statement statement;
@@ -73,25 +73,20 @@ public class Unit extends HADatAcClass implements Comparable<Unit> {
 		    return null;
 		}
 
-		System.out.println("Unit.find(uri) [1]");
 		StmtIterator stmtIterator = model.listStatements();
 
         if (!stmtIterator.hasNext()) {
             return null;
         }
 
-		System.out.println("Unit.find(uri) [2]");
 		if (model.size() > 0) {
 			unit = new Unit();
 			while (stmtIterator.hasNext()) {
-				System.out.println("Unit.find(uri) [3]");
 
 				statement = stmtIterator.next();
 				object = statement.getObject();
-				System.out.println("Unit.find(uri) " + statement.getPredicate().getURI());
 				if (statement.getPredicate().getURI().equals(RDFS.SUBCLASS_OF)) {
 					unit.setSuperUri(object.asResource().getURI());
-					System.out.println("Unit.find(uri): subClassOf is " + object.asResource().getURI());
 				} else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
 					unit.setTypeUri(object.asResource().getURI());
 				} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {

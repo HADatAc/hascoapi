@@ -33,7 +33,7 @@ public class AttributeAPI extends Controller {
         if (json == null || json.equals("")) {
             return ok(ApiUtil.createResponse("No json content has been provided.", false));
         }
-        System.out.println("(AttributeAPI) Value of json in createAttribute: [" + json + "]");
+        //System.out.println("(AttributeAPI) Value of json in createAttribute: [" + json + "]");
         ObjectMapper objectMapper = new ObjectMapper();
         Attribute newInst;
         try {
@@ -58,16 +58,16 @@ public class AttributeAPI extends Controller {
             testAttribute1.setUri(TEST_ATTRIBUTE1_URI);
             testAttribute1.setSuperUri(SIO.ATTRIBUTE);
             testAttribute1.setLabel("Test Attribute");
-            testAttribute1.setTypeUri(SIO.ATTRIBUTE);
+            testAttribute1.setTypeUri(TEST_ATTRIBUTE1_URI);
             testAttribute1.setHascoTypeUri(SIO.ATTRIBUTE);
             testAttribute1.setComment("This is a dummy attribute created to test the SIR API.");
 //            testAttribute1.setHasSIRManagerEmail("me@example.com");
             testAttribute1.save();
             testAttribute2 = new Attribute();
-            testAttribute2.setUri(TEST_ATTRIBUTE1_URI);
+            testAttribute2.setUri(TEST_ATTRIBUTE2_URI);
             testAttribute2.setSuperUri(SIO.ATTRIBUTE);
             testAttribute2.setLabel("Test Attribute");
-            testAttribute2.setTypeUri(SIO.ATTRIBUTE);
+            testAttribute2.setTypeUri(TEST_ATTRIBUTE2_URI);
             testAttribute2.setHascoTypeUri(SIO.ATTRIBUTE);
             testAttribute2.setComment("This is a dummy attribute created to test the SIR API.");
 //            testAttribute2.setHasSIRManagerEmail("me@example.com");
@@ -97,15 +97,24 @@ public class AttributeAPI extends Controller {
     public Result deleteAttributesForTesting(){
         Attribute test1 = Attribute.find(TEST_ATTRIBUTE1_URI);
         Attribute test2 = Attribute.find(TEST_ATTRIBUTE2_URI);
-        if (test1 == null) {
-            return ok(ApiUtil.createResponse("There is no Test attribute 1 to be deleted.", false));
-        } else if (test2 == null) {
-            return ok(ApiUtil.createResponse("There is no Test attribute 2 to be deleted.", false));
-        } else {
+        boolean exist1 = (test1 != null);
+        boolean exist2 = (test2 != null);
+        if (exist1) {
             test1.delete();
+        } 
+        if (exist2) {
             test2.delete();
-            return ok(ApiUtil.createResponse("Testing attributes 1 and 2 have been DELETED.", true));
+        } 
+        if (exist1 && !exist2) {
+            return ok(ApiUtil.createResponse("Testing Attribute 1 has been DELETED.", true));
         }
+        if (!exist1 && exist2) {
+            return ok(ApiUtil.createResponse("Testing Attribute 2 has been DELETED.", true));
+        }
+        if (exist1 && exist2) {
+            return ok(ApiUtil.createResponse("Testing Attributes 1 and 2 have been DELETED.", true));
+        }
+        return ok(ApiUtil.createResponse("No Testing Attribute has been DELETED.", false));
     }
 
 }

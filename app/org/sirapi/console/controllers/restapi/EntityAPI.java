@@ -33,17 +33,17 @@ public class EntityAPI extends Controller {
         if (json == null || json.equals("")) {
             return ok(ApiUtil.createResponse("No json content has been provided.", false));
         }
-        System.out.println("(EntityAPI) Value of json in createEntity: [" + json + "]");
+        //System.out.println("(EntityAPI) Value of json in createEntity: [" + json + "]");
         ObjectMapper objectMapper = new ObjectMapper();
-        Entity newInst;
+        Entity newEntity;
         try {
             //convert json string to Entity entityance
-            newInst  = objectMapper.readValue(json, Entity.class);
+            newEntity  = objectMapper.readValue(json, Entity.class);
         } catch (Exception e) {
             //System.out.println("(EntityAPI) Failed to parse json for [" + json + "]");
             return ok(ApiUtil.createResponse("Failed to parse json.", false));
         }
-        return createEntityResult(newInst);
+        return createEntityResult(newEntity);
     }
 
     public Result createEntityForTesting() {
@@ -55,7 +55,7 @@ public class EntityAPI extends Controller {
             testEntity.setUri(TEST_ENTITY_URI);
             testEntity.setSuperUri(SIO.ENTITY);
             testEntity.setLabel("Test Entity");
-            testEntity.setTypeUri(SIO.ENTITY);
+            testEntity.setTypeUri(TEST_ENTITY_URI);
             testEntity.setHascoTypeUri(SIO.ENTITY);
             testEntity.setComment("This is a dummy entity created to test the SIR API.");
             //testEntity.setHasSIRManagerEmail("me@example.com");

@@ -60,7 +60,7 @@ public class DetectorStemAPI extends Controller {
         if (json == null || json.equals("")) {
             return ok(ApiUtil.createResponse("No json content has been provided.", false));
         }
-        System.out.println("(CreateDetectorStem) Value of json: [" + json + "]");
+        //System.out.println("(CreateDetectorStem) Value of json: [" + json + "]");
         ObjectMapper objectMapper = new ObjectMapper();
         DetectorStem newDetectorStem;
         try {

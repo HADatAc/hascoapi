@@ -32,7 +32,7 @@ public class UnitAPI extends Controller {
         if (json == null || json.equals("")) {
             return ok(ApiUtil.createResponse("No json content has been provided.", false));
         }
-        System.out.println("(UnitAPI) Value of json in createUnit: [" + json + "]");
+        //System.out.println("(UnitAPI) Value of json in createUnit: [" + json + "]");
         ObjectMapper objectMapper = new ObjectMapper();
         Unit newInst;
         try {
@@ -54,7 +54,7 @@ public class UnitAPI extends Controller {
             testUnit.setUri(TEST_UNIT_URI);
             testUnit.setSuperUri(SIO.UNIT);
             testUnit.setLabel("Test Unit");
-            testUnit.setTypeUri(SIO.UNIT);
+            testUnit.setTypeUri(TEST_UNIT_URI);
             testUnit.setHascoTypeUri(SIO.UNIT);
             testUnit.setComment("This is a dummy unit created to test the SIR API.");
             //testUnit.setHasSIRManagerEmail("me@example.com");

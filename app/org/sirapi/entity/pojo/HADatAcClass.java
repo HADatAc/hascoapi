@@ -143,13 +143,16 @@ public class HADatAcClass extends HADatAcThing {
     public static int getNumberClasses() {
         String query = "";
         query += NameSpaces.getInstance().printSparqlNameSpaceList();
-        query += "select (COUNT(?categ) as ?tot) where " +
-                " { SELECT ?c (COUNT(?c) as ?categ) " +
-                "     WHERE {" +
-                "             [] a ?c . " +
-                "     } " +
-                " GROUP BY ?c " +
+        query += "SELECT (COUNT(?type) as ?tot) WHERE {" +
+                "   ?uri a ?type . " +
                 " }";
+//        query += "select (COUNT(?categ) as ?tot) where " +
+//                " { SELECT ?c (COUNT(?c) as ?categ) " +
+//                "     WHERE {" +
+//                "             [] a ?c . " +
+//                "     } " +
+//                " GROUP BY ?c " +
+//                " }";
 
         try {
             ResultSetRewindable resultsrw = SPARQLUtils.select(
@@ -238,7 +241,7 @@ public class HADatAcClass extends HADatAcThing {
                 }
             } else if (predUri.equals(RDFS.SUBCLASS_OF)) {
                 String objUri = object.asResource().getURI();
-                System.out.println("is subClass of [" + objUri + "]");
+                //System.out.println("is subClass of [" + objUri + "]");
                 if (objUri != null && !objUri.equals(classUri)) {
                     typeClass.setSuperUri(objUri);
                 }

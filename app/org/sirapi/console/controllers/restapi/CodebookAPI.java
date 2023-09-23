@@ -41,13 +41,12 @@ public class CodebookAPI extends Controller {
         if (json == null || json.equals("")) {
             return ok(ApiUtil.createResponse("No json content has been provided.", false));
         }
-        System.out.println("[createCodebook] Value of json: [" + json + "]");
+        //System.out.println("[createCodebook] Value of json: [" + json + "]");
         ObjectMapper objectMapper = new ObjectMapper();
         Codebook newCodebook;
         try {
             // convert json string to Instrument instance
             newCodebook = objectMapper.readValue(json, Codebook.class);
-            System.out.println("done");
         } catch (Exception e) {
             e.printStackTrace();
             return ok(ApiUtil.createResponse("Failed to parse json.", false));

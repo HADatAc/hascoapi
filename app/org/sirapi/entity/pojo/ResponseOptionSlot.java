@@ -259,8 +259,8 @@ public class ResponseOptionSlot extends HADatAcThing implements Comparable<Respo
             ros.setHasResponseOption(hasResponseOption);
         }
         ros.save();
-        System.out.println("ResponseOptionSlot.createResponseOptionSlot: creating slot " + priority + " with URI ["
-                + slotUri + "]");
+        //System.out.println("ResponseOptionSlot.createResponseOptionSlot: creating slot " + priority + " with URI ["
+        //        + slotUri + "]");
         return true;
     }
 
@@ -278,8 +278,8 @@ public class ResponseOptionSlot extends HADatAcThing implements Comparable<Respo
         }
         this.delete();
         newResponseOptionSlot.save();
-        System.out.println("In ResponseOption.updateResponseOptionSlotResponseOption(): value of hasResponseOption["
-                + newResponseOptionSlot.getHasResponseOption() + "]");
+        //System.out.println("In ResponseOption.updateResponseOptionSlotResponseOption(): value of hasResponseOption["
+        //        + newResponseOptionSlot.getHasResponseOption() + "]");
         return true;
     }
 

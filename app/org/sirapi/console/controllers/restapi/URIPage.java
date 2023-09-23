@@ -20,9 +20,12 @@ public class URIPage extends Controller {
         }
 
         HADatAcThing finalResult = URIPage.objectFromUri(uri);
-        String typeUri = finalResult.getHascoTypeUri();
+        if (finalResult == null) {
+            return ok(ApiUtil.createResponse("Uri [" + uri + "] returned no object from the knowledge graph", false));
+        }
 
-        if (finalResult == null || typeUri == null || typeUri.equals("")) {
+        String typeUri = finalResult.getHascoTypeUri();
+        if (typeUri == null || typeUri.equals("")) {
             return ok(ApiUtil.createResponse("No type-specific instance found for uri [" + uri + "]", false));
         }
 
@@ -40,12 +43,13 @@ public class URIPage extends Controller {
 
             Object finalResult = null;
             GenericInstance result = GenericInstance.find(uri);
-            // System.out.println("inside getUri(): URI [" + uri + "]");
+            //System.out.println("URIPage.objectFromUri() [1]: URI [" + uri + "]");
 
             if (result == null) {
                 System.out.println("No generic instance found for uri [" + uri + "]");
                 return null;
             }
+            //System.out.println("URIPage.objectFromUri() [1]: URI [" + uri + "]");
 
             /*
              * if (result.getHascoTypeUri() == null || result.getHascoTypeUri().isEmpty()) {

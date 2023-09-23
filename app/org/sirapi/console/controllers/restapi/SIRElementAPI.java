@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.sirapi.entity.pojo.*;
 import org.sirapi.utils.ApiUtil;
 import org.sirapi.utils.HAScOMapper;
@@ -47,6 +48,237 @@ public class SIRElementAPI extends Controller {
         return null;
     }
 
+    public Result createElement(String elementType, String json) {
+        if (json == null || json.equals("")) {
+            return ok(ApiUtil.createResponse("No json content has been provided.", false));
+        }
+        if (elementType == null || elementType.isEmpty()) {
+            return ok(ApiUtil.createResponse("No elementType has been provided", false));
+        }
+        Class clazz = getElementClass(elementType);
+        if (clazz == null) {
+            return ok(ApiUtil.createResponse("No valid elementType has been provided", false));
+        }
+        boolean success = true;
+        String message = "";
+        ObjectMapper objectMapper = new ObjectMapper();
+        if (clazz == Instrument.class) {
+            Instrument object;
+            try {
+                object = (Instrument)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                success = false;
+                message = e.getMessage();
+            }
+        } else if (clazz == DetectorStem.class) {
+            try {
+                DetectorStem object;
+                object = (DetectorStem)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                success = false;
+                message = e.getMessage();
+            }
+        } else if (clazz == Detector.class) {
+            try {
+                Detector object;
+                object = (Detector)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                success = false;
+                message = e.getMessage();
+            }
+        } else if (clazz == DetectorSlot.class) {
+            try {
+                DetectorSlot object;
+                object = (DetectorSlot)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                success = false;
+                message = e.getMessage();
+            }
+        } else if (clazz == Codebook.class) {
+            try {
+                Codebook object;
+                object = (Codebook)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                success = false;
+                message = e.getMessage();
+            }
+        } else if (clazz == ResponseOption.class) {
+            try {
+                ResponseOption object;
+                object = (ResponseOption)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                success = false;
+                message = e.getMessage();
+            }
+        } else if (clazz == ResponseOptionSlot.class) {
+            try {
+                ResponseOptionSlot object;
+                object = (ResponseOptionSlot)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                success = false;
+                message = e.getMessage();
+            }
+        } else if (clazz == SemanticVariable.class) {
+            try {
+                SemanticVariable object;
+                object = (SemanticVariable)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                success = false;
+                message = e.getMessage();
+            }
+        } else if (clazz == InstrumentType.class) {
+            try {
+                InstrumentType object;
+                object = (InstrumentType)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                success = false;
+                message = e.getMessage();
+            }
+        } else if (clazz == DetectorStemType.class) {
+            try {
+                DetectorStemType object;
+                object = (DetectorStemType)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                success = false;
+                message = e.getMessage();
+            }
+        } else if (clazz == Entity.class) {
+            try {
+                Entity object;
+                object = (Entity)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                success = false;
+                message = e.getMessage();
+            }
+        } else if (clazz == Attribute.class) {
+            try {
+                Attribute object;
+                object = (Attribute)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                success = false;
+                message = e.getMessage();
+            }
+        } else if (clazz == Unit.class) {
+            try {
+                Unit object;
+                object = (Unit)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                success = false;
+                message = e.getMessage();
+            }
+        } 
+        if (!success) {
+            return ok(ApiUtil.createResponse("Error processing JSON: " + message, false));
+        }
+        return ok(ApiUtil.createResponse("Element has been saved", true));
+    }
+
+    public Result deleteElement(String elementType, String uri) {
+        if (uri == null || uri.equals("")) {
+            return ok(ApiUtil.createResponse("No uri has been provided.", false));
+        }
+        if (elementType == null || elementType.isEmpty()) {
+            return ok(ApiUtil.createResponse("No elementType has been provided", false));
+        }
+        Class clazz = getElementClass(elementType);
+        if (clazz == null) {
+            return ok(ApiUtil.createResponse("No valid elementType has been provided", false));
+        }
+        if (clazz == Instrument.class) {
+            Instrument object = Instrument.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == DetectorStem.class) {
+            DetectorStem object = DetectorStem.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == Detector.class) {
+            Detector object = Detector.findDetector(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == DetectorSlot.class) {
+            DetectorSlot object = DetectorSlot.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == Codebook.class) {
+            Codebook object = Codebook.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == ResponseOption.class) {
+            ResponseOption object = ResponseOption.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == ResponseOptionSlot.class) {
+            ResponseOptionSlot object = ResponseOptionSlot.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == SemanticVariable.class) {
+            SemanticVariable object = SemanticVariable.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == InstrumentType.class) {
+            InstrumentType object = InstrumentType.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == DetectorStemType.class) {
+            DetectorStemType object = DetectorStemType.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == Entity.class) {
+            Entity object = Entity.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == Attribute.class) {
+            Attribute object = Attribute.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == Unit.class) {
+            Unit object = Unit.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } 
+        return ok(ApiUtil.createResponse("Element with URI [" + uri + "] has been deleted", true));
+    }
+
     public Result getElementsWithPage(String elementType, int pageSize, int offset) {
         if (elementType == null || elementType.isEmpty()) {
             return ok(ApiUtil.createResponse("No elementType has been provided", false));
@@ -67,26 +299,8 @@ public class SIRElementAPI extends Controller {
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));
         }
-        return ok(ApiUtil.createResponse("method getElements() failed to retrieve elements", false));    }
-
-    /*
-    public Result getSubclasses(String elementType) {
-        if (elementType == null || elementType.isEmpty()) {
-            return ok(ApiUtil.createResponse("No elementType has been provided", false));
-        }
-        Class clazz = getSubclassClass(elementType);
-        if (clazz == null) {        
-            return ok(ApiUtil.createResponse("[" + elementType + "] is not a superclass", false));
-        }
-        List<Object> results = (List<Object>)GenericFind.findSubclassesWithPages(clazz,12,0);
-        System.out.println("size results: " + results.size());
-        if (results != null && results.size() >= 0) {
-            ObjectMapper mapper = HAScOMapper.getFilteredByClass("essential", clazz);
-            JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
-            return ok(ApiUtil.createResponse(jsonObject, true));
-        }
-        return ok(ApiUtil.createResponse("method getSubclasses() failed to retrieve subclasses", false));    }
-    */
+        return ok(ApiUtil.createResponse("method getElements() failed to retrieve elements", false));    
+    }
 
     public Result getTotalElements(String elementType) {
         if (elementType == null || elementType.isEmpty()) {
@@ -115,67 +329,6 @@ public class SIRElementAPI extends Controller {
         return GenericFind.findTotal(clazz);
     }
 
-    /*
-    public Result getElementsWithPages(String elementType, int pageSize, int offset) {
-        if (elementType.equals("instrumenttype")) {
-            return InstrumentTypeAPI.getInstrumentTypes();
-        } else if (elementType.equals("instrument")) {
-            List<Instrument> results = Instrument.find();
-            return InstrumentAPI.getInstruments(results);
-        } else if (elementType.equals("detectorstemtype")) {
-            return DetectorStemTypeAPI.getDetectorStemTypes();
-        } else if (elementType.equals("detectorstem")) {
-            List<DetectorStem> results = DetectorStem.find();
-            return DetectorStemAPI.getDetectorStems(results);
-        } else if (elementType.equals("detector")) {
-            List<Detector> results = Detector.findDetectors();
-            return DetectorAPI.getDetectors(results);
-        } else if (elementType.equals("detectorslot")) {
-            List<DetectorSlot> results = DetectorSlot.find();
-          //  return DetectorAPI.getDetectorSlots(results);  
-        } else if (elementType.equals("codebook")) {
-            List<Codebook> results = Codebook.find();
-            return CodebookAPI.getCodebooks(results);
-        } else if (elementType.equals("responseoption")) {
-            List<ResponseOption> results = ResponseOption.find();
-            return ResponseOptionAPI.getResponseOptions(results);
-        } else if (elementType.equals("responseoptionslot")) {
-            List<ResponseOptionSlot> results = ResponseOptionSlot.find();
-            return ResponseOptionAPI.getResponseOptionSlots(results);
-        }
-        return ok("No valid element type.");
-    }
-
-    public Result getElementsAll2(String elementType) {
-        if (elementType.equals("instrumenttype")) {
-            return InstrumentTypeAPI.getInstrumentTypes();
-        } else if (elementType.equals("instrument")) {
-            List<Instrument> results = Instrument.find();
-            return InstrumentAPI.getInstruments(results);
-        } else if (elementType.equals("detectorstemtype")) {
-            return DetectorStemTypeAPI.getDetectorStemTypes();
-        } else if (elementType.equals("detectorstem")) {
-            List<DetectorStem> results = DetectorStem.find();
-            return DetectorStemAPI.getDetectorStems(results);
-        } else if (elementType.equals("detector")) {
-            List<Detector> results = Detector.findDetectors();
-            return DetectorAPI.getDetectors(results);
-        } else if (elementType.equals("detectorslot")) {
-            List<DetectorSlot> results = DetectorSlot.find();
-            return DetectorAPI.getDetectorSlots(results);
-        } else if (elementType.equals("codebook")) {
-            List<Codebook> results = Codebook.find();
-            return CodebookAPI.getCodebooks(results);
-        } else if (elementType.equals("responseoption")) {
-            List<ResponseOption> results = ResponseOption.find();
-            return ResponseOptionAPI.getResponseOptions(results);
-        } else if (elementType.equals("responseoptionslot")) {
-            List<ResponseOptionSlot> results = ResponseOptionSlot.find();
-            return ResponseOptionAPI.getResponseOptionSlots(results);
-        }
-        return ok("No valid element type.");
-    }
-    */
 
     public Result getElementsByKeywordWithPages(String elementType, String keyword, int pageSize, int offset) {
         if (keyword.equals("_")) {

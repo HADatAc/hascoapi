@@ -68,15 +68,7 @@ public class GenericFind<T> {
      *     QUERY SPECIFICATION
      */
 
-    public static <T> List<T> findWithPages(Class clazz, int pageSize, int offset) {
-        if (clazz == null) {
-            return null;
-        }
-        String className = classNameWithNamespace(clazz);
-        //System.out.println("Class name:" + className);
-        if (className.equals("")) {
-            return null;
-        }
+    private static <T> List<T> findInstancesWithPages(Class clazz, String className, int pageSize, int offset) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
                 " ?type rdfs:subClassOf* " + className + " . " +
@@ -88,9 +80,38 @@ public class GenericFind<T> {
                 " OFFSET " + offset;
         return findByQuery(clazz, queryString);
     }
+    
+    private static <T> List<T> findSubclassesWithPages(Class clazz, String subClassName, int pageSize, int offset) {
+        System.out.println("subClassName: " + subClassName);
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT ?uri WHERE { " +
+                " ?uri rdfs:subClassOf* " + subClassName + " . " +
+                " ?uri rdfs:label ?label . " +
+                "} " +
+                " ORDER BY ASC(?label) " +
+                " LIMIT " + pageSize +
+                " OFFSET " + offset;
+        return findByQuery(clazz, queryString);
+    }
+    
+    public static <T> List<T> findWithPages(Class clazz, int pageSize, int offset) {
+        if (clazz == null) {
+            return null;
+        }
+        String className = classNameWithNamespace(clazz);
+        if (className != null) {
+            System.out.println("here 1");
+            return findInstancesWithPages(clazz, className, pageSize, offset);
+        }
+        String subClassName = superclassNameWithNamespace(clazz);
+        if (subClassName != null) {
+            System.out.println("here 2");
+            return findSubclassesWithPages(clazz, subClassName, pageSize, offset);
+        }
+        return null;
+    }
 
-    public static int findTotalInstances(String className) {
-        System.out.println("GenericFind.findTotalInstances - ClassName: " + className);
+    private static int findTotalInstances(String className) {
         String queryString = "";
         queryString += NameSpaces.getInstance().printSparqlNameSpaceList();
         queryString += " select (count(?uri) as ?tot) where { " +
@@ -100,7 +121,7 @@ public class GenericFind<T> {
         return findTotalByQuery(queryString);
     }
 
-	public static int findTotalSubclasses(String superClassName) {
+	private static int findTotalSubclasses(String superClassName) {
         String queryString = "";
         queryString += NameSpaces.getInstance().printSparqlNameSpaceList();
         queryString += " select (count(?type) as ?tot) where { " +
@@ -121,13 +142,14 @@ public class GenericFind<T> {
         return -1;
     }
 
+    /*
     public static <T> List<T> findSubclassesWithPages(Class clazz, int pageSize, int offset) {
         if (clazz == null) {
             return null;
         }
         String superclassName = superclassNameWithNamespace(clazz);
-        System.out.println("SuperClass name:" + superclassName);
-        System.out.println("Class name:" + clazz.getName());
+        //System.out.println("SuperClass name:" + superclassName);
+        //System.out.println("Class name:" + clazz.getName());
         if (superclassName.equals("")) {
             return null;
         }
@@ -137,6 +159,7 @@ public class GenericFind<T> {
 				"} ";
 		return findByQuery(clazz, queryString);
 	}
+    */
 
     public List<T> findByKeywordWithPages(Class clazz, String keyword, int pageSize, int offset) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
@@ -217,7 +240,7 @@ public class GenericFind<T> {
 
     private static <T> List<T> findByQuery(Class clazz,String queryString) {
         List<T> list = new ArrayList<T>();
-        System.out.println("FindByQuery: query = [" + queryString + "]");
+        //System.out.println("FindByQuery: query = [" + queryString + "]");
         ResultSetRewindable resultsrw = SPARQLUtils.select(
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
@@ -227,11 +250,15 @@ public class GenericFind<T> {
 
         while (resultsrw.hasNext()) {
             QuerySolution soln = resultsrw.next();
-            T element = findElement(clazz, soln.getResource("uri").getURI());
-            System.out.println("  - retrieved element");
-            if (element != null) {                        
-                System.out.println("  - element is not null");
-                list.add(element);
+            if (soln != null) {
+                if (soln.getResource("uri") != null && soln.getResource("uri").getURI() != null) {
+                    T element = findElement(clazz, soln.getResource("uri").getURI());
+                    if (element != null) {                        
+                      list.add(element);
+                    }
+                } else {
+                    System.out.println("Failed to retrieve URI for objects selected in a query.");
+                }
             }
         }
         return list;

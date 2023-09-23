@@ -164,7 +164,7 @@ public class PossibleValue extends HADatAcClass implements Comparable<PossibleVa
 
     public static List<PossibleValue> findBySchema(String schemaUri) {
 
-        System.out.println("SchemaUri: " + schemaUri);
+        //System.out.println("SchemaUri: " + schemaUri);
 
         log.debug("PossibleValue.findBySchema: SchemaUri=" + schemaUri);
 

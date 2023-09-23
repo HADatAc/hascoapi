@@ -20,13 +20,15 @@ GET     /sirapi/api/usage/:uri                            org.sirapi.console.con
 GET     /sirapi/api/derivation/:uri                       org.sirapi.console.controllers.restapi.SIRElementAPI.derivation(uri: String)
 GET     /sirapi/api/:elementType/elements/:pageSize/:offset                             org.sirapi.console.controllers.restapi.SIRElementAPI.getElementsWithPage(elementType: String, pageSize : Integer, offset : Integer)
 GET     /sirapi/api/:elementType/elements/total                                         org.sirapi.console.controllers.restapi.SIRElementAPI.getTotalElements(elementType: String)
-# GET     /sirapi/api/:elementType/subclasses                                           org.sirapi.console.controllers.restapi.SIRElementAPI.getSubclasses(elementType: String)
 GET     /sirapi/api/:elementType/keywordlanguage/:keyword/:language/:pageSize/:offset   org.sirapi.console.controllers.restapi.SIRElementAPI.getElementsByKeywordAndLanguage(elementType: String, keyword : String, language : String, pageSize : Integer, offset : Integer)
 GET     /sirapi/api/:elementType/keywordlanguage/total/:keyword/:language               org.sirapi.console.controllers.restapi.SIRElementAPI.getTotalElementsByKeywordAndLanguage(elementType : String, keyword : String, language : String)
-# GET     /sirapi/api/:elementType/keyword/:keyword                                     org.sirapi.console.controllers.restapi.SIRElementAPI.getElementsByKeyword(elementType: String, keyword : String)
-# GET     /sirapi/api/:elementType/language/:language                                   org.sirapi.console.controllers.restapi.SIRElementAPI.getElementsByLanguage(elementType: String, language : String)
 GET     /sirapi/api/:elementType/manageremail/:managerEmail/:pageSize/:offset           org.sirapi.console.controllers.restapi.SIRElementAPI.getElementsByManagerEmail(elementType: String, managerEmail : String, pageSize : Integer, offset : Integer)
 GET     /sirapi/api/:elementType/manageremail/total/:managerEmail                       org.sirapi.console.controllers.restapi.SIRElementAPI.getTotalElementsByManagerEmail(elementType : String, managerEmail : String)
+
+# MANAGEMENT GENERIC 
+
+POST    /sirapi/api/:elementType/create/:json             org.sirapi.console.controllers.restapi.SIRElementAPI.createElement(elementType: String, json: String)
+POST    /sirapi/api/:elementType/delete/:uri              org.sirapi.console.controllers.restapi.SIRElementAPI.deleteElement(elementType: String, uri: String)
 
 # RETRIEVAL REPO
 
@@ -44,41 +46,28 @@ GET     /sirapi/api/repo/table/namespaces                 org.sirapi.console.con
 GET     /sirapi/api/repo/ont/load                         org.sirapi.console.controllers.restapi.RepoPage.loadOntologies()
 GET     /sirapi/api/repo/ont/delete                       org.sirapi.console.controllers.restapi.RepoPage.deleteOntologies()
 
-# RETRIEVAL CONCEPT-SPECIFIC
+# RENDERING/TRANSLATION METHODS
 
-GET     /sirapi/api/instrument/manageremail/:manageremail org.sirapi.console.controllers.restapi.InstrumentAPI.getInstrumentsByManagerEmail(manageremail : String)
-POST    /sirapi/api/instrument/create/:json               org.sirapi.console.controllers.restapi.InstrumentAPI.createInstrument(json: String)
-POST    /sirapi/api/instrument/delete/:uri                org.sirapi.console.controllers.restapi.InstrumentAPI.deleteInstrument(uri: String)
 GET     /sirapi/api/instrument/totext/plain/:uri          org.sirapi.console.controllers.restapi.InstrumentAPI.toTextPlain(uri: String)
 GET     /sirapi/api/instrument/totext/html/:uri           org.sirapi.console.controllers.restapi.InstrumentAPI.toTextHTML(uri: String)
 GET     /sirapi/api/instrument/totext/pdf/:uri            org.sirapi.console.controllers.restapi.InstrumentAPI.toTextPDF(uri: String)
 GET     /sirapi/api/instrument/tordf/:uri                 org.sirapi.console.controllers.restapi.InstrumentAPI.toRDF(uri: String)
 GET     /sirapi/api/instrument/tofhir/:uri                org.sirapi.console.controllers.restapi.InstrumentAPI.toFHIR(uri: String)
-GET     /sirapi/api/detectorslot/byinstrument/:instrUri   org.sirapi.console.controllers.restapi.DetectorAPI.getDetectorSlotsByInstrument(instrUri: String)
-POST    /sirapi/api/detectorslot/create/:instrUri/:totSlots   org.sirapi.console.controllers.restapi.InstrumentAPI.createDetectorSlots(instrUri: String, totSlots : String)
-POST    /sirapi/api/detectorslot/delete/:instrUri         org.sirapi.console.controllers.restapi.InstrumentAPI.deleteDetectorSlots(instrUri: String)
-GET     /sirapi/api/detectorstem/manageremail/:manageremail   org.sirapi.console.controllers.restapi.DetectorStemAPI.getDetectorStemsByManagerEmail(manageremail : String)
-# GET     /sirapi/api/detectorstem/byinstrument/:instrUri     org.sirapi.console.controllers.restapi.DetectorStemAPI.getDetectorStemsByInstrument(instrUri : String)
-POST    /sirapi/api/detectorstem/create/:json                 org.sirapi.console.controllers.restapi.DetectorStemAPI.createDetectorStem(json: String)
-POST    /sirapi/api/detectorstem/delete/:uri                  org.sirapi.console.controllers.restapi.DetectorStemAPI.deleteDetectorStem(uri: String)
-GET     /sirapi/api/detector/manageremail/:manageremail   org.sirapi.console.controllers.restapi.DetectorAPI.getDetectorsByManagerEmail(manageremail : String)
-# GET     /sirapi/api/detector/byinstrument/:instrUri     org.sirapi.console.controllers.restapi.DetectorAPI.getDetectorsByInstrument(instrUri : String)
-POST    /sirapi/api/detector/create/:json                 org.sirapi.console.controllers.restapi.DetectorAPI.createDetector(json: String)
-GET     /sirapi/api/detector/attach/:uri/:detectorSlotUri org.sirapi.console.controllers.restapi.DetectorAPI.attach(uri: String, detectorSlotUri : String)
-GET     /sirapi/api/detector/detach/:detectorSlotUri      org.sirapi.console.controllers.restapi.DetectorAPI.detach(detectorSlotUri : String)
-POST    /sirapi/api/detector/delete/:uri                  org.sirapi.console.controllers.restapi.DetectorAPI.deleteDetector(uri: String)
-GET     /sirapi/api/codebook/manageremail/:manageremail   org.sirapi.console.controllers.restapi.CodebookAPI.getCodebookByManagerEmail(manageremail : String)
-POST    /sirapi/api/codebook/create/:json                 org.sirapi.console.controllers.restapi.CodebookAPI.createCodebook(json: String)
-POST    /sirapi/api/codebook/delete/:uri                  org.sirapi.console.controllers.restapi.CodebookAPI.deleteCodebook(uri: String)
-GET     /sirapi/api/responseoptionslot/bycodebook/:codebookUri          org.sirapi.console.controllers.restapi.ResponseOptionAPI.getResponseOptionSlotsByCodebook(codebookUri: String)
+
+# CONCEPT-SPECIFIC METHODS
+
+POST    /sirapi/api/detectorslot/create/:instrUri/:totSlots             org.sirapi.console.controllers.restapi.InstrumentAPI.createDetectorSlots(instrUri: String, totSlots : String)
+POST    /sirapi/api/detectorslot/delete/:instrUri                       org.sirapi.console.controllers.restapi.InstrumentAPI.deleteDetectorSlots(instrUri: String)
 POST    /sirapi/api/responseoptionslot/create/:codebookUri/:totSlots    org.sirapi.console.controllers.restapi.CodebookAPI.createResponseOptionSlots(codebookUri: String, totSlots : String)
 POST    /sirapi/api/responseoptionslot/delete/:codebookUri              org.sirapi.console.controllers.restapi.CodebookAPI.deleteResponseOptionSlots(codebookUri: String)
-GET     /sirapi/api/responseoption/manageremail/:manageremail           org.sirapi.console.controllers.restapi.ResponseOptionAPI.getResponseOptionsByManagerEmail(manageremail : String)
-# GET     /sirapi/api/responseoption/bycodebook/:codebookUri            org.sirapi.console.controllers.restapi.ResponseOptionAPI.getResponseOptionsByCodebook(codebookUri : String)
-POST    /sirapi/api/responseoption/create/:json                         org.sirapi.console.controllers.restapi.ResponseOptionAPI.createResponseOption(json: String)
+
+GET     /sirapi/api/detector/attach/:uri/:detectorSlotUri               org.sirapi.console.controllers.restapi.DetectorAPI.attach(uri: String, detectorSlotUri : String)
+GET     /sirapi/api/detector/detach/:detectorSlotUri                    org.sirapi.console.controllers.restapi.DetectorAPI.detach(detectorSlotUri : String)
 GET     /sirapi/api/responseoption/attach/:uri/:responseoptionSlotUri   org.sirapi.console.controllers.restapi.ResponseOptionAPI.attach(uri: String, responseoptionSlotUri : String)
 GET     /sirapi/api/responseoption/detach/:responseoptionSlotUri        org.sirapi.console.controllers.restapi.ResponseOptionAPI.detach(responseoptionSlotUri : String)
-POST    /sirapi/api/responseoption/delete/:uri            org.sirapi.console.controllers.restapi.ResponseOptionAPI.deleteResponseOption(uri: String)
+
+GET     /sirapi/api/detectorslot/byinstrument/:instrUri                 org.sirapi.console.controllers.restapi.DetectorAPI.getDetectorSlotsByInstrument(instrUri: String)
+GET     /sirapi/api/responseoptionslot/bycodebook/:codebookUri          org.sirapi.console.controllers.restapi.ResponseOptionAPI.getResponseOptionSlotsByCodebook(codebookUri: String)
 
 # TESTING METHODS
 
@@ -119,8 +108,7 @@ GET     /sirapi/documentation/deletedetectorexample       org.sirapi.console.con
 
 GET     /sirapi/documentation/retrievalmethodlist         org.sirapi.console.controllers.documentation.RetrievalMethodList.index()
 GET     /sirapi/documentation/queryuriexample             org.sirapi.console.controllers.documentation.RetrievalMethodList.queryURIExample()
-GET     /sirapi/documentation/queryelementindividualsexample     org.sirapi.console.controllers.documentation.RetrievalMethodList.queryElementIndividualsExample()
-GET     /sirapi/documentation/queryelementsubclassesexample    org.sirapi.console.controllers.documentation.RetrievalMethodList.queryElementSubclassesExample()
+GET     /sirapi/documentation/queryelementsexample        org.sirapi.console.controllers.documentation.RetrievalMethodList.queryElementsExample()
 GET     /sirapi/documentation/instrumentrenderingexample  org.sirapi.console.controllers.documentation.RetrievalMethodList.instrumentRenderingExample()
 
 GET     /sirapi/documentation/testingmethodlist           org.sirapi.console.controllers.documentation.TestingMethodList.index()
