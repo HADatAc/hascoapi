@@ -89,6 +89,8 @@ GET     /sirapi/test/responseoption/attach                org.sirapi.console.con
 GET     /sirapi/test/responseoption/detach                org.sirapi.console.controllers.restapi.ResponseOptionAPI.detachForTesting()
 GET     /sirapi/test/responseoptionslot/create            org.sirapi.console.controllers.restapi.CodebookAPI.createResponseOptionSlotsForTesting()
 GET     /sirapi/test/responseoptionslot/delete            org.sirapi.console.controllers.restapi.CodebookAPI.deleteResponseOptionSlotsForTesting()
+GET     /sirapi/test/semanticvariable/create              org.sirapi.console.controllers.restapi.SemanticVariableAPI.createSemanticVariablesForTesting()
+GET     /sirapi/test/semanticvariable/delete              org.sirapi.console.controllers.restapi.SemanticVariableAPI.deleteSemanticVariablesForTesting()
 GET     /sirapi/test/entity/create                        org.sirapi.console.controllers.restapi.EntityAPI.createEntityForTesting()
 GET     /sirapi/test/entity/delete                        org.sirapi.console.controllers.restapi.EntityAPI.deleteEntityForTesting()
 GET     /sirapi/test/attribute/create                     org.sirapi.console.controllers.restapi.AttributeAPI.createAttributesForTesting()

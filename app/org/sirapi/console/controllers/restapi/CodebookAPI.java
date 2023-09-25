@@ -32,6 +32,9 @@ public class CodebookAPI extends Controller {
             testCodebook.setLabel("Test Codebook");
             testCodebook.setTypeUri(VSTOI.CODEBOOK);
             testCodebook.setHascoTypeUri(VSTOI.CODEBOOK);
+            testCodebook.setHasLanguage("en");
+            testCodebook.setHasVersion("1");
+            testCodebook.setHasSIRManagerEmail("me@example.com");
             testCodebook.save();
             return ok(ApiUtil.createResponse("Test Codebook been CREATED.", true));
         }

@@ -7,6 +7,7 @@ import org.sirapi.entity.pojo.*;
 import org.sirapi.utils.ApiUtil;
 import org.sirapi.utils.HAScOMapper;
 import org.sirapi.vocabularies.HASCO;
+import org.sirapi.vocabularies.SIO;
 import org.sirapi.vocabularies.VSTOI;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -70,11 +71,19 @@ public class URIPage extends Controller {
             } else if (result.getHascoTypeUri().equals(VSTOI.DETECTOR)) {
                 finalResult = Detector.findDetector(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.CODEBOOK)) {
-                finalResult = Codebook.find(uri);
+                finalResult = Codebook.find(uri);            
             } else if (result.getHascoTypeUri().equals(VSTOI.RESPONSE_OPTION_SLOT)) {
                 finalResult = ResponseOptionSlot.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.RESPONSE_OPTION)) {
                 finalResult = ResponseOption.find(uri);
+            } else if (result.getHascoTypeUri().equals(HASCO.SEMANTIC_VARIABLE)) {
+                finalResult = SemanticVariable.find(uri);
+            } else if (result.getHascoTypeUri().equals(SIO.ENTITY)) {
+                finalResult = Entity.find(uri);
+            } else if (result.getHascoTypeUri().equals(SIO.ATTRIBUTE)) {
+                finalResult = Attribute.find(uri);
+            } else if (result.getHascoTypeUri().equals(SIO.UNIT)) {
+                finalResult = Unit.find(uri);
             } else {
                 finalResult = result;
             }
@@ -89,12 +98,12 @@ public class URIPage extends Controller {
     private Result processResult(Object result, String typeResult, String uri) {
         ObjectMapper mapper = HAScOMapper.getFiltered("full",typeResult);
 
-        // System.out.println("[RestAPI] generating JSON for following object: " + uri);
+        //System.out.println("[RestAPI] generating JSON for following object: " + uri);
         JsonNode jsonObject = null;
         try {
             ObjectNode obj = mapper.convertValue(result, ObjectNode.class);
             jsonObject = mapper.convertValue(obj, JsonNode.class);
-            // System.out.println(prettyPrintJsonString(jsonObject));
+            //System.out.println(prettyPrintJsonString(jsonObject));
         } catch (Exception e) {
             e.printStackTrace();
             return ok(ApiUtil.createResponse("Error processing the json object for URI [" + uri + "]", false));

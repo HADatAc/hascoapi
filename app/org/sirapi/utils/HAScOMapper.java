@@ -113,7 +113,7 @@ public class HAScOMapper {
         } else {
             filterProvider.addFilter("semanticVariableFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment"));
+                            "hascoTypeLabel", "comment", "entityUri", "attributeUri", "inRelationToUri", "unitUri", "timeUri"));
         }
 
         // DA_SCHEMA_OBJECT
@@ -163,13 +163,13 @@ public class HAScOMapper {
             SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "className", "superUri", "superLabel", "comment"));
 
         // DETECTOR_STEM
-        if (mode.equals(FULL) && typeResult.equals(VSTOI.DETECTOR)) {
+        if (mode.equals(FULL) && typeResult.equals(VSTOI.DETECTOR_STEM)) {
             filterProvider.addFilter("detectorStemFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("detectorStemFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
                             "hascoTypeLabel", "comment", "hasContent", "hasLanguage", "hasVersion",
-                            "wasDerivedFrom", "wasGeneratedBy", "hasSIRManagerEmail"));
+                            "wasDerivedFrom", "wasGeneratedBy", "hasSIRManagerEmail", "detects", "detectsSemanticVariable"));
         }
 
         // DETECTOR

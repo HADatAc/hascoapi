@@ -8,6 +8,7 @@ public class HASCO {
      *    CLASSES
      */
 
+    public static final String AGENT                                  = "http://hadatac.org/ont/hasco/Agent";
     public static final String DA_SCHEMA                              = "http://hadatac.org/ont/hasco/DASchema";
     public static final String DA_SCHEMA_ATTRIBUTE                    = "http://hadatac.org/ont/hasco/DASchemaAttribute";
     public static final String DA_SCHEMA_OBJECT                       = "http://hadatac.org/ont/hasco/DASchemaObject";
@@ -15,19 +16,19 @@ public class HASCO {
     public static final String DATA_FILE                              = "http://hadatac.org/ont/hasco/DataFile";
     public static final String DEPLOYMENT                             = "http://hadatac.org/ont/hasco/Deployment";
     public static final String LOCATION_COLLECTION                    = "http://hadatac.org/ont/hasco/LocationCollection";
-    public static final String MATCHING_COLLECTION                    = "http://hadatac.org/ont/hasco/MatchingCollection";
     public static final String MANAGED_ONTOLOGY                       = "http://hadatac.org/ont/hasco/ManagedOntology";
+    public static final String MATCHING_COLLECTION                    = "http://hadatac.org/ont/hasco/MatchingCollection";
     public static final String OBJECT_COLLECTION                      = "http://hadatac.org/ont/hasco/ObjectCollection";
     public static final String ONTOLOGY                               = "http://hadatac.org/ont/hasco/Ontology";
     public static final String REPOSITORY                             = "http://hadatac.org/ont/hasco/Repository";
     public static final String SAMPLE_COLLECTION                      = "http://hadatac.org/ont/hasco/SampleCollection";
+    public static final String SEMANTIC_VARIABLE                      = "http://hadatac.org/ont/hasco/SemanticVariable";
     public static final String STUDY                                  = "http://hadatac.org/ont/hasco/Study";
     public static final String STUDY_OBJECT                           = "http://hadatac.org/ont/hasco/StudyObject";
     public static final String SUBJECT_COLLECTION                     = "http://hadatac.org/ont/hasco/SubjectGroup";
     public static final String TIME_COLLECTION                        = "http://hadatac.org/ont/hasco/TimeCollection";
     public static final String USER                                   = "http://hadatac.org/ont/hasco/User";
     public static final String VALUE                                  = "http://hadatac.org/ont/hasco/Value";
-    public static final String SEMANTIC_VARIABLE                      = "http://hadatac.org/ont/hasco/SemanticVariable";
     public static final String VIRTUAL_COLUMN                         = "http://hadatac.org/ont/hasco/VirtualColumn";
 
     /*
@@ -35,15 +36,18 @@ public class HASCO {
      */
 
     public static final String DETECTS                                = "http://hadatac.org/ont/hasco/detects";
+    public static final String HAS_ATTRIBUTE                          = "http://hadatac.org/ont/hasco/hasAttribute";
     public static final String HAS_CLASS                              = "http://hadatac.org/ont/hasco/hasClass";
     public static final String HAS_CODE                               = "http://hadatac.org/ont/hasco/hasCode";
     public static final String HAS_CODE_LABEL                         = "http://hadatac.org/ont/hasco/hasCodeLabel";
     public static final String HAS_DETECTOR                           = "http://hadatac.org/ont/hasco/hasDetector";
     public static final String HAS_ENTITY                             = "http://hadatac.org/ont/hasco/hasEntity";
+    public static final String HAS_EVENT                              = "http://hadatac.org/ont/hasco/hasEvent";
     public static final String HAS_FIRST_COORDINATE                   = "http://hadatac.org/ont/hasco/hasFirstCoordinate";
     public static final String HAS_FIRST_COORDINATE_UNIT              = "http://hadatac.org/ont/hasco/hasFirstCoordinateUnit";
     public static final String HAS_FIRST_COORDINATE_CHARACTERISTIC    = "http://hadatac.org/ont/hasco/hasFirstCoordinateCharacteristic";
     public static final String HAS_IMAGE                              = "http://hadatac.org/ont/hasco/hasImage";
+    public static final String HAS_IN_RELATION_TO                     = "http://hadatac.org/ont/hasco/hasInRelationTo";
     public static final String HAS_INSTRUMENT                         = "http://hadatac.org/ont/hasco/hasInstrument";
     public static final String HAS_LAYOUT                             = "http://hadatac.org/ont/hasco/hasLayout";
     public static final String HAS_LAYOUT_WIDTH                       = "http://hadatac.org/ont/hasco/hasLayoutWidth";

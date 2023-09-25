@@ -54,10 +54,10 @@ public class MetadataFactory {
                         pred = factory.createIRI(URIUtils.replacePrefixEx(key));
                     }
 
-                    if ( pred != null && pred.getLocalName().contains("hasAttribute") ) {
-                        addAttributeListToModel(model, key, row, sub, pred, namedGraph);
-                        continue;
-                    }
+                    //if ( pred != null && pred.getLocalName().contains("hasAttribute") ) {
+                    //    addAttributeListToModel(model, key, row, sub, pred, namedGraph);
+                    //    continue;
+                    //}
 
                     String cellValue = (String)row.get(key);
                     if (URIUtils.isValidURI(cellValue)) {
@@ -88,6 +88,7 @@ public class MetadataFactory {
         return model;
     }
 
+    /*
     private static void addAttributeListToModel(Model model, String key, Map<String, Object> row, IRI subj, IRI pred, IRI namedGraph) {
 
         // debug
@@ -123,6 +124,7 @@ public class MetadataFactory {
         });
 
     }
+    */
 
     public static int commitModelToTripleStore(Model model, String endpointUrl) {
         if (model == null) {

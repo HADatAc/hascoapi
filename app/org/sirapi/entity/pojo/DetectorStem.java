@@ -43,7 +43,7 @@ public class DetectorStem extends HADatAcThing implements SIRElement, Comparable
     @PropertyField(uri="vstoi:hasSIRManagerEmail")
     private String hasSIRManagerEmail;
 
-    @PropertyField(uri="vstoi:detects")
+    @PropertyField(uri="hasco:detects")
     private String detects;
 
     public String getHasStatus() {
@@ -72,6 +72,13 @@ public class DetectorStem extends HADatAcThing implements SIRElement, Comparable
 
     public String getDetects() {
         return detects;
+    }
+
+    public SemanticVariable getDetectsSemanticVariable() {
+        if (detects == null) {
+            return null;
+        }
+        return SemanticVariable.find(detects);
     }
 
     public void setDetects(String detects) {
@@ -428,14 +435,17 @@ public class DetectorStem extends HADatAcThing implements SIRElement, Comparable
                 detectorStem.setHasStatus(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
                 detectorStem.setImage(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals(HASCO.DETECTS)) {
-                detectorStem.setDetects(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_CONTENT)) {
                 detectorStem.setHasContent(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
                 detectorStem.setHasLanguage(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
                 detectorStem.setHasVersion(object.asLiteral().getString());
+            } else if (statement.getPredicate().getURI().equals(HASCO.DETECTS)) {
+                try {
+                    detectorStem.setDetects(object.asResource().getURI());
+                } catch (Exception e) {
+                }
             } else if (statement.getPredicate().getURI().equals(PROV.WAS_DERIVED_FROM)) {
                 try {
                     detectorStem.setWasDerivedFrom(object.asResource().getURI());

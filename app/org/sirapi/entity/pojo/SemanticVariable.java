@@ -4,6 +4,10 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSetRewindable;
 import org.apache.jena.sparql.engine.http.QueryExceptionHTTP;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.rdf.model.Statement;
+import org.apache.jena.rdf.model.StmtIterator;
 import org.sirapi.annotations.PropertyField;
 import org.sirapi.annotations.PropertyValueType;
 import org.sirapi.utils.SPARQLUtils;
@@ -12,13 +16,15 @@ import org.sirapi.utils.CollectionUtil;
 import org.sirapi.utils.ConfigProp;
 import org.sirapi.utils.FirstLabel;
 import org.sirapi.utils.NameSpaces;
+import org.sirapi.vocabularies.RDF;
+import org.sirapi.vocabularies.RDFS;
 import org.sirapi.vocabularies.HASCO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-@JsonFilter("SemanticVariableFilter")
+@JsonFilter("semanticVariableFilter")
 public class SemanticVariable extends HADatAcThing {
 
 	private static final String className = "hasco:SemanticVariable";
@@ -60,17 +66,17 @@ public class SemanticVariable extends HADatAcThing {
 
 	private Map<String, String> relations = new HashMap<String, String>();
 
-	private static Map<String, SemanticVariable> semVarCache;
+	//private static Map<String, SemanticVariable> semVarCache;
 
-	private static Map<String, SemanticVariable> getCache() {
-		if (semVarCache == null) {
-			semVarCache = new HashMap<String, SemanticVariable>();
-		}
-		return semVarCache;
-	}
-	public static void resetCache() {
-		semVarCache = null;
-	}
+	//private static Map<String, SemanticVariable> getCache() {
+	//	if (semVarCache == null) {
+	//		semVarCache = new HashMap<String, SemanticVariable>();
+	//	}
+	//	return semVarCache;
+	//}
+	//public static void resetCache() {
+	//	semVarCache = null;
+	//}
 
 	public SemanticVariable() {
     	this.typeUri = HASCO.SEMANTIC_VARIABLE;
@@ -113,9 +119,35 @@ public class SemanticVariable extends HADatAcThing {
 		this.isCategorical = false;
 	}
 
+	/*
 	public String getKey() {
-    	return getRole() + getEntityStr() + getAttributeStr() + getInRelationToStr() + getUnitStr() + getTimeStr();
+		String getRoleFinal = "";
+		String getEntityFinal = "";
+		String getAttributeFinal = "";
+		String getInRelationToFinal = "";
+		String getUnitFinal = "";
+		String getTimeFinal = "";
+		if (getRole() != null) {
+			getRoleFinal = getRole();
+		}
+		if (getEntityStr() != null) {
+			getEntityFinal = getEntityStr();
+		}
+		if (getAttributeStr() != null) {
+			getAttributeFinal = getAttributeStr();
+		}
+		if (getInRelationToStr() != null) {
+			getInRelationToFinal = getInRelationToStr();
+		}
+		if (getUnitStr() != null) {
+			getUnitFinal = getUnitStr();
+		}
+		if (getTimeStr() != null) {
+			getTimeFinal = getTimeStr();
+		}
+    	return getRoleFinal + getEntityFinal + getAttributeFinal + getInRelationToFinal + getUnitFinal + getTimeFinal;
     }
+	*/
 
 	@Override
 	public String getLabel() {
@@ -169,7 +201,7 @@ public class SemanticVariable extends HADatAcThing {
 	}
 
     public Attribute getAttribute() {
-		if (this.attrUri.isEmpty()) {
+		if (this.attrUri == null || this.attrUri.isEmpty()) {
 			return null;
 		}
 		return Attribute.find(this.attrUri);
@@ -184,7 +216,7 @@ public class SemanticVariable extends HADatAcThing {
 	}
 
 	public String getAttributeStr() {
-        if (attrUri.isEmpty()) {
+        if (attrUri == null || attrUri.isEmpty()) {
             return "";
         }
     	return attrUri;
@@ -328,6 +360,7 @@ public class SemanticVariable extends HADatAcThing {
     	return aux.replaceAll(" ","-").replaceAll("[()]","");
     }
 
+	/*
 	public static SemanticVariable find(String sv_uri) {
 		try {
 			if (SemanticVariable.getCache().get(sv_uri) != null) {
@@ -336,7 +369,8 @@ public class SemanticVariable extends HADatAcThing {
 			SemanticVariable semVar = null;
 			//System.out.println("Looking for semantic variable with URI <" + sv_uri + ">");
 
-			String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+			String queryString = NameSpaces.getInstance().printSparqlNameSp    public static final String HAS_INSTRUMENT                         = "http://hadatac.org/ont/hasco/hasInstrument";
+aceList() +
 					"SELECT ?hasEntity ?hasAttribute ?hascoTypeUri " +
 					" ?hasUnit ?hasDASO ?hasDASE ?relation ?inRelationTo ?label WHERE { \n" +
 					"    <" + sv_uri + "> a hasco:SemanticVariable . \n" +
@@ -368,18 +402,12 @@ public class SemanticVariable extends HADatAcThing {
 			String unitStr = "";
 			String dasoUriStr = "";
 			String daseUriStr = "";
-			String inRelationToUri = "";
-			String relationUri = "";
+			String inRelationToUri = "";            }
 
-			Map<String, String> relationMap = new HashMap<>();
-			while (resultsrw.hasNext()) {
-				QuerySolution soln = resultsrw.next();
-
-				/*
-				 *  The label should be the exact value in the SDD, e.g., cannot be altered be something like
-				 *  FirstLabel.getPrettyLabel(sv_uri) since that would prevent the matching of the label with
-				 *  the column header of the data acquisition file/message
-				 */
+				//  The label should be the exact value in the SDD, e.g., cannot be altered be something like
+				//  FirstLabel.getPrettyLabel(sv_uri) since that would prevent the matching of the label with
+				//  the column header of the data acquisition file/message
+				
 				labelStr = soln.get("label").toString();
 
 				if (soln.get("hasEntity") != null) {
@@ -392,7 +420,8 @@ public class SemanticVariable extends HADatAcThing {
 					unitStr = soln.get("hasUnit").toString();
 				}
 				if (soln.get("hasDASO") != null) {
-					dasoUriStr = soln.get("hasDASO").toString();
+					dasoUriStr = soln.get			System.out.println("Object: " + object.getPredicate().getURI());
+("hasDASO").toString();
 				}
 				if (soln.get("hasDASE") != null) {
 					daseUriStr = soln.get("hasDASE").toString();
@@ -436,13 +465,77 @@ public class SemanticVariable extends HADatAcThing {
 		}
 		return null;
 	}
+	*/
+
+    public static SemanticVariable find(String uri) {   
+
+        SemanticVariable sv = null;
+        Statement statement;
+        RDFNode object;
+
+        String queryString = "DESCRIBE <" + uri + ">";
+        Model model = SPARQLUtils.describe(CollectionUtil.getCollectionPath(
+                CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+        StmtIterator stmtIterator = model.listStatements();
+
+        if (!stmtIterator.hasNext()) {
+            return null;
+        }
+
+        sv = new SemanticVariable();
+
+        while (stmtIterator.hasNext()) {
+            statement = stmtIterator.next();
+            object = statement.getObject();
+            if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
+                sv.setLabel(object.asLiteral().getString());
+            } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
+				if (object.asResource().getURI().equals(HASCO.SEMANTIC_VARIABLE)) {
+                	sv.setTypeUri(HASCO.SEMANTIC_VARIABLE);
+				}
+            } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
+                sv.setComment(object.asLiteral().getString());
+            } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
+                sv.setHascoTypeUri(object.asResource().getURI());
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_ENTITY)) {
+                try {
+                    sv.setEntityUri(object.asResource().getURI());
+                } catch (Exception e) {			
+                    sv.setEntityUri(null);
+                }
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_ATTRIBUTE)) {
+                try {
+                    sv.setAttributeUri(object.asResource().getURI());
+                } catch (Exception e) {
+                    sv.setAttributeUri(null);
+                }
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IN_RELATION_TO)) {
+                try {
+                    sv.setInRelationToUri(object.asResource().getURI());
+                } catch (Exception e) {
+                    sv.setInRelationToUri(null);
+                }
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_UNIT)) {
+                try {
+                    sv.setUnitUri(object.asResource().getURI());
+                } catch (Exception e) {
+                    sv.setUnitUri(null);
+                }
+			}
+        }
+
+        sv.setUri(uri);
+
+        return sv;
+    }
 
 	public static List<SemanticVariable> findWithPages(int pageSize, int offset) {
 		List<SemanticVariable> semVars = new ArrayList<SemanticVariable>();
 		String queryString = "";
 		queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
 				"SELECT ?uri WHERE { " +
-				"   ?subUri rdfs:subClassOf* hasco:SemanticVariable . " +
+			    "   ?subUri rdfs:subClassOf* hasco:SemanticVariable . " +
 				"   ?uri a ?subUri . " +
 				"   ?uri rdfs:label ?label . " +
 				" }" +
@@ -520,6 +613,11 @@ public class SemanticVariable extends HADatAcThing {
 	@Override
 	public void save() {
 		this.saveToTripleStore();
+	}
+
+	@Override
+	public void delete() {
+		this.deleteFromTripleStore();
 	}
 
 	@Override

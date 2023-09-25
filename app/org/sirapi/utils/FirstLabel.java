@@ -242,7 +242,7 @@ public class FirstLabel {
                 "  " + uri + " obo:IAO_0000115 ?definition . \n" +
                 "}";
 
-        System.out.println(queryString);
+        //System.out.println(queryString);
 
         ResultSetRewindable resultsrw = SPARQLUtils.select(
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
@@ -271,7 +271,7 @@ public class FirstLabel {
 
 
     public static String getSioLabelDescription(String uri) {
-        System.out.println(uri);
+        //System.out.println(uri);
         if ((uri == null) || (uri.equals(""))) {
             return "";
         }
@@ -287,7 +287,7 @@ public class FirstLabel {
                 "  " + uri + " dct:description ?description . \n" +
                 "}";
         //System.out.println("[FirstLabel] getLabel() queryString: \n" + queryString);
-        System.out.println(queryString);
+        //System.out.println(queryString);
         ResultSetRewindable resultsrw = SPARQLUtils.select(
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
 

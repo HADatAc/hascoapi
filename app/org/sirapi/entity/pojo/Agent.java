@@ -12,6 +12,11 @@ import org.apache.jena.rdf.model.StmtIterator;
 import org.sirapi.utils.SPARQLUtils;
 import org.sirapi.utils.CollectionUtil;
 import org.sirapi.utils.NameSpaces;
+import org.sirapi.vocabularies.RDF;
+import org.sirapi.vocabularies.RDFS;
+import org.sirapi.vocabularies.HASCO;
+import org.sirapi.vocabularies.VSTOI;
+import org.sirapi.vocabularies.FOAF;
 
 public class Agent extends HADatAcThing implements Comparable<Agent> {
 
@@ -19,25 +24,6 @@ public class Agent extends HADatAcThing implements Comparable<Agent> {
     protected String name;
     protected String familyName;
     protected String givenName;
-
-    public String getUri() {
-        return uri;
-    }
-    public void setUri(String uri) {
-        this.uri = uri;
-    }
-    public String getType() {
-        return agentType;
-    }
-    public void setType(String agentType) {
-        this.agentType = agentType;
-    }
-    public String getLabel() {
-        return label;
-    }
-    public void setLabel(String label) {
-        this.label = label;
-    }
 
     public String getName() {
         return name;
@@ -115,15 +101,19 @@ public class Agent extends HADatAcThing implements Comparable<Agent> {
         while (stmtIterator.hasNext()) {
             statement = stmtIterator.next();
             object = statement.getObject();
-            if (statement.getPredicate().getURI().equals("http://www.w3.org/2000/01/rdf-schema#label")) {
+             if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
                 agent.setLabel(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals("http://www.w3.org/2000/01/rdf-schema#type")) {
-                agent.setType(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals("http://xmlns.com/foaf/0.1/name")) {
+            } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
+                agent.setTypeUri(object.asResource().getURI());
+            } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
+                agent.setComment(object.asLiteral().getString());
+            } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
+                agent.setHascoTypeUri(object.asResource().getURI());
+            } else if (statement.getPredicate().getURI().equals(FOAF.NAME)) {
                 agent.setName(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals("http://xmlns.com/foaf/0.1/familyName")) {
+            } else if (statement.getPredicate().getURI().equals(FOAF.FAMILY_NAME)) {
                 agent.setFamilyName(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals("http://xmlns.com/foaf/0.1/givenName")) {
+            } else if (statement.getPredicate().getURI().equals(FOAF.GIVEN_NAME)) {
                 agent.setGivenName(object.asLiteral().getString());
             }
         }
@@ -144,6 +134,11 @@ public class Agent extends HADatAcThing implements Comparable<Agent> {
     @Override
     public boolean saveToSolr() {
         return true;
+    }
+
+    @Override
+    public void delete() {
+        deleteFromTripleStore();
     }
 
     @Override

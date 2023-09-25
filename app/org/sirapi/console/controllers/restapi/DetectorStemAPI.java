@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import org.sirapi.entity.pojo.DetectorSlot;
 import org.sirapi.entity.pojo.DetectorStem;
 import org.sirapi.entity.pojo.Instrument;
+import org.sirapi.entity.pojo.SemanticVariable;
 import org.sirapi.utils.ApiUtil;
 import org.sirapi.vocabularies.VSTOI;
 import play.mvc.Controller;
@@ -25,10 +26,14 @@ public class DetectorStemAPI extends Controller {
     public Result createDetectorStemsForTesting() {
         DetectorStem testDetectorStem1 = DetectorStem.find(TEST_DETECTOR_STEM1_URI);
         DetectorStem testDetectorStem2 = DetectorStem.find(TEST_DETECTOR_STEM2_URI);
+        SemanticVariable testSemanticVariable1 = SemanticVariable.find(TEST_SEMANTIC_VARIABLE1_URI);
+        SemanticVariable testSemanticVariable2 = SemanticVariable.find(TEST_SEMANTIC_VARIABLE2_URI);
         if (testDetectorStem1 != null) {
-            return ok(ApiUtil.createResponse("Test detector 1 already exists.", false));
+            return ok(ApiUtil.createResponse("TestDetectorStem1 already exists.", false));
         } else if (testDetectorStem2 != null) {
-            return ok(ApiUtil.createResponse("Test detector 2 already exists.", false));
+            return ok(ApiUtil.createResponse("TestDetectorStem2 already exists.", false));
+        } else if (testSemanticVariable1 == null || testSemanticVariable2 == null) {
+            return ok(ApiUtil.createResponse("Create TestSemanticVariables 1 and 2 before creating TestDetectorStems.", false));
         } else {
             testDetectorStem1 = new DetectorStem();
             testDetectorStem1.setUri(TEST_DETECTOR_STEM1_URI);
@@ -40,7 +45,9 @@ public class DetectorStemAPI extends Controller {
             testDetectorStem1.setHasLanguage("en"); // ISO 639-1
             testDetectorStem1.setHasVersion("1");
             testDetectorStem1.setHasSIRManagerEmail("me@example.com");
+            testDetectorStem1.setDetects(TEST_SEMANTIC_VARIABLE1_URI);
             testDetectorStem1.save();
+
             testDetectorStem2 = new DetectorStem();
             testDetectorStem2.setUri(TEST_DETECTOR_STEM2_URI);
             testDetectorStem2.setLabel("Test Detector Stem 2");
@@ -51,6 +58,7 @@ public class DetectorStemAPI extends Controller {
             testDetectorStem2.setHasLanguage("en"); // ISO 639-1
             testDetectorStem2.setHasVersion("1");
             testDetectorStem2.setHasSIRManagerEmail("me@example.com");
+            testDetectorStem1.setDetects(TEST_SEMANTIC_VARIABLE2_URI);
             testDetectorStem2.save();
             return ok(ApiUtil.createResponse("Test Detector Stems 1 and 2 have been CREATED.", true));
         }

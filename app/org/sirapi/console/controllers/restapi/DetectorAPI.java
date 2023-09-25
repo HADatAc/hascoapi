@@ -46,9 +46,11 @@ public class DetectorAPI extends Controller {
                 testDetector1.setComment("This is a dummy Detector 1 created to test the SIR API.");
                 testDetector1.setHasDetectorStem(TEST_DETECTOR_STEM1_URI);
                 testDetector1.setHasCodebook(TEST_CODEBOOK_URI);
+                testDetector1.setHasLanguage("en");
                 testDetector1.setHasVersion("1");
                 testDetector1.setHasSIRManagerEmail("me@example.com");
                 testDetector1.save();
+
                 testDetector2 = new Detector();
                 testDetector2.setUri(TEST_DETECTOR2_URI);
                 testDetector2.setLabel("Test Detector 2");
@@ -57,6 +59,8 @@ public class DetectorAPI extends Controller {
                 testDetector2.setComment("This is a dummy Detector 2 created to test the SIR API.");
                 testDetector2.setHasDetectorStem(TEST_DETECTOR_STEM2_URI);
                 testDetector2.setHasCodebook(TEST_CODEBOOK_URI);
+                testDetector2.setHasLanguage("en");
+                testDetector2.setHasVersion("1");
                 testDetector2.setHasSIRManagerEmail("me@example.com");
                 testDetector2.save();
             }

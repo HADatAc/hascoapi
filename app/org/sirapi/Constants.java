@@ -25,6 +25,8 @@ public class Constants {
     public static final String TEST_RESPONSE_OPTION_SLOT2_URI = TEST_CODEBOOK_URI + "/" + RESPONSE_OPTION_SLOT_PREFIX + "/2";
     public static final String TEST_RESPONSE_OPTION1_URI = SIR_KB + "TestResponseOption1";
     public static final String TEST_RESPONSE_OPTION2_URI = SIR_KB + "TestResponseOption2";
+    public static final String TEST_SEMANTIC_VARIABLE1_URI = SIR_KB + "TestSemanticVariable1";
+    public static final String TEST_SEMANTIC_VARIABLE2_URI = SIR_KB + "TestSemanticVariable2";
     public static final String TEST_ENTITY_URI = SIR_KB + "TestEntity";
     public static final String TEST_ATTRIBUTE1_URI = SIR_KB + "TestAttribute1";
     public static final String TEST_ATTRIBUTE2_URI = SIR_KB + "TestAttribute2";

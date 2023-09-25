@@ -416,7 +416,6 @@ public class Detector extends DetectorStem {
                 } catch (Exception e) {
                     detector.setHasCodebook(null);
                 }
-
             }
         }
 

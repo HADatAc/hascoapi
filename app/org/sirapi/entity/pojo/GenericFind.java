@@ -27,7 +27,6 @@ import org.sirapi.vocabularies.VSTOI;
 
 public class GenericFind<T> {
 
-
     private static String classNameWithNamespace (Class clazz) {
         if (clazz == Instrument.class) {
             return URIUtils.replaceNameSpace(VSTOI.INSTRUMENT);
@@ -45,6 +44,8 @@ public class GenericFind<T> {
             return URIUtils.replaceNameSpace(VSTOI.RESPONSE_OPTION);
         } else if (clazz == SemanticVariable.class) {
             return URIUtils.replaceNameSpace(HASCO.SEMANTIC_VARIABLE);
+        } else if (clazz == Agent.class) {
+            return URIUtils.replaceNameSpace(HASCO.AGENT);
         }
         return null;
     }
@@ -82,7 +83,7 @@ public class GenericFind<T> {
     }
     
     private static <T> List<T> findSubclassesWithPages(Class clazz, String subClassName, int pageSize, int offset) {
-        System.out.println("subClassName: " + subClassName);
+        //System.out.println("subClassName: " + subClassName);
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
                 " ?uri rdfs:subClassOf* " + subClassName + " . " +
@@ -100,12 +101,10 @@ public class GenericFind<T> {
         }
         String className = classNameWithNamespace(clazz);
         if (className != null) {
-            System.out.println("here 1");
             return findInstancesWithPages(clazz, className, pageSize, offset);
         }
         String subClassName = superclassNameWithNamespace(clazz);
         if (subClassName != null) {
-            System.out.println("here 2");
             return findSubclassesWithPages(clazz, subClassName, pageSize, offset);
         }
         return null;
@@ -141,25 +140,6 @@ public class GenericFind<T> {
         }
         return -1;
     }
-
-    /*
-    public static <T> List<T> findSubclassesWithPages(Class clazz, int pageSize, int offset) {
-        if (clazz == null) {
-            return null;
-        }
-        String superclassName = superclassNameWithNamespace(clazz);
-        //System.out.println("SuperClass name:" + superclassName);
-        //System.out.println("Class name:" + clazz.getName());
-        if (superclassName.equals("")) {
-            return null;
-        }
-		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-				" SELECT ?uri WHERE { " +
-				" ?uri rdfs:subClassOf* " + superclassName + " . " +
-				"} ";
-		return findByQuery(clazz, queryString);
-	}
-    */
 
     public List<T> findByKeywordWithPages(Class clazz, String keyword, int pageSize, int offset) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
@@ -239,8 +219,8 @@ public class GenericFind<T> {
      */
 
     private static <T> List<T> findByQuery(Class clazz,String queryString) {
-        List<T> list = new ArrayList<T>();
         //System.out.println("FindByQuery: query = [" + queryString + "]");
+        List<T> list = new ArrayList<T>();
         ResultSetRewindable resultsrw = SPARQLUtils.select(
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
@@ -295,6 +275,8 @@ public class GenericFind<T> {
             return (T)ResponseOption.find(uri);
         } else if (clazz == SemanticVariable.class) {
             return (T)SemanticVariable.find(uri);
+        } else if (clazz == Agent.class) {
+            return (T)Agent.find(uri);
         }
         return null;
     
@@ -307,7 +289,10 @@ public class GenericFind<T> {
 
 			if (resultsrw.hasNext()) {
 				QuerySolution soln = resultsrw.next();
-				return Integer.parseInt(soln.getLiteral("tot").getString());
+				int i = Integer.parseInt(soln.getLiteral("tot").getString());
+                //System.out.println("FindByQuery: query = [" + queryString + "]");
+                //System.out.println("FindByQuery: total = [" + i + "]");
+                return i;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
