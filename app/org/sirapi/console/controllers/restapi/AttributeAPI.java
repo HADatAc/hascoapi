@@ -11,6 +11,7 @@ import ca.uhn.fhir.parser.IParser;
 import org.sirapi.entity.pojo.Attribute;
 import org.sirapi.transform.Renderings;
 import org.sirapi.utils.ApiUtil;
+import org.sirapi.utils.HAScOMapper;
 import org.sirapi.vocabularies.SIO;
 import org.sirapi.vocabularies.VSTOI;
 import play.mvc.Controller;
@@ -115,6 +116,16 @@ public class AttributeAPI extends Controller {
             return ok(ApiUtil.createResponse("Testing Attributes 1 and 2 have been DELETED.", true));
         }
         return ok(ApiUtil.createResponse("No Testing Attribute has been DELETED.", false));
+    }
+
+    public static Result getAttributes(List<Attribute> results){
+        if (results == null) {
+            return ok(ApiUtil.createResponse("No attribute has been found", false));
+        } else {
+            ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL,SIO.ATTRIBUTE);
+            JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
+            return ok(ApiUtil.createResponse(jsonObject, true));
+        }
     }
 
 }

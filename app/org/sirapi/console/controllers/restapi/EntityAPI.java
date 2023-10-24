@@ -12,6 +12,7 @@ import org.sirapi.entity.fhir.Questionnaire;
 import org.sirapi.entity.pojo.Entity;
 import org.sirapi.transform.Renderings;
 import org.sirapi.utils.ApiUtil;
+import org.sirapi.utils.HAScOMapper;
 import org.sirapi.vocabularies.SIO;
 import org.sirapi.vocabularies.VSTOI;
 import play.mvc.Controller;
@@ -89,6 +90,16 @@ public class EntityAPI extends Controller {
             return ok(ApiUtil.createResponse("There is no Test entity to be deleted.", false));
         } else {
             return deleteEntityResult(test);
+        }
+    }
+
+    public static Result getEntities(List<Entity> results){
+        if (results == null) {
+            return ok(ApiUtil.createResponse("No entity has been found", false));
+        } else {
+            ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL,SIO.ENTITY);
+            JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
+            return ok(ApiUtil.createResponse(jsonObject, true));
         }
     }
 

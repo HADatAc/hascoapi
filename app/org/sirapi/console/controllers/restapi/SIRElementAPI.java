@@ -346,31 +346,45 @@ public class SIRElementAPI extends Controller {
         return GenericFind.findTotal(clazz);
     }
 
-
-    public Result getElementsByKeywordWithPages(String elementType, String keyword, int pageSize, int offset) {
+    public Result getElementsByKeywordWithPage(String elementType, String keyword, int pageSize, int offset) {
         if (keyword.equals("_")) {
             keyword = "";
         }
-        if (elementType.equals("instrument")) {
-            GenericFind<Instrument> query = new GenericFind<Instrument>();
-            List<Instrument> results = query.findByKeywordWithPages(Instrument.class,keyword, pageSize, offset);
-            return InstrumentAPI.getInstruments(results);
-        } /* else if (elementType.equals("detectorstem")) {
-            List<DetectorStem> results = DetectorStem.findByKeywordAndLanguageWithPages(keyword, language, pageSize, offset);
-            return DetectorStemAPI.getDetectorStems(results);
-        } else if (elementType.equals("detector")) {
-            List<Detector> results = Detector.findDetectorsByKeywordAndLanguageWithPages(keyword, language, pageSize, offset);
-            return DetectorAPI.getDetectors(results);
-        } else if (elementType.equals("codebook")) {
-            List<Codebook> results = Codebook.findByKeywordAndLanguageWithPages(keyword, language, pageSize, offset);
-            return CodebookAPI.getCodebooks(results);
-        } else if (elementType.equals("responseoption")) {
-            List<ResponseOption> results = ResponseOption.findByKeywordAndLanguageWithPages(keyword, language, pageSize, offset);
-            return ResponseOptionAPI.getResponseOptions(results);
-        }*/
+        if (elementType.equals("entity")) {
+            GenericFind<Entity> query = new GenericFind<Entity>();
+            List<Entity> results = query.findByKeywordWithPages(Entity.class,keyword, pageSize, offset);
+            return EntityAPI.getEntities(results);
+        }  else if (elementType.equals("attribute")) {
+            GenericFind<Attribute> query = new GenericFind<Attribute>();
+            List<Attribute> results = query.findByKeywordWithPages(Attribute.class,keyword, pageSize, offset);
+            return AttributeAPI.getAttributes(results);
+        }  else if (elementType.equals("unit")) {
+            GenericFind<Unit> query = new GenericFind<Unit>();
+            List<Unit> results = query.findByKeywordWithPages(Unit.class,keyword, pageSize, offset);
+            return UnitAPI.getUnits(results);
+        } 
         return ok("No valid element type.");
     }
 
+    public Result getTotalElementsByKeyword(String elementType, String keyword) {
+        if (keyword.equals("_")) {
+            keyword = "";
+        }
+        if (elementType == null || elementType.isEmpty()) {
+            return ok(ApiUtil.createResponse("No elementType has been provided", false));
+        }
+        Class clazz = getElementClass(elementType);
+        if (clazz == null) {        
+            return ok(ApiUtil.createResponse("[" + elementType + "] is not a valid elementType", false));
+        }
+        int totalElements = GenericFind.findTotalByKeyword(clazz, keyword);
+        if (totalElements >= 0) {
+            String totalElementsJSON = "{\"total\":" + totalElements + "}";
+            return ok(ApiUtil.createResponse(totalElementsJSON, true));
+        }
+        return ok(ApiUtil.createResponse("querymethod getTotalElementsByKeyword() failed to retrieve total number of element", false));
+    }
+        
     public Result getElementsByKeywordAndLanguage(String elementType, String keyword, String language, int pageSize, int offset) {
         if (keyword.equals("_")) {
             keyword = "";

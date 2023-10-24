@@ -10,9 +10,9 @@ import org.sirapi.vocabularies.VSTOI;
 
 public class HAScOMapper {
 
-    private static final String FULL = "full";
+    public static final String FULL = "full";
 
-    private static final String ESSENTIAL = "essential";
+    public static final String ESSENTIAL = "essential";
 
     /**
      *

@@ -22,6 +22,8 @@ GET     /sirapi/api/:elementType/elements/:pageSize/:offset                     
 GET     /sirapi/api/:elementType/elements/total                                         org.sirapi.console.controllers.restapi.SIRElementAPI.getTotalElements(elementType: String)
 GET     /sirapi/api/:elementType/keywordlanguage/:keyword/:language/:pageSize/:offset   org.sirapi.console.controllers.restapi.SIRElementAPI.getElementsByKeywordAndLanguage(elementType: String, keyword : String, language : String, pageSize : Integer, offset : Integer)
 GET     /sirapi/api/:elementType/keywordlanguage/total/:keyword/:language               org.sirapi.console.controllers.restapi.SIRElementAPI.getTotalElementsByKeywordAndLanguage(elementType : String, keyword : String, language : String)
+GET     /sirapi/api/:elementType/keyword/:keyword/:pageSize/:offset                     org.sirapi.console.controllers.restapi.SIRElementAPI.getElementsByKeywordWithPage(elementType: String, keyword : String, pageSize : Integer, offset : Integer)
+GET     /sirapi/api/:elementType/keyword/total/:keyword                                 org.sirapi.console.controllers.restapi.SIRElementAPI.getTotalElementsByKeyword(elementType : String, keyword : String)
 GET     /sirapi/api/:elementType/manageremail/:managerEmail/:pageSize/:offset           org.sirapi.console.controllers.restapi.SIRElementAPI.getElementsByManagerEmail(elementType: String, managerEmail : String, pageSize : Integer, offset : Integer)
 GET     /sirapi/api/:elementType/manageremail/total/:managerEmail                       org.sirapi.console.controllers.restapi.SIRElementAPI.getTotalElementsByManagerEmail(elementType : String, managerEmail : String)
 
@@ -111,6 +113,7 @@ GET     /sirapi/documentation/deletedetectorexample       org.sirapi.console.con
 GET     /sirapi/documentation/retrievalmethodlist         org.sirapi.console.controllers.documentation.RetrievalMethodList.index()
 GET     /sirapi/documentation/queryuriexample             org.sirapi.console.controllers.documentation.RetrievalMethodList.queryURIExample()
 GET     /sirapi/documentation/queryelementsexample        org.sirapi.console.controllers.documentation.RetrievalMethodList.queryElementsExample()
+GET     /sirapi/documentation/queryelementsexample/keyword    org.sirapi.console.controllers.documentation.RetrievalMethodList.queryElementsExampleWithKeyword()
 GET     /sirapi/documentation/instrumentrenderingexample  org.sirapi.console.controllers.documentation.RetrievalMethodList.instrumentRenderingExample()
 
 GET     /sirapi/documentation/testingmethodlist           org.sirapi.console.controllers.documentation.TestingMethodList.index()

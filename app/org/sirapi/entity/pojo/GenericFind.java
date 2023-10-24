@@ -144,7 +144,7 @@ public class GenericFind<T> {
     public List<T> findByKeywordWithPages(Class clazz, String keyword, int pageSize, int offset) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?type rdfs:subClassOf* " + classNameWithNamespace(clazz) + " . " +
+                " ?type rdfs:subClassOf* " + superclassNameWithNamespace(clazz) + " . " +
                 " ?uri a ?type ." +
                 " ?uri rdfs:label ?label . " +
                 "   FILTER regex(?label, \"" + keyword + "\", \"i\") " +
@@ -156,7 +156,7 @@ public class GenericFind<T> {
         return findByQuery(clazz, queryString);
     }
 
-    public int findTotalByKeyword(Class clazz, String keyword) {
+    public static int findTotalByKeyword(Class clazz, String keyword) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT (count(?uri) as ?tot) WHERE { " +
                 " ?type rdfs:subClassOf* " + classNameWithNamespace(clazz) + " . " +

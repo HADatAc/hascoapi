@@ -11,6 +11,7 @@ import ca.uhn.fhir.parser.IParser;
 import org.sirapi.entity.pojo.Unit;
 import org.sirapi.transform.Renderings;
 import org.sirapi.utils.ApiUtil;
+import org.sirapi.utils.HAScOMapper;
 import org.sirapi.vocabularies.SIO;
 import org.sirapi.vocabularies.VSTOI;
 import play.mvc.Controller;
@@ -90,5 +91,17 @@ public class UnitAPI extends Controller {
             return deleteUnitResult(test);
         }
     }
+
+    public static Result getUnits(List<Unit> results){
+        if (results == null) {
+            return ok(ApiUtil.createResponse("No unit has been found", false));
+        } else {
+            ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL,SIO.UNIT);
+            JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
+            return ok(ApiUtil.createResponse(jsonObject, true));
+        }
+    }
+
+
 
 }
