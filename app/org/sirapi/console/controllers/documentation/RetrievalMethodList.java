@@ -23,6 +23,10 @@ public class RetrievalMethodList extends Controller {
         return ok(queryElementsExampleWithKeyword.render());
     }
 
+    public Result queryElementsTotalExampleWithKeyword() {
+        return ok(queryElementsTotalExampleWithKeyword.render());
+    }
+
     public Result instrumentRenderingExample() {
         return ok(instrumentRenderingExample.render());
     }

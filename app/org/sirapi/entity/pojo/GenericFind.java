@@ -27,6 +27,41 @@ import org.sirapi.vocabularies.VSTOI;
 
 public class GenericFind<T> {
 
+    public static Class getElementClass(String elementType) {
+        
+        if (elementType.equals("instrument")) {
+            return Instrument.class;
+        } else if (elementType.equals("detectorstem")) {
+            return DetectorStem.class;
+        } else if (elementType.equals("detector")) {
+            return Detector.class;
+        } else if (elementType.equals("detectorslot")) {
+            return DetectorSlot.class;
+        } else if (elementType.equals("codebook")) {
+            return Codebook.class;
+        } else if (elementType.equals("responseoption")) {
+            return ResponseOption.class;
+        } else if (elementType.equals("responseoptionslot")) {
+            return ResponseOptionSlot.class;
+        } else if (elementType.equals("semanticvariable")) {
+            return SemanticVariable.class;
+        } else if (elementType.equals("instrumenttype")) {
+            return InstrumentType.class;
+        } else if (elementType.equals("detectorstemtype")) {
+            return DetectorStemType.class;
+        } else if (elementType.equals("entity")) {
+            return Entity.class;
+        } else if (elementType.equals("attribute")) {
+            return Attribute.class;
+        } else if (elementType.equals("unit")) {
+            return Unit.class;
+        } else if (elementType.equals("agent")) {
+            return Agent.class;
+        } 
+        return null;
+    }
+
+
     private static String classNameWithNamespace (Class clazz) {
         if (clazz == Instrument.class) {
             return URIUtils.replaceNameSpace(VSTOI.INSTRUMENT);
@@ -66,8 +101,23 @@ public class GenericFind<T> {
     }
 
     /**
-     *     QUERY SPECIFICATION
+     *     FIND ELEMENTS (AND THEIR TOTALS)
      */
+
+    public static <T> List<T> findWithPages(Class clazz, int pageSize, int offset) {
+        if (clazz == null) {
+            return null;
+        }
+        String className = classNameWithNamespace(clazz);
+        if (className != null) {
+            return findInstancesWithPages(clazz, className, pageSize, offset);
+        }
+        String superClassName = superclassNameWithNamespace(clazz);
+        if (superClassName != null) {
+            return findSubclassesWithPages(clazz, superClassName, pageSize, offset);
+        }
+        return null;
+    }
 
     private static <T> List<T> findInstancesWithPages(Class clazz, String className, int pageSize, int offset) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
@@ -82,11 +132,11 @@ public class GenericFind<T> {
         return findByQuery(clazz, queryString);
     }
     
-    private static <T> List<T> findSubclassesWithPages(Class clazz, String subClassName, int pageSize, int offset) {
+    private static <T> List<T> findSubclassesWithPages(Class clazz, String superClassName, int pageSize, int offset) {
         //System.out.println("subClassName: " + subClassName);
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?uri rdfs:subClassOf* " + subClassName + " . " +
+                " ?uri rdfs:subClassOf* " + superClassName + " . " +
                 " ?uri rdfs:label ?label . " +
                 "} " +
                 " ORDER BY ASC(?label) " +
@@ -95,19 +145,27 @@ public class GenericFind<T> {
         return findByQuery(clazz, queryString);
     }
     
-    public static <T> List<T> findWithPages(Class clazz, int pageSize, int offset) {
-        if (clazz == null) {
-            return null;
+    public static int getNumberElements(String elementType) {
+        if (elementType == null || elementType.isEmpty()) {
+            return -1   ;
         }
+        Class clazz = getElementClass(elementType);
+        if (clazz == null) {        
+            return -1;
+        }
+        return GenericFind.findTotal(clazz);
+    }
+
+    public static int findTotal(Class clazz) {
         String className = classNameWithNamespace(clazz);
         if (className != null) {
-            return findInstancesWithPages(clazz, className, pageSize, offset);
+            return findTotalInstances(className);
         }
-        String subClassName = superclassNameWithNamespace(clazz);
-        if (subClassName != null) {
-            return findSubclassesWithPages(clazz, subClassName, pageSize, offset);
+        String superClassName = superclassNameWithNamespace(clazz);
+        if (superClassName != null) {
+            return findTotalSubclasses(superClassName);
         }
-        return null;
+        return -1;
     }
 
     private static int findTotalInstances(String className) {
@@ -129,22 +187,29 @@ public class GenericFind<T> {
         return findTotalByQuery(queryString);
 	}
 
-    public static int findTotal(Class clazz) {
+    /**
+     *     FIND ELEMENTS BY KEYWORD (AND THEIR TOTALS)
+     */
+
+    public static <T> List<T> findByKeywordWithPages(Class clazz, String keyword, int pageSize, int offset) {
+        if (clazz == null) {
+            return null;
+        }
         String className = classNameWithNamespace(clazz);
         if (className != null) {
-            return findTotalInstances(className);
+            return findInstancesByKeywordWithPages(clazz, className, keyword, pageSize, offset);
         }
-        String superClassName = superclassNameWithNamespace(clazz);
-        if (superClassName != null) {
-            return findTotalSubclasses(superClassName);
+        String subClassName = superclassNameWithNamespace(clazz);
+        if (subClassName != null) {
+            return findSubclassesByKeywordWithPages(clazz, subClassName, keyword, pageSize, offset);
         }
-        return -1;
+        return null;
     }
 
-    public List<T> findByKeywordWithPages(Class clazz, String keyword, int pageSize, int offset) {
+    public static <T> List<T> findInstancesByKeywordWithPages(Class clazz, String className, String keyword, int pageSize, int offset) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?type rdfs:subClassOf* " + superclassNameWithNamespace(clazz) + " . " +
+                " ?type rdfs:subClassOf* " + className + " . " +
                 " ?uri a ?type ." +
                 " ?uri rdfs:label ?label . " +
                 "   FILTER regex(?label, \"" + keyword + "\", \"i\") " +
@@ -156,17 +221,58 @@ public class GenericFind<T> {
         return findByQuery(clazz, queryString);
     }
 
+    public static <T> List<T> findSubclassesByKeywordWithPages(Class clazz, String superClassName, String keyword, int pageSize, int offset) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT ?uri WHERE { " +
+                " ?uri rdfs:subClassOf* " + superClassName + " . " +
+                " ?uri rdfs:label ?label . " +
+                "   FILTER regex(?label, \"" + keyword + "\", \"i\") " +
+                "} " +
+                " ORDER BY ASC(?label) " +
+                " LIMIT " + pageSize +
+                " OFFSET " + offset;
+
+        return findByQuery(clazz, queryString);
+    }
+
     public static int findTotalByKeyword(Class clazz, String keyword) {
+        String className = classNameWithNamespace(clazz);
+        if (className != null) {
+            return findTotalInstancesByKeyword(className, keyword);
+        }
+        String superClassName = superclassNameWithNamespace(clazz);
+        if (superClassName != null) {
+            return findTotalSubclassesByKeyword(superClassName, keyword);
+        }
+        return -1;
+    }
+
+    public static int findTotalInstancesByKeyword(String className, String keyword) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT (count(?uri) as ?tot) WHERE { " +
-                " ?type rdfs:subClassOf* " + classNameWithNamespace(clazz) + " . " +
-                " ?uri a ?type ." +
+                " ?type rdfs:subClassOf* " + className + " . " +
+                " ?uri a ?type . " +
                 " ?uri rdfs:label ?label . " +
                 "   FILTER regex(?label, \"" + keyword + "\", \"i\") " +
                 "} ";
 
         return findTotalByQuery(queryString);
     }
+
+    public static int findTotalSubclassesByKeyword(String superClassName, String keyword) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT (count(?uri) as ?tot) WHERE { " +
+                " ?uri rdfs:subClassOf* " + superClassName + " . " +
+                " ?uri rdfs:label ?label . " +
+                "   FILTER regex(?label, \"" + keyword + "\", \"i\") " +
+                "} ";
+
+        return findTotalByQuery(queryString);
+    }
+
+    /**
+     *     FIND ELEMENTS BY KEYWORD AND LANGUAGE (AND THEIR TOTALS)
+     */
 
 	public List<T> findByKeywordAndLanguageWithPages(Class clazz, String keyword, String language, int pageSize, int offset) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
@@ -213,6 +319,37 @@ public class GenericFind<T> {
 		queryString += "}";
         return findTotalByQuery(queryString);
 	}
+
+    /**
+     *     FIND ELEMENTS BY MANAGER (AND THEIR TOTALS)
+     */
+
+	public List<T> findByManagerEmailWithPages(Class clazz, String managerEmail, int pageSize, int offset) {
+		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+		queryString += " SELECT ?uri WHERE { " +
+				" ?model rdfs:subClassOf* " + classNameWithNamespace(clazz) + " . " +
+				" ?uri a ?model ." +
+				" ?uri rdfs:label ?label . " +
+				" ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
+				"   FILTER (?managerEmail = \"" + managerEmail + "\") " +
+				"}" +
+				" ORDER BY ASC(?label) " +
+				" LIMIT " + pageSize +
+				" OFFSET " + offset;
+		return findByQuery(clazz, queryString);
+	}
+
+	public static int findTotalByManagerEmail(Class clazz, String managerEmail) {
+		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+		queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
+				" ?model rdfs:subClassOf* " + classNameWithNamespace(clazz) + " . " +
+				" ?uri a ?model ." +
+				" ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
+				"   FILTER (?managerEmail = \"" + managerEmail + "\") " +
+				"}";
+        return findTotalByQuery(queryString);
+	}
+
 
     /** 
      *    QUERY EXECUTION

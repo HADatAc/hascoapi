@@ -114,6 +114,7 @@ GET     /sirapi/documentation/retrievalmethodlist         org.sirapi.console.con
 GET     /sirapi/documentation/queryuriexample             org.sirapi.console.controllers.documentation.RetrievalMethodList.queryURIExample()
 GET     /sirapi/documentation/queryelementsexample        org.sirapi.console.controllers.documentation.RetrievalMethodList.queryElementsExample()
 GET     /sirapi/documentation/queryelementsexample/keyword    org.sirapi.console.controllers.documentation.RetrievalMethodList.queryElementsExampleWithKeyword()
+GET     /sirapi/documentation/queryelementstotalexample/keyword    org.sirapi.console.controllers.documentation.RetrievalMethodList.queryElementsTotalExampleWithKeyword()
 GET     /sirapi/documentation/instrumentrenderingexample  org.sirapi.console.controllers.documentation.RetrievalMethodList.instrumentRenderingExample()
 
 GET     /sirapi/documentation/testingmethodlist           org.sirapi.console.controllers.documentation.TestingMethodList.index()

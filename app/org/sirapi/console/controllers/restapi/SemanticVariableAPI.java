@@ -14,6 +14,7 @@ import org.sirapi.entity.pojo.Attribute;
 import org.sirapi.entity.pojo.Unit;
 import org.sirapi.transform.Renderings;
 import org.sirapi.utils.ApiUtil;
+import org.sirapi.utils.HAScOMapper;
 import org.sirapi.vocabularies.HASCO;
 import org.sirapi.vocabularies.VSTOI;
 import play.mvc.Controller;
@@ -141,5 +142,17 @@ public class SemanticVariableAPI extends Controller {
         }
         return ok(ApiUtil.createResponse("No Testing SemanticVariable has been DELETED.", false));
     }
+
+    public static Result getSemanticVariables(List<SemanticVariable> results){
+        if (results == null) {
+            return ok(ApiUtil.createResponse("No semantic variable has been found", false));
+        } else {
+            ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL,HASCO.SEMANTIC_VARIABLE);
+            JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
+            return ok(ApiUtil.createResponse(jsonObject, true));
+        }
+    }
+
+
 
 }
