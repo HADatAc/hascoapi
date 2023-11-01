@@ -437,7 +437,7 @@ public class SIRElementAPI extends Controller {
             GenericFind<Instrument> query = new GenericFind<Instrument>();
             List<Instrument> results = query.findByManagerEmailWithPages(Instrument.class, managerEmail, pageSize, offset);
             return InstrumentAPI.getInstruments(results);
-        }  else if (elementType.equals("detectorStem")) {
+        }  else if (elementType.equals("detectorstem")) {
             GenericFind<DetectorStem> query = new GenericFind<DetectorStem>();
             List<DetectorStem> results = query.findByManagerEmailWithPages(DetectorStem.class, managerEmail, pageSize, offset);
             return DetectorStemAPI.getDetectorStems(results);
