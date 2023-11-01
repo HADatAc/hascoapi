@@ -336,7 +336,7 @@ public class GenericFind<T> {
 				" ORDER BY ASC(?label) " +
 				" LIMIT " + pageSize +
 				" OFFSET " + offset;
-        System.out.println("GenericFind.findByManagerWithPages: " + clazz.getName() + "  quuery [" + queryString + "]");
+        //System.out.println("GenericFind.findByManagerWithPages: " + clazz.getName() + "  quuery [" + queryString + "]");
 		return findByQuery(clazz, queryString);
 	}
 
