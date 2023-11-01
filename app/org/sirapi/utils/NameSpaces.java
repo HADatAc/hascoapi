@@ -58,7 +58,7 @@ public class NameSpaces {
         RDFS_NAMESPACE.setURL("https://www.w3.org/2000/01/rdf-schema#");
         RDFS_NAMESPACE.setComment("W3C's RDF Schema");
         RDFS_NAMESPACE.setVersion("1.0");
-        RDFS_NAMESPACE.updateNumberOfLoadedTriples();
+        RDFS_NAMESPACE.updateNumberOfLoadedTriples();https://hadatac.org/ont/hasco/
         RDFS_NAMESPACE.setPriority(2);
         namespaces.add(RDFS_NAMESPACE);
 
@@ -100,7 +100,7 @@ public class NameSpaces {
         PROV_NAMESPACE.setName("http://www.w3.org/ns/prov#");
         PROV_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
         PROV_NAMESPACE.setMimeType("text/turtle");
-        PROV_NAMESPACE.setURL("http://hadatac.org/ont/prov/");
+        PROV_NAMESPACE.setURL("https://hadatac.org/ont/prov/");
         PROV_NAMESPACE.setComment("The W3C Provenance Ontology");
         PROV_NAMESPACE.setVersion("30-April-2013");
         PROV_NAMESPACE.updateNumberOfLoadedTriples();
@@ -131,7 +131,7 @@ public class NameSpaces {
         HASCO_NAMESPACE.setName("http://hadatac.org/ont/hasco/");
         HASCO_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
         HASCO_NAMESPACE.setMimeType("text/turtle");
-        HASCO_NAMESPACE.setURL("http://hadatac.org/ont/hasco/");
+        HASCO_NAMESPACE.setURL("https://hadatac.org/ont/hasco/");
         HASCO_NAMESPACE.setComment("Human-Aware Science Ontology");
         HASCO_NAMESPACE.setVersion("1.0");
         HASCO_NAMESPACE.updateNumberOfLoadedTriples();
@@ -144,7 +144,7 @@ public class NameSpaces {
         VSTOI_NAMESPACE.setName("http://hadatac.org/ont/vstoi#");
         VSTOI_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
         VSTOI_NAMESPACE.setMimeType("text/turtle");
-        VSTOI_NAMESPACE.setURL("http://hadatac.org/ont/vstoi#");
+        VSTOI_NAMESPACE.setURL("https://hadatac.org/ont/vstoi#");
         VSTOI_NAMESPACE.setComment("Virtual Terrestrial Solar Observatory - Instruments");
         VSTOI_NAMESPACE.setVersion("1.0");
         VSTOI_NAMESPACE.updateNumberOfLoadedTriples();

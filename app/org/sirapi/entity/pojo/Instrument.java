@@ -475,6 +475,15 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 		return instruments;
 	}
 	
+	private static String objectToString(RDFNode node) {
+ 		if (node.isLiteral()) {
+  			return node.asLiteral().getString();
+ 		} else if (node.isResource()) {
+  			return node.asResource().getURI();
+ 		}
+ 		return null;
+	}
+
 	public static Instrument find(String uri) {
 	    Instrument instrument = null;
 	    Statement statement;
@@ -495,43 +504,46 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 		while (stmtIterator.hasNext()) {
 		    statement = stmtIterator.next();
 		    object = statement.getObject();
-		    if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-		    	instrument.setLabel(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
-                instrument.setTypeUri(object.asResource().getURI());
-			} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
-				instrument.setHascoTypeUri(object.asResource().getURI());
-			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
-				instrument.setHasStatus(object.asLiteral().getString());
-		    } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
-		    	instrument.setSerialNumber(object.asLiteral().getString());
-			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_INFORMANT)) {
-				instrument.setHasInformant(object.asResource().getURI());
-            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
-                instrument.setImage(object.asLiteral().getString());
-		    } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
-		    	instrument.setComment(object.asLiteral().getString());
-			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SHORT_NAME)) {
-				instrument.setHasShortName(object.asLiteral().getString());
-			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_INSTRUCTION)) {
-				instrument.setHasInstruction(object.asLiteral().getString());
-			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
-				instrument.setHasLanguage(object.asLiteral().getString());
-			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
-				instrument.setHasVersion(object.asLiteral().getString());
-			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PAGE_NUMBER)) {
-				instrument.setHasPageNumber(object.asLiteral().getString());
-			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_DATE_FIELD)) {
-				instrument.setHasDateField(object.asLiteral().getString());
-			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SUBJECT_ID_FIELD)) {
-				instrument.setHasSubjectIDField(object.asLiteral().getString());
-			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SUBJECT_RELATIONSHIP_FIELD)) {
-				instrument.setHasSubjectRelationshipField(object.asLiteral().getString());
-			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_COPYRIGHT_NOTICE)) {
-				instrument.setHasCopyrightNotice(object.asLiteral().getString());
-			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MAINTAINER_EMAIL)) {
-				instrument.setHasSIRManagerEmail(object.asLiteral().getString());
-		    }
+			String str = objectToString(object);
+			if (uri != null && !uri.isEmpty()) {
+				if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
+					instrument.setLabel(str);
+				} else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
+					instrument.setTypeUri(str); 
+				} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
+					instrument.setHascoTypeUri(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
+					instrument.setHasStatus(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
+					instrument.setSerialNumber(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_INFORMANT)) {
+					instrument.setHasInformant(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+					instrument.setImage(str);
+				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
+					instrument.setComment(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SHORT_NAME)) {
+					instrument.setHasShortName(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_INSTRUCTION)) {
+					instrument.setHasInstruction(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
+					instrument.setHasLanguage(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
+					instrument.setHasVersion(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PAGE_NUMBER)) {
+					instrument.setHasPageNumber(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_DATE_FIELD)) {
+					instrument.setHasDateField(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SUBJECT_ID_FIELD)) {
+					instrument.setHasSubjectIDField(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SUBJECT_RELATIONSHIP_FIELD)) {
+					instrument.setHasSubjectRelationshipField(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_COPYRIGHT_NOTICE)) {
+					instrument.setHasCopyrightNotice(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MAINTAINER_EMAIL)) {
+					instrument.setHasSIRManagerEmail(str);
+				}
+			}
 		}
 
 		instrument.setUri(uri);

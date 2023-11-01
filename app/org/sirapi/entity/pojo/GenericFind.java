@@ -329,13 +329,14 @@ public class GenericFind<T> {
 		queryString += " SELECT ?uri WHERE { " +
 				" ?model rdfs:subClassOf* " + classNameWithNamespace(clazz) + " . " +
 				" ?uri a ?model ." +
-				" ?uri rdfs:label ?label . " +
+				" OPTIONAL { ?uri rdfs:label ?label . } " +
 				" ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
 				"   FILTER (?managerEmail = \"" + managerEmail + "\") " +
 				"}" +
 				" ORDER BY ASC(?label) " +
 				" LIMIT " + pageSize +
 				" OFFSET " + offset;
+        System.out.println("GenericFind.findByManagerWithPages: " + clazz.getName() + "  quuery [" + queryString + "]");
 		return findByQuery(clazz, queryString);
 	}
 

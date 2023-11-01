@@ -80,6 +80,7 @@ public class SIRElementAPI extends Controller {
                 message = e.getMessage();
             }
         } else if (clazz == ResponseOption.class) {
+            System.out.println("add Response Option: [" + json + "]");
             try {
                 ResponseOption object;
                 object = (ResponseOption)objectMapper.readValue(json, clazz);
@@ -450,6 +451,7 @@ public class SIRElementAPI extends Controller {
             List<Codebook> results = query.findByManagerEmailWithPages(Codebook.class, managerEmail, pageSize, offset);
             return CodebookAPI.getCodebooks(results);
         }  else if (elementType.equals("responseoption")) {
+            System.out.println("inside GenericFind.getElementsByManagerEmail with elementType [" + elementType + "] and managerEmail [" + managerEmail + "]");
             GenericFind<ResponseOption> query = new GenericFind<ResponseOption>();
             List<ResponseOption> results = query.findByManagerEmailWithPages(ResponseOption.class, managerEmail, pageSize, offset);
             return ResponseOptionAPI.getResponseOptions(results);

@@ -20,11 +20,14 @@ import org.apache.jena.update.UpdateFactory;
 import org.apache.jena.update.UpdateProcessor;
 import org.apache.jena.update.UpdateRequest;
 import org.eclipse.rdf4j.model.Model;
+import org.sirapi.RepositoryInstance;
 import org.sirapi.utils.CollectionUtil;
 import org.sirapi.utils.GSPClient;
+import org.sirapi.utils.MetadataFactory;
 import org.sirapi.utils.NameSpaces;
 import org.sirapi.utils.URIUtils;
 import org.sirapi.utils.SPARQLUtils;
+import org.sirapi.Constants;
 
 import org.sirapi.annotations.PropertyField;
 import org.sirapi.annotations.ReversedPropertyField;
@@ -208,7 +211,7 @@ public abstract class HADatAcThing {
 
     public void setNamedGraph(String namedGraph) {
         this.namedGraph = namedGraph;
-    }
+    };
 
     public boolean getDeletable() {
         return deletable;
@@ -417,6 +420,15 @@ public abstract class HADatAcThing {
             }
         }
         reversed_rows.add(row);
+        if (getNamedGraph() == null || getNamedGraph().isEmpty()) {
+            //System.out.println("Default URL: [" + RepositoryInstance.getInstance().getHasDefaultNamespaceURL() + "]");
+            //System.out.println("Default Abbrev: [" + RepositoryInstance.getInstance().getHasDefaultNamespaceAbbreviation() + "]");
+            if (RepositoryInstance.getInstance() != null && RepositoryInstance.getInstance().getHasDefaultNamespaceURL() != null) {
+                return MetadataFactory.createModel(reversed_rows,RepositoryInstance.getInstance().getHasDefaultNamespaceURL());
+            } else {
+                return MetadataFactory.createModel(reversed_rows,Constants.DEFAULT_REPOSITORY);
+            }
+        }
         return MetadataFactory.createModel(reversed_rows, getNamedGraph());
     }
 
@@ -425,7 +437,7 @@ public abstract class HADatAcThing {
         Model model = generateRDFModel();
         ByteArrayOutputStream out = null;
         out = new ByteArrayOutputStream();
-        RDFWriter writer = Rio.createWriter(RDFFormat.RDFXML, out);
+        RDFWriter writer = Rio.createWriter(RDFFormat.RDFRepositoryInstance.getInstance().getHasDefaultNamespaceURL()XML, out);
         try {
             writer.startRDF();
             for (org.eclipse.rdf4j.model.Statement st: model) {
