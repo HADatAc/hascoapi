@@ -211,7 +211,7 @@ public abstract class HADatAcThing {
 
     public void setNamedGraph(String namedGraph) {
         this.namedGraph = namedGraph;
-    };
+    }
 
     public boolean getDeletable() {
         return deletable;
@@ -549,7 +549,7 @@ public abstract class HADatAcThing {
             return;
         }
 
-        //System.out.println("Deleting <" + getUri() + "> from triple store");
+        System.out.println("Deleting <" + getUri() + "> from triple store");
 
         query += NameSpaces.getInstance().printSparqlNameSpaceList();
         //System.out.println("Deleting query namespaces [" + query + "]");
@@ -563,6 +563,7 @@ public abstract class HADatAcThing {
             }
             query += " ?p ?o . } \n";
             query += " } ";
+            //System.out.println("Delete named graph query: [" + query + "]");
             UpdateRequest request = UpdateFactory.create(query);
             UpdateProcessor processor = UpdateExecutionFactory.createRemote(
                     request, CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
@@ -571,8 +572,16 @@ public abstract class HADatAcThing {
         } else {
             // if ( getUri().contains("3539947") ) System.out.println("find 3539947!!!! delete without namespace!!!");
 
-            String query1 = query+ " DELETE WHERE { \n " +
-                   "    GRAPH <" + GSPClient.defaultGraphUri + "> { \n";
+            if (RepositoryInstance.getInstance() != null && RepositoryInstance.getInstance().getHasDefaultNamespaceURL() != null) {
+                this.setNamedGraph(RepositoryInstance.getInstance().getHasDefaultNamespaceURL());
+            } else {
+                this.setNamedGraph(Constants.DEFAULT_REPOSITORY);
+            }
+
+            // The original default named graph is GSPClient.defaultGraphUri
+            // Inside the HAScO API, we use the repository Instance default namespace URL
+            String query1 = query + " DELETE WHERE { \n " +
+                   "    GRAPH <" + this.getNamedGraph() + "> { \n";
             if (getUri().startsWith("http")) {
                 query1 += "<" + this.getUri() + ">";
             } else {
@@ -580,6 +589,7 @@ public abstract class HADatAcThing {
             }
             query1 += " ?p ?o . } \n";
             query1 += " } ";
+            //System.out.println("Delete query: [" + query1 + "]");
             UpdateRequest request = UpdateFactory.create(query1);
             UpdateProcessor processor = UpdateExecutionFactory.createRemote(
                     request, CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));

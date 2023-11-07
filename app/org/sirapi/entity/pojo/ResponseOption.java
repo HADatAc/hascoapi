@@ -23,7 +23,7 @@ import java.util.List;
 @JsonFilter("responseOptionFilter")
 public class ResponseOption extends HADatAcThing implements SIRElement, Comparable<ResponseOption> {
 
-    @PropertyField(uri = "vstoi:hasStatus")
+    @PropertyField(uri = "vstoi:hasStatus")    
     private String hasStatus;
 
     @PropertyField(uri = "vstoi:hasSerialNumber")
@@ -54,7 +54,7 @@ public class ResponseOption extends HADatAcThing implements SIRElement, Comparab
 
     public String getSerialNumber() {
         return serialNumber;
-    }
+    }       
 
     public void setSerialNumber(String serialNumber) {
         this.serialNumber = serialNumber;
@@ -84,7 +84,7 @@ public class ResponseOption extends HADatAcThing implements SIRElement, Comparab
         this.hasLanguage = hasLanguage;
     }
 
-    public String getHasVersion() {
+    public String getHasVersion() {      
         return hasVersion;
     }
 
@@ -115,7 +115,7 @@ public class ResponseOption extends HADatAcThing implements SIRElement, Comparab
                 " SELECT ?uri WHERE { " +
                 " ?respOption rdfs:subClassOf* vstoi:ResponseOption . " +
                 " ?uri a ?respOption ." +
-                " ?uri vstoi:hasLanguage ?language . " +
+                " ?uri vstoi:hasLanguage ?language . " +  
                 "   FILTER (?language = \"" + language + "\") " +
                 "} ";
 
@@ -151,7 +151,7 @@ public class ResponseOption extends HADatAcThing implements SIRElement, Comparab
             queryString += "   FILTER (regex(?content, \"" + keyword + "\", \"i\")) ";
         } else if (!language.isEmpty()) {
             queryString += "   FILTER ((?language = \"" + language + "\")) ";
-        }
+        }              
         queryString += "} " +
                 " ORDER BY ASC(?content) " +
                 " LIMIT " + pageSize +
@@ -169,13 +169,13 @@ public class ResponseOption extends HADatAcThing implements SIRElement, Comparab
         }
         if (!keyword.isEmpty()) {
             queryString += " ?uri vstoi:hasContent ?content . ";
-        }
+        }       
         if (!keyword.isEmpty() && !language.isEmpty()) {
             queryString += "   FILTER (regex(?content, \"" + keyword + "\", \"i\") && (?language = \"" + language
                     + "\")) ";
         } else if (!keyword.isEmpty()) {
             queryString += "   FILTER (regex(?content, \"" + keyword + "\", \"i\")) ";
-        } else if (!language.isEmpty()) {
+        } else if (!language.isEmpty()) {            
             queryString += "   FILTER ((?language = \"" + language + "\")) ";
         }
         queryString += "}";
@@ -229,7 +229,7 @@ public class ResponseOption extends HADatAcThing implements SIRElement, Comparab
             e.printStackTrace();
         }
         return -1;
-    }
+    }  
 
     public static List<ResponseOption> findByManagerEmail(String managerEmail) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
@@ -294,7 +294,7 @@ public class ResponseOption extends HADatAcThing implements SIRElement, Comparab
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 "SELECT ?uri WHERE { " +
                 " ?option rdfs:subClassOf* vstoi:ResponseOption . " +
-                " ?uri a ?option . } " +
+                " ?uri a ?option . } " +   
                 " LIMIT " + pageSize +
                 " OFFSET " + offset;
 
@@ -366,9 +366,9 @@ public class ResponseOption extends HADatAcThing implements SIRElement, Comparab
             return false;
         }
         ResponseOptionSlot responseOptionSlot = ResponseOptionSlot.find(ResponseOptionSlotUri);
-        if (responseOptionSlot == null) {
-            System.out.println("ResponseOptionSlot.find returned nothing");
-        }
+        //if (responseOptionSlot == null) {
+        //    System.out.println("ResponseOptionSlot.find returned nothing");
+        //}
         if (responseOptionSlot == null) {
             return false;
         }

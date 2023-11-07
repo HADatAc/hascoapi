@@ -85,6 +85,16 @@ public class GenericFind<T> {
         return null;
     }
 
+    private static boolean isSIR (Class clazz) {
+        if (clazz == Instrument.class ||
+            clazz == DetectorStem.class ||
+            clazz == Detector.class ||
+            clazz == ResponseOption.class) {
+            return true;
+        }
+        return false;
+    }
+
     private static String superclassNameWithNamespace (Class clazz) {
         if (clazz == InstrumentType.class) {
             return URIUtils.replaceNameSpace(VSTOI.INSTRUMENT);
@@ -197,7 +207,11 @@ public class GenericFind<T> {
         }
         String className = classNameWithNamespace(clazz);
         if (className != null) {
-            return findInstancesByKeywordWithPages(clazz, className, keyword, pageSize, offset);
+            if (isSIR(clazz)) {
+              return findSIRInstancesByKeywordWithPages(clazz, className, keyword, pageSize, offset);
+            } else {
+              return findInstancesByKeywordWithPages(clazz, className, keyword, pageSize, offset);
+            }
         }
         String subClassName = superclassNameWithNamespace(clazz);
         if (subClassName != null) {
@@ -206,7 +220,25 @@ public class GenericFind<T> {
         return null;
     }
 
+    public static <T> List<T> findSIRInstancesByKeywordWithPages(Class clazz, String className, String keyword, int pageSize, int offset) {
+        //System.out.println("GenericFind.findInstancesByKeywordWithPages: " + className + "  " + pageSize + "  " + offset);
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT ?uri WHERE { " +
+                " ?type rdfs:subClassOf* " + className + " . " +
+                " ?uri a ?type ." +
+                " ?uri vstoi:hasContent ?content . " +
+                "   FILTER regex(?content, \"" + keyword + "\", \"i\") " +
+                "} " +
+                " ORDER BY ASC(?content) " +
+                " LIMIT " + pageSize +
+                " OFFSET " + offset;
+
+        //System.out.println("GenericFind.findSIRInstancesByKeywordWithPages: [" + queryString + "]");
+        return findByQuery(clazz, queryString);
+    }
+
     public static <T> List<T> findInstancesByKeywordWithPages(Class clazz, String className, String keyword, int pageSize, int offset) {
+        //System.out.println("GenericFind.findInstancesByKeywordWithPages: " + className + "  " + pageSize + "  " + offset);
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
                 " ?type rdfs:subClassOf* " + className + " . " +
@@ -218,6 +250,7 @@ public class GenericFind<T> {
                 " LIMIT " + pageSize +
                 " OFFSET " + offset;
 
+        //System.out.println("GenericFind.findInstancesByKeywordWithPages: [" + queryString + "]");
         return findByQuery(clazz, queryString);
     }
 
@@ -336,7 +369,7 @@ public class GenericFind<T> {
 				" ORDER BY ASC(?label) " +
 				" LIMIT " + pageSize +
 				" OFFSET " + offset;
-        //System.out.println("GenericFind.findByManagerWithPages: " + clazz.getName() + "  quuery [" + queryString + "]");
+        //System.out.println("GenericFind.findByManagerWithPages: " + clazz.getName() + "  query [" + queryString + "]");
 		return findByQuery(clazz, queryString);
 	}
 
@@ -348,6 +381,7 @@ public class GenericFind<T> {
 				" ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
 				"   FILTER (?managerEmail = \"" + managerEmail + "\") " +
 				"}";
+        //System.out.println("GenericFind.findTotalByManagerWithPages: " + clazz.getName() + "  query [" + queryString + "]");
         return findTotalByQuery(queryString);
 	}
 
@@ -420,23 +454,22 @@ public class GenericFind<T> {
     
     }
 
-    private static int findTotalByQuery(String queryString) {
-		try {
-			ResultSetRewindable resultsrw = SPARQLUtils.select(
-					CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
-			if (resultsrw.hasNext()) {
-				QuerySolution soln = resultsrw.next();
-				int i = Integer.parseInt(soln.getLiteral("tot").getString());
-                //System.out.println("FindByQuery: query = [" + queryString + "]");
-                //System.out.println("FindByQuery: total = [" + i + "]");
-                return i;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return -1;
+    private static int findTotalByQuery(String queryString) {
+        try {
+            ResultSetRewindable resultsrw = SPARQLUtils.select(
+                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+            if (resultsrw.hasNext()) {
+                QuerySolution soln = resultsrw.next();
+                return Integer.parseInt(soln.getLiteral("tot").getString());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1;
     }
+
 
 }
 

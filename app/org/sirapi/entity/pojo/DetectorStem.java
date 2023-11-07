@@ -273,7 +273,8 @@ public class DetectorStem extends HADatAcThing implements SIRElement, Comparable
 
         //System.out.println(queryString);
 
-        try {
+        try {           
+
             ResultSetRewindable resultsrw = SPARQLUtils.select(
                     CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
@@ -335,8 +336,7 @@ public class DetectorStem extends HADatAcThing implements SIRElement, Comparable
                 " ?uri vstoi:hasContent ?content . " +
                 "   FILTER (?managerEmail = \"" + managerEmail + "\") " +
                 "} " +
-                " ORDER BY ASC(?content) ";
-
+                " ORDER BY ASC(?content) ";              
         return findByQuery(queryString);
     }
 

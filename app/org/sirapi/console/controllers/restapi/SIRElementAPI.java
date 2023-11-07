@@ -80,7 +80,6 @@ public class SIRElementAPI extends Controller {
                 message = e.getMessage();
             }
         } else if (clazz == ResponseOption.class) {
-            System.out.println("add Response Option: [" + json + "]");
             try {
                 ResponseOption object;
                 object = (ResponseOption)objectMapper.readValue(json, clazz);
@@ -322,7 +321,15 @@ public class SIRElementAPI extends Controller {
         if (keyword.equals("_")) {
             keyword = "";
         }
-        if (elementType.equals("semanticvariable")) {
+        if (elementType.equals("detectorstem")) {
+            GenericFind<DetectorStem> query = new GenericFind<DetectorStem>();
+            List<DetectorStem> results = query.findByKeywordWithPages(DetectorStem.class,keyword, pageSize, offset);
+            return DetectorStemAPI.getDetectorStems(results);
+        } else if (elementType.equals("codebook")) {
+            GenericFind<Codebook> query = new GenericFind<Codebook>();
+            List<Codebook> results = query.findByKeywordWithPages(Codebook.class,keyword, pageSize, offset);
+            return CodebookAPI.getCodebooks(results);
+        } else if (elementType.equals("semanticvariable")) {
             GenericFind<SemanticVariable> query = new GenericFind<SemanticVariable>();
             List<SemanticVariable> results = query.findByKeywordWithPages(SemanticVariable.class,keyword, pageSize, offset);
             return SemanticVariableAPI.getSemanticVariables(results);
@@ -451,7 +458,6 @@ public class SIRElementAPI extends Controller {
             List<Codebook> results = query.findByManagerEmailWithPages(Codebook.class, managerEmail, pageSize, offset);
             return CodebookAPI.getCodebooks(results);
         }  else if (elementType.equals("responseoption")) {
-            System.out.println("inside GenericFind.getElementsByManagerEmail with elementType [" + elementType + "] and managerEmail [" + managerEmail + "]");
             GenericFind<ResponseOption> query = new GenericFind<ResponseOption>();
             List<ResponseOption> results = query.findByManagerEmailWithPages(ResponseOption.class, managerEmail, pageSize, offset);
             return ResponseOptionAPI.getResponseOptions(results);

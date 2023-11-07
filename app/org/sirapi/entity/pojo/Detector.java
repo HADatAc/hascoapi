@@ -97,43 +97,18 @@ public class Detector extends DetectorStem {
 
         //System.out.println("Query: " + queryString);
 
-        ResultSetRewindable resultsrw = SPARQLUtils.select(
-                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
-
-        if (!resultsrw.hasNext()) {
-            return null;
-        }
-
-        while (resultsrw.hasNext()) {
-            QuerySolution soln = resultsrw.next();
-            Detector detector = findDetector(soln.getResource("uri").getURI());
-            detectors.add(detector);
-        }
-
-        java.util.Collections.sort((List<Detector>) detectors);
-        return detectors;
+        return findDetectorsByQuery(queryString);
     }
 
     public static int getNumberDetectors() {
-        String query = "";
-        query += NameSpaces.getInstance().printSparqlNameSpaceList();
-        query += " select (count(?uri) as ?tot) where { " +
+        String queryString = "";
+        queryString += NameSpaces.getInstance().printSparqlNameSpaceList();
+        queryString += " select (count(?uri) as ?tot) where { " +
                 " ?detModel rdfs:subClassOf* vstoi:Detector . " +
                 " ?uri a ?detModel ." +
                 "}";
 
-        try {
-            ResultSetRewindable resultsrw = SPARQLUtils.select(
-                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), query);
-
-            if (resultsrw.hasNext()) {
-                QuerySolution soln = resultsrw.next();
-                return Integer.parseInt(soln.getLiteral("tot").getString());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return -1;
+        return findTotalDetectorsByQuery(queryString);
     }
 
     public static List<Detector> findDetectorsWithPages(int pageSize, int offset) {
@@ -194,6 +169,7 @@ public class Detector extends DetectorStem {
                 " ORDER BY ASC(?content) " +
                 " LIMIT " + pageSize +
                 " OFFSET " + offset;
+
         return findDetectorsByQuery(queryString);
     }
 
@@ -218,20 +194,7 @@ public class Detector extends DetectorStem {
         }
         queryString += "}";
 
-        //System.out.println(queryString);
-
-        try {
-            ResultSetRewindable resultsrw = SPARQLUtils.select(
-                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
-
-            if (resultsrw.hasNext()) {
-                QuerySolution soln = resultsrw.next();
-                return Integer.parseInt(soln.getLiteral("tot").getString());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return -1;
+        return findTotalDetectorsByQuery(queryString);
     }
 
     public static List<Detector> findDetectorsByManagerEmailWithPages(String managerEmail, int pageSize, int offset) {
@@ -260,18 +223,7 @@ public class Detector extends DetectorStem {
                 "   FILTER (?managerEmail = \"" + managerEmail + "\") " +
                 "}";
 
-        try {
-            ResultSetRewindable resultsrw = SPARQLUtils.select(
-                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
-
-            if (resultsrw.hasNext()) {
-                QuerySolution soln = resultsrw.next();
-                return Integer.parseInt(soln.getLiteral("tot").getString());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return -1;
+        return findTotalDetectorsByQuery(queryString);
     }
 
     public static List<Detector> findDetectorsByManagerEmail(String managerEmail) {
@@ -298,22 +250,6 @@ public class Detector extends DetectorStem {
                 " ?detSlotUri vstoi:hasDetector ?uri . " +
                 " ?detSlotUri vstoi:belongsTo <" + instrumentUri + ">. " +
                 "} ";
-
-        return findDetectorsByQuery(queryString);
-    }
-
-    public static List<Detector> findDetectorsAvailable() {
-        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                " SELECT ?uri WHERE { " +
-                "   { ?detModel rdfs:subClassOf* vstoi:Detector . " +
-                "     ?uri a ?detModel ." +
-                "   } MINUS { " +
-                "     ?dep_uri a vstoi:Deployment . " +
-                "     ?dep_uri hasco:hasDetector ?uri .  " +
-                "     FILTER NOT EXISTS { ?dep_uri prov:endedAtTime ?enddatetime . } " +
-                "    } " +
-                "} " +
-                "ORDER BY DESC(?datetime) ";
 
         return findDetectorsByQuery(queryString);
     }
@@ -350,6 +286,21 @@ public class Detector extends DetectorStem {
         java.util.Collections.sort((List<Detector>) detectors);
         return detectors;
 
+    }
+
+    private static int findTotalDetectorsByQuery(String queryString) {
+        try {
+            ResultSetRewindable resultsrw = SPARQLUtils.select(
+                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+            if (resultsrw.hasNext()) {
+                QuerySolution soln = resultsrw.next();
+                return Integer.parseInt(soln.getLiteral("tot").getString());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1;
     }
 
     public static Detector findDetector(String uri) {
