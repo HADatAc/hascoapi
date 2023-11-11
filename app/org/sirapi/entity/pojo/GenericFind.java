@@ -358,9 +358,40 @@ public class GenericFind<T> {
      */
 
 	public List<T> findByManagerEmailWithPages(Class clazz, String managerEmail, int pageSize, int offset) {
+        String className = classNameWithNamespace(clazz);
+        if (className != null) {
+            if (isSIR(clazz)) {
+              return findSIRInstancesByManagerEmailWithPages(clazz, className, managerEmail, pageSize, offset);
+            } else {
+              return findInstancesByManagerEmailWithPages(clazz, className, managerEmail, pageSize, offset);
+            }
+        }
+        String subClassName = superclassNameWithNamespace(clazz);
+        if (subClassName != null) {
+            return findSubclassesByManagerEmailWithPages(clazz, subClassName, managerEmail, pageSize, offset);
+        }
+        return null;
+    }
+
+	public List<T> findSIRInstancesByManagerEmailWithPages(Class clazz, String className, String managerEmail, int pageSize, int offset) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
 		queryString += " SELECT ?uri WHERE { " +
-				" ?model rdfs:subClassOf* " + classNameWithNamespace(clazz) + " . " +
+				" ?model rdfs:subClassOf* " + className + " . " +
+				" ?uri a ?model ." +
+                " OPTIONAL { ?uri vstoi:hasContent ?content . } " +
+				" ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
+				"   FILTER (?managerEmail = \"" + managerEmail + "\") " +
+				"}" +
+				" ORDER BY ASC(?content) " +
+				" LIMIT " + pageSize +
+				" OFFSET " + offset;
+		return findByQuery(clazz, queryString);
+	}
+
+	public List<T> findInstancesByManagerEmailWithPages(Class clazz, String className, String managerEmail, int pageSize, int offset) {
+		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+		queryString += " SELECT ?uri WHERE { " +
+				" ?model rdfs:subClassOf* " + className + " . " +
 				" ?uri a ?model ." +
 				" OPTIONAL { ?uri rdfs:label ?label . } " +
 				" ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
@@ -369,7 +400,20 @@ public class GenericFind<T> {
 				" ORDER BY ASC(?label) " +
 				" LIMIT " + pageSize +
 				" OFFSET " + offset;
-        //System.out.println("GenericFind.findByManagerWithPages: " + clazz.getName() + "  query [" + queryString + "]");
+		return findByQuery(clazz, queryString);
+	}
+
+	public List<T> findSubclassesByManagerEmailWithPages(Class clazz, String subClassName, String managerEmail, int pageSize, int offset) {
+		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+		queryString += " SELECT ?uri WHERE { " +
+				" ?uri rdfs:subClassOf* " + subClassName + " . " +
+				" OPTIONAL { ?uri rdfs:label ?label . } " +
+				" ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
+				"   FILTER (?managerEmail = \"" + managerEmail + "\") " +
+				"}" +
+				" ORDER BY ASC(?label) " +
+				" LIMIT " + pageSize +
+				" OFFSET " + offset;
 		return findByQuery(clazz, queryString);
 	}
 

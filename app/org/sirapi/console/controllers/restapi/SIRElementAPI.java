@@ -325,10 +325,18 @@ public class SIRElementAPI extends Controller {
             GenericFind<DetectorStem> query = new GenericFind<DetectorStem>();
             List<DetectorStem> results = query.findByKeywordWithPages(DetectorStem.class,keyword, pageSize, offset);
             return DetectorStemAPI.getDetectorStems(results);
+        } else if (elementType.equals("detector")) {
+            GenericFind<Detector> query = new GenericFind<Detector>();
+            List<Detector> results = query.findByKeywordWithPages(Detector.class,keyword, pageSize, offset);
+            return DetectorAPI.getDetectors(results);
         } else if (elementType.equals("codebook")) {
             GenericFind<Codebook> query = new GenericFind<Codebook>();
             List<Codebook> results = query.findByKeywordWithPages(Codebook.class,keyword, pageSize, offset);
             return CodebookAPI.getCodebooks(results);
+        } else if (elementType.equals("responseoption")) {
+            GenericFind<ResponseOption> query = new GenericFind<ResponseOption>();
+            List<ResponseOption> results = query.findByKeywordWithPages(ResponseOption.class,keyword, pageSize, offset);
+            return ResponseOptionAPI.getResponseOptions(results);
         } else if (elementType.equals("semanticvariable")) {
             GenericFind<SemanticVariable> query = new GenericFind<SemanticVariable>();
             List<SemanticVariable> results = query.findByKeywordWithPages(SemanticVariable.class,keyword, pageSize, offset);

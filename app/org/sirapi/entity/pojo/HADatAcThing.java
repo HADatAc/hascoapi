@@ -549,7 +549,7 @@ public abstract class HADatAcThing {
             return;
         }
 
-        System.out.println("Deleting <" + getUri() + "> from triple store");
+        //System.out.println("Deleting <" + getUri() + "> from triple store");
 
         query += NameSpaces.getInstance().printSparqlNameSpaceList();
         //System.out.println("Deleting query namespaces [" + query + "]");
