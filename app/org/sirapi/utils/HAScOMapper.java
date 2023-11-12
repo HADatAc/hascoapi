@@ -30,6 +30,7 @@ public class HAScOMapper {
      * @return filtered Jackson's ObjectMapper
      */
     public static ObjectMapper getFiltered(String mode, String typeResult) {
+        //System.out.println("HAScO.getFiltered() with mode [" + mode + "] and typeResult [" + typeResult +"]");
         ObjectMapper mapper = new ObjectMapper();
         SimpleFilterProvider filterProvider = new SimpleFilterProvider();
 
