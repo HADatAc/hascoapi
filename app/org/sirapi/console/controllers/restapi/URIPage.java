@@ -7,22 +7,26 @@ import org.sirapi.entity.pojo.*;
 import org.sirapi.utils.ApiUtil;
 import org.sirapi.utils.HAScOMapper;
 import org.sirapi.vocabularies.HASCO;
+import org.sirapi.vocabularies.SIO;
 import org.sirapi.vocabularies.VSTOI;
 import play.mvc.Controller;
 import play.mvc.Result;
 
 public class URIPage extends Controller {
 
-    public Result getUri(String uri){
+    public Result getUri(String uri) {
 
         if (!uri.startsWith("http://") && !uri.startsWith("https://")) {
             return ok(ApiUtil.createResponse("[" + uri + "] is an invalid URI", false));
         }
 
         HADatAcThing finalResult = URIPage.objectFromUri(uri);
-        String typeUri = finalResult.getHascoTypeUri();
+        if (finalResult == null) {
+            return ok(ApiUtil.createResponse("Uri [" + uri + "] returned no object from the knowledge graph", false));
+        }
 
-        if (finalResult == null || typeUri == null || typeUri.equals("")){
+        String typeUri = finalResult.getHascoTypeUri();
+        if (typeUri == null || typeUri.equals("")) {
             return ok(ApiUtil.createResponse("No type-specific instance found for uri [" + uri + "]", false));
         }
 
@@ -35,43 +39,55 @@ public class URIPage extends Controller {
         try {
 
             /*
-             *  Now uses GenericInstance to process URI against TripleStore content
+             * Now uses GenericInstance to process URI against TripleStore content
              */
 
             Object finalResult = null;
             GenericInstance result = GenericInstance.find(uri);
-            //System.out.println("inside getUri(): URI [" + uri + "]");
+            //System.out.println("URIPage.objectFromUri() [1]: URI [" + uri + "]");
 
             if (result == null) {
                 System.out.println("No generic instance found for uri [" + uri + "]");
                 return null;
             }
+            //System.out.println("URIPage.objectFromUri() [1]: URI [" + uri + "]");
 
             /*
-            if (result.getHascoTypeUri() == null || result.getHascoTypeUri().isEmpty()) {
-                System.out.println("inside getUri(): typeUri [" + result.getTypeUri() + "]");
-                if (!result.getTypeUri().equals("http://www.w3.org/2002/07/owl#Class")) {
-                    return notFound(ApiUtil.createResponse("No valid HASCO type found for uri [" + uri + "]", false));
-                }
-            }
+             * if (result.getHascoTypeUri() == null || result.getHascoTypeUri().isEmpty()) {
+             * System.out.println("inside getUri(): typeUri [" + result.getTypeUri() + "]");
+             * if (!result.getTypeUri().equals("http://www.w3.org/2002/07/owl#Class")) {
+             * return notFound(ApiUtil.createResponse("No valid HASCO type found for uri ["
+             * + uri + "]", false));
+             * }
+             * }
              */
 
             if (result.getHascoTypeUri().equals(VSTOI.INSTRUMENT)) {
                 finalResult = Instrument.find(uri);
-            } else if (result.getHascoTypeUri().equals(VSTOI.ATTACHMENT)) {
-                finalResult = Attachment.find(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.DETECTOR_SLOT)) {
+                finalResult = DetectorSlot.find(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.DETECTOR_STEM)) {
+                finalResult = DetectorStem.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.DETECTOR)) {
-                finalResult = Detector.find(uri);
-            } else if (result.getHascoTypeUri().equals(VSTOI.EXPERIENCE)) {
-                finalResult = Experience.find(uri);
-            } else if (result.getHascoTypeUri().equals(VSTOI.CODEBOOK_SLOT)) {
-                finalResult = CodebookSlot.find(uri);
+                finalResult = Detector.findDetector(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.CODEBOOK)) {
+                finalResult = Codebook.find(uri);            
+            } else if (result.getHascoTypeUri().equals(VSTOI.RESPONSE_OPTION_SLOT)) {
+                finalResult = ResponseOptionSlot.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.RESPONSE_OPTION)) {
                 finalResult = ResponseOption.find(uri);
+            } else if (result.getHascoTypeUri().equals(HASCO.SEMANTIC_VARIABLE)) {
+                finalResult = SemanticVariable.find(uri);
+            } else if (result.getHascoTypeUri().equals(SIO.ENTITY)) {
+                finalResult = Entity.find(uri);
+            } else if (result.getHascoTypeUri().equals(SIO.ATTRIBUTE)) {
+                finalResult = Attribute.find(uri);
+            } else if (result.getHascoTypeUri().equals(SIO.UNIT)) {
+                finalResult = Unit.find(uri);
             } else {
                 finalResult = result;
             }
-            return (HADatAcThing)finalResult;
+            return (HADatAcThing) finalResult;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -80,7 +96,7 @@ public class URIPage extends Controller {
     }
 
     private Result processResult(Object result, String typeResult, String uri) {
-        ObjectMapper mapper = HAScOMapper.getFiltered(typeResult);
+        ObjectMapper mapper = HAScOMapper.getFiltered("full",typeResult);
 
         //System.out.println("[RestAPI] generating JSON for following object: " + uri);
         JsonNode jsonObject = null;

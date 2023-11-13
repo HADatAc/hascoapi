@@ -13,7 +13,7 @@ import java.util.List;
 
 public class InstrumentTypeAPI extends Controller {
 
-    public Result getAllInstrumentTypes(){
+    public static Result getInstrumentTypes(){
         ObjectMapper mapper = new ObjectMapper();
 
         List<InstrumentType> results = InstrumentType.find();

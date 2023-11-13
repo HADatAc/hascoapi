@@ -21,28 +21,28 @@ import java.util.Comparator;
 import java.util.List;
 
 @JsonFilter("responseOptionFilter")
-public class ResponseOption extends HADatAcThing implements SIRElement, Comparable<ResponseOption>  {
+public class ResponseOption extends HADatAcThing implements SIRElement /*, Comparable<ResponseOption>*/ {
 
-    @PropertyField(uri="vstoi:hasStatus")
+    @PropertyField(uri = "vstoi:hasStatus")    
     private String hasStatus;
 
-    @PropertyField(uri="vstoi:hasSerialNumber")
+    @PropertyField(uri = "vstoi:hasSerialNumber")
     String serialNumber;
 
-    @PropertyField(uri="hasco:hasImage")
+    @PropertyField(uri = "hasco:hasImage")
     String image;
 
-    @PropertyField(uri="vstoi:hasContent")
+    @PropertyField(uri = "vstoi:hasContent")
     String hasContent;
 
-    @PropertyField(uri="vstoi:hasLanguage")
+    @PropertyField(uri = "vstoi:hasLanguage")
     private String hasLanguage;
 
-    @PropertyField(uri="vstoi:hasVersion")
+    @PropertyField(uri = "vstoi:hasVersion")
     String hasVersion;
 
-    @PropertyField(uri="vstoi:hasSIRMaintainerEmail")
-    private String hasSIRMaintainerEmail;
+    @PropertyField(uri = "vstoi:hasSIRManagerEmail")
+    private String hasSIRManagerEmail;
 
     public String getHasStatus() {
         return hasStatus;
@@ -54,7 +54,7 @@ public class ResponseOption extends HADatAcThing implements SIRElement, Comparab
 
     public String getSerialNumber() {
         return serialNumber;
-    }
+    }       
 
     public void setSerialNumber(String serialNumber) {
         this.serialNumber = serialNumber;
@@ -84,7 +84,7 @@ public class ResponseOption extends HADatAcThing implements SIRElement, Comparab
         this.hasLanguage = hasLanguage;
     }
 
-    public String getHasVersion() {
+    public String getHasVersion() {      
         return hasVersion;
     }
 
@@ -92,218 +92,12 @@ public class ResponseOption extends HADatAcThing implements SIRElement, Comparab
         this.hasVersion = hasVersion;
     }
 
-    public String getHasSIRMaintainerEmail() {
-        return hasSIRMaintainerEmail;
+    public String getHasSIRManagerEmail() {
+        return hasSIRManagerEmail;
     }
 
-    public void setHasSIRMaintainerEmail(String hasSIRMaintainerEmail) {
-        this.hasSIRMaintainerEmail = hasSIRMaintainerEmail;
-    }
-
-    public static List<ResponseOption> find() {
-        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                " SELECT ?uri WHERE { " +
-                " ?respOption rdfs:subClassOf* vstoi:ResponseOption . " +
-                " ?uri a ?respOption ." +
-                "} ";
-
-        return findByQuery(queryString);
-    }
-
-    public static List<ResponseOption> findByLanguage(String language) {
-        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                " SELECT ?uri WHERE { " +
-                " ?respOption rdfs:subClassOf* vstoi:ResponseOption . " +
-                " ?uri a ?respOption ." +
-                " ?uri vstoi:hasLanguage ?language . " +
-                "   FILTER (?language = \"" + language + "\") " +
-                "} ";
-
-        return findByQuery(queryString);
-    }
-
-    public static List<ResponseOption> findByKeyword(String keyword) {
-        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                " SELECT ?uri WHERE { " +
-                " ?respModel rdfs:subClassOf* vstoi:ResponseOption . " +
-                " ?uri a ?respModel ." +
-                " ?uri vstoi:hasContent ?content . " +
-                "   FILTER regex(?content, \"" + keyword + "\", \"i\") " +
-                "} ";
-
-        return findByQuery(queryString);
-    }
-
-    public static List<ResponseOption> findByKeywordAndLanguageWithPages(String keyword, String language, int pageSize, int offset) {
-        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
-        queryString += " SELECT ?uri WHERE { " +
-                " ?respModel rdfs:subClassOf* vstoi:ResponseOption . " +
-                " ?uri a ?respModel .";
-        if (!language.isEmpty()) {
-            queryString += " ?uri vstoi:hasLanguage ?language . ";
-        }
-        queryString += " ?uri vstoi:hasContent ?content . ";
-        if (!keyword.isEmpty() && !language.isEmpty()) {
-            queryString += "   FILTER (regex(?content, \"" + keyword + "\", \"i\") && (?language = \"" + language + "\")) ";
-        } else if (!keyword.isEmpty()) {
-            queryString += "   FILTER (regex(?content, \"" + keyword + "\", \"i\")) ";
-        } else if (!language.isEmpty()) {
-            queryString += "   FILTER ((?language = \"" + language + "\")) ";
-        }
-        queryString += "} " +
-                " ORDER BY ASC(?content) " +
-                " LIMIT " + pageSize +
-                " OFFSET " + offset;
-        return findByQuery(queryString);
-    }
-
-    public static int findTotalByKeywordAndLanguage(String keyword, String language) {
-        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
-        queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
-                " ?respModel rdfs:subClassOf* vstoi:ResponseOption . " +
-                " ?uri a ?respModel .";
-        if (!language.isEmpty()) {
-            queryString += " ?uri vstoi:hasLanguage ?language . ";
-        }
-        if (!keyword.isEmpty()) {
-            queryString += " ?uri vstoi:hasContent ?content . ";
-        }
-        if (!keyword.isEmpty() && !language.isEmpty()) {
-            queryString += "   FILTER (regex(?content, \"" + keyword + "\", \"i\") && (?language = \"" + language + "\")) ";
-        } else if (!keyword.isEmpty()) {
-            queryString += "   FILTER (regex(?content, \"" + keyword + "\", \"i\")) ";
-        } else if (!language.isEmpty()) {
-            queryString += "   FILTER ((?language = \"" + language + "\")) ";
-        }
-        queryString += "}";
-
-        try {
-            ResultSetRewindable resultsrw = SPARQLUtils.select(
-                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
-
-            if (resultsrw.hasNext()) {
-                QuerySolution soln = resultsrw.next();
-                return Integer.parseInt(soln.getLiteral("tot").getString());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return -1;
-    }
-
-    public static List<ResponseOption> findByMaintainerEmailWithPages(String maintainerEmail, int pageSize, int offset) {
-        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
-        queryString += " SELECT ?uri WHERE { " +
-                " ?respModel rdfs:subClassOf* vstoi:ResponseOption . " +
-                " ?uri a ?respModel ." +
-                " ?uri vstoi:hasContent ?content . " +
-                " ?uri vstoi:hasSIRMaintainerEmail ?maintainerEmail . " +
-                "   FILTER (?maintainerEmail = \"" + maintainerEmail + "\") " +
-                "}";
-        queryString += " ORDER BY ASC(?content) " +
-                " LIMIT " + pageSize +
-                " OFFSET " + offset;
-        return findByQuery(queryString);
-    }
-
-    public static int findTotalByMaintainerEmail(String maintainerEmail) {
-        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
-        queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
-                " ?respModel rdfs:subClassOf* vstoi:ResponseOption . " +
-                " ?uri a ?respModel ." +
-                " ?uri vstoi:hasSIRMaintainerEmail ?maintainerEmail . " +
-                "   FILTER (?maintainerEmail = \"" + maintainerEmail + "\") " +
-                "}";
-        try {
-            ResultSetRewindable resultsrw = SPARQLUtils.select(
-                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
-            if (resultsrw.hasNext()) {
-                QuerySolution soln = resultsrw.next();
-                return Integer.parseInt(soln.getLiteral("tot").getString());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return -1;
-    }
-
-    public static List<ResponseOption> findByMaintainerEmail(String maintainerEmail) {
-        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                " SELECT ?uri WHERE { " +
-                " ?respOption rdfs:subClassOf+ vstoi:ResponseOption . " +
-                " ?uri a ?respOption ." +
-                " ?uri vstoi:hasSIRMaintainerEmail ?maintainerEmail . " +
-                "   FILTER (?maintainerEmail = \"" + maintainerEmail + "\") " +
-                "} ";
-
-        return findByQuery(queryString);
-    }
-
-    private static List<ResponseOption> findByQuery(String queryString) {
-        List<ResponseOption> options = new ArrayList<ResponseOption>();
-
-        ResultSetRewindable resultsrw = SPARQLUtils.select(
-                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
-
-        if (!resultsrw.hasNext()) {
-            return null;
-        }
-
-        while (resultsrw.hasNext()) {
-            QuerySolution soln = resultsrw.next();
-            //System.out.println("inside ResponseOption.find(): found uri [" + soln.getResource("uri").getURI().toString() + "]");
-            if (soln != null && soln.getResource("uri") != null) {
-                ResponseOption responseOption = find(soln.getResource("uri").getURI());
-                options.add(responseOption);
-            }
-        }
-
-        java.util.Collections.sort((List<ResponseOption>) options);
-        return options;
-    }
-
-    public static int getNumberResponseOptions() {
-        String query = "";
-        query += NameSpaces.getInstance().printSparqlNameSpaceList();
-        query += " select (count(?uri) as ?tot) where { " +
-                " ?respOption rdfs:subClassOf* vstoi:ResponseOption . " +
-                " ?uri a ?respOption ." +
-                "}";
-
-        try {
-            ResultSetRewindable resultsrw = SPARQLUtils.select(
-                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), query);
-
-            if (resultsrw.hasNext()) {
-                QuerySolution soln = resultsrw.next();
-                return Integer.parseInt(soln.getLiteral("tot").getString());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return -1;
-    }
-
-    public static List<ResponseOption> findWithPages(int pageSize, int offset) {
-        List<ResponseOption> options = new ArrayList<ResponseOption>();
-        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                "SELECT ?uri WHERE { " +
-                " ?option rdfs:subClassOf* vstoi:ResponseOption . " +
-                " ?uri a ?option . } " +
-                " LIMIT " + pageSize +
-                " OFFSET " + offset;
-
-        ResultSetRewindable resultsrw = SPARQLUtils.select(
-                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
-
-        while (resultsrw.hasNext()) {
-            QuerySolution soln = resultsrw.next();
-            if (soln != null && soln.getResource("uri").getURI() != null) {
-                ResponseOption responseOption = ResponseOption.find(soln.getResource("uri").getURI());
-                options.add(responseOption);
-            }
-        }
-        return options;
+    public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
+        this.hasSIRManagerEmail = hasSIRManagerEmail;
     }
 
     public static ResponseOption find(String uri) {
@@ -347,7 +141,7 @@ public class ResponseOption extends HADatAcThing implements SIRElement, Comparab
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
                 responseOption.setHasVersion(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MAINTAINER_EMAIL)) {
-                responseOption.setHasSIRMaintainerEmail(object.asLiteral().getString());
+                responseOption.setHasSIRManagerEmail(object.asLiteral().getString());
             }
         }
 
@@ -356,43 +150,45 @@ public class ResponseOption extends HADatAcThing implements SIRElement, Comparab
         return responseOption;
     }
 
-    public static boolean attach(String codebookSlotUri, String responseOptionUri) {
-        if (codebookSlotUri == null || codebookSlotUri.isEmpty()) {
+    public static boolean attach(String ResponseOptionSlotUri, String responseOptionUri) {
+        if (ResponseOptionSlotUri == null || ResponseOptionSlotUri.isEmpty()) {
             return false;
         }
-        CodebookSlot codebookSlot = CodebookSlot.find(codebookSlotUri);
-        if (codebookSlot == null) {
-            System.out.println("CodebookSlot.find returned nothing");
-        }
-        if (codebookSlot == null) {
+        ResponseOptionSlot responseOptionSlot = ResponseOptionSlot.find(ResponseOptionSlotUri);
+        //if (responseOptionSlot == null) {
+        //    System.out.println("ResponseOptionSlot.find returned nothing");
+        //}
+        if (responseOptionSlot == null) {
             return false;
         }
-        return codebookSlot.updateCodebookSlotResponseOption(responseOptionUri);
+        return responseOptionSlot.updateResponseOptionSlotResponseOption(responseOptionUri);
     }
 
-    public static boolean detach(String codebookSlotUri) {
-        if (codebookSlotUri == null || codebookSlotUri.isEmpty()) {
+    public static boolean detach(String responseOptionSlotUri) {
+        if (responseOptionSlotUri == null || responseOptionSlotUri.isEmpty()) {
             return false;
         }
-        CodebookSlot codebookSlot = CodebookSlot.find(codebookSlotUri);
-        if (codebookSlot == null) {
+        ResponseOptionSlot responseOptionSlot = ResponseOptionSlot.find(responseOptionSlotUri);
+        if (responseOptionSlot == null) {
             return false;
         }
-        return codebookSlot.updateCodebookSlotResponseOption(null);
+        return responseOptionSlot.updateResponseOptionSlotResponseOption(null);
     }
 
-
-
+    /*
     @Override
     public int compareTo(ResponseOption another) {
         return this.getLabel().compareTo(another.getLabel());
     }
+    */
 
-    @Override public void save() {
+    @Override
+    public void save() {
         saveToTripleStore();
     }
 
-    @Override public void delete() {
+    @Override
+    public void delete() {
         deleteFromTripleStore();
     }
 

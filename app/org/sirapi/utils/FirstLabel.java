@@ -43,7 +43,7 @@ public class FirstLabel {
                     CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
         //} else {
         //    resultsrw = SPARQLUtilsFacetSearch.select(
-        //            CollectionUtil.getCollectionPath(CollectionUtil.Collection.METADATA_SPARQL), queryString);
+        //            CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
         //}
 
         if ( resultsrw == null || resultsrw.size() == 0) {
@@ -59,7 +59,7 @@ public class FirstLabel {
                         CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString2);
             //} else {
             //    resultsrw2 = SPARQLUtilsFacetSearch.select(
-            //            CollectionUtil.getCollectionPath(CollectionUtil.Collection.METADATA_SPARQL), queryString2);
+            //            CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString2);
             //}
             if ( resultsrw2 == null || resultsrw2.size() == 0) {
                 log.warn("URI " + uri + " does not have any label in the graph.");
@@ -179,7 +179,7 @@ public class FirstLabel {
     }
 
     public static String differentQuery(String uri) {
-        System.out.println(uri);
+        //System.out.println(uri);
         if ((uri == null) || (uri.equals(""))) {
             return "";
         }
@@ -242,7 +242,7 @@ public class FirstLabel {
                 "  " + uri + " obo:IAO_0000115 ?definition . \n" +
                 "}";
 
-        System.out.println(queryString);
+        //System.out.println(queryString);
 
         ResultSetRewindable resultsrw = SPARQLUtils.select(
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
@@ -271,7 +271,7 @@ public class FirstLabel {
 
 
     public static String getSioLabelDescription(String uri) {
-        System.out.println(uri);
+        //System.out.println(uri);
         if ((uri == null) || (uri.equals(""))) {
             return "";
         }
@@ -287,7 +287,7 @@ public class FirstLabel {
                 "  " + uri + " dct:description ?description . \n" +
                 "}";
         //System.out.println("[FirstLabel] getLabel() queryString: \n" + queryString);
-        System.out.println(queryString);
+        //System.out.println(queryString);
         ResultSetRewindable resultsrw = SPARQLUtils.select(
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
 

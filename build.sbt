@@ -66,6 +66,7 @@ libraryDependencies ++= Seq(
   "ca.uhn.hapi.fhir" % "hapi-fhir-base" % "6.6.1",
   "ca.uhn.hapi.fhir" % "hapi-fhir-structures-r4" % "6.6.1",
   "ch.qos.logback" % "logback-classic" % "1.4.8",
+  "net.aichler" % "jupiter-interface" % "0.11.1" % Test ,
 
   //For Java > 8
   "javax.xml.bind" % "jaxb-api" % "2.3.1",

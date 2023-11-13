@@ -22,14 +22,14 @@ import org.sirapi.utils.NameSpaces;
 import org.sirapi.vocabularies.RDFS;
 import org.sirapi.vocabularies.VSTOI;
 
-@JsonFilter("detectorTypeFilter")
-public class DetectorType extends HADatAcClass implements Comparable<DetectorType> {
+@JsonFilter("detectorStemTypeFilter")
+public class DetectorStemType extends HADatAcClass implements Comparable<DetectorStemType> {
 
     static String className = "vstoi:Detector";
 
     private String url;
 
-    public DetectorType () {
+    public DetectorStemType () {
         super(className);
     }
 
@@ -42,7 +42,7 @@ public class DetectorType extends HADatAcClass implements Comparable<DetectorTyp
     }
 
     public String getSuperLabel() {
-        DetectorType superInsType = DetectorType.find(getSuperUri());
+        DetectorStemType superInsType = DetectorStemType.find(getSuperUri());
         if (superInsType == null || superInsType.getLabel() == null) {
             return "";
         }
@@ -50,8 +50,8 @@ public class DetectorType extends HADatAcClass implements Comparable<DetectorTyp
     }
 
 
-    public static List<DetectorType> find() {
-        List<DetectorType> detectorTypes = new ArrayList<DetectorType>();
+    public static List<DetectorStemType> find() {
+        List<DetectorStemType> detectorStemTypes = new ArrayList<DetectorStemType>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
                 " ?uri rdfs:subClassOf* " + className + " . " +
@@ -62,25 +62,25 @@ public class DetectorType extends HADatAcClass implements Comparable<DetectorTyp
 
         while (resultsrw.hasNext()) {
             QuerySolution soln = resultsrw.next();
-            DetectorType detectorType = find(soln.getResource("uri").getURI());
-            detectorTypes.add(detectorType);
+            DetectorStemType detectorStemType = find(soln.getResource("uri").getURI());
+            detectorStemTypes.add(detectorStemType);
         }
 
-        java.util.Collections.sort((List<DetectorType>) detectorTypes);
-        return detectorTypes;
+        java.util.Collections.sort((List<DetectorStemType>) detectorStemTypes);
+        return detectorStemTypes;
 
     }
 
     public static Map<String,String> getMap() {
-        List<DetectorType> list = find();
+        List<DetectorStemType> list = find();
         Map<String,String> map = new HashMap<String,String>();
-        for (DetectorType typ: list)
+        for (DetectorStemType typ: list)
             map.put(typ.getUri(),typ.getLabel());
         return map;
     }
 
-    public static DetectorType find(String uri) {
-        DetectorType detectorType = null;
+    public static DetectorStemType find(String uri) {
+        DetectorStemType detectorStemType = null;
         Model model;
         Statement statement;
         RDFNode object;
@@ -91,31 +91,31 @@ public class DetectorType extends HADatAcClass implements Comparable<DetectorTyp
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), query);
         model = qexec.execDescribe();
 
-        detectorType = new DetectorType();
+        detectorStemType = new DetectorStemType();
         StmtIterator stmtIterator = model.listStatements();
 
         while (stmtIterator.hasNext()) {
             statement = stmtIterator.next();
             object = statement.getObject();
             if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-                detectorType.setLabel(object.asLiteral().getString());
+                detectorStemType.setLabel(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_WEB_DOCUMENTATION)) {
-                detectorType.setURL(object.asLiteral().getString());
+                detectorStemType.setURL(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(RDFS.SUBCLASS_OF)) {
-                detectorType.setSuperUri(object.asResource().getURI());
+                detectorStemType.setSuperUri(object.asResource().getURI());
             }
         }
 
-        detectorType.setUri(uri);
-        detectorType.setLocalName(uri.substring(uri.indexOf('#') + 1));
+        detectorStemType.setUri(uri);
+        detectorStemType.setLocalName(uri.substring(uri.indexOf('#') + 1));
 
-        return detectorType;
+        return detectorStemType;
     }
 
-    public static int getNumberDetectorTypes() {
+    public static int getNumberDetectorStemTypes() {
         String query = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                " SELECT (count(?detectorType) as ?tot) WHERE { " +
-                " ?detectorType rdfs:subClassOf* " + className + " . " +
+                " SELECT (count(?detectorStemType) as ?tot) WHERE { " +
+                " ?detectorStemType rdfs:subClassOf* " + className + " . " +
                 "} ";
 
         try {
@@ -133,7 +133,7 @@ public class DetectorType extends HADatAcClass implements Comparable<DetectorTyp
     }
 
     @Override
-    public int compareTo(DetectorType another) {
+    public int compareTo(DetectorStemType another) {
         if (this.getLabel() != null && another.getLabel() != null) {
             return this.getLabel().compareTo(another.getLabel());
         }

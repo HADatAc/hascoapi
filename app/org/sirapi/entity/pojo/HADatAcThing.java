@@ -20,11 +20,14 @@ import org.apache.jena.update.UpdateFactory;
 import org.apache.jena.update.UpdateProcessor;
 import org.apache.jena.update.UpdateRequest;
 import org.eclipse.rdf4j.model.Model;
+import org.sirapi.RepositoryInstance;
 import org.sirapi.utils.CollectionUtil;
 import org.sirapi.utils.GSPClient;
+import org.sirapi.utils.MetadataFactory;
 import org.sirapi.utils.NameSpaces;
 import org.sirapi.utils.URIUtils;
 import org.sirapi.utils.SPARQLUtils;
+import org.sirapi.Constants;
 
 import org.sirapi.annotations.PropertyField;
 import org.sirapi.annotations.ReversedPropertyField;
@@ -417,6 +420,15 @@ public abstract class HADatAcThing {
             }
         }
         reversed_rows.add(row);
+        if (getNamedGraph() == null || getNamedGraph().isEmpty()) {
+            //System.out.println("Default URL: [" + RepositoryInstance.getInstance().getHasDefaultNamespaceURL() + "]");
+            //System.out.println("Default Abbrev: [" + RepositoryInstance.getInstance().getHasDefaultNamespaceAbbreviation() + "]");
+            if (RepositoryInstance.getInstance() != null && RepositoryInstance.getInstance().getHasDefaultNamespaceURL() != null) {
+                return MetadataFactory.createModel(reversed_rows,RepositoryInstance.getInstance().getHasDefaultNamespaceURL());
+            } else {
+                return MetadataFactory.createModel(reversed_rows,Constants.DEFAULT_REPOSITORY);
+            }
+        }
         return MetadataFactory.createModel(reversed_rows, getNamedGraph());
     }
 
@@ -425,7 +437,7 @@ public abstract class HADatAcThing {
         Model model = generateRDFModel();
         ByteArrayOutputStream out = null;
         out = new ByteArrayOutputStream();
-        RDFWriter writer = Rio.createWriter(RDFFormat.RDFXML, out);
+        RDFWriter writer = Rio.createWriter(RDFFormat.RDFRepositoryInstance.getInstance().getHasDefaultNamespaceURL()XML, out);
         try {
             writer.startRDF();
             for (org.eclipse.rdf4j.model.Statement st: model) {
@@ -551,6 +563,7 @@ public abstract class HADatAcThing {
             }
             query += " ?p ?o . } \n";
             query += " } ";
+            //System.out.println("Delete named graph query: [" + query + "]");
             UpdateRequest request = UpdateFactory.create(query);
             UpdateProcessor processor = UpdateExecutionFactory.createRemote(
                     request, CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
@@ -559,8 +572,16 @@ public abstract class HADatAcThing {
         } else {
             // if ( getUri().contains("3539947") ) System.out.println("find 3539947!!!! delete without namespace!!!");
 
-            String query1 = query+ " DELETE WHERE { \n " +
-                   "    GRAPH <" + GSPClient.defaultGraphUri + "> { \n";
+            if (RepositoryInstance.getInstance() != null && RepositoryInstance.getInstance().getHasDefaultNamespaceURL() != null) {
+                this.setNamedGraph(RepositoryInstance.getInstance().getHasDefaultNamespaceURL());
+            } else {
+                this.setNamedGraph(Constants.DEFAULT_REPOSITORY);
+            }
+
+            // The original default named graph is GSPClient.defaultGraphUri
+            // Inside the HAScO API, we use the repository Instance default namespace URL
+            String query1 = query + " DELETE WHERE { \n " +
+                   "    GRAPH <" + this.getNamedGraph() + "> { \n";
             if (getUri().startsWith("http")) {
                 query1 += "<" + this.getUri() + ">";
             } else {
@@ -568,6 +589,7 @@ public abstract class HADatAcThing {
             }
             query1 += " ?p ?o . } \n";
             query1 += " } ";
+            //System.out.println("Delete query: [" + query1 + "]");
             UpdateRequest request = UpdateFactory.create(query1);
             UpdateProcessor processor = UpdateExecutionFactory.createRemote(
                     request, CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));

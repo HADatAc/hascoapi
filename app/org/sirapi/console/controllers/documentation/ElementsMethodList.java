@@ -3,6 +3,7 @@ package org.sirapi.console.controllers.documentation;
 import play.mvc.Result;
 import play.mvc.Controller;
 import org.sirapi.console.views.html.documentation.*;
+import org.sirapi.console.views.html.documentation.examples.*;
 
 public class ElementsMethodList extends Controller {
 
@@ -16,6 +17,14 @@ public class ElementsMethodList extends Controller {
 
     public Result deleteInstrumentExample() {
         return ok(deleteInstrumentExample.render());
+    }
+
+    public Result createDetectorStemExample() {
+        return ok(createDetectorStemExample.render());
+    }
+
+    public Result deleteDetectorStemExample() {
+        return ok(deleteDetectorStemExample.render());
     }
 
     public Result createDetectorExample() {

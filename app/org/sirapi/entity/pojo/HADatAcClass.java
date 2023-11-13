@@ -29,14 +29,20 @@ import org.sirapi.vocabularies.PROV;
 import org.sirapi.vocabularies.RDF;
 import org.sirapi.vocabularies.RDFS;
 
+import org.sirapi.annotations.PropertyField;
+import org.sirapi.annotations.ReversedPropertyField;
+import org.sirapi.annotations.Subject;
+
+
 public class HADatAcClass extends HADatAcThing {
 
-    private String className = "";
-    public  String uri = "";
-    public  String superUri = "";
-    public  String localName = "";
-    public  String label = "";
-    public  String comment = "";
+    String className = "";
+
+    @PropertyField(uri="rdfs:subClassOf")
+    String superUri = "";
+
+    String localName = "";
+
     public  List<String> isDomainOf = null;
     public  List<String> isRangeOf = null;
     public  List<String> isDisjointWith = null;
@@ -55,16 +61,16 @@ public class HADatAcClass extends HADatAcThing {
         return className;
     }
 
-    public String getUri() {
-        return uri;
-    }
+    //public String getUri() {
+    //    return uri;
+    //}
 
-    public void setUri(String uri) {
-        if (uri == null) {
-            uri = "";
-        }
-        this.uri = uri;
-    }
+    //public void setUri(String uri) {
+    //    if (uri == null) {
+    //        uri = "";
+    //    }
+    //    this.uri = uri;
+    //}
 
     public String getSuperUri() {
         return superUri;
@@ -77,16 +83,16 @@ public class HADatAcClass extends HADatAcThing {
         this.superUri = superUri;
     }
 
-    public String getLabel() {
-        return label;
-    }
+    //public String getLabel() {
+    //    return label;
+    //}
 
-    public void setLabel(String label) {
-        if (label == null) {
-            label = "";
-        }
-        this.label = label;
-    }
+    //public void setLabel(String label) {
+    //    if (label == null) {
+    //        label = "";
+    //    }
+    //    this.label = label;
+    //}
 
     public String getLocalName() {
         return localName;
@@ -99,16 +105,16 @@ public class HADatAcClass extends HADatAcThing {
         this.localName = localName;
     }
 
-    public String getComment() {
-        return comment;
-    }
+    //public String getComment() {
+    //    return comment;
+    //}
 
-    public void setComment(String comment) {
-        if (comment == null) {
-            comment = "";
-        }
-        this.comment = comment;
-    }
+    //public void setComment(String comment) {
+    //    if (comment == null) {
+    //        comment = "";
+    //    }
+    //    this.comment = comment;
+    //}
 
     public List<String> getIsDomainOf() {
         return isDomainOf;
@@ -137,13 +143,16 @@ public class HADatAcClass extends HADatAcThing {
     public static int getNumberClasses() {
         String query = "";
         query += NameSpaces.getInstance().printSparqlNameSpaceList();
-        query += "select (COUNT(?categ) as ?tot) where " +
-                " { SELECT ?c (COUNT(?c) as ?categ) " +
-                "     WHERE {" +
-                "             [] a ?c . " +
-                "     } " +
-                " GROUP BY ?c " +
+        query += "SELECT (COUNT(?type) as ?tot) WHERE {" +
+                "   ?uri a ?type . " +
                 " }";
+//        query += "select (COUNT(?categ) as ?tot) where " +
+//                " { SELECT ?c (COUNT(?c) as ?categ) " +
+//                "     WHERE {" +
+//                "             [] a ?c . " +
+//                "     } " +
+//                " GROUP BY ?c " +
+//                " }";
 
         try {
             ResultSetRewindable resultsrw = SPARQLUtils.select(
@@ -232,7 +241,7 @@ public class HADatAcClass extends HADatAcThing {
                 }
             } else if (predUri.equals(RDFS.SUBCLASS_OF)) {
                 String objUri = object.asResource().getURI();
-                //System.out.println("obj: " + objUri);
+                //System.out.println("is subClass of [" + objUri + "]");
                 if (objUri != null && !objUri.equals(classUri)) {
                     typeClass.setSuperUri(objUri);
                 }
@@ -603,16 +612,13 @@ public class HADatAcClass extends HADatAcThing {
     }
 
     @Override
-    public boolean saveToTripleStore() {
-        // TODO Auto-generated method stub
-        return false;
+    public void save() { 
+        super.saveToTripleStore();
     }
 
     @Override
-    public void deleteFromTripleStore() {
-        // TODO Auto-generated method stub
+    public void delete() {
         super.deleteFromTripleStore();
-
     }
 
     @Override

@@ -4,30 +4,25 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
-import org.sirapi.entity.pojo.Instrument;
+import org.sirapi.entity.pojo.DetectorStemType;
 import org.sirapi.utils.ApiUtil;
 import play.mvc.Controller;
 import play.mvc.Result;
 
 import java.util.List;
 
-public class ListPage extends Controller {
+public class DetectorStemTypeAPI extends Controller {
 
-    private final static int MAX_PAGE_SIZE = 80;
-
-    private Result getInstruments(int offset, int pageSize) {
-        if (pageSize < 1) {
-            pageSize = MAX_PAGE_SIZE;
-            System.out.println("[ListPage] Resetting page size");
-        }
+    public static Result getDetectorStemTypes(){
         ObjectMapper mapper = new ObjectMapper();
-        List<Instrument> results = Instrument.findWithPages(pageSize, offset);
+
+        List<DetectorStemType> results = DetectorStemType.find();
         if (results == null) {
-            return notFound(ApiUtil.createResponse("No instrument has been found", false));
+            return notFound(ApiUtil.createResponse("No detector stem type has been found", false));
         } else {
             SimpleFilterProvider filterProvider = new SimpleFilterProvider();
-            filterProvider.addFilter("instrumentFilter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri", "hascoTypeLabel", "comment"));
+            filterProvider.addFilter("detectorStemTypeFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "comment", "superUri"));
             mapper.setFilterProvider(filterProvider);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));

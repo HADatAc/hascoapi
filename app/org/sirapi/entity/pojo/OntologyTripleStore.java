@@ -120,16 +120,14 @@ public class OntologyTripleStore {
     public static String getVersionFromAbbreviation(String abbr) {
         NameSpaces nss = NameSpaces.getInstance();
         String uri = nss.getNameByAbbreviation(abbr).replace("#", "");
-        System.out.println("OntVersion: " + uri);
+        //System.out.println("OntVersion: " + uri);
         if (uri == null || uri.isEmpty()) {
             return "";
         }
         OntologyTripleStore ont = OntologyTripleStore.find(uri);
         if (ont == null || ont.getVersion() == null) {
-            System.out.println("OntVersion ont: is null");
             return "";
         }
-        System.out.println("OntVersion is [" + ont.getVersion() + "]");
         return ont.getVersion();
     }
 

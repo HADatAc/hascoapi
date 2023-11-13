@@ -23,6 +23,8 @@ import org.sirapi.vocabularies.VSTOI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.sirapi.Constants.*;
+
 @JsonFilter("instrumentFilter")
 public class Instrument extends HADatAcThing implements SIRElement, Comparable<Instrument> {
 
@@ -67,8 +69,8 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 	@PropertyField(uri="vstoi:hasCopyrightNotice")
 	private String hasCopyrightNotice;
 
-	@PropertyField(uri="vstoi:hasSIRMaintainerEmail")
-	private String hasSIRMaintainerEmail;
+	@PropertyField(uri="vstoi:hasSIRManagerEmail")
+	private String hasSIRManagerEmail;
 
 	public String getHasStatus() {
 		return hasStatus;
@@ -174,15 +176,15 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 		this.hasCopyrightNotice = hasCopyrightNotice;
 	}
 
-	public String getHasSIRMaintainerEmail() {
-		return hasSIRMaintainerEmail;
+	public String getHasSIRManagerEmail() {
+		return hasSIRManagerEmail;
 	}
 
-	public void setHasSIRMaintainerEmail(String hasSIRMaintainerEmail) {
-		this.hasSIRMaintainerEmail = hasSIRMaintainerEmail;
+	public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
+		this.hasSIRManagerEmail = hasSIRManagerEmail;
 	}
 
-	public String geattachmenttTypeLabel() {
+	public String gedetectorSlottTypeLabel() {
     	InstrumentType insType = InstrumentType.find(getTypeUri());
     	if (insType == null || insType.getLabel() == null) {
     		return "";
@@ -198,16 +200,16 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
     	return insType.getURL();
     }
 
-    public List<Attachment> getAttachments() {
-    	List<Attachment> atts = Attachment.findByInstrument(uri);
+    public List<DetectorSlot> getDetectorSlots() {
+    	List<DetectorSlot> atts = DetectorSlot.findByInstrument(uri);
     	return atts;
     }
 
     @JsonIgnore
 	public List<Detector> getDetectors() {
 		List<Detector> detectors = new ArrayList<Detector>();
-    	List<Attachment> atts = Attachment.findByInstrument(uri);
-		for (Attachment att : atts) {
+    	List<DetectorSlot> atts = DetectorSlot.findByInstrument(uri);
+		for (DetectorSlot att : atts) {
 			Detector detector = att.getDetector();
 			detectors.add(detector);
 		} 
@@ -226,199 +228,6 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 	@Override
 	public int hashCode() {
 		return getUri().hashCode();
-	}
-
-	public static List<Instrument> findByLanguage(String language) {
-		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-				" SELECT ?uri WHERE { " +
-				" ?instModel rdfs:subClassOf* vstoi:Instrument . " +
-				" ?uri a ?instModel ." +
-				" ?uri vstoi:hasLanguage ?language . " +
-				"   FILTER (?language = \"" + language + "\") " +
-				"} ";
-
-		return findByQuery(queryString);
-	}
-
-	public static List<Instrument> findByKeyword(String keyword) {
-		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-				" SELECT ?uri WHERE { " +
-				" ?instModel rdfs:subClassOf* vstoi:Instrument . " +
-				" ?uri a ?instModel ." +
-				" ?uri rdfs:label ?label . " +
-				"   FILTER regex(?label, \"" + keyword + "\", \"i\") " +
-				"} ";
-
-		return findByQuery(queryString);
-	}
-
-	public static List<Instrument> findByKeywordAndLanguageWithPages(String keyword, String language, int pageSize, int offset) {
-		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
-		queryString += " SELECT ?uri WHERE { " +
-				" ?instModel rdfs:subClassOf* vstoi:Instrument . " +
-				" ?uri a ?instModel .";
-		if (!language.isEmpty()) {
-			queryString += " ?uri vstoi:hasLanguage ?language . ";
-		}
-		if (!keyword.isEmpty()) {
-			queryString += " ?uri rdfs:label ?label . ";
-		}
-		if (!keyword.isEmpty() && !language.isEmpty()) {
-			queryString += "   FILTER (regex(?label, \"" + keyword + "\", \"i\") && (?language = \"" + language + "\")) ";
-		} else if (!keyword.isEmpty()) {
-			queryString += "   FILTER (regex(?label, \"" + keyword + "\", \"i\")) ";
-		} else if (!language.isEmpty()) {
-			queryString += "   FILTER ((?language = \"" + language + "\")) ";
-		}
-		queryString += "} " +
-				" LIMIT " + pageSize +
-				" OFFSET " + offset;
-		return findByQuery(queryString);
-	}
-
-	public static int findTotalByKeywordAndLanguage(String keyword, String language) {
-		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
-		queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
-				" ?instModel rdfs:subClassOf* vstoi:Instrument . " +
-				" ?uri a ?instModel .";
-		if (!language.isEmpty()) {
-			queryString += " ?uri vstoi:hasLanguage ?language . ";
-		}
-		if (!keyword.isEmpty()) {
-			queryString += " ?uri rdfs:label ?label . ";
-		}
-		if (!keyword.isEmpty() && !language.isEmpty()) {
-			queryString += "   FILTER (regex(?label, \"" + keyword + "\", \"i\") && (?language = \"" + language + "\")) ";
-		} else if (!keyword.isEmpty()) {
-			queryString += "   FILTER (regex(?label, \"" + keyword + "\", \"i\")) ";
-		} else if (!language.isEmpty()) {
-			queryString += "   FILTER ((?language = \"" + language + "\")) ";
-		}
-		queryString += "}";
-
-		//System.out.println(queryString);
-
-		try {
-			ResultSetRewindable resultsrw = SPARQLUtils.select(
-					CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
-
-			if (resultsrw.hasNext()) {
-				QuerySolution soln = resultsrw.next();
-				return Integer.parseInt(soln.getLiteral("tot").getString());
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return -1;
-	}
-
-	public static List<Instrument> findByMaintainerEmailWithPages(String maintainerEmail, int pageSize, int offset) {
-		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
-		queryString += " SELECT ?uri WHERE { " +
-				" ?instModel rdfs:subClassOf* vstoi:Instrument . " +
-				" ?uri a ?instModel ." +
-				" ?uri rdfs:label ?label . " +
-				" ?uri vstoi:hasSIRMaintainerEmail ?maintainerEmail . " +
-				"   FILTER (?maintainerEmail = \"" + maintainerEmail + "\") " +
-				"}" +
-				" ORDER BY ASC(?label) " +
-				" LIMIT " + pageSize +
-				" OFFSET " + offset;
-		return findByQuery(queryString);
-	}
-
-	public static int findTotalByMaintainerEmail(String maintainerEmail) {
-		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
-		queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
-				" ?instModel rdfs:subClassOf* vstoi:Instrument . " +
-				" ?uri a ?instModel ." +
-				" ?uri vstoi:hasSIRMaintainerEmail ?maintainerEmail . " +
-				"   FILTER (?maintainerEmail = \"" + maintainerEmail + "\") " +
-				"}";
-
-		try {
-			ResultSetRewindable resultsrw = SPARQLUtils.select(
-					CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
-
-			if (resultsrw.hasNext()) {
-				QuerySolution soln = resultsrw.next();
-				return Integer.parseInt(soln.getLiteral("tot").getString());
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return -1;
-	}
-
-	public static List<Instrument> findByMaintainerEmail(String maintainerEmail) {
-		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-				" SELECT ?uri WHERE { " +
-				" ?instModel rdfs:subClassOf* vstoi:Instrument . " +
-				" ?uri a ?instModel ." +
-				" ?uri vstoi:hasSIRMaintainerEmail ?maintainerEmail . " +
-				"   FILTER (?maintainerEmail = \"" + maintainerEmail + "\") " +
-				"} ";
-
-		return findByQuery(queryString);
-	}
-
-	private static List<Instrument> findByQuery(String queryString) {
-		List<Instrument> instruments = new ArrayList<Instrument>();
-		ResultSetRewindable resultsrw = SPARQLUtils.select(
-				CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
-
-		if (!resultsrw.hasNext()) {
-			return null;
-		}
-
-		while (resultsrw.hasNext()) {
-			QuerySolution soln = resultsrw.next();
-			Instrument instrument = find(soln.getResource("uri").getURI());
-			instruments.add(instrument);
-		}
-
-		java.util.Collections.sort((List<Instrument>) instruments);
-		return instruments;
-
-	}
-
-	public static List<Instrument> find() {
-		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-		    " SELECT ?uri WHERE { " +
-		    " ?instModel rdfs:subClassOf* vstoi:Instrument . " +
-		    " ?uri a ?instModel ." + 
-		    "} ";
-		
-		return findByQuery(queryString);
-	}
-
-	public static List<Instrument> findWithPages(int pageSize, int offset) {
-		List<Instrument> instruments = new ArrayList<Instrument>();
-		String queryString = "";
-		queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-				"SELECT ?instUri ?instLabel ?subUri WHERE { " +
-				"   ?instUri rdfs:subClassOf* vstoi:Instrument . " +
-				"   ?instUri a ?subUri . " +
-				"   ?instUri rdfs:label ?instLabel . " +
-				" }" +
-				" LIMIT " + pageSize +
-				" OFFSET " + offset;
-
-		ResultSetRewindable resultsrw = SPARQLUtils.select(
-				CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
-
-		Instrument instrument = null;
-		while (resultsrw.hasNext()) {
-			QuerySolution soln = resultsrw.next();
-			if (soln != null && soln.getResource("instUri").getURI()!= null) {
-				instrument = new Instrument();
-				instrument.setUri(soln.get("instUri").toString());
-				instrument.setLabel(soln.get("instLabel").toString());
-				//System.out.println("Instrument URI: " + soln.get("instUri").toString());
-			}
-			instruments.add(instrument);
-		}
-		return instruments;
 	}
 
 	public static List<Instrument> findAvailable() {
@@ -473,6 +282,15 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 		return instruments;
 	}
 	
+	private static String objectToString(RDFNode node) {
+ 		if (node.isLiteral()) {
+  			return node.asLiteral().getString();
+ 		} else if (node.isResource()) {
+  			return node.asResource().getURI();
+ 		}
+ 		return null;
+	}
+
 	public static Instrument find(String uri) {
 	    Instrument instrument = null;
 	    Statement statement;
@@ -493,43 +311,46 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 		while (stmtIterator.hasNext()) {
 		    statement = stmtIterator.next();
 		    object = statement.getObject();
-		    if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-		    	instrument.setLabel(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
-                instrument.setTypeUri(object.asResource().getURI());
-			} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
-				instrument.setHascoTypeUri(object.asResource().getURI());
-			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
-				instrument.setHasStatus(object.asLiteral().getString());
-		    } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
-		    	instrument.setSerialNumber(object.asLiteral().getString());
-			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_INFORMANT)) {
-				instrument.setHasInformant(object.asResource().getURI());
-            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
-                instrument.setImage(object.asLiteral().getString());
-		    } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
-		    	instrument.setComment(object.asLiteral().getString());
-			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SHORT_NAME)) {
-				instrument.setHasShortName(object.asLiteral().getString());
-			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_INSTRUCTION)) {
-				instrument.setHasInstruction(object.asLiteral().getString());
-			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
-				instrument.setHasLanguage(object.asLiteral().getString());
-			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
-				instrument.setHasVersion(object.asLiteral().getString());
-			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PAGE_NUMBER)) {
-				instrument.setHasPageNumber(object.asLiteral().getString());
-			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_DATE_FIELD)) {
-				instrument.setHasDateField(object.asLiteral().getString());
-			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SUBJECT_ID_FIELD)) {
-				instrument.setHasSubjectIDField(object.asLiteral().getString());
-			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SUBJECT_RELATIONSHIP_FIELD)) {
-				instrument.setHasSubjectRelationshipField(object.asLiteral().getString());
-			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_COPYRIGHT_NOTICE)) {
-				instrument.setHasCopyrightNotice(object.asLiteral().getString());
-			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MAINTAINER_EMAIL)) {
-				instrument.setHasSIRMaintainerEmail(object.asLiteral().getString());
-		    }
+			String str = objectToString(object);
+			if (uri != null && !uri.isEmpty()) {
+				if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
+					instrument.setLabel(str);
+				} else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
+					instrument.setTypeUri(str); 
+				} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
+					instrument.setHascoTypeUri(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
+					instrument.setHasStatus(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
+					instrument.setSerialNumber(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_INFORMANT)) {
+					instrument.setHasInformant(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+					instrument.setImage(str);
+				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
+					instrument.setComment(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SHORT_NAME)) {
+					instrument.setHasShortName(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_INSTRUCTION)) {
+					instrument.setHasInstruction(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
+					instrument.setHasLanguage(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
+					instrument.setHasVersion(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PAGE_NUMBER)) {
+					instrument.setHasPageNumber(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_DATE_FIELD)) {
+					instrument.setHasDateField(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SUBJECT_ID_FIELD)) {
+					instrument.setHasSubjectIDField(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SUBJECT_RELATIONSHIP_FIELD)) {
+					instrument.setHasSubjectRelationshipField(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_COPYRIGHT_NOTICE)) {
+					instrument.setHasCopyrightNotice(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MAINTAINER_EMAIL)) {
+					instrument.setHasSIRManagerEmail(str);
+				}
+			}
 		}
 
 		instrument.setUri(uri);
@@ -537,63 +358,38 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 		return instrument;
 	}
 
-	public static int getNumberInstruments() {
-		String query = "";
-		query += NameSpaces.getInstance().printSparqlNameSpaceList();
-		query += " select (count(?instrument) as ?tot) where { " +
-				" ?instrumentType rdfs:subClassOf* vstoi:Instrument . " +
-				" ?instrument a ?instrumentType . " +
-				" }";
-
-		//select ?obj ?collection ?objType where { ?obj hasco:isMemberOf ?collection . ?obj a ?objType . FILTER NOT EXISTS { ?objType rdfs:subClassOf* hasco:ObjectCollection . } }
-		//System.out.println("Study query: " + query);
-
-		try {
-			ResultSetRewindable resultsrw = SPARQLUtils.select(
-					CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), query);
-
-			if (resultsrw.hasNext()) {
-				QuerySolution soln = resultsrw.next();
-				return Integer.parseInt(soln.getLiteral("tot").getString());
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return -1;
-	}
-
-	public boolean deleteAttachments() {
-		if (this.getAttachments() == null || uri == null || uri.isEmpty()) {
+	public boolean deleteDetectorSlots() {
+		if (this.getDetectorSlots() == null || uri == null || uri.isEmpty()) {
 			return true;
 		}
-		List<Attachment> attachments = Attachment.findByInstrument(uri);
-		if (attachments == null) {
+		List<DetectorSlot> detectorSlots = DetectorSlot.findByInstrument(uri);
+		if (detectorSlots == null) {
 			return true;
 		}
-		for (Attachment attachment: attachments) {
-			attachment.delete();
+		for (DetectorSlot detectorSlot: detectorSlots) {
+			detectorSlot.delete();
 		}
-		attachments = Attachment.findByInstrument(uri);
-		return (attachments == null);
+		detectorSlots = DetectorSlot.findByInstrument(uri);
+		return (detectorSlots == null);
 	}
 
-	public boolean createAttachments(int totAttachments) {
-		if (totAttachments <= 0) {
+	public boolean createDetectorSlots(int totDetectorSlots) {
+		if (totDetectorSlots <= 0) {
 			return false;
 		}
-		if (this.getAttachments() != null || uri == null || uri.isEmpty()) {
+		if (this.getDetectorSlots() != null || uri == null || uri.isEmpty()) {
 			return false;
 		}
-		for (int aux=1; aux <= totAttachments; aux++) {
-			String auxstr = Utils.adjustedPriority(String.valueOf(aux), totAttachments);
-			String newUri = uri + "/ATT/" + auxstr;
-			Attachment.createAttachment(uri, newUri, auxstr,null);
+		for (int aux=1; aux <= totDetectorSlots; aux++) {
+			String auxstr = Utils.adjustedPriority(String.valueOf(aux), totDetectorSlots);
+			String newUri = uri + "/" + DETECTOR_SLOT_PREFIX + "/" + auxstr;
+			DetectorSlot.createDetectorSlot(uri, newUri, auxstr,null);
 		}
-		List<Attachment> attachmentList = Attachment.findByInstrument(uri);
-		if (attachmentList == null) {
+		List<DetectorSlot> detectorSlotList = DetectorSlot.findByInstrument(uri);
+		if (detectorSlotList == null) {
 			return false;
 		}
-		return (attachmentList.size() == totAttachments);
+		return (detectorSlotList.size() == totDetectorSlots);
 	}
 
 	@Override

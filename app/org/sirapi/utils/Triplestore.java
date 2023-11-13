@@ -137,17 +137,19 @@ public class Triplestore {
         message += Feedback.println(mode, "   Triples before [loadOntologies]: " + total);
         message += Feedback.println(mode," ");
 
+        System.out.println("Inside Triplestore.loadOntologies()");
         ConcurrentHashMap<String, NameSpace> namespaces = NameSpaces.getInstance().getNamespaces();
         for (String abbrev : namespaces.keySet()) {
             NameSpace ns = namespaces.get(abbrev);
             String nsURL = ns.getURL();
+            System.out.println("  - loading [" + nsURL + "]");
             if (abbrev != null && nsURL != null && !nsURL.equals("") && ns.getMimeType() != null) {
                 String path = "";
                 ns.loadTriples(nsURL, true);
                 path = nsURL;
                 Long newTotal = totalTriples();
                 message += Feedback.println(mode, "   Added " + (newTotal - total) + " triples from " + path + " .");
-                //System.out.println("   Added " + (newTotal - total) + " triples from " + path + " .");
+                System.out.println("  - added " + (newTotal - total) + " triples from " + path + " .");
                 total = newTotal;
                 ns.updateNumberOfLoadedTriples();
                 ns.updateFromTripleStore();

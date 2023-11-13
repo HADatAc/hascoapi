@@ -99,7 +99,7 @@ public class Repository extends HADatAcThing {
         if (institution != null && institution.getUri().equals(institutionUri)) {
             return institution;
         }
-        return Agent.find(institutionUri);
+        return (Agent)Agent.find(institutionUri);
     }
 
     public String getHasDefaultNamespaceAbbreviation() {

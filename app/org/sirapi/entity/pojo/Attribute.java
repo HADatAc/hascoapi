@@ -23,7 +23,10 @@ import org.sirapi.utils.CollectionUtil;
 import org.sirapi.utils.FirstLabel;
 import org.sirapi.utils.NameSpaces;
 import org.sirapi.vocabularies.DCTERMS;
+import org.sirapi.vocabularies.HASCO;
+import org.sirapi.vocabularies.RDF;
 import org.sirapi.vocabularies.RDFS;
+import org.sirapi.vocabularies.SIO;
 import org.sirapi.vocabularies.SKOS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,13 +35,15 @@ public class Attribute extends HADatAcClass implements Comparable<Attribute> {
 
     private static final Logger log = LoggerFactory.getLogger(Attribute.class);
 
-    static String className = "sio:SIO_000614";
+    static String className = SIO.ATTRIBUTE;
 
+    /*
     public static String INSERT_LINE1 = "INSERT DATA {  ";
     public static String DELETE_LINE1 = "DELETE WHERE {  ";
     public static String LINE3 = " a    sio:SIO_000614;  ";
     public static String DELETE_LINE3 = " ?p ?o . ";
     public static String LINE_LAST = "}  ";
+    */
 
     public Attribute () {
         super(className);
@@ -189,6 +194,7 @@ public class Attribute extends HADatAcClass implements Comparable<Attribute> {
         return map;
     }
 
+    /*
     public static Attribute facetSearchFind(String uri) {
 
         Attribute attribute = null;
@@ -225,6 +231,7 @@ public class Attribute extends HADatAcClass implements Comparable<Attribute> {
 
         return attribute;
     }
+    */
 
     public static Attribute find(String uri) {
         Attribute attribute = null;
@@ -238,6 +245,10 @@ public class Attribute extends HADatAcClass implements Comparable<Attribute> {
         attribute = new Attribute();
         StmtIterator stmtIterator = model.listStatements();
 
+        if (!stmtIterator.hasNext()) {
+            return null;
+        }
+
         while (stmtIterator.hasNext()) {
             statement = stmtIterator.next();
             object = statement.getObject();
@@ -249,6 +260,12 @@ public class Attribute extends HADatAcClass implements Comparable<Attribute> {
                 }
             } else if (statement.getPredicate().getURI().equals(RDFS.SUBCLASS_OF)) {
                 attribute.setSuperUri(object.asResource().getURI());
+            } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
+                attribute.setTypeUri(object.asResource().getURI());
+            } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
+                attribute.setHascoTypeUri(object.asResource().getURI());
+            } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
+                attribute.setComment(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(DCTERMS.IDENTIFIER)) {
                 attribute.setHasDCTerms(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(SKOS.NOTATION)) {
@@ -265,6 +282,7 @@ public class Attribute extends HADatAcClass implements Comparable<Attribute> {
         return attribute;
     }
 
+    /*
     public boolean deleteAttribute() {
         String query = "";
         String uri = "";
@@ -302,14 +320,18 @@ public class Attribute extends HADatAcClass implements Comparable<Attribute> {
         return true;
 
     }
+    */
 
+    /*
     public boolean updateAttribute() {
         if (!deleteAttribute()) {
             return false;
         };
         return saveAttribute();
     }
+    */
 
+    /*
     public boolean saveAttribute() {
         String insert = "";
         insert += NameSpaces.getInstance().printSparqlNameSpaceList();
@@ -357,10 +379,16 @@ public class Attribute extends HADatAcClass implements Comparable<Attribute> {
         return true;
 
     }
+    */
 
     @Override
     public void save() {
         saveToTripleStore();
+    }
+
+    @Override
+    public void delete() {
+        deleteFromTripleStore();
     }
 
     @Override

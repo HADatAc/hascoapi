@@ -19,16 +19,16 @@ import org.sirapi.vocabularies.VSTOI;
 import java.util.ArrayList;
 import java.util.List;
 
-@JsonFilter("codebookSlotFilter")
-public class CodebookSlot extends HADatAcThing implements Comparable<CodebookSlot>  {
+@JsonFilter("ResponseOptionSlotFilter")
+public class ResponseOptionSlot extends HADatAcThing implements Comparable<ResponseOptionSlot> {
 
-    @PropertyField(uri="vstoi:belongsTo")
+    @PropertyField(uri = "vstoi:belongsTo")
     private String belongsTo;
 
-    @PropertyField(uri="vstoi:hasResponseOption")
+    @PropertyField(uri = "vstoi:hasResponseOption")
     private String hasResponseOption;
 
-    @PropertyField(uri="vstoi:hasPriority")
+    @PropertyField(uri = "vstoi:hasPriority")
     private String hasPriority;
 
     public String getBelongsTo() {
@@ -62,56 +62,11 @@ public class CodebookSlot extends HADatAcThing implements Comparable<CodebookSlo
         return ResponseOption.find(hasResponseOption);
     }
 
-    public static int getNumberCodebookSlots() {
+    public static int getNumberResponseOptionSlotsByInstrument(String codebookUri) {
         String query = "";
         query += NameSpaces.getInstance().printSparqlNameSpaceList();
         query += " select (count(?uri) as ?tot) where { " +
-                " ?slotModel rdfs:subClassOf* vstoi:CodebookSlot . " +
-                " ?uri a ?slotModel ." +
-                "}";
-
-        try {
-            ResultSetRewindable resultsrw = SPARQLUtils.select(
-                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), query);
-
-            if (resultsrw.hasNext()) {
-                QuerySolution soln = resultsrw.next();
-                return Integer.parseInt(soln.getLiteral("tot").getString());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return -1;
-    }
-
-    public static int getNumberCodebookSlotsWithResponseOptions() {
-        String query = "";
-        query += NameSpaces.getInstance().printSparqlNameSpaceList();
-        query += " select (count(?uri) as ?tot) where { " +
-                " ?slotModel rdfs:subClassOf* vstoi:CodebookSlot . " +
-                " ?uri a ?slotModel ." +
-                " ?uri vstoi:hasResponseOption ?codebook . " +
-                "}";
-
-        try {
-            ResultSetRewindable resultsrw = SPARQLUtils.select(
-                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), query);
-
-            if (resultsrw.hasNext()) {
-                QuerySolution soln = resultsrw.next();
-                return Integer.parseInt(soln.getLiteral("tot").getString());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return -1;
-    }
-
-    public static int getNumberCodebookSlotsByInstrument(String codebookUri) {
-        String query = "";
-        query += NameSpaces.getInstance().printSparqlNameSpaceList();
-        query += " select (count(?uri) as ?tot) where { " +
-                " ?slotModel rdfs:subClassOf* vstoi:CodebookSlot . " +
+                " ?slotModel rdfs:subClassOf* vstoi:ResponseOptionSlot . " +
                 " ?uri a ?slotModel ." +
                 " ?uri vstoi:belongsTo <" + codebookUri + ">. " +
                 "}";
@@ -130,11 +85,11 @@ public class CodebookSlot extends HADatAcThing implements Comparable<CodebookSlo
         return -1;
     }
 
-    public static List<CodebookSlot> findByCodebookWithPages(String codebookUri, int pageSize, int offset) {
-        List<CodebookSlot> slots = new ArrayList<CodebookSlot>();
+    public static List<ResponseOptionSlot> findByCodebookWithPages(String codebookUri, int pageSize, int offset) {
+        List<ResponseOptionSlot> slots = new ArrayList<ResponseOptionSlot>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 "SELECT ?uri WHERE { " +
-                " ?slotModel rdfs:subClassOf* vstoi:CodebookSlot . " +
+                " ?slotModel rdfs:subClassOf* vstoi:ResponseOptionSlot . " +
                 " ?uri a ?slotModel . } " +
                 " ?uri vstoi:belongsTo <" + codebookUri + ">. " +
                 " LIMIT " + pageSize +
@@ -146,37 +101,37 @@ public class CodebookSlot extends HADatAcThing implements Comparable<CodebookSlo
         while (resultsrw.hasNext()) {
             QuerySolution soln = resultsrw.next();
             if (soln != null && soln.getResource("uri").getURI() != null) {
-                CodebookSlot slot = CodebookSlot.find(soln.getResource("uri").getURI());
+                ResponseOptionSlot slot = ResponseOptionSlot.find(soln.getResource("uri").getURI());
                 slots.add(slot);
             }
         }
         return slots;
     }
 
-    public static List<CodebookSlot> find() {
+    public static List<ResponseOptionSlot> find() {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?slotModel rdfs:subClassOf* vstoi:CodebookSlot . " +
+                " ?slotModel rdfs:subClassOf* vstoi:ResponseOptionSlot . " +
                 " ?uri a ?slotModel ." +
                 "} ";
 
         return findByQuery(queryString);
     }
 
-    public static List<CodebookSlot> findByExperience(String experienceUri) {
-        //System.out.println("findByExperiment: [" + experimentUri + "]");
+    public static List<ResponseOptionSlot> findByCodebook(String codebookUri) {
+        // System.out.println("findByCodebook: [" + codebookUri + "]");
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?slotModel rdfs:subClassOf* vstoi:CodebookSlot . " +
+                " ?slotModel rdfs:subClassOf* vstoi:ResponseOptionSlot . " +
                 " ?uri a ?slotModel ." +
-                " ?uri vstoi:belongsTo <" + experienceUri + ">. " +
+                " ?uri vstoi:belongsTo <" + codebookUri + ">. " +
                 "} ";
 
         return findByQuery(queryString);
     }
 
-    private static List<CodebookSlot> findByQuery(String queryString) {
-        List<CodebookSlot> slots = new ArrayList<CodebookSlot>();
+    private static List<ResponseOptionSlot> findByQuery(String queryString) {
+        List<ResponseOptionSlot> slots = new ArrayList<ResponseOptionSlot>();
         ResultSetRewindable resultsrw = SPARQLUtils.select(
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
@@ -186,17 +141,17 @@ public class CodebookSlot extends HADatAcThing implements Comparable<CodebookSlo
 
         while (resultsrw.hasNext()) {
             QuerySolution soln = resultsrw.next();
-            CodebookSlot slot = find(soln.getResource("uri").getURI());
+            ResponseOptionSlot slot = find(soln.getResource("uri").getURI());
             slots.add(slot);
         }
 
-        java.util.Collections.sort((List<CodebookSlot>) slots);
+        java.util.Collections.sort((List<ResponseOptionSlot>) slots);
         return slots;
 
     }
 
-    public static CodebookSlot find(String uri) {
-        CodebookSlot slot = null;
+    public static ResponseOptionSlot find(String uri) {
+        ResponseOptionSlot slot = null;
         Statement statement;
         RDFNode object;
 
@@ -210,7 +165,7 @@ public class CodebookSlot extends HADatAcThing implements Comparable<CodebookSlo
             return null;
         }
 
-        slot = new CodebookSlot();
+        slot = new ResponseOptionSlot();
 
         while (stmtIterator.hasNext()) {
             statement = stmtIterator.next();
@@ -227,7 +182,7 @@ public class CodebookSlot extends HADatAcThing implements Comparable<CodebookSlo
                 slot.setBelongsTo(object.asResource().getURI());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_RESPONSE_OPTION)) {
                 slot.setHasResponseOption(object.asResource().getURI());
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PRIORITY)){
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PRIORITY)) {
                 slot.setHasPriority(object.asLiteral().getString());
             }
         }
@@ -237,57 +192,109 @@ public class CodebookSlot extends HADatAcThing implements Comparable<CodebookSlo
         return slot;
     }
 
-    static public boolean createCodebookSlot(String experienceUri, String slotUri, String priority, String hasResponseOption) {
-        if (experienceUri == null || experienceUri.isEmpty()) {
+    public static int getNumberResponseOptionSlots() {
+        String query = "";
+        query += NameSpaces.getInstance().printSparqlNameSpaceList();
+        query += " select (count(?uri) as ?tot) where { " +
+                " ?rosModel rdfs:subClassOf* vstoi:ResponseOptionSlot . " +
+                " ?uri a ?rosModel ." +
+                "}";
+
+        try {
+            ResultSetRewindable resultsrw = SPARQLUtils.select(
+                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), query);
+
+            if (resultsrw.hasNext()) {
+                QuerySolution soln = resultsrw.next();
+                return Integer.parseInt(soln.getLiteral("tot").getString());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    public static int getNumberResponseOptionSlotsWithResponseOptions() {
+        String query = "";
+        query += NameSpaces.getInstance().printSparqlNameSpaceList();
+        query += " select (count(?uri) as ?tot) where { " +
+                " ?rosModel rdfs:subClassOf* vstoi:ResponseOptionSlot . " +
+                " ?uri a ?rosModel ." +
+                " ?uri vstoi:hasResponseOption ?ros . " +
+                "}";
+
+        try {
+            ResultSetRewindable resultsrw = SPARQLUtils.select(
+                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), query);
+
+            if (resultsrw.hasNext()) {
+                QuerySolution soln = resultsrw.next();
+                return Integer.parseInt(soln.getLiteral("tot").getString());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+
+
+    static public boolean createResponseOptionSlot(String codebookUri, String slotUri, String priority,
+            String hasResponseOption) {
+        if (codebookUri == null || codebookUri.isEmpty()) {
             return false;
         }
         if (priority == null || priority.isEmpty()) {
             return false;
         }
-        CodebookSlot cbs = new CodebookSlot();
-        cbs.setUri(slotUri);
-        cbs.setLabel("CodebookSlot " + priority);
-        cbs.setTypeUri(VSTOI.CODEBOOK_SLOT);
-        cbs.setHascoTypeUri(VSTOI.CODEBOOK_SLOT);
-        cbs.setComment("CodebookSlot " + priority + " of codebook with URI " + experienceUri);
-        cbs.setBelongsTo(experienceUri);
-        cbs.setHasPriority(priority);
+        ResponseOptionSlot ros = new ResponseOptionSlot();
+        ros.setUri(slotUri);
+        ros.setLabel("ResponseOptionSlot " + priority);
+        ros.setTypeUri(VSTOI.RESPONSE_OPTION_SLOT);
+        ros.setHascoTypeUri(VSTOI.RESPONSE_OPTION_SLOT);
+        ros.setComment("ResponseOptionSlot " + priority + " of codebook with URI " + codebookUri);
+        ros.setBelongsTo(codebookUri);
+        ros.setHasPriority(priority);
         if (hasResponseOption != null) {
-            cbs.setHasResponseOption(hasResponseOption);
+            ros.setHasResponseOption(hasResponseOption);
         }
-        cbs.save();
-        System.out.println("CodebookSlot.createCodebookSlot: creating slot " + priority + " with URI [" + slotUri + "]" );
+        ros.save();
+        //System.out.println("ResponseOptionSlot.createResponseOptionSlot: creating slot " + priority + " with URI ["
+        //        + slotUri + "]");
         return true;
     }
 
-    public boolean updateCodebookSlotResponseOption(String responseOptionUri) {
-        CodebookSlot newCodebookSlot = new CodebookSlot();
-        newCodebookSlot.setUri(this.uri);
-        newCodebookSlot.setLabel(this.getLabel());
-        newCodebookSlot.setTypeUri(this.getTypeUri());
-        newCodebookSlot.setComment(this.getComment());
-        newCodebookSlot.setHascoTypeUri(this.getHascoTypeUri());
-        newCodebookSlot.setBelongsTo(this.getBelongsTo());
-        newCodebookSlot.setHasPriority(this.getHasPriority());
+    public boolean updateResponseOptionSlotResponseOption(String responseOptionUri) {
+        ResponseOptionSlot newResponseOptionSlot = new ResponseOptionSlot();
+        newResponseOptionSlot.setUri(this.uri);
+        newResponseOptionSlot.setLabel(this.getLabel());
+        newResponseOptionSlot.setTypeUri(this.getTypeUri());
+        newResponseOptionSlot.setComment(this.getComment());
+        newResponseOptionSlot.setHascoTypeUri(this.getHascoTypeUri());
+        newResponseOptionSlot.setBelongsTo(this.getBelongsTo());
+        newResponseOptionSlot.setHasPriority(this.getHasPriority());
         if (responseOptionUri != null && !responseOptionUri.isEmpty()) {
-            newCodebookSlot.setHasResponseOption(responseOptionUri);
+            newResponseOptionSlot.setHasResponseOption(responseOptionUri);
         }
         this.delete();
-        newCodebookSlot.save();
-        System.out.println("In ResponseOption.updateCodebookSlotResponseOption(): value of hasResponseOption[" + newCodebookSlot.getHasResponseOption() + "]");
+        newResponseOptionSlot.save();
+        //System.out.println("In ResponseOption.updateResponseOptionSlotResponseOption(): value of hasResponseOption["
+        //        + newResponseOptionSlot.getHasResponseOption() + "]");
         return true;
     }
 
     @Override
-    public int compareTo(CodebookSlot another) {
+    public int compareTo(ResponseOptionSlot another) {
         return this.getHasPriority().compareTo(another.getHasPriority());
     }
 
-    @Override public void save() {
+    @Override
+    public void save() {
         saveToTripleStore();
     }
 
-    @Override public void delete() {
+    @Override
+    public void delete() {
         deleteFromTripleStore();
     }
 
