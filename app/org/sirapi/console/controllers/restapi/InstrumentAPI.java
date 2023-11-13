@@ -168,26 +168,6 @@ public class InstrumentAPI extends Controller {
         return ok(ApiUtil.createResponse("DetectorSlots for Instrument <" + instrument.getUri() + "> have been deleted.", true));
     }
 
-    public Result getAllInstruments(){
-        List<Instrument> results = Instrument.find();
-        return getInstruments(results);
-    }
-
-    public Result getInstrumentsByLanguage(String language){
-        List<Instrument> results = Instrument.findByLanguage(language);
-        return getInstruments(results);
-    }
-
-    public Result getInstrumentsByKeyword(String keyword){
-        List<Instrument> results = Instrument.findByKeyword(keyword);
-        return getInstruments(results);
-    }
-
-    public Result getInstrumentsByManagerEmail(String managerEmail){
-        List<Instrument> results = Instrument.findByManagerEmail(managerEmail);
-        return getInstruments(results);
-    }
-
     public static Result getInstruments(List<Instrument> results){
         if (results == null) {
             return ok(ApiUtil.createResponse("No instrument has been found", false));

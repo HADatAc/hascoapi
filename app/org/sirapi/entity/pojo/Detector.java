@@ -100,6 +100,7 @@ public class Detector extends DetectorStem {
         return findDetectorsByQuery(queryString);
     }
 
+    /** 
     public static int getNumberDetectors() {
         String queryString = "";
         queryString += NameSpaces.getInstance().printSparqlNameSpaceList();
@@ -240,6 +241,7 @@ public class Detector extends DetectorStem {
 
         return findDetectorsByQuery(queryString);
     }
+    **/
 
     public static List<Detector> findDetectorsByInstrument(String instrumentUri) {
         //System.out.println("findByInstrument: [" + instrumentUri + "]");

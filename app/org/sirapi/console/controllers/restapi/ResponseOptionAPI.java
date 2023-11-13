@@ -106,6 +106,7 @@ public class ResponseOptionAPI extends Controller {
         }
     }
 
+    /** 
     public Result getAllResponseOptions() {
         ObjectMapper mapper = new ObjectMapper();
 
@@ -123,21 +124,7 @@ public class ResponseOptionAPI extends Controller {
             return ok(ApiUtil.createResponse(jsonObject, true));
         }
     }
-
-    public Result getResponseOptionsByLanguage(String language) {
-        List<ResponseOption> results = ResponseOption.findByLanguage(language);
-        return getResponseOptions(results);
-    }
-
-    public Result getResponseOptionsByKeyword(String keyword) {
-        List<ResponseOption> results = ResponseOption.findByKeyword(keyword);
-        return getResponseOptions(results);
-    }
-
-    public Result getResponseOptionsByManagerEmail(String managerEmail) {
-        List<ResponseOption> results = ResponseOption.findByManagerEmail(managerEmail);
-        return getResponseOptions(results);
-    }
+    */
 
     public static Result getResponseOptions(List<ResponseOption> results) {
         if (results == null) {

@@ -207,28 +207,8 @@ public class DetectorAPI extends Controller {
         }
     }
 
-    public Result getDetectorsByLanguage(String language){
-        List<Detector> results = Detector.findDetectorsByLanguage(language);
-        return getDetectors(results);
-    }
-
-    public Result getDetectorsByKeyword(String keyword){
-        List<Detector> results = Detector.findDetectorsByKeyword(keyword);
-        return getDetectors(results);
-    }
-
-    public Result getDetectorsByManagerEmail(String managerEmail){
-        List<Detector> results = Detector.findDetectorsByManagerEmail(managerEmail);
-        return getDetectors(results);
-    }
-
     public Result getDetectorsByInstrument(String instrumentUri){
         List<Detector> results = Detector.findDetectorsByInstrument(instrumentUri);
-        return getDetectors(results);
-    }
-
-    public Result getAllDetectors(){
-        List<Detector> results = Detector.findDetectors();
         return getDetectors(results);
     }
 

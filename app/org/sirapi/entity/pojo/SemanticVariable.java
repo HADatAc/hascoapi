@@ -530,62 +530,6 @@ aceList() +
         return sv;
     }
 
-	public static List<SemanticVariable> findWithPages(int pageSize, int offset) {
-		List<SemanticVariable> semVars = new ArrayList<SemanticVariable>();
-		String queryString = "";
-		queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-				"SELECT ?uri WHERE { " +
-			    "   ?subUri rdfs:subClassOf* hasco:SemanticVariable . " +
-				"   ?uri a ?subUri . " +
-				"   ?uri rdfs:label ?label . " +
-				" }" +
-				" ORDER BY ASC(?label)" +
-				" LIMIT " + pageSize +
-				" OFFSET " + offset;
-
-		try {
-			ResultSetRewindable resultsrw = SPARQLUtils.select(
-					CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
-
-			SemanticVariable semVar = null;
-			while (resultsrw.hasNext()) {
-				QuerySolution soln = resultsrw.next();
-				if (soln != null && soln.getResource("uri").getURI()!= null) {
-					String uri = soln.get("uri").toString();
-					if (uri != null && !uri.isEmpty()) {
-						semVar = SemanticVariable.find(uri);
-					}
-				}
-				semVars.add(semVar);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return semVars;
-
-	}
-
-	public static int getNumberSemanticVariables() {
-		String query = "";
-		query += NameSpaces.getInstance().printSparqlNameSpaceList();
-		query += "select distinct (COUNT(?x) AS ?tot) where {" +
-				" ?x a <" + HASCO.SEMANTIC_VARIABLE + "> } ";
-
-		try {
-			ResultSetRewindable resultsrw = SPARQLUtils.select(
-					CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), query);
-
-			if (resultsrw.hasNext()) {
-				QuerySolution soln = resultsrw.next();
-				return Integer.parseInt(soln.getLiteral("tot").getString());
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return -1;
-	}
-
 	public static String toString(String role, Entity ent, Attribute attr, Entity inRelationTo, Unit unit, Attribute timeAttr) {
 		//System.out.println("[" + attr.getLabel() + "]");
 		String str = "";

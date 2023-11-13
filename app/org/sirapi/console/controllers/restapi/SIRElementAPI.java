@@ -321,7 +321,11 @@ public class SIRElementAPI extends Controller {
         if (keyword.equals("_")) {
             keyword = "";
         }
-        if (elementType.equals("detectorstem")) {
+        if (elementType.equals("instrument")) {
+            GenericFind<Instrument> query = new GenericFind<Instrument>();
+            List<Instrument> results = query.findByKeywordWithPages(Instrument.class,keyword, pageSize, offset);
+            return InstrumentAPI.getInstruments(results);
+        } else if (elementType.equals("detectorstem")) {
             GenericFind<DetectorStem> query = new GenericFind<DetectorStem>();
             List<DetectorStem> results = query.findByKeywordWithPages(DetectorStem.class,keyword, pageSize, offset);
             return DetectorStemAPI.getDetectorStems(results);
@@ -379,7 +383,77 @@ public class SIRElementAPI extends Controller {
     /**
      *   GET ELEMENTS BY KEYWORD AND LANGUAGE WITH PAGE
      */
+                
+    public Result getElementsByKeywordAndLanguageWithPage(String elementType, String keyword, String language, int pageSize, int offset) {
+        if (keyword.equals("_")) {
+            keyword = "";
+        }
+        if (language.equals("_")) {
+            language = "";
+        }
+        if (elementType.equals("instrument")) {
+            GenericFind<Instrument> query = new GenericFind<Instrument>();
+            List<Instrument> results = query.findByKeywordAndLanguageWithPages(Instrument.class, keyword, language, pageSize, offset);
+            return InstrumentAPI.getInstruments(results);
+        } else if (elementType.equals("detectorstem")) {
+            GenericFind<DetectorStem> query = new GenericFind<DetectorStem>();
+            List<DetectorStem> results = query.findByKeywordAndLanguageWithPages(DetectorStem.class, keyword, language, pageSize, offset);
+            return DetectorStemAPI.getDetectorStems(results);
+        } else if (elementType.equals("detector")) {
+            GenericFind<Detector> query = new GenericFind<Detector>();
+            List<Detector> results = query.findByKeywordAndLanguageWithPages(Detector.class, keyword, language, pageSize, offset);
+            return DetectorAPI.getDetectors(results);
+        } else if (elementType.equals("codebook")) {
+            GenericFind<Codebook> query = new GenericFind<Codebook>();
+            List<Codebook> results = query.findByKeywordAndLanguageWithPages(Codebook.class, keyword, language, pageSize, offset);
+            return CodebookAPI.getCodebooks(results);
+        } else if (elementType.equals("responseoption")) {
+            GenericFind<ResponseOption> query = new GenericFind<ResponseOption>();
+            List<ResponseOption> results = query.findByKeywordAndLanguageWithPages(ResponseOption.class, keyword, language, pageSize, offset);
+            return ResponseOptionAPI.getResponseOptions(results);
+        } else if (elementType.equals("semanticvariable")) {
+            GenericFind<SemanticVariable> query = new GenericFind<SemanticVariable>();
+            List<SemanticVariable> results = query.findByKeywordAndLanguageWithPages(SemanticVariable.class, keyword, language, pageSize, offset);
+            return SemanticVariableAPI.getSemanticVariables(results);
+        } else if (elementType.equals("entity")) {
+            GenericFind<Entity> query = new GenericFind<Entity>();
+            List<Entity> results = query.findByKeywordAndLanguageWithPages(Entity.class, keyword, language, pageSize, offset);
+            return EntityAPI.getEntities(results);
+        }  else if (elementType.equals("attribute")) {
+            GenericFind<Attribute> query = new GenericFind<Attribute>();
+            List<Attribute> results = query.findByKeywordAndLanguageWithPages(Attribute.class, keyword, language, pageSize, offset);
+            return AttributeAPI.getAttributes(results);
+        }  else if (elementType.equals("unit")) {
+            GenericFind<Unit> query = new GenericFind<Unit>();
+            List<Unit> results = query.findByKeywordAndLanguageWithPages(Unit.class, keyword, language, pageSize, offset);
+            return UnitAPI.getUnits(results);
+        } 
+        return ok("No valid element type.");
+    }
 
+    public Result getTotalElementsByKeywordAndLanguage(String elementType, String keyword, String language) {
+        if (keyword.equals("_")) {
+            keyword = "";
+        }
+        if (language.equals("_")) {
+            language = "";
+        }
+        if (elementType == null || elementType.isEmpty()) {
+            return ok(ApiUtil.createResponse("No elementType has been provided", false));
+        }
+        Class clazz = GenericFind.getElementClass(elementType);
+        if (clazz == null) {        
+            return ok(ApiUtil.createResponse("[" + elementType + "] is not a valid elementType", false));
+        }
+        int totalElements = GenericFind.findTotalByKeywordAndLanguage(clazz, keyword, language);
+        if (totalElements >= 0) {
+            String totalElementsJSON = "{\"total\":" + totalElements + "}";
+            return ok(ApiUtil.createResponse(totalElementsJSON, true));
+        }
+        return ok(ApiUtil.createResponse("query method getTotalElementsByKeyword() failed to retrieve total number of [" + elementType + "]", false));
+    }
+        
+    /** 
     public Result getElementsByKeywordAndLanguage(String elementType, String keyword, String language, int pageSize, int offset) {
         if (keyword.equals("_")) {
             keyword = "";
@@ -436,6 +510,7 @@ public class SIRElementAPI extends Controller {
         }
         return ok("No valid element type.");
     }
+    */
 
     /**
      *   GET ELEMENTS BY MANAGER EMAIL WITH PAGE
@@ -472,25 +547,6 @@ public class SIRElementAPI extends Controller {
         } 
         return ok("No valid element type.");
 
-        /*
-        if (elementType.equals("instrument")) {
-            List<Instrument> results = Instrument.findByManagerEmailWithPages(managerEmail, pageSize, offset);
-            return InstrumentAPI.getInstruments(results);
-        } else if (elementType.equals("detectorStem")) {
-            List<DetectorStem> results = DetectorStem.findByManagerEmailWithPages(managerEmail, pageSize, offset);
-            return DetectorStemAPI.getDetectorStems(results);
-        } else if (elementType.equals("detector")) {
-            List<Detector> results = Detector.findDetectorsByManagerEmailWithPages(managerEmail, pageSize, offset);
-            return DetectorAPI.getDetectors(results);
-        } else if (elementType.equals("codebook")) {
-           List<Codebook> results = Codebook.findByManagerEmailWithPages(managerEmail, pageSize, offset);
-           return CodebookAPI.getCodebooks(results);
-        } else if (elementType.equals("responseoption")) {
-            List<ResponseOption> results = ResponseOption.findByManagerEmailWithPages(managerEmail, pageSize, offset);
-            return ResponseOptionAPI.getResponseOptions(results);
-        }
-        return ok("No valid element type.");
-        */
     }
 
     public Result getTotalElementsByManagerEmail(String elementType, String managerEmail){
@@ -510,54 +566,6 @@ public class SIRElementAPI extends Controller {
         return ok(ApiUtil.createResponse("query method getTotalElements() failed to retrieve total number of element", false));
 
     }
-
-    /*
-    public Result getElementsByKeyword(String elementType, String keyword) {
-        if (keyword.equals("_")) {
-            keyword = "";
-        }
-        if (elementType.equals("instrument")) {
-            List<Instrument> results = Instrument.findByKeyword(keyword);
-            return InstrumentAPI.getInstruments(results);
-        } else if (elementType.equals("detectorstem")) {
-            List<DetectorStem> results = DetectorStem.findByKeyword(keyword);
-            return DetectorStemAPI.getDetectorStems(results);
-        } else if (elementType.equals("detector")) {
-            List<Detector> results = Detector.findDetectorsByKeyword(keyword);
-            return DetectorAPI.getDetectors(results);
-        } else if (elementType.equals("codebook")) {
-            List<Codebook> results = Codebook.findByKeyword(keyword);
-            return CodebookAPI.getCodebooks(results);
-        } else if (elementType.equals("responseoption")) {
-            List<ResponseOption> results = ResponseOption.findByKeyword(keyword);
-            return ResponseOptionAPI.getResponseOptions(results);
-        }
-        return ok("No valid element type.");
-    }
-
-    public Result getElementsByLanguage(String elementType, String language) {
-        if (language.equals("_")) {
-            language = "";
-        }
-        if (elementType.equals("instrument")) {
-            List<Instrument> results = Instrument.findByLanguage(language);
-            return InstrumentAPI.getInstruments(results);
-        } else if (elementType.equals("detectorstem")) {
-            List<DetectorStem> results = DetectorStem.findByLanguage(language);
-            return DetectorStemAPI.getDetectorStems(results);
-        } else if (elementType.equals("detector")) {
-            List<Detector> results = Detector.findDetectorsByLanguage(language);
-            return DetectorAPI.getDetectors(results);
-        } else if (elementType.equals("codebook")) {
-            List<Codebook> results = Codebook.findByLanguage(language);
-            return CodebookAPI.getCodebooks(results);
-        } else if (elementType.equals("responseoption")) {
-            List<ResponseOption> results = ResponseOption.findByLanguage(language);
-            return ResponseOptionAPI.getResponseOptions(results);
-        }
-        return ok("No valid element type.");
-    }
-    */
 
     public Result usage(String elementUri){
         HADatAcThing object = URIPage.objectFromUri(elementUri);

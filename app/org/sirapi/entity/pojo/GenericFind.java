@@ -111,7 +111,7 @@ public class GenericFind<T> {
     }
 
     /**
-     *     FIND ELEMENTS (AND THEIR TOTALS)
+     *     FIND ELEMENTS (AND THEIR TOTALS) WITH PAGES
      */
 
     public static <T> List<T> findWithPages(Class clazz, int pageSize, int offset) {
@@ -120,7 +120,13 @@ public class GenericFind<T> {
         }
         String className = classNameWithNamespace(clazz);
         if (className != null) {
-            return findInstancesWithPages(clazz, className, pageSize, offset);
+            if (clazz == Detector.class) {
+              return findDetectorInstancesWithPages(clazz, className, pageSize, offset);
+            } else if (isSIR(clazz)) {
+              return findSIRInstancesWithPages(clazz, className, pageSize, offset);
+            } else {
+              return findInstancesWithPages(clazz, className, pageSize, offset);
+            }
         }
         String superClassName = superclassNameWithNamespace(clazz);
         if (superClassName != null) {
@@ -129,6 +135,33 @@ public class GenericFind<T> {
         return null;
     }
 
+    private static <T> List<T> findDetectorInstancesWithPages(Class clazz, String className, int pageSize, int offset) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT ?uri WHERE { " +
+                " ?type rdfs:subClassOf* " + className + " . " +
+                " ?uri a ?type ." +
+                " ?uri vstoi:hasDetectorStem ?stem . " +
+                " ?stem vstoi:hasContent ?content . " +
+                "} " +
+                " ORDER BY ASC(?content) " +
+                " LIMIT " + pageSize +
+                " OFFSET " + offset;
+        return findByQuery(clazz, queryString);
+    }
+    
+    private static <T> List<T> findSIRInstancesWithPages(Class clazz, String className, int pageSize, int offset) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT ?uri WHERE { " +
+                " ?type rdfs:subClassOf* " + className + " . " +
+                " ?uri a ?type ." +
+                " ?uri vstoi:hasContent ?content . " +
+                "} " +
+                " ORDER BY ASC(?content) " +
+                " LIMIT " + pageSize +
+                " OFFSET " + offset;
+        return findByQuery(clazz, queryString);
+    }
+    
     private static <T> List<T> findInstancesWithPages(Class clazz, String className, int pageSize, int offset) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
@@ -198,7 +231,7 @@ public class GenericFind<T> {
 	}
 
     /**
-     *     FIND ELEMENTS BY KEYWORD (AND THEIR TOTALS)
+     *     FIND ELEMENTS BY KEYWORD (AND THEIR TOTALS) WITH PAGES
      */
 
     public static <T> List<T> findByKeywordWithPages(Class clazz, String keyword, int pageSize, int offset) {
@@ -223,7 +256,7 @@ public class GenericFind<T> {
     }
 
     public static <T> List<T> findDetectorInstancesByKeywordWithPages(Class clazz, String className, String keyword, int pageSize, int offset) {
-        System.out.println("GenericFind.findDetectorInstancesByKeywordWithPages: " + className + "  " + pageSize + "  " + offset);
+        //System.out.println("GenericFind.findDetectorInstancesByKeywordWithPages: " + className + "  " + pageSize + "  " + offset);
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
                 " ?type rdfs:subClassOf* " + className + " . " +
@@ -241,7 +274,7 @@ public class GenericFind<T> {
     }
 
     public static <T> List<T> findSIRInstancesByKeywordWithPages(Class clazz, String className, String keyword, int pageSize, int offset) {
-        System.out.println("GenericFind.findSIRInstancesByKeywordWithPages: " + className + "  " + pageSize + "  " + offset);
+        //System.out.println("GenericFind.findSIRInstancesByKeywordWithPages: " + className + "  " + pageSize + "  " + offset);
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
                 " ?type rdfs:subClassOf* " + className + " . " +
@@ -258,7 +291,7 @@ public class GenericFind<T> {
     }
 
     public static <T> List<T> findInstancesByKeywordWithPages(Class clazz, String className, String keyword, int pageSize, int offset) {
-        System.out.println("GenericFind.findInstancesByKeywordWithPages: " + className + "  " + pageSize + "  " + offset);
+        //System.out.println("GenericFind.findInstancesByKeywordWithPages: " + className + "  " + pageSize + "  " + offset);
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
                 " ?type rdfs:subClassOf* " + className + " . " +
@@ -324,7 +357,7 @@ public class GenericFind<T> {
     }
 
     /**
-     *     FIND ELEMENTS BY KEYWORD AND LANGUAGE (AND THEIR TOTALS)
+     *     FIND ELEMENTS BY KEYWORD AND LANGUAGE (AND THEIR TOTALS) WITH PAHES
      */
 
     public static <T> List<T> findByKeywordAndLanguageWithPages(Class clazz, String keyword, String language, int pageSize, int offset) {
@@ -357,9 +390,7 @@ public class GenericFind<T> {
 		if (!language.isEmpty()) {
 			queryString += " ?stem vstoi:hasLanguage ?language . ";
 		}
-		if (!keyword.isEmpty()) {
-			queryString += " ?stem vstoi:hasContent ?content . ";
-		}
+		queryString += " OPTIONAL { ?stem vstoi:hasContent ?content . } ";
 		if (!keyword.isEmpty() && !language.isEmpty()) {
 			queryString += "   FILTER (regex(?content, \"" + keyword + "\", \"i\") && (?language = \"" + language + "\")) ";
 		} else if (!keyword.isEmpty()) {
@@ -368,6 +399,7 @@ public class GenericFind<T> {
 			queryString += "   FILTER ((?language = \"" + language + "\")) ";
 		}
 		queryString += "} " +
+                " ORDER BY ASC(?content) " +
 				" LIMIT " + pageSize +
 				" OFFSET " + offset;
 		return findByQuery(clazz, queryString);
@@ -381,9 +413,7 @@ public class GenericFind<T> {
 		if (!language.isEmpty()) {
 			queryString += " ?uri vstoi:hasLanguage ?language . ";
 		}
-		if (!keyword.isEmpty()) {
-			queryString += " ?uri vstoi:hasContent ?content . ";
-		}
+		queryString += " OPTIONAL { ?uri vstoi:hasContent ?content . } ";
 		if (!keyword.isEmpty() && !language.isEmpty()) {
 			queryString += "   FILTER (regex(?content, \"" + keyword + "\", \"i\") && (?language = \"" + language + "\")) ";
 		} else if (!keyword.isEmpty()) {
@@ -392,8 +422,10 @@ public class GenericFind<T> {
 			queryString += "   FILTER ((?language = \"" + language + "\")) ";
 		}
 		queryString += "} " +
+                " ORDER BY ASC(?content) " +
 				" LIMIT " + pageSize +
 				" OFFSET " + offset;
+        //System.out.println("GenericFind: KeywordAndLangauge - " + className + " query [" + queryString + "]");
 		return findByQuery(clazz, queryString);
 	}
 
@@ -405,9 +437,7 @@ public class GenericFind<T> {
 		if (!language.isEmpty()) {
 			queryString += " ?uri vstoi:hasLanguage ?language . ";
 		}
-		if (!keyword.isEmpty()) {
-			queryString += " ?uri rdfs:label ?label . ";
-		}
+		queryString += " OPTIONAL { ?uri rdfs:label ?label . } ";
 		if (!keyword.isEmpty() && !language.isEmpty()) {
 			queryString += "   FILTER (regex(?label, \"" + keyword + "\", \"i\") && (?language = \"" + language + "\")) ";
 		} else if (!keyword.isEmpty()) {
@@ -416,6 +446,7 @@ public class GenericFind<T> {
 			queryString += "   FILTER ((?language = \"" + language + "\")) ";
 		}
 		queryString += "} " +
+                " ORDER BY ASC(?label) " +
 				" LIMIT " + pageSize +
 				" OFFSET " + offset;
 		return findByQuery(clazz, queryString);
@@ -428,9 +459,7 @@ public class GenericFind<T> {
 		if (!language.isEmpty()) {
 			queryString += " ?uri vstoi:hasLanguage ?language . ";
 		}
-		if (!keyword.isEmpty()) {
-			queryString += " ?uri rdfs:label ?label . ";
-		}
+		queryString += " OPTIONAL { ?uri rdfs:label ?label . } ";
 		if (!keyword.isEmpty() && !language.isEmpty()) {
 			queryString += "   FILTER (regex(?label, \"" + keyword + "\", \"i\") && (?language = \"" + language + "\")) ";
 		} else if (!keyword.isEmpty()) {
@@ -439,6 +468,7 @@ public class GenericFind<T> {
 			queryString += "   FILTER ((?language = \"" + language + "\")) ";
 		}
 		queryString += "} " +
+                " ORDER BY ASC(?label) " +
 				" LIMIT " + pageSize +
 				" OFFSET " + offset;
 		return findByQuery(clazz, queryString);
@@ -473,7 +503,9 @@ public class GenericFind<T> {
 	public List<T> findByManagerEmailWithPages(Class clazz, String managerEmail, int pageSize, int offset) {
         String className = classNameWithNamespace(clazz);
         if (className != null) {
-            if (isSIR(clazz)) {
+            if (clazz == Detector.class) {
+              return findDetectorInstancesByManagerEmailWithPages(clazz, className, managerEmail, pageSize, offset);
+            } else if (isSIR(clazz)) {
               return findSIRInstancesByManagerEmailWithPages(clazz, className, managerEmail, pageSize, offset);
             } else {
               return findInstancesByManagerEmailWithPages(clazz, className, managerEmail, pageSize, offset);
@@ -485,6 +517,22 @@ public class GenericFind<T> {
         }
         return null;
     }
+
+	public List<T> findDetectorInstancesByManagerEmailWithPages(Class clazz, String className, String managerEmail, int pageSize, int offset) {
+		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+		queryString += " SELECT ?uri WHERE { " +
+				" ?model rdfs:subClassOf* " + className + " . " +
+				" ?uri a ?model ." +
+                " ?uri vstoi:hasDetectorStem ?stem . " +
+                " OPTIONAL { ?stem vstoi:hasContent ?content . } " +
+				" ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
+				"   FILTER (?managerEmail = \"" + managerEmail + "\") " +
+				"}" +
+				" ORDER BY ASC(?content) " +
+				" LIMIT " + pageSize +
+				" OFFSET " + offset;
+		return findByQuery(clazz, queryString);
+	}
 
 	public List<T> findSIRInstancesByManagerEmailWithPages(Class clazz, String className, String managerEmail, int pageSize, int offset) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();

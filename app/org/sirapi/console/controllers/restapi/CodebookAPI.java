@@ -85,44 +85,11 @@ public class CodebookAPI extends Controller {
         }
     }
 
-    public Result getCodebookByLanguage(String language) {
-        List<Codebook> results = Codebook.findByLanguage(language);
-        return getCodebooks(results);
-    }
-
-    public Result getCodebookByKeyword(String keyword) {
-        List<Codebook> results = Codebook.findByKeyword(keyword);
-        return getCodebooks(results);
-    }
-
-    public Result getCodebookByManagerEmail(String managerEmail) {
-        List<Codebook> results = Codebook.findByManagerEmail(managerEmail);
-        return getCodebooks(results);
-    }
-
     public static Result getCodebooks(List<Codebook> results) {
         if (results == null) {
             return ok(ApiUtil.createResponse("No codebook has been found", false));
         } else {
             ObjectMapper mapper = new ObjectMapper();
-            SimpleFilterProvider filterProvider = new SimpleFilterProvider();
-            filterProvider.addFilter("codebookFilter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "hasSerialNumber", "hasLanguage", "hasVersion",
-                            "hasSIRManagerEmail"));
-            mapper.setFilterProvider(filterProvider);
-            JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
-            return ok(ApiUtil.createResponse(jsonObject, true));
-        }
-    }
-
-    public Result getAllCodebooks() {
-        ObjectMapper mapper = new ObjectMapper();
-
-        List<Codebook> results = Codebook.find();
-        if (results == null) {
-            return notFound(ApiUtil.createResponse("No codebook has been found", false));
-        } else {
             SimpleFilterProvider filterProvider = new SimpleFilterProvider();
             filterProvider.addFilter("codebookFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",

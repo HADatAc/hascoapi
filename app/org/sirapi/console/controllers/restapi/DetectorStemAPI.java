@@ -113,28 +113,8 @@ public class DetectorStemAPI extends Controller {
         }
     }
 
-    public Result getDetectorStemsByLanguage(String language){
-        List<DetectorStem> results = DetectorStem.findByLanguage(language);
-        return getDetectorStems(results);
-    }
-
-    public Result getDetectorStemsByKeyword(String keyword){
-        List<DetectorStem> results = DetectorStem.findByKeyword(keyword);
-        return getDetectorStems(results);
-    }
-
-    public Result getDetectorStemsByManagerEmail(String managerEmail){
-        List<DetectorStem> results = DetectorStem.findByManagerEmail(managerEmail);
-        return getDetectorStems(results);
-    }
-
     public Result getDetectorStemsByInstrument(String instrumentUri){
         List<DetectorStem> results = DetectorStem.findByInstrument(instrumentUri);
-        return getDetectorStems(results);
-    }
-
-    public Result getAllDetectorStems(){
-        List<DetectorStem> results = DetectorStem.find();
         return getDetectorStems(results);
     }
 
