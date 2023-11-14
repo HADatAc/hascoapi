@@ -404,7 +404,7 @@ public class Detector extends DetectorStem {
         while (resultsrw.hasNext()) {
             QuerySolution soln = resultsrw.next();
             //System.out.println("inside Detector.usage(): found uri [" + soln.getResource("uri").getURI().toString() + "]");
-            DetectorSlot detectorSlot = DetectorSlot.find(soln.getResource("attUri").getURI());
+            DetectorSlot detectorSlot = DetectorSlot.find(soln.getResource("detSlotUri").getURI());
             detectorSlots.add(detectorSlot);
         }
         return detectorSlots;
