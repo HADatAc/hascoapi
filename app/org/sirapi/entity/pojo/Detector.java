@@ -84,6 +84,7 @@ public class Detector extends DetectorStem {
         return detStemType.getURL();
     }
 
+    /** 
     public static List<Detector> findDetectors() {
         List<Detector> detectors = new ArrayList<Detector>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
@@ -100,7 +101,6 @@ public class Detector extends DetectorStem {
         return findDetectorsByQuery(queryString);
     }
 
-    /** 
     public static int getNumberDetectors() {
         String queryString = "";
         queryString += NameSpaces.getInstance().printSparqlNameSpaceList();
@@ -290,6 +290,7 @@ public class Detector extends DetectorStem {
 
     }
 
+    /** 
     private static int findTotalDetectorsByQuery(String queryString) {
         try {
             ResultSetRewindable resultsrw = SPARQLUtils.select(
@@ -304,6 +305,7 @@ public class Detector extends DetectorStem {
         }
         return -1;
     }
+    */
 
     public static Detector findDetector(String uri) {
         Detector detector = null;

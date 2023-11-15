@@ -29,6 +29,7 @@ public class Entity extends HADatAcClass implements Comparable<Entity> {
         super(className);
     }
 
+    /** 
     public static List<Entity> find() {
         List<Entity> entities = new ArrayList<Entity>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
@@ -58,6 +59,7 @@ public class Entity extends HADatAcClass implements Comparable<Entity> {
             map.put(ent.getUri(),ent.getLabel());
         return map;
     }
+    */
 
     public static List<String> getSubclasses(String uri) {
         List<String> subclasses = new ArrayList<String>();
