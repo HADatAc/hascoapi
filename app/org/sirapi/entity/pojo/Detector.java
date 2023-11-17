@@ -357,7 +357,7 @@ public class Detector extends DetectorStem {
                     detector.setWasGeneratedBy(object.asResource().getURI());
                 } catch (Exception e) {
                 }
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MAINTAINER_EMAIL)) {
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
                 detector.setHasSIRManagerEmail(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_DETECTOR_STEM)) {
                 try {

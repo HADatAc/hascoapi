@@ -21,6 +21,7 @@ public class SIRElementAPI extends Controller {
      */
 
     public Result createElement(String elementType, String json) {
+        System.out.println("Type: [" + elementType + "  JSON [" + json + "]");
         if (json == null || json.equals("")) {
             return ok(ApiUtil.createResponse("No json content has been provided.", false));
         }
@@ -172,6 +173,7 @@ public class SIRElementAPI extends Controller {
      */
 
     public Result deleteElement(String elementType, String uri) {
+        //System.out.println("Type: [" + elementType + "  URI [" + uri + "]");
         if (uri == null || uri.equals("")) {
             return ok(ApiUtil.createResponse("No uri has been provided.", false));
         }
