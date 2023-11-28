@@ -212,6 +212,26 @@ public class HAScOMapper {
                             "hasSIRManagerEmail"));
         }
 
+        // ANNOTATION_STEM
+        if (mode.equals(FULL) && typeResult.equals(VSTOI.ANNOTATION_STEM)) {
+            filterProvider.addFilter("annotationStemFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("annotationStemFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
+                            "hascoTypeLabel", "comment", "hasContent", "hasLanguage", "hasVersion",
+                            "wasDerivedFrom", "wasGeneratedBy", "hasSIRManagerEmail"));
+        }
+
+        // ANNOTATION
+        if (mode.equals(FULL) && typeResult.equals(VSTOI.ANNOTATION)) {
+            filterProvider.addFilter("annotationFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("annotationFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
+                            "hascoTypeLabel", "comment", "belongsTo", 
+                            "hasAnnotationStem", "annotationStem", "hasPosition", "hasStyle"));
+        }
+
         mapper.setFilterProvider(filterProvider);
 
         return mapper;

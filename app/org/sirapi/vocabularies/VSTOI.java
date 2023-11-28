@@ -34,6 +34,8 @@ public class VSTOI {
      * CLASSES
      */
 
+    public static final String ANNOTATION_STEM = "http://hadatac.org/ont/vstoi#AnnotationStem";
+    public static final String ANNOTATION = "http://hadatac.org/ont/vstoi#Annotation";
     public static final String CODEBOOK = "http://hadatac.org/ont/vstoi#Codebook";
     public static final String DETECTOR_STEM = "http://hadatac.org/ont/vstoi#DetectorStem";
     public static final String DETECTOR_SLOT = "http://hadatac.org/ont/vstoi#DetectorSlot";
@@ -49,6 +51,7 @@ public class VSTOI {
      */
 
     public static final String BELONGS_TO = "http://hadatac.org/ont/vstoi#belongsTo";
+    public static final String HAS_ANNOTATION_STEM = "http://hadatac.org/ont/vstoi#hasAnnotationStem";
     public static final String HAS_CONTENT = "http://hadatac.org/ont/vstoi#hasContent";
     public static final String HAS_COPYRIGHT_NOTICE = "http://hadatac.org/ont/vstoi#hasCopyrightNotice";
     public static final String HAS_DATE_FIELD = "http://hadatac.org/ont/vstoi#hasDateField";
@@ -59,10 +62,12 @@ public class VSTOI {
     public static final String HAS_INSTRUCTION = "http://hadatac.org/ont/vstoi#hasInstruction";
     public static final String HAS_LANGUAGE = "http://hadatac.org/ont/vstoi#hasLanguage";
     public static final String HAS_PAGE_NUMBER = "http://hadatac.org/ont/vstoi#hasPageNumber";
+    public static final String HAS_POSITION = "http://hadatac.org/ont/vstoi#hasPosition";
     public static final String HAS_PRIORITY = "http://hadatac.org/ont/vstoi#hasPriority";
     public static final String HAS_RESPONSE_OPTION = "http://hadatac.org/ont/vstoi#hasResponseOption";
     public static final String HAS_SHORT_NAME = "http://hadatac.org/ont/vstoi#hasShortName";
     public static final String HAS_STATUS = "http://hadatac.org/ont/vstoi#hasStatus";
+    public static final String HAS_STYLE = "http://hadatac.org/ont/vstoi#hasStyle";
     public static final String HAS_SIR_MAINTAINER_EMAIL = "http://hadatac.org/ont/vstoi#hasSIRManagerEmail";
     public static final String HAS_SUBJECT_ID_FIELD = "http://hadatac.org/ont/vstoi#hasSubjectIDField";
     public static final String HAS_SUBJECT_RELATIONSHIP_FIELD = "http://hadatac.org/ont/vstoi#hasSubjectRelationshipField";
@@ -93,6 +98,36 @@ public class VSTOI {
         informant.put("http://hadatac.org/ont/vstoi#Youth", "Youth");
         informant.put("http://hadatac.org/ont/vstoi#Caregiver", "Caregiver");
         informant.put("http://hadatac.org/ont/vstoi#HouseholdReferencePerson", "HouseholdReferencePerson");
+    }
+
+    public static final String DEFAULT_CONTAINER_POSITION = "http://hadatac.org/ont/vstoi#TopCenter";
+    public static Map<String, String> containerPosition;
+    static {
+        containerPosition = new HashMap<>();
+        containerPosition.put(DEFAULT_CONTAINER_POSITION, "TopCenter");
+        containerPosition.put("http://hadatac.org/ont/vstoi#TopLeft", "TopLeft");
+        containerPosition.put("http://hadatac.org/ont/vstoi#TopRight", "TopRight");
+        containerPosition.put("http://hadatac.org/ont/vstoi#BelowTopFullLine", "BelowTopFullLine");
+        containerPosition.put("http://hadatac.org/ont/vstoi#BottomCenter", "BottomCenter");
+        containerPosition.put("http://hadatac.org/ont/vstoi#BottomLeft", "BottomLeft");
+        containerPosition.put("http://hadatac.org/ont/vstoi#BottomRight", "BottomRight");
+        containerPosition.put("http://hadatac.org/ont/vstoi#AboveBottomFullLine", "AboveBottomFullLine");
+        containerPosition.put("http://hadatac.org/ont/vstoi#NotVisible", "NotVisible");
+    }
+
+    public static final String DEFAULT_PAGE_POSITION = "http://hadatac.org/ont/vstoi#PageTopCenter";
+    public static Map<String, String> pagePosition;
+    static {
+        pagePosition = new HashMap<>();
+        pagePosition.put(DEFAULT_INFORMANT, "PageTopCenter");
+        pagePosition.put("http://hadatac.org/ont/vstoi#PageTopLeft", "PageTopLeft");
+        pagePosition.put("http://hadatac.org/ont/vstoi#PageTopRight", "PageTopRight");
+        pagePosition.put("http://hadatac.org/ont/vstoi#PageBelowTopFullLine", "PageBelowTopFullLine");
+        pagePosition.put("http://hadatac.org/ont/vstoi#PageBottomCenter", "PageBottomCenter");
+        pagePosition.put("http://hadatac.org/ont/vstoi#PageBottomLeft", "PageBottomLeft");
+        pagePosition.put("http://hadatac.org/ont/vstoi#PageBottomRight", "PageBottomRight");
+        pagePosition.put("http://hadatac.org/ont/vstoi#PageAboveBottomFullLine", "PageAboveBottomFullLine");
+        pagePosition.put("http://hadatac.org/ont/vstoi#NotVisible", "NotVisible");
     }
 
 }

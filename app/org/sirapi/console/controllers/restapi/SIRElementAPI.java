@@ -97,6 +97,24 @@ public class SIRElementAPI extends Controller {
                 success = false;
                 message = e.getMessage();
             }
+        } else if (clazz == AnnotationStem.class) {
+            try {
+                AnnotationStem object;
+                object = (AnnotationStem)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                success = false;
+                message = e.getMessage();
+            }
+        } else if (clazz == Annotation.class) {
+            try {
+                Annotation object;
+                object = (Annotation)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                success = false;
+                message = e.getMessage();
+            }
         } else if (clazz == SemanticVariable.class) {
             try {
                 SemanticVariable object;
@@ -224,6 +242,18 @@ public class SIRElementAPI extends Controller {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
+        } else if (clazz == AnnotationStem.class) {
+            AnnotationStem object = AnnotationStem.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == Annotation.class) {
+            Annotation object = Annotation.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
         } else if (clazz == SemanticVariable.class) {
             SemanticVariable object = SemanticVariable.find(uri);
             if (object == null) {
@@ -341,6 +371,14 @@ public class SIRElementAPI extends Controller {
             GenericFind<ResponseOption> query = new GenericFind<ResponseOption>();
             List<ResponseOption> results = query.findByKeywordWithPages(ResponseOption.class,keyword, pageSize, offset);
             return ResponseOptionAPI.getResponseOptions(results);
+        } else if (elementType.equals("annotationstem")) {
+            GenericFind<AnnotationStem> query = new GenericFind<AnnotationStem>();
+            List<AnnotationStem> results = query.findByKeywordWithPages(AnnotationStem.class,keyword, pageSize, offset);
+            return AnnotationStemAPI.getAnnotationStems(results);
+        } else if (elementType.equals("annotation")) {
+            GenericFind<Annotation> query = new GenericFind<Annotation>();
+            List<Annotation> results = query.findByKeywordWithPages(Annotation.class,keyword, pageSize, offset);
+            return AnnotationAPI.getAnnotations(results);
         } else if (elementType.equals("semanticvariable")) {
             GenericFind<SemanticVariable> query = new GenericFind<SemanticVariable>();
             List<SemanticVariable> results = query.findByKeywordWithPages(SemanticVariable.class,keyword, pageSize, offset);
@@ -411,6 +449,14 @@ public class SIRElementAPI extends Controller {
             GenericFind<ResponseOption> query = new GenericFind<ResponseOption>();
             List<ResponseOption> results = query.findByKeywordAndLanguageWithPages(ResponseOption.class, keyword, language, pageSize, offset);
             return ResponseOptionAPI.getResponseOptions(results);
+        } else if (elementType.equals("annotationstem")) {
+            GenericFind<AnnotationStem> query = new GenericFind<AnnotationStem>();
+            List<AnnotationStem> results = query.findByKeywordAndLanguageWithPages(AnnotationStem.class, keyword, language, pageSize, offset);
+            return AnnotationStemAPI.getAnnotationStems(results);
+        } else if (elementType.equals("annotation")) {
+            GenericFind<Annotation> query = new GenericFind<Annotation>();
+            List<Annotation> results = query.findByKeywordAndLanguageWithPages(Annotation.class, keyword, language, pageSize, offset);
+            return AnnotationAPI.getAnnotations(results);
         } else if (elementType.equals("semanticvariable")) {
             GenericFind<SemanticVariable> query = new GenericFind<SemanticVariable>();
             List<SemanticVariable> results = query.findByKeywordAndLanguageWithPages(SemanticVariable.class, keyword, language, pageSize, offset);
@@ -544,6 +590,14 @@ public class SIRElementAPI extends Controller {
             GenericFind<ResponseOption> query = new GenericFind<ResponseOption>();
             List<ResponseOption> results = query.findByManagerEmailWithPages(ResponseOption.class, managerEmail, pageSize, offset);
             return ResponseOptionAPI.getResponseOptions(results);
+        }  else if (elementType.equals("annotationstem")) {
+            GenericFind<AnnotationStem> query = new GenericFind<AnnotationStem>();
+            List<AnnotationStem> results = query.findByManagerEmailWithPages(AnnotationStem.class, managerEmail, pageSize, offset);
+            return AnnotationStemAPI.getAnnotationStems(results);
+        }  else if (elementType.equals("annotation")) {
+            GenericFind<Annotation> query = new GenericFind<Annotation>();
+            List<Annotation> results = query.findByManagerEmailWithPages(Annotation.class, managerEmail, pageSize, offset);
+            return AnnotationAPI.getAnnotations(results);
         } 
         return ok("No valid element type.");
 

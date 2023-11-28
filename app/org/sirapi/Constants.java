@@ -2,7 +2,7 @@ package org.sirapi;
 
 public class Constants {
 
-    public static final String REPOSITORY_VERSION = "0.5";
+    public static final String REPOSITORY_VERSION = "0.6";
 
     public static final String FLASH_MESSAGE_KEY = "message";
     public static final String FLASH_ERROR_KEY = "error";
@@ -25,6 +25,10 @@ public class Constants {
     public static final String TEST_RESPONSE_OPTION_SLOT2_URI = TEST_CODEBOOK_URI + "/" + RESPONSE_OPTION_SLOT_PREFIX + "/2";
     public static final String TEST_RESPONSE_OPTION1_URI = SIR_KB + "TestResponseOption1";
     public static final String TEST_RESPONSE_OPTION2_URI = SIR_KB + "TestResponseOption2";
+    public static final String TEST_ANNOTATION_STEM1_URI = SIR_KB + "TestAnnotationStem1";
+    public static final String TEST_ANNOTATION_STEM2_URI = SIR_KB + "TestAnnotationStem2";
+    public static final String TEST_ANNOTATION1_URI = SIR_KB + "TestAnnotation1";
+    public static final String TEST_ANNOTATION2_URI = SIR_KB + "TestAnnotation2";
     public static final String TEST_SEMANTIC_VARIABLE1_URI = SIR_KB + "TestSemanticVariable1";
     public static final String TEST_SEMANTIC_VARIABLE2_URI = SIR_KB + "TestSemanticVariable2";
     public static final String TEST_ENTITY_URI = SIR_KB + "TestEntity";

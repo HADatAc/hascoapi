@@ -217,13 +217,6 @@ public class DetectorAPI extends Controller {
             return ok(ApiUtil.createResponse("No detector has been found", false));
         } else {
             ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL,VSTOI.DETECTOR);
-            //ObjectMapper mapper = new ObjectMapper();
-            //SimpleFilterProvider filterProvider = new SimpleFilterProvider();
-            //filterProvider.addFilter("detectorFilter",
-            //        SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-            //                "hascoTypeLabel", "comment", "hasSerialNumber", "hasDetectorStem","hasCodebook",
-            //                "hasVersion", "wasDerivedFrom", "wasGeneratedBy", "hasSIRManagerEmail"));
-            //mapper.setFilterProvider(filterProvider);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             //System.out.println("DetecttorAPI: [" + ApiUtil.createResponse(jsonObject, true) + "]");
             return ok(ApiUtil.createResponse(jsonObject, true));

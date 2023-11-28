@@ -43,6 +43,10 @@ public class GenericFind<T> {
             return ResponseOption.class;
         } else if (elementType.equals("responseoptionslot")) {
             return ResponseOptionSlot.class;
+        } else if (elementType.equals("annotationstem")) {
+            return AnnotationStem.class;
+        } else if (elementType.equals("annotation")) {
+            return Annotation.class;
         } else if (elementType.equals("semanticvariable")) {
             return SemanticVariable.class;
         } else if (elementType.equals("instrumenttype")) {
@@ -77,6 +81,10 @@ public class GenericFind<T> {
             return URIUtils.replaceNameSpace(VSTOI.RESPONSE_OPTION_SLOT);
         } else if (clazz == ResponseOption.class) {
             return URIUtils.replaceNameSpace(VSTOI.RESPONSE_OPTION);
+        } else if (clazz == AnnotationStem.class) {
+            return URIUtils.replaceNameSpace(VSTOI.ANNOTATION_STEM);
+        } else if (clazz == Annotation.class) {
+            return URIUtils.replaceNameSpace(VSTOI.ANNOTATION);
         } else if (clazz == SemanticVariable.class) {
             return URIUtils.replaceNameSpace(HASCO.SEMANTIC_VARIABLE);
         } else if (clazz == Agent.class) {
@@ -89,7 +97,8 @@ public class GenericFind<T> {
         if (clazz == Instrument.class ||
             clazz == DetectorStem.class ||
             clazz == Detector.class ||
-            clazz == ResponseOption.class) {
+            clazz == ResponseOption.class ||
+            clazz == AnnotationStem.class) {
             return true;
         }
         return false;
@@ -650,6 +659,10 @@ public class GenericFind<T> {
             return (T)ResponseOptionSlot.find(uri);
         } else if (clazz == ResponseOption.class) {
             return (T)ResponseOption.find(uri);
+        } else if (clazz == AnnotationStem.class) {
+            return (T)AnnotationStem.find(uri);
+        } else if (clazz == Annotation.class) {
+            return (T)Annotation.find(uri);
         } else if (clazz == SemanticVariable.class) {
             return (T)SemanticVariable.find(uri);
         } else if (clazz == Agent.class) {
