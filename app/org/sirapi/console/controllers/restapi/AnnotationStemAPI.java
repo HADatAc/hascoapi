@@ -25,10 +25,22 @@ public class AnnotationStemAPI extends Controller {
     public Result createAnnotationStemsForTesting() {
         AnnotationStem testAnnotationStem1 = AnnotationStem.find(TEST_ANNOTATION_STEM1_URI);
         AnnotationStem testAnnotationStem2 = AnnotationStem.find(TEST_ANNOTATION_STEM2_URI);
+        AnnotationStem testAnnotationStemInstruction = AnnotationStem.find(TEST_ANNOTATION_STEM_INSTRUCTION_URI);
+        AnnotationStem testAnnotationStemPage = AnnotationStem.find(TEST_ANNOTATION_STEM_PAGE_URI);
+        AnnotationStem testAnnotationStemDateField = AnnotationStem.find(TEST_ANNOTATION_STEM_DATEFIELD_URI);
+        AnnotationStem testAnnotationStemCopyright = AnnotationStem.find(TEST_ANNOTATION_STEM_COPYRIGHT_URI);
         if (testAnnotationStem1 != null) {
             return ok(ApiUtil.createResponse("TestAnnotationStem1 already exists.", false));
         } else if (testAnnotationStem2 != null) {
             return ok(ApiUtil.createResponse("TestAnnotationStem2 already exists.", false));
+        } else if (testAnnotationStemInstruction != null) {
+            return ok(ApiUtil.createResponse("TestAnnotationStemInstruction already exists.", false));
+        } else if (testAnnotationStemPage != null) {
+            return ok(ApiUtil.createResponse("TestAnnotationStemPage already exists.", false));
+        } else if (testAnnotationStemDateField != null) {
+            return ok(ApiUtil.createResponse("TestAnnotationStemDateField already exists.", false));
+        } else if (testAnnotationStemCopyright != null) {
+            return ok(ApiUtil.createResponse("TestAnnotationStemCopyright already exists.", false));
         } else {
             testAnnotationStem1 = new AnnotationStem();
             testAnnotationStem1.setUri(TEST_ANNOTATION_STEM1_URI);
@@ -53,7 +65,56 @@ public class AnnotationStemAPI extends Controller {
             testAnnotationStem2.setHasVersion("1");
             testAnnotationStem2.setHasSIRManagerEmail("me@example.com");
             testAnnotationStem2.save();
-            return ok(ApiUtil.createResponse("Test Annotation Stems 1 and 2 have been CREATED.", true));
+
+            testAnnotationStemInstruction = new AnnotationStem();
+            testAnnotationStemInstruction.setUri(TEST_ANNOTATION_STEM_INSTRUCTION_URI);
+            testAnnotationStemInstruction.setLabel("Test Annotation Stem Instruction");
+            testAnnotationStemInstruction.setTypeUri(VSTOI.ANNOTATION_STEM);
+            testAnnotationStemInstruction.setHascoTypeUri(VSTOI.ANNOTATION_STEM);
+            testAnnotationStemInstruction.setComment("This is a dummy Annotation Stem Instruction created to test the SIR API.");
+            testAnnotationStemInstruction.setHasContent("Please put a circle around the word that shows how often each of these things happens to you. There are no right or wrong answers. ");
+            testAnnotationStemInstruction.setHasLanguage("en"); // ISO 639-1
+            testAnnotationStemInstruction.setHasVersion("1");
+            testAnnotationStemInstruction.setHasSIRManagerEmail("me@example.com");
+            testAnnotationStemInstruction.save();
+
+            testAnnotationStemPage = new AnnotationStem();
+            testAnnotationStemPage.setUri(TEST_ANNOTATION_STEM_PAGE_URI);
+            testAnnotationStemPage.setLabel("Test Annotation Stem Page");
+            testAnnotationStemPage.setTypeUri(VSTOI.ANNOTATION_STEM);
+            testAnnotationStemPage.setHascoTypeUri(VSTOI.ANNOTATION_STEM);
+            testAnnotationStemPage.setComment("This is a dummy Annotation Stem Page created to test the SIR API.");
+            testAnnotationStemPage.setHasContent("Page ");
+            testAnnotationStemPage.setHasLanguage("en"); // ISO 639-1
+            testAnnotationStemPage.setHasVersion("1");
+            testAnnotationStemPage.setHasSIRManagerEmail("me@example.com");
+            testAnnotationStemPage.save();
+
+            testAnnotationStemDateField = new AnnotationStem();
+            testAnnotationStemDateField.setUri(TEST_ANNOTATION_STEM_DATEFIELD_URI);
+            testAnnotationStemDateField.setLabel("Test Annotation Stem DateField");
+            testAnnotationStemDateField.setTypeUri(VSTOI.ANNOTATION_STEM);
+            testAnnotationStemDateField.setHascoTypeUri(VSTOI.ANNOTATION_STEM);
+            testAnnotationStemDateField.setComment("This is a dummy Annotation Stem DateField created to test the SIR API.");
+            testAnnotationStemDateField.setHasContent("Date: ____________ ");
+            testAnnotationStemDateField.setHasLanguage("en"); // ISO 639-1
+            testAnnotationStemDateField.setHasVersion("1");
+            testAnnotationStemDateField.setHasSIRManagerEmail("me@example.com");
+            testAnnotationStemDateField.save();
+
+            testAnnotationStemCopyright = new AnnotationStem();
+            testAnnotationStemCopyright.setUri(TEST_ANNOTATION_STEM_COPYRIGHT_URI);
+            testAnnotationStemCopyright.setLabel("Test Annotation Stem Copyright");
+            testAnnotationStemCopyright.setTypeUri(VSTOI.ANNOTATION_STEM);
+            testAnnotationStemCopyright.setHascoTypeUri(VSTOI.ANNOTATION_STEM);
+            testAnnotationStemCopyright.setComment("This is a dummy Annotation Stem Copyright created to test the SIR API.");
+            testAnnotationStemCopyright.setHasContent("Copyright (c) 2000 HADatAc.org");
+            testAnnotationStemCopyright.setHasLanguage("en"); // ISO 639-1
+            testAnnotationStemCopyright.setHasVersion("1");
+            testAnnotationStemCopyright.setHasSIRManagerEmail("me@example.com");
+            testAnnotationStemCopyright.save();
+
+            return ok(ApiUtil.createResponse("Test Annotation Stems 1, 2, Instruction, Page, DateField and Copyright have been CREATED.", true));
         }
     }
 
@@ -83,15 +144,52 @@ public class AnnotationStemAPI extends Controller {
     public Result deleteAnnotationStemsForTesting(){
         AnnotationStem test1 = AnnotationStem.find(TEST_ANNOTATION_STEM1_URI);
         AnnotationStem test2 = AnnotationStem.find(TEST_ANNOTATION_STEM2_URI);
+        AnnotationStem testInstruction = AnnotationStem.find(TEST_ANNOTATION_STEM_INSTRUCTION_URI);
+        AnnotationStem testPage = AnnotationStem.find(TEST_ANNOTATION_STEM_PAGE_URI);
+        AnnotationStem testDateField = AnnotationStem.find(TEST_ANNOTATION_STEM_DATEFIELD_URI);
+        AnnotationStem testCopyright = AnnotationStem.find(TEST_ANNOTATION_STEM_COPYRIGHT_URI);
+        String msg = "";
+
         if (test1 == null) {
-            return ok(ApiUtil.createResponse("There is no Test Annotation Stem 1 to be deleted.", false));
-        } else if (test2 == null) {
-            return ok(ApiUtil.createResponse("There is no Test Annotation Stem 2 to be deleted.", false));
+            msg += "There is no Test Annotation Stem 1. ";
         } else {
             test1.delete();
-            test2.delete();
-            return ok(ApiUtil.createResponse("Test Annotation Stems 1 and 2 have been DELETED.", true));
         }
+        
+        if (test2 == null) {
+            msg += "There is no Test Annotation Stem 2. ";
+        } else {
+            test2.delete();
+        }
+
+        if (testInstruction == null) {
+            msg += "There is no Test Annotation Stem Instruction. ";
+        } else {
+            testInstruction.delete();
+        }
+            
+        if (testPage == null) {
+            msg += "There is no Test Annotation Stem Page. ";
+        } else { 
+            testPage.delete();
+        } 
+        
+        if (testDateField == null) {
+            msg += "There is no Test Annotation Stem DateField. ";
+        } else {
+            testDateField.delete();
+        }
+        
+        if (testCopyright == null) {
+            msg += "There is no Test Annotation Stem Copyright. ";
+        } else {
+            testCopyright.delete();
+        }
+
+        if (msg.isEmpty()) {
+            return ok(ApiUtil.createResponse("Test Annotation Stems 1, 2, Instruction, Page, DateField, and Copyright have been DELETED.", true));
+        }
+        return ok(ApiUtil.createResponse(msg, true));
     }
 
     public Result deleteAnnotationStem(String uri){

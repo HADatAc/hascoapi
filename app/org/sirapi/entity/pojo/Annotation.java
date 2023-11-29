@@ -132,6 +132,19 @@ public class Annotation extends HADatAcThing implements Comparable<Annotation>  
         return findByQuery(queryString);
     }
 
+    public static Annotation findByInstrumentAndPosition(String instrumentUri, String positionUri) {
+        //System.out.println("findByInstrument: [" + instrumentUri + "]");
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT ?uri WHERE { " +
+                " ?type rdfs:subClassOf* vstoi:Annotation . " +
+                " ?uri a ?type ." +
+                " ?uri vstoi:belongsTo <" + instrumentUri + "> . " +
+                " ?uri vstoi:hasPosition <" + positionUri + "> . " +
+                "} ";
+
+        return findOneByQuery(queryString);
+    }
+
     private static List<Annotation> findByQuery(String queryString) {
         List<Annotation> annotations = new ArrayList<Annotation>();
         ResultSetRewindable resultsrw = SPARQLUtils.select(
@@ -151,6 +164,20 @@ public class Annotation extends HADatAcThing implements Comparable<Annotation>  
         return annotations;
 
     }
+
+    private static Annotation findOneByQuery(String queryString) {
+        ResultSetRewindable resultsrw = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+        if (!resultsrw.hasNext()) {
+            return null;
+        }
+
+        QuerySolution soln = resultsrw.next();
+        return find(soln.getResource("uri").getURI());
+ 
+    }
+
 
     public static Annotation find(String uri) {
         Annotation Annotation = null;

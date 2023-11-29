@@ -146,8 +146,7 @@ public class HAScOMapper {
             filterProvider.addFilter("instrumentFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
                             "hascoTypeLabel", "hasInformant", "comment", "hasSerialNumber", "hasLanguage", "hasVersion",
-                            "hasSIRManagerEmail", "hasPageNumber", "hasDateField", "hasSubjectIDField",
-                            "hasSubjectRelatioshipField", "hasCopyrightNotice"));
+                            "hasSIRManagerEmail"));
         }
 
         // DETECTOR_SLOT

@@ -45,29 +45,11 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 	@PropertyField(uri="vstoi:hasShortName")
 	private String hasShortName;
 
-	@PropertyField(uri="vstoi:hasInstruction")
-	private String hasInstruction;
-
 	@PropertyField(uri="vstoi:hasLanguage")
 	private String hasLanguage;
 
 	@PropertyField(uri="vstoi:hasVersion")
 	private String hasVersion;
-
-	@PropertyField(uri="vstoi:hasPageNumber")
-	private String hasPageNumber;
-
-	@PropertyField(uri="vstoi:hasDateField")
-	private String hasDateField;
-
-	@PropertyField(uri="vstoi:hasSubjectIDField")
-	private String hasSubjectIDField;
-
-	@PropertyField(uri="vstoi:hasSubjectRelationshipField")
-	private String hasSubjectRelationshipField;
-
-	@PropertyField(uri="vstoi:hasCopyrightNotice")
-	private String hasCopyrightNotice;
 
 	@PropertyField(uri="vstoi:hasSIRManagerEmail")
 	private String hasSIRManagerEmail;
@@ -112,14 +94,6 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 		this.hasShortName = hasShortName;
 	}
 
-	public String getHasInstruction() {
-		return hasInstruction;
-	}
-
-	public void setHasInstruction(String hasInstruction) {
-		this.hasInstruction = hasInstruction;
-	}
-
 	public String getHasLanguage() {
 		return hasLanguage;
 	}
@@ -134,46 +108,6 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 
 	public void setHasVersion(String hasVersion) {
 		this.hasVersion = hasVersion;
-	}
-
-	public String getHasPageNumber() {
-		return hasPageNumber;
-	}
-
-	public void setHasPageNumber(String hasPageNumber) {
-		this.hasPageNumber = hasPageNumber;
-	}
-
-	public String getHasDateField() {
-		return hasDateField;
-	}
-
-	public void setHasDateField(String hasDateField) {
-		this.hasDateField = hasDateField;
-	}
-
-	public String getHasSubjectIDField() {
-		return hasSubjectIDField;
-	}
-
-	public void setHasSubjectIDField(String hasSubjectIDField) {
-		this.hasSubjectIDField = hasSubjectIDField;
-	}
-
-	public String getHasSubjectRelationshipField() {
-		return hasSubjectRelationshipField;
-	}
-
-	public void setHasSubjectRelationshipField(String hasSubjectRelationshipField) {
-		this.hasSubjectRelationshipField = hasSubjectRelationshipField;
-	}
-
-	public String getHasCopyrightNotice() {
-		return hasCopyrightNotice;
-	}
-
-	public void setHasCopyrightNotice(String hasCopyrightNotice) {
-		this.hasCopyrightNotice = hasCopyrightNotice;
 	}
 
 	public String getHasSIRManagerEmail() {
@@ -201,16 +135,21 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
     }
 
     public List<DetectorSlot> getDetectorSlots() {
-    	List<DetectorSlot> atts = DetectorSlot.findByInstrument(uri);
-    	return atts;
+    	List<DetectorSlot> detSlots = DetectorSlot.findByInstrument(uri);
+    	return detSlots;
+    }
+
+    public List<Annotation> getAnnotations() {
+    	List<Annotation> annotations = Annotation.findByInstrument(uri);
+    	return annotations;
     }
 
     @JsonIgnore
 	public List<Detector> getDetectors() {
 		List<Detector> detectors = new ArrayList<Detector>();
-    	List<DetectorSlot> atts = DetectorSlot.findByInstrument(uri);
-		for (DetectorSlot att : atts) {
-			Detector detector = att.getDetector();
+    	List<DetectorSlot> dets = DetectorSlot.findByInstrument(uri);
+		for (DetectorSlot det : dets) {
+			Detector detector = det.getDetector();
 			detectors.add(detector);
 		} 
     	return detectors;
@@ -331,22 +270,10 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 					instrument.setComment(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SHORT_NAME)) {
 					instrument.setHasShortName(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_INSTRUCTION)) {
-					instrument.setHasInstruction(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
 					instrument.setHasLanguage(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
 					instrument.setHasVersion(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PAGE_NUMBER)) {
-					instrument.setHasPageNumber(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_DATE_FIELD)) {
-					instrument.setHasDateField(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SUBJECT_ID_FIELD)) {
-					instrument.setHasSubjectIDField(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SUBJECT_RELATIONSHIP_FIELD)) {
-					instrument.setHasSubjectRelationshipField(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_COPYRIGHT_NOTICE)) {
-					instrument.setHasCopyrightNotice(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MAINTAINER_EMAIL)) {
 					instrument.setHasSIRManagerEmail(str);
 				}

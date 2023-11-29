@@ -27,8 +27,16 @@ public class Constants {
     public static final String TEST_RESPONSE_OPTION2_URI = SIR_KB + "TestResponseOption2";
     public static final String TEST_ANNOTATION_STEM1_URI = SIR_KB + "TestAnnotationStem1";
     public static final String TEST_ANNOTATION_STEM2_URI = SIR_KB + "TestAnnotationStem2";
+    public static final String TEST_ANNOTATION_STEM_INSTRUCTION_URI = SIR_KB + "TestAnnotationStemInstruction";
+    public static final String TEST_ANNOTATION_STEM_PAGE_URI = SIR_KB + "TestAnnotationStemPage";
+    public static final String TEST_ANNOTATION_STEM_DATEFIELD_URI = SIR_KB + "TestAnnotationStemDateField";
+    public static final String TEST_ANNOTATION_STEM_COPYRIGHT_URI = SIR_KB + "TestAnnotationStemCopyright";
     public static final String TEST_ANNOTATION1_URI = SIR_KB + "TestAnnotation1";
     public static final String TEST_ANNOTATION2_URI = SIR_KB + "TestAnnotation2";
+    public static final String TEST_ANNOTATION_INSTRUCTION_URI = SIR_KB + "TestAnnotationInstruction";
+    public static final String TEST_ANNOTATION_PAGE_URI = SIR_KB + "TestAnnotationPage";
+    public static final String TEST_ANNOTATION_DATEFIELD_URI = SIR_KB + "TestAnnotationDateField";
+    public static final String TEST_ANNOTATION_COPYRIGHT_URI = SIR_KB + "TestAnnotationCopyright";
     public static final String TEST_SEMANTIC_VARIABLE1_URI = SIR_KB + "TestSemanticVariable1";
     public static final String TEST_SEMANTIC_VARIABLE2_URI = SIR_KB + "TestSemanticVariable2";
     public static final String TEST_ENTITY_URI = SIR_KB + "TestEntity";
