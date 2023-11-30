@@ -1,6 +1,6 @@
 organization := "org.hadatac"
 
-name := "sirapi"
+name := "hascoapi"
 
 version := "10.0.1-SNAPSHOT"
 

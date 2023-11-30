@@ -105,7 +105,6 @@ public class Codebook extends HADatAcThing implements SIRElement, Comparable<Cod
     }
 
     public boolean deleteResponseOptionSlots() {
-        System.out.println("Codebook.deleteResponseOptionSlots()");
         if (this.getResponseOptionSlots() == null || uri == null || uri.isEmpty()) {
             return true;
         }
@@ -113,12 +112,10 @@ public class Codebook extends HADatAcThing implements SIRElement, Comparable<Cod
         if (slots == null) {
             return true;
         }
-        System.out.println("Codebook,java   Start DeleteResponseOptionSlot [" + uri + "]");
         for (ResponseOptionSlot slot : slots) {
             System.out.println("Codebook,java   Deleting ResponseOptionSlot [" + slot.getUri() + "]");
             slot.delete();
         }
-        System.out.println("Codebook,java   Delete DeleteResponseOptionSlot [" + uri + "]");
         slots = ResponseOptionSlot.findByCodebook(uri);
         return (slots == null);
     }
