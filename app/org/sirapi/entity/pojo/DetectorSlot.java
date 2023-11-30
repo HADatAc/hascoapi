@@ -107,13 +107,13 @@ public class DetectorSlot extends HADatAcThing implements Comparable<DetectorSlo
         return -1;
     }
 
-    public static int getNumberDetectorSlotsByInstrument(String instrumentUri) {
+    public static int getNumberDetectorSlotsByContainer(String containerUri) {
         String query = "";
         query += NameSpaces.getInstance().printSparqlNameSpaceList();
         query += " select (count(?uri) as ?tot) where { " +
                 " ?attModel rdfs:subClassOf* vstoi:DetectorSlot . " +
                 " ?uri a ?attModel ." +
-                " ?uri vstoi:belongsTo <" + instrumentUri + ">. " +
+                " ?uri vstoi:belongsTo <" + containerUri + ">. " +
                 "}";
 
         try {
@@ -130,13 +130,13 @@ public class DetectorSlot extends HADatAcThing implements Comparable<DetectorSlo
         return -1;
     }
 
-    public static List<DetectorSlot> findByInstrumentWithPages(String instrumentUri, int pageSize, int offset) {
+    public static List<DetectorSlot> findByContainerWithPages(String containerUri, int pageSize, int offset) {
         List<DetectorSlot> detectorSlots = new ArrayList<DetectorSlot>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 "SELECT ?uri WHERE { " +
                 " ?attModel rdfs:subClassOf* vstoi:DetectorSlot . " +
                 " ?uri a ?attModel . } " +
-                " ?uri vstoi:belongsTo <" + instrumentUri + ">. " +
+                " ?uri vstoi:belongsTo <" + containerUri + ">. " +
                 " LIMIT " + pageSize +
                 " OFFSET " + offset;
 
@@ -163,13 +163,13 @@ public class DetectorSlot extends HADatAcThing implements Comparable<DetectorSlo
         return findByQuery(queryString);
     }
 
-    public static List<DetectorSlot> findByInstrument(String instrumentUri) {
-        //System.out.println("findByInstrument: [" + instrumentUri + "]");
+    public static List<DetectorSlot> findByContainer(String containerUri) {
+        //System.out.println("findByContainer: [" + containerUri + "]");
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
                 " ?attModel rdfs:subClassOf* vstoi:DetectorSlot . " +
                 " ?uri a ?attModel ." +
-                " ?uri vstoi:belongsTo <" + instrumentUri + ">. " +
+                " ?uri vstoi:belongsTo <" + containerUri + ">. " +
                 "} ";
 
         return findByQuery(queryString);
@@ -237,8 +237,8 @@ public class DetectorSlot extends HADatAcThing implements Comparable<DetectorSlo
         return detectorSlot;
     }
 
-    static public boolean createDetectorSlot(String instrumentUri, String detectorSlotUri, String priority, String hasDetector) {
-        if (instrumentUri == null || instrumentUri.isEmpty()) {
+    static public boolean createDetectorSlot(String containerUri, String detectorSlotUri, String priority, String hasDetector) {
+        if (containerUri == null || containerUri.isEmpty()) {
             return false;
         }
         if (priority == null || priority.isEmpty()) {
@@ -249,8 +249,8 @@ public class DetectorSlot extends HADatAcThing implements Comparable<DetectorSlo
         att.setLabel("DetectorSlot " + priority);
         att.setTypeUri(VSTOI.DETECTOR_SLOT);
         att.setHascoTypeUri(VSTOI.DETECTOR_SLOT);
-        att.setComment("DetectorSlot " + priority + " of instrument with URI " + instrumentUri);
-        att.setBelongsTo(instrumentUri);
+        att.setComment("DetectorSlot " + priority + " of container with URI " + containerUri);
+        att.setBelongsTo(containerUri);
         att.setHasPriority(priority);
         if (hasDetector != null) {
             att.setHasDetector(hasDetector);
@@ -260,7 +260,7 @@ public class DetectorSlot extends HADatAcThing implements Comparable<DetectorSlo
         return true;
     }
 
-    public boolean updateDetectorSlotDetector(String hasDetector) {
+    public boolean updateDetectorSlotDetector(Detector detector) {
         DetectorSlot newDetectorSlot = new DetectorSlot();
         newDetectorSlot.setUri(this.uri);
         newDetectorSlot.setLabel(this.getLabel());
@@ -269,8 +269,10 @@ public class DetectorSlot extends HADatAcThing implements Comparable<DetectorSlo
         newDetectorSlot.setHascoTypeUri(this.getHascoTypeUri());
         newDetectorSlot.setBelongsTo(this.getBelongsTo());
         newDetectorSlot.setHasPriority(this.getHasPriority());
-        if (hasDetector != null && !hasDetector.isEmpty()) {
-            newDetectorSlot.setHasDetector(hasDetector);
+        if (detector != null && detector.getUri() != null && !detector.getUri().isEmpty()) {
+            newDetectorSlot.setHasDetector(detector.getUri());
+        } else {
+            newDetectorSlot.setHasDetector(null);
         }
         this.delete();
         newDetectorSlot.save();

@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+
+import org.sirapi.Constants;
 import org.sirapi.entity.pojo.Annotation;
 import org.sirapi.entity.pojo.AnnotationStem;
 import org.sirapi.utils.ApiUtil;
@@ -52,6 +54,7 @@ public class AnnotationStemAPI extends Controller {
             testAnnotationStem1.setHasLanguage("en"); // ISO 639-1
             testAnnotationStem1.setHasVersion("1");
             testAnnotationStem1.setHasSIRManagerEmail("me@example.com");
+            testAnnotationStem1.setNamedGraph(Constants.TEST_KB);
             testAnnotationStem1.save();
 
             testAnnotationStem2 = new AnnotationStem();
@@ -64,6 +67,7 @@ public class AnnotationStemAPI extends Controller {
             testAnnotationStem2.setHasLanguage("en"); // ISO 639-1
             testAnnotationStem2.setHasVersion("1");
             testAnnotationStem2.setHasSIRManagerEmail("me@example.com");
+            testAnnotationStem2.setNamedGraph(Constants.TEST_KB);
             testAnnotationStem2.save();
 
             testAnnotationStemInstruction = new AnnotationStem();
@@ -76,6 +80,7 @@ public class AnnotationStemAPI extends Controller {
             testAnnotationStemInstruction.setHasLanguage("en"); // ISO 639-1
             testAnnotationStemInstruction.setHasVersion("1");
             testAnnotationStemInstruction.setHasSIRManagerEmail("me@example.com");
+            testAnnotationStemInstruction.setNamedGraph(Constants.TEST_KB);
             testAnnotationStemInstruction.save();
 
             testAnnotationStemPage = new AnnotationStem();
@@ -88,6 +93,7 @@ public class AnnotationStemAPI extends Controller {
             testAnnotationStemPage.setHasLanguage("en"); // ISO 639-1
             testAnnotationStemPage.setHasVersion("1");
             testAnnotationStemPage.setHasSIRManagerEmail("me@example.com");
+            testAnnotationStemPage.setNamedGraph(Constants.TEST_KB);
             testAnnotationStemPage.save();
 
             testAnnotationStemDateField = new AnnotationStem();
@@ -100,6 +106,7 @@ public class AnnotationStemAPI extends Controller {
             testAnnotationStemDateField.setHasLanguage("en"); // ISO 639-1
             testAnnotationStemDateField.setHasVersion("1");
             testAnnotationStemDateField.setHasSIRManagerEmail("me@example.com");
+            testAnnotationStemDateField.setNamedGraph(Constants.TEST_KB);
             testAnnotationStemDateField.save();
 
             testAnnotationStemCopyright = new AnnotationStem();
@@ -112,6 +119,7 @@ public class AnnotationStemAPI extends Controller {
             testAnnotationStemCopyright.setHasLanguage("en"); // ISO 639-1
             testAnnotationStemCopyright.setHasVersion("1");
             testAnnotationStemCopyright.setHasSIRManagerEmail("me@example.com");
+            testAnnotationStemCopyright.setNamedGraph(Constants.TEST_KB);
             testAnnotationStemCopyright.save();
 
             return ok(ApiUtil.createResponse("Test Annotation Stems 1, 2, Instruction, Page, DateField and Copyright have been CREATED.", true));
@@ -153,36 +161,42 @@ public class AnnotationStemAPI extends Controller {
         if (test1 == null) {
             msg += "There is no Test Annotation Stem 1. ";
         } else {
+            test1.setNamedGraph(Constants.TEST_KB);
             test1.delete();
         }
         
         if (test2 == null) {
             msg += "There is no Test Annotation Stem 2. ";
         } else {
+            test2.setNamedGraph(Constants.TEST_KB);
             test2.delete();
         }
 
         if (testInstruction == null) {
             msg += "There is no Test Annotation Stem Instruction. ";
         } else {
+            testInstruction.setNamedGraph(Constants.TEST_KB);
             testInstruction.delete();
         }
             
         if (testPage == null) {
             msg += "There is no Test Annotation Stem Page. ";
         } else { 
+            testPage.setNamedGraph(Constants.TEST_KB);
             testPage.delete();
         } 
         
         if (testDateField == null) {
             msg += "There is no Test Annotation Stem DateField. ";
         } else {
+            testDateField.setNamedGraph(Constants.TEST_KB);
             testDateField.delete();
         }
         
         if (testCopyright == null) {
             msg += "There is no Test Annotation Stem Copyright. ";
         } else {
+            testCopyright.setNamedGraph(Constants.TEST_KB);
             testCopyright.delete();
         }
 

@@ -4,6 +4,8 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import org.apache.jena.rdf.model.RDFNode;
+
 import org.apache.poi.ss.usermodel.Cell;
 import org.sirapi.entity.pojo.NameSpace;
 
@@ -282,4 +284,16 @@ public class URIUtils {
 
         return clttl;
     }
+
+	public static String objectRDFToString(RDFNode node) {
+ 		if (node.isLiteral()) {
+  			return node.asLiteral().getString();
+ 		} else if (node.isResource()) {
+  			return node.asResource().getURI();
+ 		}
+ 		return null;
+	}
+
+
+
 }

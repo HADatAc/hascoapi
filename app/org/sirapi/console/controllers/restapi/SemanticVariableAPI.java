@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 
+import org.sirapi.Constants;
 import org.sirapi.entity.pojo.SemanticVariable;
 import org.sirapi.entity.pojo.Entity;
 import org.sirapi.entity.pojo.Attribute;
@@ -84,6 +85,8 @@ public class SemanticVariableAPI extends Controller {
             testSemanticVariable1.setIsCategorical(false);
             testSemanticVariable1.setUnitUri(TEST_UNIT_URI);
             testSemanticVariable1.setComment("This is a dummy semanticVariable created to test the SIR API.");
+            testSemanticVariable1.setNamedGraph(Constants.TEST_KB);
+
 //            testSemanticVariable1.setHasSIRManagerEmail("me@example.com");
             testSemanticVariable1.save();
 
@@ -96,6 +99,7 @@ public class SemanticVariableAPI extends Controller {
             testSemanticVariable2.setAttributeUri(TEST_ATTRIBUTE2_URI);
             testSemanticVariable2.setIsCategorical(true);
             testSemanticVariable2.setComment("This is a dummy semanticVariable created to test the SIR API.");
+            testSemanticVariable2.setNamedGraph(Constants.TEST_KB);
 //            testSemanticVariable2.setHasSIRManagerEmail("me@example.com");
             testSemanticVariable2.save();
             return ok(ApiUtil.createResponse("Testing semanticVariables 1 and 2 have been CREATED.", true));
@@ -126,9 +130,11 @@ public class SemanticVariableAPI extends Controller {
         boolean exist1 = (test1 != null);
         boolean exist2 = (test2 != null);
         if (exist1) {
+            test1.setNamedGraph(Constants.TEST_KB);
             test1.delete();
         } 
         if (exist2) {
+            test2.setNamedGraph(Constants.TEST_KB);
             test2.delete();
         } 
         if (exist1 && !exist2) {

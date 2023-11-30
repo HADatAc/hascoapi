@@ -243,14 +243,14 @@ public class Detector extends DetectorStem {
     }
     **/
 
-    public static List<Detector> findDetectorsByInstrument(String instrumentUri) {
-        //System.out.println("findByInstrument: [" + instrumentUri + "]");
+    public static List<Detector> findDetectorsByContainer(String containerUri) {
+        //System.out.println("findByContainer: [" + containerUri + "]");
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
                 " ?detModel rdfs:subClassOf* vstoi:Detector . " +
                 " ?uri a ?detModel ." +
                 " ?detSlotUri vstoi:hasDetector ?uri . " +
-                " ?detSlotUri vstoi:belongsTo <" + instrumentUri + ">. " +
+                " ?detSlotUri vstoi:belongsTo <" + containerUri + ">. " +
                 "} ";
 
         return findDetectorsByQuery(queryString);
@@ -428,23 +428,15 @@ public class Detector extends DetectorStem {
         return findDetectorsByQuery(queryString);
     }
 
-    public static boolean attach(String detectorSlotUri, String detectorUri) {
-        if (detectorSlotUri == null || detectorSlotUri.isEmpty()) {
-            return false;
-        }
-        DetectorSlot detectorSlot = DetectorSlot.find(detectorSlotUri);
+    public static boolean attach(DetectorSlot detectorSlot, Detector detector) {
         if (detectorSlot == null) {
-            System.out.println("DetectorSlot.find returned nothing for URI [" + detectorSlotUri + "]");
+            System.out.println("A valid detector slot is required to attach a detector");
             return false;
         }
-        return detectorSlot.updateDetectorSlotDetector(detectorUri);
+        return detectorSlot.updateDetectorSlotDetector(detector);
     }
 
-    public static boolean detach(String detectorSlotUri) {
-        if (detectorSlotUri == null || detectorSlotUri.isEmpty()) {
-            return false;
-        }
-        DetectorSlot detectorSlot = DetectorSlot.find(detectorSlotUri);
+    public static boolean detach(DetectorSlot detectorSlot) {
         if (detectorSlot == null) {
             return false;
         }

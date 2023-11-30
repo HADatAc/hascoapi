@@ -12,6 +12,7 @@ import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.sirapi.annotations.PropertyField;
 import org.sirapi.utils.SPARQLUtils;
+import org.sirapi.utils.URIUtils;
 import org.sirapi.utils.CollectionUtil;
 import org.sirapi.utils.NameSpaces;
 import org.sirapi.vocabularies.*;
@@ -127,36 +128,31 @@ public class AnnotationStem extends HADatAcThing implements SIRElement, Comparab
         while (stmtIterator.hasNext()) {
             statement = stmtIterator.next();
             object = statement.getObject();
+            String str = URIUtils.objectRDFToString(object);
             if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-                annotationStem.setLabel(object.asLiteral().getString());
+                annotationStem.setLabel(str);
             } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
-                annotationStem.setTypeUri(object.asResource().getURI());
+                annotationStem.setTypeUri(str);
             } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
-                annotationStem.setComment(object.asLiteral().getString());
+                annotationStem.setComment(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
-                annotationStem.setHascoTypeUri(object.asResource().getURI());
+                annotationStem.setHascoTypeUri(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
-                annotationStem.setHasStatus(object.asLiteral().getString());
+                annotationStem.setHasStatus(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
-                annotationStem.setImage(object.asLiteral().getString());
+                annotationStem.setImage(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_CONTENT)) {
-                annotationStem.setHasContent(object.asLiteral().getString());
+                annotationStem.setHasContent(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
-                annotationStem.setHasLanguage(object.asLiteral().getString());
+                annotationStem.setHasLanguage(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
-                annotationStem.setHasVersion(object.asLiteral().getString());
+                annotationStem.setHasVersion(str);
             } else if (statement.getPredicate().getURI().equals(PROV.WAS_DERIVED_FROM)) {
-                try {
-                    annotationStem.setWasDerivedFrom(object.asResource().getURI());
-                } catch (Exception e) {
-                }
+                annotationStem.setWasDerivedFrom(str);
             } else if (statement.getPredicate().getURI().equals(PROV.WAS_GENERATED_BY)) {
-                try {
-                    annotationStem.setWasGeneratedBy(object.asResource().getURI());
-                } catch (Exception e) {
-                }
+                annotationStem.setWasGeneratedBy(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MAINTAINER_EMAIL)) {
-                annotationStem.setHasSIRManagerEmail(object.asLiteral().getString());
+                annotationStem.setHasSIRManagerEmail(str);
             } 
         }
 

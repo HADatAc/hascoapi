@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+
+import org.sirapi.Constants;
 import org.sirapi.entity.pojo.AnnotationStem;
 import org.sirapi.entity.pojo.Annotation;
 import org.sirapi.entity.pojo.Instrument;
@@ -75,6 +77,7 @@ public class AnnotationAPI extends Controller {
                 testAnnotation1.setHasAnnotationStem(TEST_ANNOTATION_STEM1_URI);
                 testAnnotation1.setHasPosition(VSTOI.NOT_VISIBLE);
                 testAnnotation1.setHasStyle("");
+                testAnnotation1.setNamedGraph(Constants.TEST_KB);
                 testAnnotation1.save();
 
                 testAnnotation2 = new Annotation();
@@ -87,6 +90,7 @@ public class AnnotationAPI extends Controller {
                 testAnnotation2.setHasAnnotationStem(TEST_ANNOTATION_STEM2_URI);
                 testAnnotation2.setHasPosition(VSTOI.NOT_VISIBLE);
                 testAnnotation2.setHasStyle("");
+                testAnnotation2.setNamedGraph(Constants.TEST_KB);
                 testAnnotation2.save();
 
                 testAnnotationInstruction = new Annotation();
@@ -99,6 +103,7 @@ public class AnnotationAPI extends Controller {
                 testAnnotationInstruction.setHasAnnotationStem(TEST_ANNOTATION_STEM_INSTRUCTION_URI);
                 testAnnotationInstruction.setHasPosition(VSTOI.PAGE_BELOW_TOP_LINE);
                 testAnnotationInstruction.setHasStyle("");
+                testAnnotationInstruction.setNamedGraph(Constants.TEST_KB);
                 testAnnotationInstruction.save();
 
                 testAnnotationPage = new Annotation();
@@ -111,6 +116,7 @@ public class AnnotationAPI extends Controller {
                 testAnnotationPage.setHasAnnotationStem(TEST_ANNOTATION_STEM_PAGE_URI);
                 testAnnotationPage.setHasPosition(VSTOI.PAGE_BOTTOM_LEFT);
                 testAnnotationPage.setHasStyle("");
+                testAnnotationPage.setNamedGraph(Constants.TEST_KB);
                 testAnnotationPage.save();
 
                 testAnnotationDateField = new Annotation();
@@ -123,6 +129,7 @@ public class AnnotationAPI extends Controller {
                 testAnnotationDateField.setHasAnnotationStem(TEST_ANNOTATION_STEM_DATEFIELD_URI);
                 testAnnotationDateField.setHasPosition(VSTOI.PAGE_TOP_RIGHT);
                 testAnnotationDateField.setHasStyle("");
+                testAnnotationDateField.setNamedGraph(Constants.TEST_KB);
                 testAnnotationDateField.save();
 
                 testAnnotationCopyright = new Annotation();
@@ -135,6 +142,7 @@ public class AnnotationAPI extends Controller {
                 testAnnotationCopyright.setHasAnnotationStem(TEST_ANNOTATION_STEM_COPYRIGHT_URI);
                 testAnnotationCopyright.setHasPosition(VSTOI.PAGE_BOTTOM_RIGHT);
                 testAnnotationCopyright.setHasStyle("");
+                testAnnotationCopyright.setNamedGraph(Constants.TEST_KB);
                 testAnnotationCopyright.save();
 
             }
@@ -176,31 +184,37 @@ public class AnnotationAPI extends Controller {
         if (test1 == null) {
             msg += "There is no Test Annotation 1. ";
         } else {
+            test1.setNamedGraph(Constants.TEST_KB);
             test1.delete();
         } 
         if (test2 == null) {
             msg += "There is no Test Annotation 2. ";
         } else {
+            test2.setNamedGraph(Constants.TEST_KB);
             test2.delete();
         } 
         if (testInstruction == null) {
             msg += "There is no Test Annotation Instruction. ";
         } else {
+            testInstruction.setNamedGraph(Constants.TEST_KB);
             testInstruction.delete();
         }
         if (testPage == null) {
             msg += "There is no Test Annotation Page. ";
         } else {
+            testPage.setNamedGraph(Constants.TEST_KB);
             testPage.delete();
         }
         if (testDateField == null) {
             msg += "There is no Test Annotation DateField. ";
         } else {
+            testDateField.setNamedGraph(Constants.TEST_KB);
             testDateField.delete();
         }
         if (testCopyright == null) {
             msg += "There is no Test Annotation Copyright. ";
         } else {
+            testCopyright.setNamedGraph(Constants.TEST_KB);
             testCopyright.delete();
         }
         if (!msg.isEmpty()) {
@@ -210,8 +224,8 @@ public class AnnotationAPI extends Controller {
         }
     }
 
-    public Result getAnnotationsByInstrument(String instrumentUri){
-        List<Annotation> results = Annotation.findByInstrument(instrumentUri);
+    public Result getAnnotationsByContainer(String containerUri){
+        List<Annotation> results = Annotation.findByContainer(containerUri);
         return getAnnotations(results);
     }
 

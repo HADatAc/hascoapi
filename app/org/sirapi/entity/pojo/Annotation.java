@@ -11,6 +11,7 @@ import org.sirapi.annotations.PropertyField;
 import org.sirapi.utils.CollectionUtil;
 import org.sirapi.utils.NameSpaces;
 import org.sirapi.utils.SPARQLUtils;
+import org.sirapi.utils.URIUtils;
 import org.sirapi.vocabularies.HASCO;
 import org.sirapi.vocabularies.RDF;
 import org.sirapi.vocabularies.RDFS;
@@ -74,7 +75,7 @@ public class Annotation extends HADatAcThing implements Comparable<Annotation>  
         this.hasStyle = hasStyle;
     }
 
-    public static int getNumberAnnotationsByInstrument(String instrumentUri) {
+    public static int getNumberAnnotationsByContainer(String instrumentUri) {
         String query = "";
         query += NameSpaces.getInstance().printSparqlNameSpaceList();
         query += " select (count(?uri) as ?tot) where { " +
@@ -97,13 +98,13 @@ public class Annotation extends HADatAcThing implements Comparable<Annotation>  
         return -1;
     }
 
-    public static List<Annotation> findByInstrumentWithPages(String instrumentUri, int pageSize, int offset) {
+    public static List<Annotation> findByContainerWithPages(String containerUri, int pageSize, int offset) {
         List<Annotation> annotations = new ArrayList<Annotation>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 "SELECT ?uri WHERE { " +
                 " ?type rdfs:subClassOf* vstoi:Annotation . " +
                 " ?uri a ?type . } " +
-                " ?uri vstoi:belongsTo <" + instrumentUri + ">. " +
+                " ?uri vstoi:belongsTo <" + containerUri + ">. " +
                 " LIMIT " + pageSize +
                 " OFFSET " + offset;
 
@@ -120,25 +121,25 @@ public class Annotation extends HADatAcThing implements Comparable<Annotation>  
         return annotations;
     }
 
-    public static List<Annotation> findByInstrument(String instrumentUri) {
-        //System.out.println("findByInstrument: [" + instrumentUri + "]");
+    public static List<Annotation> findByContainer(String containerUri) {
+        //System.out.println("findByContainer: [" + containerUri + "]");
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
                 " ?type rdfs:subClassOf* vstoi:Annotation . " +
                 " ?uri a ?type ." +
-                " ?uri vstoi:belongsTo <" + instrumentUri + ">. " +
+                " ?uri vstoi:belongsTo <" + containerUri + ">. " +
                 "} ";
 
         return findByQuery(queryString);
     }
 
-    public static Annotation findByInstrumentAndPosition(String instrumentUri, String positionUri) {
-        //System.out.println("findByInstrument: [" + instrumentUri + "]");
+    public static Annotation findByContainerAndPosition(String containerUri, String positionUri) {
+        //System.out.println("findByContainer: [" + instrumentUri + "]");
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
                 " ?type rdfs:subClassOf* vstoi:Annotation . " +
                 " ?uri a ?type ." +
-                " ?uri vstoi:belongsTo <" + instrumentUri + "> . " +
+                " ?uri vstoi:belongsTo <" + containerUri + "> . " +
                 " ?uri vstoi:hasPosition <" + positionUri + "> . " +
                 "} ";
 
@@ -199,22 +200,23 @@ public class Annotation extends HADatAcThing implements Comparable<Annotation>  
         while (stmtIterator.hasNext()) {
             statement = stmtIterator.next();
             object = statement.getObject();
+            String str = URIUtils.objectRDFToString(object);
             if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-                Annotation.setLabel(object.asLiteral().getString());
+                Annotation.setLabel(str);
             } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
-                Annotation.setTypeUri(object.asResource().getURI());
+                Annotation.setTypeUri(str);
             } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
-                Annotation.setComment(object.asLiteral().getString());
+                Annotation.setComment(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
-                Annotation.setHascoTypeUri(object.asResource().getURI());
+                Annotation.setHascoTypeUri(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.BELONGS_TO)) {
-                Annotation.setBelongsTo(object.asResource().getURI());
+                Annotation.setBelongsTo(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_ANNOTATION_STEM)) {
-                Annotation.setHasAnnotationStem(object.asResource().getURI());
+                Annotation.setHasAnnotationStem(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_POSITION)){
-                Annotation.setHasPosition(object.asResource().getURI());
+                Annotation.setHasPosition(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STYLE)){
-                Annotation.setHasStyle(object.asLiteral().getString());
+                Annotation.setHasStyle(str);
             }
         }
 

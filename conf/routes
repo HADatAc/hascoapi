@@ -60,8 +60,8 @@ GET     /sirapi/api/instrument/tofhir/:uri                org.sirapi.console.con
 
 # CONCEPT-SPECIFIC METHODS
 
-POST    /sirapi/api/slots/detector/create/:instrUri/:totSlots             org.sirapi.console.controllers.restapi.InstrumentAPI.createDetectorSlots(instrUri: String, totSlots : String)
-POST    /sirapi/api/slots/detector/delete/:instrUri                       org.sirapi.console.controllers.restapi.InstrumentAPI.deleteDetectorSlots(instrUri: String)
+POST    /sirapi/api/slots/detector/create/:instrUri/:totSlots             org.sirapi.console.controllers.restapi.ContainerAPI.createDetectorSlots(instrUri: String, totSlots : String)
+POST    /sirapi/api/slots/detector/delete/:instrUri                       org.sirapi.console.controllers.restapi.ContainerAPI.deleteDetectorSlots(instrUri: String)
 POST    /sirapi/api/slots/responseoption/create/:codebookUri/:totSlots    org.sirapi.console.controllers.restapi.CodebookAPI.createResponseOptionSlots(codebookUri: String, totSlots : String)
 POST    /sirapi/api/slots/responseoption/delete/:codebookUri              org.sirapi.console.controllers.restapi.CodebookAPI.deleteResponseOptionSlots(codebookUri: String)
 
@@ -70,7 +70,7 @@ GET     /sirapi/api/slots/detector/detach/:detectorSlotUri                    or
 GET     /sirapi/api/slots/responseoption/attach/:uri/:responseOptionSlotUri   org.sirapi.console.controllers.restapi.ResponseOptionAPI.attach(uri: String, responseOptionSlotUri : String)
 GET     /sirapi/api/slots/responseoption/detach/:responseOptionSlotUri        org.sirapi.console.controllers.restapi.ResponseOptionAPI.detach(responseOptionSlotUri : String)
 
-GET     /sirapi/api/slots/detector/byinstrument/:instrUri                 org.sirapi.console.controllers.restapi.DetectorAPI.getDetectorSlotsByInstrument(instrUri: String)
+GET     /sirapi/api/slots/detector/bycontainer/:instrUri                 org.sirapi.console.controllers.restapi.DetectorAPI.getDetectorSlotsByContainer(instrUri: String)
 GET     /sirapi/api/slots/responseoption/bycodebook/:codebookUri          org.sirapi.console.controllers.restapi.ResponseOptionAPI.getResponseOptionSlotsByCodebook(codebookUri: String)
 
 # TESTING METHODS
@@ -83,8 +83,8 @@ GET     /sirapi/test/detector/create                      org.sirapi.console.con
 GET     /sirapi/test/detector/delete                      org.sirapi.console.controllers.restapi.DetectorAPI.deleteDetectorsForTesting()
 GET     /sirapi/test/detector/attach                      org.sirapi.console.controllers.restapi.DetectorAPI.attachForTesting()
 GET     /sirapi/test/detector/detach                      org.sirapi.console.controllers.restapi.DetectorAPI.detachForTesting()
-GET     /sirapi/test/detectorslot/create                  org.sirapi.console.controllers.restapi.InstrumentAPI.createDetectorSlotsForTesting()
-GET     /sirapi/test/detectorslot/delete                  org.sirapi.console.controllers.restapi.InstrumentAPI.deleteDetectorSlotsForTesting()
+GET     /sirapi/test/detectorslot/create                  org.sirapi.console.controllers.restapi.ContainerAPI.createDetectorSlotsForTesting()
+GET     /sirapi/test/detectorslot/delete                  org.sirapi.console.controllers.restapi.ContainerAPI.deleteDetectorSlotsForTesting()
 GET     /sirapi/test/codebook/create                      org.sirapi.console.controllers.restapi.CodebookAPI.createCodebookForTesting()
 GET     /sirapi/test/codebook/delete                      org.sirapi.console.controllers.restapi.CodebookAPI.deleteCodebookForTesting()
 GET     /sirapi/test/responseoption/create                org.sirapi.console.controllers.restapi.ResponseOptionAPI.createResponseOptionsForTesting()

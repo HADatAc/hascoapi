@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+
+import org.sirapi.Constants;
 import org.sirapi.entity.pojo.DetectorSlot;
 import org.sirapi.entity.pojo.DetectorStem;
 import org.sirapi.entity.pojo.Detector;
@@ -11,6 +13,7 @@ import org.sirapi.entity.pojo.Instrument;
 import org.sirapi.utils.ApiUtil;
 import org.sirapi.utils.HAScOMapper;
 import org.sirapi.vocabularies.VSTOI;
+
 import play.mvc.Controller;
 import play.mvc.Result;
 import static org.sirapi.Constants.*;
@@ -50,6 +53,7 @@ public class DetectorAPI extends Controller {
                 testDetector1.setHasLanguage("en");
                 testDetector1.setHasVersion("1");
                 testDetector1.setHasSIRManagerEmail("me@example.com");
+                testDetector1.setNamedGraph(Constants.TEST_KB);
                 testDetector1.save();
 
                 testDetector2 = new Detector();
@@ -63,6 +67,7 @@ public class DetectorAPI extends Controller {
                 testDetector2.setHasLanguage("en");
                 testDetector2.setHasVersion("1");
                 testDetector2.setHasSIRManagerEmail("me@example.com");
+                testDetector2.setNamedGraph(Constants.TEST_KB);
                 testDetector2.save();
             }
             return ok(ApiUtil.createResponse("Test Detectors 1 and 2 have been CREATED.", true));
@@ -77,7 +82,7 @@ public class DetectorAPI extends Controller {
         ObjectMapper objectMapper = new ObjectMapper();
         Detector newDetector;
         try {
-            //convert json string to Instrument instance
+            //convert json string to Container instance
             newDetector  = objectMapper.readValue(json, Detector.class);
         } catch (Exception e) {
             //System.out.println("(createDetector) Failed to parse json.");
@@ -100,7 +105,9 @@ public class DetectorAPI extends Controller {
         } else if (test2 == null) {
             return ok(ApiUtil.createResponse("There is no Test Detector 2 to be deleted.", false));
         } else {
+            test1.setNamedGraph(Constants.TEST_KB);
             test1.delete();
+            test2.setNamedGraph(Constants.TEST_KB);
             test2.delete();
             return ok(ApiUtil.createResponse("Test Detectors 1 and 2 have been DELETED.", true));
         }
@@ -121,7 +128,7 @@ public class DetectorAPI extends Controller {
         if (detectorSlot == null) {
             return ok(ApiUtil.createResponse("There is no detectorSlot with uri <" + detectorSlotUri + ">.", false));
         }
-        if (Detector.attach(detectorSlotUri, uri)) {
+        if (Detector.attach(detectorSlot, detector)) {
             return ok(ApiUtil.createResponse("Detector <" + uri + "> successfully attached to detectorSlot <" + detectorSlotUri + ">.", true));
         }
         return ok(ApiUtil.createResponse("Detector <" + uri + "> failed to associate with detectorSlot  <" + detectorSlotUri + ">.", false));
@@ -137,22 +144,32 @@ public class DetectorAPI extends Controller {
         }
         Detector test1 = Detector.findDetector(TEST_DETECTOR1_URI);
         Detector test2 = Detector.findDetector(TEST_DETECTOR2_URI);
+        DetectorSlot slot1 = DetectorSlot.find(TEST_DETECTOR_SLOT1_URI);
+        DetectorSlot slot2 = DetectorSlot.find(TEST_DETECTOR_SLOT2_URI);
         if (test1 == null) {
             return ok(ApiUtil.createResponse("There is no Test Detector 1 to be attached to test instrument.", false));
         } else if (test2 == null) {
             return ok(ApiUtil.createResponse("There is no Test Detector 2 to be attached to test instrument.", false));
+        } else if (slot1 == null) {
+            return ok(ApiUtil.createResponse("There is no Test Detector Slot 1 in test instrument.", false));
+        } else if (slot2 == null) {
+            return ok(ApiUtil.createResponse("There is no Test Detector Slot 2 in test instrument.", false));
+        } else if (slot1.getDetector() != null) {
+            return ok(ApiUtil.createResponse("There is a Test Detector already attached to Slot 1.", false));
+        } else if (slot2.getDetector() != null) {
+            return ok(ApiUtil.createResponse("There is a Test Detector already attached to Slot 2.", false));
         } else {
-            boolean done = Detector.attach(TEST_DETECTOR_SLOT1_URI, TEST_DETECTOR1_URI);
+            boolean done = Detector.attach(slot1, test1);
             if (!done) {
-                return ok(ApiUtil.createResponse("The use of DetectorSlot1 to attach TestDetector1 to TestInstrument HAS FAILED.", false));
+                return ok(ApiUtil.createResponse("The use of DetectorSlot1 to attach TestDetector1 to TestContainer HAS FAILED.", false));
             } else {
-                done = Detector.attach(TEST_DETECTOR_SLOT2_URI, TEST_DETECTOR2_URI);
+                done = Detector.attach(slot2, test1);
                 if (!done) {
-                    return ok(ApiUtil.createResponse("The use of DetectorSlot2 to attach TestDetector2 to TestInstrument HAS FAILED.", false));
+                    return ok(ApiUtil.createResponse("The use of DetectorSlot2 to attach TestDetector2 to TestContainer HAS FAILED.", false));
                 }
             }
         }
-        return ok(ApiUtil.createResponse("Test Detectors 1 and 2 have been ATTACHED to Test Instrument.", true));
+        return ok(ApiUtil.createResponse("Test Detectors 1 and 2 have been ATTACHED to Test Container.", true));
     }
 
     public Result detach(String detectorSlotUri){
@@ -163,7 +180,7 @@ public class DetectorAPI extends Controller {
         if (detectorSlot == null) {
             return ok(ApiUtil.createResponse("There is no detectorSlot with URI <" + detectorSlotUri + ">.", false));
         }
-        if (Detector.detach(detectorSlotUri)) {
+        if (Detector.detach(detectorSlot)) {
             return ok(ApiUtil.createResponse("No detector is associated with detectorSlot <" + detectorSlotUri + ">.", true));
         }
         return ok(ApiUtil.createResponse("A detector has failed to be removed from detectorSlot <" + detectorSlotUri + ">.", false));
@@ -179,20 +196,30 @@ public class DetectorAPI extends Controller {
         }
         Detector test1 = Detector.findDetector(TEST_DETECTOR1_URI);
         Detector test2 = Detector.findDetector(TEST_DETECTOR2_URI);
+        DetectorSlot slot1 = DetectorSlot.find(TEST_DETECTOR_SLOT1_URI);
+        DetectorSlot slot2 = DetectorSlot.find(TEST_DETECTOR_SLOT2_URI);
         if (test1 == null) {
-            return ok(ApiUtil.createResponse("There is no Test Detector 1 to be detached from test instrument.", false));
+            return ok(ApiUtil.createResponse("There is no Test Detector 1 to be attached to test instrument.", false));
         } else if (test2 == null) {
-            return ok(ApiUtil.createResponse("There is no Test Detector 2 to be detached from test instrument.", false));
+            return ok(ApiUtil.createResponse("There is no Test Detector 2 to be attached to test instrument.", false));
+        } else if (slot1 == null) {
+            return ok(ApiUtil.createResponse("There is no Test Detector Slot 1 in test instrument.", false));
+        } else if (slot2 == null) {
+            return ok(ApiUtil.createResponse("There is no Test Detector Slot 2 in test instrument.", false));
+        } else if (slot1.getDetector() == null) {
+            return ok(ApiUtil.createResponse("There is no Test Detector to be detached from Slot 1.", false));
+        } else if (slot2.getDetector() == null) {
+            return ok(ApiUtil.createResponse("There is no Test Detector to be detached from Slot 2.", false));
         } else {
-            boolean done = Detector.detach(TEST_DETECTOR_SLOT1_URI);
+            boolean done = Detector.detach(slot1);
             if (done) {
-                done = Detector.detach(TEST_DETECTOR_SLOT2_URI);
+                done = Detector.detach(slot2);
             }
             if (done) {
-                return ok(ApiUtil.createResponse("Test Detectors 1 and 2 have been DETACHED from Test Instrument.", true));
+                return ok(ApiUtil.createResponse("Test Detectors 1 and 2 have been DETACHED from Test Container.", true));
             }
         }
-        return ok(ApiUtil.createResponse("The detachment of Test Detectors 1 and 2 from Test Instrument HAS FAILED.", false));
+        return ok(ApiUtil.createResponse("The detachment of Test Detectors 1 and 2 from Test Container HAS FAILED.", false));
     }
 
     public Result deleteDetector(String uri){
@@ -207,8 +234,8 @@ public class DetectorAPI extends Controller {
         }
     }
 
-    public Result getDetectorsByInstrument(String instrumentUri){
-        List<Detector> results = Detector.findDetectorsByInstrument(instrumentUri);
+    public Result getDetectorsByContainer(String instrumentUri){
+        List<Detector> results = Detector.findDetectorsByContainer(instrumentUri);
         return getDetectors(results);
     }
 
@@ -228,8 +255,8 @@ public class DetectorAPI extends Controller {
         return getDetectorSlots(results);
     }
 
-    public Result getDetectorSlotsByInstrument(String instrumentUri){
-        List<DetectorSlot> results = DetectorSlot.findByInstrument(instrumentUri);
+    public Result getDetectorSlotsByContainer(String instrumentUri){
+        List<DetectorSlot> results = DetectorSlot.findByContainer(instrumentUri);
         return getDetectorSlots(results);
     }
 

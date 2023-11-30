@@ -26,15 +26,15 @@ import org.slf4j.LoggerFactory;
 
 import static org.sirapi.Constants.*;
 
-@JsonFilter("instrumentFilter")
-public class Instrument extends Container {
+@JsonFilter("subContainerFilter")
+public class SubContainer extends Container {
 
-	private static final Logger log = LoggerFactory.getLogger(Instrument.class);
+	private static final Logger log = LoggerFactory.getLogger(SubContainer.class);
 
     
 	@Override
 	public boolean equals(Object o) {
-		if((o instanceof Instrument) && (((Instrument)o).getUri().equals(this.getUri()))) {
+		if((o instanceof SubContainer) && (((SubContainer)o).getUri().equals(this.getUri()))) {
 			return true;
 		} else {
 			return false;
@@ -46,8 +46,8 @@ public class Instrument extends Container {
 		return getUri().hashCode();
 	}
 
-	public static Instrument find(String uri) {
-	    Instrument instrument = null;
+	public static SubContainer find(String uri) {
+	    SubContainer subContainer = null;
 	    Statement statement;
 	    RDFNode object;
 	    
@@ -60,7 +60,7 @@ public class Instrument extends Container {
 		if (!stmtIterator.hasNext()) {
 			return null;
 		} else {
-			instrument = new Instrument();
+			subContainer = new SubContainer();
 		}
 		
 		while (stmtIterator.hasNext()) {
@@ -69,92 +69,38 @@ public class Instrument extends Container {
 			String str = URIUtils.objectRDFToString(object);
 			if (uri != null && !uri.isEmpty()) {
 				if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-					instrument.setLabel(str);
+					subContainer.setLabel(str);
 				} else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
-					instrument.setTypeUri(str); 
+					subContainer.setTypeUri(str); 
 				} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
-					instrument.setHascoTypeUri(str);
+					subContainer.setHascoTypeUri(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
-					instrument.setHasStatus(str);
+					subContainer.setHasStatus(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
-					instrument.setSerialNumber(str);
+					subContainer.setSerialNumber(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_INFORMANT)) {
-					instrument.setHasInformant(str);
+					subContainer.setHasInformant(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
-					instrument.setImage(str);
+					subContainer.setImage(str);
 				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
-					instrument.setComment(str);
+					subContainer.setComment(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SHORT_NAME)) {
-					instrument.setHasShortName(str);
+					subContainer.setHasShortName(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
-					instrument.setHasLanguage(str);
+					subContainer.setHasLanguage(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
-					instrument.setHasVersion(str);
+					subContainer.setHasVersion(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MAINTAINER_EMAIL)) {
-					instrument.setHasSIRManagerEmail(str);
+					subContainer.setHasSIRManagerEmail(str);
 				}
 			}
 		}
 
-		instrument.setUri(uri);
+		subContainer.setUri(uri);
 		
-		return instrument;
+		return subContainer;
 	}
 
-
-
-	public static List<Instrument> findAvailable() {
-		List<Instrument> instruments = new ArrayList<Instrument>();
-		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-		    " SELECT ?uri WHERE { " +
-		    "   { ?instModel rdfs:subClassOf* vstoi:Instrument . " +
-		    "     ?uri a ?instModel ." + 
-		    "   } MINUS { " + 
-		    "     ?dep_uri a vstoi:Deployment . " + 
-		    "     ?dep_uri hasco:hasInstrument ?uri .  " +
-		    "     FILTER NOT EXISTS { ?dep_uri prov:endedAtTime ?enddatetime . } " + 
-		    "    } " + 
-		    "} " + 
-		    "ORDER BY DESC(?datetime) ";
-		
-		ResultSetRewindable resultsrw = SPARQLUtils.select(
-                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
-		
-		while (resultsrw.hasNext()) {
-		    QuerySolution soln = resultsrw.next();
-		    Instrument instrument = find(soln.getResource("uri").getURI().trim());
-			instruments.add(instrument);
-		}			
-		
-		java.util.Collections.sort((List<Instrument>) instruments);
-		return instruments;
-	}
-	
-	public static List<Instrument> findDeployed() {
-		List<Instrument> instruments = new ArrayList<Instrument>();
-		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-		    " SELECT ?uri WHERE { " +
-		    "   ?instModel rdfs:subClassOf* vstoi:Instrument . " +
-		    "   ?uri a ?instModel ." + 
-		    "   ?dep_uri a vstoi:Deployment . " + 
-		    "   ?dep_uri hasco:hasInstrument ?uri .  " +
-		    "   FILTER NOT EXISTS { ?dep_uri prov:endedAtTime ?enddatetime . } " + 
-		    "} " + 
-		    "ORDER BY DESC(?datetime) ";
-		
-		ResultSetRewindable resultsrw = SPARQLUtils.select(
-                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
-		
-		while (resultsrw.hasNext()) {
-		    QuerySolution soln = resultsrw.next();
-		    Instrument instrument = find(soln.getResource("uri").getURI().trim());
-		    instruments.add(instrument);
-		}			
-
-		java.util.Collections.sort((List<Instrument>) instruments);
-		return instruments;
-	}
-	
     @Override public void save() {
 		saveToTripleStore();
 	}

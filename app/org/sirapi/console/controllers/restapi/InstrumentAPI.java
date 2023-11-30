@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 
+import org.sirapi.Constants;
 import org.sirapi.entity.fhir.Questionnaire;
 import org.sirapi.entity.pojo.Instrument;
 import org.sirapi.transform.Renderings;
@@ -45,6 +46,7 @@ public class InstrumentAPI extends Controller {
             testInstrument.setComment("This is a dummy instrument created to test the SIR API.");
             testInstrument.setHasVersion("1");
             testInstrument.setHasSIRManagerEmail("me@example.com");
+            testInstrument.setNamedGraph(Constants.TEST_KB);
 
             return createInstrumentResult(testInstrument);
         }
@@ -67,47 +69,6 @@ public class InstrumentAPI extends Controller {
         return createInstrumentResult(newInst);
     }
 
-    public Result createDetectorSlots(String instrumentUri, String totDetectorSlots) {
-        if (instrumentUri == null || instrumentUri.equals("")) {
-            return ok(ApiUtil.createResponse("No instrument URI has been provided.", false));
-        }
-        Instrument instrument = Instrument.find(instrumentUri);
-        if (instrument == null) {
-            return ok(ApiUtil.createResponse("No instrument with provided URI has been found.", false));
-        }
-        if (instrument.getDetectorSlots() != null) {
-            return ok(ApiUtil.createResponse("Instrument already has detectorSlots. Delete existing detectorSlots before creating new detectorSlots", false));
-        }
-        if (totDetectorSlots == null || totDetectorSlots.equals("")) {
-            return ok(ApiUtil.createResponse("No total numbers of detectorSlots to be created has been provided.", false));
-        }
-        int total = 0;
-        try {
-            total = Integer.parseInt(totDetectorSlots);
-        } catch (Exception e) {
-            return ok(ApiUtil.createResponse("totDetectorSlots is not a valid number of detectorSlots.", false));
-        }
-        if (total <= 0) {
-            return ok(ApiUtil.createResponse("Total numbers of detectorSlots need to be greated than zero.", false));
-        }
-        if (instrument.createDetectorSlots(total)) {
-            return ok(ApiUtil.createResponse("A total of " + total + " detectorSlots have been created for instrument <" + instrumentUri + ">.", true));
-        } else {
-            return ok(ApiUtil.createResponse("Method failed to create detectorSlots for instrument <" + instrumentUri + ">.", false));
-        }
-    }
-
-    public Result createDetectorSlotsForTesting() {
-        Instrument testInstrument = Instrument.find(TEST_INSTRUMENT_URI);
-        if (testInstrument == null) {
-            return ok(ApiUtil.createResponse("Test instrument <" + TEST_INSTRUMENT_URI + "> needs to exist before its detectorSlots can be created.", false));
-        } else if (testInstrument.getDetectorSlots() != null && testInstrument.getDetectorSlots().size() > 0) {
-            return ok(ApiUtil.createResponse("Test instrument <" + TEST_INSTRUMENT_URI + "> already has detectorSlots.", false));
-        } else {
-            return createDetectorSlots(testInstrument.getUri(), TEST_INSTRUMENT_TOT_DETECTOR_SLOTS);
-        }
-    }
-
     private Result deleteInstrumentResult(Instrument inst) {
         String uri = inst.getUri();
         inst.delete();
@@ -120,6 +81,7 @@ public class InstrumentAPI extends Controller {
         if (test == null) {
             return ok(ApiUtil.createResponse("There is no Test instrument to be deleted.", false));
         } else {
+            test.setNamedGraph(Constants.TEST_KB);
             return deleteInstrumentResult(test);
         }
     }
@@ -134,32 +96,6 @@ public class InstrumentAPI extends Controller {
         } else {
             return deleteInstrumentResult(inst);
         }
-    }
-
-    public Result deleteDetectorSlotsForTesting() {
-        Instrument testInstrument = Instrument.find(TEST_INSTRUMENT_URI);
-        if (testInstrument == null) {
-            return ok(ApiUtil.createResponse("Test instrument <" + TEST_INSTRUMENT_URI + "> needs to exist before its detectorSlots can be deleted.", false));
-        } else if (testInstrument.getDetectorSlots() == null || testInstrument.getDetectorSlots().size() == 0) {
-            return ok(ApiUtil.createResponse("Test instrument <" + TEST_INSTRUMENT_URI + "> has no detectorSlots to be deleted.", false));
-        } else {
-            return deleteDetectorSlots(testInstrument.getUri());
-        }
-    }
-
-    public Result deleteDetectorSlots(String instrumentUri) {
-        if (instrumentUri == null || instrumentUri.equals("")) {
-            return ok(ApiUtil.createResponse("No instrument URI has been provided.", false));
-        }
-        Instrument instrument = Instrument.find(instrumentUri);
-        if (instrument == null) {
-            return ok(ApiUtil.createResponse("No instrument with provided URI has been found.", false));
-        }
-        if (instrument.getDetectorSlots() == null) {
-            return ok(ApiUtil.createResponse("Instrument has no detectorSlot to be deleted.", false));
-        }
-        instrument.deleteDetectorSlots();
-        return ok(ApiUtil.createResponse("DetectorSlots for Instrument <" + instrument.getUri() + "> have been deleted.", true));
     }
 
     public static Result getInstruments(List<Instrument> results){

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 
+import org.sirapi.Constants;
 import org.sirapi.entity.pojo.Unit;
 import org.sirapi.transform.Renderings;
 import org.sirapi.utils.ApiUtil;
@@ -58,6 +59,7 @@ public class UnitAPI extends Controller {
             testUnit.setTypeUri(TEST_UNIT_URI);
             testUnit.setHascoTypeUri(SIO.UNIT);
             testUnit.setComment("This is a dummy unit created to test the SIR API.");
+            testUnit.setNamedGraph(Constants.TEST_KB);
             //testUnit.setHasSIRManagerEmail("me@example.com");
 
             return createUnitResult(testUnit);
@@ -88,6 +90,7 @@ public class UnitAPI extends Controller {
         if (test == null) {
             return ok(ApiUtil.createResponse("There is no Test unit to be deleted.", false));
         } else {
+            test.setNamedGraph(Constants.TEST_KB);
             return deleteUnitResult(test);
         }
     }

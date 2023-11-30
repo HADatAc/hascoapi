@@ -123,10 +123,10 @@ public class Renderings {
 	}
 
 	private static String headerHTML(Instrument instr) {
-		Annotation topLeftAnnotation = Annotation.findByInstrumentAndPosition(instr.getUri(),VSTOI.PAGE_TOP_LEFT);
-		Annotation topCenterAnnotation = Annotation.findByInstrumentAndPosition(instr.getUri(),VSTOI.PAGE_TOP_CENTER);
-		Annotation topRightAnnotation = Annotation.findByInstrumentAndPosition(instr.getUri(),VSTOI.PAGE_TOP_RIGHT);
-		Annotation belowTopLineAnnotation = Annotation.findByInstrumentAndPosition(instr.getUri(),VSTOI.PAGE_BELOW_TOP_LINE);
+		Annotation topLeftAnnotation = Annotation.findByContainerAndPosition(instr.getUri(),VSTOI.PAGE_TOP_LEFT);
+		Annotation topCenterAnnotation = Annotation.findByContainerAndPosition(instr.getUri(),VSTOI.PAGE_TOP_CENTER);
+		Annotation topRightAnnotation = Annotation.findByContainerAndPosition(instr.getUri(),VSTOI.PAGE_TOP_RIGHT);
+		Annotation belowTopLineAnnotation = Annotation.findByContainerAndPosition(instr.getUri(),VSTOI.PAGE_BELOW_TOP_LINE);
 
 		String topLeft = "";
 		if (topLeftAnnotation != null && topLeftAnnotation.getAnnotationStem() != null && 
@@ -164,10 +164,10 @@ public class Renderings {
 
 	private static String footerHTML(Instrument instr, int page) {
 
-		Annotation bottomLeftAnnotation = Annotation.findByInstrumentAndPosition(instr.getUri(),VSTOI.PAGE_BOTTOM_LEFT);
-		Annotation bottomCenterAnnotation = Annotation.findByInstrumentAndPosition(instr.getUri(),VSTOI.PAGE_BOTTOM_CENTER);
-		Annotation bottomRightAnnotation = Annotation.findByInstrumentAndPosition(instr.getUri(),VSTOI.PAGE_BOTTOM_RIGHT);
-		Annotation aboveBottomLineAnnotation = Annotation.findByInstrumentAndPosition(instr.getUri(),VSTOI.PAGE_ABOVE_BOTTOM_LINE);
+		Annotation bottomLeftAnnotation = Annotation.findByContainerAndPosition(instr.getUri(),VSTOI.PAGE_BOTTOM_LEFT);
+		Annotation bottomCenterAnnotation = Annotation.findByContainerAndPosition(instr.getUri(),VSTOI.PAGE_BOTTOM_CENTER);
+		Annotation bottomRightAnnotation = Annotation.findByContainerAndPosition(instr.getUri(),VSTOI.PAGE_BOTTOM_RIGHT);
+		Annotation aboveBottomLineAnnotation = Annotation.findByContainerAndPosition(instr.getUri(),VSTOI.PAGE_ABOVE_BOTTOM_LINE);
 
 		String bottomLeft = "";
 		if (bottomLeftAnnotation != null && bottomLeftAnnotation.getAnnotationStem() != null && 
