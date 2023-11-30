@@ -90,7 +90,7 @@ public class SubContainer extends Container {
 					subContainer.setHasLanguage(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
 					subContainer.setHasVersion(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MAINTAINER_EMAIL)) {
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
 					subContainer.setHasSIRManagerEmail(str);
 				}
 			}

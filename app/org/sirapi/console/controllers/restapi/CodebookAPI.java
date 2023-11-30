@@ -155,7 +155,7 @@ public class CodebookAPI extends Controller {
     }
 
     public Result deleteResponseOptionSlots(String codebookUri) {
-        System.out.println("CodebookAPI.deleteResponseOptionSlots()");
+        //System.out.println("CodebookAPI.deleteResponseOptionSlots()");
         if (codebookUri == null || codebookUri.equals("")) {
             return ok(ApiUtil.createResponse("No codebook URI has been provided.", false));
         }

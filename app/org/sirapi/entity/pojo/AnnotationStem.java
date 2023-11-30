@@ -151,7 +151,7 @@ public class AnnotationStem extends HADatAcThing implements SIRElement, Comparab
                 annotationStem.setWasDerivedFrom(str);
             } else if (statement.getPredicate().getURI().equals(PROV.WAS_GENERATED_BY)) {
                 annotationStem.setWasGeneratedBy(str);
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MAINTAINER_EMAIL)) {
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
                 annotationStem.setHasSIRManagerEmail(str);
             } 
         }
