@@ -110,6 +110,10 @@ public class CodebookAPI extends Controller {
             return ok(ApiUtil.createResponse("No codebook URI has been provided.", false));
         }
         Codebook codebook = Codebook.find(codebookUri);
+        return createResponseOptionSlots(codebook, totResponseOptionSlots);
+    }
+
+    public Result createResponseOptionSlots(Codebook codebook, String totResponseOptionSlots) {
         if (codebook == null) {
             return ok(ApiUtil.createResponse("No codebook with provided URI has been found.", false));
         }
@@ -133,11 +137,11 @@ public class CodebookAPI extends Controller {
         }
         if (codebook.createResponseOptionSlots(total)) {
             return ok(ApiUtil.createResponse(
-                    "A total of " + total + " responseoption slots have been created for codebook <" + codebookUri + ">.",
+                    "A total of " + total + " responseoption slots have been created for codebook <" + codebook.getUri() + ">.",
                     true));
         } else {
             return ok(ApiUtil.createResponse(
-                    "Method failed to create responseoption slots for codebook <" + codebookUri + ">.", false));
+                    "Method failed to create responseoption slots for codebook <" + codebook.getUri() + ">.", false));
         }
     }
 
@@ -150,7 +154,8 @@ public class CodebookAPI extends Controller {
             return ok(ApiUtil.createResponse("Test codebook <" + TEST_CODEBOOK_URI + "> already has responseoption slots.",
                     false));
         } else {
-            return createResponseOptionSlots(testCodebook.getUri(), TEST_CODEBOOK_TOT_RESPONSE_OPTION_SLOTS);
+            testCodebook.setNamedGraph(Constants.TEST_KB);
+            return createResponseOptionSlots(testCodebook, TEST_CODEBOOK_TOT_RESPONSE_OPTION_SLOTS);
         }
     }
 
@@ -160,6 +165,10 @@ public class CodebookAPI extends Controller {
             return ok(ApiUtil.createResponse("No codebook URI has been provided.", false));
         }
         Codebook codebook = Codebook.find(codebookUri);
+        return deleteResponseOptionSlots(codebook);
+    }
+
+    public Result deleteResponseOptionSlots(Codebook codebook) {
         if (codebook == null) {
             return ok(ApiUtil.createResponse("No codebook with provided URI has been found.", false));
         }
@@ -180,7 +189,8 @@ public class CodebookAPI extends Controller {
             return ok(ApiUtil.createResponse(
                     "Test codebook <" + TEST_CODEBOOK_URI + "> has no responseoption slots to be deleted.", false));
         } else {
-            return deleteResponseOptionSlots(testCodebook.getUri());
+            testCodebook.setNamedGraph(Constants.TEST_KB);
+            return deleteResponseOptionSlots(testCodebook);
         }
     }
 

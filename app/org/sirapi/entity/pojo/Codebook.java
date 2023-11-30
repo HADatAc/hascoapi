@@ -113,7 +113,6 @@ public class Codebook extends HADatAcThing implements SIRElement, Comparable<Cod
             return true;
         }
         for (ResponseOptionSlot slot : slots) {
-            System.out.println("Codebook,java   Deleting ResponseOptionSlot [" + slot.getUri() + "]");
             slot.delete();
         }
         slots = ResponseOptionSlot.findByCodebook(uri);
