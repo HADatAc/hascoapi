@@ -156,8 +156,8 @@ public class DetectorSlot extends HADatAcThing implements Comparable<DetectorSlo
     public static List<DetectorSlot> find() {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?attModel rdfs:subClassOf* vstoi:DetectorSlot . " +
-                " ?uri a ?attModel ." +
+                " ?type rdfs:subClassOf* vstoi:DetectorSlot . " +
+                " ?uri a ?type ." +
                 "} ";
 
         return findByQuery(queryString);
@@ -167,8 +167,8 @@ public class DetectorSlot extends HADatAcThing implements Comparable<DetectorSlo
         //System.out.println("findByContainer: [" + containerUri + "]");
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?attModel rdfs:subClassOf* vstoi:DetectorSlot . " +
-                " ?uri a ?attModel ." +
+                " ?type rdfs:subClassOf* vstoi:DetectorSlot . " +
+                " ?uri a ?type ." +
                 " ?uri vstoi:belongsTo <" + containerUri + ">. " +
                 "} ";
 
@@ -244,18 +244,18 @@ public class DetectorSlot extends HADatAcThing implements Comparable<DetectorSlo
         if (priority == null || priority.isEmpty()) {
             return false;
         }
-        DetectorSlot att = new DetectorSlot();
-        att.setUri(detectorSlotUri);
-        att.setLabel("DetectorSlot " + priority);
-        att.setTypeUri(VSTOI.DETECTOR_SLOT);
-        att.setHascoTypeUri(VSTOI.DETECTOR_SLOT);
-        att.setComment("DetectorSlot " + priority + " of container with URI " + containerUri);
-        att.setBelongsTo(containerUri);
-        att.setHasPriority(priority);
+        DetectorSlot detectorSlot = new DetectorSlot();
+        detectorSlot.setUri(detectorSlotUri);
+        detectorSlot.setLabel("DetectorSlot " + priority);
+        detectorSlot.setTypeUri(VSTOI.DETECTOR_SLOT);
+        detectorSlot.setHascoTypeUri(VSTOI.DETECTOR_SLOT);
+        detectorSlot.setComment("DetectorSlot " + priority + " of container with URI " + containerUri);
+        detectorSlot.setBelongsTo(containerUri);
+        detectorSlot.setHasPriority(priority);
         if (hasDetector != null) {
-            att.setHasDetector(hasDetector);
+            detectorSlot.setHasDetector(hasDetector);
         }
-        att.save();
+        detectorSlot.save();
         //System.out.println("DetectorSlot.createDetectorSlot: creating detectorSlot with URI [" + detectorSlotUri + "]" );
         return true;
     }

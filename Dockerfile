@@ -5,7 +5,7 @@ FROM sbtscala/scala-sbt:eclipse-temurin-11.0.16_1.7.2_2.12.17 as build-java
 
 RUN apt-get update && apt-get install -y unzip
 ENV JAVA_OPTS="-Xms6048m -Xmx10000m"
-WORKDIR /sirapi
+WORKDIR /hascoapi
 
 # Copy over the basic configuration files
 #COPY ["build.sbt", "/tmp/build/"]
@@ -16,19 +16,19 @@ WORKDIR /sirapi
 #    (sbt test:compile || sbt test:compile || sbt test:compile) && \
 #    rm -rf /tmp/build
 
-COPY . /sirapi
+COPY . /hascoapi
 
 RUN sbt playUpdateSecret && sbt dist
-RUN cd /sirapi/target/universal/ && unzip sirapi-10.0.1-SNAPSHOT.zip
+RUN cd /hascoapi/target/universal/ && unzip hascoapi-10.0.1-SNAPSHOT.zip
 
 FROM eclipse-temurin:11-jre
 
-WORKDIR /sirapi
+WORKDIR /hascoapi
 
-COPY --from=build-java /sirapi/target/universal/sirapi-10.0.1-SNAPSHOT /sirapi
+COPY --from=build-java /hascoapi/target/universal/hascoapi-10.0.1-SNAPSHOT /hascoapi
 
-COPY ./conf/sirapi-docker.conf /sirapi/conf/sirapi.conf
+COPY ./conf/hascoapi-docker.conf /hascoapi/conf/hascoapi.conf
 
 EXPOSE 9000
 
-ENTRYPOINT [ "bin/sirapi" ]
+ENTRYPOINT [ "bin/hascoapi" ]
