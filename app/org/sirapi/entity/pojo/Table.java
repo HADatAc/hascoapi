@@ -120,6 +120,38 @@ public class Table implements Comparable<Table> {
 
     }
 
+    public static List<Table> findContainerPosition() {
+        List<Table> tables = new ArrayList<Table>();
+        Iterator<Map.Entry<String, String>> iterator = VSTOI.containerPosition.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, String> entry = iterator.next();
+            Table newTable = new Table();
+            newTable.setURL(entry.getKey());
+            newTable.setValue(entry.getValue());
+            tables.add(newTable);
+        }
+
+        java.util.Collections.sort((List<Table>) tables);
+        return tables;
+
+    }
+
+    public static List<Table> findPagePosition() {
+        List<Table> tables = new ArrayList<Table>();
+        Iterator<Map.Entry<String, String>> iterator = VSTOI.pagePosition.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, String> entry = iterator.next();
+            Table newTable = new Table();
+            newTable.setURL(entry.getKey());
+            newTable.setValue(entry.getValue());
+            tables.add(newTable);
+        }
+
+        java.util.Collections.sort((List<Table>) tables);
+        return tables;
+
+    }
+
     @Override
     public int compareTo(Table another) {
         if (this.getValue() != null && another.getValue() != null) {

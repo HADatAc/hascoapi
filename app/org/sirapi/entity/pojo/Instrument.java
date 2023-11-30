@@ -15,6 +15,7 @@ import org.sirapi.annotations.PropertyField;
 import org.sirapi.utils.CollectionUtil;
 import org.sirapi.utils.NameSpaces;
 import org.sirapi.utils.SPARQLUtils;
+import org.sirapi.utils.URIUtils;
 import org.sirapi.utils.Utils;
 import org.sirapi.vocabularies.HASCO;
 import org.sirapi.vocabularies.RDF;
@@ -26,195 +27,10 @@ import org.slf4j.LoggerFactory;
 import static org.sirapi.Constants.*;
 
 @JsonFilter("instrumentFilter")
-public class Instrument extends HADatAcThing implements SIRElement, Comparable<Instrument> {
+public class Instrument extends Container {
 
 	private static final Logger log = LoggerFactory.getLogger(Instrument.class);
 
-	@PropertyField(uri="vstoi:hasStatus")
-	private String hasStatus;
-
-	@PropertyField(uri="vstoi:hasSerialNumber")
-	private String serialNumber;
-
-	@PropertyField(uri="vstoi:hasInformant")
-	private String hasInformant;
-
-	@PropertyField(uri="hasco:hasImage")
-	private String image;
-
-	@PropertyField(uri="vstoi:hasShortName")
-	private String hasShortName;
-
-	@PropertyField(uri="vstoi:hasInstruction")
-	private String hasInstruction;
-
-	@PropertyField(uri="vstoi:hasLanguage")
-	private String hasLanguage;
-
-	@PropertyField(uri="vstoi:hasVersion")
-	private String hasVersion;
-
-	@PropertyField(uri="vstoi:hasPageNumber")
-	private String hasPageNumber;
-
-	@PropertyField(uri="vstoi:hasDateField")
-	private String hasDateField;
-
-	@PropertyField(uri="vstoi:hasSubjectIDField")
-	private String hasSubjectIDField;
-
-	@PropertyField(uri="vstoi:hasSubjectRelationshipField")
-	private String hasSubjectRelationshipField;
-
-	@PropertyField(uri="vstoi:hasCopyrightNotice")
-	private String hasCopyrightNotice;
-
-	@PropertyField(uri="vstoi:hasSIRManagerEmail")
-	private String hasSIRManagerEmail;
-
-	public String getHasStatus() {
-		return hasStatus;
-	}
-
-	public void setHasStatus(String hasStatus) {
-		this.hasStatus = hasStatus;
-	}
-
-	public String getSerialNumber() {
-		return serialNumber;
-	}
-
-	public void setSerialNumber(String serialNumber) {
-		this.serialNumber = serialNumber;
-	}
-
-	public String getHasInformant() {
-		return hasInformant;
-	}
-
-	public void setHasInformant(String hasInformant) {
-		this.hasInformant = hasInformant;
-	}
-
-	public String getImage() {
-        return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
-    }
-
-	public String getHasShortName() {
-		return hasShortName;
-	}
-
-	public void setHasShortName(String hasShortName) {
-		this.hasShortName = hasShortName;
-	}
-
-	public String getHasInstruction() {
-		return hasInstruction;
-	}
-
-	public void setHasInstruction(String hasInstruction) {
-		this.hasInstruction = hasInstruction;
-	}
-
-	public String getHasLanguage() {
-		return hasLanguage;
-	}
-
-	public void setHasLanguage(String hasLanguage) {
-		this.hasLanguage = hasLanguage;
-	}
-
-	public String getHasVersion() {
-		return hasVersion;
-	}
-
-	public void setHasVersion(String hasVersion) {
-		this.hasVersion = hasVersion;
-	}
-
-	public String getHasPageNumber() {
-		return hasPageNumber;
-	}
-
-	public void setHasPageNumber(String hasPageNumber) {
-		this.hasPageNumber = hasPageNumber;
-	}
-
-	public String getHasDateField() {
-		return hasDateField;
-	}
-
-	public void setHasDateField(String hasDateField) {
-		this.hasDateField = hasDateField;
-	}
-
-	public String getHasSubjectIDField() {
-		return hasSubjectIDField;
-	}
-
-	public void setHasSubjectIDField(String hasSubjectIDField) {
-		this.hasSubjectIDField = hasSubjectIDField;
-	}
-
-	public String getHasSubjectRelationshipField() {
-		return hasSubjectRelationshipField;
-	}
-
-	public void setHasSubjectRelationshipField(String hasSubjectRelationshipField) {
-		this.hasSubjectRelationshipField = hasSubjectRelationshipField;
-	}
-
-	public String getHasCopyrightNotice() {
-		return hasCopyrightNotice;
-	}
-
-	public void setHasCopyrightNotice(String hasCopyrightNotice) {
-		this.hasCopyrightNotice = hasCopyrightNotice;
-	}
-
-	public String getHasSIRManagerEmail() {
-		return hasSIRManagerEmail;
-	}
-
-	public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
-		this.hasSIRManagerEmail = hasSIRManagerEmail;
-	}
-
-	public String gedetectorSlottTypeLabel() {
-    	InstrumentType insType = InstrumentType.find(getTypeUri());
-    	if (insType == null || insType.getLabel() == null) {
-    		return "";
-    	}
-    	return insType.getLabel();
-    }
-
-    public String getTypeURL() {
-    	InstrumentType insType = InstrumentType.find(getTypeUri());
-    	if (insType == null || insType.getLabel() == null) {
-    		return "";
-    	}
-    	return insType.getURL();
-    }
-
-    public List<DetectorSlot> getDetectorSlots() {
-    	List<DetectorSlot> atts = DetectorSlot.findByInstrument(uri);
-    	return atts;
-    }
-
-    @JsonIgnore
-	public List<Detector> getDetectors() {
-		List<Detector> detectors = new ArrayList<Detector>();
-    	List<DetectorSlot> atts = DetectorSlot.findByInstrument(uri);
-		for (DetectorSlot att : atts) {
-			Detector detector = att.getDetector();
-			detectors.add(detector);
-		} 
-    	return detectors;
-    }
     
 	@Override
 	public boolean equals(Object o) {
@@ -229,6 +45,63 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 	public int hashCode() {
 		return getUri().hashCode();
 	}
+
+	public static Instrument find(String uri) {
+	    Instrument instrument = null;
+	    Statement statement;
+	    RDFNode object;
+	    
+	    String queryString = "DESCRIBE <" + uri + ">";
+	    Model model = SPARQLUtils.describe(CollectionUtil.getCollectionPath(
+                CollectionUtil.Collection.SPARQL_QUERY), queryString);
+		
+		StmtIterator stmtIterator = model.listStatements();
+
+		if (!stmtIterator.hasNext()) {
+			return null;
+		} else {
+			instrument = new Instrument();
+		}
+		
+		while (stmtIterator.hasNext()) {
+		    statement = stmtIterator.next();
+		    object = statement.getObject();
+			String str = URIUtils.objectRDFToString(object);
+			if (uri != null && !uri.isEmpty()) {
+				if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
+					instrument.setLabel(str);
+				} else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
+					instrument.setTypeUri(str); 
+				} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
+					instrument.setHascoTypeUri(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
+					instrument.setHasStatus(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
+					instrument.setSerialNumber(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_INFORMANT)) {
+					instrument.setHasInformant(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+					instrument.setImage(str);
+				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
+					instrument.setComment(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SHORT_NAME)) {
+					instrument.setHasShortName(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
+					instrument.setHasLanguage(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
+          instrument.setHasVersion(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
+					instrument.setHasSIRManagerEmail(str);
+				}
+			}
+		}
+
+		instrument.setUri(uri);
+		
+		return instrument;
+	}
+
+
 
 	public static List<Instrument> findAvailable() {
 		List<Instrument> instruments = new ArrayList<Instrument>();
@@ -282,121 +155,6 @@ public class Instrument extends HADatAcThing implements SIRElement, Comparable<I
 		return instruments;
 	}
 	
-	private static String objectToString(RDFNode node) {
- 		if (node.isLiteral()) {
-  			return node.asLiteral().getString();
- 		} else if (node.isResource()) {
-  			return node.asResource().getURI();
- 		}
- 		return null;
-	}
-
-	public static Instrument find(String uri) {
-	    Instrument instrument = null;
-	    Statement statement;
-	    RDFNode object;
-	    
-	    String queryString = "DESCRIBE <" + uri + ">";
-	    Model model = SPARQLUtils.describe(CollectionUtil.getCollectionPath(
-                CollectionUtil.Collection.SPARQL_QUERY), queryString);
-		
-		StmtIterator stmtIterator = model.listStatements();
-
-		if (!stmtIterator.hasNext()) {
-			return null;
-		} else {
-			instrument = new Instrument();
-		}
-		
-		while (stmtIterator.hasNext()) {
-		    statement = stmtIterator.next();
-		    object = statement.getObject();
-			String str = objectToString(object);
-			if (uri != null && !uri.isEmpty()) {
-				if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-					instrument.setLabel(str);
-				} else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
-					instrument.setTypeUri(str); 
-				} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
-					instrument.setHascoTypeUri(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
-					instrument.setHasStatus(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
-					instrument.setSerialNumber(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_INFORMANT)) {
-					instrument.setHasInformant(str);
-				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
-					instrument.setImage(str);
-				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
-					instrument.setComment(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SHORT_NAME)) {
-					instrument.setHasShortName(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_INSTRUCTION)) {
-					instrument.setHasInstruction(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
-					instrument.setHasLanguage(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
-					instrument.setHasVersion(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PAGE_NUMBER)) {
-					instrument.setHasPageNumber(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_DATE_FIELD)) {
-					instrument.setHasDateField(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SUBJECT_ID_FIELD)) {
-					instrument.setHasSubjectIDField(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SUBJECT_RELATIONSHIP_FIELD)) {
-					instrument.setHasSubjectRelationshipField(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_COPYRIGHT_NOTICE)) {
-					instrument.setHasCopyrightNotice(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
-					instrument.setHasSIRManagerEmail(str);
-				}
-			}
-		}
-
-		instrument.setUri(uri);
-		
-		return instrument;
-	}
-
-	public boolean deleteDetectorSlots() {
-		if (this.getDetectorSlots() == null || uri == null || uri.isEmpty()) {
-			return true;
-		}
-		List<DetectorSlot> detectorSlots = DetectorSlot.findByInstrument(uri);
-		if (detectorSlots == null) {
-			return true;
-		}
-		for (DetectorSlot detectorSlot: detectorSlots) {
-			detectorSlot.delete();
-		}
-		detectorSlots = DetectorSlot.findByInstrument(uri);
-		return (detectorSlots == null);
-	}
-
-	public boolean createDetectorSlots(int totDetectorSlots) {
-		if (totDetectorSlots <= 0) {
-			return false;
-		}
-		if (this.getDetectorSlots() != null || uri == null || uri.isEmpty()) {
-			return false;
-		}
-		for (int aux=1; aux <= totDetectorSlots; aux++) {
-			String auxstr = Utils.adjustedPriority(String.valueOf(aux), totDetectorSlots);
-			String newUri = uri + "/" + DETECTOR_SLOT_PREFIX + "/" + auxstr;
-			DetectorSlot.createDetectorSlot(uri, newUri, auxstr,null);
-		}
-		List<DetectorSlot> detectorSlotList = DetectorSlot.findByInstrument(uri);
-		if (detectorSlotList == null) {
-			return false;
-		}
-		return (detectorSlotList.size() == totDetectorSlots);
-	}
-
-	@Override
-    public int compareTo(Instrument another) {
-        return this.getLabel().compareTo(another.getLabel());
-    }
-
     @Override public void save() {
 		saveToTripleStore();
 	}

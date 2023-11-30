@@ -264,7 +264,7 @@ public class ResponseOptionSlot extends HADatAcThing implements Comparable<Respo
         return true;
     }
 
-    public boolean updateResponseOptionSlotResponseOption(String responseOptionUri) {
+    public boolean updateResponseOptionSlotResponseOption(ResponseOption responseOption) {
         ResponseOptionSlot newResponseOptionSlot = new ResponseOptionSlot();
         newResponseOptionSlot.setUri(this.uri);
         newResponseOptionSlot.setLabel(this.getLabel());
@@ -273,8 +273,10 @@ public class ResponseOptionSlot extends HADatAcThing implements Comparable<Respo
         newResponseOptionSlot.setHascoTypeUri(this.getHascoTypeUri());
         newResponseOptionSlot.setBelongsTo(this.getBelongsTo());
         newResponseOptionSlot.setHasPriority(this.getHasPriority());
-        if (responseOptionUri != null && !responseOptionUri.isEmpty()) {
-            newResponseOptionSlot.setHasResponseOption(responseOptionUri);
+        if (responseOption != null && responseOption.getUri() != null && !responseOption.getUri().isEmpty()) {
+            newResponseOptionSlot.setHasResponseOption(responseOption.getUri());
+        } else {
+            newResponseOptionSlot.setHasResponseOption(null);
         }
         this.delete();
         newResponseOptionSlot.save();

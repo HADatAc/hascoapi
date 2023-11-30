@@ -45,6 +45,8 @@ GET     /sirapi/api/repo/table/informants                 org.sirapi.console.con
 GET     /sirapi/api/repo/table/languages                  org.sirapi.console.controllers.restapi.RepoPage.getLanguages()
 GET     /sirapi/api/repo/table/generationactivities       org.sirapi.console.controllers.restapi.RepoPage.getGenerationActivities()
 GET     /sirapi/api/repo/table/namespaces                 org.sirapi.console.controllers.restapi.RepoPage.getNamespaces()
+GET     /sirapi/api/repo/table/pagepositions              org.sirapi.console.controllers.restapi.RepoPage.getPagePositions()
+GET     /sirapi/api/repo/table/containerpositions         org.sirapi.console.controllers.restapi.RepoPage.getContainerPositions()
 GET     /sirapi/api/repo/ont/load                         org.sirapi.console.controllers.restapi.RepoPage.loadOntologies()
 GET     /sirapi/api/repo/ont/delete                       org.sirapi.console.controllers.restapi.RepoPage.deleteOntologies()
 
@@ -58,8 +60,8 @@ GET     /sirapi/api/instrument/tofhir/:uri                org.sirapi.console.con
 
 # CONCEPT-SPECIFIC METHODS
 
-POST    /sirapi/api/slots/detector/create/:instrUri/:totSlots             org.sirapi.console.controllers.restapi.InstrumentAPI.createDetectorSlots(instrUri: String, totSlots : String)
-POST    /sirapi/api/slots/detector/delete/:instrUri                       org.sirapi.console.controllers.restapi.InstrumentAPI.deleteDetectorSlots(instrUri: String)
+POST    /sirapi/api/slots/detector/create/:instrUri/:totSlots             org.sirapi.console.controllers.restapi.ContainerAPI.createDetectorSlots(instrUri: String, totSlots : String)
+POST    /sirapi/api/slots/detector/delete/:instrUri                       org.sirapi.console.controllers.restapi.ContainerAPI.deleteDetectorSlots(instrUri: String)
 POST    /sirapi/api/slots/responseoption/create/:codebookUri/:totSlots    org.sirapi.console.controllers.restapi.CodebookAPI.createResponseOptionSlots(codebookUri: String, totSlots : String)
 POST    /sirapi/api/slots/responseoption/delete/:codebookUri              org.sirapi.console.controllers.restapi.CodebookAPI.deleteResponseOptionSlots(codebookUri: String)
 
@@ -68,7 +70,7 @@ GET     /sirapi/api/slots/detector/detach/:detectorSlotUri                    or
 GET     /sirapi/api/slots/responseoption/attach/:uri/:responseOptionSlotUri   org.sirapi.console.controllers.restapi.ResponseOptionAPI.attach(uri: String, responseOptionSlotUri : String)
 GET     /sirapi/api/slots/responseoption/detach/:responseOptionSlotUri        org.sirapi.console.controllers.restapi.ResponseOptionAPI.detach(responseOptionSlotUri : String)
 
-GET     /sirapi/api/slots/detector/byinstrument/:instrUri                 org.sirapi.console.controllers.restapi.DetectorAPI.getDetectorSlotsByInstrument(instrUri: String)
+GET     /sirapi/api/slots/detector/bycontainer/:instrUri                 org.sirapi.console.controllers.restapi.DetectorAPI.getDetectorSlotsByContainer(instrUri: String)
 GET     /sirapi/api/slots/responseoption/bycodebook/:codebookUri          org.sirapi.console.controllers.restapi.ResponseOptionAPI.getResponseOptionSlotsByCodebook(codebookUri: String)
 
 # TESTING METHODS
@@ -81,8 +83,8 @@ GET     /sirapi/test/detector/create                      org.sirapi.console.con
 GET     /sirapi/test/detector/delete                      org.sirapi.console.controllers.restapi.DetectorAPI.deleteDetectorsForTesting()
 GET     /sirapi/test/detector/attach                      org.sirapi.console.controllers.restapi.DetectorAPI.attachForTesting()
 GET     /sirapi/test/detector/detach                      org.sirapi.console.controllers.restapi.DetectorAPI.detachForTesting()
-GET     /sirapi/test/detectorslot/create                  org.sirapi.console.controllers.restapi.InstrumentAPI.createDetectorSlotsForTesting()
-GET     /sirapi/test/detectorslot/delete                  org.sirapi.console.controllers.restapi.InstrumentAPI.deleteDetectorSlotsForTesting()
+GET     /sirapi/test/detectorslot/create                  org.sirapi.console.controllers.restapi.ContainerAPI.createDetectorSlotsForTesting()
+GET     /sirapi/test/detectorslot/delete                  org.sirapi.console.controllers.restapi.ContainerAPI.deleteDetectorSlotsForTesting()
 GET     /sirapi/test/codebook/create                      org.sirapi.console.controllers.restapi.CodebookAPI.createCodebookForTesting()
 GET     /sirapi/test/codebook/delete                      org.sirapi.console.controllers.restapi.CodebookAPI.deleteCodebookForTesting()
 GET     /sirapi/test/responseoption/create                org.sirapi.console.controllers.restapi.ResponseOptionAPI.createResponseOptionsForTesting()
@@ -91,6 +93,10 @@ GET     /sirapi/test/responseoption/attach                org.sirapi.console.con
 GET     /sirapi/test/responseoption/detach                org.sirapi.console.controllers.restapi.ResponseOptionAPI.detachForTesting()
 GET     /sirapi/test/responseoptionslot/create            org.sirapi.console.controllers.restapi.CodebookAPI.createResponseOptionSlotsForTesting()
 GET     /sirapi/test/responseoptionslot/delete            org.sirapi.console.controllers.restapi.CodebookAPI.deleteResponseOptionSlotsForTesting()
+GET     /sirapi/test/annotationstem/create                org.sirapi.console.controllers.restapi.AnnotationStemAPI.createAnnotationStemsForTesting()
+GET     /sirapi/test/annotationstem/delete                org.sirapi.console.controllers.restapi.AnnotationStemAPI.deleteAnnotationStemsForTesting()
+GET     /sirapi/test/annotation/create                    org.sirapi.console.controllers.restapi.AnnotationAPI.createAnnotationsForTesting()
+GET     /sirapi/test/annotation/delete                    org.sirapi.console.controllers.restapi.AnnotationAPI.deleteAnnotationsForTesting()
 GET     /sirapi/test/semanticvariable/create              org.sirapi.console.controllers.restapi.SemanticVariableAPI.createSemanticVariablesForTesting()
 GET     /sirapi/test/semanticvariable/delete              org.sirapi.console.controllers.restapi.SemanticVariableAPI.deleteSemanticVariablesForTesting()
 GET     /sirapi/test/entity/create                        org.sirapi.console.controllers.restapi.EntityAPI.createEntityForTesting()

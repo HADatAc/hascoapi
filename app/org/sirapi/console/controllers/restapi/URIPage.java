@@ -76,6 +76,10 @@ public class URIPage extends Controller {
                 finalResult = ResponseOptionSlot.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.RESPONSE_OPTION)) {
                 finalResult = ResponseOption.find(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.ANNOTATION_STEM)) {
+                finalResult = AnnotationStem.find(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.ANNOTATION)) {
+                finalResult = Annotation.find(uri);
             } else if (result.getHascoTypeUri().equals(HASCO.SEMANTIC_VARIABLE)) {
                 finalResult = SemanticVariable.find(uri);
             } else if (result.getHascoTypeUri().equals(SIO.ENTITY)) {

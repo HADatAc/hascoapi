@@ -4,12 +4,15 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+
+import org.sirapi.Constants;
 import org.sirapi.entity.pojo.DetectorSlot;
 import org.sirapi.entity.pojo.DetectorStem;
 import org.sirapi.entity.pojo.Instrument;
 import org.sirapi.entity.pojo.SemanticVariable;
 import org.sirapi.utils.ApiUtil;
 import org.sirapi.vocabularies.VSTOI;
+
 import play.mvc.Controller;
 import play.mvc.Result;
 import static org.sirapi.Constants.*;
@@ -46,6 +49,7 @@ public class DetectorStemAPI extends Controller {
             testDetectorStem1.setHasVersion("1");
             testDetectorStem1.setHasSIRManagerEmail("me@example.com");
             testDetectorStem1.setDetects(TEST_SEMANTIC_VARIABLE1_URI);
+            testDetectorStem1.setNamedGraph(Constants.TEST_KB);
             testDetectorStem1.save();
 
             testDetectorStem2 = new DetectorStem();
@@ -58,7 +62,8 @@ public class DetectorStemAPI extends Controller {
             testDetectorStem2.setHasLanguage("en"); // ISO 639-1
             testDetectorStem2.setHasVersion("1");
             testDetectorStem2.setHasSIRManagerEmail("me@example.com");
-            testDetectorStem1.setDetects(TEST_SEMANTIC_VARIABLE2_URI);
+            testDetectorStem2.setDetects(TEST_SEMANTIC_VARIABLE2_URI);
+            testDetectorStem2.setNamedGraph(Constants.TEST_KB);
             testDetectorStem2.save();
             return ok(ApiUtil.createResponse("Test Detector Stems 1 and 2 have been CREATED.", true));
         }
@@ -95,7 +100,9 @@ public class DetectorStemAPI extends Controller {
         } else if (test2 == null) {
             return ok(ApiUtil.createResponse("There is no Test Detector Stem 2 to be deleted.", false));
         } else {
+            test1.setNamedGraph(Constants.TEST_KB);
             test1.delete();
+            test2.setNamedGraph(Constants.TEST_KB);
             test2.delete();
             return ok(ApiUtil.createResponse("Test Detector Stems 1 and 2 have been DELETED.", true));
         }

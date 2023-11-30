@@ -150,25 +150,14 @@ public class ResponseOption extends HADatAcThing implements SIRElement /*, Compa
         return responseOption;
     }
 
-    public static boolean attach(String ResponseOptionSlotUri, String responseOptionUri) {
-        if (ResponseOptionSlotUri == null || ResponseOptionSlotUri.isEmpty()) {
-            return false;
-        }
-        ResponseOptionSlot responseOptionSlot = ResponseOptionSlot.find(ResponseOptionSlotUri);
-        //if (responseOptionSlot == null) {
-        //    System.out.println("ResponseOptionSlot.find returned nothing");
-        //}
+    public static boolean attach(ResponseOptionSlot responseOptionSlot, ResponseOption responseOption) {
         if (responseOptionSlot == null) {
             return false;
         }
-        return responseOptionSlot.updateResponseOptionSlotResponseOption(responseOptionUri);
+        return responseOptionSlot.updateResponseOptionSlotResponseOption(responseOption);
     }
 
-    public static boolean detach(String responseOptionSlotUri) {
-        if (responseOptionSlotUri == null || responseOptionSlotUri.isEmpty()) {
-            return false;
-        }
-        ResponseOptionSlot responseOptionSlot = ResponseOptionSlot.find(responseOptionSlotUri);
+    public static boolean detach(ResponseOptionSlot responseOptionSlot) {
         if (responseOptionSlot == null) {
             return false;
         }

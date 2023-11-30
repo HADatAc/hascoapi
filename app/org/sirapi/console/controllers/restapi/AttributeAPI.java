@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 
+import org.sirapi.Constants;
 import org.sirapi.entity.pojo.Attribute;
 import org.sirapi.transform.Renderings;
 import org.sirapi.utils.ApiUtil;
@@ -62,6 +63,7 @@ public class AttributeAPI extends Controller {
             testAttribute1.setTypeUri(TEST_ATTRIBUTE1_URI);
             testAttribute1.setHascoTypeUri(SIO.ATTRIBUTE);
             testAttribute1.setComment("This is a dummy attribute created to test the SIR API.");
+            testAttribute1.setNamedGraph(Constants.TEST_KB);
 //            testAttribute1.setHasSIRManagerEmail("me@example.com");
             testAttribute1.save();
             testAttribute2 = new Attribute();
@@ -71,6 +73,7 @@ public class AttributeAPI extends Controller {
             testAttribute2.setTypeUri(TEST_ATTRIBUTE2_URI);
             testAttribute2.setHascoTypeUri(SIO.ATTRIBUTE);
             testAttribute2.setComment("This is a dummy attribute created to test the SIR API.");
+            testAttribute2.setNamedGraph(Constants.TEST_KB);
 //            testAttribute2.setHasSIRManagerEmail("me@example.com");
             testAttribute2.save();
             return ok(ApiUtil.createResponse("Testing attributes 1 and 2 have been CREATED.", true));
@@ -101,9 +104,11 @@ public class AttributeAPI extends Controller {
         boolean exist1 = (test1 != null);
         boolean exist2 = (test2 != null);
         if (exist1) {
+            test1.setNamedGraph(Constants.TEST_KB);
             test1.delete();
         } 
         if (exist2) {
+            test2.setNamedGraph(Constants.TEST_KB);
             test2.delete();
         } 
         if (exist1 && !exist2) {

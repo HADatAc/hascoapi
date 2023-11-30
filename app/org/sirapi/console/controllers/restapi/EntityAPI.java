@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 
+import org.sirapi.Constants;
 import org.sirapi.entity.fhir.Questionnaire;
 import org.sirapi.entity.pojo.Entity;
 import org.sirapi.transform.Renderings;
@@ -59,6 +60,8 @@ public class EntityAPI extends Controller {
             testEntity.setTypeUri(TEST_ENTITY_URI);
             testEntity.setHascoTypeUri(SIO.ENTITY);
             testEntity.setComment("This is a dummy entity created to test the SIR API.");
+            testEntity.setNamedGraph(Constants.TEST_KB);
+
             //testEntity.setHasSIRManagerEmail("me@example.com");
 
             return createEntityResult(testEntity);
@@ -89,6 +92,7 @@ public class EntityAPI extends Controller {
         if (test == null) {
             return ok(ApiUtil.createResponse("There is no Test entity to be deleted.", false));
         } else {
+            test.setNamedGraph(Constants.TEST_KB);
             return deleteEntityResult(test);
         }
     }

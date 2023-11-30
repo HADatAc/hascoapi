@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.sirapi.RepositoryInstance;
+import org.sirapi.Constants;
 import org.sirapi.entity.pojo.NameSpace;
 import org.sirapi.vocabularies.HASCO;
 
@@ -189,7 +190,7 @@ public class NameSpaces {
         // TEST
         NameSpace TEST_NAMESPACE = new NameSpace();
         TEST_NAMESPACE.setAbbreviation("test");
-        TEST_NAMESPACE.setName("http://hadatac.org/kb/test/");
+        TEST_NAMESPACE.setName(Constants.TEST_KB);
         TEST_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
         TEST_NAMESPACE.setComment("Test Namespace");
         TEST_NAMESPACE.setVersion("1.0");

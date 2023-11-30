@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+
+import org.sirapi.Constants;
 import org.sirapi.entity.pojo.Codebook;
 import org.sirapi.entity.pojo.Instrument;
 import org.sirapi.utils.ApiUtil;
@@ -35,6 +37,7 @@ public class CodebookAPI extends Controller {
             testCodebook.setHasLanguage("en");
             testCodebook.setHasVersion("1");
             testCodebook.setHasSIRManagerEmail("me@example.com");
+            testCodebook.setNamedGraph(Constants.TEST_KB);
             testCodebook.save();
             return ok(ApiUtil.createResponse("Test Codebook been CREATED.", true));
         }
@@ -68,6 +71,7 @@ public class CodebookAPI extends Controller {
         if (codebook == null) {
             return ok(ApiUtil.createResponse("There is no Test Codebook to be deleted.", false));
         } else {
+            codebook.setNamedGraph(Constants.TEST_KB);
             codebook.delete();
             return ok(ApiUtil.createResponse("Test Codebook has been DELETED.", true));
         }

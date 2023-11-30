@@ -2,12 +2,14 @@ package org.sirapi.transform;
 
 //import com.itextpdf.text.*;
 //import com.itextpdf.text.pdf.PdfWriter;
-import org.sirapi.entity.pojo.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.xhtmlrenderer.layout.SharedContext;
 import org.xhtmlrenderer.pdf.ITextRenderer;
+
+import org.sirapi.entity.pojo.*;
+import org.sirapi.vocabularies.VSTOI;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -37,13 +39,7 @@ public class Renderings {
 		String str = "";
 
 		str += centerText(instr.getHasShortName(), width) + "\n";
-		str += "\n";
 
-		if (instr.getHasInstruction() != null) {
-			for (String line : breakString("Instructions: " + instr.getHasInstruction(), width)) {
-				str += line + "\n";
-			}
-		}
 		str += "\n";
 		if (instr.getDetectorSlots() != null) {
 			for (DetectorSlot detectorSlot : instr.getDetectorSlots()) {
@@ -51,7 +47,12 @@ public class Renderings {
 				if (detector == null) {
 					str += " " + detectorSlot.getHasPriority() + ".  \n  ";
 				} else {
-					str += " " + detectorSlot.getHasPriority() + ". " + detector.getHasContent() + " ";
+					String content = "";
+					//System.out.println(detector.toString());
+					if (detector != null && detector.getDetectorStem() != null && detector.getDetectorStem().getHasContent() != null) {
+						content = detector.getDetectorStem().getHasContent();
+					}
+					str += " " + detectorSlot.getHasPriority() + ". " + content + " ";
 					Codebook codebook = detector.getCodebook();
 					if (codebook != null && codebook.getResponseOptionSlots() != null) {
 						List<ResponseOptionSlot> slots = codebook.getResponseOptionSlots();
@@ -122,52 +123,79 @@ public class Renderings {
 	}
 
 	private static String headerHTML(Instrument instr) {
-		String dateField = "";
-		if (instr.getHasDateField() != null && !instr.getHasDateField().isEmpty()) {
-			dateField = instr.getHasDateField();
+		Annotation topLeftAnnotation = Annotation.findByContainerAndPosition(instr.getUri(),VSTOI.PAGE_TOP_LEFT);
+		Annotation topCenterAnnotation = Annotation.findByContainerAndPosition(instr.getUri(),VSTOI.PAGE_TOP_CENTER);
+		Annotation topRightAnnotation = Annotation.findByContainerAndPosition(instr.getUri(),VSTOI.PAGE_TOP_RIGHT);
+		Annotation belowTopLineAnnotation = Annotation.findByContainerAndPosition(instr.getUri(),VSTOI.PAGE_BELOW_TOP_LINE);
+
+		String topLeft = "";
+		if (topLeftAnnotation != null && topLeftAnnotation.getAnnotationStem() != null && 
+			topLeftAnnotation.getAnnotationStem().getHasContent() != null) {
+				topLeft = topLeftAnnotation.getAnnotationStem().getHasContent();
 		}
-		String shortName = "";
-		if (instr.getHasShortName() != null && !instr.getHasShortName().isEmpty()) {
-			shortName = instr.getHasShortName();
+		String topCenter = "";
+		if (topCenterAnnotation != null && topCenterAnnotation.getAnnotationStem() != null && 
+			topCenterAnnotation.getAnnotationStem().getHasContent() != null) {
+				topCenter = topCenterAnnotation.getAnnotationStem().getHasContent();
 		}
-		String subjectIDField = "";
-		if (instr.getHasSubjectIDField() != null && !instr.getHasSubjectIDField().isEmpty()) {
-			subjectIDField = instr.getHasSubjectIDField();
+		String topRight = "";
+		if (topRightAnnotation != null && topRightAnnotation.getAnnotationStem() != null && 
+			topRightAnnotation.getAnnotationStem().getHasContent() != null) {
+				topRight = topRightAnnotation.getAnnotationStem().getHasContent();
 		}
-		String subjectRelationshipField = "";
-		if (instr.getHasSubjectRelationshipField() != null && !instr.getHasSubjectRelationshipField().isEmpty()) {
-			subjectRelationshipField = instr.getHasSubjectRelationshipField();
+		String belowTopLine = "";
+		if (belowTopLineAnnotation != null && belowTopLineAnnotation.getAnnotationStem() != null && 
+			belowTopLineAnnotation.getAnnotationStem().getHasContent() != null) {
+				belowTopLine = belowTopLineAnnotation.getAnnotationStem().getHasContent();
 		}
-		String instruction = "";
-		if (instr.getHasInstruction() != null && !instr.getHasInstruction().isEmpty()) {
-			instruction = instr.getHasInstruction();
-		}
+
 		return "<table id=\"tbl1\"> " +
 				"  <tr id=\"tr1\"> " +
-				"	  <td id=\"cell1\">" + dateField + "</td> " +
-				"	  <td id=\"cell2\"><h2>" + shortName + "</h2></td> " +
-				"	  <td id=\"cell3\">" + subjectIDField + "<br>" + subjectRelationshipField + "</td> " +
+				"	  <td id=\"leftcell\">" + topLeft + "</td> " +
+				"	  <td id=\"centercell\">" + topCenter + "</td> " +
+				"	  <td id=\"rightcell\">" + topRight + "</td> " +
 				"  </tr>" +
 				"</table> " +
-				instruction + "<br>" +
+				"<br>" +
+				belowTopLine + "<br>" +
 				"<br>\n";
 
 	}
 
 	private static String footerHTML(Instrument instr, int page) {
-		String pageNumber = "";
-		if (instr.getHasPageNumber() != null && !instr.getHasPageNumber().isEmpty()) {
-			pageNumber = instr.getHasPageNumber() + " " + page;
+
+		Annotation bottomLeftAnnotation = Annotation.findByContainerAndPosition(instr.getUri(),VSTOI.PAGE_BOTTOM_LEFT);
+		Annotation bottomCenterAnnotation = Annotation.findByContainerAndPosition(instr.getUri(),VSTOI.PAGE_BOTTOM_CENTER);
+		Annotation bottomRightAnnotation = Annotation.findByContainerAndPosition(instr.getUri(),VSTOI.PAGE_BOTTOM_RIGHT);
+		Annotation aboveBottomLineAnnotation = Annotation.findByContainerAndPosition(instr.getUri(),VSTOI.PAGE_ABOVE_BOTTOM_LINE);
+
+		String bottomLeft = "";
+		if (bottomLeftAnnotation != null && bottomLeftAnnotation.getAnnotationStem() != null && 
+			bottomLeftAnnotation.getAnnotationStem().getHasContent() != null) {
+				bottomLeft = bottomLeftAnnotation.getAnnotationStem().getHasContent();
 		}
-		String copyrightNotice = "";
-		if (instr.getHasCopyrightNotice() != null && !instr.getHasCopyrightNotice().isEmpty()) {
-			copyrightNotice = instr.getHasCopyrightNotice();
+		String bottomCenter = "";
+		if (bottomCenterAnnotation != null && bottomCenterAnnotation.getAnnotationStem() != null && 
+			bottomCenterAnnotation.getAnnotationStem().getHasContent() != null) {
+				bottomCenter = bottomCenterAnnotation.getAnnotationStem().getHasContent();
 		}
-		return "<table id=\"tbl1\"> " +
+		String bottomRight = "";
+		if (bottomRightAnnotation != null && bottomRightAnnotation.getAnnotationStem() != null && 
+			bottomRightAnnotation.getAnnotationStem().getHasContent() != null) {
+				bottomRight = bottomRightAnnotation.getAnnotationStem().getHasContent();
+		}
+		String aboveBottomLine = "";
+		if (aboveBottomLineAnnotation != null && aboveBottomLineAnnotation.getAnnotationStem() != null && 
+			aboveBottomLineAnnotation.getAnnotationStem().getHasContent() != null) {
+				aboveBottomLine = aboveBottomLineAnnotation.getAnnotationStem().getHasContent();
+		}
+
+		return aboveBottomLine + "<br><br>" + 
+				"<table id=\"tbl1\"> " +
 				"  <tr id=\"tr1\"> " +
-				"	  <td id=\"cell1\">" + pageNumber + "</td> " +
-				"	  <td id=\"cell4\"></td> " +
-				"	  <td id=\"cell3\">" + copyrightNotice + "</td> " +
+				"	  <td id=\"leftcell\">" + bottomLeft + "</td> " +
+				"	  <td id=\"centercell\">" + bottomCenter + "</td> " +
+				"	  <td id=\"rightcell\">" + bottomRight + "</td> " +
 				"  </tr>" +
 				"</table> " +
 				"<br><br><br><br>";
@@ -179,30 +207,27 @@ public class Renderings {
 				"  border: 1px solid;\n" +
 				"  border-collapse: collapse;\n" +
 				"  padding: 5px;\n" +
+				"  width: 100%;\n" +
 				"}\n" +
 				"tr:nth-child(even) {\n" +
 				"  background-color: #f2f2f2;\n" +
 				"}\n" +
-				"#tbl1, #tr1, #cell1, #cell2, #cell3 , #cell4 {\n" +
+				"#tbl1, #tr1, #leftcell, #centercell, #rightcell {\n" +
 				"  border: 0px solid;\n" +
 				"  border-collapse: collapse;\n" +
 				"  padding: 5px;\n" +
+				"  white-space: nowrap;\n" +
 				"}\n" +
-				"#cell1 {\n" +
+				"#leftcell {\n" +
 				"	text-align: left;\n" +
 				"}\n" +
-				"#cell2 {\n" +
+				"#centercell {\n" +
 				"   padding-right: 80px;\n" +
 				"	text-align: center;\n" +
 				"   padding-left: 80px;\n" +
 				"}\n" +
-				"#cell3 {\n" +
+				"#rightcell {\n" +
 				"	text-align: right;\n" +
-				"}\n" +
-				"#cell4 {\n" +
-				"   padding-right: 200px;\n" +
-				"	text-align: center;\n" +
-				"   padding-left: 200px;\n" +
 				"}\n" +
 				"</style>\n";
 	}
@@ -262,8 +287,13 @@ public class Renderings {
 						html += "<tr><td>" + detectorSlot.getHasPriority() + ".</tr></td>\n";
 					}
 				} else {
+					String content = "";
+					//System.out.println(detector.toString());
+					if (detector != null && detector.getDetectorStem() != null && detector.getDetectorStem().getHasContent() != null) {
+						content = detector.getDetectorStem().getHasContent();
+					}
 					html += "<tr>";
-					html += "<td>" + detectorSlot.getHasPriority() + ". " + detector.getHasContent() + "</td>";
+					html += "<td>" + detectorSlot.getHasPriority() + ". " + content + "</td>";
 					Codebook codebook = detector.getCodebook();
 					if (codebook != null) {
 						List<ResponseOptionSlot> slots = codebook.getResponseOptionSlots();
