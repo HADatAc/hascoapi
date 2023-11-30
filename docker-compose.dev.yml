@@ -5,8 +5,8 @@ version: '3'
 # docker-compose -f docker-compose.yml -f docker-compose.dev.yml [command]
 
 services:
-    # The primary sirapi web app
-    sirapi:
+    # The primary hascoapi web app
+    hascoapi:
         volumes:
             # Mounts the local app directory to the app directory in the Docker container
             # Any changes made locally automatically show up in the Docker container.
