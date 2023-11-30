@@ -84,6 +84,7 @@ public class Detector extends DetectorStem {
         return detStemType.getURL();
     }
 
+    /** 
     public static List<Detector> findDetectors() {
         List<Detector> detectors = new ArrayList<Detector>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
@@ -100,7 +101,6 @@ public class Detector extends DetectorStem {
         return findDetectorsByQuery(queryString);
     }
 
-    /** 
     public static int getNumberDetectors() {
         String queryString = "";
         queryString += NameSpaces.getInstance().printSparqlNameSpaceList();
@@ -290,6 +290,7 @@ public class Detector extends DetectorStem {
 
     }
 
+    /** 
     private static int findTotalDetectorsByQuery(String queryString) {
         try {
             ResultSetRewindable resultsrw = SPARQLUtils.select(
@@ -304,6 +305,7 @@ public class Detector extends DetectorStem {
         }
         return -1;
     }
+    */
 
     public static Detector findDetector(String uri) {
         Detector detector = null;
@@ -355,7 +357,7 @@ public class Detector extends DetectorStem {
                     detector.setWasGeneratedBy(object.asResource().getURI());
                 } catch (Exception e) {
                 }
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MAINTAINER_EMAIL)) {
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
                 detector.setHasSIRManagerEmail(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_DETECTOR_STEM)) {
                 try {
@@ -404,7 +406,7 @@ public class Detector extends DetectorStem {
         while (resultsrw.hasNext()) {
             QuerySolution soln = resultsrw.next();
             //System.out.println("inside Detector.usage(): found uri [" + soln.getResource("uri").getURI().toString() + "]");
-            DetectorSlot detectorSlot = DetectorSlot.find(soln.getResource("attUri").getURI());
+            DetectorSlot detectorSlot = DetectorSlot.find(soln.getResource("detSlotUri").getURI());
             detectorSlots.add(detectorSlot);
         }
         return detectorSlots;

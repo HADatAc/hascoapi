@@ -140,7 +140,7 @@ public class ResponseOption extends HADatAcThing implements SIRElement /*, Compa
                 responseOption.setHasLanguage(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
                 responseOption.setHasVersion(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MAINTAINER_EMAIL)) {
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
                 responseOption.setHasSIRManagerEmail(object.asLiteral().getString());
             }
         }

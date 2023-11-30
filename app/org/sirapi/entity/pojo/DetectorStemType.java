@@ -49,7 +49,7 @@ public class DetectorStemType extends HADatAcClass implements Comparable<Detecto
         return superInsType.getLabel();
     }
 
-
+    /** 
     public static List<DetectorStemType> find() {
         List<DetectorStemType> detectorStemTypes = new ArrayList<DetectorStemType>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
@@ -78,6 +78,7 @@ public class DetectorStemType extends HADatAcClass implements Comparable<Detecto
             map.put(typ.getUri(),typ.getLabel());
         return map;
     }
+    */
 
     public static DetectorStemType find(String uri) {
         DetectorStemType detectorStemType = null;

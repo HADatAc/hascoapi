@@ -159,7 +159,7 @@ public class Codebook extends HADatAcThing implements SIRElement, Comparable<Cod
                 codebook.setHasLanguage(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
                 codebook.setHasVersion(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MAINTAINER_EMAIL)) {
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
                 codebook.setHasSIRManagerEmail(object.asLiteral().getString());
             }
         }

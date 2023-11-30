@@ -19,6 +19,7 @@ import org.sirapi.utils.NameSpaces;
 import org.sirapi.vocabularies.RDF;
 import org.sirapi.vocabularies.RDFS;
 import org.sirapi.vocabularies.HASCO;
+import org.sirapi.vocabularies.VSTOI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,6 +64,12 @@ public class SemanticVariable extends HADatAcThing {
 
 	@PropertyField(uri="hasco:isCategorical")
 	private boolean isCategorical;
+
+	@PropertyField(uri="vstoi:hasVersion")
+	private String hasVersion;
+
+    @PropertyField(uri = "vstoi:hasSIRManagerEmail")
+    private String hasSIRManagerEmail;
 
 	private Map<String, String> relations = new HashMap<String, String>();
 
@@ -222,6 +229,18 @@ public class SemanticVariable extends HADatAcThing {
     	return attrUri;
     }
 
+    public String getAttributeLabel() {
+		if (this.attrLabel != null) {
+			return this.attrLabel;
+		}
+		Attribute attr = getAttribute();
+		if (attr == null) {
+			this.attrLabel = "";
+			return this.attrLabel;
+		}
+		return attr.getLabel();
+	}
+
 	public Entity getInRelationTo() {
 		if (this.inRelationToUri == null || this.inRelationToUri.isEmpty()) {
 			return null;
@@ -344,6 +363,22 @@ public class SemanticVariable extends HADatAcThing {
     	this.isCategorical = isCategorical;
 	}
 
+	public void setHasVersion(String hasVersion) {
+    	this.hasVersion = hasVersion;
+	}
+
+	public String getHasVersion() {
+		return this.hasVersion;
+	}
+
+	public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
+    	this.hasSIRManagerEmail = hasSIRManagerEmail;
+	}
+
+	public String getHasSIRManagerEmail() {
+		return this.hasSIRManagerEmail;
+	}
+
 	public static String upperCase(String orig) {
     	String[] words = orig.split(" ");
     	StringBuffer sb = new StringBuffer();
@@ -359,113 +394,6 @@ public class SemanticVariable extends HADatAcThing {
     	String aux = upperCase(orig);
     	return aux.replaceAll(" ","-").replaceAll("[()]","");
     }
-
-	/*
-	public static SemanticVariable find(String sv_uri) {
-		try {
-			if (SemanticVariable.getCache().get(sv_uri) != null) {
-				return SemanticVariable.getCache().get(sv_uri);
-			}
-			SemanticVariable semVar = null;
-			//System.out.println("Looking for semantic variable with URI <" + sv_uri + ">");
-
-			String queryString = NameSpaces.getInstance().printSparqlNameSp    public static final String HAS_INSTRUMENT                         = "http://hadatac.org/ont/hasco/hasInstrument";
-aceList() +
-					"SELECT ?hasEntity ?hasAttribute ?hascoTypeUri " +
-					" ?hasUnit ?hasDASO ?hasDASE ?relation ?inRelationTo ?label WHERE { \n" +
-					"    <" + sv_uri + "> a hasco:SemanticVariable . \n" +
-					"    <" + sv_uri + "> hasco:hascoType hasco:SemanticVariable . \n" +
-					"    OPTIONAL { <" + sv_uri + "> hasco:hasEntity ?hasEntity } . \n" +
-					"    OPTIONAL { <" + sv_uri + "> hasco:hasAttribute ?hasAttribute } . \n" +
-					"    OPTIONAL { <" + sv_uri + "> hasco:hasUnit ?hasUnit } . \n" +
-					"    OPTIONAL { <" + sv_uri + "> hasco:hasEvent ?hasDASE } . \n" +
-					"    OPTIONAL { <" + sv_uri + "> hasco:isAttributeOf ?hasDASO } . \n" +
-					"    OPTIONAL { <" + sv_uri + "> hasco:Relation ?relation . \n" +
-					"               <" + sv_uri + "> ?relation ?inRelationTo . } . \n" +
-					"    OPTIONAL { <" + sv_uri + "> rdfs:label ?label } . \n" +
-					"}";
-
-			//System.out.println("SemanticVariable find() queryString: \n" + queryString);
-
-			ResultSetRewindable resultsrw = SPARQLUtils.select(
-					CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
-
-			if (!resultsrw.hasNext()) {
-				System.out.println("[WARNING] SemanticVariable. Could not find Semantic Variable with URI: <" + sv_uri + ">");
-				return semVar;
-			}
-
-			String localNameStr = "";
-			String labelStr = "";
-			String entityStr = "";
-			String attributeStr = "";
-			String unitStr = "";
-			String dasoUriStr = "";
-			String daseUriStr = "";
-			String inRelationToUri = "";            }
-
-				//  The label should be the exact value in the SDD, e.g., cannot be altered be something like
-				//  FirstLabel.getPrettyLabel(sv_uri) since that would prevent the matching of the label with
-				//  the column header of the data acquisition file/message
-				
-				labelStr = soln.get("label").toString();
-
-				if (soln.get("hasEntity") != null) {
-					entityStr = soln.get("hasEntity").toString();
-				}
-				if (soln.get("hasAttribute") != null) {
-					attributeStr = soln.get("hasAttribute").toString();
-				}
-				if (soln.get("hasUnit") != null) {
-					unitStr = soln.get("hasUnit").toString();
-				}
-				if (soln.get("hasDASO") != null) {
-					dasoUriStr = soln.get			System.out.println("Object: " + object.getPredicate().getURI());
-("hasDASO").toString();
-				}
-				if (soln.get("hasDASE") != null) {
-					daseUriStr = soln.get("hasDASE").toString();
-				}
-				if (soln.get("inRelationTo") != null) {
-					inRelationToUri = soln.get("inRelationTo").toString();
-				}
-				if (soln.get("relation") != null) {
-					relationUri = soln.get("relation").toString();
-				}
-
-				if (relationUri != null && relationUri.length() > 0 && inRelationToUri != null && inRelationToUri.length() > 0) {
-					relationMap.put(relationUri, inRelationToUri);
-					relationUri = "";
-					inRelationToUri = "";
-				}
-
-			}
-
-			//System.out.println("Semantic Variable [" + sv_uri + "]. Entity Str is [" + entityStr + "]");
-
-			Entity entity = Entity.find(entityStr);
-			Entity inRelationTo = Entity.find(inRelationToUri);
-			Attribute attr = Attribute.find(attributeStr);
-			Unit unit = Unit.find(unitStr);
-			Attribute timeAttr = Attribute.find(daseUriStr);
-
-			semVar = new SemanticVariable(HASCO.SEMANTIC_VARIABLE, HASCO.SEMANTIC_VARIABLE, labelStr, entity, "", attr, inRelationTo, unit, timeAttr, false);
-
-			semVar.setUri(sv_uri);
-
-			for (Map.Entry<String, String> entry : relationMap.entrySet()) {
-				semVar.addRelation(entry.getKey(), entry.getValue());
-			}
-
-			SemanticVariable.getCache().put(sv_uri, semVar);
-
-			return semVar;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-	*/
 
     public static SemanticVariable find(String uri) {   
 
@@ -521,6 +449,18 @@ aceList() +
                     sv.setUnitUri(object.asResource().getURI());
                 } catch (Exception e) {
                     sv.setUnitUri(null);
+                }
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
+                try {
+                    sv.setHasVersion(object.asLiteral().getString());
+                } catch (Exception e) {
+                    sv.setUnitUri(null);
+                }
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
+                try {
+                    sv.setHasSIRManagerEmail(object.asLiteral().getString());
+                } catch (Exception e) {
+                    sv.setHasSIRManagerEmail(null);
                 }
 			}
         }
