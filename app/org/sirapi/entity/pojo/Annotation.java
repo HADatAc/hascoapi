@@ -32,8 +32,11 @@ public class Annotation extends HADatAcThing implements Comparable<Annotation>  
     @PropertyField(uri="vstoi:hasPosition")
     private String hasPosition;
 
-    @PropertyField(uri="vstoi:hasStyle")
-    private String hasStyle;
+    @PropertyField(uri="vstoi:hasContentWithStyle")
+    private String hasContentWithStyle;
+
+    @PropertyField(uri="vstoi:hasSIRManagerEmail")
+    private String hasSIRManagerEmail;
 
     public String getBelongsTo() {
         return belongsTo;
@@ -75,12 +78,20 @@ public class Annotation extends HADatAcThing implements Comparable<Annotation>  
         this.hasPosition = hasPosition;
     }
 
-    public String getHasStyle() {
-        return hasStyle;
+    public String getHasContentWithStyle() {
+        return hasContentWithStyle;
     }
 
-    public void setHasStyle(String hasStyle) {
-        this.hasStyle = hasStyle;
+    public void setHasContentWithStyle(String hasContentWithStyle) {
+        this.hasContentWithStyle = hasContentWithStyle;
+    }
+
+    public String getHasSIRManagerEmail() {
+        return hasSIRManagerEmail;
+    }
+
+    public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
+        this.hasSIRManagerEmail = hasSIRManagerEmail;
     }
 
     public static int getNumberAnnotationsByContainer(String instrumentUri) {
@@ -189,7 +200,7 @@ public class Annotation extends HADatAcThing implements Comparable<Annotation>  
 
 
     public static Annotation find(String uri) {
-        Annotation Annotation = null;
+        Annotation annotation = null;
         Statement statement;
         RDFNode object;
 
@@ -203,34 +214,36 @@ public class Annotation extends HADatAcThing implements Comparable<Annotation>  
             return null;
         }
 
-        Annotation = new Annotation();
+        annotation = new Annotation();
 
         while (stmtIterator.hasNext()) {
             statement = stmtIterator.next();
             object = statement.getObject();
             String str = URIUtils.objectRDFToString(object);
             if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-                Annotation.setLabel(str);
+                annotation.setLabel(str);
             } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
-                Annotation.setTypeUri(str);
+                annotation.setTypeUri(str);
             } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
-                Annotation.setComment(str);
+                annotation.setComment(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
-                Annotation.setHascoTypeUri(str);
+                annotation.setHascoTypeUri(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.BELONGS_TO)) {
-                Annotation.setBelongsTo(str);
+                annotation.setBelongsTo(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_ANNOTATION_STEM)) {
-                Annotation.setHasAnnotationStem(str);
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_POSITION)){
-                Annotation.setHasPosition(str);
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STYLE)){
-                Annotation.setHasStyle(str);
+                annotation.setHasAnnotationStem(str);
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_POSITION)) {
+                annotation.setHasPosition(str);
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_CONTENT_WITH_STYLE)) {
+                annotation.setHasContentWithStyle(str);
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
+                annotation.setHasSIRManagerEmail(str);
             }
         }
 
-        Annotation.setUri(uri);
+        annotation.setUri(uri);
 
-        return Annotation;
+        return annotation;
     }
 
     /*

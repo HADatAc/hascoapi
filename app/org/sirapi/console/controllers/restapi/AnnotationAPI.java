@@ -76,7 +76,8 @@ public class AnnotationAPI extends Controller {
                 testAnnotation1.setBelongsTo(TEST_INSTRUMENT_URI);
                 testAnnotation1.setHasAnnotationStem(TEST_ANNOTATION_STEM1_URI);
                 testAnnotation1.setHasPosition(VSTOI.NOT_VISIBLE);
-                testAnnotation1.setHasStyle("");
+                testAnnotation1.setHasContentWithStyle("");
+                testAnnotation1.setHasSIRManagerEmail("me@example.com");
                 testAnnotation1.setNamedGraph(Constants.TEST_KB);
                 testAnnotation1.save();
 
@@ -89,7 +90,8 @@ public class AnnotationAPI extends Controller {
                 testAnnotation2.setBelongsTo(TEST_INSTRUMENT_URI);
                 testAnnotation2.setHasAnnotationStem(TEST_ANNOTATION_STEM2_URI);
                 testAnnotation2.setHasPosition(VSTOI.NOT_VISIBLE);
-                testAnnotation2.setHasStyle("");
+                testAnnotation2.setHasContentWithStyle("");
+                testAnnotation2.setHasSIRManagerEmail("me@example.com");
                 testAnnotation2.setNamedGraph(Constants.TEST_KB);
                 testAnnotation2.save();
 
@@ -102,7 +104,8 @@ public class AnnotationAPI extends Controller {
                 testAnnotationInstruction.setBelongsTo(TEST_INSTRUMENT_URI);
                 testAnnotationInstruction.setHasAnnotationStem(TEST_ANNOTATION_STEM_INSTRUCTION_URI);
                 testAnnotationInstruction.setHasPosition(VSTOI.PAGE_BELOW_TOP_LINE);
-                testAnnotationInstruction.setHasStyle("");
+                testAnnotationInstruction.setHasContentWithStyle("");
+                testAnnotationInstruction.setHasSIRManagerEmail("me@example.com");
                 testAnnotationInstruction.setNamedGraph(Constants.TEST_KB);
                 testAnnotationInstruction.save();
 
@@ -115,7 +118,8 @@ public class AnnotationAPI extends Controller {
                 testAnnotationPage.setBelongsTo(TEST_INSTRUMENT_URI);
                 testAnnotationPage.setHasAnnotationStem(TEST_ANNOTATION_STEM_PAGE_URI);
                 testAnnotationPage.setHasPosition(VSTOI.PAGE_BOTTOM_LEFT);
-                testAnnotationPage.setHasStyle("");
+                testAnnotationPage.setHasContentWithStyle("");
+                testAnnotationPage.setHasSIRManagerEmail("me@example.com");
                 testAnnotationPage.setNamedGraph(Constants.TEST_KB);
                 testAnnotationPage.save();
 
@@ -128,7 +132,8 @@ public class AnnotationAPI extends Controller {
                 testAnnotationDateField.setBelongsTo(TEST_INSTRUMENT_URI);
                 testAnnotationDateField.setHasAnnotationStem(TEST_ANNOTATION_STEM_DATEFIELD_URI);
                 testAnnotationDateField.setHasPosition(VSTOI.PAGE_TOP_RIGHT);
-                testAnnotationDateField.setHasStyle("");
+                testAnnotationDateField.setHasContentWithStyle("");
+                testAnnotationDateField.setHasSIRManagerEmail("me@example.com");
                 testAnnotationDateField.setNamedGraph(Constants.TEST_KB);
                 testAnnotationDateField.save();
 
@@ -141,7 +146,8 @@ public class AnnotationAPI extends Controller {
                 testAnnotationCopyright.setBelongsTo(TEST_INSTRUMENT_URI);
                 testAnnotationCopyright.setHasAnnotationStem(TEST_ANNOTATION_STEM_COPYRIGHT_URI);
                 testAnnotationCopyright.setHasPosition(VSTOI.PAGE_BOTTOM_RIGHT);
-                testAnnotationCopyright.setHasStyle("");
+                testAnnotationCopyright.setHasContentWithStyle("");
+                testAnnotationCopyright.setHasSIRManagerEmail("me@example.com");
                 testAnnotationCopyright.setNamedGraph(Constants.TEST_KB);
                 testAnnotationCopyright.save();
 
