@@ -102,8 +102,6 @@ public class Instrument extends Container {
 		return instrument;
 	}
 
-
-
 	public static List<Instrument> findAvailable() {
 		List<Instrument> instruments = new ArrayList<Instrument>();
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +

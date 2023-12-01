@@ -241,7 +241,7 @@ public class AnnotationAPI extends Controller {
         } else {
             ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL,VSTOI.ANNOTATION);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
-            //System.out.println("DetecttorAPI: [" + ApiUtil.createResponse(jsonObject, true) + "]");
+            //System.out.println("DetectorAPI: [" + ApiUtil.createResponse(jsonObject, true) + "]");
             return ok(ApiUtil.createResponse(jsonObject, true));
         }
     }

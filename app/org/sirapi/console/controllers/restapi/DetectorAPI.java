@@ -264,12 +264,7 @@ public class DetectorAPI extends Controller {
         if (results == null) {
             return ok(ApiUtil.createResponse("No detectorSlot has been found", false));
         } else {
-            ObjectMapper mapper = new ObjectMapper();
-            SimpleFilterProvider filterProvider = new SimpleFilterProvider();
-            filterProvider.addFilter("detectorSlotFilter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "hasPriority", "hasDetector", "belongsTo"));
-            mapper.setFilterProvider(filterProvider);
+            ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL,VSTOI.DETECTOR_SLOT);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));
         }

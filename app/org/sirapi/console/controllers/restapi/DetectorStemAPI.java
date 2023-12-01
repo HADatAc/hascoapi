@@ -11,6 +11,7 @@ import org.sirapi.entity.pojo.DetectorStem;
 import org.sirapi.entity.pojo.Instrument;
 import org.sirapi.entity.pojo.SemanticVariable;
 import org.sirapi.utils.ApiUtil;
+import org.sirapi.utils.HAScOMapper;
 import org.sirapi.vocabularies.VSTOI;
 
 import play.mvc.Controller;
@@ -129,13 +130,7 @@ public class DetectorStemAPI extends Controller {
         if (results == null) {
             return ok(ApiUtil.createResponse("No detector stem has been found", false));
         } else {
-            ObjectMapper mapper = new ObjectMapper();
-            SimpleFilterProvider filterProvider = new SimpleFilterProvider();
-            filterProvider.addFilter("detectorStemFilter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "hasContent", "hasSerialNumber", "hasLanguage",
-                            "hasVersion", "wasDerivedFrom", "wasGeneratedBy", "hasSIRManagerEmail"));
-            mapper.setFilterProvider(filterProvider);
+            ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL,VSTOI.DETECTOR_STEM);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));
         }

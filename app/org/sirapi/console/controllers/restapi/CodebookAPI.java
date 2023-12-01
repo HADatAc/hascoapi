@@ -9,6 +9,7 @@ import org.sirapi.Constants;
 import org.sirapi.entity.pojo.Codebook;
 import org.sirapi.entity.pojo.Instrument;
 import org.sirapi.utils.ApiUtil;
+import org.sirapi.utils.HAScOMapper;
 import org.sirapi.vocabularies.VSTOI;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -93,13 +94,7 @@ public class CodebookAPI extends Controller {
         if (results == null) {
             return ok(ApiUtil.createResponse("No codebook has been found", false));
         } else {
-            ObjectMapper mapper = new ObjectMapper();
-            SimpleFilterProvider filterProvider = new SimpleFilterProvider();
-            filterProvider.addFilter("codebookFilter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "hasSerialNumber", "hasLanguage", "hasVersion",
-                            "hasSIRManagerEmail"));
-            mapper.setFilterProvider(filterProvider);
+            ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL,VSTOI.CODEBOOK);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));
         }

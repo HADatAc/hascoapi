@@ -13,6 +13,7 @@ import org.sirapi.entity.fhir.Questionnaire;
 import org.sirapi.entity.pojo.Instrument;
 import org.sirapi.transform.Renderings;
 import org.sirapi.utils.ApiUtil;
+import org.sirapi.utils.HAScOMapper;
 import org.sirapi.vocabularies.VSTOI;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -102,14 +103,7 @@ public class InstrumentAPI extends Controller {
         if (results == null) {
             return ok(ApiUtil.createResponse("No instrument has been found", false));
         } else {
-            ObjectMapper mapper = new ObjectMapper();
-            SimpleFilterProvider filterProvider = new SimpleFilterProvider();
-            filterProvider.addFilter("instrumentFilter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "hasShortName", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "hasSerialNumber", "hasInformant", "hasImage",
-                            "hasLanguage", "hasVersion", "hasInstruction", "hasSIRManagerEmail",
-                            "hasPageNumber", "hasDateField", "hasSubjectIDField", "hasSubjectRelatioshipField", "hasCopyrightNotice"));
-            mapper.setFilterProvider(filterProvider);
+            ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL,VSTOI.INSTRUMENT);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));
         }
