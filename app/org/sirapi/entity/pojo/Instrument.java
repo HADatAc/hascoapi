@@ -47,6 +47,7 @@ public class Instrument extends Container {
 	}
 
 	public static Instrument find(String uri) {
+		System.out.println("Instrument.java : in find(): uri = [" + uri + "]");
 	    Instrument instrument = null;
 	    Statement statement;
 	    RDFNode object;

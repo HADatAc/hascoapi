@@ -274,7 +274,6 @@ public class ResponseOptionAPI extends Controller {
         } else {
             slot1.setNamedGraph(Constants.TEST_KB);
             slot2.setNamedGraph(Constants.TEST_KB);
-            System.out.println(slot1.toString());
             boolean done = ResponseOption.detach(slot1);
             if (done) {
                 done = ResponseOption.detach(slot2);

@@ -94,8 +94,8 @@ public class GenericFind<T> {
     }
 
     private static boolean isSIR (Class clazz) {
-        if (clazz == Instrument.class ||
-            clazz == DetectorStem.class ||
+        // Instrument/Container is not SIR Element
+        if (clazz == DetectorStem.class ||
             clazz == Detector.class ||
             clazz == ResponseOption.class ||
             clazz == AnnotationStem.class) {
@@ -108,7 +108,7 @@ public class GenericFind<T> {
         if (clazz == InstrumentType.class) {
             return URIUtils.replaceNameSpace(VSTOI.INSTRUMENT);
         } else if (clazz == DetectorStemType.class) {
-            return URIUtils.replaceNameSpace(VSTOI.DETECTOR_STEM);
+            return URIUtils.replaceNameSpace(VSTOI.DETECTOR);
         } else if (clazz == Entity.class) {
             return URIUtils.replaceNameSpace(SIO.ENTITY);
         } else if (clazz == Attribute.class) {
@@ -176,7 +176,7 @@ public class GenericFind<T> {
                 " SELECT ?uri WHERE { " +
                 " ?type rdfs:subClassOf* " + className + " . " +
                 " ?uri a ?type ." +
-                " ?uri rdfs:label ?label . " +
+                " OPTIONAL { ?uri rdfs:label ?label . } " +
                 "} " +
                 " ORDER BY ASC(?label) " +
                 " LIMIT " + pageSize +

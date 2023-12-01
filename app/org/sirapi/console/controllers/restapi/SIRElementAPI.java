@@ -21,7 +21,7 @@ public class SIRElementAPI extends Controller {
      */
 
     public Result createElement(String elementType, String json) {
-        System.out.println("Type: [" + elementType + "  JSON [" + json + "]");
+        //System.out.println("Type: [" + elementType + "  JSON [" + json + "]");
         if (json == null || json.equals("")) {
             return ok(ApiUtil.createResponse("No json content has been provided.", false));
         }
