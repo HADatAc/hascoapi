@@ -227,7 +227,7 @@ public class HAScOMapper {
         } else {
             filterProvider.addFilter("annotationFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "belongsTo", 
+                            "hascoTypeLabel", "comment", "belongsTo", "container",
                             "hasAnnotationStem", "annotationStem", "hasPosition", "hasStyle"));
         }
 

@@ -43,6 +43,14 @@ public class Annotation extends HADatAcThing implements Comparable<Annotation>  
         this.belongsTo = belongsTo;
     }
 
+    public Container getContainer() {
+        if (this.belongsTo == null || this.belongsTo.equals("")) {
+            return null;
+        }
+        Container container = (Container)Instrument.find(this.belongsTo);
+        return container;
+    }
+
     public String getHasAnnotationStem() {
         return hasAnnotationStem;
     }

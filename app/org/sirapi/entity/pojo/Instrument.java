@@ -89,7 +89,7 @@ public class Instrument extends Container {
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
 					instrument.setHasLanguage(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
-          instrument.setHasVersion(str);
+         			instrument.setHasVersion(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
 					instrument.setHasSIRManagerEmail(str);
 				}
