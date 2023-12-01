@@ -120,7 +120,7 @@ public class Table implements Comparable<Table> {
 
     }
 
-    public static List<Table> findContainerPosition() {
+    public static List<Table> findSubcontainerPosition() {
         List<Table> tables = new ArrayList<Table>();
         Iterator<Map.Entry<String, String>> iterator = VSTOI.containerPosition.entrySet().iterator();
         while (iterator.hasNext()) {
@@ -136,7 +136,7 @@ public class Table implements Comparable<Table> {
 
     }
 
-    public static List<Table> findPagePosition() {
+    public static List<Table> findInstrumentPosition() {
         List<Table> tables = new ArrayList<Table>();
         Iterator<Map.Entry<String, String>> iterator = VSTOI.pagePosition.entrySet().iterator();
         while (iterator.hasNext()) {

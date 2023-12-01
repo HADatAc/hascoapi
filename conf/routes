@@ -45,8 +45,8 @@ GET     /sirapi/api/repo/table/informants                 org.sirapi.console.con
 GET     /sirapi/api/repo/table/languages                  org.sirapi.console.controllers.restapi.RepoPage.getLanguages()
 GET     /sirapi/api/repo/table/generationactivities       org.sirapi.console.controllers.restapi.RepoPage.getGenerationActivities()
 GET     /sirapi/api/repo/table/namespaces                 org.sirapi.console.controllers.restapi.RepoPage.getNamespaces()
-GET     /sirapi/api/repo/table/pagepositions              org.sirapi.console.controllers.restapi.RepoPage.getPagePositions()
-GET     /sirapi/api/repo/table/containerpositions         org.sirapi.console.controllers.restapi.RepoPage.getContainerPositions()
+GET     /sirapi/api/repo/table/instrumentpositions        org.sirapi.console.controllers.restapi.RepoPage.getInstrumentPositions()
+GET     /sirapi/api/repo/table/subcontainerpositions      org.sirapi.console.controllers.restapi.RepoPage.getSubcontainerPositions()
 GET     /sirapi/api/repo/ont/load                         org.sirapi.console.controllers.restapi.RepoPage.loadOntologies()
 GET     /sirapi/api/repo/ont/delete                       org.sirapi.console.controllers.restapi.RepoPage.deleteOntologies()
 

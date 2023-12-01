@@ -84,7 +84,7 @@ public class VSTOI {
     public static final String PAGE_TOP_LEFT          = "http://hadatac.org/ont/vstoi#PageTopLeft";
     public static final String PAGE_TOP_CENTER        = "http://hadatac.org/ont/vstoi#PageTopCenter";
     public static final String PAGE_TOP_RIGHT         = "http://hadatac.org/ont/vstoi#PageTopRight";
-    public static final String PAGE_BELOW_TOP_LINE    = "http://hadatac.org/ont/vstoi#BelowTopLine";
+    public static final String PAGE_BELOW_TOP_LINE    = "http://hadatac.org/ont/vstoi#PageBelowTopLine";
     public static final String PAGE_BOTTOM_LEFT       = "http://hadatac.org/ont/vstoi#PageBottomLeft";
     public static final String PAGE_BOTTOM_CENTER     = "http://hadatac.org/ont/vstoi#PageBottomCenter";
     public static final String PAGE_BOTTOM_RIGHT      = "http://hadatac.org/ont/vstoi#PageBottomRight";
