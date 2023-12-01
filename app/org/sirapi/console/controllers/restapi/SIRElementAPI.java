@@ -191,7 +191,7 @@ public class SIRElementAPI extends Controller {
      */
 
     public Result deleteElement(String elementType, String uri) {
-        //System.out.println("Type: [" + elementType + "  URI [" + uri + "]");
+        //System.out.println("Delete element => Type: [" + elementType + "]  URI [" + uri + "]");
         if (uri == null || uri.equals("")) {
             return ok(ApiUtil.createResponse("No uri has been provided.", false));
         }
