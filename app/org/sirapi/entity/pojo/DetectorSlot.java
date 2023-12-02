@@ -28,6 +28,9 @@ public class DetectorSlot extends HADatAcThing implements Comparable<DetectorSlo
     @PropertyField(uri="vstoi:hasDetector")
     private String hasDetector;
 
+    @PropertyField(uri="vstoi:hasNext")
+    private String hasNext;
+
     @PropertyField(uri="vstoi:hasPriority")
     private String hasPriority;
 
@@ -45,6 +48,14 @@ public class DetectorSlot extends HADatAcThing implements Comparable<DetectorSlo
 
     public void setHasDetector(String hasDetector) {
         this.hasDetector = hasDetector;
+    }
+
+    public String getHasNext() {
+        return hasNext;
+    }
+
+    public void setHasNext(String hasNext) {
+        this.hasNext = hasNext;
     }
 
     public String getHasPriority() {
@@ -111,8 +122,8 @@ public class DetectorSlot extends HADatAcThing implements Comparable<DetectorSlo
         String query = "";
         query += NameSpaces.getInstance().printSparqlNameSpaceList();
         query += " select (count(?uri) as ?tot) where { " +
-                " ?attModel rdfs:subClassOf* vstoi:DetectorSlot . " +
-                " ?uri a ?attModel ." +
+                " ?type rdfs:subClassOf* vstoi:DetectorSlot . " +
+                " ?uri a ?type ." +
                 " ?uri vstoi:belongsTo <" + containerUri + ">. " +
                 "}";
 
@@ -134,8 +145,8 @@ public class DetectorSlot extends HADatAcThing implements Comparable<DetectorSlo
         List<DetectorSlot> detectorSlots = new ArrayList<DetectorSlot>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 "SELECT ?uri WHERE { " +
-                " ?attModel rdfs:subClassOf* vstoi:DetectorSlot . " +
-                " ?uri a ?attModel . } " +
+                " ?type rdfs:subClassOf* vstoi:DetectorSlot . " +
+                " ?uri a ?type . } " +
                 " ?uri vstoi:belongsTo <" + containerUri + ">. " +
                 " LIMIT " + pageSize +
                 " OFFSET " + offset;
@@ -215,20 +226,23 @@ public class DetectorSlot extends HADatAcThing implements Comparable<DetectorSlo
         while (stmtIterator.hasNext()) {
             statement = stmtIterator.next();
             object = statement.getObject();
+            String str = URIUtils.objectRDFToString(object);
             if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-                detectorSlot.setLabel(object.asLiteral().getString());
+                detectorSlot.setLabel(str);
             } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
-                detectorSlot.setTypeUri(object.asResource().getURI());
+                detectorSlot.setTypeUri(str);
             } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
-                detectorSlot.setComment(object.asLiteral().getString());
+                detectorSlot.setComment(str);
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_NEXT)) {
+                detectorSlot.setHasNext(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
-                detectorSlot.setHascoTypeUri(object.asResource().getURI());
+                detectorSlot.setHascoTypeUri(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.BELONGS_TO)) {
-                detectorSlot.setBelongsTo(object.asResource().getURI());
+                detectorSlot.setBelongsTo(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_DETECTOR)) {
-                detectorSlot.setHasDetector(object.asResource().getURI());
+                detectorSlot.setHasDetector(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PRIORITY)){
-                detectorSlot.setHasPriority(object.asLiteral().getString());
+                detectorSlot.setHasPriority(str);
             }
         }
 

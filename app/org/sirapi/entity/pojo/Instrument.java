@@ -77,6 +77,8 @@ public class Instrument extends Container {
 					instrument.setHascoTypeUri(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
 					instrument.setHasStatus(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_FIRST)) {
+					instrument.setHasFirst(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
 					instrument.setSerialNumber(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_INFORMANT)) {

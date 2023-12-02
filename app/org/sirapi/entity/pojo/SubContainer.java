@@ -31,7 +31,28 @@ public class SubContainer extends Container {
 
 	private static final Logger log = LoggerFactory.getLogger(SubContainer.class);
 
-    
+ 	@PropertyField(uri="vstoi:hasParent")
+	private String hasParent;
+
+ 	@PropertyField(uri="vstoi:hasNext")
+	private String hasNext;
+
+	public String getHasParent() {
+		return hasParent;
+	}
+
+	public void setHasParent(String hasParent) {
+		this.hasParent = hasParent;
+	}
+   
+	public String getHasNext() {
+		return hasNext;
+	}
+
+	public void setHasNext(String hasNext) {
+		this.hasNext = hasNext;
+	}
+   
 	@Override
 	public boolean equals(Object o) {
 		if((o instanceof SubContainer) && (((SubContainer)o).getUri().equals(this.getUri()))) {
@@ -76,6 +97,12 @@ public class SubContainer extends Container {
 					subContainer.setHascoTypeUri(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
 					subContainer.setHasStatus(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PARENT)) {
+					instrument.setHasParent(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_FIRST)) {
+					instrument.setHasFirst(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_NEXT)) {
+					instrument.setHasNext(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
 					subContainer.setSerialNumber(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_INFORMANT)) {

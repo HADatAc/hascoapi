@@ -34,6 +34,9 @@ public abstract class Container extends HADatAcThing implements SIRElement, Comp
 	@PropertyField(uri="vstoi:hasStatus")
 	private String hasStatus;
 
+	@PropertyField(uri="vstoi:hasFirst")
+	private String hasFirst;
+
 	@PropertyField(uri="vstoi:hasSerialNumber")
 	private String serialNumber;
 
@@ -61,6 +64,14 @@ public abstract class Container extends HADatAcThing implements SIRElement, Comp
 
 	public void setHasStatus(String hasStatus) {
 		this.hasStatus = hasStatus;
+	}
+
+	public String getHasFirst() {
+		return hasFirst;
+	}
+
+	public void setHasFirst(String hasFirst) {
+		this.hasFirst = hasFirst;
 	}
 
 	public String getSerialNumber() {
@@ -185,15 +196,18 @@ public abstract class Container extends HADatAcThing implements SIRElement, Comp
 		return (detectorSlots == null);
 	}
 
-	public boolean createDetectorSlots(int totDetectorSlots) {
-		if (totDetectorSlots <= 0) {
+	public boolean createDetectorSlots(int totNewDetectorSlots) {
+		if (totNewDetectorSlots <= 0) {
 			return false;
 		}
 		if (this.getDetectorSlots() != null || uri == null || uri.isEmpty()) {
 			return false;
 		}
-		for (int aux=1; aux <= totDetectorSlots; aux++) {
-			String auxstr = Utils.adjustedPriority(String.valueOf(aux), totDetectorSlots);
+
+		int currentTot = DetectorSlot.getNumberDetectorSlotsByContainer(uri); 
+
+		for (int aux=currentTot+1; aux <= (currentTot + totNewDetectorSlots); aux++) {
+			String auxstr = Utils.adjustedPriority(String.valueOf(aux), totNewDetectorSlots);
 			String newUri = uri + "/" + DETECTOR_SLOT_PREFIX + "/" + auxstr;
 			DetectorSlot.createDetectorSlot(uri, newUri, auxstr,null);
 		}
@@ -201,7 +215,7 @@ public abstract class Container extends HADatAcThing implements SIRElement, Comp
 		if (detectorSlotList == null) {
 			return false;
 		}
-		return (detectorSlotList.size() == totDetectorSlots);
+		return (detectorSlotList.size() == currentTot + totNewDetectorSlots);
 	}
 
 	@Override

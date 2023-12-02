@@ -52,19 +52,21 @@ public class VSTOI {
 
     public static final String BELONGS_TO = "http://hadatac.org/ont/vstoi#belongsTo";
     public static final String HAS_ANNOTATION_STEM = "http://hadatac.org/ont/vstoi#hasAnnotationStem";
+    public static final String HAS_CODEBOOK = "http://hadatac.org/ont/vstoi#hasCodebook";
     public static final String HAS_CONTENT = "http://hadatac.org/ont/vstoi#hasContent";
+    public static final String HAS_CONTENT_WITH_STYLE = "http://hadatac.org/ont/vstoi#hasContentWithStyle";
     public static final String HAS_DETECTOR = "http://hadatac.org/ont/vstoi#hasDetector";
     public static final String HAS_DETECTOR_STEM = "http://hadatac.org/ont/vstoi#hasDetectorStem";
-    public static final String HAS_CODEBOOK = "http://hadatac.org/ont/vstoi#hasCodebook";
+    public static final String HAS_FIRST = "http://hadatac.org/ont/vstoi#hasFirst";
     public static final String HAS_INFORMANT = "http://hadatac.org/ont/vstoi#hasInformant";
     public static final String HAS_LANGUAGE = "http://hadatac.org/ont/vstoi#hasLanguage";
+    public static final String HAS_NEXT = "http://hadatac.org/ont/vstoi#hasNext";
     public static final String HAS_POSITION = "http://hadatac.org/ont/vstoi#hasPosition";
     public static final String HAS_PRIORITY = "http://hadatac.org/ont/vstoi#hasPriority";
     public static final String HAS_RESPONSE_OPTION = "http://hadatac.org/ont/vstoi#hasResponseOption";
     public static final String HAS_SHORT_NAME = "http://hadatac.org/ont/vstoi#hasShortName";
     public static final String HAS_STATUS = "http://hadatac.org/ont/vstoi#hasStatus";
     public static final String HAS_SIR_MANAGER_EMAIL = "http://hadatac.org/ont/vstoi#hasSIRManagerEmail";
-    public static final String HAS_CONTENT_WITH_STYLE = "http://hadatac.org/ont/vstoi#hasContentWithStyle";
     public static final String HAS_VERSION = "http://hadatac.org/ont/vstoi#hasVersion";
     public static final String OF_CODEBOOK = "http://hadatac.org/ont/vstoi#ofCodebook";
 

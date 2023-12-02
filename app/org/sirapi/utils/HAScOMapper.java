@@ -145,7 +145,17 @@ public class HAScOMapper {
         } else {
             filterProvider.addFilter("instrumentFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "hasInformant", "comment", "hasSerialNumber", "hasLanguage", "hasVersion",
+                            "hascoTypeLabel", "hasInformant", "comment", "hasFirst", "hasSerialNumber", "hasLanguage", "hasVersion",
+                            "hasSIRManagerEmail"));
+        }
+
+        // SUBCONTAINER
+        if (mode.equals(FULL) && typeResult.equals(VSTOI.SUBCONTAINER)) {
+            filterProvider.addFilter("subContainerFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("subContainerFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
+                            "hascoTypeLabel", "hasInformant", "comment", "hasFirst", "hasNext", "hasSerialNumber", "hasLanguage", "hasVersion",
                             "hasSIRManagerEmail"));
         }
 
@@ -155,7 +165,7 @@ public class HAScOMapper {
         } else {
             filterProvider.addFilter("detectorSlotFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "hasPriority", "hasDetector", "detector", "belongsTo"));
+                            "hascoTypeLabel", "comment", "hasNext", "hasPriority", "hasDetector", "detector", "belongsTo"));
         }
 
         // DETECTOR_STEM_TYPE
