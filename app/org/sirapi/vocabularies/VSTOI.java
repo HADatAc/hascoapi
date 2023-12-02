@@ -16,6 +16,7 @@ public class VSTOI {
     public static final String DETECTOR = "http://hadatac.org/ont/vstoi#Detector";
     public static final String INSTRUMENT = "http://hadatac.org/ont/vstoi#Instrument";
     public static final String QUESTIONNAIRE = "http://hadatac.org/ont/vstoi#Questionnaire";
+    public static final String SUBCONTAINER = "http://hadatac.org/ont/vstoi#Subcontainer";
 
     /*
      * PROPERTIES
@@ -61,6 +62,7 @@ public class VSTOI {
     public static final String HAS_INFORMANT = "http://hadatac.org/ont/vstoi#hasInformant";
     public static final String HAS_LANGUAGE = "http://hadatac.org/ont/vstoi#hasLanguage";
     public static final String HAS_NEXT = "http://hadatac.org/ont/vstoi#hasNext";
+    public static final String HAS_PARENT = "http://hadatac.org/ont/vstoi#hasParent";
     public static final String HAS_POSITION = "http://hadatac.org/ont/vstoi#hasPosition";
     public static final String HAS_PRIORITY = "http://hadatac.org/ont/vstoi#hasPriority";
     public static final String HAS_RESPONSE_OPTION = "http://hadatac.org/ont/vstoi#hasResponseOption";

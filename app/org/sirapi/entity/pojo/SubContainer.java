@@ -98,11 +98,11 @@ public class SubContainer extends Container {
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
 					subContainer.setHasStatus(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PARENT)) {
-					instrument.setHasParent(str);
+					subContainer.setHasParent(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_FIRST)) {
-					instrument.setHasFirst(str);
+					subContainer.setHasFirst(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_NEXT)) {
-					instrument.setHasNext(str);
+					subContainer.setHasNext(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
 					subContainer.setSerialNumber(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_INFORMANT)) {
