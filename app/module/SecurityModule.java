@@ -25,9 +25,9 @@ import play.Environment;
 
 import play.cache.SyncCacheApi;
 
-import org.sirapi.utils.ConfigProp;
-import org.sirapi.utils.Utils;
-import org.sirapi.console.views.html.*;
+import org.hascoapi.utils.ConfigProp;
+import org.hascoapi.utils.Utils;
+import org.hascoapi.console.views.html.*;
 import static play.mvc.Results.forbidden;
 import static play.mvc.Results.unauthorized;
 
@@ -40,7 +40,7 @@ public class SecurityModule extends AbstractModule {
 
     public SecurityModule(final Environment environment, final com.typesafe.config.Config configuration) {
         this.configuration = configuration;
-        this.baseUrl = configuration.getString("sirapi.console.host");
+        this.baseUrl = configuration.getString("hascoapi.console.host");
     }
 
  

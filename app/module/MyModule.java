@@ -9,10 +9,10 @@ import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 //import com.feth.play.module.pa.providers.oauth2.google.GoogleAuthProvider;
 
-//import org.sirapi.console.providers.MyStupidBasicAuthProvider;
-//import org.sirapi.console.providers.MyUsernamePasswordAuthProvider;
-//import org.sirapi.console.service.MyResolver;
-//import org.sirapi.console.service.MyUserService;
+//import org.hascoapi.console.providers.MyStupidBasicAuthProvider;
+//import org.hascoapi.console.providers.MyUsernamePasswordAuthProvider;
+//import org.hascoapi.console.service.MyResolver;
+//import org.hascoapi.console.service.MyUserService;
 
 /**
  * Initial DI module.

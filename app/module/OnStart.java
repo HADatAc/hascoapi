@@ -7,8 +7,8 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.sirapi.RepositoryInstance;
-import org.sirapi.utils.NameSpaces;
+import org.hascoapi.RepositoryInstance;
+import org.hascoapi.utils.NameSpaces;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
