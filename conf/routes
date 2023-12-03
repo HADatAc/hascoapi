@@ -61,6 +61,7 @@ GET     /sirapi/api/instrument/tofhir/:uri                org.sirapi.console.con
 # CONCEPT-SPECIFIC METHODS
 
 POST    /sirapi/api/slots/detector/create/:instrUri/:totSlots             org.sirapi.console.controllers.restapi.ContainerAPI.createDetectorSlots(instrUri: String, totSlots : String)
+GET     /sirapi/api/slots/detector/create/:instrUri/:totSlots             org.sirapi.console.controllers.restapi.ContainerAPI.createDetectorSlots(instrUri: String, totSlots : String)
 POST    /sirapi/api/slots/detector/delete/:instrUri                       org.sirapi.console.controllers.restapi.ContainerAPI.deleteDetectorSlots(instrUri: String)
 POST    /sirapi/api/slots/responseoption/create/:codebookUri/:totSlots    org.sirapi.console.controllers.restapi.CodebookAPI.createResponseOptionSlots(codebookUri: String, totSlots : String)
 POST    /sirapi/api/slots/responseoption/delete/:codebookUri              org.sirapi.console.controllers.restapi.CodebookAPI.deleteResponseOptionSlots(codebookUri: String)

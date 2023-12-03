@@ -29,6 +29,12 @@ public class DetectorSlot extends HADatAcThing implements Comparable<DetectorSlo
     @PropertyField(uri="vstoi:hasDetector")
     private String hasDetector;
 
+    @PropertyField(uri="vstoi:hasSubContainer")
+    private String hasSubContainer;
+
+    @PropertyField(uri="vstoi:hostType")
+    private String hostType;
+
     @PropertyField(uri="vstoi:hasNext")
     private String hasNext;
 
@@ -49,6 +55,22 @@ public class DetectorSlot extends HADatAcThing implements Comparable<DetectorSlo
 
     public void setHasDetector(String hasDetector) {
         this.hasDetector = hasDetector;
+    }
+
+    public String getHasSubContainer() {
+        return hasSubContainer;
+    }
+
+    public void setHasSubContainer(String hasSubContainer) {
+        this.hasSubContainer = hasSubContainer;
+    }
+
+    public String getHostType() {
+        return hostType;
+    }
+
+    public void setHostType(String hostType) {
+        this.hostType = hostType;
     }
 
     public String getHasNext() {
@@ -176,15 +198,23 @@ public class DetectorSlot extends HADatAcThing implements Comparable<DetectorSlo
     }
 
     public static List<DetectorSlot> findByContainer(String containerUri) {
-        //System.out.println("findByContainer: [" + containerUri + "]");
+        System.out.println("findByContainer: [" + containerUri + "]");
+
+        Instrument inst = Instrument.find(containerUri);
+
+        if (inst == null || inst.getHasFirst() == null || inst.getHasFirst().isEmpty()) {
+            return new ArrayList<DetectorSlot>();
+        }
+
+        System.out.println("First : [" + inst.getHasFirst() + "]");
+
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?type rdfs:subClassOf* vstoi:DetectorSlot . " +
-                " ?uri a ?type ." +
-                " ?uri vstoi:belongsTo <" + containerUri + ">. " +
+                "   <" + inst.getHasFirst() + "> vstoi:hasNext* ?uri . " +
                 "} ";
-
+        //System.out.println(queryString);
         return findByQuery(queryString);
+        
     }
 
     private static List<DetectorSlot> findByQuery(String queryString) {
@@ -242,6 +272,10 @@ public class DetectorSlot extends HADatAcThing implements Comparable<DetectorSlo
                 detectorSlot.setBelongsTo(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_DETECTOR)) {
                 detectorSlot.setHasDetector(str);
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SUBCONTAINER)) {
+                detectorSlot.setHasSubContainer(str);
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HOST_TYPE)) {
+                detectorSlot.setHostType(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PRIORITY)){
                 detectorSlot.setHasPriority(str);
             }
@@ -252,7 +286,8 @@ public class DetectorSlot extends HADatAcThing implements Comparable<DetectorSlo
         return detectorSlot;
     }
 
-    static public boolean createDetectorSlot(String containerUri, String detectorSlotUri, String priority, String hasDetector) {
+    static public boolean createDetectorSlot(String containerUri, String detectorSlotUri, String detectorSlotUriNext, 
+                            String hostType, String priority, String hasDetector, String hasSubContainer) {
         if (containerUri == null || containerUri.isEmpty()) {
             return false;
         }
@@ -264,11 +299,18 @@ public class DetectorSlot extends HADatAcThing implements Comparable<DetectorSlo
         detectorSlot.setLabel("DetectorSlot " + priority);
         detectorSlot.setTypeUri(VSTOI.DETECTOR_SLOT);
         detectorSlot.setHascoTypeUri(VSTOI.DETECTOR_SLOT);
+        detectorSlot.setHostType(hostType);
         detectorSlot.setComment("DetectorSlot " + priority + " of container with URI " + containerUri);
         detectorSlot.setBelongsTo(containerUri);
         detectorSlot.setHasPriority(priority);
+        if (detectorSlotUriNext != null && !detectorSlotUriNext.isEmpty()) {
+            detectorSlot.setHasNext(detectorSlotUriNext);
+        }
         if (hasDetector != null) {
             detectorSlot.setHasDetector(hasDetector);
+        }
+        if (hasSubContainer != null) {
+            detectorSlot.setHasSubContainer(hasSubContainer);
         }
         detectorSlot.save();
         //System.out.println("DetectorSlot.createDetectorSlot: creating detectorSlot with URI [" + detectorSlotUri + "]" );

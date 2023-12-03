@@ -192,6 +192,10 @@ public abstract class Container extends HADatAcThing implements SIRElement, Comp
 		for (DetectorSlot detectorSlot: detectorSlots) {
 			detectorSlot.delete();
 		}
+
+		// update list on container itself 
+		setHasFirst(null);
+		save();
 		detectorSlots = DetectorSlot.findByContainer(uri);
 		return (detectorSlots == null);
 	}
@@ -200,22 +204,66 @@ public abstract class Container extends HADatAcThing implements SIRElement, Comp
 		if (totNewDetectorSlots <= 0) {
 			return false;
 		}
-		if (this.getDetectorSlots() != null || uri == null || uri.isEmpty()) {
-			return false;
-		}
 
-		int currentTot = DetectorSlot.getNumberDetectorSlotsByContainer(uri); 
+		System.out.println("inside create Detector Slots");
 
-		for (int aux=currentTot+1; aux <= (currentTot + totNewDetectorSlots); aux++) {
-			String auxstr = Utils.adjustedPriority(String.valueOf(aux), totNewDetectorSlots);
-			String newUri = uri + "/" + DETECTOR_SLOT_PREFIX + "/" + auxstr;
-			DetectorSlot.createDetectorSlot(uri, newUri, auxstr,null);
-		}
 		List<DetectorSlot> detectorSlotList = DetectorSlot.findByContainer(uri);
+
+		System.out.println("printing slot list");
+		if (detectorSlotList != null) {
+			for (DetectorSlot slot: detectorSlotList) {
+				System.out.println(slot.getUri() + "  Next: " + slot.getHasNext());
+			}
+		}
+
+		int currentTotal = -1;
+		DetectorSlot lastDetectorSlot = null; 
+
+		if (detectorSlotList == null || detectorSlotList.size() == 0) {
+			currentTotal = 0;
+		} else {
+			currentTotal = detectorSlotList.size();
+			lastDetectorSlot = detectorSlotList.get(currentTotal - 1);
+			System.out.println("Last slot: " + lastDetectorSlot.getUri());
+		}
+
+		int newTotal = currentTotal + totNewDetectorSlots;
+
+		System.out.println("New total of slots: " + newTotal);
+		
+		for (int aux = currentTotal + 1; aux <= newTotal; aux++) {
+			String auxstr = Utils.adjustedPriority(String.valueOf(aux), 1000);
+			String newUri = uri + "/" + DETECTOR_SLOT_PREFIX + "/" + auxstr;
+			String newNextUri = null;
+			if (aux + 1 <= newTotal) {
+			  String auxNextstr = Utils.adjustedPriority(String.valueOf(aux + 1), 1000);
+			  newNextUri = uri + "/" + DETECTOR_SLOT_PREFIX + "/" + auxNextstr;
+			}
+		    System.out.println("Creating slot: [" + newUri + "]  with next: [" + newNextUri + "]");
+			String nullstr = null;
+			DetectorSlot.createDetectorSlot(uri, newUri, newNextUri, VSTOI.DETECTOR, auxstr, nullstr, nullstr);
+		}
+
+		if (currentTotal <= 0) {
+		    String auxstr = Utils.adjustedPriority("1", 1000);
+		  	String firstUri = uri + "/" + DETECTOR_SLOT_PREFIX + "/" + auxstr;
+		  	System.out.println("Container [" + uri + "] adding FirstUri: [" + firstUri + "]");
+		  	setHasFirst(firstUri);
+		    save();
+		} else {
+			String auxstr = Utils.adjustedPriority(String.valueOf(currentTotal + 1), 1000);
+			String nextUri = uri + "/" + DETECTOR_SLOT_PREFIX + "/" + auxstr;
+			System.out.println("NextUri: [" + nextUri + "] updated at [" + lastDetectorSlot.getUri() + "]");
+			lastDetectorSlot.setHasNext(nextUri);
+			lastDetectorSlot.save();
+		}
+
+		detectorSlotList = DetectorSlot.findByContainer(uri);
 		if (detectorSlotList == null) {
 			return false;
 		}
-		return (detectorSlotList.size() == currentTot + totNewDetectorSlots);
+		return true;
+		//return (detectorSlotList.size() == newTotal);
 	}
 
 	@Override

@@ -41,9 +41,6 @@ public class ContainerAPI extends Controller {
         if (container == null) {
             return ok(ApiUtil.createResponse("Cannot create detector slots on null container", false));
         }
-        if (container.getDetectorSlots() != null) {
-            return ok(ApiUtil.createResponse("Instrument/SubContainer already has detectorSlots. Delete existing detectorSlots before creating new detectorSlots", false));
-        }
         if (totDetectorSlots == null || totDetectorSlots.equals("")) {
             return ok(ApiUtil.createResponse("No total numbers of detectorSlots to be created has been provided.", false));
         }

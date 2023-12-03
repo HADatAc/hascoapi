@@ -69,7 +69,9 @@ public class VSTOI {
     public static final String HAS_SHORT_NAME = "http://hadatac.org/ont/vstoi#hasShortName";
     public static final String HAS_STATUS = "http://hadatac.org/ont/vstoi#hasStatus";
     public static final String HAS_SIR_MANAGER_EMAIL = "http://hadatac.org/ont/vstoi#hasSIRManagerEmail";
+    public static final String HAS_SUBCONTAINER = "http://hadatac.org/ont/vstoi#hasSubcontainer";
     public static final String HAS_VERSION = "http://hadatac.org/ont/vstoi#hasVersion";
+    public static final String HOST_TYPE = "http://hadatac.org/ont/vstoi#hostType";
     public static final String OF_CODEBOOK = "http://hadatac.org/ont/vstoi#ofCodebook";
 
     /*
