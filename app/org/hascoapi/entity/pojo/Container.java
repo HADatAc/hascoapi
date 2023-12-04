@@ -130,7 +130,7 @@ public abstract class Container extends HADatAcThing implements SIRElement, Comp
 		this.hasSIRManagerEmail = hasSIRManagerEmail;
 	}
 
-	public String gecontainerSlottTypeLabel() {
+	public String getTypeLabel() {
     	InstrumentType insType = InstrumentType.find(getTypeUri());
     	if (insType == null || insType.getLabel() == null) {
     		return "";
@@ -146,9 +146,67 @@ public abstract class Container extends HADatAcThing implements SIRElement, Comp
     	return insType.getURL();
     }
 
+    public List<SlotElement> getSlotElements() {
+    	List<SlotElement> slotElements = Container.getSlotElements(uri);
+    	return slotElements;
+    }
+
+    public List<Subcontainer> getSubcontainers() {
+		List<Subcontainer> subcontainers = new ArrayList<Subcontainer>();
+    	List<SlotElement> slots = Container.getSlotElements(uri);
+		for (SlotElement slot: slots) {
+			if (slot instanceof Subcontainer) {
+				subcontainers.add((Subcontainer)slot);
+			}
+		}
+    	return subcontainers;
+    }
+
     public List<ContainerSlot> getContainerSlots() {
-    	List<ContainerSlot> detSlots = ContainerSlot.findByContainer(uri);
-    	return detSlots;
+		List<ContainerSlot> containerSlots = new ArrayList<ContainerSlot>();
+    	List<SlotElement> slots = Container.getSlotElements(uri);
+		for (SlotElement slot: slots) {
+			System.out.println("In slots: has " + slot.getUri());
+			if (slot instanceof ContainerSlot) {
+			    System.out.println("   ===> Is ContainerSlot");
+				containerSlots.add((ContainerSlot)slot);
+			}
+		}
+    	return containerSlots;
+    }
+
+    public static List<SlotElement> getSlotElements(String containerUri) {
+        System.out.println("findByContainer: [" + containerUri + "]");
+        Container container = Container.find(containerUri);
+        if (container != null) {
+            System.out.println("findByContainer: getHasFirst(): " + container.getHasFirst());
+        }
+        if (container == null || container.getHasFirst() == null || container.getHasFirst().isEmpty()) {
+            return new ArrayList<SlotElement>();
+        }
+        System.out.println("First : [" + container.getHasFirst() + "]");
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT ?uri WHERE { " +
+                "   <" + container.getHasFirst() + "> vstoi:hasNext* ?uri . " +
+                "} ";
+        System.out.println(queryString);
+        return findByQuery(queryString);        
+    }
+
+    private static List<SlotElement> findByQuery(String queryString) {
+        List<SlotElement> slotElements = new ArrayList<SlotElement>();
+        ResultSetRewindable resultsrw = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+        if (!resultsrw.hasNext()) {
+            return null;
+        }
+        while (resultsrw.hasNext()) {
+            QuerySolution soln = resultsrw.next();
+            SlotElement slotElement = SlotOperations.findSlotElement(soln.getResource("uri").getURI());
+            slotElements.add(slotElement);
+        }
+        //java.util.Collections.sort((List<ContainerSlot>) containerSlots);
+        return slotElements;
     }
 
     public List<Annotation> getAnnotations() {
@@ -159,10 +217,12 @@ public abstract class Container extends HADatAcThing implements SIRElement, Comp
     @JsonIgnore
 	public List<Detector> getDetectors() {
 		List<Detector> detectors = new ArrayList<Detector>();
-    	List<ContainerSlot> dets = ContainerSlot.findByContainer(uri);
-		for (ContainerSlot det : dets) {
-			Detector detector = det.getDetector();
-			detectors.add(detector);
+    	List<SlotElement> slots = getSlotElements(uri);
+		for (SlotElement slot : slots) {
+			if (slot instanceof ContainerSlot) {
+				Detector detector = ((ContainerSlot)slot).getDetector();
+				detectors.add(detector);
+			}
 		} 
     	return detectors;
     }
@@ -180,7 +240,7 @@ public abstract class Container extends HADatAcThing implements SIRElement, Comp
 	private static String retrieveTypeUri(String uri) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?type WHERE { " +
-                " ?uri a ?type ." +
+                " <" + uri + "> hasco:hascoType ?type ." +
                 "} ";
         ResultSetRewindable resultsrw = SPARQLUtils.select(
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
@@ -192,9 +252,10 @@ public abstract class Container extends HADatAcThing implements SIRElement, Comp
     }
 
 	public static Container find(String uri) {
-		//System.out.println("Instrument.java : in find(): uri = [" + uri + "]");
+		System.out.println("Container.find(): uri = [" + uri + "]");
 		Container container;
 		String typeUri = retrieveTypeUri(uri);
+		System.out.println("Container.find(): typeUri = [" + typeUri + "]");
 		if (typeUri.equals(VSTOI.INSTRUMENT)) {
 			container = new Instrument();
 		} else if (typeUri.equals(VSTOI.SUBCONTAINER)) {
@@ -262,22 +323,26 @@ public abstract class Container extends HADatAcThing implements SIRElement, Comp
 	}
 
 	public boolean deleteContainerSlots() {
-		if (this.getContainerSlots() == null || uri == null || uri.isEmpty()) {
+		if (uri == null || uri.isEmpty()) {
 			return true;
 		}
-		List<ContainerSlot> containerSlots = ContainerSlot.findByContainer(uri);
-		if (containerSlots == null) {
+		List<SlotElement> slotElements = getSlotElements(uri);
+		if (slotElements == null) {
 			return true;
 		}
-		for (ContainerSlot containerSlot: containerSlots) {
-			containerSlot.delete();
+		/**
+		 *   TODO: Need to be properly remove from the list
+		 */
+		for (SlotElement slot: slotElements) {
+			if (slot instanceof ContainerSlot) {
+				((ContainerSlot)slot).delete();
+			}
 		}
 
 		// update list on container itself 
 		setHasFirst(null);
 		save();
-		containerSlots = ContainerSlot.findByContainer(uri);
-		return (containerSlots == null);
+		return true;
 	}
 
 	public boolean createContainerSlots(int totNewContainerSlots) {
@@ -287,24 +352,24 @@ public abstract class Container extends HADatAcThing implements SIRElement, Comp
 
 		System.out.println("inside create Container Slots");
 
-		List<ContainerSlot> containerSlotList = ContainerSlot.findByContainer(uri);
+		List<SlotElement> slotElements = getSlotElements(uri);
 
 		System.out.println("printing slot list");
-		if (containerSlotList != null) {
-			for (ContainerSlot slot: containerSlotList) {
+		if (slotElements != null) {
+			for (SlotElement slot: slotElements) {
 				System.out.println(slot.getUri() + "  Next: " + slot.getHasNext());
 			}
 		}
 
 		int currentTotal = -1;
-		ContainerSlot lastContainerSlot = null; 
+		SlotElement lastSlot = null; 
 
-		if (containerSlotList == null || containerSlotList.size() == 0) {
+		if (slotElements == null || slotElements.size() == 0) {
 			currentTotal = 0;
 		} else {
-			currentTotal = containerSlotList.size();
-			lastContainerSlot = containerSlotList.get(currentTotal - 1);
-			System.out.println("Last slot: " + lastContainerSlot.getUri());
+			currentTotal = slotElements.size();
+			lastSlot = slotElements.get(currentTotal - 1);
+			System.out.println("Last slot: " + lastSlot.getUri());
 		}
 
 		int newTotal = currentTotal + totNewContainerSlots;
@@ -338,13 +403,13 @@ public abstract class Container extends HADatAcThing implements SIRElement, Comp
 		} else {
 			String auxstr = Utils.adjustedPriority(String.valueOf(currentTotal + 1), 1000);
 			String nextUri = uri + "/" + CONTAINER_SLOT_PREFIX + "/" + auxstr;
-			System.out.println("NextUri: [" + nextUri + "] updated at [" + lastContainerSlot.getUri() + "]");
-			lastContainerSlot.setHasNext(nextUri);
-			lastContainerSlot.save();
+			System.out.println("NextUri: [" + nextUri + "] updated at [" + lastSlot.getUri() + "]");
+			lastSlot.setHasNext(nextUri);
+			lastSlot.save();
 		}
 
-		containerSlotList = ContainerSlot.findByContainer(uri);
-		if (containerSlotList == null) {
+		slotElements = getSlotElements(uri);
+		if (slotElements == null) {
 			return false;
 		}
 		return true;

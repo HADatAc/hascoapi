@@ -5,52 +5,32 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
-import ca.uhn.fhir.context.FhirContext;
-import ca.uhn.fhir.parser.IParser;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.hascoapi.Constants;
-import org.hascoapi.entity.fhir.Questionnaire;
 import org.hascoapi.entity.pojo.Container;
 import org.hascoapi.entity.pojo.Instrument;
 import org.hascoapi.entity.pojo.Subcontainer;
-import org.hascoapi.transform.Renderings;
 import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.HAScOMapper;
 import org.hascoapi.vocabularies.VSTOI;
 import play.mvc.Controller;
 import play.mvc.Result;
 
-import java.io.ByteArrayOutputStream;
-import java.util.List;
-
 import static org.hascoapi.Constants.*;
 
 public class SubcontainerAPI extends Controller {
 
+    /** 
+     *   MAINTAINING SUBCONTAINERS
+     */
+
     private Result createSubcontainerResult(Subcontainer subcontainer) {
-        subcontainer.save();
-        return ok(ApiUtil.createResponse("Subcontainer <" + subcontainer.getUri() + "> has been CREATED.", true));
-    }
-
-    public Result createSubcontainerForTesting() {
-        Instrument testInstrument = Instrument.find(TEST_INSTRUMENT_URI);
-        Subcontainer testSubcontainer = Subcontainer.find(TEST_SUBCONTAINER_URI);
-        if (testInstrument == null) {
-            return ok(ApiUtil.createResponse("Test instrument <" + TEST_INSTRUMENT_URI + "> is required before the subcontainer can be created.", false));
-        } else if (testSubcontainer != null) {
-            return ok(ApiUtil.createResponse("Test subcontainer <" + TEST_SUBCONTAINER_URI + "> already exists.", false));
+        if (subcontainer.saveAndAttach()) {
+            return ok(ApiUtil.createResponse("Subcontainer <" + subcontainer.getUri() + "> has been CREATED.", true));
         } else {
-            testSubcontainer = new Subcontainer();
-            testSubcontainer.setUri(TEST_SUBCONTAINER_URI);
-            testSubcontainer.setLabel("Test Subcontainer");
-            testSubcontainer.setTypeUri(VSTOI.SUBCONTAINER);
-            testSubcontainer.setHascoTypeUri(VSTOI.SUBCONTAINER);
-            testSubcontainer.setHasShortName("SUBCONTAINER TEST");
-            testSubcontainer.setComment("This is a test subcontainer created to be added to the main Test Instrument.");
-            testSubcontainer.setHasSIRManagerEmail("me@example.com");
-            testSubcontainer.setNamedGraph(Constants.TEST_KB);
-
-            return createSubcontainerResult(testSubcontainer);
+            return ok(ApiUtil.createResponse("Subcontainer <" + subcontainer.getUri() + "> FAILED to be created.", false));
         }
     }
 
@@ -73,18 +53,10 @@ public class SubcontainerAPI extends Controller {
 
     private Result deleteSubcontainerResult(Subcontainer subcontainer) {
         String uri = subcontainer.getUri();
-        subcontainer.delete();
-        return ok(ApiUtil.createResponse("Subcontainer <" + uri + "> has been DELETED.", true));
-    }
-
-    public Result deleteSubcontainerForTesting(){
-        Subcontainer test;
-        test = Subcontainer.find(TEST_SUBCONTAINER_URI);
-        if (test == null) {
-            return ok(ApiUtil.createResponse("There is no Test subcontainer to be deleted.", false));
+        if (subcontainer.deleteAndDetach()) {
+           return ok(ApiUtil.createResponse("Subcontainer <" + uri + "> has been DELETED.", true));
         } else {
-            test.setNamedGraph(Constants.TEST_KB);
-            return deleteSubcontainerResult(test);
+           return ok(ApiUtil.createResponse("Subcontainer <" + uri + "> FAILED to be deleted.", false));
         }
     }
 
@@ -100,6 +72,83 @@ public class SubcontainerAPI extends Controller {
         }
     }
 
+    /** 
+     *   TESTING SUBCONTAINERS
+     */
+
+    public Result createSubcontainerForTesting() {
+        Instrument testInstrument = Instrument.find(TEST_INSTRUMENT_URI);
+        Subcontainer testSubcontainer1 = Subcontainer.find(TEST_SUBCONTAINER1_URI);
+        Subcontainer testSubcontainer2 = Subcontainer.find(TEST_SUBCONTAINER2_URI);
+        if (testInstrument == null) {
+            return ok(ApiUtil.createResponse("Test instrument <" + TEST_INSTRUMENT_URI + "> is required before the subcontainer can be created.", false));
+        } else if (testSubcontainer1 != null) {
+            return ok(ApiUtil.createResponse("Test subcontainer <" + TEST_SUBCONTAINER1_URI + "> already exists.", false));
+        } else if (testSubcontainer2 != null) {
+            return ok(ApiUtil.createResponse("Test subcontainer <" + TEST_SUBCONTAINER2_URI + "> already exists.", false));
+        } else {
+
+            // Insert list of subcontainers in the reverse order
+
+            testSubcontainer2 = new Subcontainer();
+            testSubcontainer2.setUri(TEST_SUBCONTAINER2_URI);
+            testSubcontainer2.setBelongsTo(TEST_INSTRUMENT_URI);
+            testSubcontainer2.setLabel("Test Subcontainer 2");
+            testSubcontainer2.setTypeUri(VSTOI.SUBCONTAINER);
+            testSubcontainer2.setHascoTypeUri(VSTOI.SUBCONTAINER);
+            testSubcontainer2.setHasShortName("SUBCONTAINER TEST 2");
+            testSubcontainer2.setComment("Test subcontainer 2 to be added to the main Test Instrument.");
+            testSubcontainer2.setHasSIRManagerEmail("me@example.com");
+            testSubcontainer2.setNamedGraph(Constants.TEST_KB);
+            if (!testSubcontainer2.saveAndAttach()) {
+                return ok(ApiUtil.createResponse("Failed to create Subcontainers 2.", false));
+            }
+
+            testSubcontainer1 = new Subcontainer();
+            testSubcontainer1.setUri(TEST_SUBCONTAINER1_URI);
+            testSubcontainer1.setBelongsTo(TEST_INSTRUMENT_URI);
+            testSubcontainer1.setLabel("Test Subcontainer 1");
+            testSubcontainer1.setTypeUri(VSTOI.SUBCONTAINER);
+            testSubcontainer1.setHascoTypeUri(VSTOI.SUBCONTAINER);
+            testSubcontainer1.setHasShortName("SUBCONTAINER TEST 1");
+            testSubcontainer1.setComment("Test subcontainer 1 to be added to the main Test Instrument.");
+            testSubcontainer1.setHasSIRManagerEmail("me@example.com");
+            testSubcontainer1.setNamedGraph(Constants.TEST_KB);
+            if (testSubcontainer1.saveAndAttach()) {
+                return ok(ApiUtil.createResponse("Subcontainers 1 and 2 has been CREATED.", true));
+            } else {
+                return ok(ApiUtil.createResponse("Failed to create Subcontainers 1.", false));
+            }
+        }
+    }
+
+    public Result deleteSubcontainerForTesting(){
+        Subcontainer testSubcontainer1 = Subcontainer.find(TEST_SUBCONTAINER1_URI);
+        Subcontainer testSubcontainer2 = Subcontainer.find(TEST_SUBCONTAINER2_URI);
+        String msg = "";
+        if (testSubcontainer1 == null) {
+            msg += "No Test subcontainer 1 to be deleted. ";
+        } else {
+            testSubcontainer1.setNamedGraph(Constants.TEST_KB);
+            testSubcontainer1.deleteAndDetach();
+        } 
+        if (testSubcontainer2 == null) {
+            msg += "No Test subcontainer 2 to be deleted. ";
+        } else {
+            testSubcontainer2.setNamedGraph(Constants.TEST_KB);
+            testSubcontainer2.deleteAndDetach();
+        }
+        if (msg.isEmpty()) {
+            return ok(ApiUtil.createResponse("Subcontainers 1 and 2 has been DELETED.", true));
+        } else {
+            return ok(ApiUtil.createResponse(msg, false));
+        }
+    }
+
+    /**
+     *   QUERYING SUBCONTAINER
+     */
+ 
     public static Result getSubcontainers(List<Subcontainer> results){
         if (results == null) {
             return ok(ApiUtil.createResponse("No subcontainer has been found", false));
@@ -110,71 +159,4 @@ public class SubcontainerAPI extends Controller {
         }
     }
 
-    public Result toTextPlain(String uri) {
-        if (uri  == null || uri.equals("")) {
-            return ok(ApiUtil.createResponse("No URI has been provided", false));
-        }
-        String subcontainerText = Renderings.toString(uri, 80);
-        if (subcontainerText == null || subcontainerText.equals("")) {
-            return ok(ApiUtil.createResponse("No subcontainer has been found", false));
-        } else {
-            return ok(subcontainerText).as("text/plain");
-        }
-    }
-
-    public Result toTextHTML(String uri) {
-        if (uri  == null || uri.equals("")) {
-            return ok(ApiUtil.createResponse("No URI has been provided", false));
-        }
-        String subcontainerText = Renderings.toHTML(uri, 80);
-        if (subcontainerText == null || subcontainerText.equals("")) {
-            return ok(ApiUtil.createResponse("No subcontainer has been found", false));
-        } else {
-            return ok(subcontainerText).as("text/html");
-        }
-    }
-
-    public Result toTextPDF(String uri) {
-        if (uri  == null || uri.equals("")) {
-            return ok(ApiUtil.createResponse("No URI has been provided", false));
-        }
-        ByteArrayOutputStream subcontainerText = Renderings.toPDF(uri, 80);
-        if (subcontainerText == null || subcontainerText.equals("")) {
-            return ok(ApiUtil.createResponse("No subcontainer has been found", false));
-        } else {
-            return ok(subcontainerText.toByteArray()).as("application/pdf");
-        }
-    }
-
-    public Result toFHIR(String uri) {
-        if (uri  == null || uri.equals("")) {
-            return ok(ApiUtil.createResponse("No URI has been provided", false));
-        }
-        Subcontainer subcontainerr = Subcontainer.find(uri);
-        if (subcontainerr == null) {
-            return ok(ApiUtil.createResponse("No subcontainer subcontainerance found for uri [" + uri + "]", false));
-        }
-
-        Questionnaire quest = new Questionnaire(subcontainerr);
-
-        FhirContext ctx = FhirContext.forR4();
-        IParser parser = ctx.newJsonParser();
-        String serialized = parser.encodeResourceToString(quest.getFHIRObject());
-
-        return ok(serialized).as("application/json");
-    }
-
-    public Result toRDF(String uri) {
-        if (uri  == null || uri.equals("")) {
-            return ok(ApiUtil.createResponse("No URI has been provided", false));
-        }
-        Subcontainer subcontainerr = Subcontainer.find(uri);
-        if (subcontainerr == null) {
-            return ok(ApiUtil.createResponse("No subcontainer subcontainerance found for uri [" + uri + "]", false));
-        }
-
-        String serialized = subcontainerr.printRDF();
-
-        return ok(serialized).as("application/xml");
-    }
 }

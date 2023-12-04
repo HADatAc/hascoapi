@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @JsonFilter("containerSlotFilter")
-public class ContainerSlot extends HADatAcThing implements SlotListElement, Comparable<ContainerSlot>  {
+public class ContainerSlot extends HADatAcThing implements SlotElement, Comparable<ContainerSlot>  {
 
     @PropertyField(uri="vstoi:belongsTo")
     private String belongsTo;
@@ -183,30 +183,10 @@ public class ContainerSlot extends HADatAcThing implements SlotListElement, Comp
                 " ?uri a ?type ." +
                 "} ";
 
-        return findByQuery(queryString);
+        return findContainerSlotByQuery(queryString);
     }
 
-    public static List<ContainerSlot> findByContainer(String containerUri) {
-        System.out.println("findByContainer: [" + containerUri + "]");
-
-        Instrument inst = Instrument.find(containerUri);
-
-        if (inst == null || inst.getHasFirst() == null || inst.getHasFirst().isEmpty()) {
-            return new ArrayList<ContainerSlot>();
-        }
-
-        System.out.println("First : [" + inst.getHasFirst() + "]");
-
-        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                " SELECT ?uri WHERE { " +
-                "   <" + inst.getHasFirst() + "> vstoi:hasNext* ?uri . " +
-                "} ";
-        //System.out.println(queryString);
-        return findByQuery(queryString);
-        
-    }
-
-    private static List<ContainerSlot> findByQuery(String queryString) {
+    private static List<ContainerSlot> findContainerSlotByQuery(String queryString) {
         List<ContainerSlot> containerSlots = new ArrayList<ContainerSlot>();
         ResultSetRewindable resultsrw = SPARQLUtils.select(
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
@@ -217,11 +197,11 @@ public class ContainerSlot extends HADatAcThing implements SlotListElement, Comp
 
         while (resultsrw.hasNext()) {
             QuerySolution soln = resultsrw.next();
-            ContainerSlot containerSlot = find(soln.getResource("uri").getURI());
+            ContainerSlot containerSlot = ContainerSlot.find(soln.getResource("uri").getURI());
             containerSlots.add(containerSlot);
         }
 
-        java.util.Collections.sort((List<ContainerSlot>) containerSlots);
+        //java.util.Collections.sort((List<ContainerSlot>) containerSlots);
         return containerSlots;
 
     }
@@ -270,7 +250,10 @@ public class ContainerSlot extends HADatAcThing implements SlotListElement, Comp
 
         containerSlot.setUri(uri);
 
-        return containerSlot;
+        if (containerSlot.getHascoTypeUri().equals(VSTOI.CONTAINER_SLOT)) {
+            return containerSlot;
+        } 
+        return null;
     }
 
     static public boolean createContainerSlot(String containerUri, String containerSlotUri, 

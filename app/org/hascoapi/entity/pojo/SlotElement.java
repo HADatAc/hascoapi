@@ -1,6 +1,6 @@
 package org.hascoapi.entity.pojo;
 
-public interface SlotListElement {
+public interface SlotElement {
 
     /*
      *  ContainerSlot and Subcontainers are slot elements of containers.
@@ -17,6 +17,10 @@ public interface SlotListElement {
     public void setHasPrevious(String hasPrevious);
 
     public String getBelongsTo();
+
+    public String getNamedGraph();
+
+    public void setNamedGraph(String namedGraph);
 
     public void save();
 

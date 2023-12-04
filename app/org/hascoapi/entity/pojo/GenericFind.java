@@ -31,6 +31,8 @@ public class GenericFind<T> {
         
         if (elementType.equals("instrument")) {
             return Instrument.class;
+        } else if (elementType.equals("subcontainer")) {
+            return Subcontainer.class;
         } else if (elementType.equals("detectorstem")) {
             return DetectorStem.class;
         } else if (elementType.equals("detector")) {
@@ -69,6 +71,8 @@ public class GenericFind<T> {
     private static String classNameWithNamespace (Class clazz) {
         if (clazz == Instrument.class) {
             return URIUtils.replaceNameSpace(VSTOI.INSTRUMENT);
+        } else if (clazz == Subcontainer.class) {
+            return URIUtils.replaceNameSpace(VSTOI.SUBCONTAINER);
         } else if (clazz == ContainerSlot.class) {
             return URIUtils.replaceNameSpace(VSTOI.CONTAINER_SLOT);
         } else if (clazz == DetectorStem.class) {
@@ -647,6 +651,8 @@ public class GenericFind<T> {
         // List of elements
         } else if (clazz == Instrument.class) {
             return (T)Instrument.find(uri);
+        } else if (clazz == Subcontainer.class) {
+            return (T)Subcontainer.find(uri);
         } else if (clazz == ContainerSlot.class) {
             return (T)ContainerSlot.find(uri);
         } else if (clazz == DetectorStem.class) {

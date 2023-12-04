@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.hascoapi.entity.pojo.ContainerSlot;
+import org.hascoapi.entity.pojo.SlotElement;
 import org.hascoapi.entity.pojo.Detector;
 import org.hascoapi.entity.pojo.Container;
 
@@ -15,11 +16,13 @@ public class Questionnaire {
     public Questionnaire(Container container) {
         this.container = container;
         items = new ArrayList<Item>();
-        List<ContainerSlot> containerSlots = container.getContainerSlots();
-		for (ContainerSlot containerSlot : containerSlots) {
-			Detector detector = containerSlot.getDetector();
-            Item item = new Item(detector);
-            items.add(item);
+        List<SlotElement> slots = container.getSlotElements();
+		for (SlotElement slot : slots) {
+			if (slot instanceof ContainerSlot) {
+				Detector detector = ((ContainerSlot)slot).getDetector();
+            	Item item = new Item(detector);
+            	items.add(item);
+			}
 		}
     }
 

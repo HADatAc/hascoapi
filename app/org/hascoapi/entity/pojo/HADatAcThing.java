@@ -33,27 +33,6 @@ import org.hascoapi.annotations.PropertyField;
 import org.hascoapi.annotations.ReversedPropertyField;
 import org.hascoapi.annotations.Subject;
 
-/*
-import org.apache.commons.lang3.NotImplementedException;
-import org.eclipse.rdf4j.rio.RDFFormat;
-import org.eclipse.rdf4j.rio.RDFHandlerException;
-import org.eclipse.rdf4j.rio.RDFWriter;
-import org.eclipse.rdf4j.rio.Rio;
-import org.hascoapi.utils.*;
-import org.apache.jena.query.QuerySolution;
-import org.apache.jena.query.ResultSetRewindable;
-import org.apache.jena.rdf.model.Statement;
-import org.apache.jena.update.UpdateExecutionFactory;
-import org.apache.jena.update.UpdateFactory;
-import org.apache.jena.update.UpdateProcessor;
-import org.apache.jena.update.UpdateRequest;
-import org.eclipse.rdf4j.model.Model;
-
-import org.hascoapi.annotations.PropertyField;
-import org.hascoapi.annotations.ReversedPropertyField;
-import org.hascoapi.annotations.Subject;
-*/
-
 public abstract class HADatAcThing {
 
     public static String OWL_THING = "http://www.w3.org/2002/07/owl#Thing";

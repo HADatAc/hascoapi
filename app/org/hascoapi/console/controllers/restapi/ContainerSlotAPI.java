@@ -12,6 +12,7 @@ import org.hascoapi.Constants;
 import org.hascoapi.entity.fhir.Questionnaire;
 import org.hascoapi.entity.pojo.Container;
 import org.hascoapi.entity.pojo.ContainerSlot;
+import org.hascoapi.entity.pojo.SlotElement;
 import org.hascoapi.entity.pojo.Instrument;
 import org.hascoapi.entity.pojo.Subcontainer;
 import org.hascoapi.transform.Renderings;
@@ -81,7 +82,7 @@ public class ContainerSlotAPI extends Controller {
         if (container == null) {
             return ok(ApiUtil.createResponse("No container with provided URI has been found.", false));
         }
-        if (container.getContainerSlots() == null) {
+        if (container.getSlotElements() == null) {
             return ok(ApiUtil.createResponse("Container has no containerSlot to be deleted.", false));
         }
         container.deleteContainerSlots();
@@ -99,17 +100,19 @@ public class ContainerSlotAPI extends Controller {
         if (testInstrument == null) {
             return ok(ApiUtil.createResponse("Test instrument <" + TEST_INSTRUMENT_URI + "> needs to exist before its containerSlots can be created.", false));
         } 
-        Subcontainer testSubcontainer = Subcontainer.find(TEST_SUBCONTAINER_URI);
+        Subcontainer testSubcontainer = Subcontainer.find(TEST_SUBCONTAINER1_URI);
         if (testSubcontainer == null) {
-            return ok(ApiUtil.createResponse("Test subcontainer <" + TEST_SUBCONTAINER_URI + "> needs to exist before its containerSlots can be created.", false));
+            return ok(ApiUtil.createResponse("Test subcontainer <" + TEST_SUBCONTAINER1_URI + "> needs to exist before its containerSlots can be created.", false));
         } 
         
         // CREATE CONTAINER SLOTS
-        if (testInstrument.getContainerSlots() != null && testInstrument.getContainerSlots().size() > 0) {
-            return ok(ApiUtil.createResponse("Test instrument <" + TEST_INSTRUMENT_URI + "> already has containerSlots.", false));
+        List<ContainerSlot> instrumentSlots = testInstrument.getContainerSlots();
+        if (instrumentSlots != null && instrumentSlots.size() > 0) {
+            return ok(ApiUtil.createResponse("Test instrument <" + TEST_INSTRUMENT_URI + "> already has container slots.", false));
         } 
-        if (testSubcontainer.getContainerSlots() != null && testSubcontainer.getContainerSlots().size() > 0) {
-            return ok(ApiUtil.createResponse("Test subcontainer <" + TEST_SUBCONTAINER_URI + "> already has containerSlots.", false));
+        List<ContainerSlot> subcontainerSlots = testSubcontainer.getContainerSlots();
+        if (subcontainerSlots != null && subcontainerSlots.size() > 0) {
+            return ok(ApiUtil.createResponse("Test subcontainer <" + TEST_SUBCONTAINER1_URI + "> already has container slots.", false));
         } 
 
         testInstrument.setNamedGraph(Constants.TEST_KB);
@@ -128,17 +131,19 @@ public class ContainerSlotAPI extends Controller {
         if (testInstrument == null) {
             return ok(ApiUtil.createResponse("Test instrument <" + TEST_INSTRUMENT_URI + "> needs to exist before its containerSlots can be deleted.", false));
         } 
-        Subcontainer testSubcontainer = Subcontainer.find(TEST_SUBCONTAINER_URI);
+        Subcontainer testSubcontainer = Subcontainer.find(TEST_SUBCONTAINER1_URI);
         if (testSubcontainer == null) {
-            return ok(ApiUtil.createResponse("Test subcontainer <" + TEST_SUBCONTAINER_URI + "> needs to exist before its containerSlots can be deleted.", false));
+            return ok(ApiUtil.createResponse("Test subcontainer <" + TEST_SUBCONTAINER1_URI + "> needs to exist before its containerSlots can be deleted.", false));
         }
         
         // DELETE EXISTING CONTAINER SLOTS 
-        if (testInstrument.getContainerSlots() == null || testInstrument.getContainerSlots().size() == 0) {
-            return ok(ApiUtil.createResponse("Test instrument <" + TEST_INSTRUMENT_URI + "> has no containerSlots to be deleted.", false));
+        List<ContainerSlot> instrumentSlots = testInstrument.getContainerSlots();
+        if (instrumentSlots == null || instrumentSlots.size() == 0) {
+            return ok(ApiUtil.createResponse("Test instrument <" + TEST_INSTRUMENT_URI + "> has no container slots to be deleted.", false));
         } 
-        if (testSubcontainer.getContainerSlots() == null || testSubcontainer.getContainerSlots().size() == 0) {
-            return ok(ApiUtil.createResponse("Test subcontainer <" + TEST_SUBCONTAINER_URI + "> has no containerSlots to be deleted.", false));
+        List<ContainerSlot> subcontainerSlots = testSubcontainer.getContainerSlots();
+        if (subcontainerSlots == null || subcontainerSlots.size() == 0) {
+            return ok(ApiUtil.createResponse("Test subcontainer <" + TEST_SUBCONTAINER1_URI + "> has no container slots to be deleted.", false));
         } 
         
         testInstrument.setNamedGraph(Constants.TEST_KB);
@@ -146,7 +151,7 @@ public class ContainerSlotAPI extends Controller {
         testSubcontainer.setNamedGraph(Constants.TEST_KB);
         testSubcontainer.deleteContainerSlots();
         
-        return ok(ApiUtil.createResponse("Existing containerSlots for testing containers have been deleted.", false));
+        return ok(ApiUtil.createResponse("Existing container slots for testing containers have been deleted.", false));
 
     }
 
@@ -159,15 +164,26 @@ public class ContainerSlotAPI extends Controller {
         return getContainerSlots(results);
     }
 
-    public Result getContainerSlotsByContainer(String containerUri){
-        List<ContainerSlot> results = ContainerSlot.findByContainer(containerUri);
-        return getContainerSlots(results);
+    public Result getSlotsByContainer(String containerUri){
+        List<SlotElement> results = Container.getSlotElements(containerUri);
+        return getSlotElements(results);
     }
 
     public static Result getContainerSlots(List<ContainerSlot> results){
         if (results == null) {
             return ok(ApiUtil.createResponse("No containerSlot has been found", false));
         } else {
+            ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL,VSTOI.CONTAINER_SLOT);
+            JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
+            return ok(ApiUtil.createResponse(jsonObject, true));
+        }
+    }
+
+    public static Result getSlotElements(List<SlotElement> results){
+        if (results == null) {
+            return ok(ApiUtil.createResponse("No slotListelement has been found", false));
+        } else {
+            // TODO: may need to change second argument of getfiltered()
             ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL,VSTOI.CONTAINER_SLOT);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));

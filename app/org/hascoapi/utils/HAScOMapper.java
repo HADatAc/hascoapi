@@ -145,18 +145,18 @@ public class HAScOMapper {
         } else {
             filterProvider.addFilter("instrumentFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "hasInformant", "comment", "hasFirst", "hasSerialNumber", "hasLanguage", "hasVersion",
-                            "hasSIRManagerEmail"));
+                            "hascoTypeLabel", "hasInformant", "comment", "hasFirst", "hasSerialNumber", "hasLanguage", 
+                            "hasVersion", "hasSIRManagerEmail"));
         }
 
         // SUBCONTAINER
         if (mode.equals(FULL) && typeResult.equals(VSTOI.SUBCONTAINER)) {
-            filterProvider.addFilter("subContainerFilter", SimpleBeanPropertyFilter.serializeAll());
+            filterProvider.addFilter("subcontainerFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
-            filterProvider.addFilter("subContainerFilter",
+            filterProvider.addFilter("subcontainerFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "hasInformant", "comment", "hasFirst", "hasNext", "hasSerialNumber", "hasLanguage", "hasVersion",
-                            "hasSIRManagerEmail"));
+                            "hascoTypeLabel", "hasInformant", "comment", "hasFirst", "hasNext", "hasPrevious", 
+                            "hasSerialNumber", "hasLanguage", "hasVersion", "hasSIRManagerEmail"));
         }
 
         // CONTAINER_SLOT
@@ -165,7 +165,8 @@ public class HAScOMapper {
         } else {
             filterProvider.addFilter("containerSlotFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "hasNext", "hasPriority", "hasDetector", "hasSubcontainer", "detector", "subcontainer", "belongsTo"));
+                            "hascoTypeLabel", "comment", "hasNext", "hasPrevious", "hasPriority", "hasDetector", "hasSubcontainer", "detector", 
+                            "subcontainer", "belongsTo"));
         }
 
         // DETECTOR_STEM_TYPE

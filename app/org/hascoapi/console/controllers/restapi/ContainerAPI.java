@@ -79,7 +79,7 @@ public class ContainerAPI extends Controller {
         if (testInstrument == null) {
             return ok(ApiUtil.createResponse("create test instrument before trying to attach detectors.", false));
         }
-        if (testInstrument.getContainerSlots() == null) {
+        if (testInstrument.getSlotElements() == null) {
             return ok(ApiUtil.createResponse("Create containerSlots for test instrument before trying to attach detectors.", false));
         }
         Detector detector1 = Detector.findDetector(TEST_DETECTOR1_URI);
@@ -101,11 +101,11 @@ public class ContainerAPI extends Controller {
         } 
         
         // VERIFYING SUBCONTAINER
-        Subcontainer testSubcontainer = Subcontainer.find(TEST_SUBCONTAINER_URI);
+        Subcontainer testSubcontainer = Subcontainer.find(TEST_SUBCONTAINER1_URI);
         if (testSubcontainer == null) {
             return ok(ApiUtil.createResponse("create test subcontainer before trying to attach detectors.", false));
         }
-        if (testSubcontainer.getContainerSlots() == null) {
+        if (testSubcontainer.getSlotElements() == null) {
             return ok(ApiUtil.createResponse("Create containerSlots for test subcontainer before trying to attach detectors.", false));
         }
         Detector detector3 = Detector.findDetector(TEST_DETECTOR3_URI);
@@ -157,7 +157,7 @@ public class ContainerAPI extends Controller {
         if (testInst == null) {
             return ok(ApiUtil.createResponse("There is no test instrument to detach detectors.", false));
         }
-        if (testInst.getContainerSlots() == null) {
+        if (testInst.getSlotElements() == null) {
             return ok(ApiUtil.createResponse("Test instrument has no containerSlots for detectors.", false));
         }
         Detector test1 = Detector.findDetector(TEST_DETECTOR1_URI);
@@ -179,11 +179,11 @@ public class ContainerAPI extends Controller {
         } 
 
         // VERIFY SUBCONTAINER SETTING FOR DETACH
-        Subcontainer testSubcontainer = Subcontainer.find(TEST_SUBCONTAINER_URI);
+        Subcontainer testSubcontainer = Subcontainer.find(TEST_SUBCONTAINER1_URI);
         if (testSubcontainer == null) {
             return ok(ApiUtil.createResponse("There is no test subcontainer to detach detectors.", false));
         }
-        if (testSubcontainer.getContainerSlots() == null) {
+        if (testSubcontainer.getSlotElements() == null) {
             return ok(ApiUtil.createResponse("Test subcontainer has no containerSlots for detectors.", false));
         }
         Detector detector3 = Detector.findDetector(TEST_DETECTOR3_URI);

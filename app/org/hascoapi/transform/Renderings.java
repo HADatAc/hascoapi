@@ -41,26 +41,29 @@ public class Renderings {
 		str += centerText(instr.getHasShortName(), width) + "\n";
 
 		str += "\n";
-		if (instr.getContainerSlots() != null) {
-			for (ContainerSlot containerSlot : instr.getContainerSlots()) {
-				Detector detector = containerSlot.getDetector();
-				if (detector == null) {
-					str += " " + containerSlot.getHasPriority() + ".  \n  ";
-				} else {
-					String content = "";
-					//System.out.println(detector.toString());
-					if (detector != null && detector.getDetectorStem() != null && detector.getDetectorStem().getHasContent() != null) {
-						content = detector.getDetectorStem().getHasContent();
-					}
-					str += " " + containerSlot.getHasPriority() + ". " + content + " ";
-					Codebook codebook = detector.getCodebook();
-					if (codebook != null && codebook.getCodebookSlots() != null) {
-						List<CodebookSlot> slots = codebook.getCodebookSlots();
-						if (slots != null && slots.size() > 0) {
-							for (CodebookSlot slot : slots) {
-								if (slot.getResponseOption() != null) {
-									ResponseOption responseOption = slot.getResponseOption();
-									str += " " + responseOption.getHasContent() + "( )  ";
+		if (instr.getSlotElements() != null) {
+			for (SlotElement slotElement : instr.getSlotElements()) {
+				if (slotElement instanceof ContainerSlot) {
+					ContainerSlot containerSlot = (ContainerSlot)slotElement;
+					Detector detector = containerSlot.getDetector();
+					if (detector == null) {
+						str += " " + containerSlot.getHasPriority() + ".  \n  ";
+					} else {
+						String content = "";
+						//System.out.println(detector.toString());
+						if (detector != null && detector.getDetectorStem() != null && detector.getDetectorStem().getHasContent() != null) {
+							content = detector.getDetectorStem().getHasContent();
+						}
+						str += " " + containerSlot.getHasPriority() + ". " + content + " ";
+						Codebook codebook = detector.getCodebook();
+						if (codebook != null && codebook.getCodebookSlots() != null) {
+							List<CodebookSlot> slots = codebook.getCodebookSlots();
+							if (slots != null && slots.size() > 0) {
+								for (CodebookSlot slot : slots) {
+									if (slot.getResponseOption() != null) {
+										ResponseOption responseOption = slot.getResponseOption();
+										str += " " + responseOption.getHasContent() + "( )  ";
+									}
 								}
 							}
 						}
@@ -247,11 +250,11 @@ public class Renderings {
 		if (page == 1) {
 			currentPageSize = 25;
 			first = 1;
-			if (instr.getContainerSlots() != null && instr.getContainerSlots().size() > 25) {
+			if (instr.getSlotElements() != null && instr.getSlotElements().size() > 25) {
 				last = 25;
 			} else {
-				if (instr.getContainerSlots() != null) {
-					last = instr.getContainerSlots().size();
+				if (instr.getSlotElements() != null) {
+					last = instr.getSlotElements().size();
 				} else {
 					last = 0;
 				}
@@ -260,7 +263,7 @@ public class Renderings {
 			currentPageSize = 27;
 			int past = 25 + ((page - 2) * 27);
 			first = past + 1;
-			int rest = instr.getContainerSlots().size() - past;
+			int rest = instr.getSlotElements().size() - past;
 			if (rest > currentPageSize) {
 				last = past + 27;
 			} else {
@@ -274,41 +277,44 @@ public class Renderings {
 		// System.out.println(" CurrentPageSize: " + currentPageSize);
 		// System.out.println("");
 		html += "<table>\n";
-		if (instr.getContainerSlots() == null || instr.getContainerSlots().size() <= 0) {
+		if (instr.getSlotElements() == null || instr.getSlotElements().size() <= 0) {
 			html += "<p>EMPTY TABLE</p>";
 		} else {
 			// System.out.println("Renderings.java: total containerSlots: " +
-			// instr.getContainerSlots().size());
+			// instr.getSlotElements().size());
 			for (int element = first - 1; element < last; element++) {
-				ContainerSlot containerSlot = instr.getContainerSlots().get(element);
-				Detector detector = containerSlot.getDetector();
-				if (detector == null) {
-					if (containerSlot.getHasPriority() != null) {
-						html += "<tr><td>" + containerSlot.getHasPriority() + ".</tr></td>\n";
-					}
-				} else {
-					String content = "";
-					//System.out.println(detector.toString());
-					if (detector != null && detector.getDetectorStem() != null && detector.getDetectorStem().getHasContent() != null) {
-						content = detector.getDetectorStem().getHasContent();
-					}
-					html += "<tr>";
-					html += "<td>" + containerSlot.getHasPriority() + ". " + content + "</td>";
-					Codebook codebook = detector.getCodebook();
-					if (codebook != null) {
-						List<CodebookSlot> slots = codebook.getCodebookSlots();
-						if (slots != null && slots.size() > 0) {
-							for (CodebookSlot slot : slots) {
-								if (slot.getResponseOption() != null) {
-									ResponseOption responseOption = slot.getResponseOption();
-									if (responseOption != null && responseOption.getHasContent() != null) {
-										html += "<td>" + responseOption.getHasContent() + "</td>";
+				SlotElement slotElement = instr.getSlotElements().get(element);
+				if (slotElement instanceof ContainerSlot) {
+					ContainerSlot containerSlot = (ContainerSlot)slotElement;
+					Detector detector = containerSlot.getDetector();
+					if (detector == null) {
+						if (containerSlot.getHasPriority() != null) {
+							html += "<tr><td>" + containerSlot.getHasPriority() + ".</tr></td>\n";
+						}
+					} else {
+						String content = "";
+						//System.out.println(detector.toString());
+						if (detector != null && detector.getDetectorStem() != null && detector.getDetectorStem().getHasContent() != null) {
+							content = detector.getDetectorStem().getHasContent();
+						}
+						html += "<tr>";
+						html += "<td>" + containerSlot.getHasPriority() + ". " + content + "</td>";
+						Codebook codebook = detector.getCodebook();
+						if (codebook != null) {
+							List<CodebookSlot> slots = codebook.getCodebookSlots();
+							if (slots != null && slots.size() > 0) {
+								for (CodebookSlot slot : slots) {
+									if (slot.getResponseOption() != null) {
+										ResponseOption responseOption = slot.getResponseOption();
+										if (responseOption != null && responseOption.getHasContent() != null) {
+											html += "<td>" + responseOption.getHasContent() + "</td>";
+										}
 									}
 								}
 							}
 						}
+						html += "</tr>\n";
 					}
-					html += "</tr>\n";
 				}
 			}
 		}
@@ -350,16 +356,16 @@ public class Renderings {
 		// PRINT ITEMS
 		int elements = 0;
 		int totPages = 0;
-		if (instr.getContainerSlots() == null) {
+		if (instr.getSlotElements() == null) {
 			html += printPage(instr, 1);
 		} else {
 
 			// total of pages
-			if (instr.getContainerSlots().size() <= 25) {
+			if (instr.getSlotElements().size() <= 25) {
 				totPages = 1;
 			} else {
-				totPages = 1 + ((instr.getContainerSlots().size() - 25) / 27);
-				if (((instr.getContainerSlots().size() - 25) % 27) > 0) {
+				totPages = 1 + ((instr.getSlotElements().size() - 25) / 27);
+				if (((instr.getSlotElements().size() - 25) % 27) > 0) {
 					totPages = totPages + 1;
 				}
 			}

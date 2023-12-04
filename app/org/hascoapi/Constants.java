@@ -13,12 +13,13 @@ public class Constants {
 
     public static final String TEST_INSTRUMENT_URI = TEST_KB + "TestInstrument";
     public static final int TEST_INSTRUMENT_TOT_CONTAINER_SLOTS = 2;
-    public static final String TEST_SUBCONTAINER_URI = TEST_KB + "TestSubcontainer";
+    public static final String TEST_SUBCONTAINER1_URI = TEST_KB + "TestSubcontainer1";
+    public static final String TEST_SUBCONTAINER2_URI = TEST_KB + "TestSubcontainer2";
     public static final int TEST_SUBCONTAINER_TOT_CONTAINER_SLOTS = 2;
     public static final String TEST_CONTAINER_SLOT1_URI = TEST_INSTRUMENT_URI + "/" + CONTAINER_SLOT_PREFIX + "/0001";
     public static final String TEST_CONTAINER_SLOT2_URI = TEST_INSTRUMENT_URI + "/" + CONTAINER_SLOT_PREFIX + "/0002";
-    public static final String TEST_CONTAINER_SLOT3_URI = TEST_SUBCONTAINER_URI + "/" + CONTAINER_SLOT_PREFIX + "/0001";
-    public static final String TEST_CONTAINER_SLOT4_URI = TEST_SUBCONTAINER_URI + "/" + CONTAINER_SLOT_PREFIX + "/0002";
+    public static final String TEST_CONTAINER_SLOT3_URI = TEST_SUBCONTAINER1_URI + "/" + CONTAINER_SLOT_PREFIX + "/0001";
+    public static final String TEST_CONTAINER_SLOT4_URI = TEST_SUBCONTAINER1_URI + "/" + CONTAINER_SLOT_PREFIX + "/0002";
     public static final String TEST_DETECTOR_STEM1_URI = TEST_KB + "TestDetectorStem1";
     public static final String TEST_DETECTOR_STEM2_URI = TEST_KB + "TestDetectorStem2";
     public static final String TEST_DETECTOR1_URI = TEST_KB + "TestDetector1";  // For Instrument with Stem 1

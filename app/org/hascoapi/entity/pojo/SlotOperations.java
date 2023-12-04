@@ -24,21 +24,24 @@ import static org.hascoapi.Constants.*;
 
 public class SlotOperations  {
     
-    private static SlotListElement findSlotListElement(String uri) {
+    public static SlotElement findSlotElement(String uri) {
+        System.out.println("inside SlotOperations.findSlotElement() with uri: " + uri);
         ContainerSlot containerSlot = ContainerSlot.find(uri);
         if (containerSlot == null) {
             Subcontainer subcontainer = Subcontainer.find(uri);
             if (subcontainer == null) {
                 return null;
             } else {
-                return (SlotListElement)subcontainer;
+                System.out.println("  Found as SUBCONTAINER");
+                return (SlotElement)subcontainer;
             }
         }
-        return (SlotListElement)containerSlot;    
+        System.out.println("  Found as CONTAINER SLOT");
+        return (SlotElement)containerSlot;    
     }
 
     public static boolean moveUp(String uri) {
-        SlotListElement current = findSlotListElement(uri);
+        SlotElement current = findSlotElement(uri);
         if (current == null) {
             System.out.println("[ERROR] SlotOperations.moveUp(): could not retrieve CURRENT.");
             return false;
@@ -47,8 +50,8 @@ public class SlotOperations  {
         if (current.getHasPrevious() == null) {
             return false;
         }
-        SlotListElement previous = findSlotListElement(current.getHasPrevious());
-        SlotListElement next = findSlotListElement(current.getHasNext());
+        SlotElement previous = findSlotElement(current.getHasPrevious());
+        SlotElement next = findSlotElement(current.getHasNext());
 
         if (previous == null) {
             System.out.println("[ERROR] SlotOperations.moveUp(): could not retrieve PREVIOUS.");
@@ -85,7 +88,7 @@ public class SlotOperations  {
     }
 
     public static boolean moveDown(String uri) {
-        SlotListElement current = findSlotListElement(uri);
+        SlotElement current = findSlotElement(uri);
         if (current == null) {
             System.out.println("[ERROR] SlotOperations.moveUp(): could not retrieve CURRENT.");
             return false;
@@ -95,8 +98,8 @@ public class SlotOperations  {
             return false;
         }
 
-        SlotListElement previous = findSlotListElement(current.getHasPrevious());
-        SlotListElement next = findSlotListElement(current.getHasNext());
+        SlotElement previous = findSlotElement(current.getHasPrevious());
+        SlotElement next = findSlotElement(current.getHasNext());
 
         if (previous == null) {
             System.out.println("[ERROR] SlotOperations.moveUp(): could not retrieve PREVIOUS.");
@@ -106,7 +109,7 @@ public class SlotOperations  {
             return false;
         }
 
-        SlotListElement nextnext = findSlotListElement(next.getHasNext());
+        SlotElement nextnext = findSlotElement(next.getHasNext());
 
         // was the first of the list. Needs to update parent container
         if (current.getHasPrevious() == null) {

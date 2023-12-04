@@ -26,8 +26,8 @@ import org.slf4j.LoggerFactory;
 
 import static org.hascoapi.Constants.*;
 
-@JsonFilter("subContainerFilter")
-public class Subcontainer extends Container implements SlotListElement {
+@JsonFilter("subcontainerFilter")
+public class Subcontainer extends Container implements SlotElement {
 
 	private static final Logger log = LoggerFactory.getLogger(Subcontainer.class);
 
@@ -79,7 +79,7 @@ public class Subcontainer extends Container implements SlotListElement {
 	}
 
 	public static Subcontainer find(String uri) {
-	    Subcontainer subContainer = null;
+	    Subcontainer subcontainer = null;
 	    Statement statement;
 	    RDFNode object;
 	    
@@ -92,7 +92,7 @@ public class Subcontainer extends Container implements SlotListElement {
 		if (!stmtIterator.hasNext()) {
 			return null;
 		} else {
-			subContainer = new Subcontainer();
+			subcontainer = new Subcontainer();
 		}
 		
 		while (stmtIterator.hasNext()) {
@@ -101,44 +101,125 @@ public class Subcontainer extends Container implements SlotListElement {
 			String str = URIUtils.objectRDFToString(object);
 			if (uri != null && !uri.isEmpty()) {
 				if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-					subContainer.setLabel(str);
+					subcontainer.setLabel(str);
 				} else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
-					subContainer.setTypeUri(str); 
+					subcontainer.setTypeUri(str); 
 				} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
-					subContainer.setHascoTypeUri(str);
+					subcontainer.setHascoTypeUri(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
-					subContainer.setHasStatus(str);
+					subcontainer.setHasStatus(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.BELONGS_TO)) {
-					subContainer.setBelongsTo(str);
+					subcontainer.setBelongsTo(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_FIRST)) {
-					subContainer.setHasFirst(str);
+					subcontainer.setHasFirst(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_NEXT)) {
-					subContainer.setHasNext(str);
+					subcontainer.setHasNext(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PREVIOUS)) {
-					subContainer.setHasPrevious(str);
+					subcontainer.setHasPrevious(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
-					subContainer.setSerialNumber(str);
+					subcontainer.setSerialNumber(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_INFORMANT)) {
-					subContainer.setHasInformant(str);
+					subcontainer.setHasInformant(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
-					subContainer.setImage(str);
+					subcontainer.setImage(str);
 				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
-					subContainer.setComment(str);
+					subcontainer.setComment(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SHORT_NAME)) {
-					subContainer.setHasShortName(str);
+					subcontainer.setHasShortName(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
-					subContainer.setHasLanguage(str);
+					subcontainer.setHasLanguage(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
-					subContainer.setHasVersion(str);
+					subcontainer.setHasVersion(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
-					subContainer.setHasSIRManagerEmail(str);
+					subcontainer.setHasSIRManagerEmail(str);
 				}
 			}
 		}
+		subcontainer.setUri(uri);
+		if (subcontainer.getHascoTypeUri().equals(VSTOI.SUBCONTAINER)) {
+            return subcontainer;
+        } 
+        return null;
+	}
 
-		subContainer.setUri(uri);
-		
-		return subContainer;
+	public boolean saveAndAttach() {
+		//System.out.println("Subcontainer's named graph: " + this.getNamedGraph());
+		System.out.println("Subcontainer's getBelongsTo: " + this.getBelongsTo());
+		// Subcontair always added to the top of the list. This means that the parent container needs to be updated 
+		Container parent = Container.find(getBelongsTo());
+		if (parent == null) {
+			System.out.println("[ERROR] Subcontainer.saveAndAttach(): could not find parent container");
+			return false;
+		}
+		parent.setNamedGraph(this.getNamedGraph());
+		if (parent.getHasFirst() == null) {
+			// Subcointainer is the only element in the list
+			parent.setHasFirst(this.getUri());
+			parent.save();
+			this.setHasNext(null); 
+			this.setHasPrevious(null);
+		} else {
+			SlotElement next = SlotOperations.findSlotElement(parent.getHasFirst());
+			next.setNamedGraph(this.getNamedGraph());
+			parent.setHasFirst(this.getUri());
+			parent.save();
+			this.setHasNext(next.getUri());
+			this.setHasPrevious(null);
+			next.setHasPrevious(this.getUri());
+			next.save();
+		}
+
+		// SAVE SUBCONTAINET
+		this.save();
+		return true;
+	}
+
+	public boolean deleteAndDetach() {
+
+		// DETACH FIRST
+		if (getHasPrevious() == null) {
+			Container parent = Container.find(getBelongsTo());
+			parent.setNamedGraph(this.getNamedGraph());
+			if (parent == null) {
+				System.out.println("[ERROR] Subcontainer.deleteAndDetach(): could not find parent container");
+				return false;
+			}
+			if (getHasNext() == null) {
+				// List is now empty. Parent's hasFirst is reset to null
+				parent.setHasFirst(null);
+				parent.save();
+			} else {
+				// Next becomes the first, and its hasPrevious is null. Parent's hasFirst points to next
+				SlotElement next = SlotOperations.findSlotElement(this.getHasNext());
+		        next.setNamedGraph(this.getNamedGraph());
+				next.setHasPrevious(null);
+				next.save();
+				parent.setHasFirst(next.getUri());
+				parent.save();
+			}
+		} else {
+			// Adjust next and previous
+			SlotElement previous = SlotOperations.findSlotElement(this.getHasPrevious());
+			if (previous != null) {
+				System.out.println("[ERROR] Subcontainer.deleteAndDetach(): could not find PREVIOUS element");
+				return false;
+			}
+		    previous.setNamedGraph(this.getNamedGraph());
+			SlotElement next = SlotOperations.findSlotElement(this.getHasNext());
+			if (next == null) {
+				previous.setHasNext(null);
+				previous.save();
+			} else {
+				previous.setHasNext(next.getUri());
+				previous.save();
+			    next.setNamedGraph(this.getNamedGraph());
+				next.setHasPrevious(previous.getUri());
+				next.save();
+			}
+		}
+		// DELETE SECOND
+		this.delete();
+		return true;
 	}
 
     @Override public void save() {
