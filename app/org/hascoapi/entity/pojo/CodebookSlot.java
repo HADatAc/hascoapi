@@ -237,8 +237,6 @@ public class CodebookSlot extends HADatAcThing implements Comparable<CodebookSlo
         return -1;
     }
 
-
-
     static public boolean createCodebookSlot(String codebookUri, String slotUri, String priority,
             String hasResponseOption) {
         if (codebookUri == null || codebookUri.isEmpty()) {

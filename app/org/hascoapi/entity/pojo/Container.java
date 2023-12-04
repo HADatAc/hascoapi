@@ -176,6 +176,86 @@ public abstract class Container extends HADatAcThing implements SIRElement, Comp
 		}
 	}
 
+
+	private static String retrieveTypeUri(String uri) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT ?type WHERE { " +
+                " ?uri a ?type ." +
+                "} ";
+        ResultSetRewindable resultsrw = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+        if (resultsrw.hasNext()) {
+            QuerySolution soln = resultsrw.next();
+            return soln.getResource("type").getURI();
+        }
+		return null;
+    }
+
+	public static Container find(String uri) {
+		//System.out.println("Instrument.java : in find(): uri = [" + uri + "]");
+		Container container;
+		String typeUri = retrieveTypeUri(uri);
+		if (typeUri.equals(VSTOI.INSTRUMENT)) {
+			container = new Instrument();
+		} else if (typeUri.equals(VSTOI.SUBCONTAINER)) {
+			container = new Subcontainer();
+		} else {
+			return null;
+		}
+
+	    Statement statement;
+	    RDFNode object;
+	    
+	    String queryString = "DESCRIBE <" + uri + ">";
+	    Model model = SPARQLUtils.describe(CollectionUtil.getCollectionPath(
+                CollectionUtil.Collection.SPARQL_QUERY), queryString);
+		
+		StmtIterator stmtIterator = model.listStatements();
+
+		if (!stmtIterator.hasNext()) {
+			return null;
+		} 
+		
+		while (stmtIterator.hasNext()) {
+		    statement = stmtIterator.next();
+		    object = statement.getObject();
+			String str = URIUtils.objectRDFToString(object);
+			if (uri != null && !uri.isEmpty()) {
+				if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
+					container.setLabel(str);
+				} else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
+					container.setTypeUri(str); 
+				} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
+					container.setHascoTypeUri(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
+					container.setHasStatus(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_FIRST)) {
+					container.setHasFirst(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
+					container.setSerialNumber(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_INFORMANT)) {
+					container.setHasInformant(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+					container.setImage(str);
+				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
+					container.setComment(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SHORT_NAME)) {
+					container.setHasShortName(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
+					container.setHasLanguage(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
+         			container.setHasVersion(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
+					container.setHasSIRManagerEmail(str);
+				}
+			}
+		}
+
+		container.setUri(uri);
+		
+		return container;
+	}
+
 	@Override
 	public int hashCode() {
 		return getUri().hashCode();
@@ -235,13 +315,18 @@ public abstract class Container extends HADatAcThing implements SIRElement, Comp
 			String auxstr = Utils.adjustedPriority(String.valueOf(aux), 1000);
 			String newUri = uri + "/" + CONTAINER_SLOT_PREFIX + "/" + auxstr;
 			String newNextUri = null;
+			String newPreviousUri = null;
 			if (aux + 1 <= newTotal) {
 			  String auxNextstr = Utils.adjustedPriority(String.valueOf(aux + 1), 1000);
 			  newNextUri = uri + "/" + CONTAINER_SLOT_PREFIX + "/" + auxNextstr;
 			}
-		    System.out.println("Creating slot: [" + newUri + "]  with next: [" + newNextUri + "]");
+			if (aux > 1) {
+			  String auxPrevstr = Utils.adjustedPriority(String.valueOf(aux - 1), 1000);
+			  newPreviousUri = uri + "/" + CONTAINER_SLOT_PREFIX + "/" + auxPrevstr;
+			}
+		    System.out.println("Creating slot: [" + newUri + "]  with prev: [" + newPreviousUri + "  next: [" + newNextUri + "]");
 			String nullstr = null;
-			ContainerSlot.createContainerSlot(uri, newUri, newNextUri, VSTOI.DETECTOR, auxstr, nullstr, nullstr);
+			ContainerSlot.createContainerSlot(uri, newUri, newNextUri, newPreviousUri, auxstr, nullstr);
 		}
 
 		if (currentTotal <= 0) {

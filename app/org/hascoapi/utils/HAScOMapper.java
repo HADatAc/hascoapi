@@ -165,7 +165,7 @@ public class HAScOMapper {
         } else {
             filterProvider.addFilter("containerSlotFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "hasNext", "hasPriority", "hasDetector", "detector", "belongsTo"));
+                            "hascoTypeLabel", "comment", "hasNext", "hasPriority", "hasDetector", "hasSubcontainer", "detector", "subcontainer", "belongsTo"));
         }
 
         // DETECTOR_STEM_TYPE

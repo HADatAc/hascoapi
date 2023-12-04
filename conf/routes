@@ -78,6 +78,8 @@ GET     /hascoapi/api/slots/bycodebook/:codebookUri                   org.hascoa
 
 GET     /hascoapi/test/instrument/create                    org.hascoapi.console.controllers.restapi.InstrumentAPI.createInstrumentForTesting()
 GET     /hascoapi/test/instrument/delete                    org.hascoapi.console.controllers.restapi.InstrumentAPI.deleteInstrumentForTesting()
+GET     /hascoapi/test/subcontainer/create                  org.hascoapi.console.controllers.restapi.SubcontainerAPI.createSubcontainerForTesting()
+GET     /hascoapi/test/subcontainer/delete                  org.hascoapi.console.controllers.restapi.SubcontainerAPI.deleteSubcontainerForTesting()
 GET     /hascoapi/test/detectorstem/create                  org.hascoapi.console.controllers.restapi.DetectorStemAPI.createDetectorStemsForTesting()
 GET     /hascoapi/test/detectorstem/delete                  org.hascoapi.console.controllers.restapi.DetectorStemAPI.deleteDetectorStemsForTesting()
 GET     /hascoapi/test/detector/create                      org.hascoapi.console.controllers.restapi.DetectorAPI.createDetectorsForTesting()

@@ -290,23 +290,6 @@ public class Detector extends DetectorStem {
 
     }
 
-    /** 
-    private static int findTotalDetectorsByQuery(String queryString) {
-        try {
-            ResultSetRewindable resultsrw = SPARQLUtils.select(
-                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
-
-            if (resultsrw.hasNext()) {
-                QuerySolution soln = resultsrw.next();
-                return Integer.parseInt(soln.getLiteral("tot").getString());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return -1;
-    }
-    */
-
     public static Detector findDetector(String uri) {
         Detector detector = null;
         Statement statement;

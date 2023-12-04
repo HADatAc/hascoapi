@@ -63,7 +63,7 @@ public class VSTOI {
     public static final String HAS_INFORMANT = "http://hadatac.org/ont/vstoi#hasInformant";
     public static final String HAS_LANGUAGE = "http://hadatac.org/ont/vstoi#hasLanguage";
     public static final String HAS_NEXT = "http://hadatac.org/ont/vstoi#hasNext";
-    public static final String HAS_PARENT = "http://hadatac.org/ont/vstoi#hasParent";
+    public static final String HAS_PREVIOUS = "http://hadatac.org/ont/vstoi#hasPrevious";
     public static final String HAS_POSITION = "http://hadatac.org/ont/vstoi#hasPosition";
     public static final String HAS_PRIORITY = "http://hadatac.org/ont/vstoi#hasPriority";
     public static final String HAS_RESPONSE_OPTION = "http://hadatac.org/ont/vstoi#hasResponseOption";

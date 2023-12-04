@@ -22,12 +22,14 @@
             <div class="col-md-10">
                 <h2>Testing RESTful API</h2>
 
-                <h4>Test Instrument</h4>
+                <h4>Test Container (Instrument and Subcontainer)</h4>
 
                 <a class="btn btn-outline-primary btn-sm" href="/hascoapi/test/instrument/create" role="button">GET&nbsp;&nbsp;&nbsp; /hascoapi/test/instrument/create</a> - Create a test instrument.<br>
                 <a class="btn btn-outline-primary btn-sm" href="/hascoapi/test/instrument/delete" role="button">GET&nbsp;&nbsp;&nbsp; /hascoapi/test/instrument/delete</a> - Delete a test instrument.<br>
-                <a class="btn btn-outline-primary btn-sm" href="/hascoapi/test/containerslot/create" role="button">GET&nbsp;&nbsp;&nbsp; /hascoapi/test/containerslot/create</a> - Create two containerSlots for the test instrument. This methods requires the test instrument to exist before it is called. <br>
-                <a class="btn btn-outline-primary btn-sm" href="/hascoapi/test/containerslot/delete" role="button">GET&nbsp;&nbsp;&nbsp; /hascoapi/test/containerslot/delete</a> - Delete containerSlots of test instrument, if any. This method requires the test instrument to exist and to have containerSlots.<br>
+                <a class="btn btn-outline-primary btn-sm" href="/hascoapi/test/subcontainer/create" role="button">GET&nbsp;&nbsp;&nbsp; /hascoapi/test/subcontainer/create</a> - Create a test subcontainer. This method requires the test instrument to exist before it is called. <br>
+                <a class="btn btn-outline-primary btn-sm" href="/hascoapi/test/subcontainer/delete" role="button">GET&nbsp;&nbsp;&nbsp; /hascoapi/test/subcontainer/delete</a> - Delete a test subcontainer.<br>
+                <a class="btn btn-outline-primary btn-sm" href="/hascoapi/test/containerslot/create" role="button">GET&nbsp;&nbsp;&nbsp; /hascoapi/test/containerslot/create</a> - Create two containerSlots for the test instrument and two container slots for the subcontainer. This method requires both the test instrument and the test subcontainer to exist before it is called. <br>
+                <a class="btn btn-outline-primary btn-sm" href="/hascoapi/test/containerslot/delete" role="button">GET&nbsp;&nbsp;&nbsp; /hascoapi/test/containerslot/delete</a> - Delete containerSlots of test instrument and of test subcontainer, if any. This method requires the test instrument and the subcontainer to exist and for both containers to have containerSlots.<br>
 
                 <br>
                 <h4>Test Detector Stem</h4>

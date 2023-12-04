@@ -10,6 +10,8 @@ import ca.uhn.fhir.parser.IParser;
 
 import org.hascoapi.Constants;
 import org.hascoapi.entity.fhir.Questionnaire;
+import org.hascoapi.entity.pojo.Container;
+import org.hascoapi.entity.pojo.Instrument;
 import org.hascoapi.entity.pojo.Subcontainer;
 import org.hascoapi.transform.Renderings;
 import org.hascoapi.utils.ApiUtil;
@@ -21,8 +23,7 @@ import play.mvc.Result;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 
-import static org.hascoapi.Constants.TEST_SUBCONTAINER_URI;
-import static org.hascoapi.Constants.TEST_SUBCONTAINER_TOT_CONTAINER_SLOTS;
+import static org.hascoapi.Constants.*;
 
 public class SubcontainerAPI extends Controller {
 
@@ -32,8 +33,11 @@ public class SubcontainerAPI extends Controller {
     }
 
     public Result createSubcontainerForTesting() {
+        Instrument testInstrument = Instrument.find(TEST_INSTRUMENT_URI);
         Subcontainer testSubcontainer = Subcontainer.find(TEST_SUBCONTAINER_URI);
-        if (testSubcontainer != null) {
+        if (testInstrument == null) {
+            return ok(ApiUtil.createResponse("Test instrument <" + TEST_INSTRUMENT_URI + "> is required before the subcontainer can be created.", false));
+        } else if (testSubcontainer != null) {
             return ok(ApiUtil.createResponse("Test subcontainer <" + TEST_SUBCONTAINER_URI + "> already exists.", false));
         } else {
             testSubcontainer = new Subcontainer();

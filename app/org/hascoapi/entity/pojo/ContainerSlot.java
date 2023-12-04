@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @JsonFilter("containerSlotFilter")
-public class ContainerSlot extends HADatAcThing implements Comparable<ContainerSlot>  {
+public class ContainerSlot extends HADatAcThing implements SlotListElement, Comparable<ContainerSlot>  {
 
     @PropertyField(uri="vstoi:belongsTo")
     private String belongsTo;
@@ -29,14 +29,11 @@ public class ContainerSlot extends HADatAcThing implements Comparable<ContainerS
     @PropertyField(uri="vstoi:hasDetector")
     private String hasDetector;
 
-    @PropertyField(uri="vstoi:hasSubContainer")
-    private String hasSubContainer;
-
-    @PropertyField(uri="vstoi:hostType")
-    private String hostType;
-
     @PropertyField(uri="vstoi:hasNext")
     private String hasNext;
+
+    @PropertyField(uri="vstoi:hasPrevious")
+    private String hasPrevious;
 
     @PropertyField(uri="vstoi:hasPriority")
     private String hasPriority;
@@ -57,28 +54,20 @@ public class ContainerSlot extends HADatAcThing implements Comparable<ContainerS
         this.hasDetector = hasDetector;
     }
 
-    public String getHasSubContainer() {
-        return hasSubContainer;
-    }
-
-    public void setHasSubContainer(String hasSubContainer) {
-        this.hasSubContainer = hasSubContainer;
-    }
-
-    public String getHostType() {
-        return hostType;
-    }
-
-    public void setHostType(String hostType) {
-        this.hostType = hostType;
-    }
-
     public String getHasNext() {
         return hasNext;
     }
 
     public void setHasNext(String hasNext) {
         this.hasNext = hasNext;
+    }
+
+    public String getHasPrevious() {
+        return hasPrevious;
+    }
+
+    public void setHasPrevious(String hasPrevious) {
+        this.hasPrevious = hasPrevious;
     }
 
     public String getHasPriority() {
@@ -266,16 +255,14 @@ public class ContainerSlot extends HADatAcThing implements Comparable<ContainerS
                 containerSlot.setComment(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_NEXT)) {
                 containerSlot.setHasNext(str);
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PREVIOUS)) {
+                containerSlot.setHasPrevious(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
                 containerSlot.setHascoTypeUri(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.BELONGS_TO)) {
                 containerSlot.setBelongsTo(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_DETECTOR)) {
                 containerSlot.setHasDetector(str);
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SUBCONTAINER)) {
-                containerSlot.setHasSubContainer(str);
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HOST_TYPE)) {
-                containerSlot.setHostType(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PRIORITY)){
                 containerSlot.setHasPriority(str);
             }
@@ -286,8 +273,9 @@ public class ContainerSlot extends HADatAcThing implements Comparable<ContainerS
         return containerSlot;
     }
 
-    static public boolean createContainerSlot(String containerUri, String containerSlotUri, String containerSlotUriNext, 
-                            String hostType, String priority, String hasDetector, String hasSubContainer) {
+    static public boolean createContainerSlot(String containerUri, String containerSlotUri, 
+                            String containerSlotUriNext, String containerSlotUriPrevious,  
+                            String priority, String hasDetector) {
         if (containerUri == null || containerUri.isEmpty()) {
             return false;
         }
@@ -299,18 +287,17 @@ public class ContainerSlot extends HADatAcThing implements Comparable<ContainerS
         containerSlot.setLabel("ContainerSlot " + priority);
         containerSlot.setTypeUri(VSTOI.CONTAINER_SLOT);
         containerSlot.setHascoTypeUri(VSTOI.CONTAINER_SLOT);
-        containerSlot.setHostType(hostType);
         containerSlot.setComment("ContainerSlot " + priority + " of container with URI " + containerUri);
         containerSlot.setBelongsTo(containerUri);
         containerSlot.setHasPriority(priority);
         if (containerSlotUriNext != null && !containerSlotUriNext.isEmpty()) {
             containerSlot.setHasNext(containerSlotUriNext);
         }
+        if (containerSlotUriPrevious != null && !containerSlotUriPrevious.isEmpty()) {
+            containerSlot.setHasPrevious(containerSlotUriPrevious);
+        }
         if (hasDetector != null) {
             containerSlot.setHasDetector(hasDetector);
-        }
-        if (hasSubContainer != null) {
-            containerSlot.setHasSubContainer(hasSubContainer);
         }
         containerSlot.save();
         //System.out.println("ContainerSlot.createContainerSlot: creating containerSlot with URI [" + containerSlotUri + "]" );
@@ -326,6 +313,8 @@ public class ContainerSlot extends HADatAcThing implements Comparable<ContainerS
         newContainerSlot.setHascoTypeUri(this.getHascoTypeUri());
         newContainerSlot.setBelongsTo(this.getBelongsTo());
         newContainerSlot.setHasPriority(this.getHasPriority());
+        newContainerSlot.setHasNext(this.getHasNext());
+        newContainerSlot.setHasPrevious(this.getHasPrevious());
         if (detector != null && detector.getUri() != null && !detector.getUri().isEmpty()) {
             newContainerSlot.setHasDetector(detector.getUri());
         } else {

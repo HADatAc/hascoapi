@@ -23,7 +23,7 @@ import java.util.List;
 import static org.hascoapi.Constants.*;
 
 @JsonFilter("codebookFilter")
-public class Codebook extends HADatAcThing implements SIRElement, Comparable<Codebook> {
+public class Codebook extends HADatAcThing implements Comparable<Codebook> {
 
     @PropertyField(uri = "vstoi:hasStatus")
     private String hasStatus;

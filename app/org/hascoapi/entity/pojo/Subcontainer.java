@@ -27,22 +27,25 @@ import org.slf4j.LoggerFactory;
 import static org.hascoapi.Constants.*;
 
 @JsonFilter("subContainerFilter")
-public class Subcontainer extends Container {
+public class Subcontainer extends Container implements SlotListElement {
 
 	private static final Logger log = LoggerFactory.getLogger(Subcontainer.class);
 
- 	@PropertyField(uri="vstoi:hasParent")
-	private String hasParent;
+ 	@PropertyField(uri="vstoi:belongsTo")
+	private String belongsTo;
 
  	@PropertyField(uri="vstoi:hasNext")
 	private String hasNext;
 
-	public String getHasParent() {
-		return hasParent;
+ 	@PropertyField(uri="vstoi:hasPrevious")
+	private String hasPrevious;
+
+	public String getBelongsTo() {
+		return belongsTo;
 	}
 
-	public void setHasParent(String hasParent) {
-		this.hasParent = hasParent;
+	public void setBelongsTo(String belongsTo) {
+		this.belongsTo = belongsTo;
 	}
    
 	public String getHasNext() {
@@ -51,6 +54,14 @@ public class Subcontainer extends Container {
 
 	public void setHasNext(String hasNext) {
 		this.hasNext = hasNext;
+	}
+   
+	public String getHasPrevious() {
+		return hasPrevious;
+	}
+
+	public void setHasPrevious(String hasPrevious) {
+		this.hasPrevious = hasPrevious;
 	}
    
 	@Override
@@ -97,12 +108,14 @@ public class Subcontainer extends Container {
 					subContainer.setHascoTypeUri(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
 					subContainer.setHasStatus(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PARENT)) {
-					subContainer.setHasParent(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.BELONGS_TO)) {
+					subContainer.setBelongsTo(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_FIRST)) {
 					subContainer.setHasFirst(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_NEXT)) {
 					subContainer.setHasNext(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PREVIOUS)) {
+					subContainer.setHasPrevious(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
 					subContainer.setSerialNumber(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_INFORMANT)) {
