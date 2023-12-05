@@ -155,8 +155,8 @@ public class HAScOMapper {
         } else {
             filterProvider.addFilter("subcontainerFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "hasInformant", "comment", "hasFirst", "hasNext", "hasPrevious", 
-                            "hasSerialNumber", "hasLanguage", "hasVersion", "hasSIRManagerEmail"));
+                            "hascoTypeLabel", "hasInformant", "comment", "belongsTo", "hasFirst", "hasNext", "hasPrevious", 
+                            "hasPriority", "hasSerialNumber", "hasLanguage", "hasVersion", "hasSIRManagerEmail"));
         }
 
         // CONTAINER_SLOT

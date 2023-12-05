@@ -12,6 +12,7 @@ import org.hascoapi.Constants;
 import org.hascoapi.entity.pojo.Container;
 import org.hascoapi.entity.pojo.Instrument;
 import org.hascoapi.entity.pojo.Subcontainer;
+import org.hascoapi.entity.pojo.SlotOperations;
 import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.HAScOMapper;
 import org.hascoapi.vocabularies.VSTOI;
@@ -51,6 +52,7 @@ public class SubcontainerAPI extends Controller {
         return createSubcontainerResult(newInst);
     }
 
+    /** 
     private Result deleteSubcontainerResult(Subcontainer subcontainer) {
         String uri = subcontainer.getUri();
         if (subcontainer.deleteAndDetach()) {
@@ -71,6 +73,7 @@ public class SubcontainerAPI extends Controller {
             return deleteSubcontainerResult(subcontainer);
         }
     }
+    */
 
     /** 
      *   TESTING SUBCONTAINERS
@@ -129,14 +132,16 @@ public class SubcontainerAPI extends Controller {
         if (testSubcontainer1 == null) {
             msg += "No Test subcontainer 1 to be deleted. ";
         } else {
-            testSubcontainer1.setNamedGraph(Constants.TEST_KB);
-            testSubcontainer1.deleteAndDetach();
+            SlotOperations.deleteSlotElement(TEST_SUBCONTAINER1_URI);
+            //testSubcontainer1.setNamedGraph(Constants.TEST_KB);
+            //testSubcontainer1.deleteAndDetach();
         } 
         if (testSubcontainer2 == null) {
             msg += "No Test subcontainer 2 to be deleted. ";
         } else {
-            testSubcontainer2.setNamedGraph(Constants.TEST_KB);
-            testSubcontainer2.deleteAndDetach();
+            SlotOperations.deleteSlotElement(TEST_SUBCONTAINER2_URI);
+            //testSubcontainer2.setNamedGraph(Constants.TEST_KB);
+            //testSubcontainer2.deleteAndDetach();
         }
         if (msg.isEmpty()) {
             return ok(ApiUtil.createResponse("Subcontainers 1 and 2 has been DELETED.", true));

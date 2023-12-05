@@ -8,9 +8,11 @@ public interface SlotElement {
 
     public String getUri();
 
+    public String getHascoTypeUri();
+
     public String getHasNext();
 
-    public void setHasNext(String hasNext);
+    public void setHasNext(String hasPriority);
 
     public String getHasPrevious();
 
@@ -22,6 +24,12 @@ public interface SlotElement {
 
     public void setNamedGraph(String namedGraph);
 
+    public String getHasPriority();
+
+    public void setHasPriority(String hasPriority);
+
     public void save();
+
+    public void delete();
 
 }

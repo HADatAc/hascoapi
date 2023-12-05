@@ -162,6 +162,7 @@ public abstract class Container extends HADatAcThing implements SIRElement, Comp
     	return subcontainers;
     }
 
+    @JsonIgnore
     public List<ContainerSlot> getContainerSlots() {
 		List<ContainerSlot> containerSlots = new ArrayList<ContainerSlot>();
     	List<SlotElement> slots = Container.getSlotElements(uri);
@@ -189,7 +190,7 @@ public abstract class Container extends HADatAcThing implements SIRElement, Comp
                 " SELECT ?uri WHERE { " +
                 "   <" + container.getHasFirst() + "> vstoi:hasNext* ?uri . " +
                 "} ";
-        System.out.println(queryString);
+        //System.out.println(queryString);
         return findByQuery(queryString);        
     }
 
@@ -252,10 +253,10 @@ public abstract class Container extends HADatAcThing implements SIRElement, Comp
     }
 
 	public static Container find(String uri) {
-		System.out.println("Container.find(): uri = [" + uri + "]");
+		//System.out.println("Container.find(): uri = [" + uri + "]");
 		Container container;
 		String typeUri = retrieveTypeUri(uri);
-		System.out.println("Container.find(): typeUri = [" + typeUri + "]");
+		//System.out.println("Container.find(): typeUri = [" + typeUri + "]");
 		if (typeUri.equals(VSTOI.INSTRUMENT)) {
 			container = new Instrument();
 		} else if (typeUri.equals(VSTOI.SUBCONTAINER)) {
@@ -317,11 +318,6 @@ public abstract class Container extends HADatAcThing implements SIRElement, Comp
 		return container;
 	}
 
-	@Override
-	public int hashCode() {
-		return getUri().hashCode();
-	}
-
 	public boolean deleteContainerSlots() {
 		if (uri == null || uri.isEmpty()) {
 			return true;
@@ -354,10 +350,20 @@ public abstract class Container extends HADatAcThing implements SIRElement, Comp
 
 		List<SlotElement> slotElements = getSlotElements(uri);
 
-		System.out.println("printing slot list");
+		// Compute MAXID of existing container slots in slot elements 
+		int maxid = 0;
 		if (slotElements != null) {
 			for (SlotElement slot: slotElements) {
-				System.out.println(slot.getUri() + "  Next: " + slot.getHasNext());
+				if (slot != null) {
+					if (slot.getHasPriority() != null &&
+					    slot.getHascoTypeUri().equals(VSTOI.CONTAINER_SLOT)) {
+						int priority = Integer.parseInt(slot.getHasPriority());
+						if (priority > maxid) {
+							maxid = priority;
+						}
+					}
+					System.out.println(slot.getUri() + "  Next: " + slot.getHasNext());
+				}
 			}
 		}
 
@@ -369,51 +375,65 @@ public abstract class Container extends HADatAcThing implements SIRElement, Comp
 		} else {
 			currentTotal = slotElements.size();
 			lastSlot = slotElements.get(currentTotal - 1);
-			System.out.println("Last slot: " + lastSlot.getUri());
+			if (lastSlot != null) {
+				System.out.println("Last slot: " + lastSlot.getUri());
+			}
 		}
 
 		int newTotal = currentTotal + totNewContainerSlots;
 
 		System.out.println("New total of slots: " + newTotal);
 		
-		for (int aux = currentTotal + 1; aux <= newTotal; aux++) {
-			String auxstr = Utils.adjustedPriority(String.valueOf(aux), 1000);
+		for (int aux = 1; aux <= totNewContainerSlots; aux++) {
+			String auxstr = Utils.adjustedPriority(String.valueOf(maxid + aux), 1000);
 			String newUri = uri + "/" + CONTAINER_SLOT_PREFIX + "/" + auxstr;
 			String newNextUri = null;
 			String newPreviousUri = null;
-			if (aux + 1 <= newTotal) {
-			  String auxNextstr = Utils.adjustedPriority(String.valueOf(aux + 1), 1000);
+			if (aux + 1 <= totNewContainerSlots) {
+			  String auxNextstr = Utils.adjustedPriority(String.valueOf(maxid + aux + 1), 1000);
 			  newNextUri = uri + "/" + CONTAINER_SLOT_PREFIX + "/" + auxNextstr;
 			}
 			if (aux > 1) {
-			  String auxPrevstr = Utils.adjustedPriority(String.valueOf(aux - 1), 1000);
+			  String auxPrevstr = Utils.adjustedPriority(String.valueOf(maxid + aux - 1), 1000);
 			  newPreviousUri = uri + "/" + CONTAINER_SLOT_PREFIX + "/" + auxPrevstr;
 			}
-		    System.out.println("Creating slot: [" + newUri + "]  with prev: [" + newPreviousUri + "  next: [" + newNextUri + "]");
+		    System.out.println("Creating slot: [" + newUri + "]  with prev: [" + newPreviousUri + "]  next: [" + newNextUri + "]");
 			String nullstr = null;
 			ContainerSlot.createContainerSlot(uri, newUri, newNextUri, newPreviousUri, auxstr, nullstr);
 		}
 
+		// IF THE LIST WAS EMPTY
 		if (currentTotal <= 0) {
 		    String auxstr = Utils.adjustedPriority("1", 1000);
 		  	String firstUri = uri + "/" + CONTAINER_SLOT_PREFIX + "/" + auxstr;
 		  	System.out.println("Container [" + uri + "] adding FirstUri: [" + firstUri + "]");
 		  	setHasFirst(firstUri);
 		    save();
+
+		// IF THE LIST WAS NOT EMPTY	
 		} else {
-			String auxstr = Utils.adjustedPriority(String.valueOf(currentTotal + 1), 1000);
+			String auxstr = Utils.adjustedPriority(String.valueOf(maxid + 1), 1000);
 			String nextUri = uri + "/" + CONTAINER_SLOT_PREFIX + "/" + auxstr;
-			System.out.println("NextUri: [" + nextUri + "] updated at [" + lastSlot.getUri() + "]");
-			lastSlot.setHasNext(nextUri);
-			lastSlot.save();
+			if (lastSlot != null) {
+				System.out.println("UPDATING original LAST SLOT");
+				System.out.println("NextUri: [" + nextUri + "] updated at [" + lastSlot.getUri() + "]");
+				lastSlot.setHasNext(nextUri);
+				lastSlot.save();
+			}
 		}
 
-		slotElements = getSlotElements(uri);
-		if (slotElements == null) {
-			return false;
-		}
+		//slotElements = getSlotElements(uri);
+		//if (slotElements == null) {
+		//	return false;
+		//}
 		return true;
 		//return (containerSlotList.size() == newTotal);
+	}
+
+
+	@Override
+	public int hashCode() {
+		return getUri().hashCode();
 	}
 
 	@Override

@@ -33,6 +33,8 @@ public class GenericFind<T> {
             return Instrument.class;
         } else if (elementType.equals("subcontainer")) {
             return Subcontainer.class;
+        } else if (elementType.equals("slotelement")) {
+            return SlotElement.class;
         } else if (elementType.equals("detectorstem")) {
             return DetectorStem.class;
         } else if (elementType.equals("detector")) {

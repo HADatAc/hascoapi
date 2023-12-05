@@ -44,6 +44,16 @@ public class SIRElementAPI extends Controller {
                 success = false;
                 message = e.getMessage();
             }
+        } else if (clazz == Subcontainer.class) {
+            try {
+                Subcontainer object;
+                object = (Subcontainer)objectMapper.readValue(json, clazz);
+                System.out.println("SIRElementAPI.create(Subcontainer): JSON=[" + json + "]");
+                object.saveAndAttach();
+            } catch (JsonProcessingException e) {
+                success = false;
+                message = e.getMessage();
+            }
         } else if (clazz == DetectorStem.class) {
             try {
                 DetectorStem object;
@@ -208,6 +218,18 @@ public class SIRElementAPI extends Controller {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
+        } else if (clazz == Subcontainer.class) {
+            //Subcontainer object = Subcontainer.find(uri);
+            if (!SlotOperations.deleteSlotElement(uri)) {
+                return ok(ApiUtil.createResponse("Failed to delete element with URI [" + uri + "]", false));
+            }
+            //object.deleteAndDetach();
+        } else if (clazz == SlotElement.class) {
+            //Subcontainer object = Subcontainer.find(uri);
+            if (!SlotOperations.deleteSlotElement(uri)) {
+                return ok(ApiUtil.createResponse("Failed to delete element with URI [" + uri + "]", false));
+            }
+            //object.deleteAndDetach();
         } else if (clazz == DetectorStem.class) {
             DetectorStem object = DetectorStem.find(uri);
             if (object == null) {
@@ -221,11 +243,11 @@ public class SIRElementAPI extends Controller {
             }
             object.delete();
         } else if (clazz == ContainerSlot.class) {
-            ContainerSlot object = ContainerSlot.find(uri);
-            if (object == null) {
-                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            //ContainerSlot object = ContainerSlot.find(uri);
+            if (!SlotOperations.deleteSlotElement(uri)) {
+                return ok(ApiUtil.createResponse("Failed to delete element with URI [" + uri + "]", false));
             }
-            object.delete();
+            //object.delete();
         } else if (clazz == Codebook.class) {
             Codebook object = Codebook.find(uri);
             if (object == null) {

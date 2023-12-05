@@ -308,6 +308,7 @@ public class ContainerSlot extends HADatAcThing implements SlotElement, Comparab
         return true;
     }
 
+
     @Override
     public int compareTo(ContainerSlot another) {
         return this.getHasPriority().compareTo(another.getHasPriority());

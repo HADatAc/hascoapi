@@ -12,6 +12,7 @@ import org.hascoapi.Constants;
 import org.hascoapi.entity.fhir.Questionnaire;
 import org.hascoapi.entity.pojo.Container;
 import org.hascoapi.entity.pojo.ContainerSlot;
+import org.hascoapi.entity.pojo.SlotElement;
 import org.hascoapi.entity.pojo.Instrument;
 import org.hascoapi.entity.pojo.Subcontainer;
 import org.hascoapi.entity.pojo.Detector;
@@ -227,6 +228,25 @@ public class ContainerAPI extends Controller {
     /** 
      *  QUERYING CONTAINER
      */
+
+    public Result getSlotElements(String containerUri) {
+        System.out.println("Inside ContainerAPI.getSlotElements(" + containerUri + ")");
+        if (containerUri == null || containerUri.isEmpty()) {
+            return ok(ApiUtil.createResponse("A container uri needs to be provided.", false));
+        }
+        Container container = Container.find(containerUri);
+        if (container == null) {
+            return ok(ApiUtil.createResponse("No container could be retrieve from provided uri.", false));
+        }
+        List<SlotElement> slotElements = Container.getSlotElements(containerUri);
+        if (slotElements == null) {
+            return ok(ApiUtil.createResponse("No slot element has been found for given URI", false));
+        } else {
+            ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL,VSTOI.CONTAINER_SLOT);
+            JsonNode jsonObject = mapper.convertValue(slotElements, JsonNode.class);
+            return ok(ApiUtil.createResponse(jsonObject, true));
+        }
+    }
 
     public static Result getContainers(List<Container> results){
         if (results == null) {

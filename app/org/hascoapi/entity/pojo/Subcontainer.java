@@ -40,6 +40,9 @@ public class Subcontainer extends Container implements SlotElement {
  	@PropertyField(uri="vstoi:hasPrevious")
 	private String hasPrevious;
 
+ 	@PropertyField(uri="vstoi:hasPriority")
+	private String hasPriority;
+
 	public String getBelongsTo() {
 		return belongsTo;
 	}
@@ -62,6 +65,14 @@ public class Subcontainer extends Container implements SlotElement {
 
 	public void setHasPrevious(String hasPrevious) {
 		this.hasPrevious = hasPrevious;
+	}
+   
+	public String getHasPriority() {
+		return hasPriority;
+	}
+
+	public void setHasPriority(String hasPriority) {
+		this.hasPriority = hasPriority;
 	}
    
 	@Override
@@ -159,14 +170,21 @@ public class Subcontainer extends Container implements SlotElement {
 			this.setHasNext(null); 
 			this.setHasPrevious(null);
 		} else {
-			SlotElement next = SlotOperations.findSlotElement(parent.getHasFirst());
-			next.setNamedGraph(this.getNamedGraph());
-			parent.setHasFirst(this.getUri());
-			parent.save();
-			this.setHasNext(next.getUri());
-			this.setHasPrevious(null);
-			next.setHasPrevious(this.getUri());
-			next.save();
+			List<SlotElement> slotElements = parent.getSlotElements();
+			if (slotElements == null || slotElements.size() <= 0) {
+				System.out.println("[ERROR] Subcontainer.saveAndAttach(): cannot retrieve slot elements.");
+				return false;
+			}
+			SlotElement last = slotElements.get(slotElements.size() - 1);
+			if (last == null) {
+				System.out.println("[ERROR] Subcontainer.saveAndAttach(): cannot retrieve last element of slots.");
+				return false;
+			}
+			last.setNamedGraph(this.getNamedGraph());
+			last.setHasNext(this.getUri());
+			this.setHasNext(null);
+			this.setHasPrevious(last.getUri());
+			last.save();
 		}
 
 		// SAVE SUBCONTAINET
@@ -174,6 +192,7 @@ public class Subcontainer extends Container implements SlotElement {
 		return true;
 	}
 
+	/** 
 	public boolean deleteAndDetach() {
 
 		// DETACH FIRST
@@ -221,6 +240,7 @@ public class Subcontainer extends Container implements SlotElement {
 		this.delete();
 		return true;
 	}
+	*/
 
     @Override public void save() {
 		saveToTripleStore();
