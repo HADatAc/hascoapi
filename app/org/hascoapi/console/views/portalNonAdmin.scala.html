@@ -1,0 +1,272 @@
+@()
+
+@import helper._
+@import org.hascoapi.utils.NameSpaces
+@import org.hascoapi.console.views.html._
+@import org.hascoapi.console.controllers._
+@import org.hascoapi.entity.pojo.ContainerSlot
+@import org.hascoapi.entity.pojo.HADatAcClass
+@import org.hascoapi.entity.pojo.HADatAcThing
+@import org.hascoapi.entity.pojo.CodebookSlot
+@import org.hascoapi.entity.pojo.GenericFind
+@import play.api.Play
+@import com.typesafe.config.ConfigFactory
+
+<style>
+    .dashNumber {
+       font-family:    Arial, Helvetica, sans-serif;
+       font-size:      48px;
+       font-weight:    bold;
+       color:          Black;
+    }
+    .dashText {
+       font-family:    Arial, Helvetica, sans-serif;
+       font-size:      28px;
+       font-weight:    bold;
+       padding:        1px 15px 35px 15px;
+    }
+    .glyphicon-comment {
+       font-size: 24px
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-1"></div>
+    <div class="col-md-10">
+        <h2>Dashboard</h2>
+        <br>
+        <h2>Functionalities</h2>
+        <br>
+        <div class="row dash-text">
+            <div class="col-md-1 text-center">
+                <a href="@org.hascoapi.console.controllers.documentation.routes.RetrievalMethodList.index()" id="retrievalAPI" class="btn btn-success w-100" role="button">Element Retrieval API</a>
+                <br>
+            </div>
+            <div class="col-md-1 text-center">
+                <a href="@org.hascoapi.console.controllers.documentation.routes.ElementsMethodList.index()" id="elementsAPI" class="btn btn-success w-100" role="button">Element Mngt. API</a>
+                <br>
+            </div>
+            <div class="col-md-1 text-center">
+                <a href="@org.hascoapi.console.controllers.documentation.routes.TestingMethodList.index()" id="elementsAPI" class="btn btn-success w-100" role="button">Testing API</a>
+                <br>
+            </div>
+            <div class="col-md-1 text-center">
+                <a href="@org.hascoapi.console.controllers.documentation.routes.RepositoryMethodList.index()" id="repositoryAPI" class="btn btn-success w-100" role="button">Repo Config API</a>
+                <br>
+            </div>
+            <div class="col-md-1 text-center">
+                <a href="@org.hascoapi.console.controllers.ontologies.routes.Maintenance.index()" id="methods" class="btn btn-success w-100" role="button">Ontology Mngt.</a>
+                <br>
+            </div>
+        </div>
+        <br>
+        <h4>Instrument Elements</h4>
+        <div style=" padding: 10px; background-color: lightgray;">
+            <div class="row dash-text">
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@GenericFind.getNumberElements("instrumenttype")</div>
+                    <a href="" id="instrumentTypes" class="btn btn-primary w-100 disabled" role="button">Instrument Types</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@GenericFind.getNumberElements("instrument")</div>
+                    <a href="" id="instruments" class="btn btn-primary w-100 disabled" role="button">Instruments</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@GenericFind.getNumberElements("containerslot")</div>
+                    <a href="" id="containerSlots" class="btn btn-primary w-100 disabled" role="button">Container Slots</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@ContainerSlot.getNumberContainerSlotsWithDetectors()</div>
+                    <a href="" id="containerSlotsWithDetectors" class="btn btn-primary w-100 disabled" role="button">Used Container Slots</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@GenericFind.getNumberElements("detectorstemtype")</div>
+                    <a href="" id="detectorStemTypes" class="btn btn-primary w-100 disabled" role="button">DetectorStem Types</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@GenericFind.getNumberElements("detectorstem")</div>
+                    <a href="" id="detectorStems" class="btn btn-primary w-100 disabled" role="button">Detector Stems</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@GenericFind.getNumberElements("detector")</div>
+                    <a href="" id="detectors" class="btn btn-primary w-100 disabled" role="button">Detectors</a>
+                    <br>
+                </div>
+            </div>
+            <div class="row dash-text">
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@GenericFind.getNumberElements("codebook")</div>
+                    <a href="" id="codebooks" class="btn btn-primary w-100 disabled" role="button">Codebooks</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@GenericFind.getNumberElements("codebookslot")</div>
+                    <a href="" id="codebookSlots" class="btn btn-primary w-100 disabled" role="button">Resp.Opt. Slots</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@CodebookSlot.getNumberCodebookSlotsWithResponseOptions()</div>
+                    <a href="" id="codebookSlotsWithResponseOptions" class="btn btn-primary w-100 disabled" role="button">Used Resp.Opt. Slots</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@GenericFind.getNumberElements("responseoption")</div>
+                    <a href="" id="responseoptions" class="btn btn-primary w-100 disabled" role="button">Response Options</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@GenericFind.getNumberElements("annotationstem")</div>
+                    <a href="" id="annotationStems" class="btn btn-primary w-100 disabled" role="button">Annotation Stems</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@GenericFind.getNumberElements("annotation")</div>
+                    <a href="" id="annotations" class="btn btn-primary w-100 disabled" role="button">Annotations</a>
+                    <br>
+                </div>
+            </div>
+        </div>        
+        <br>
+        <h4>Semantic Elements</h4>
+        <div style=" padding: 10px; background-color: lightgray;">
+            <div class="row dash-text">
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">0</div>
+                    <a href="" id="sdds" class="btn btn-primary w-100 disabled" role="button">SDD</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">0</div>
+                    <a href="" id="sdds" class="btn btn-primary w-100 disabled" role="button">SDD Property</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">0</div>
+                    <a href="" id="sdds" class="btn btn-primary w-100 disabled" role="button">SDD Virtual Column</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@GenericFind.getNumberElements("semanticvariable")</div>
+                    <a href="" id="semanticvariables" class="btn btn-primary w-100 disabled" role="button">Semantic Variables</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@GenericFind.getNumberElements("entity")</div> 
+                    <a href="" id="entitytypes" class="btn btn-primary w-100 disabled" role="button">Entity Types</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@GenericFind.getNumberElements("attribute")</div>
+                    <a href="" id="attributetypes" class="btn btn-primary w-100 disabled" role="button">Attribute Types</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@GenericFind.getNumberElements("unit")</div>
+                    <a href="" id="units" class="btn btn-primary w-100 disabled" role="button">Units</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@GenericFind.getNumberElements("agent")</div>
+                    <a href="" id="units" class="btn btn-primary w-100 disabled" role="button">Agents</a>
+                    <br>
+                </div>
+            </div>
+        </div>
+        <br>
+        <h4>Study Elements</h4>
+        <div style=" padding: 10px; background-color: lightgray;">
+            <div class="row dash-text">
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">0</div>
+                    <a href="" id="study" class="btn btn-primary w-100 disabled" role="button">Studies</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">0</div>
+                    <a href="" id="objectcollection" class="btn btn-primary w-100 disabled" role="button">Study Object Collections</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">0</div>
+                    <a href="" id="object" class="btn btn-primary w-100 disabled" role="button">Study Objects</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">0</div> 
+                    <a href="" id="deployment" class="btn btn-primary w-100 disabled" role="button">Study Roles</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">0</div> 
+                    <a href="" id="deployment" class="btn btn-primary w-100 disabled" role="button">Values</a>
+                    <br>
+                </div>
+            </div>
+        </div>
+        <br>
+        <h4>Instrument Infrastructure</h4>
+        <div style=" padding: 10px; background-color: lightgray;">
+            <div class="row dash-text">
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">0</div> 
+                    <a href="" id="deployment" class="btn btn-primary w-100 disabled" role="button">Deployments</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">0</div>
+                    <a href="" id="platformtype" class="btn btn-primary w-100 disabled" role="button">Platform Types</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">0</div>
+                    <a href="" id="platform" class="btn btn-primary w-100 disabled" role="button">Platforms</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">0</div>
+                    <a href="" id="DD" class="btn btn-primary w-100 disabled" role="button">Data Dictionaries</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">0</div>
+                    <a href="" id="variables" class="btn btn-primary w-100 disabled" role="button">Variables</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">0</div>
+                    <a href="" id="stream" class="btn btn-primary w-100 disabled" role="button">Streams</a>
+                    <br>
+                </div>
+            </div>
+        </div>
+        <br>
+        <h4>Supporting Knowledge</h4>
+        <div style=" padding: 10px; background-color: lightgray;">
+            <div class="row dash-text">
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@NameSpaces.getInstance().getNumOfNameSpaces</div>
+                    <a href="" id="namespaces" class="btn btn-primary w-100 disabled" role="button">Namespaces</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@HADatAcClass.getNumberClasses()</div>
+                    <a href="" id="classes" class="btn btn-primary w-100 disabled" role="button">Classes</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@HADatAcThing.getNumberInstances()</div>
+                    <a href="" id="instances" class="btn btn-primary w-100 disabled" role="button">Instances</a>
+                    <br>
+                </div>
+            </div>
+        </div>
+        <br>
+    </div>
+</div>
+

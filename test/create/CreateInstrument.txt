@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import play.mvc.Result;
 import static org.junit.Assert.assertEquals;
-import org.sirapi.console.controllers.restapi.InstrumentAPI;
+import org.hascoapi.console.controllers.restapi.InstrumentAPI;
 import static play.test.Helpers.contentAsString;
 
 import static test.Responses.*;

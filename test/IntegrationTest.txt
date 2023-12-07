@@ -8,11 +8,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestClassOrder;
 import play.mvc.Result;
 import static org.junit.Assert.assertEquals;
-import org.sirapi.console.controllers.restapi.CodebookAPI;
-import org.sirapi.console.controllers.restapi.DetectorAPI;
-import org.sirapi.console.controllers.restapi.DetectorStemAPI;
-import org.sirapi.console.controllers.restapi.InstrumentAPI;
-import org.sirapi.console.controllers.restapi.ResponseOptionAPI;
+import org.hascoapi.console.controllers.restapi.CodebookAPI;
+import org.hascoapi.console.controllers.restapi.DetectorAPI;
+import org.hascoapi.console.controllers.restapi.DetectorStemAPI;
+import org.hascoapi.console.controllers.restapi.InstrumentAPI;
+import org.hascoapi.console.controllers.restapi.ResponseOptionAPI;
 import static play.test.Helpers.contentAsString;
 
 import static test.Responses.*;
@@ -41,16 +41,16 @@ public class IntegrationTest {
 
     @Nested
     @Order(102)
-    public class ResetDetectorSlots {
-        // Unit test deleteDetectorSlotsForTesting
+    public class ResetContainerSlots {
+        // Unit test deleteContainerSlotsForTesting
         @Test
-        @DisplayName("Testing 102 reset DetectorSlots")
-        public void test102ResetDetectorSlots() {
+        @DisplayName("Testing 102 reset ContainerSlots")
+        public void test102ResetContainerSlots() {
             final InstrumentAPI controller = new InstrumentAPI();
             Result result;
-            result = controller.deleteDetectorSlotsForTesting();
-            result = controller.deleteDetectorSlotsForTesting();
-            assertEquals(RESPONSE_NOK_RESET_DETECTOR_SLOTS,contentAsString(result));
+            result = controller.deleteContainerSlotsForTesting();
+            result = controller.deleteContainerSlotsForTesting();
+            assertEquals(RESPONSE_NOK_RESET_CONTAINER_SLOTS,contentAsString(result));
         }
     }
 
@@ -101,16 +101,16 @@ public class IntegrationTest {
 
     @Nested
     @Order(106)
-    public class ResetResponseOptionSlots {
-        // Unit test deleteResponseOptionSlotsForTesting
+    public class ResetCodebookSlots {
+        // Unit test deleteCodebookSlotsForTesting
         @Test
-        @DisplayName("Testing 106 reset ResponseOptionSlots")
-        public void test106ResetResponseOptionSlots() {
+        @DisplayName("Testing 106 reset CodebookSlots")
+        public void test106ResetCodebookSlots() {
             final CodebookAPI controller = new CodebookAPI();
             Result result;
-            result = controller.deleteResponseOptionSlotsForTesting();
-            result = controller.deleteResponseOptionSlotsForTesting();
-            assertEquals(RESPONSE_NOK_RESET_RESPONSE_OPTION_SLOTS,contentAsString(result));
+            result = controller.deleteCodebookSlotsForTesting();
+            result = controller.deleteCodebookSlotsForTesting();
+            assertEquals(RESPONSE_NOK_RESET_CODEBOOK_SLOTS,contentAsString(result));
         }
     }
 
@@ -150,13 +150,13 @@ public class IntegrationTest {
 
     @Nested
     @Order(202)
-    public class CreateDetectorSlots {
-        // Unit test createDetectorSlotsForTesting
+    public class CreateContainerSlots {
+        // Unit test createContainerSlotsForTesting
         @Test
-        @DisplayName("Testing 202 create DetectorSlots")
-        public void test202CreateDetectorSlots() {
+        @DisplayName("Testing 202 create ContainerSlots")
+        public void test202CreateContainerSlots() {
             final InstrumentAPI controller = new InstrumentAPI();
-            Result result = controller.createDetectorSlotsForTesting();
+            Result result = controller.createContainerSlotsForTesting();
             assertEquals(RESPONSE_OK_CREATE_DETECTOr_SLOTS,contentAsString(result));
         }
     }
@@ -238,14 +238,14 @@ public class IntegrationTest {
 
     @Nested
     @Order(606)
-    public class DeleteDetectorSlots {
-        // Unit test deleteDetectorSlotsForTesting
+    public class DeleteContainerSlots {
+        // Unit test deleteContainerSlotsForTesting
         @Test
-        @DisplayName("Testing 606 delete DetectorSlots")
-        public void test606DeleteDetectorSlots() {
+        @DisplayName("Testing 606 delete ContainerSlots")
+        public void test606DeleteContainerSlots() {
             final InstrumentAPI controller = new InstrumentAPI();
-            Result result = controller.deleteDetectorSlotsForTesting();
-            assertEquals(RESPONSE_OK_DELETE_DETECTOR_SLOTS,contentAsString(result));
+            Result result = controller.deleteContainerSlotsForTesting();
+            assertEquals(RESPONSE_OK_DELETE_CONTAINER_SLOTS,contentAsString(result));
         }
     }
 

@@ -6,8 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestClassOrder;
 import play.mvc.Result;
 import static org.junit.Assert.assertEquals;
-import org.sirapi.console.controllers.restapi.ResponseOptionAPI;
-import org.sirapi.console.controllers.restapi.CodebookAPI;
+import org.hascoapi.console.controllers.restapi.ResponseOptionAPI;
+import org.hascoapi.console.controllers.restapi.CodebookAPI;
 import static play.test.Helpers.contentAsString;
 
 import static test.Responses.*;
