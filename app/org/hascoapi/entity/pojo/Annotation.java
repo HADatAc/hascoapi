@@ -1,12 +1,14 @@
 package org.hascoapi.entity.pojo;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSetRewindable;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
+import org.hascoapi.Constants;
 import org.hascoapi.annotations.PropertyField;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.NameSpaces;
@@ -72,6 +74,21 @@ public class Annotation extends HADatAcThing implements Comparable<Annotation>  
 
     public String getHasContentWithStyle() {
         return hasContentWithStyle;
+    }
+
+    @JsonIgnore
+    public String getRendering() {
+        if (getAnnotationStem() == null || getAnnotationStem().getHasContent() == null || getAnnotationStem().getHasContent().isEmpty()) {
+            return "";
+        }
+        if (getHasContentWithStyle() == null) {
+            return getAnnotationStem().getHasContent();
+        }
+        String rendering = getHasContentWithStyle();
+        if (rendering.indexOf(Constants.META_VARIABLE_CONTENT) == -1) {
+            return rendering;
+        }
+        return rendering.replaceAll(Constants.META_VARIABLE_CONTENT,getAnnotationStem().getHasContent());
     }
 
     public void setHasContentWithStyle(String hasContentWithStyle) {

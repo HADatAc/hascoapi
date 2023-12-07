@@ -2,12 +2,15 @@ package org.hascoapi.transform;
 
 //import com.itextpdf.text.*;
 //import com.itextpdf.text.pdf.PdfWriter;
+import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.xhtmlrenderer.layout.SharedContext;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
+import org.hascoapi.Constants;
 import org.hascoapi.entity.pojo.*;
 import org.hascoapi.vocabularies.VSTOI;
 
@@ -125,31 +128,43 @@ public class Renderings {
 		return lines;
 	}
 
-	private static String headerHTML(Instrument instr) {
+	private static String runtimeRendering(String rendering, int page) {
+		System.out.println("Rendering: [" + rendering + "]  page: [" + page + "]" );
+        if (rendering.indexOf(Constants.META_VARIABLE_PAGE) == -1) {
+            return rendering;
+        }
+		String pageStr = String.valueOf(page);
+		System.out.println("FOUND --- Rendering: [" + rendering + "]  pageStr: [" + pageStr + "]" );
+        String str =  rendering.replaceAll(Constants.META_VARIABLE_PAGE,pageStr);
+		System.out.println("Final rendering: [" + str + "]");
+		return str;	
+	}
+
+	private static String headerHTML(Instrument instr, int page) {
 		Annotation topLeftAnnotation = Annotation.findByContainerAndPosition(instr.getUri(),VSTOI.PAGE_TOP_LEFT);
 		Annotation topCenterAnnotation = Annotation.findByContainerAndPosition(instr.getUri(),VSTOI.PAGE_TOP_CENTER);
 		Annotation topRightAnnotation = Annotation.findByContainerAndPosition(instr.getUri(),VSTOI.PAGE_TOP_RIGHT);
-		Annotation belowTopLineAnnotation = Annotation.findByContainerAndPosition(instr.getUri(),VSTOI.PAGE_BELOW_TOP_LINE);
+		Annotation lineBelowTopAnnotation = Annotation.findByContainerAndPosition(instr.getUri(),VSTOI.PAGE_LINE_BELOW_TOP);
 
-		String topLeft = "";
-		if (topLeftAnnotation != null && topLeftAnnotation.getAnnotationStem() != null && 
-			topLeftAnnotation.getAnnotationStem().getHasContent() != null) {
-				topLeft = topLeftAnnotation.getAnnotationStem().getHasContent();
+ 		String topLeft = "";
+		if (topLeftAnnotation != null) {
+			topLeft = topLeftAnnotation.getRendering();
+			topLeft = runtimeRendering(topLeft,page);
 		}
 		String topCenter = "";
-		if (topCenterAnnotation != null && topCenterAnnotation.getAnnotationStem() != null && 
-			topCenterAnnotation.getAnnotationStem().getHasContent() != null) {
-				topCenter = topCenterAnnotation.getAnnotationStem().getHasContent();
+		if (topCenterAnnotation != null) {
+			topCenter = topCenterAnnotation.getRendering();
+			topCenter = runtimeRendering(topCenter,page);
 		}
 		String topRight = "";
-		if (topRightAnnotation != null && topRightAnnotation.getAnnotationStem() != null && 
-			topRightAnnotation.getAnnotationStem().getHasContent() != null) {
-				topRight = topRightAnnotation.getAnnotationStem().getHasContent();
+		if (topRightAnnotation != null) {
+			topRight = topRightAnnotation.getRendering();
+			topRight = runtimeRendering(topRight,page);
 		}
-		String belowTopLine = "";
-		if (belowTopLineAnnotation != null && belowTopLineAnnotation.getAnnotationStem() != null && 
-			belowTopLineAnnotation.getAnnotationStem().getHasContent() != null) {
-				belowTopLine = belowTopLineAnnotation.getAnnotationStem().getHasContent();
+		String lineBelowTop = "";
+		if (lineBelowTopAnnotation != null) {
+			lineBelowTop = lineBelowTopAnnotation.getRendering();
+			lineBelowTop = runtimeRendering(lineBelowTop,page);
 		}
 
 		return "<table id=\"tbl1\"> " +
@@ -160,9 +175,8 @@ public class Renderings {
 				"  </tr>" +
 				"</table> " +
 				"<br>" +
-				belowTopLine + "<br>" +
+				lineBelowTop + "<br>" +
 				"<br>\n";
-
 	}
 
 	private static String footerHTML(Instrument instr, int page) {
@@ -170,30 +184,30 @@ public class Renderings {
 		Annotation bottomLeftAnnotation = Annotation.findByContainerAndPosition(instr.getUri(),VSTOI.PAGE_BOTTOM_LEFT);
 		Annotation bottomCenterAnnotation = Annotation.findByContainerAndPosition(instr.getUri(),VSTOI.PAGE_BOTTOM_CENTER);
 		Annotation bottomRightAnnotation = Annotation.findByContainerAndPosition(instr.getUri(),VSTOI.PAGE_BOTTOM_RIGHT);
-		Annotation aboveBottomLineAnnotation = Annotation.findByContainerAndPosition(instr.getUri(),VSTOI.PAGE_ABOVE_BOTTOM_LINE);
+		Annotation lineAboveBottomAnnotation = Annotation.findByContainerAndPosition(instr.getUri(),VSTOI.PAGE_LINE_ABOVE_BOTTOM);
 
-		String bottomLeft = "";
-		if (bottomLeftAnnotation != null && bottomLeftAnnotation.getAnnotationStem() != null && 
-			bottomLeftAnnotation.getAnnotationStem().getHasContent() != null) {
-				bottomLeft = bottomLeftAnnotation.getAnnotationStem().getHasContent();
+		String lineAboveBottom = "";
+		if (lineAboveBottomAnnotation != null) {
+			lineAboveBottom = lineAboveBottomAnnotation.getRendering();
+			lineAboveBottom = runtimeRendering(lineAboveBottom,page);
+		}
+ 		String bottomLeft = "";
+		if (bottomLeftAnnotation != null) {
+			bottomLeft = bottomLeftAnnotation.getRendering();
+			bottomLeft = runtimeRendering(bottomLeft,page);
 		}
 		String bottomCenter = "";
-		if (bottomCenterAnnotation != null && bottomCenterAnnotation.getAnnotationStem() != null && 
-			bottomCenterAnnotation.getAnnotationStem().getHasContent() != null) {
-				bottomCenter = bottomCenterAnnotation.getAnnotationStem().getHasContent();
+		if (bottomCenterAnnotation != null) {
+			bottomCenter = bottomCenterAnnotation.getRendering();
+			bottomCenter = runtimeRendering(bottomCenter,page);
 		}
 		String bottomRight = "";
-		if (bottomRightAnnotation != null && bottomRightAnnotation.getAnnotationStem() != null && 
-			bottomRightAnnotation.getAnnotationStem().getHasContent() != null) {
-				bottomRight = bottomRightAnnotation.getAnnotationStem().getHasContent();
-		}
-		String aboveBottomLine = "";
-		if (aboveBottomLineAnnotation != null && aboveBottomLineAnnotation.getAnnotationStem() != null && 
-			aboveBottomLineAnnotation.getAnnotationStem().getHasContent() != null) {
-				aboveBottomLine = aboveBottomLineAnnotation.getAnnotationStem().getHasContent();
+		if (bottomRightAnnotation != null) {
+			bottomRight = bottomRightAnnotation.getRendering();
+			bottomRight = runtimeRendering(bottomRight,page);
 		}
 
-		return aboveBottomLine + "<br><br>" + 
+		return lineAboveBottom + "<br><br>" + 
 				"<table id=\"tbl1\"> " +
 				"  <tr id=\"tr1\"> " +
 				"	  <td id=\"leftcell\">" + bottomLeft + "</td> " +
@@ -240,7 +254,7 @@ public class Renderings {
 
 		// PRINT HEADER
 		if (page == 1) {
-			html += headerHTML(instr);
+			html += headerHTML(instr,page);
 			html += "<br>\n";
 		}
 

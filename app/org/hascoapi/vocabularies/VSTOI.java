@@ -83,19 +83,19 @@ public class VSTOI {
     public static final String TOP_LEFT               = "http://hadatac.org/ont/vstoi#TopLeft";
     public static final String TOP_CENTER             = "http://hadatac.org/ont/vstoi#TopCenter";
     public static final String TOP_RIGHT              = "http://hadatac.org/ont/vstoi#TopRight";
-    public static final String BELOW_TOP_LINE         = "http://hadatac.org/ont/vstoi#BelowTopLine";
+    public static final String LINE_BELOW_TOP         = "http://hadatac.org/ont/vstoi#LineBelowTop";
     public static final String BOTTOM_LEFT            = "http://hadatac.org/ont/vstoi#BotomLeft";
     public static final String BOTTOM_CENTER          = "http://hadatac.org/ont/vstoi#BottomCenter";
     public static final String BOTTOM_RIGHT           = "http://hadatac.org/ont/vstoi#BottomRight";
-    public static final String ABOVE_BOTTOM_LINE      = "http://hadatac.org/ont/vstoi#AboveBottomLine";
+    public static final String LINE_ABOVE_BOTTOM      = "http://hadatac.org/ont/vstoi#LineAboveBottom";
     public static final String PAGE_TOP_LEFT          = "http://hadatac.org/ont/vstoi#PageTopLeft";
     public static final String PAGE_TOP_CENTER        = "http://hadatac.org/ont/vstoi#PageTopCenter";
     public static final String PAGE_TOP_RIGHT         = "http://hadatac.org/ont/vstoi#PageTopRight";
-    public static final String PAGE_BELOW_TOP_LINE    = "http://hadatac.org/ont/vstoi#PageBelowTopLine";
+    public static final String PAGE_LINE_BELOW_TOP    = "http://hadatac.org/ont/vstoi#PageLineBelowTop";
     public static final String PAGE_BOTTOM_LEFT       = "http://hadatac.org/ont/vstoi#PageBottomLeft";
     public static final String PAGE_BOTTOM_CENTER     = "http://hadatac.org/ont/vstoi#PageBottomCenter";
     public static final String PAGE_BOTTOM_RIGHT      = "http://hadatac.org/ont/vstoi#PageBottomRight";
-    public static final String PAGE_ABOVE_BOTTOM_LINE = "http://hadatac.org/ont/vstoi#PageAboveBottomLine";
+    public static final String PAGE_LINE_ABOVE_BOTTOM = "http://hadatac.org/ont/vstoi#PageLineAboveBottom";
 
     /**
      * INSTANCES
@@ -130,11 +130,11 @@ public class VSTOI {
         containerPosition.put(TOP_CENTER, "TopCenter");
         containerPosition.put(TOP_LEFT, "TopLeft");
         containerPosition.put(TOP_RIGHT, "TopRight");
-        containerPosition.put(BELOW_TOP_LINE, "BelowTopLine");
+        containerPosition.put(LINE_BELOW_TOP, "LineBelowTop");
         containerPosition.put(BOTTOM_CENTER, "BottomCenter");
         containerPosition.put(BOTTOM_LEFT, "BottomLeft");
         containerPosition.put(BOTTOM_RIGHT, "BottomRight");
-        containerPosition.put(ABOVE_BOTTOM_LINE, "AboveBottomLine");
+        containerPosition.put(LINE_ABOVE_BOTTOM, "LineAboveBottom");
         containerPosition.put(NOT_VISIBLE, "NotVisible");
     }
 
@@ -145,11 +145,11 @@ public class VSTOI {
         pagePosition.put(PAGE_TOP_CENTER, "PageTopCenter");
         pagePosition.put(PAGE_TOP_LEFT, "PageTopLeft");
         pagePosition.put(PAGE_TOP_RIGHT, "PageTopRight");
-        pagePosition.put(PAGE_BELOW_TOP_LINE, "PageBelowTopLine");
+        pagePosition.put(PAGE_LINE_BELOW_TOP, "PageLineBelowTop");
         pagePosition.put(PAGE_BOTTOM_CENTER, "PageBottomCenter");
         pagePosition.put(PAGE_BOTTOM_LEFT, "PageBottomLeft");
         pagePosition.put(PAGE_BOTTOM_RIGHT, "PageBottomRight");
-        pagePosition.put(PAGE_ABOVE_BOTTOM_LINE, "PageAboveBottomLine");
+        pagePosition.put(PAGE_LINE_ABOVE_BOTTOM, "PageLineAboveBottom");
         pagePosition.put(NOT_VISIBLE, "NotVisible");
     }
 

@@ -16,6 +16,7 @@ import play.mvc.Controller;
 import play.mvc.Result;
 import static org.hascoapi.Constants.*;
 import java.util.List;
+import java.util.ArrayList;
 
 
 public class AnnotationAPI extends Controller {
@@ -103,7 +104,7 @@ public class AnnotationAPI extends Controller {
                 testAnnotationInstruction.setComment("This is a dummy Annotation Instruction created to test the SIR API.");
                 testAnnotationInstruction.setBelongsTo(TEST_INSTRUMENT_URI);
                 testAnnotationInstruction.setHasAnnotationStem(TEST_ANNOTATION_STEM_INSTRUCTION_URI);
-                testAnnotationInstruction.setHasPosition(VSTOI.PAGE_BELOW_TOP_LINE);
+                testAnnotationInstruction.setHasPosition(VSTOI.PAGE_LINE_BELOW_TOP);
                 testAnnotationInstruction.setHasContentWithStyle("");
                 testAnnotationInstruction.setHasSIRManagerEmail("me@example.com");
                 testAnnotationInstruction.setNamedGraph(Constants.TEST_KB);
@@ -232,6 +233,16 @@ public class AnnotationAPI extends Controller {
 
     public Result getAnnotationsByContainer(String containerUri){
         List<Annotation> results = Annotation.findByContainer(containerUri);
+        return getAnnotations(results);
+    }
+
+    public Result getAnnotationByContainerAndPosition(String containerUri, String positionUri){
+        //System.out.println("AnnotationAPI.getAnnotationByContainerAndPosition - containerUri [" + containerUri + "]   positionUri [" + positionUri + "]");
+        List<Annotation> results = new ArrayList<Annotation>();
+        Annotation annotation = Annotation.findByContainerAndPosition(containerUri,positionUri);
+        if (annotation != null) {
+            results.add(annotation);
+        }
         return getAnnotations(results);
     }
 

@@ -54,5 +54,7 @@ public class Constants {
     public static final String DEFAULT_KB = "http://hadatac.org/kb/default/";
     public static final String DEFAULT_REPOSITORY = DEFAULT_KB + "repository";
 
+    public static final String META_VARIABLE_CONTENT = "%%CONTENT%%";
+    public static final String META_VARIABLE_PAGE = "%%PAGE%%";
 
 }
