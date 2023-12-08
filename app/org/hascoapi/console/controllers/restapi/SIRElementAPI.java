@@ -48,7 +48,7 @@ public class SIRElementAPI extends Controller {
             try {
                 Subcontainer object;
                 object = (Subcontainer)objectMapper.readValue(json, clazz);
-                System.out.println("SIRElementAPI.create(Subcontainer): JSON=[" + json + "]");
+                //System.out.println("SIRElementAPI.create(Subcontainer): JSON=[" + json + "]");
                 object.saveAndAttach();
             } catch (JsonProcessingException e) {
                 success = false;

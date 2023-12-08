@@ -139,6 +139,16 @@ public class HAScOMapper {
         filterProvider.addFilter("instrumentTypeFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "className", "superUri", "superLabel", "comment"));
 
+        // CONTAINER
+        if (mode.equals(FULL) && typeResult.equals(VSTOI.CONTAINER)) {
+            filterProvider.addFilter("containerFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("containerFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
+                            "hascoTypeLabel", "hasInformant", "comment", "belongsTo", "hasFirst", "hasSerialNumber", "hasLanguage", 
+                            "hasVersion", "hasPriority", "hasNext", "hasPrevious", "hasSIRManagerEmail"));
+        }
+
         // INSTRUMENT
         if (mode.equals(FULL) && typeResult.equals(VSTOI.INSTRUMENT)) {
             filterProvider.addFilter("instrumentFilter", SimpleBeanPropertyFilter.serializeAll());
@@ -279,8 +289,12 @@ public class HAScOMapper {
             return getFiltered(mode, SIO.ENTITY);
         } else if (clazz == Attribute.class) {
             return getFiltered(mode, SIO.ATTRIBUTE);
+        } else if (clazz == Container.class) {
+            return getFiltered(mode, VSTOI.CONTAINER);
         } else if (clazz == Instrument.class) {
             return getFiltered(mode, VSTOI.INSTRUMENT);
+        } else if (clazz == Subcontainer.class) {
+            return getFiltered(mode, VSTOI.SUBCONTAINER);
         } else if (clazz == ContainerSlot.class) {
             return getFiltered(mode, VSTOI.CONTAINER_SLOT);
         } else if (clazz == DetectorStem.class) {

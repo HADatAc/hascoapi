@@ -31,50 +31,6 @@ public class Subcontainer extends Container implements SlotElement {
 
 	private static final Logger log = LoggerFactory.getLogger(Subcontainer.class);
 
- 	@PropertyField(uri="vstoi:belongsTo")
-	private String belongsTo;
-
- 	@PropertyField(uri="vstoi:hasNext")
-	private String hasNext;
-
- 	@PropertyField(uri="vstoi:hasPrevious")
-	private String hasPrevious;
-
- 	@PropertyField(uri="vstoi:hasPriority")
-	private String hasPriority;
-
-	public String getBelongsTo() {
-		return belongsTo;
-	}
-
-	public void setBelongsTo(String belongsTo) {
-		this.belongsTo = belongsTo;
-	}
-   
-	public String getHasNext() {
-		return hasNext;
-	}
-
-	public void setHasNext(String hasNext) {
-		this.hasNext = hasNext;
-	}
-   
-	public String getHasPrevious() {
-		return hasPrevious;
-	}
-
-	public void setHasPrevious(String hasPrevious) {
-		this.hasPrevious = hasPrevious;
-	}
-   
-	public String getHasPriority() {
-		return hasPriority;
-	}
-
-	public void setHasPriority(String hasPriority) {
-		this.hasPriority = hasPriority;
-	}
-   
 	@Override
 	public boolean equals(Object o) {
 		if((o instanceof Subcontainer) && (((Subcontainer)o).getUri().equals(this.getUri()))) {

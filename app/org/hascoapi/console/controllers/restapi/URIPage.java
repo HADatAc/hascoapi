@@ -47,7 +47,7 @@ public class URIPage extends Controller {
             //System.out.println("URIPage.objectFromUri() [1]: URI [" + uri + "]");
 
             if (result == null) {
-                System.out.println("No generic instance found for uri [" + uri + "]");
+                //System.out.println("No generic instance found for uri [" + uri + "]");
                 return null;
             }
             //System.out.println("URIPage.objectFromUri() [1]: URI [" + uri + "]");

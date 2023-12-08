@@ -230,7 +230,7 @@ public class ContainerAPI extends Controller {
      */
 
     public Result getSlotElements(String containerUri) {
-        System.out.println("Inside ContainerAPI.getSlotElements(" + containerUri + ")");
+        //System.out.println("Inside ContainerAPI.getSlotElements(" + containerUri + ")");
         if (containerUri == null || containerUri.isEmpty()) {
             return ok(ApiUtil.createResponse("A container uri needs to be provided.", false));
         }
