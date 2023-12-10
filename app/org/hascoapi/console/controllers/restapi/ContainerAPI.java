@@ -235,10 +235,14 @@ public class ContainerAPI extends Controller {
             return ok(ApiUtil.createResponse("A container uri needs to be provided.", false));
         }
         Container container = Container.find(containerUri);
+        return getSlotElements(container);
+    }
+        
+    public Result getSlotElements(Container container) {
         if (container == null) {
-            return ok(ApiUtil.createResponse("No container could be retrieve from provided uri.", false));
+            return ok(ApiUtil.createResponse("Container cannot be null.", false));
         }
-        List<SlotElement> slotElements = Container.getSlotElements(containerUri);
+        List<SlotElement> slotElements = Container.getSlotElements(container);
         if (slotElements == null) {
             return ok(ApiUtil.createResponse("No slot element has been found for given URI", false));
         } else {

@@ -5,6 +5,11 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSetRewindable;
 import org.apache.jena.rdf.model.Model;
@@ -75,6 +80,8 @@ public class Subcontainer extends Container implements SlotElement {
 					subcontainer.setHascoTypeUri(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
 					subcontainer.setHasStatus(str);
+				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
+					subcontainer.setComment(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.BELONGS_TO)) {
 					subcontainer.setBelongsTo(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_FIRST)) {
@@ -83,14 +90,14 @@ public class Subcontainer extends Container implements SlotElement {
 					subcontainer.setHasNext(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PREVIOUS)) {
 					subcontainer.setHasPrevious(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PRIORITY)) {
+					subcontainer.setHasPriority(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
 					subcontainer.setSerialNumber(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_INFORMANT)) {
 					subcontainer.setHasInformant(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
 					subcontainer.setImage(str);
-				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
-					subcontainer.setComment(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SHORT_NAME)) {
 					subcontainer.setHasShortName(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
@@ -109,7 +116,12 @@ public class Subcontainer extends Container implements SlotElement {
         return null;
 	}
 
-	public boolean saveAndAttach() {
+	/** 
+	 *  Creates a subcontainer and includes it as a slot in the slotElement list of the container that it belongs to.
+	 *  When deleting a container that is also going to be removed from the slotElement list, use the 
+	 *  SlotOperation.deleteSlotElement()
+	 */
+	public boolean saveAsSlot() {
 		//System.out.println("Subcontainer's named graph: " + this.getNamedGraph());
 		System.out.println("Subcontainer's getBelongsTo: " + this.getBelongsTo());
 		// Subcontair always added to the top of the list. This means that the parent container needs to be updated 
@@ -142,61 +154,57 @@ public class Subcontainer extends Container implements SlotElement {
 			this.setHasPrevious(last.getUri());
 			last.save();
 		}
-
 		// SAVE SUBCONTAINET
 		this.save();
 		return true;
 	}
 
-	/** 
-	public boolean deleteAndDetach() {
-
-		// DETACH FIRST
-		if (getHasPrevious() == null) {
-			Container parent = Container.find(getBelongsTo());
-			parent.setNamedGraph(this.getNamedGraph());
-			if (parent == null) {
-				System.out.println("[ERROR] Subcontainer.deleteAndDetach(): could not find parent container");
+	public static boolean updateAsSlot(String subcontainerJson) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        Subcontainer subcontainer;
+		try {
+			subcontainer = (Subcontainer)objectMapper.readValue(subcontainerJson, Subcontainer.class);
+            } catch (JsonProcessingException e) {
+                String message = e.getMessage();
 				return false;
-			}
-			if (getHasNext() == null) {
-				// List is now empty. Parent's hasFirst is reset to null
-				parent.setHasFirst(null);
-				parent.save();
-			} else {
-				// Next becomes the first, and its hasPrevious is null. Parent's hasFirst points to next
-				SlotElement next = SlotOperations.findSlotElement(this.getHasNext());
-		        next.setNamedGraph(this.getNamedGraph());
-				next.setHasPrevious(null);
-				next.save();
-				parent.setHasFirst(next.getUri());
-				parent.save();
-			}
-		} else {
-			// Adjust next and previous
-			SlotElement previous = SlotOperations.findSlotElement(this.getHasPrevious());
-			if (previous != null) {
-				System.out.println("[ERROR] Subcontainer.deleteAndDetach(): could not find PREVIOUS element");
-				return false;
-			}
-		    previous.setNamedGraph(this.getNamedGraph());
-			SlotElement next = SlotOperations.findSlotElement(this.getHasNext());
-			if (next == null) {
-				previous.setHasNext(null);
-				previous.save();
-			} else {
-				previous.setHasNext(next.getUri());
-				previous.save();
-			    next.setNamedGraph(this.getNamedGraph());
-				next.setHasPrevious(previous.getUri());
-				next.save();
-			}
-		}
-		// DELETE SECOND
-		this.delete();
-		return true;
+            }
+		return Subcontainer.updateAsSlot(subcontainer);
 	}
-	*/
+
+	public static boolean updateAsSlot(Subcontainer newSubcontainer) {
+		Subcontainer curSubcontainer = Subcontainer.find(newSubcontainer.getUri());
+		if (curSubcontainer == null) {
+			return false;
+		} 
+
+		// properties that this update can change in the subcontainer
+		curSubcontainer.setLabel(newSubcontainer.getLabel());
+		curSubcontainer.setTypeUri(newSubcontainer.getTypeUri()); 
+		curSubcontainer.setHascoTypeUri(newSubcontainer.getHascoTypeUri());
+		curSubcontainer.setHasStatus(newSubcontainer.getHasStatus());
+		curSubcontainer.setComment(newSubcontainer.getComment());
+		curSubcontainer.setHasPriority(newSubcontainer.getHasPriority());
+		curSubcontainer.setSerialNumber(newSubcontainer.getSerialNumber());
+		curSubcontainer.setHasInformant(newSubcontainer.getHasInformant());
+		curSubcontainer.setImage(newSubcontainer.getImage());
+		curSubcontainer.setHasShortName(newSubcontainer.getHasShortName());
+		curSubcontainer.setHasLanguage(newSubcontainer.getHasLanguage());
+		curSubcontainer.setHasVersion(newSubcontainer.getHasVersion());
+		curSubcontainer.setHasSIRManagerEmail(newSubcontainer.getHasSIRManagerEmail());
+
+		// properties that this update CANNOT change in the subcontainer
+		// to create a subcontainer from scratch, use Subcontainer.saveAsSlot()
+		// to delete a subcontainer, use SlotOperations.deleteSlotElement()
+		//  - curSubcontainer.setUri();
+		//  - curSubcontainer.setBelongsTo();
+		//  - curSubcontainer.setHasFirst();
+		//  - curSubcontainer.setHasNext();
+		//  - curSubcontainer.setHasPrevious();
+
+		curSubcontainer.save();
+		return true;
+
+	}
 
     @Override public void save() {
 		saveToTripleStore();
