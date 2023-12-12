@@ -373,6 +373,11 @@ public class ContainerSlot extends HADatAcThing implements SlotElement, Comparab
     }
 
     public boolean updateContainerSlotDetector(Detector detector) {
+        System.out.println("Called ContainerSlot.updateContainerSlorDetector.");
+        System.out.println("Detector: " + detector);
+        if (detector == null) {
+            this.setHasDetector(null);
+        }
         ContainerSlot newContainerSlot = new ContainerSlot();
         newContainerSlot.setUri(this.uri);
         newContainerSlot.setLabel(this.getLabel());
@@ -383,11 +388,11 @@ public class ContainerSlot extends HADatAcThing implements SlotElement, Comparab
         newContainerSlot.setHasPriority(this.getHasPriority());
         newContainerSlot.setHasNext(this.getHasNext());
         newContainerSlot.setHasPrevious(this.getHasPrevious());
+        // if detector is null, the property setHasDetector is not called. This is how
+        // a detector is removed from a container slot.
         if (detector != null && detector.getUri() != null && !detector.getUri().isEmpty()) {
             newContainerSlot.setHasDetector(detector.getUri());
-        } else {
-            newContainerSlot.setHasDetector(null);
-        }
+        } 
         this.delete();
         newContainerSlot.save();
         return true;
