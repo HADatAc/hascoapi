@@ -28,59 +28,33 @@ public class SubcontainerAPI extends Controller {
      */
 
     private Result createSubcontainerResult(Subcontainer subcontainer) {
-        if (subcontainer.saveAndAttach()) {
+        if (subcontainer.saveAsSlot()) {
             return ok(ApiUtil.createResponse("Subcontainer <" + subcontainer.getUri() + "> has been CREATED.", true));
         } else {
             return ok(ApiUtil.createResponse("Subcontainer <" + subcontainer.getUri() + "> FAILED to be created.", false));
         }
     }
 
-    public Result createSubcontainer(String json) {
-        if (json == null || json.equals("")) {
-            return ok(ApiUtil.createResponse("No json content has been provided.", false));
+    public Result updateSubcontainer(String subcontainerJson) {
+        //System.out.println("Inside ContainerAPI.updateSubcontainer. JSON is [" + subcontainerJson + "]");
+        if (subcontainerJson == null || subcontainerJson.isEmpty()) {
+            return ok(ApiUtil.createResponse("A container JSON needs to be provided.", false));
         }
-        //System.out.println("(SubcontainerAPI) Value of json in createSubcontainer: [" + json + "]");
-        ObjectMapper objectMapper = new ObjectMapper();
-        Subcontainer newInst;
-        try {
-            //convert json string to Subcontainer subcontainerance
-            newInst  = objectMapper.readValue(json, Subcontainer.class);
-        } catch (Exception e) {
-            //System.out.println("(SubcontainerAPI) Failed to parse json for [" + json + "]");
-            return ok(ApiUtil.createResponse("Failed to parse json.", false));
+        if (Subcontainer.updateAsSlot(subcontainerJson)) {
+            return ok(ApiUtil.createResponse("A subcontainer for the provided JSON has been sucessfully updated.", true));
         }
-        return createSubcontainerResult(newInst);
+        return ok(ApiUtil.createResponse("Method Subcontainer.updateAsSlot(JSON) has failed to update the content of the JSO file provided.", false));
     }
-
-    /** 
-    private Result deleteSubcontainerResult(Subcontainer subcontainer) {
-        String uri = subcontainer.getUri();
-        if (subcontainer.deleteAndDetach()) {
-           return ok(ApiUtil.createResponse("Subcontainer <" + uri + "> has been DELETED.", true));
-        } else {
-           return ok(ApiUtil.createResponse("Subcontainer <" + uri + "> FAILED to be deleted.", false));
-        }
-    }
-
-    public Result deleteSubcontainer(String uri){
-        if (uri == null || uri.equals("")) {
-            return ok(ApiUtil.createResponse("No subcontainer URI has been provided.", false));
-        }
-        Subcontainer subcontainer = Subcontainer.find(uri);
-        if (subcontainer == null) {
-            return ok(ApiUtil.createResponse("There is no subcontainer with URI <" + uri + "> to be deleted.", false));
-        } else {
-            return deleteSubcontainerResult(subcontainer);
-        }
-    }
-    */
-
+        
     /** 
      *   TESTING SUBCONTAINERS
      */
 
     public Result createSubcontainerForTesting() {
         Instrument testInstrument = Instrument.find(TEST_INSTRUMENT_URI);
+        testInstrument.setHasFirst(TEST_SUBCONTAINER1_URI);
+        testInstrument.save();
+
         Subcontainer testSubcontainer1 = Subcontainer.find(TEST_SUBCONTAINER1_URI);
         Subcontainer testSubcontainer2 = Subcontainer.find(TEST_SUBCONTAINER2_URI);
         if (testInstrument == null) {
@@ -101,9 +75,10 @@ public class SubcontainerAPI extends Controller {
             testSubcontainer2.setHascoTypeUri(VSTOI.SUBCONTAINER);
             testSubcontainer2.setHasShortName("SUBCONTAINER TEST 2");
             testSubcontainer2.setComment("Test subcontainer 2 to be added to the main Test Instrument.");
+            testSubcontainer2.setHasPrevious(TEST_SUBCONTAINER1_URI);
             testSubcontainer2.setHasSIRManagerEmail("me@example.com");
             testSubcontainer2.setNamedGraph(Constants.TEST_KB);
-            if (!testSubcontainer2.saveAndAttach()) {
+            if (!testSubcontainer2.saveAsSlot()) {
                 return ok(ApiUtil.createResponse("Failed to create Subcontainers 2.", false));
             }
 
@@ -115,9 +90,10 @@ public class SubcontainerAPI extends Controller {
             testSubcontainer1.setHascoTypeUri(VSTOI.SUBCONTAINER);
             testSubcontainer1.setHasShortName("SUBCONTAINER TEST 1");
             testSubcontainer1.setComment("Test subcontainer 1 to be added to the main Test Instrument.");
+            testSubcontainer1.setHasNext(TEST_SUBCONTAINER2_URI);
             testSubcontainer1.setHasSIRManagerEmail("me@example.com");
             testSubcontainer1.setNamedGraph(Constants.TEST_KB);
-            if (testSubcontainer1.saveAndAttach()) {
+            if (testSubcontainer1.saveAsSlot()) {
                 return ok(ApiUtil.createResponse("Subcontainers 1 and 2 has been CREATED.", true));
             } else {
                 return ok(ApiUtil.createResponse("Failed to create Subcontainers 1.", false));

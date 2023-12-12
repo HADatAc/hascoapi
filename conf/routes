@@ -62,7 +62,7 @@ GET     /hascoapi/api/instrument/tofhir/:uri                org.hascoapi.console
 
 POST    /hascoapi/api/slots/container/create/:containerUri/:totSlots  org.hascoapi.console.controllers.restapi.ContainerSlotAPI.createContainerSlots(containerUri: String, totSlots : String)
 GET     /hascoapi/api/slots/container/create/:containerUri/:totSlots  org.hascoapi.console.controllers.restapi.ContainerSlotAPI.createContainerSlots(containerUri: String, totSlots : String)
-POST    /hascoapi/api/slots/container/delete/:containerUri            org.hascoapi.console.controllers.restapi.ContainerSlotAPI.deleteContainerSlots(containerUri: String)
+POST    /hascoapi/api/subcontainer/update/:json                       org.hascoapi.console.controllers.restapi.SubcontainerAPI.updateSubcontainer(json: String)
 POST    /hascoapi/api/slots/codebook/create/:codebookUri/:totSlots    org.hascoapi.console.controllers.restapi.CodebookSlotAPI.createCodebookSlots(codebookUri: String, totSlots : String)
 POST    /hascoapi/api/slots/codebook/delete/:codebookUri              org.hascoapi.console.controllers.restapi.CodebookSlotAPI.deleteCodebookSlots(codebookUri: String)
 
@@ -73,7 +73,6 @@ GET     /hascoapi/api/slots/codebook/detach/:codebookSlotUri                    
         
 GET     /hascoapi/api/slotelements/bycontainer/:containerUri          org.hascoapi.console.controllers.restapi.ContainerAPI.getSlotElements(containerUri: String)
 GET     /hascoapi/api/annotationsbycontainerposition/:containerUri/:positionUri     org.hascoapi.console.controllers.restapi.AnnotationAPI.getAnnotationByContainerAndPosition(containerUri: String, positionUri: String)
-GET     /hascoapi/api/slots/bycontainer/:containerUri                 org.hascoapi.console.controllers.restapi.ContainerSlotAPI.getSlotsByContainer(containerUri: String)
 GET     /hascoapi/api/slots/bycodebook/:codebookUri                   org.hascoapi.console.controllers.restapi.CodebookSlotAPI.getCodebookSlotsByCodebook(codebookUri: String)
 
 # TESTING METHODS

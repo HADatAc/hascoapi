@@ -15,6 +15,7 @@ import org.hascoapi.entity.pojo.ContainerSlot;
 import org.hascoapi.entity.pojo.SlotElement;
 import org.hascoapi.entity.pojo.Instrument;
 import org.hascoapi.entity.pojo.Subcontainer;
+import org.hascoapi.entity.pojo.SlotOperations;
 import org.hascoapi.transform.Renderings;
 import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.HAScOMapper;
@@ -34,14 +35,30 @@ public class ContainerSlotAPI extends Controller {
      */
 
     public Result createContainerSlots(String containerUri, String totContainerSlots) {
+        //System.out.println("createContainerSlots: called with following containerUri = [" + containerUri + "]");
         if (containerUri == null || containerUri.isEmpty()) {
             return ok(ApiUtil.createResponse("Cannot create container slots without providing a container URI.", false));
         }
-        Container container = Instrument.find(containerUri);
-        if (container == null) {
-            container = Subcontainer.find(containerUri);
+        //System.out.println("createContainerSlots: trying to read as instrument");
+        if (containerUri.indexOf("/" + Constants.PREFIX_INSTRUMENT) >= 0) {
+            Instrument instrument = Instrument.find(containerUri);
+            if (instrument != null) {
+                //System.out.println("createContainerSlots: FOUND INSTRUMENT");
+                return createContainerSlots((Container)instrument, totContainerSlots);
+            }
+        }            
+        if (containerUri.indexOf("/" + Constants.PREFIX_SUBCONTAINER) >= 0) {
+            //System.out.println("createContainerSlots: trying to read as subcontainer");
+            Subcontainer subcontainer = Subcontainer.find(containerUri);
+            if (subcontainer != null) {
+                //System.out.println("createContainerSlots: FOUND SUBCONTAINER");
+                //System.out.println("createContainerSlots: read subcontainer with belongsTo = [" + subcontainer.getBelongsTo() + "]");
+                Container container = (Container)subcontainer;
+                //System.out.println("createContainerSlots: subcontainer after casting with belongsTo = [" + container.getBelongsTo() + "]");
+                return createContainerSlots((Container)subcontainer, totContainerSlots);
+            } 
         }
-        return createContainerSlots(container, totContainerSlots);
+        return ok(ApiUtil.createResponse("There is no container with uri [" + containerUri + "]", false));
     }
 
     public Result createContainerSlots(Container container, String totContainerSlots) {
@@ -60,13 +77,14 @@ public class ContainerSlotAPI extends Controller {
         if (total <= 0) {
             return ok(ApiUtil.createResponse("Total numbers of containerSlots need to be greated than zero.", false));
         }
-        if (container.createContainerSlots(total)) {
+        if (ContainerSlot.createContainerSlots(container, total)) {
             return ok(ApiUtil.createResponse("A total of " + total + " containerSlots have been created for instrument/subContainer <" + container.getUri() + ">.", true));
         } else {
             return ok(ApiUtil.createResponse("Method failed to create containerSlots for instrument <" + container.getUri() + ">.", false));
         }
     }
 
+    /** 
     public Result deleteContainerSlots(String containerUri) {
         if (containerUri == null || containerUri.isEmpty()) {
             return ok(ApiUtil.createResponse("Cannot delete container slots without providing a container URI.", false));
@@ -77,7 +95,9 @@ public class ContainerSlotAPI extends Controller {
         }
         return deleteContainerSlots(container);
     }
+    */
 
+    /** 
     public Result deleteContainerSlots(Container container) {
         if (container == null) {
             return ok(ApiUtil.createResponse("No container with provided URI has been found.", false));
@@ -88,6 +108,7 @@ public class ContainerSlotAPI extends Controller {
         container.deleteContainerSlots();
         return ok(ApiUtil.createResponse("ContainerSlots for Container <" + container.getUri() + "> have been deleted.", true));
     }
+    */
 
     /** 
      *   TESTING CONTAINER SLOTS
@@ -116,9 +137,9 @@ public class ContainerSlotAPI extends Controller {
         } 
 
         testInstrument.setNamedGraph(Constants.TEST_KB);
-        testInstrument.createContainerSlots(TEST_INSTRUMENT_TOT_CONTAINER_SLOTS);
+        ContainerSlot.createContainerSlots(testInstrument,TEST_INSTRUMENT_TOT_CONTAINER_SLOTS);
         testSubcontainer.setNamedGraph(Constants.TEST_KB);
-        testSubcontainer.createContainerSlots(TEST_SUBCONTAINER_TOT_CONTAINER_SLOTS);
+        ContainerSlot.createContainerSlots(testSubcontainer,TEST_SUBCONTAINER_TOT_CONTAINER_SLOTS);
         
         return ok(ApiUtil.createResponse("Required containerSlots for testing containers have been created.", false));
 
@@ -147,9 +168,21 @@ public class ContainerSlotAPI extends Controller {
         } 
         
         testInstrument.setNamedGraph(Constants.TEST_KB);
-        testInstrument.deleteContainerSlots();
+        List<SlotElement> slotList = Container.getSlotElements(testInstrument);
+        if (slotList != null) {
+            for (SlotElement slot : slotList) {
+                slot.setNamedGraph(Constants.TEST_KB);
+                SlotOperations.deleteSlotElement(slot);
+            }
+        }
         testSubcontainer.setNamedGraph(Constants.TEST_KB);
-        testSubcontainer.deleteContainerSlots();
+        slotList = Container.getSlotElements(testSubcontainer);
+        if (slotList != null) {
+            for (SlotElement slot : slotList) {
+                slot.setNamedGraph(Constants.TEST_KB);
+                SlotOperations.deleteSlotElement(slot);
+            }
+        }
         
         return ok(ApiUtil.createResponse("Existing container slots for testing containers have been deleted.", false));
 
@@ -162,11 +195,6 @@ public class ContainerSlotAPI extends Controller {
     public Result getAllContainerSlots(){
         List<ContainerSlot> results = ContainerSlot.find();
         return getContainerSlots(results);
-    }
-
-    public Result getSlotsByContainer(String containerUri){
-        List<SlotElement> results = Container.getSlotElements(containerUri);
-        return getSlotElements(results);
     }
 
     public static Result getContainerSlots(List<ContainerSlot> results){

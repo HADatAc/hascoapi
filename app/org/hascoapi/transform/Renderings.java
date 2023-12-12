@@ -129,14 +129,12 @@ public class Renderings {
 	}
 
 	private static String runtimeRendering(String rendering, int page) {
-		System.out.println("Rendering: [" + rendering + "]  page: [" + page + "]" );
+		//System.out.println("Rendering: [" + rendering + "]  page: [" + page + "]" );
         if (rendering.indexOf(Constants.META_VARIABLE_PAGE) == -1) {
             return rendering;
         }
 		String pageStr = String.valueOf(page);
-		System.out.println("FOUND --- Rendering: [" + rendering + "]  pageStr: [" + pageStr + "]" );
         String str =  rendering.replaceAll(Constants.META_VARIABLE_PAGE,pageStr);
-		System.out.println("Final rendering: [" + str + "]");
 		return str;	
 	}
 

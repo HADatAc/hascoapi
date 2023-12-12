@@ -47,7 +47,11 @@ public class SlotOperations  {
             System.out.println("[ERROR] SlotOperation.deleteSlotElement(" + uri + ") could not retrieve CURRENT.");
             return false;
         }
+        return deleteSlotElement(current);
+    }
     
+    public static boolean deleteSlotElement(SlotElement current) {
+        String nullvalue = null;
         // IS FIRST SLOT ELEMENT
         if (current.getHasPrevious() == null) {
             Container parent = Container.find(current.getBelongsTo()); 

@@ -12,6 +12,7 @@ import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.SPARQLUtils;
 import org.hascoapi.utils.URIUtils;
+import org.hascoapi.utils.Utils;
 import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.RDF;
 import org.hascoapi.vocabularies.RDFS;
@@ -19,6 +20,8 @@ import org.hascoapi.vocabularies.VSTOI;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.hascoapi.Constants.*;
 
 @JsonFilter("containerSlotFilter")
 public class ContainerSlot extends HADatAcThing implements SlotElement, Comparable<ContainerSlot>  {
@@ -256,10 +259,92 @@ public class ContainerSlot extends HADatAcThing implements SlotElement, Comparab
         return null;
     }
 
-    static public boolean createContainerSlot(String containerUri, String containerSlotUri, 
+	/** 
+	 *  Creates a containerslot and includes it as a slot in the slotElement list of the container that it belongs to.
+	 *  When deleting a containerslot that is also going to be removed from the slotElement list, use the 
+	 *  SlotOperation.deleteSlotElement()
+	 */
+	public static boolean createContainerSlots(Container container, int totNewContainerSlots) {
+		if (totNewContainerSlots <= 0) {
+			return false;
+		}
+            
+        System.out.println("Received this way: belongsTo = [" + container.getBelongsTo() + "]");
+
+		List<SlotElement> slotElements = Container.getSlotElements(container);
+
+		// Compute MAXID of existing container slots in slot elements 
+		int maxid = 0;
+		if (slotElements != null) {
+			for (SlotElement slot: slotElements) {
+				if (slot != null) {
+					if (slot.getHasPriority() != null &&
+					    slot.getHascoTypeUri().equals(VSTOI.CONTAINER_SLOT)) {
+						int priority = Integer.parseInt(slot.getHasPriority());
+						if (priority > maxid) {
+							maxid = priority;
+						}
+					}
+				}
+			}
+		}
+
+		int currentTotal = -1;
+		SlotElement lastSlot = null; 
+
+		if (slotElements == null || slotElements.size() == 0) {
+			currentTotal = 0;
+		} else {
+			currentTotal = slotElements.size();
+			lastSlot = slotElements.get(currentTotal - 1);
+		}
+
+		int newTotal = currentTotal + totNewContainerSlots;
+
+		for (int aux = 1; aux <= totNewContainerSlots; aux++) {
+			String auxstr = Utils.adjustedPriority(String.valueOf(maxid + aux), 1000);
+			String newUri = container.getUri() + "/" + CONTAINER_SLOT_PREFIX + "/" + auxstr;
+			String newNextUri = null;
+			String newPreviousUri = null;
+			if (aux + 1 <= totNewContainerSlots) {
+			  String auxNextstr = Utils.adjustedPriority(String.valueOf(maxid + aux + 1), 1000);
+			  newNextUri = container.getUri() + "/" + CONTAINER_SLOT_PREFIX + "/" + auxNextstr;
+			}
+			if (aux > 1) {
+			  String auxPrevstr = Utils.adjustedPriority(String.valueOf(maxid + aux - 1), 1000);
+			  newPreviousUri = container.getUri() + "/" + CONTAINER_SLOT_PREFIX + "/" + auxPrevstr;
+			}
+		    //System.out.println("Creating slot: [" + newUri + "]  with prev: [" + newPreviousUri + "]  next: [" + newNextUri + "]");
+			String nullstr = null;
+			ContainerSlot.createContainerSlot(container, newUri, newNextUri, newPreviousUri, auxstr, nullstr);
+		}
+
+		// IF THE LIST WAS EMPTY
+		if (currentTotal <= 0) {
+		    String auxstr = Utils.adjustedPriority("1", 1000);
+		  	String firstUri = container.getUri() + "/" + CONTAINER_SLOT_PREFIX + "/" + auxstr;
+            System.out.println("Before update: belongsTo = [" + container.getBelongsTo() + "]");
+		  	container.setHasFirst(firstUri);
+		    container.save();
+            System.out.println("After update: belongsTo = [" + container.getBelongsTo() + "]");
+
+		// IF THE LIST WAS NOT EMPTY	
+		} else {
+			String auxstr = Utils.adjustedPriority(String.valueOf(maxid + 1), 1000);
+			String nextUri = container.getUri() + "/" + CONTAINER_SLOT_PREFIX + "/" + auxstr;
+			if (lastSlot != null) {
+				lastSlot.setHasNext(nextUri);
+				lastSlot.save();
+			}
+		}
+
+		return true;
+	}
+
+    static public boolean createContainerSlot(Container container, String containerSlotUri, 
                             String containerSlotUriNext, String containerSlotUriPrevious,  
                             String priority, String hasDetector) {
-        if (containerUri == null || containerUri.isEmpty()) {
+        if (container == null) {
             return false;
         }
         if (priority == null || priority.isEmpty()) {
@@ -270,8 +355,8 @@ public class ContainerSlot extends HADatAcThing implements SlotElement, Comparab
         containerSlot.setLabel("ContainerSlot " + priority);
         containerSlot.setTypeUri(VSTOI.CONTAINER_SLOT);
         containerSlot.setHascoTypeUri(VSTOI.CONTAINER_SLOT);
-        containerSlot.setComment("ContainerSlot " + priority + " of container with URI " + containerUri);
-        containerSlot.setBelongsTo(containerUri);
+        containerSlot.setComment("ContainerSlot " + priority + " of container with URI " + container.getUri());
+        containerSlot.setBelongsTo(container.getUri());
         containerSlot.setHasPriority(priority);
         if (containerSlotUriNext != null && !containerSlotUriNext.isEmpty()) {
             containerSlot.setHasNext(containerSlotUriNext);
@@ -288,6 +373,11 @@ public class ContainerSlot extends HADatAcThing implements SlotElement, Comparab
     }
 
     public boolean updateContainerSlotDetector(Detector detector) {
+        System.out.println("Called ContainerSlot.updateContainerSlorDetector.");
+        System.out.println("Detector: " + detector);
+        if (detector == null) {
+            this.setHasDetector(null);
+        }
         ContainerSlot newContainerSlot = new ContainerSlot();
         newContainerSlot.setUri(this.uri);
         newContainerSlot.setLabel(this.getLabel());
@@ -298,16 +388,15 @@ public class ContainerSlot extends HADatAcThing implements SlotElement, Comparab
         newContainerSlot.setHasPriority(this.getHasPriority());
         newContainerSlot.setHasNext(this.getHasNext());
         newContainerSlot.setHasPrevious(this.getHasPrevious());
+        // if detector is null, the property setHasDetector is not called. This is how
+        // a detector is removed from a container slot.
         if (detector != null && detector.getUri() != null && !detector.getUri().isEmpty()) {
             newContainerSlot.setHasDetector(detector.getUri());
-        } else {
-            newContainerSlot.setHasDetector(null);
-        }
+        } 
         this.delete();
         newContainerSlot.save();
         return true;
     }
-
 
     @Override
     public int compareTo(ContainerSlot another) {

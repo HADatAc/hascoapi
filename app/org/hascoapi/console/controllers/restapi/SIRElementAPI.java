@@ -48,8 +48,8 @@ public class SIRElementAPI extends Controller {
             try {
                 Subcontainer object;
                 object = (Subcontainer)objectMapper.readValue(json, clazz);
-                System.out.println("SIRElementAPI.create(Subcontainer): JSON=[" + json + "]");
-                object.saveAndAttach();
+                //System.out.println("SIRElementAPI.create(Subcontainer): JSON=[" + json + "]");
+                object.saveAsSlot();
             } catch (JsonProcessingException e) {
                 success = false;
                 message = e.getMessage();
@@ -73,14 +73,7 @@ public class SIRElementAPI extends Controller {
                 message = e.getMessage();
             }
         } else if (clazz == ContainerSlot.class) {
-            try {
-                ContainerSlot object;
-                object = (ContainerSlot)objectMapper.readValue(json, clazz);
-                object.save();
-            } catch (JsonProcessingException e) {
-                success = false;
-                message = e.getMessage();
-            }
+            // NOTE: Use ContainerSlot.createContainerSlots(container,totContainerSlots) to create container slots
         } else if (clazz == Codebook.class) {
             try {
                 Codebook object;

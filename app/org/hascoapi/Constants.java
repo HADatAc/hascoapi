@@ -57,4 +57,7 @@ public class Constants {
     public static final String META_VARIABLE_CONTENT = "%%CONTENT%%";
     public static final String META_VARIABLE_PAGE = "%%PAGE%%";
 
+    public static final String PREFIX_INSTRUMENT = "IN";
+    public static final String PREFIX_SUBCONTAINER = "SC";
+
 }
