@@ -621,17 +621,5 @@ public class HADatAcClass extends HADatAcThing {
         super.deleteFromTripleStore();
     }
 
-    @Override
-    public boolean saveToSolr() {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public int deleteFromSolr() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
 }
 

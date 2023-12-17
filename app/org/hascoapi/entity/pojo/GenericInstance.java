@@ -169,14 +169,4 @@ public class GenericInstance extends HADatAcThing implements Comparable<GenericI
         return this.getLabel().compareTo(another.getLabel());
     }
 
-    @Override
-    public boolean saveToSolr() {
-        return false;
-    }
-
-    @Override
-    public int deleteFromSolr() {
-        return 0;
-    }
-
 }

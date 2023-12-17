@@ -62,13 +62,13 @@ public class ConfigProp {
         return ConfigFactory.load().getString("pac4j.jwt.secret");
     }
 
+    public static String getKbPrefix() {
+        return ConfigFactory.load().getString("hascoapi.community.ont_prefix") + "-kb:";
+    }
+
     /**
     public static String getBasePrefix() {
         return ConfigFactory.load().getString("hascoapi.community.ont_prefix");
-    }
-
-    public static String getKbPrefix() {
-        return ConfigFactory.load().getString("hascoapi.community.ont_prefix") + "-kb:";
     }
 
     public static String getPageTitle() {

@@ -245,13 +245,4 @@ public class AnnotationStem extends HADatAcThing implements SIRElement, Comparab
         deleteFromTripleStore();
     }
 
-    @Override
-    public boolean saveToSolr() {
-        return false;
-    }
-
-    @Override
-    public int deleteFromSolr() {
-        return 0;
-    }
 }

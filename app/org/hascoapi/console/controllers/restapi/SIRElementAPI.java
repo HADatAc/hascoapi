@@ -29,6 +29,7 @@ public class SIRElementAPI extends Controller {
             return ok(ApiUtil.createResponse("No elementType has been provided", false));
         }
         Class clazz = GenericFind.getElementClass(elementType);
+        //System.out.println("Clazz: [" + clazz + "]");
         if (clazz == null) {
             return ok(ApiUtil.createResponse("No valid elementType has been provided", false));
         }
@@ -41,8 +42,8 @@ public class SIRElementAPI extends Controller {
                 object = (Instrument)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
-                success = false;
                 message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
         } else if (clazz == Subcontainer.class) {
             try {
@@ -51,8 +52,8 @@ public class SIRElementAPI extends Controller {
                 //System.out.println("SIRElementAPI.create(Subcontainer): JSON=[" + json + "]");
                 object.saveAsSlot();
             } catch (JsonProcessingException e) {
-                success = false;
                 message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
         } else if (clazz == DetectorStem.class) {
             try {
@@ -60,8 +61,8 @@ public class SIRElementAPI extends Controller {
                 object = (DetectorStem)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
-                success = false;
                 message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
         } else if (clazz == Detector.class) {
             try {
@@ -69,8 +70,8 @@ public class SIRElementAPI extends Controller {
                 object = (Detector)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
-                success = false;
                 message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
         } else if (clazz == ContainerSlot.class) {
             // NOTE: Use ContainerSlot.createContainerSlots(container,totContainerSlots) to create container slots
@@ -80,8 +81,8 @@ public class SIRElementAPI extends Controller {
                 object = (Codebook)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
-                success = false;
                 message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
         } else if (clazz == ResponseOption.class) {
             try {
@@ -89,8 +90,8 @@ public class SIRElementAPI extends Controller {
                 object = (ResponseOption)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
-                success = false;
                 message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
         } else if (clazz == CodebookSlot.class) {
             try {
@@ -98,8 +99,8 @@ public class SIRElementAPI extends Controller {
                 object = (CodebookSlot)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
-                success = false;
                 message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
         } else if (clazz == AnnotationStem.class) {
             try {
@@ -107,8 +108,8 @@ public class SIRElementAPI extends Controller {
                 object = (AnnotationStem)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
-                success = false;
                 message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
         } else if (clazz == Annotation.class) {
             try {
@@ -116,8 +117,8 @@ public class SIRElementAPI extends Controller {
                 object = (Annotation)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
-                success = false;
                 message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
         } else if (clazz == SemanticVariable.class) {
             try {
@@ -125,8 +126,8 @@ public class SIRElementAPI extends Controller {
                 object = (SemanticVariable)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
-                success = false;
                 message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
         } else if (clazz == InstrumentType.class) {
             try {
@@ -134,8 +135,8 @@ public class SIRElementAPI extends Controller {
                 object = (InstrumentType)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
-                success = false;
                 message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
         } else if (clazz == DetectorStemType.class) {
             try {
@@ -143,8 +144,8 @@ public class SIRElementAPI extends Controller {
                 object = (DetectorStemType)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
-                success = false;
                 message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
         } else if (clazz == Entity.class) {
             try {
@@ -152,8 +153,8 @@ public class SIRElementAPI extends Controller {
                 object = (Entity)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
-                success = false;
                 message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
         } else if (clazz == Attribute.class) {
             try {
@@ -161,8 +162,8 @@ public class SIRElementAPI extends Controller {
                 object = (Attribute)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
-                success = false;
                 message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
         } else if (clazz == Unit.class) {
             try {
@@ -170,8 +171,8 @@ public class SIRElementAPI extends Controller {
                 object = (Unit)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
-                success = false;
                 message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
         } else if (clazz == Agent.class) {
             try {
@@ -179,8 +180,17 @@ public class SIRElementAPI extends Controller {
                 object = (Agent)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
-                success = false;
                 message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == SDD.class) {
+            try {
+                SDD object;
+                object = (SDD)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
         } 
         if (!success) {
@@ -313,6 +323,12 @@ public class SIRElementAPI extends Controller {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
+        } else if (clazz == SDD.class) {
+            SDD object = SDD.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
         } 
         return ok(ApiUtil.createResponse("Element with URI [" + uri + "] has been deleted", true));
     }
@@ -412,6 +428,10 @@ public class SIRElementAPI extends Controller {
             GenericFind<Unit> query = new GenericFind<Unit>();
             List<Unit> results = query.findByKeywordWithPages(Unit.class,keyword, pageSize, offset);
             return UnitAPI.getUnits(results);
+        }  else if (elementType.equals("sdd")) {
+            GenericFind<SDD> query = new GenericFind<SDD>();
+            List<SDD> results = query.findByKeywordWithPages(SDD.class,keyword, pageSize, offset);
+            return SDDAPI.getSDDs(results);
         } 
         return ok("No valid element type.");
     }
@@ -490,6 +510,10 @@ public class SIRElementAPI extends Controller {
             GenericFind<Unit> query = new GenericFind<Unit>();
             List<Unit> results = query.findByKeywordAndLanguageWithPages(Unit.class, keyword, language, pageSize, offset);
             return UnitAPI.getUnits(results);
+        }  else if (elementType.equals("sdd")) {
+            GenericFind<SDD> query = new GenericFind<SDD>();
+            List<SDD> results = query.findByKeywordAndLanguageWithPages(Unit.class, keyword, language, pageSize, offset);
+            return SDDAPI.getSDDs(results);
         } 
         return ok("No valid element type.");
     }
@@ -615,6 +639,10 @@ public class SIRElementAPI extends Controller {
             GenericFind<Annotation> query = new GenericFind<Annotation>();
             List<Annotation> results = query.findByManagerEmailWithPages(Annotation.class, managerEmail, pageSize, offset);
             return AnnotationAPI.getAnnotations(results);
+        }  else if (elementType.equals("sdd")) {
+            GenericFind<SDD> query = new GenericFind<SDD>();
+            List<SDD> results = query.findByManagerEmailWithPages(SDD.class, managerEmail, pageSize, offset);
+            return SDDAPI.getSDDs(results);
         } 
         return ok("No valid element type.");
 

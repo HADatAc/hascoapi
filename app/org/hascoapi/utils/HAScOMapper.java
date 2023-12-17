@@ -90,17 +90,17 @@ public class HAScOMapper {
                             "hascoTypeLabel", "comment"));
         }
 
-        // DA_SCHEMA
-        if (mode.equals(FULL) && typeResult.equals(HASCO.DA_SCHEMA)) {
+        // SDD
+        if (mode.equals(FULL) && typeResult.equals(HASCO.SDD)) {
             filterProvider.addFilter("sddFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("sddFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment"));
+                            "hascoTypeLabel", "comment", "hasFilename", "hasFileID"));
         }
 
-        // DA_SCHEMA_ATTRIBUTE
-        if (mode.equals(FULL) && typeResult.equals(HASCO.DA_SCHEMA_ATTRIBUTE)) {
+        // SDD_ATTRIBUTE
+        if (mode.equals(FULL) && typeResult.equals(HASCO.SDD_ATTRIBUTE)) {
             filterProvider.addFilter("variableFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("variableFilter",
@@ -117,8 +117,8 @@ public class HAScOMapper {
                             "hascoTypeLabel", "comment", "entityUri", "attributeUri", "inRelationToUri", "unitUri", "timeUri"));
         }
 
-        // DA_SCHEMA_OBJECT
-        if (mode.equals(FULL) && typeResult.equals(HASCO.DA_SCHEMA_OBJECT)) {
+        // SDD_OBJECT
+        if (mode.equals(FULL) && typeResult.equals(HASCO.SDD_OBJECT)) {
             filterProvider.addFilter("sddObjectFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("sddObjectFilter",
@@ -277,11 +277,11 @@ public class HAScOMapper {
         //} else if (clazz == Datafile.class) {
         //    return getFiltered(HASCO.DATA_FILE);
         //} else if (clazz == DataAcquisitionSchema.class) {
-        //    return getFiltered(HASCO.DA_SCHEMA);
+        //    return getFiltered(HASCO.SDD);
         //} else if (clazz == DataAcquisitionSchemaAttribute.class) {
-        //    return getFiltered(HASCO.DA_SCHEMA_ATTRIBUTE);
+        //    return getFiltered(HASCO.SDD_ATTRIBUTE);
         //} else if (clazz == DataAcquisitionSchemaObject.class) {
-        //    return getFiltered(HASCO.DA_SCHEMA_OBJECT);
+        //    return getFiltered(HASCO.SDD_OBJECT);
         //} else 
         if (clazz == SemanticVariable.class) {
             return getFiltered(mode, HASCO.SEMANTIC_VARIABLE);

@@ -41,7 +41,7 @@ public class PossibleValue extends HADatAcClass implements Comparable<PossibleVa
     }
 
     @PropertyField(uri="hasco:isPossibleValueOf")
-    private String hasDASAUri;
+    private String hasSDDAUri;
 
     @PropertyField(uri="hasco:hasVariable")
     private String hasVariable;
@@ -61,12 +61,12 @@ public class PossibleValue extends HADatAcClass implements Comparable<PossibleVa
     @PropertyField(uri="hasco:otherFor")
     private String hasOtherFor;
 
-    public String getHasDASAUri() {
-        return hasDASAUri;
+    public String getHasSDDAUri() {
+        return hasSDDAUri;
     }
 
-    public void setHasDASAUri(String hasDASAUri) {
-        this.hasDASAUri = hasDASAUri;
+    public void setHasSDDAUri(String hasSDDAUri) {
+        this.hasSDDAUri = hasSDDAUri;
     }
 
     public String getHasVariable() {
@@ -340,7 +340,7 @@ public class PossibleValue extends HADatAcClass implements Comparable<PossibleVa
             if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
                 code.setLabel(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(HASCO.IS_POSSIBLE_VALUE_OF)) {
-                code.setHasDASAUri(object.asResource().getURI());
+                code.setHasSDDAUri(object.asResource().getURI());
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_CODE)) {
                 code.setHasCode(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_VARIABLE)) {

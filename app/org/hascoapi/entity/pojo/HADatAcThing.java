@@ -287,7 +287,7 @@ public abstract class HADatAcThing {
         try {
             Class<?> currentClass = getClass();
             while(currentClass != null) {
-                //System.out.println("inside HADatAcThing.generateRDFModel: currentClass: " + currentClass.getName());
+                //.out.println("inside HADatAcThing.generateRDFModel: currentClass: " + currentClass.getName());
                 //System.out.println("inside HADatAcThing.generateRDFModel(): hasURI: [" + uri + "]");
 
                 for (Field field: currentClass.getDeclaredFields()) {
@@ -614,8 +614,5 @@ public abstract class HADatAcThing {
 
         //System.out.println("Deleted <" + getUri() + "> from triple store");
     }
-
-    public abstract boolean saveToSolr();
-    public abstract int deleteFromSolr();
 
 }

@@ -180,14 +180,4 @@ public class Codebook extends HADatAcThing implements Comparable<Codebook> {
         deleteFromTripleStore();
     }
 
-    @Override
-    public boolean saveToSolr() {
-        return false;
-    }
-
-    @Override
-    public int deleteFromSolr() {
-        return 0;
-    }
-
 }

@@ -316,14 +316,4 @@ public class Annotation extends HADatAcThing implements Comparable<Annotation>  
         deleteFromTripleStore();
     }
 
-    @Override
-    public boolean saveToSolr() {
-        return false;
-    }
-
-    @Override
-    public int deleteFromSolr() {
-        return 0;
-    }
-
 }

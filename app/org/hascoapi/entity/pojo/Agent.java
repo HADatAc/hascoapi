@@ -132,18 +132,8 @@ public class Agent extends HADatAcThing implements Comparable<Agent> {
     }
 
     @Override
-    public boolean saveToSolr() {
-        return true;
-    }
-
-    @Override
     public void delete() {
         deleteFromTripleStore();
-    }
-
-    @Override
-    public int deleteFromSolr() {
-        return 0;
     }
 
 }

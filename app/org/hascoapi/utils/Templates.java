@@ -1,0 +1,103 @@
+package org.hascoapi.utils;
+
+import org.apache.commons.configuration2.INIConfiguration;
+
+public class Templates {
+
+    public static String TEMPLATE_FILE = ConfigProp.getTemplateFileName();
+    public static INIConfiguration iniConfig = new MyINIConfiguration(TEMPLATE_FILE);
+
+    // STD Template (Study)
+    public static String STUDYID = iniConfig.getSection("STD").getString("studyID"); // also in ACQ, PID and SID
+    public static String STUDYTITLE = iniConfig.getSection("STD").getString("studyTitle");
+    public static String STUDYAIMS = iniConfig.getSection("STD").getString("studyAims");
+    public static String STUDYSIGNIFICANCE = iniConfig.getSection("STD").getString("studySignificance");
+    public static String NUMSUBJECTS = iniConfig.getSection("STD").getString("numSubjects");
+    public static String NUMSAMPLES = iniConfig.getSection("STD").getString("numSamples");
+    public static String INSTITUTION = iniConfig.getSection("STD").getString("institution");
+    public static String PI = iniConfig.getSection("STD").getString("PI");
+    public static String PIADDRESS = iniConfig.getSection("STD").getString("PIAddress");
+    public static String PICITY = iniConfig.getSection("STD").getString("PICity");
+    public static String PISTATE = iniConfig.getSection("STD").getString("PIState");
+    public static String PIZIPCODE = iniConfig.getSection("STD").getString("PIZipCode");
+    public static String PIEMAIL = iniConfig.getSection("STD").getString("PIEmail");
+    public static String PIPHONE = iniConfig.getSection("STD").getString("PIPhone");
+    public static String CPI1FNAME = iniConfig.getSection("STD").getString("CPI1FName");
+    public static String CPI1LNAME = iniConfig.getSection("STD").getString("CPI1LName");
+    public static String CPI1EMAIL = iniConfig.getSection("STD").getString("CPI1Email");
+    public static String CPI2FNAME = iniConfig.getSection("STD").getString("CPI2FName");
+    public static String CPI2LNAME = iniConfig.getSection("STD").getString("CPI2LName");
+    public static String CPI2EMAIL = iniConfig.getSection("STD").getString("CPI2Email");
+    public static String CONTACTFNAME = iniConfig.getSection("STD").getString("contactFName");
+    public static String CONTACTLNAME = iniConfig.getSection("STD").getString("contactLName");
+    public static String CONTACTEMAIL = iniConfig.getSection("STD").getString("contactEmail");
+    public static String CREATEDDATE = iniConfig.getSection("STD").getString("createdDate");
+    public static String UPDATEDDATE = iniConfig.getSection("STD").getString("updatedDate");
+    public static String DCACCESSBOOL = iniConfig.getSection("STD").getString("DCAccessBool");
+    public static String EXTSRC = iniConfig.getSection("STD").getString("externalSource");
+
+    // ACQ Template
+    public static String ACQ_DATAACQUISITIONNAME = iniConfig.getSection("ACQ").getString("DataAcquisitionName");
+    public static String ACQ_METHOD = iniConfig.getSection("ACQ").getString("Method");
+    public static String ACQ_SDDTUDYID = iniConfig.getSection("ACQ").getString("SDDtudyName");
+    public static String ACQ_DATADICTIONARYNAME = iniConfig.getSection("ACQ").getString("DataDictionaryName");
+    public static String ACQ_EPILAB = iniConfig.getSection("ACQ").getString("Epi/Lab");
+    public static String ACQ_OWNEREMAIL = iniConfig.getSection("ACQ").getString("OwnerEmail");
+    public static String ACQ_PERMISSIONURI = iniConfig.getSection("ACQ").getString("PermissionURI");
+
+    // STR Template
+    public static String DATAACQUISITIONNAME = iniConfig.getSection("STR").getString("DataAcquisitionName");
+    public static String METHOD = iniConfig.getSection("STR").getString("Method");
+    public static String DATADICTIONARYNAME = iniConfig.getSection("STR").getString("DataDictionaryName");
+    public static String SDDTUDYID = iniConfig.getSection("STR").getString("SDDtudyName");
+    public static String TOPICNAME = iniConfig.getSection("STR").getString("TopicName");
+    public static String EPILAB = iniConfig.getSection("STR").getString("Epi/Lab");
+    public static String OWNEREMAIL = iniConfig.getSection("STR").getString("OwnerEmail");
+    public static String PERMISSIONURI = iniConfig.getSection("STR").getString("PermissionURI");
+    public static String DEPLOYMENTURI = iniConfig.getSection("STR").getString("DeploymentUri");
+    public static String ROWSCOPE = iniConfig.getSection("STR").getString("RowScope");
+    public static String CELLSCOPE = iniConfig.getSection("STR").getString("CellScope");
+    public static String MESSAGESTREAMURI = iniConfig.getSection("STR").getString("StreamURI");
+    public static String MESSAGEURI = iniConfig.getSection("STR").getString("hasURI");
+    public static String MESSAGEPROTOCOL = iniConfig.getSection("STR").getString("MessageProtocol");
+    public static String MESSAGEIP = iniConfig.getSection("STR").getString("MessageIP");
+    public static String MESSAGEPORT = iniConfig.getSection("STR").getString("MessagePort");
+    public static String MESSAGENAME = iniConfig.getSection("STR").getString("MessageName");
+
+    // SDDA, SDDE, SDDO Template (Part of SDD)
+    public static String LABEL = iniConfig.getSection("SDDA").getString("Label");     // also in PV
+    public static String ATTRIBUTETYPE = iniConfig.getSection("SDDA").getString("AttributeType");
+    public static String ATTTRIBUTEOF = iniConfig.getSection("SDDA").getString("AttributeOf");
+    public static String UNIT = iniConfig.getSection("SDDA").getString("Unit");
+    public static String TIME = iniConfig.getSection("SDDA").getString("Time");
+    public static String ENTITY = iniConfig.getSection("SDDA").getString("Entity");
+    public static String ROLE = iniConfig.getSection("SDDA").getString("Role");
+    public static String RELATION = iniConfig.getSection("SDDA").getString("Relation");
+    public static String INRELATIONTO = iniConfig.getSection("SDDA").getString("InRelationTo");
+    public static String WASDERIVEDFROM = iniConfig.getSection("SDDA").getString("WasDerivedFrom");
+    public static String WASGENERATEDBY = iniConfig.getSection("SDDA").getString("WasGeneratedBy");
+
+    // PV Template (Part of SDD)
+    public static String CODE = iniConfig.getSection("PV").getString("Code");
+    public static String CODEVALUE = iniConfig.getSection("PV").getString("CodeValue");
+    public static String CLASS = iniConfig.getSection("PV").getString("Class");
+
+    // SID Template
+    public static String SAMPLEID = iniConfig.getSection("SID").getString("sampleID");
+    public static String SAMPLESTUDYID = iniConfig.getSection("SID").getString("sampleStudyID");
+    public static String SAMPLESUFFIX = iniConfig.getSection("SID").getString("sampleSuffix");
+    public static String SUBJECTID = iniConfig.getSection("SID").getString("subjectID");  // also in PID
+    public static String SAMPLETYPE = iniConfig.getSection("SID").getString("sampleType");
+    public static String SAMPLINGMETHOD = iniConfig.getSection("SID").getString("samplingMethod");
+    public static String SAMPLINGVOL = iniConfig.getSection("SID").getString("samplingVol");
+    public static String SAMPLINGVOLUNIT = iniConfig.getSection("SID").getString("samplingVolUnit");
+    public static String STORAGETEMP = iniConfig.getSection("SID").getString("storageTemp");
+    public static String FTCOUNT = iniConfig.getSection("SID").getString("FTcount");
+
+    // MAP Template
+    public static String ORIGINALPID = iniConfig.getSection("MAP").getString("originalPID");
+    public static String ORIGINALSID = iniConfig.getSection("MAP").getString("originalSID");
+    public static String OBJECTTYPE = iniConfig.getSection("MAP").getString("objecttype");
+    public static String MAPSTUDYID = iniConfig.getSection("MAP").getString("studyId");
+    public static String TIMESCOPEID = iniConfig.getSection("MAP").getString("timeScope");
+}

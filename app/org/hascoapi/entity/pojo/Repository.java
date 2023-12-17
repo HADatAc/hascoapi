@@ -290,18 +290,8 @@ public class Repository extends HADatAcThing {
     }
 
     @Override
-    public boolean saveToSolr() {
-        return true;
-    }
-
-    @Override
     public void delete() {
         deleteFromTripleStore();
-    }
-
-    @Override
-    public int deleteFromSolr() {
-        return 0;
     }
 
 }

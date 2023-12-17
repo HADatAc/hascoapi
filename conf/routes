@@ -31,6 +31,7 @@ GET     /hascoapi/api/:elementType/manageremail/total/:managerEmail             
 
 POST    /hascoapi/api/:elementType/create/:json             org.hascoapi.console.controllers.restapi.SIRElementAPI.createElement(elementType: String, json: String)
 POST    /hascoapi/api/:elementType/delete/:uri              org.hascoapi.console.controllers.restapi.SIRElementAPI.deleteElement(elementType: String, uri: String)
+GET     /hascoapi/api/:elementType/delete/:uri              org.hascoapi.console.controllers.restapi.SIRElementAPI.deleteElement(elementType: String, uri: String)
 
 # RETRIEVAL REPO
 

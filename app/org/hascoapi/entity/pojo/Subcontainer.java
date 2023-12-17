@@ -214,13 +214,4 @@ public class Subcontainer extends Container implements SlotElement {
 		deleteFromTripleStore();
 	}
 
-    @Override
-    public boolean saveToSolr() {
-        return false;
-    }
-    
-    @Override
-    public int deleteFromSolr() {
-        return 0;
-    }
 }

@@ -504,14 +504,4 @@ public class SemanticVariable extends HADatAcThing {
 		this.deleteFromTripleStore();
 	}
 
-	@Override
-	public boolean saveToSolr() {
-		return true;
-	}
-
-	@Override
-	public int deleteFromSolr() {
-		return 0;
-	}
-
 }

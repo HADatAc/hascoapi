@@ -65,6 +65,8 @@ public class GenericFind<T> {
             return Unit.class;
         } else if (elementType.equals("agent")) {
             return Agent.class;
+        } else if (elementType.equals("sdd")) {
+            return SDD.class;
         } 
         return null;
     }
@@ -95,6 +97,8 @@ public class GenericFind<T> {
             return URIUtils.replaceNameSpace(HASCO.SEMANTIC_VARIABLE);
         } else if (clazz == Agent.class) {
             return URIUtils.replaceNameSpace(HASCO.AGENT);
+        } else if (clazz == SDD.class) {
+            return URIUtils.replaceNameSpace(HASCO.SDD);
         }
         return null;
     }
@@ -601,7 +605,6 @@ public class GenericFind<T> {
 				" ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
 				"   FILTER (?managerEmail = \"" + managerEmail + "\") " +
 				"}";
-        //System.out.println("GenericFind.findTotalByManagerWithPages: " + clazz.getName() + "  query [" + queryString + "]");
         return findTotalByQuery(queryString);
 	}
 
@@ -675,13 +678,14 @@ public class GenericFind<T> {
             return (T)SemanticVariable.find(uri);
         } else if (clazz == Agent.class) {
             return (T)Agent.find(uri);
+        } else if (clazz == SDD.class) {
+            return (T)SDD.find(uri);
         }
         return null;
     
     }
 
-
-    private static int findTotalByQuery(String queryString) {
+    public static int findTotalByQuery(String queryString) {
         try {
             ResultSetRewindable resultsrw = SPARQLUtils.select(
                     CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
