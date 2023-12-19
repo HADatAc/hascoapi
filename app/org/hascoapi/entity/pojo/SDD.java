@@ -70,11 +70,8 @@ public class SDD extends HADatAcThing {
     @PropertyField(uri = "vstoi:hasVersion")
     private String hasVersion;
 
-    @PropertyField(uri = "hasco:hasFilename")
-    private String hasFilename;
-
-    @PropertyField(uri = "hasco:hasFileID")
-    private String hasFileID;
+    @PropertyField(uri = "hasco:hasDataFile")
+    private String hasDataFileUri;
 
     @PropertyField(uri = "vstoi:hasSIRManagerEmail")
     private String hasSIRManagerEmail;
@@ -251,20 +248,17 @@ public class SDD extends HADatAcThing {
         this.hasVersion = hasVersion;
     }
 
-    public String getHasFilename() {
-        return hasFilename;
+    public String getHasDataFile() {
+        return hasDataFileUri;
     }
 
-    public void setHasFilename(String hasFilename) {
-        this.hasFilename = hasFilename;
+    public void setHasDataFile(String hasDataFileUri) {
+        this.hasDataFileUri = hasDataFileUri;
     }
 
-    public String getHasFileID() {
-        return hasFileID;
-    }
-
-    public void setHasFileID(String hasFileID) {
-        this.hasFileID = hasFileID;
+    public DataFile getDataFile() {
+        DataFile dataFile = DataFile.find(this.hasDataFileUri);
+        return dataFile;
     }
 
     public String getHasStatus() {
@@ -653,10 +647,8 @@ public class SDD extends HADatAcThing {
                 sdd.setComment(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
                 sdd.setHascoTypeUri(str);
-            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_FILENAME)) {
-                sdd.setHasFilename(str);
-            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_FILE_ID)) {
-                sdd.setHasFileID(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_DATAFILE)) {
+                sdd.setHasDataFile(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
                 sdd.setHasStatus(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {

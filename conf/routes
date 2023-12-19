@@ -76,6 +76,12 @@ GET     /hascoapi/api/slotelements/bycontainer/:containerUri          org.hascoa
 GET     /hascoapi/api/annotationsbycontainerposition/:containerUri/:positionUri     org.hascoapi.console.controllers.restapi.AnnotationAPI.getAnnotationByContainerAndPosition(containerUri: String, positionUri: String)
 GET     /hascoapi/api/slots/bycodebook/:codebookUri                   org.hascoapi.console.controllers.restapi.CodebookSlotAPI.getCodebookSlotsByCodebook(codebookUri: String)
 
+# INGESTION METHODS
+
+POST    /hascoapi/api/ingest/:dataFileUri                org.hascoapi.console.controllers.restapi.IngestionAPI.ingest(dataFileUri: String, request: play.mvc.Http.Request)
+GET     /hascoapi/api/uningest/:dataFileUri              org.hascoapi.console.controllers.restapi.IngestionAPI.uningest(dataFileUri: String)
+GET     /hascoapi/api/ingestion/:dataFileUri/log         org.hascoapi.console.controllers.restapi.IngestionAPI.getLog(dataFileUri : String)
+
 # TESTING METHODS
 
 GET     /hascoapi/test/instrument/create                    org.hascoapi.console.controllers.restapi.InstrumentAPI.createInstrumentForTesting()

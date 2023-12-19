@@ -90,6 +90,8 @@ public class URIPage extends Controller {
                 finalResult = Attribute.find(uri);
             } else if (result.getHascoTypeUri().equals(SIO.UNIT)) {
                 finalResult = Unit.find(uri);
+            } else if (result.getHascoTypeUri().equals(HASCO.SDD)) {
+                finalResult = SDD.find(uri);
             } else {
                 finalResult = result;
             }

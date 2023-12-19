@@ -67,6 +67,8 @@ public class GenericFind<T> {
             return Agent.class;
         } else if (elementType.equals("sdd")) {
             return SDD.class;
+        } else if (elementType.equals("datafile")) {
+            return DataFile.class;
         } 
         return null;
     }
@@ -99,6 +101,8 @@ public class GenericFind<T> {
             return URIUtils.replaceNameSpace(HASCO.AGENT);
         } else if (clazz == SDD.class) {
             return URIUtils.replaceNameSpace(HASCO.SDD);
+        } else if (clazz == DataFile.class) {
+            return URIUtils.replaceNameSpace(HASCO.DATAFILE);
         }
         return null;
     }
@@ -680,6 +684,8 @@ public class GenericFind<T> {
             return (T)Agent.find(uri);
         } else if (clazz == SDD.class) {
             return (T)SDD.find(uri);
+        } else if (clazz == DataFile.class) {
+            return (T)DataFile.find(uri);
         }
         return null;
     

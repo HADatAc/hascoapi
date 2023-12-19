@@ -63,10 +63,10 @@ public class SpreadsheetFileRecord implements Record {
         
         String strCellValue = "";
         switch (cell.getCellType()) {
-        case Cell.CELL_TYPE_STRING:
+        case STRING:
             strCellValue = cell.toString();
             break;
-        case Cell.CELL_TYPE_NUMERIC:
+        case NUMERIC:
             if (DateUtil.isCellDateFormatted(cell)) {
                 SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
                 strCellValue = dateFormat.format(cell.getDateCellValue());
@@ -80,10 +80,10 @@ public class SpreadsheetFileRecord implements Record {
                 }
             }
             break;
-        case Cell.CELL_TYPE_BOOLEAN:
+        case BOOLEAN:
             strCellValue = new Boolean(cell.getBooleanCellValue()).toString();
             break;
-        case Cell.CELL_TYPE_BLANK:
+        case BLANK:
             strCellValue = "";
             break;
         }
@@ -91,7 +91,3 @@ public class SpreadsheetFileRecord implements Record {
         return strCellValue.trim();
     }
 }
-
-
-
-

@@ -42,6 +42,7 @@ public class HASCO {
     public static final String HAS_CODE_LABEL                         = "http://hadatac.org/ont/hasco/hasCodeLabel";
     public static final String HAS_COMPLETION_PERCENTAGE              = "http://hadatac.org/ont/hasco/hasCompletionPercentage";
     public static final String HAS_COMPLETION_TIME                    = "http://hadatac.org/ont/hasco/hasCompletionTime";
+    public static final String HAS_DATAFILE                           = "http://hadatac.org/ont/hasco/hasDataFile";
     public static final String HAS_DATASET                            = "http://hadatac.org/ont/hasco/hasDataset";
     public static final String HAS_DETECTOR                           = "http://hadatac.org/ont/hasco/hasDetector";
     public static final String HAS_EDITOR_EMAIL                       = "http://hadatac.org/ont/hasco/hasEditorEmail";

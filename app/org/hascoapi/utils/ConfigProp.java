@@ -66,6 +66,10 @@ public class ConfigProp {
         return ConfigFactory.load().getString("hascoapi.community.ont_prefix") + "-kb:";
     }
 
+	public static String getTemplateFileName() {
+		return ConfigFactory.load().getString("hascoapi.templates.template_filename");
+	}
+
     /**
     public static String getBasePrefix() {
         return ConfigFactory.load().getString("hascoapi.community.ont_prefix");

@@ -192,6 +192,15 @@ public class SIRElementAPI extends Controller {
                 message = e.getMessage();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
+        } else if (clazz == DataFile.class) {
+            try {
+                DataFile object;
+                object = (DataFile)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
         } 
         if (!success) {
             return ok(ApiUtil.createResponse("Error processing JSON: " + message, false));
@@ -329,6 +338,12 @@ public class SIRElementAPI extends Controller {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
+        } else if (clazz == DataFile.class) {
+            DataFile object = DataFile.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
         } 
         return ok(ApiUtil.createResponse("Element with URI [" + uri + "] has been deleted", true));
     }
@@ -432,6 +447,10 @@ public class SIRElementAPI extends Controller {
             GenericFind<SDD> query = new GenericFind<SDD>();
             List<SDD> results = query.findByKeywordWithPages(SDD.class,keyword, pageSize, offset);
             return SDDAPI.getSDDs(results);
+        }  else if (elementType.equals("datafile")) {
+            GenericFind<DataFile> query = new GenericFind<DataFile>();
+            List<DataFile> results = query.findByKeywordWithPages(DataFile.class,keyword, pageSize, offset);
+            return DataFileAPI.getDataFiles(results);
         } 
         return ok("No valid element type.");
     }
@@ -514,6 +533,10 @@ public class SIRElementAPI extends Controller {
             GenericFind<SDD> query = new GenericFind<SDD>();
             List<SDD> results = query.findByKeywordAndLanguageWithPages(Unit.class, keyword, language, pageSize, offset);
             return SDDAPI.getSDDs(results);
+        }  else if (elementType.equals("datafile")) {
+            GenericFind<DataFile> query = new GenericFind<DataFile>();
+            List<DataFile> results = query.findByKeywordAndLanguageWithPages(Unit.class, keyword, language, pageSize, offset);
+            return DataFileAPI.getDataFiles(results);
         } 
         return ok("No valid element type.");
     }
@@ -643,6 +666,10 @@ public class SIRElementAPI extends Controller {
             GenericFind<SDD> query = new GenericFind<SDD>();
             List<SDD> results = query.findByManagerEmailWithPages(SDD.class, managerEmail, pageSize, offset);
             return SDDAPI.getSDDs(results);
+        }  else if (elementType.equals("datafile")) {
+            GenericFind<DataFile> query = new GenericFind<DataFile>();
+            List<DataFile> results = query.findByManagerEmailWithPages(DataFile.class, managerEmail, pageSize, offset);
+            return DataFileAPI.getDataFiles(results);
         } 
         return ok("No valid element type.");
 

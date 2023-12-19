@@ -82,12 +82,12 @@ public class HAScOMapper {
         }
 
         // DATA FILE
-        if (mode.equals(FULL) && typeResult.equals(HASCO.DATA_FILE)) {
+        if (mode.equals(FULL) && typeResult.equals(HASCO.DATAFILE)) {
             filterProvider.addFilter("dataFileFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("dataFileFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment"));
+                            "hascoTypeLabel", "comment", "hasFilename", "hasFileId"));
         }
 
         // SDD
@@ -96,7 +96,7 @@ public class HAScOMapper {
         } else {
             filterProvider.addFilter("sddFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "hasFilename", "hasFileID"));
+                            "hascoTypeLabel", "comment", "hasDataFile", "dataFile"));
         }
 
         // SDD_ATTRIBUTE
@@ -275,7 +275,7 @@ public class HAScOMapper {
         //} else if (clazz == DataAcquisition.class) {
         //    return getFiltered(HASCO.DATA_ACQUISITION);
         //} else if (clazz == Datafile.class) {
-        //    return getFiltered(HASCO.DATA_FILE);
+        //    return getFiltered(HASCO.DATAFILE);
         //} else if (clazz == DataAcquisitionSchema.class) {
         //    return getFiltered(HASCO.SDD);
         //} else if (clazz == DataAcquisitionSchemaAttribute.class) {

@@ -5,7 +5,7 @@ import org.apache.commons.configuration2.INIConfiguration;
 public class Templates {
 
     public static String TEMPLATE_FILE = ConfigProp.getTemplateFileName();
-    public static INIConfiguration iniConfig = new MyINIConfiguration(TEMPLATE_FILE);
+    public static INIConfiguration iniConfig = new HASCOConfig(TEMPLATE_FILE);
 
     // STD Template (Study)
     public static String STUDYID = iniConfig.getSection("STD").getString("studyID"); // also in ACQ, PID and SID

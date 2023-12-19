@@ -18,7 +18,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
-
 public class SpreadsheetRecordFile implements RecordFile {
 
     private File file = null;
@@ -83,9 +82,10 @@ public class SpreadsheetRecordFile implements RecordFile {
         } catch (EncryptedDocumentException e) {
             //e.printStackTrace();
             return false;
+        /** 
         } catch (InvalidFormatException e) {
             //e.printStackTrace();
-            return false;
+            return false; */
         } catch (IOException e) {
             //e.printStackTrace();
             return false;
@@ -122,8 +122,9 @@ public class SpreadsheetRecordFile implements RecordFile {
             e.printStackTrace();
         } catch (EncryptedDocumentException e) {
             e.printStackTrace();
+        /** 
         } catch (InvalidFormatException e) {
-            e.printStackTrace();
+            e.printStackTrace(); */
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -166,7 +167,7 @@ public class SpreadsheetRecordFile implements RecordFile {
         Workbook workbook = null;
         try {
             workbook = WorkbookFactory.create(new FileInputStream(file));
-        } catch (EncryptedDocumentException | InvalidFormatException | IOException e) {
+        } catch (EncryptedDocumentException /** | InvalidFormatException */ | IOException e) {
             //e.printStackTrace();
             return false;
         }
