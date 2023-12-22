@@ -62,36 +62,38 @@ public class URIPage extends Controller {
              * }
              */
 
-            if (result.getHascoTypeUri().equals(VSTOI.INSTRUMENT)) {
-                finalResult = Instrument.find(uri);
-            } else if (result.getHascoTypeUri().equals(VSTOI.SUBCONTAINER)) {
-                finalResult = Subcontainer.find(uri);
-            } else if (result.getHascoTypeUri().equals(VSTOI.CONTAINER_SLOT)) {
-                finalResult = ContainerSlot.find(uri);
-            } else if (result.getHascoTypeUri().equals(VSTOI.DETECTOR_STEM)) {
-                finalResult = DetectorStem.find(uri);
-            } else if (result.getHascoTypeUri().equals(VSTOI.DETECTOR)) {
-                finalResult = Detector.findDetector(uri);
+            if (result.getHascoTypeUri().equals(HASCO.DATAFILE)) {
+                finalResult = DataFile.find(uri);
+            } else if (result.getHascoTypeUri().equals(HASCO.SEMANTIC_VARIABLE)) {
+                finalResult = SemanticVariable.find(uri);
+            } else if (result.getHascoTypeUri().equals(HASCO.SDD)) {
+                finalResult = SDD.find(uri);
+            } else if (result.getHascoTypeUri().equals(SIO.ATTRIBUTE)) {
+                finalResult = Attribute.find(uri);
+            } else if (result.getHascoTypeUri().equals(SIO.ENTITY)) {
+                finalResult = Entity.find(uri);
+            } else if (result.getHascoTypeUri().equals(SIO.UNIT)) {
+                finalResult = Unit.find(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.ANNOTATION)) {
+                finalResult = Annotation.find(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.ANNOTATION_STEM)) {
+                finalResult = AnnotationStem.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.CODEBOOK)) {
                 finalResult = Codebook.find(uri);            
             } else if (result.getHascoTypeUri().equals(VSTOI.CODEBOOK_SLOT)) {
                 finalResult = CodebookSlot.find(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.CONTAINER_SLOT)) {
+                finalResult = ContainerSlot.find(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.DETECTOR)) {
+                finalResult = Detector.findDetector(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.DETECTOR_STEM)) {
+                finalResult = DetectorStem.find(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.INSTRUMENT)) {
+                finalResult = Instrument.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.RESPONSE_OPTION)) {
                 finalResult = ResponseOption.find(uri);
-            } else if (result.getHascoTypeUri().equals(VSTOI.ANNOTATION_STEM)) {
-                finalResult = AnnotationStem.find(uri);
-            } else if (result.getHascoTypeUri().equals(VSTOI.ANNOTATION)) {
-                finalResult = Annotation.find(uri);
-            } else if (result.getHascoTypeUri().equals(HASCO.SEMANTIC_VARIABLE)) {
-                finalResult = SemanticVariable.find(uri);
-            } else if (result.getHascoTypeUri().equals(SIO.ENTITY)) {
-                finalResult = Entity.find(uri);
-            } else if (result.getHascoTypeUri().equals(SIO.ATTRIBUTE)) {
-                finalResult = Attribute.find(uri);
-            } else if (result.getHascoTypeUri().equals(SIO.UNIT)) {
-                finalResult = Unit.find(uri);
-            } else if (result.getHascoTypeUri().equals(HASCO.SDD)) {
-                finalResult = SDD.find(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.SUBCONTAINER)) {
+                finalResult = Subcontainer.find(uri);
             } else {
                 finalResult = result;
             }

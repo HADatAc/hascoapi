@@ -65,8 +65,8 @@ public class DataFile extends HADatAcThing implements Cloneable {
     @PropertyField(uri = "hasco:hasFileStatus")
     private String fileStatus;
 
-    @PropertyField(uri = "hasco:hasManagerEmail")
-    private String managerEmail = "";
+    @PropertyField(uri = "vstoi:hasSIRManagerEmail")
+    private String hasSIRManagerEmail = "";
 
     @PropertyField(uri = "hasco:hasViewerEmail")
     private List<String> viewerEmails;
@@ -213,7 +213,7 @@ public class DataFile extends HADatAcThing implements Cloneable {
     }
 
     public void updatePermissionByUserEmail(String userEmail) {
-        if (getManagerEmail().equals(userEmail)) {
+        if (getHasSIRManagerEmail().equals(userEmail)) {
             setAllowViewing(true);
             setAllowEditing(true);
             setAllowRenaming(true);
@@ -281,11 +281,11 @@ public class DataFile extends HADatAcThing implements Cloneable {
         return FilenameUtils.getExtension(filename);
     }
 
-    public String getManagerEmail() {
-        return managerEmail;
+    public String getHasSIRManagerEmail() {
+        return hasSIRManagerEmail;
     }
-    public void setManagerEmail(String managerEmail) {
-        this.managerEmail = managerEmail;
+    public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
+        this.hasSIRManagerEmail = hasSIRManagerEmail;
     }
 
     public List<String> getViewerEmails() {
@@ -421,11 +421,13 @@ public class DataFile extends HADatAcThing implements Cloneable {
 
     @Override
     public void save() {
+        this.log = getLog();
         saveToTripleStore();
     }
 
     @Override
     public void delete() {
+        getLogger().resetLog();
         deleteFromTripleStore();
     }
 
@@ -436,9 +438,9 @@ public class DataFile extends HADatAcThing implements Cloneable {
         setCompletionTime("");
     }
 
-    public static DataFile create(String id, String filename, String managerEmail, String status) {
+    public static DataFile create(String id, String filename, String hasSIRManagerEmail, String status) {
         DataFile dataFile = new DataFile(id, filename);
-        dataFile.setManagerEmail(managerEmail);
+        dataFile.setHasSIRManagerEmail(hasSIRManagerEmail);
         dataFile.setFileStatus(status);
         dataFile.setSubmissionTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
 
@@ -481,8 +483,6 @@ public class DataFile extends HADatAcThing implements Cloneable {
                 dataFile.setComment(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
                 dataFile.setHascoTypeUri(str);
-            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_MANAGER_EMAIL)) {
-                dataFile.setManagerEmail(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_FILE_ID)) {
                 dataFile.setId(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_FILE_VISIBLE_ID)) {
@@ -493,8 +493,8 @@ public class DataFile extends HADatAcThing implements Cloneable {
                 dataFile.setFilename(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_FILE_STATUS)) {
                 dataFile.setFileStatus(str);
-            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_MANAGER_EMAIL)) {
-                dataFile.setManagerEmail(str);
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
+                dataFile.setHasSIRManagerEmail(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_VIEWER_EMAIL)) {
                 List<String> viewerList = dataFile.getViewerEmails();
                 if (!viewerList.contains(str)) {
@@ -520,7 +520,7 @@ public class DataFile extends HADatAcThing implements Cloneable {
                 dataFile.setSubmissionTime(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_COMPLETION_TIME)) {
                 dataFile.setCompletionTime(str);
-            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_LAST_PROCESSING_TIME)) {
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_LAST_PROCESS_TIME)) {
                 dataFile.setLastProcessTime(str);
             } else if (statement.getPredicate().getURI().equals(PROV.WAS_DERIVED_FROM)) {
                 List<String> wasDerivedFromList = dataFile.getWasDerivedFrom();

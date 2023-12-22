@@ -336,7 +336,7 @@ public abstract class HADatAcThing {
 
                         if (field.getType().equals(List.class)) {
                             List<?> list = (List<?>)field.get(this);
-                            if (!list.isEmpty() && list.get(0) instanceof String) {
+                            if (list != null && !list.isEmpty() && list.get(0) instanceof String) {
                                 for (String element : (List<String>)list) {
                                     if (element != null && !element.isEmpty()) {
                                         //System.out.println("in List assigned [" + element + "] to [" + propertyUri + "]");

@@ -257,6 +257,7 @@ public class SDD extends HADatAcThing {
     }
 
     public DataFile getDataFile() {
+        //System.out.println("Inside SDD.getDataFile(). hasDataFileuri is " + this.hasDataFileUri);
         DataFile dataFile = DataFile.find(this.hasDataFileUri);
         return dataFile;
     }
@@ -403,7 +404,7 @@ public class SDD extends HADatAcThing {
 
     public void setAttributes(List<String> attributes) {
         if (attributes == null) {
-            System.out.println("[WARNING] No SDDObject for " + uri + " is defined in the knowledge base. ");
+            //System.out.println("[WARNING] No SDDObject for " + uri + " is defined in the knowledge base. ");
         } else {
             this.attributes = attributes;
             if (!isRefreshed) {
@@ -421,7 +422,7 @@ public class SDD extends HADatAcThing {
 
     public void setObjects(List<String> objects) {
         if (objects == null) {
-            System.out.println("[WARNING] No SDDObject for " + uri + " is defined in the knowledge base. ");
+            //System.out.println("[WARNING] No SDDObject for " + uri + " is defined in the knowledge base. ");
         } else {
             this.objects = objects;
         }
@@ -526,7 +527,7 @@ public class SDD extends HADatAcThing {
     }
 
     public File downloadFile(String fileURL, String filename) {
-        System.out.println("fileURL: " + fileURL);
+        //System.out.println("fileURL: " + fileURL);
         
         if (fileURL == null || fileURL.length() == 0) {
             return null;
@@ -779,17 +780,24 @@ public class SDD extends HADatAcThing {
      ************************************************/
 
 
-    public boolean readDataDictionary(RecordFile file) {
+    public boolean readDataDictionary(RecordFile file, DataFile dataFile) {
 
         if (!file.isValid()) {
             return false;
         }
 
+
+        System.out.println("SDD: read Data Dictionary 1");
+
+        System.out.println("header size: " + file.getHeaders().size());
+
         if (file.getHeaders().size() > 0) {
-            logger.println("The Dictionary Mapping has " + file.getHeaders().size() + " columns.");
+            dataFile.getLogger().println("The Dictionary Mapping has " + file.getHeaders().size() + " columns.");
         } else {
-            logger.printExceptionById("SDD_00007");
+            dataFile.getLogger().printExceptionById("SDD_00007");
         }
+
+        System.out.println("SDD: read Data Dictionary 2");
 
         //Boolean uriResolvable = true;
         Boolean namespaceRegistered = true;
@@ -812,6 +820,7 @@ public class SDD extends HADatAcThing {
         long rowNumber = 0;
         for (Record record : file.getRecords()) {
             rowNumber++;
+            System.out.println("processing row " + rowNumber);
             if (checkCellValue(record.getValueByColumnIndex(0))) {
                 String attributeCell = record.getValueByColumnName("Attribute");
                 String entityCell = record.getValueByColumnName("Entity");
@@ -904,7 +913,7 @@ public class SDD extends HADatAcThing {
                     if (attributeOfCell.length() > 0) {
                         sa2so.put(record.getValueByColumnIndex(0), attributeOfCell);
                     } else {
-                        logger.printExceptionByIdWithArgs("SDD_00008", record.getValueByColumnIndex(0));
+                        dataFile.getLogger().printExceptionByIdWithArgs("SDD_00008", record.getValueByColumnIndex(0));
                     }
                 }
 
@@ -954,7 +963,7 @@ public class SDD extends HADatAcThing {
                             }
                         }
                     } else {
-                        logger.printExceptionByIdWithArgs("SDD_00009", entityCell);
+                        dataFile.getLogger().printExceptionByIdWithArgs("SDD_00009", entityCell);
                         return false;
                     }
                 }
@@ -962,12 +971,12 @@ public class SDD extends HADatAcThing {
                 if (checkCellValue(record.getValueByColumnName("attributeOf"))) {
                     mapAttrObj.put(record.getValueByColumnIndex(0), record.getValueByColumnName("attributeOf"));
                 } else {
-                    logger.printExceptionByIdWithArgs("SDD_00010", record.getValueByColumnName("attributeOf"), rowNumber);
+                    dataFile.getLogger().printExceptionByIdWithArgs("SDD_00010", record.getValueByColumnName("attributeOf"), rowNumber);
                     return false;
                 }
 
             } else {
-                logger.printExceptionByIdWithArgs("SDD_00011", record.getValueByColumnName("Column"));
+                dataFile.getLogger().printExceptionByIdWithArgs("SDD_00011", record.getValueByColumnName("Column"));
                 return false;
             }
 
@@ -975,35 +984,39 @@ public class SDD extends HADatAcThing {
                     record.getValueByColumnName(Templates.ATTTRIBUTEOF));
         }
 
+        System.out.println("SDD: read Data Dictionary 3");
+
         if (checkUriNamespaceResults.size() > 0) {
-            logger.printExceptionByIdWithArgs("SDD_00012", String.join(", ", checkUriNamespaceResults));
+            dataFile.getLogger().printExceptionByIdWithArgs("SDD_00012", String.join(", ", checkUriNamespaceResults));
             return false;
         }
 
         if (checkUriLabelResults.size() > 0) {
-            logger.printWarningByIdWithArgs("SDD_00013", String.join(", ", checkUriLabelResults));
+            dataFile.getLogger().printWarningByIdWithArgs("SDD_00013", String.join(", ", checkUriLabelResults));
         }
 
         if (checkStudyIndicatorPathResults.size() > 0) {
-            logger.printWarningByIdWithArgs("SDD_00014", String.join(", ", checkStudyIndicatorPathResults));
+            dataFile.getLogger().printWarningByIdWithArgs("SDD_00014", String.join(", ", checkStudyIndicatorPathResults));
         }
 
         if (checkCellValResults.size() > 0) {
-            logger.printExceptionByIdWithArgs("SDD_00015", String.join(", ", checkCellValResults));
+            dataFile.getLogger().printExceptionByIdWithArgs("SDD_00015", String.join(", ", checkCellValResults));
             return false;
         }
 
+        System.out.println("SDD: read Data Dictionary 4");
+
         if (namespaceRegistered == true) {
-            logger.println("The Dictionary Mapping's namespaces are all registered.");
+            dataFile.getLogger().println("The Dictionary Mapping's namespaces are all registered.");
         }
         if (hasLabel == true) {
-            logger.println("The Dictionary Mapping's terms have labels.");
+            dataFile.getLogger().println("The Dictionary Mapping's terms have labels.");
         }
         if (isIndicator == true) {
-            logger.println("The Dictionary Mapping's attributes are all subclasses of hasco:StudyIndicator or hasco:SampleIndicator.");
+            dataFile.getLogger().println("The Dictionary Mapping's attributes are all subclasses of hasco:StudyIndicator or hasco:SampleIndicator.");
         }
 
-        logger.println("The Dictionary Mapping has correct content under \"Column\" and \"attributeOf\" columns.");
+        dataFile.getLogger().println("The Dictionary Mapping has correct content under \"Column\" and \"attributeOf\" columns.");
         //System.out.println("[SDD] mapAttrObj: " + mapAttrObj);
 
         return true;

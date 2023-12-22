@@ -78,7 +78,7 @@ GET     /hascoapi/api/slots/bycodebook/:codebookUri                   org.hascoa
 
 # INGESTION METHODS
 
-POST    /hascoapi/api/ingest/:dataFileUri                org.hascoapi.console.controllers.restapi.IngestionAPI.ingest(dataFileUri: String, request: play.mvc.Http.Request)
+POST    /hascoapi/api/ingest/sdd/:sddUri                 org.hascoapi.console.controllers.restapi.IngestionAPI.uploadSDD(sddUri: String, request: play.mvc.Http.Request)
 GET     /hascoapi/api/uningest/:dataFileUri              org.hascoapi.console.controllers.restapi.IngestionAPI.uningest(dataFileUri: String)
 GET     /hascoapi/api/ingestion/:dataFileUri/log         org.hascoapi.console.controllers.restapi.IngestionAPI.getLog(dataFileUri : String)
 

@@ -86,8 +86,8 @@ public class HAScOMapper {
             filterProvider.addFilter("dataFileFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("dataFileFilter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "hasFilename", "hasFileId"));
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "id", "label", "typeUri", "typeLabel", "hascoTypeUri",
+                            "hascoTypeLabel", "comment", "filename", "fileStatus", "lastProcessTime"));
         }
 
         // SDD
@@ -307,6 +307,10 @@ public class HAScOMapper {
             return getFiltered(mode, VSTOI.RESPONSE_OPTION);
         } else if (clazz == CodebookSlot.class) {
             return getFiltered(mode, VSTOI.CODEBOOK_SLOT);
+        } else if (clazz == DataFile.class) {
+            return getFiltered(mode, HASCO.DATAFILE);
+        } else if (clazz == SDD.class) {
+            return getFiltered(mode, HASCO.SDD);
         } 
         return getFiltered(mode, "NONE");
     }

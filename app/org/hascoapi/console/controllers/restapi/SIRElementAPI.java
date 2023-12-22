@@ -667,9 +667,11 @@ public class SIRElementAPI extends Controller {
             List<SDD> results = query.findByManagerEmailWithPages(SDD.class, managerEmail, pageSize, offset);
             return SDDAPI.getSDDs(results);
         }  else if (elementType.equals("datafile")) {
+            System.out.println("datafile find by manager email");
             GenericFind<DataFile> query = new GenericFind<DataFile>();
             List<DataFile> results = query.findByManagerEmailWithPages(DataFile.class, managerEmail, pageSize, offset);
-            return DataFileAPI.getDataFiles(results);
+             System.out.println("datafile found " + results.size());
+           return DataFileAPI.getDataFiles(results);
         } 
         return ok("No valid element type.");
 

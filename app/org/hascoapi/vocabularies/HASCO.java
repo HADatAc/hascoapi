@@ -10,7 +10,7 @@ public class HASCO {
 
     public static final String AGENT                                  = "http://hadatac.org/ont/hasco/Agent";
     public static final String DATA_ACQUISITION                       = "http://hadatac.org/ont/hasco/DataAcquisition";
-    public static final String DATAFILE                               = "http://hadatac.org/ont/hasco/Datafile";
+    public static final String DATAFILE                               = "http://hadatac.org/ont/hasco/DataFile";
     public static final String DEPLOYMENT                             = "http://hadatac.org/ont/hasco/Deployment";
     public static final String LOCATION_COLLECTION                    = "http://hadatac.org/ont/hasco/LocationCollection";
     public static final String MANAGED_ONTOLOGY                       = "http://hadatac.org/ont/hasco/ManagedOntology";
@@ -59,7 +59,7 @@ public class HASCO {
     public static final String HAS_IMAGE                              = "http://hadatac.org/ont/hasco/hasImage";
     public static final String HAS_IN_RELATION_TO                     = "http://hadatac.org/ont/hasco/hasInRelationTo";
     public static final String HAS_INSTRUMENT                         = "http://hadatac.org/ont/hasco/hasInstrument";
-    public static final String HAS_LAST_PROCESSING_TIME               = "http://hadatac.org/ont/hasco/hasLasProcessingTime";
+    public static final String HAS_LAST_PROCESS_TIME                  = "http://hadatac.org/ont/hasco/hasLastProcessTime";
     public static final String HAS_LAYOUT                             = "http://hadatac.org/ont/hasco/hasLayout";
     public static final String HAS_LAYOUT_WIDTH                       = "http://hadatac.org/ont/hasco/hasLayoutWidth";
     public static final String HAS_LAYOUT_WIDTH_UNIT                  = "http://hadatac.org/ont/hasco/hasLayoutWidthUnit";

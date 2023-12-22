@@ -565,7 +565,7 @@ public class SDDAttribute extends HADatAcThing {
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
         if (!resultsrw.hasNext()) {
-            System.out.println("[WARNING] SDDAttribute. Could not find SDDA with URI: <" + sdda_uri + ">");
+            //System.out.println("[WARNING] SDDAttribute. Could not find SDDA with URI: <" + sdda_uri + ">");
             return sdda;
         }
 
@@ -670,7 +670,7 @@ public class SDDAttribute extends HADatAcThing {
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
         if (!resultsrw.hasNext()) {
-            System.out.println("[WARNING] SDDAttribute. Could not find SDDA's with attribute: " + studyUri);
+            //System.out.println("[WARNING] SDDAttribute. Could not find SDDA's with attribute: " + studyUri);
             return attributes;
         }
 
@@ -710,7 +710,7 @@ public class SDDAttribute extends HADatAcThing {
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
         if (!resultsrw.hasNext()) {
-            System.out.println("[WARNING] SDDAttribute. Could not find attributes for schema: <" + schemaUri + ">");
+            //System.out.println("[WARNING] SDDAttribute. Could not find attributes for schema: <" + schemaUri + ">");
             return attributeUris;
         }
 
@@ -745,7 +745,7 @@ public class SDDAttribute extends HADatAcThing {
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
         if (!resultsrw.hasNext()) {
-            System.out.println("[WARNING] SDDAttribute. Could not find attributes for schema: <" + schemaUri + ">");
+            //System.out.println("[WARNING] SDDAttribute. Could not find attributes for schema: <" + schemaUri + ">");
             return attributes;
         }
 

@@ -311,7 +311,7 @@ public class SDDObject extends HADatAcThing {
                 CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
         if (!resultsrw.hasNext()) {
-            System.out.println("[WARNING] SDDObject. Could not find object with uri: " + uri);
+            //System.out.println("[WARNING] SDDObject. Could not find object with uri: " + uri);
             SDDObject.getCache().put(uri, null);
             return null;
         }
@@ -431,7 +431,7 @@ public class SDDObject extends HADatAcThing {
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
         if (!resultsrw.hasNext()) {
-            System.out.println("[WARNING] SDDObject. Could not find objects for schema: " + schemaUri);
+            //System.out.println("[WARNING] SDDObject. Could not find objects for schema: " + schemaUri);
             return objectUris;
         }
 
