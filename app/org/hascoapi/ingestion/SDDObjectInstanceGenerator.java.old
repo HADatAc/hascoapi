@@ -5,7 +5,7 @@ import org.hascoapi.entity.pojo.SDD;
 import org.hascoapi.entity.pojo.SDDAttribute;
 import org.hascoapi.entity.pojo.SDDObject;
 import org.hascoapi.entity.pojo.DataFile;
-//import org.hascoapi.entity.pojo.ObjectCollection;
+//import org.hascoapi.entity.pojo.StudyObjectCollection;
 //import org.hascoapi.entity.pojo.STR;
 import org.hascoapi.entity.pojo.VirtualColumn;
 //import org.hascoapi.entity.pojo.StudyObject;
@@ -37,19 +37,19 @@ public class SDDObjectInstanceGenerator extends BaseGenerator {
     private String mainLabel;
     private SDDObject mainSDDo;
     private String mainSDDoUri;
-    private ObjectCollection mainSoc;
-    private ObjectCollection groundingSoc;
+    private StudyObjectCollection mainSoc;
+    private StudyObjectCollection groundingSoc;
     private String mainSocUri;
     private String fileName; 
     private Map<String, DataAcquisitionSchemaObject> dasos = new ConcurrentHashMap<String, DataAcquisitionSchemaObject>();  
-    private Map<String, ObjectCollection> requiredSocs = new ConcurrentHashMap<String, ObjectCollection>();  
-    private List<ObjectCollection> socsList = null;  
-    private List<ObjectCollection> groundingPath = new ArrayList<ObjectCollection>();  
-    private List<ObjectCollection> reverseGroundingPath;
+    private Map<String, StudyObjectCollection> requiredSocs = new ConcurrentHashMap<String, StudyObjectCollection>();  
+    private List<StudyObjectCollection> socsList = null;  
+    private List<StudyObjectCollection> groundingPath = new ArrayList<StudyObjectCollection>();  
+    private List<StudyObjectCollection> reverseGroundingPath;
     private List<String> groundingPathUris = new ArrayList<String>();
-    private Map<String, List<ObjectCollection>> socPaths = new HashMap<String, List<ObjectCollection>>(); 
+    private Map<String, List<StudyObjectCollection>> socPaths = new HashMap<String, List<StudyObjectCollection>>(); 
     private Map<String, String> socLabels = new ConcurrentHashMap<String, String>();
-    private Map<String, ObjectCollection> socMatchingSOCs = new ConcurrentHashMap<String, ObjectCollection>();
+    private Map<String, StudyObjectCollection> socMatchingSOCs = new ConcurrentHashMap<String, StudyObjectCollection>();
 //    private Map<String, String > groundingIds = new ArrayList<String>();
     
     public SDDObjectInstanceGenerator(DataFile dataFile, STR str, String fileName) {
@@ -135,12 +135,12 @@ public class SDDObjectInstanceGenerator extends BaseGenerator {
         //
 
         logger.println("SDDObjectInstanceGenerator: (1/10) ======== INITIALLY AVAILABLE SOCs ========");
-        socsList = ObjectCollection.findByStudyUri(studyUri);
+        socsList = StudyObjectCollection.findByStudyUri(studyUri);
         if (socsList == null) {
             logger.println("SDDObjectInstanceGenerator: no SOC is available");
-            socsList = new ArrayList<ObjectCollection>();  
+            socsList = new ArrayList<StudyObjectCollection>();  
         } else {
-            for (ObjectCollection soc : socsList) {
+            for (StudyObjectCollection soc : socsList) {
                 logger.println("SDDObjectInstanceGenerator: SOC: " + soc.getUri() + "   Reference : " + soc.getSOCReference());
             }
         }
@@ -199,11 +199,11 @@ public class SDDObjectInstanceGenerator extends BaseGenerator {
             groundingSoc = mainSoc;
         } else {
             logger.println("SDDObjectInstanceGenerator: Main SOC is not grounded. Computing grouding path");
-            ObjectCollection currentSoc = mainSoc;
+            StudyObjectCollection currentSoc = mainSoc;
             groundingPath.add(mainSoc);
             while (currentSoc.getHasScopeUri() != null && !currentSoc.getHasScopeUri().equals("") && !containsUri(currentSoc.getHasScopeUri(), groundingPath)) {
 
-                ObjectCollection nextSoc = ObjectCollection.find(currentSoc.getHasScopeUri());
+                StudyObjectCollection nextSoc = StudyObjectCollection.find(currentSoc.getHasScopeUri());
                 if (nextSoc == null) {
                     logger.printException("SDDObjectInstanceGenerator: Could not find SOC with following URI : " + currentSoc.getHasScopeUri());
                     return false;
@@ -215,7 +215,7 @@ public class SDDObjectInstanceGenerator extends BaseGenerator {
                 }
             }
             int i = 0;
-            for (ObjectCollection soc : groundingPath) {
+            for (StudyObjectCollection soc : groundingPath) {
                 logger.println("SDDObjectInstanceGenerator: SOC in grouding path: " + soc.getUri() + " at index " + i++);
                 groundingPathUris.add(soc.getUri());
             }
@@ -269,17 +269,17 @@ public class SDDObjectInstanceGenerator extends BaseGenerator {
         //
 
         logger.println("SDDObjectInstanceGenerator: (6/10) ======== RETRIEVING ADDITINAL  SOCs ========");
-        for (Map.Entry<String, ObjectCollection> entry : requiredSocs.entrySet()) {
+        for (Map.Entry<String, StudyObjectCollection> entry : requiredSocs.entrySet()) {
             String key = entry.getKey();
-            ObjectCollection soc = entry.getValue();
-            ObjectCollection currentSoc = soc;
+            StudyObjectCollection soc = entry.getValue();
+            StudyObjectCollection currentSoc = soc;
             
             while (currentSoc.getHasScopeUri() != null && !currentSoc.getHasScopeUri().equals("") && 
                     !requiredSocs.containsKey(currentSoc.getHasScopeUri()) && !containsUri(currentSoc.getHasScopeUri(),groundingPath)) {
 
                 // lookup in socsList for next SOC, i.e., currentSoc.getHasScopeUri()
-                ObjectCollection nextSoc = null;
-                for (ObjectCollection tmpSoc : socsList) {
+                StudyObjectCollection nextSoc = null;
+                for (StudyObjectCollection tmpSoc : socsList) {
                     if (tmpSoc.getUri().equals(currentSoc.getHasScopeUri())) {
                         nextSoc = tmpSoc;
                         break;
@@ -307,9 +307,9 @@ public class SDDObjectInstanceGenerator extends BaseGenerator {
         //
 
         logger.println("SDDObjectInstanceGenerator: (7/10) ======== REQUIRED SOCs ========");
-        for (Map.Entry<String, ObjectCollection> entry : requiredSocs.entrySet()) {
+        for (Map.Entry<String, StudyObjectCollection> entry : requiredSocs.entrySet()) {
             String key = entry.getKey();
-            ObjectCollection soc = entry.getValue();
+            StudyObjectCollection soc = entry.getValue();
             logger.println("SDDObjectInstanceGenerator: SOC: " + soc.getUri() + "   Reference : " + soc.getSOCReference() + 
                     "    with hasScope: " + soc.getHasScopeUri());
         }
@@ -323,10 +323,10 @@ public class SDDObjectInstanceGenerator extends BaseGenerator {
         //
 
         logger.println("SDDObjectInstanceGenerator: (8/10) ======== BUILD SOC PATHS ========");
-        for (Map.Entry<String, ObjectCollection> entry : requiredSocs.entrySet()) {
+        for (Map.Entry<String, StudyObjectCollection> entry : requiredSocs.entrySet()) {
             String key = entry.getKey();
-            ObjectCollection soc = entry.getValue();
-            List<ObjectCollection> socs = new ArrayList<ObjectCollection>();
+            StudyObjectCollection soc = entry.getValue();
+            List<StudyObjectCollection> socs = new ArrayList<StudyObjectCollection>();
             logger.println("SDDObjectInstanceGenerator: START: " + soc.getUri());
             logger.println("SDDObjectInstanceGenerator: PATH ---->> ");
             if (groundingPathUris.contains(soc.getUri())) {
@@ -354,7 +354,7 @@ public class SDDObjectInstanceGenerator extends BaseGenerator {
                 socs.add(soc);
             } else {
                 String toUri = soc.getHasScope().getUri();
-                ObjectCollection nextTarget = soc;
+                StudyObjectCollection nextTarget = soc;
                 logger.println("SDDObjectInstanceGenerator:       " + nextTarget.getUri());
                 socs.add(nextTarget);
                 while (nextTarget != null && !nextTarget.getUri().equals(mainSocUri)) {
@@ -366,10 +366,10 @@ public class SDDObjectInstanceGenerator extends BaseGenerator {
                     }
                 }
                 if (nextTarget == null) {
-                	reverseGroundingPath = new ArrayList<ObjectCollection>(); 
+                	reverseGroundingPath = new ArrayList<StudyObjectCollection>(); 
                 	//reverseGroundingPath.add(mainSoc);
                 	boolean validPath = false;
-                	for (ObjectCollection socTmp : groundingPath) {
+                	for (StudyObjectCollection socTmp : groundingPath) {
                 		if (socTmp.getUri().equals(toUri)) {
                 			validPath = true;
                 			break;
@@ -380,7 +380,7 @@ public class SDDObjectInstanceGenerator extends BaseGenerator {
                     	logger.printException("SDDObjectInstanceGenerator: Could not complete path for " + toUri);
                     	return false;
                 	}
-                	ObjectCollection socTmp2 = null;
+                	StudyObjectCollection socTmp2 = null;
                 	if (reverseGroundingPath.size() > 0) {
                 		for (int index = reverseGroundingPath.size() - 1; index >= 0; index--) {
                 			socTmp2 = reverseGroundingPath.get(index);
@@ -392,13 +392,13 @@ public class SDDObjectInstanceGenerator extends BaseGenerator {
             } 
             socPaths.put(key,socs);
         }
-        for (Map.Entry<String, List<ObjectCollection>> entry : socPaths.entrySet()) {
+        for (Map.Entry<String, List<StudyObjectCollection>> entry : socPaths.entrySet()) {
             String key = entry.getKey();
-            List<ObjectCollection> path = entry.getValue();
-            List<ObjectCollection> socs = new ArrayList<ObjectCollection>();
+            List<StudyObjectCollection> path = entry.getValue();
+            List<StudyObjectCollection> socs = new ArrayList<StudyObjectCollection>();
             logger.println("SDDObjectInstanceGenerator: DEBUG START: " + key);
             logger.println("SDDObjectInstanceGenerator:    DEBUG PATH ---->> ");
-            for (ObjectCollection socTmp : path) {
+            for (StudyObjectCollection socTmp : path) {
                 logger.println("SDDObjectInstanceGenerator:    DEBUG ELEMENT:  " + socTmp.getUri());
             } 
         }
@@ -412,9 +412,9 @@ public class SDDObjectInstanceGenerator extends BaseGenerator {
         //
 
         logger.println("SDDObjectInstanceGenerator: (9/10) ======== COMPUTE SOC LABELS ========");
-        for (Map.Entry<String, ObjectCollection> entry : requiredSocs.entrySet()) {
+        for (Map.Entry<String, StudyObjectCollection> entry : requiredSocs.entrySet()) {
             String key = entry.getKey();
-            ObjectCollection soc = entry.getValue();
+            StudyObjectCollection soc = entry.getValue();
             String fullLabel = "";
             boolean process = true;
 
@@ -438,7 +438,7 @@ public class SDDObjectInstanceGenerator extends BaseGenerator {
             if (process) {
                 String toUri = soc.getHasScope().getUri();
 
-                ObjectCollection nextTarget = soc;
+                StudyObjectCollection nextTarget = soc;
                 label = nextTarget.getGroundingLabel();
                 if (label == null) {
                     label = "";
@@ -446,7 +446,7 @@ public class SDDObjectInstanceGenerator extends BaseGenerator {
                 if (nextTarget.getUri().equals(mainSocUri)) {
                     String nextTargetUri = nextTarget.getHasScopeUri();
                     nextTarget = null;
-                    for (ObjectCollection gsoc : groundingPath) {
+                    for (StudyObjectCollection gsoc : groundingPath) {
                     	if (gsoc.getUri().equals(nextTargetUri)) {
                     		nextTarget = gsoc;
                     	}
@@ -500,11 +500,11 @@ public class SDDObjectInstanceGenerator extends BaseGenerator {
         //
 
         logger.println("SDDObjectInstanceGenerator: (10/10) ======== MAP SOCs and MATCHINGS ========");
-        for (Map.Entry<String, ObjectCollection> entry : requiredSocs.entrySet()) {
+        for (Map.Entry<String, StudyObjectCollection> entry : requiredSocs.entrySet()) {
             String key = entry.getKey();
-            ObjectCollection soc = entry.getValue();
+            StudyObjectCollection soc = entry.getValue();
             if (!socMatchingSOCs.containsKey(soc.getUri())) {
-            	List<ObjectCollection> matchingSOCs = ObjectCollection.findMatchingScopeCollections(soc.getUri());
+            	List<StudyObjectCollection> matchingSOCs = StudyObjectCollection.findMatchingScopeCollections(soc.getUri());
             	if (matchingSOCs.size() > 1) {
             		logger.printWarning("SDDObjectInstanceGenerator: SOC: " + soc.getUri() + "   has more than one matching SOC");
             	}
@@ -524,11 +524,11 @@ public class SDDObjectInstanceGenerator extends BaseGenerator {
     //                                                                                      *
     // **************************************************************************************
 
-    private boolean containsUri(String uri, List<ObjectCollection> list) {
+    private boolean containsUri(String uri, List<StudyObjectCollection> list) {
         if (uri == null || uri.equals("") || list == null || list.size() == 0) {
             return false;
         }
-        for (ObjectCollection soc : list) {
+        for (StudyObjectCollection soc : list) {
             if (soc.getUri() != null && !soc.getUri().equals("")) {
                 if (soc.getUri().equals(uri)) {
                     return true;
@@ -585,7 +585,7 @@ public class SDDObjectInstanceGenerator extends BaseGenerator {
         return false;
     }
 
-    private ObjectCollection socFromTargetSDDo(DataAcquisitionSchemaObject daso, List<ObjectCollection> list) {
+    private StudyObjectCollection socFromTargetSDDo(DataAcquisitionSchemaObject daso, List<StudyObjectCollection> list) {
         String targetObjUri = targetUri(daso);
         if (targetObjUri.equals("")) {
             return null;
@@ -594,7 +594,7 @@ public class SDDObjectInstanceGenerator extends BaseGenerator {
         if (targetObj == null || targetObj.getLabel() == null || targetObj.getLabel().equals("")) {
             return null;
         }
-        for (ObjectCollection soc : list) {
+        for (StudyObjectCollection soc : list) {
         	//logger.println("socFromTargetSDDo : " + targetObj.getLabel() + "    soc's getSOCReference " + soc.getSOCReference()); 
             if (soc.getSOCReference().equals(targetObj.getLabel())) {
                 return soc;
@@ -603,11 +603,11 @@ public class SDDObjectInstanceGenerator extends BaseGenerator {
         return null;
     }
 
-    private ObjectCollection socFromSDDo(DataAcquisitionSchemaObject daso, List<ObjectCollection> list) {
+    private StudyObjectCollection socFromSDDo(DataAcquisitionSchemaObject daso, List<StudyObjectCollection> list) {
         if (daso == null || daso.getLabel() == null || daso.getLabel().equals("")) {
             return null;
         }
-        for (ObjectCollection soc : list) {
+        for (StudyObjectCollection soc : list) {
             if (soc.getSOCReference().equals(daso.getLabel())) {
                 return soc;
             }
@@ -615,7 +615,7 @@ public class SDDObjectInstanceGenerator extends BaseGenerator {
         return null;
     }
 
-    private DataAcquisitionSchemaObject dasoFromSoc(ObjectCollection soc, Map<String, DataAcquisitionSchemaObject> mapSDDos) {
+    private DataAcquisitionSchemaObject dasoFromSoc(StudyObjectCollection soc, Map<String, DataAcquisitionSchemaObject> mapSDDos) {
         if (soc == null || soc.getSOCReference() == null || soc.getSOCReference().equals("")) {
             return null;
         }
@@ -629,12 +629,12 @@ public class SDDObjectInstanceGenerator extends BaseGenerator {
     }
 
     private boolean findCreateAssociatedSOC(DataAcquisitionSchemaObject daso) {
-        ObjectCollection associatedSOC = null;
+        StudyObjectCollection associatedSOC = null;
 
         //  Try to find existing SOC
-        for (ObjectCollection soc : socsList) {
+        for (StudyObjectCollection soc : socsList) {
             if (soc.getSOCReference().equals(daso.getLabel())) {
-                associatedSOC = ObjectCollection.find(soc.getUri());
+                associatedSOC = StudyObjectCollection.find(soc.getUri());
                 if (associatedSOC != null) {
                     logger.println("SDDObjectInstanceGenerator: Reference: " + daso.getLabel() + "  Associated SOC : " + associatedSOC + "    with hasScope: " + associatedSOC.getHasScopeUri());
                     if (!requiredSocs.containsKey(associatedSOC.getUri())) {
@@ -651,7 +651,7 @@ public class SDDObjectInstanceGenerator extends BaseGenerator {
             String newSOCUri = studyUri.contains("STD") ? studyUri.replace("STD","SOC") + "-" + daso.getLabel().replace("??","") : studyUri.replace("SSD","SOC") + "-" + daso.getLabel().replace("??","");;
             String scopeUri = "";
             if (daso != null) {
-                ObjectCollection scopeObj = socFromTargetSDDo(daso, socsList);
+                StudyObjectCollection scopeObj = socFromTargetSDDo(daso, socsList);
                 if (scopeObj != null && scopeObj.getUri() != null) {
                     scopeUri = scopeObj.getUri();
                 } else {
@@ -672,12 +672,12 @@ public class SDDObjectInstanceGenerator extends BaseGenerator {
             String newLabel = daso.getLabel().replace("??","");
             String collectionType = null;
             if (daso.getEntity().equals(URIUtils.replacePrefixEx("hasco:StudyObjectMatching"))) {
-            	collectionType = ObjectCollection.MATCHING_COLLECTION;
+            	collectionType = StudyObjectCollection.MATCHING_COLLECTION;
             } else if (isSample(daso)) {
-                collectionType = ObjectCollection.SAMPLE_COLLECTION;
+                collectionType = StudyObjectCollection.SAMPLE_COLLECTION;
             } else {
-                // collectionType = ObjectCollection.SUBJECT_COLLECTION;
-                collectionType = ObjectCollection.OBJECT_COLLECTION;
+                // collectionType = StudyObjectCollection.SUBJECT_COLLECTION;
+                collectionType = StudyObjectCollection.OBJECT_COLLECTION;
             }
 
             VirtualColumn newVc = VirtualColumn.find(studyUri, daso.getLabel());
@@ -687,7 +687,7 @@ public class SDDObjectInstanceGenerator extends BaseGenerator {
                 newVc.saveToTripleStore();
                 // addObject(newVc);
             }
-            ObjectCollection newSoc = new ObjectCollection(newSOCUri, collectionType, newLabel, newLabel, studyUri, 
+            StudyObjectCollection newSoc = new StudyObjectCollection(newSOCUri, collectionType, newLabel, newLabel, studyUri, 
             		newVc.getUri(), "", scopeUri, null, null, null, "0");
             newSoc.setNamedGraph(namedGraphUri);
             newSoc.saveToTripleStore();
@@ -743,22 +743,22 @@ public class SDDObjectInstanceGenerator extends BaseGenerator {
         //   TRAVERSE list of objects for current record
         //
 
-        for (Map.Entry<String, List<ObjectCollection>> entry : socPaths.entrySet()) {
+        for (Map.Entry<String, List<StudyObjectCollection>> entry : socPaths.entrySet()) {
             String key = entry.getKey();
-            List<ObjectCollection> path = entry.getValue();
+            List<StudyObjectCollection> path = entry.getValue();
 
             //
             //   TRAVERSE SOC's PATH
             //
 
-            ListIterator<ObjectCollection> iter = path.listIterator(path.size());
+            ListIterator<StudyObjectCollection> iter = path.listIterator(path.size());
 
             if (DEBUG_MODE) { 
             	System.out.println("SDDObjectInstanceGenerator:     PATH >>> ");
             }
 
         	// Lookup first study object
-        	ObjectCollection currentSoc = iter.previous();
+        	StudyObjectCollection currentSoc = iter.previous();
         	String currentObjUri = getCachedObjectBySocAndOriginalId(currentSoc.getUri(), id); 
         	if (DEBUG_MODE) { 
         		System.out.println("SDDObjectInstanceGenerator:          Obj Original ID=[" + id + "]   SOC=[" + currentSoc.getUri() + "] =>  Obj URI=[" + currentObjUri + "]");
@@ -770,10 +770,10 @@ public class SDDObjectInstanceGenerator extends BaseGenerator {
             //
         	boolean hasGrounding = groundingPath.size() > 0;
         	
-            ObjectCollection previousSoc = null;
+            StudyObjectCollection previousSoc = null;
             String previousObjUri = null;
             while (currentObjUri != null && !currentObjUri.equals("") && iter.hasPrevious()) {
-                ObjectCollection nextSoc = iter.previous();
+                StudyObjectCollection nextSoc = iter.previous();
                 if (DEBUG_MODE) { 
                 	System.out.println("           Next SOC : [" + nextSoc.getUri() + "]    Current Obj URI : [" + currentObjUri + "]");
                 }
@@ -861,7 +861,7 @@ public class SDDObjectInstanceGenerator extends BaseGenerator {
     //   CREATE next object in the path if it does not exist
     //
 
-    private String createStudyObject(ObjectCollection nextSoc, String currentObjUri) {
+    private String createStudyObject(StudyObjectCollection nextSoc, String currentObjUri) {
         String newOriginalId = String.valueOf(nextSoc.getNextCounter());
         newOriginalId = addLeftZeros(newOriginalId);
         String newUri = createObjectUri(newOriginalId, nextSoc.getUri(), nextSoc.getTypeUri());
@@ -869,9 +869,9 @@ public class SDDObjectInstanceGenerator extends BaseGenerator {
         String newTypeUri = "";
         DataAcquisitionSchemaObject daso = dasoFromSoc(nextSoc, dasos);
         if (daso == null || daso.getEntity() == null || daso.getEntity().equals("")) {
-            if (nextSoc.getTypeUri().equals(ObjectCollection.MATCHING_COLLECTION)) {
+            if (nextSoc.getTypeUri().equals(StudyObjectCollection.MATCHING_COLLECTION)) {
                 newTypeUri = URIUtils.replacePrefixEx(StudyObjectMatching.className);
-            } else if (nextSoc.getTypeUri().equals(ObjectCollection.SUBJECT_COLLECTION)) {
+            } else if (nextSoc.getTypeUri().equals(StudyObjectCollection.SUBJECT_COLLECTION)) {
                 newTypeUri = URIUtils.replacePrefixEx(SIO_OBJECT);
             } else {
                 newTypeUri = URIUtils.replacePrefixEx(SIO_SAMPLE);
@@ -910,7 +910,7 @@ public class SDDObjectInstanceGenerator extends BaseGenerator {
     
     private String createObjectUri(String originalID, String socUri, String socTypeUri) {
         String labelPrefix = "";
-        if (socTypeUri.equals(ObjectCollection.SUBJECT_COLLECTION)) {
+        if (socTypeUri.equals(StudyObjectCollection.SUBJECT_COLLECTION)) {
             labelPrefix = "SBJ-";
         } else {
             labelPrefix = "SPL-";
@@ -921,12 +921,12 @@ public class SDDObjectInstanceGenerator extends BaseGenerator {
         return uri;
     }
 
-    private String createObjectLabel(String originalID, ObjectCollection soc) {
+    private String createObjectLabel(String originalID, StudyObjectCollection soc) {
         if (soc.getRoleLabel() != null && !soc.getRoleLabel().equals("")) {
         	return soc.getRoleLabel() + " " + originalID;
         } 
         String labelPrefix = "";
-        if (soc.getTypeUri().equals(ObjectCollection.SUBJECT_COLLECTION)) {
+        if (soc.getTypeUri().equals(StudyObjectCollection.SUBJECT_COLLECTION)) {
             labelPrefix = "SBJ ";
         } else {
             labelPrefix = "SPL ";
@@ -1036,7 +1036,7 @@ public class SDDObjectInstanceGenerator extends BaseGenerator {
     	}
     }
  
-    public Map<String,ObjectCollection> getMatchingSOCs() {
+    public Map<String,StudyObjectCollection> getMatchingSOCs() {
     	return socMatchingSOCs;
     }
     
@@ -1061,7 +1061,7 @@ public class SDDObjectInstanceGenerator extends BaseGenerator {
         	System.out.println("SDDObjectInstanceGenerator: groundingPath : " + groundingPath);
         }
 
-        ObjectCollection currentSoc = mainSoc;
+        StudyObjectCollection currentSoc = mainSoc;
         StudyObject obj = null;
         Map<String,String> groundObj = new HashMap<String,String>();
 
@@ -1095,7 +1095,7 @@ public class SDDObjectInstanceGenerator extends BaseGenerator {
         }
         
         for (int index=1; index < groundingPath.size(); index++) {
-        	ObjectCollection nextSoc = groundingPath.get(index);
+        	StudyObjectCollection nextSoc = groundingPath.get(index);
             if (DEBUG_MODE) { 
             	System.out.println("SDDObjectInstanceGenerator:      nextSOC=[" + nextSoc.getUri() + "] Obj URI=[" + currentObjUri + "]");
             }

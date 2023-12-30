@@ -52,7 +52,7 @@ public class IngestSDD {
         //    return;
         //}
 
-        System.out.println("IngestSDD.exec() Step 3 of 5");
+        System.out.println("IngestSDD.exec() Step 3 of 5: check if file has right extension");
 
         dataFile.getLogger().println(String.format("Processing file: %s", fileName));
 
@@ -109,14 +109,14 @@ public class IngestSDD {
             dataFile.getLogger().printExceptionById("SDD_00001");
             return null;
         } 
+        System.out.println("IngestSDD.buildChain(): Build chain 1 of 10");
+
         dataFile.setRecordFile(recordFile);
         Map<String, String> mapCatalog = sdd.getCatalog();
         for (Record record : recordFile.getRecords()) {
             mapCatalog.put(record.getValueByColumnIndex(0), record.getValueByColumnIndex(1));
             System.out.println(record.getValueByColumnIndex(0) + ":" + record.getValueByColumnIndex(1));
         }
-
-        System.out.println("IngestSDD.buildChain(): Build chain 1 of 10");
 
         String sddName = sdd.getLabel();
         String sddVersion = sdd.getHasVersion();

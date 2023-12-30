@@ -69,6 +69,12 @@ public class GenericFind<T> {
             return SDD.class;
         } else if (elementType.equals("datafile")) {
             return DataFile.class;
+        } else if (elementType.equals("study")) {
+            return Study.class;
+        } else if (elementType.equals("studyobjectcollection")) {
+            return StudyObjectCollection.class;
+        } else if (elementType.equals("studyobject")) {
+            return StudyObject.class;
         } 
         return null;
     }
@@ -103,6 +109,12 @@ public class GenericFind<T> {
             return URIUtils.replaceNameSpace(HASCO.SDD);
         } else if (clazz == DataFile.class) {
             return URIUtils.replaceNameSpace(HASCO.DATAFILE);
+        } else if (clazz == Study.class) {
+            return URIUtils.replaceNameSpace(HASCO.STUDY);
+        } else if (clazz == StudyObjectCollection.class) {
+            return URIUtils.replaceNameSpace(HASCO.STUDY_OBJECT_COLLECTION);
+        } else if (clazz == StudyObject.class) {
+            return URIUtils.replaceNameSpace(HASCO.STUDY_OBJECT);
         }
         return null;
     }
@@ -656,6 +668,10 @@ public class GenericFind<T> {
             return (T)Attribute.find(uri);
         } else if (clazz == Unit.class) {
             return (T)Unit.find(uri);
+        } else if (clazz == StudyObjectCollectionType.class) {
+            return (T)StudyObjectCollectionType.find(uri);
+        } else if (clazz == StudyObjectType.class) {
+            return (T)StudyObjectType.find(uri);
 
         // List of elements
         } else if (clazz == Instrument.class) {
@@ -686,6 +702,12 @@ public class GenericFind<T> {
             return (T)SDD.find(uri);
         } else if (clazz == DataFile.class) {
             return (T)DataFile.find(uri);
+        } else if (clazz == Study.class) {
+            return (T)Study.find(uri);
+        } else if (clazz == StudyObjectCollection.class) {
+            return (T)StudyObjectCollection.find(uri);
+        } else if (clazz == StudyObject.class) {
+            return (T)StudyObject.find(uri);
         }
         return null;
     
@@ -705,7 +727,6 @@ public class GenericFind<T> {
         }
         return -1;
     }
-
 
 }
 

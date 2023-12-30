@@ -15,6 +15,7 @@ import org.apache.jena.rdf.model.StmtIterator;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.SPARQLUtils;
+import org.hascoapi.utils.URIUtils;
 import org.hascoapi.vocabularies.RDFS;
 import org.hascoapi.vocabularies.VSTOI;
 
@@ -89,13 +90,14 @@ public class InstrumentType extends HADatAcClass implements Comparable<Instrumen
 
 		while (stmtIterator.hasNext()) {
 			statement = stmtIterator.next();
-			object = statement.getObject();
+			object = statement.getObject();						
+			String str = URIUtils.objectRDFToString(object);
 			if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-				instrumentType.setLabel(object.asLiteral().getString());
+				instrumentType.setLabel(str);
 			} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_WEB_DOCUMENTATION)) {
-				instrumentType.setURL(object.asLiteral().getString());
+				instrumentType.setURL(str);
 			} else if (statement.getPredicate().getURI().equals(RDFS.SUBCLASS_OF)) {
-				instrumentType.setSuperUri(object.asResource().getURI());
+				instrumentType.setSuperUri(str);
 			}
 		}
 		

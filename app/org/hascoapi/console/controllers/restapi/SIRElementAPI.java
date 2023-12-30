@@ -21,7 +21,7 @@ public class SIRElementAPI extends Controller {
      */
 
     public Result createElement(String elementType, String json) {
-        //System.out.println("Type: [" + elementType + "  JSON [" + json + "]");
+        System.out.println("Type: [" + elementType + "]  JSON [" + json + "]");
         if (json == null || json.equals("")) {
             return ok(ApiUtil.createResponse("No json content has been provided.", false));
         }
@@ -29,7 +29,7 @@ public class SIRElementAPI extends Controller {
             return ok(ApiUtil.createResponse("No elementType has been provided", false));
         }
         Class clazz = GenericFind.getElementClass(elementType);
-        //System.out.println("Clazz: [" + clazz + "]");
+        System.out.println("Clazz: [" + clazz + "]");
         if (clazz == null) {
             return ok(ApiUtil.createResponse("No valid elementType has been provided", false));
         }
@@ -201,6 +201,33 @@ public class SIRElementAPI extends Controller {
                 message = e.getMessage();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
+        } else if (clazz == Study.class) {
+            try {
+                Study object;
+                object = (Study)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == StudyObjectCollection.class) {
+            try {
+                StudyObjectCollection object;
+                object = (StudyObjectCollection)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == StudyObject.class) {
+            try {
+                StudyObject object;
+                object = (StudyObject)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
         } 
         if (!success) {
             return ok(ApiUtil.createResponse("Error processing JSON: " + message, false));
@@ -344,6 +371,24 @@ public class SIRElementAPI extends Controller {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
+        } else if (clazz == Study.class) {
+            Study object = Study.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == StudyObjectCollection.class) {
+            StudyObjectCollection object = StudyObjectCollection.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == StudyObject.class) {
+            StudyObject object = StudyObject.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
         } 
         return ok(ApiUtil.createResponse("Element with URI [" + uri + "] has been deleted", true));
     }
@@ -451,6 +496,18 @@ public class SIRElementAPI extends Controller {
             GenericFind<DataFile> query = new GenericFind<DataFile>();
             List<DataFile> results = query.findByKeywordWithPages(DataFile.class,keyword, pageSize, offset);
             return DataFileAPI.getDataFiles(results);
+        }  else if (elementType.equals("study")) {
+            GenericFind<Study> query = new GenericFind<Study>();
+            List<Study> results = query.findByKeywordWithPages(Study.class,keyword, pageSize, offset);
+            return StudyAPI.getStudies(results);
+        }  else if (elementType.equals("studyobjectcollection")) {
+            GenericFind<StudyObjectCollection> query = new GenericFind<StudyObjectCollection>();
+            List<StudyObjectCollection> results = query.findByKeywordWithPages(StudyObjectCollection.class,keyword, pageSize, offset);
+            return StudyObjectCollectionAPI.getStudyObjectCollections(results);
+        }  else if (elementType.equals("studyobject")) {
+            GenericFind<StudyObject> query = new GenericFind<StudyObject>();
+            List<StudyObject> results = query.findByKeywordWithPages(StudyObject.class,keyword, pageSize, offset);
+            return StudyObjectAPI.getStudyObjects(results);
         } 
         return ok("No valid element type.");
     }
@@ -531,12 +588,24 @@ public class SIRElementAPI extends Controller {
             return UnitAPI.getUnits(results);
         }  else if (elementType.equals("sdd")) {
             GenericFind<SDD> query = new GenericFind<SDD>();
-            List<SDD> results = query.findByKeywordAndLanguageWithPages(Unit.class, keyword, language, pageSize, offset);
+            List<SDD> results = query.findByKeywordAndLanguageWithPages(SDD.class, keyword, language, pageSize, offset);
             return SDDAPI.getSDDs(results);
         }  else if (elementType.equals("datafile")) {
             GenericFind<DataFile> query = new GenericFind<DataFile>();
-            List<DataFile> results = query.findByKeywordAndLanguageWithPages(Unit.class, keyword, language, pageSize, offset);
+            List<DataFile> results = query.findByKeywordAndLanguageWithPages(DataFile.class, keyword, language, pageSize, offset);
             return DataFileAPI.getDataFiles(results);
+        }  else if (elementType.equals("study")) {
+            GenericFind<Study> query = new GenericFind<Study>();
+            List<Study> results = query.findByKeywordAndLanguageWithPages(Study.class, keyword, language, pageSize, offset);
+            return StudyAPI.getStudies(results);
+        }  else if (elementType.equals("studyobjectcollection")) {
+            GenericFind<StudyObjectCollection> query = new GenericFind<StudyObjectCollection>();
+            List<StudyObjectCollection> results = query.findByKeywordAndLanguageWithPages(StudyObjectCollection.class, keyword, language, pageSize, offset);
+            return StudyObjectCollectionAPI.getStudyObjectCollections(results);
+        }  else if (elementType.equals("studyobject")) {
+            GenericFind<StudyObject> query = new GenericFind<StudyObject>();
+            List<StudyObject> results = query.findByKeywordAndLanguageWithPages(StudyObject.class, keyword, language, pageSize, offset);
+            return StudyObjectAPI.getStudyObjects(results);
         } 
         return ok("No valid element type.");
     }
@@ -667,11 +736,21 @@ public class SIRElementAPI extends Controller {
             List<SDD> results = query.findByManagerEmailWithPages(SDD.class, managerEmail, pageSize, offset);
             return SDDAPI.getSDDs(results);
         }  else if (elementType.equals("datafile")) {
-            System.out.println("datafile find by manager email");
             GenericFind<DataFile> query = new GenericFind<DataFile>();
             List<DataFile> results = query.findByManagerEmailWithPages(DataFile.class, managerEmail, pageSize, offset);
-             System.out.println("datafile found " + results.size());
-           return DataFileAPI.getDataFiles(results);
+            return DataFileAPI.getDataFiles(results);
+        }  else if (elementType.equals("study")) {
+            GenericFind<Study> query = new GenericFind<Study>();
+            List<Study> results = query.findByManagerEmailWithPages(Study.class, managerEmail, pageSize, offset);
+            return StudyAPI.getStudies(results);
+        }  else if (elementType.equals("studyobjectcollection")) {
+            GenericFind<StudyObjectCollection> query = new GenericFind<StudyObjectCollection>();
+            List<StudyObjectCollection> results = query.findByManagerEmailWithPages(StudyObjectCollection.class, managerEmail, pageSize, offset);
+            return StudyObjectCollectionAPI.getStudyObjectCollections(results);
+        }  else if (elementType.equals("studyobject")) {
+            GenericFind<StudyObject> query = new GenericFind<StudyObject>();
+            List<StudyObject> results = query.findByManagerEmailWithPages(StudyObject.class, managerEmail, pageSize, offset);
+            return StudyObjectAPI.getStudyObjects(results);
         } 
         return ok("No valid element type.");
 

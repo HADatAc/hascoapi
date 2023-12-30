@@ -252,6 +252,33 @@ public class HAScOMapper {
                             "hasAnnotationStem", "annotationStem", "hasPosition", "hasStyle"));
         }
 
+        // STUDY
+        if (mode.equals(FULL) && typeResult.equals(HASCO.STUDY)) {
+            filterProvider.addFilter("studyFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("studyFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
+                            "hascoTypeLabel", "comment"));
+        }
+
+        // STUDY OBJECT COLLECTION
+        if (mode.equals(FULL) && typeResult.equals(HASCO.STUDY_OBJECT_COLLECTION)) {
+            filterProvider.addFilter("studyObjectCollectionFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("studyObjectCollectionFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
+                            "hascoTypeLabel", "comment"));
+        }
+
+        // STUDY OBJECT
+        if (mode.equals(FULL) && typeResult.equals(HASCO.STUDY_OBJECT)) {
+            filterProvider.addFilter("studyObjectFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("studyObjectFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
+                            "hascoTypeLabel", "comment"));
+        }
+
         mapper.setFilterProvider(filterProvider);
 
         return mapper;
@@ -264,13 +291,13 @@ public class HAScOMapper {
         // STUDY
         //if (clazz == Study.class) {
         //    return getFiltered(HASCO.STUDY);
-        //} else if (clazz == ObjectCollection.class) {
+        //} else if (clazz == StudyObjectCollection.class) {
         //    return getFiltered(HASCO.OBJECT_COLLECTION);
         //} else if (clazz == Value.class) {
         //    return getFiltered(HASCO.VALUE);
         //} else if (clazz == Deployment.class) {
         //    return getFiltered(HASCO.DEPLOYMENT);
-        //} else if (clazz == ObjectCollection.class) {
+        //} else if (clazz == StudyObjectCollection.class) {
         //    return getFiltered(HASCO.OBJECT_COLLECTION);
         //} else if (clazz == DataAcquisition.class) {
         //    return getFiltered(HASCO.DATA_ACQUISITION);
@@ -311,6 +338,12 @@ public class HAScOMapper {
             return getFiltered(mode, HASCO.DATAFILE);
         } else if (clazz == SDD.class) {
             return getFiltered(mode, HASCO.SDD);
+        } else if (clazz == Study.class) {
+            return getFiltered(mode, HASCO.STUDY);
+        } else if (clazz == StudyObjectCollection.class) {
+            return getFiltered(mode, HASCO.STUDY_OBJECT_COLLECTION);
+        } else if (clazz == StudyObject.class) {
+            return getFiltered(mode, HASCO.STUDY_OBJECT);
         } 
         return getFiltered(mode, "NONE");
     }

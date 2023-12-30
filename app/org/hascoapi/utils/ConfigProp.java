@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Properties;
+import org.hascoapi.RepositoryInstance;
 
 import org.json.simple.JSONArray;
 
@@ -61,9 +62,8 @@ public class ConfigProp {
     public static String getJWTSecret() {
         return ConfigFactory.load().getString("pac4j.jwt.secret");
     }
-
     public static String getKbPrefix() {
-        return ConfigFactory.load().getString("hascoapi.community.ont_prefix") + "-kb:";
+        return RepositoryInstance.getInstance().getHasDefaultNamespaceAbbreviation() + "-kb:";
     }
 
 	public static String getTemplateFileName() {
