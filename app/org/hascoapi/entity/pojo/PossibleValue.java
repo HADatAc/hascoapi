@@ -15,11 +15,12 @@ import org.apache.jena.update.UpdateExecutionFactory;
 import org.apache.jena.update.UpdateFactory;
 import org.apache.jena.update.UpdateProcessor;
 import org.apache.jena.update.UpdateRequest;
+import org.hascoapi.Constants;
 import org.hascoapi.annotations.PropertyField;
+import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.SPARQLUtils;
 import org.hascoapi.utils.URIUtils;
 import org.hascoapi.utils.NameSpaces;
-import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.RDFS;
 import org.slf4j.Logger;
@@ -418,6 +419,8 @@ public class PossibleValue extends HADatAcClass implements Comparable<PossibleVa
 
         if (!getNamedGraph().isEmpty()) {
             insert += " GRAPH <" + getNamedGraph() + "> { ";
+        } else {
+            insert += " GRAPH <" + Constants.DEFAULT_REPOSITORY + "> { ";
         }
 
         insert += "<" + this.getUri() + ">  ";
@@ -427,9 +430,8 @@ public class PossibleValue extends HADatAcClass implements Comparable<PossibleVa
             insert += " <http://hadatac.org/ont/hasco/hasClass> <" + this.getHasClass() + "> ;   ";
         }
 
-        if (!getNamedGraph().isEmpty()) {
-            insert += " } ";
-        }
+        // CLOSING NAMEDGRAPH
+        insert += " } ";
 
         insert += LINE_LAST;
 

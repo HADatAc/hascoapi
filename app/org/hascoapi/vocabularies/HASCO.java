@@ -27,6 +27,7 @@ public class HASCO {
     public static final String STUDY                                  = "http://hadatac.org/ont/hasco/Study";
     public static final String STUDY_OBJECT                           = "http://hadatac.org/ont/hasco/StudyObject";
     public static final String STUDY_OBJECT_COLLECTION                = "http://hadatac.org/ont/hasco/StudyObjectCollection";
+    public static final String STUDY_ROLE                             = "http://hadatac.org/ont/hasco/StudyRole";
     public static final String SUBJECT_COLLECTION                     = "http://hadatac.org/ont/hasco/SubjectGroup";
     public static final String TIME_COLLECTION                        = "http://hadatac.org/ont/hasco/TimeCollection";
     public static final String USER                                   = "http://hadatac.org/ont/hasco/User";
@@ -61,6 +62,7 @@ public class HASCO {
     public static final String HAS_FIRST_COORDINATE                   = "http://hadatac.org/ont/hasco/hasFirstCoordinate";
     public static final String HAS_FIRST_COORDINATE_UNIT              = "http://hadatac.org/ont/hasco/hasFirstCoordinateUnit";
     public static final String HAS_FIRST_COORDINATE_CHARACTERISTIC    = "http://hadatac.org/ont/hasco/hasFirstCoordinateCharacteristic";
+    public static final String HAS_GROUNDING_LABEL                    = "http://hadatac.org/ont/hasco/hasGroundingLabel";
     public static final String HAS_IMAGE                              = "http://hadatac.org/ont/hasco/hasImage";
     public static final String HAS_IN_RELATION_TO                     = "http://hadatac.org/ont/hasco/hasInRelationTo";
     public static final String HAS_INSTITUTION                        = "http://hadatac.org/ont/hasco/hasInstitution";
@@ -84,6 +86,7 @@ public class HASCO {
     public static final String HAS_SECOND_COORDINATE                  = "http://hadatac.org/ont/hasco/hasSecondCoordinate";
     public static final String HAS_SECOND_COORDINATE_UNIT             = "http://hadatac.org/ont/hasco/hasSecondCoordinateUnit";
     public static final String HAS_SECOND_COORDINATE_CHARACTERISTIC   = "http://hadatac.org/ont/hasco/hasSecondCoordinateCharacteristic";
+    public static final String HAS_SOC_REFERENCE                      = "http://hadatac.org/ont/hasco/hasSOCReference";
     public static final String HAS_STREAM                             = "http://hadatac.org/ont/hasco/hasStream";
     public static final String HAS_STUDY                              = "http://hadatac.org/ont/hasco/hasStudy";
     public static final String HAS_STUDY_OBJECT_TYPE                  = "http://hadatac.org/ont/hasco/hasStudyObjectType";
@@ -95,6 +98,8 @@ public class HASCO {
     public static final String HAS_URL                                = "http://hadatac.org/ont/hasco/hasURL";
     public static final String HAS_VARIABLE                           = "http://hadatac.org/ont/hasco/hasVariable";
     public static final String HAS_VIEWER_EMAIL                       = "http://hadatac.org/ont/hasco/hasViewerEmail";
+    public static final String HAS_VIRTUAL_COLUMN                     = "http://hadatac.org/ont/hasco/hasVirtualColumn";
+    public static final String IS_MEMBER_OF                           = "http://hadatac.org/ont/hasco/isMemberOf";
     public static final String IS_POSSIBLE_VALUE_OF                   = "http://hadatac.org/ont/hasco/isPossibleValueOf";
     public static final String HASCO_TYPE                             = "http://hadatac.org/ont/hasco/hascoType";
     public static final String PART_OF_SCHEMA                         = "http://hadatac.org/ont/hasco/partOfSchema";

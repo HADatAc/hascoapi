@@ -8,6 +8,7 @@ import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFWriter;
 import org.eclipse.rdf4j.rio.Rio;
+import org.hascoapi.Constants;
 
 import java.io.*;
 import java.net.URI;
@@ -21,13 +22,6 @@ import java.util.function.Supplier;
 
 public class GSPClient {
 
-    /**
-     * Any submissions without a valid graph uri will be stored under this graph.
-     *
-     * We aren't posting to the standard default graph
-     * because it isn't included in default queries with fuseki's tdb2 unionDefaultGraph setting
-     */
-    public static final String defaultGraphUri = "http://hadatac.org/ont/graph#DEFAULT";
     private final URI endpoint;
 
     public GSPClient(URI endpoint) {
@@ -42,7 +36,8 @@ public class GSPClient {
         try {
             URIBuilder requestUriBuilder = new URIBuilder(endpoint);
             if (StringUtils.isBlank(graph)) {
-                graph = defaultGraphUri;
+                //graph = Constants.DEFAULT_GRAPH_URI;
+                graph = Constants.DEFAULT_REPOSITORY;
             }
             requestUriBuilder.addParameter("graph", graph);
             URI requestUri = requestUriBuilder.build();

@@ -276,7 +276,25 @@ public class HAScOMapper {
         } else {
             filterProvider.addFilter("studyObjectFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment"));
+                            "hascoTypeLabel", "comment", "isMemberOf"));
+        }
+
+        // STUDY ROLE
+        if (mode.equals(FULL) && typeResult.equals(HASCO.STUDY_ROLE)) {
+            filterProvider.addFilter("studyRoleFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("studyRoleFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
+                            "hascoTypeLabel", "comment", "isMemberOf"));
+        }
+
+        // VIRTUAL COLUMN
+        if (mode.equals(FULL) && typeResult.equals(HASCO.VIRTUAL_COLUMN)) {
+            filterProvider.addFilter("virtualColumnFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("virtualColumnFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
+                            "hascoTypeLabel", "comment", "study", "isMemberOf"));
         }
 
         mapper.setFilterProvider(filterProvider);
@@ -288,28 +306,6 @@ public class HAScOMapper {
         ObjectMapper mapper = new ObjectMapper();
         SimpleFilterProvider filterProvider = new SimpleFilterProvider();
 
-        // STUDY
-        //if (clazz == Study.class) {
-        //    return getFiltered(HASCO.STUDY);
-        //} else if (clazz == StudyObjectCollection.class) {
-        //    return getFiltered(HASCO.OBJECT_COLLECTION);
-        //} else if (clazz == Value.class) {
-        //    return getFiltered(HASCO.VALUE);
-        //} else if (clazz == Deployment.class) {
-        //    return getFiltered(HASCO.DEPLOYMENT);
-        //} else if (clazz == StudyObjectCollection.class) {
-        //    return getFiltered(HASCO.OBJECT_COLLECTION);
-        //} else if (clazz == DataAcquisition.class) {
-        //    return getFiltered(HASCO.DATA_ACQUISITION);
-        //} else if (clazz == Datafile.class) {
-        //    return getFiltered(HASCO.DATAFILE);
-        //} else if (clazz == DataAcquisitionSchema.class) {
-        //    return getFiltered(HASCO.SDD);
-        //} else if (clazz == DataAcquisitionSchemaAttribute.class) {
-        //    return getFiltered(HASCO.SDD_ATTRIBUTE);
-        //} else if (clazz == DataAcquisitionSchemaObject.class) {
-        //    return getFiltered(HASCO.SDD_OBJECT);
-        //} else 
         if (clazz == SemanticVariable.class) {
             return getFiltered(mode, HASCO.SEMANTIC_VARIABLE);
         } else if (clazz == Entity.class) {
@@ -344,6 +340,10 @@ public class HAScOMapper {
             return getFiltered(mode, HASCO.STUDY_OBJECT_COLLECTION);
         } else if (clazz == StudyObject.class) {
             return getFiltered(mode, HASCO.STUDY_OBJECT);
+        } else if (clazz == StudyRole.class) {
+            return getFiltered(mode, HASCO.STUDY_ROLE);
+        } else if (clazz == VirtualColumn.class) {
+            return getFiltered(mode, HASCO.VIRTUAL_COLUMN);
         } 
         return getFiltered(mode, "NONE");
     }

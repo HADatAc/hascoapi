@@ -12,6 +12,7 @@ import org.apache.jena.update.UpdateExecutionFactory;
 import org.apache.jena.update.UpdateFactory;
 import org.apache.jena.update.UpdateProcessor;
 import org.apache.jena.update.UpdateRequest;
+import org.hascoapi.Constants;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.SPARQLUtils;
@@ -248,6 +249,8 @@ public class SOCGroup extends HADatAcThing {
 
         if (!getNamedGraph().isEmpty()) {
             insert += " GRAPH <" + getNamedGraph() + "> { ";
+        } else {
+            insert += " GRAPH <" + Constants.DEFAULT_REPOSITORY + "> { ";
         }
 
         insert += uriStr + " a hasco:SOCGroup . ";
@@ -267,9 +270,8 @@ public class SOCGroup extends HADatAcThing {
             }
         }
 
-        if (!getNamedGraph().isEmpty()) {
-            insert += " } ";
-        }
+        // CLOSING NAMEDGRAPH
+        insert += " } ";
 
         insert += LINE_LAST;
 
@@ -305,6 +307,8 @@ public class SOCGroup extends HADatAcThing {
 
         if (!getNamedGraph().isEmpty()) {
             insert += " GRAPH <" + getNamedGraph() + "> { ";
+        } else {
+            insert += " GRAPH <" + Constants.DEFAULT_REPOSITORY + "> { ";
         }
 
         if (memberUri.startsWith("http")) {
@@ -313,9 +317,8 @@ public class SOCGroup extends HADatAcThing {
         	insert += " " + memberUri + "  hasco:isGroupMember " + uriStr + "  . ";
         }
 
-        if (!getNamedGraph().isEmpty()) {
-            insert += " } ";
-        }
+        // CLOSING NAMEDGRAPH
+        insert += " } ";
 
         insert += LINE_LAST;
 

@@ -287,18 +287,18 @@ public abstract class HADatAcThing {
         try {
             Class<?> currentClass = getClass();
             while(currentClass != null) {
-                //.out.println("inside HADatAcThing.generateRDFModel: currentClass: " + currentClass.getName());
-                //System.out.println("inside HADatAcThing.generateRDFModel(): hasURI: [" + uri + "]");
+                System.out.println("inside HADatAcThing.generateRDFModel: currentClass: " + currentClass.getName());
+                System.out.println("inside HADatAcThing.generateRDFModel(): hasURI: [" + uri + "]");
 
                 for (Field field: currentClass.getDeclaredFields()) {
-                    //System.out.println("inside HADatAcThing.saveToTripleStore(): field [" + field.getName() + "] or type [" + field.getType() + "]");
+                    System.out.println("inside HADatAcThing.saveToTripleStore(): field [" + field.getName() + "] or type [" + field.getType() + "]");
                     field.setAccessible(true);
                     if (field.isAnnotationPresent(Subject.class)) {
                         String uri = (String)field.get(this);
-                        //System.out.println("inside HADatAcThing.saveToTripleStore(): has Subject.class annotation present. hasUri=[" + uri + "]");
+                        System.out.println("inside HADatAcThing.saveToTripleStore(): has Subject.class annotation present. hasUri=[" + uri + "]");
                         if (URIUtils.isValidURI(uri)) {
                             row.put("hasURI", uri);
-                            //System.out.println("inside HADatAcThing.saveToTripleStore(): hasUri=[" + uri + "]");
+                            System.out.println("inside HADatAcThing.saveToTripleStore(): hasUri=[" + uri + "]");
                         } else {
                             System.out.println("[ERROR] URI [" + uri + "] IS NOT VALID");
                             return null;
@@ -322,17 +322,17 @@ public abstract class HADatAcThing {
                     if (field.isAnnotationPresent(PropertyField.class)) {
                         PropertyField propertyField = field.getAnnotation(PropertyField.class);
                         String propertyUri = propertyField.uri();
-                        //System.out.println("inside HADatAcThing.saveToTripleStore(): propertyUri=" + propertyField.uri());
+                        System.out.println("inside HADatAcThing.saveToTripleStore(): propertyUri=" + propertyField.uri());
 
                         if (field.getType().equals(String.class)) {
                             String value = (String)field.get(this);
                             if (value != null && !value.isEmpty()) {
-                                //System.out.println("in String assigned [" + value + "] to [" + propertyUri + "]");
+                                System.out.println("in String assigned [" + value + "] to [" + propertyUri + "]");
                                 row.put(propertyUri, value);
                             }
                         }
 
-                        //System.out.println("inside HADatAcThing.saveToTripleStore() (1) ");
+                        System.out.println("inside HADatAcThing.saveToTripleStore() (1) ");
 
                         if (field.getType().equals(List.class)) {
                             List<?> list = (List<?>)field.get(this);
@@ -346,7 +346,7 @@ public abstract class HADatAcThing {
                             }
                         }
 
-                        //System.out.println("inside HADatAcThing.saveToTripleStore() (2) ");
+                        System.out.println("inside HADatAcThing.saveToTripleStore() (2) ");
 
                         if (field.getType().equals(Integer.class)) {
                             row.put(propertyUri, ((Integer)field.get(this)).toString());
@@ -360,7 +360,7 @@ public abstract class HADatAcThing {
                             row.put(propertyUri, ((Long)field.get(this)).toString());
                         }
 
-                        //System.out.println("inside HADatAcThing.saveToTripleStore() (3) ");
+                        System.out.println("inside HADatAcThing.saveToTripleStore() (3) ");
                     }
                 }
 
@@ -376,13 +376,13 @@ public abstract class HADatAcThing {
             e.printStackTrace();
         }
 
-        //System.out.println("inside HADatAcThing.saveToTripleStore() (4) ");
+        System.out.println("inside HADatAcThing.saveToTripleStore() (4) ");
 
         if (!row.containsKey("hasURI")) {
             return null;
         }
 
-        //System.out.println("inside HADatAcThing.saveToTripleStore() (5) ");
+        System.out.println("inside HADatAcThing.saveToTripleStore() (5) ");
 
 
         String objUri = (String)row.get("hasURI");
@@ -400,8 +400,8 @@ public abstract class HADatAcThing {
         }
         reversed_rows.add(row);
         if (getNamedGraph() == null || getNamedGraph().isEmpty()) {
-            //System.out.println("Default URL: [" + RepositoryInstance.getInstance().getHasDefaultNamespaceURL() + "]");
-            //System.out.println("Default Abbrev: [" + RepositoryInstance.getInstance().getHasDefaultNamespaceAbbreviation() + "]");
+            System.out.println("Default URL: [" + RepositoryInstance.getInstance().getHasDefaultNamespaceURL() + "]");
+            System.out.println("Default Abbrev: [" + RepositoryInstance.getInstance().getHasDefaultNamespaceAbbreviation() + "]");
             if (RepositoryInstance.getInstance() != null && RepositoryInstance.getInstance().getHasDefaultNamespaceURL() != null) {
                 return MetadataFactory.createModel(reversed_rows,RepositoryInstance.getInstance().getHasDefaultNamespaceURL());
             } else {
@@ -454,6 +454,7 @@ public abstract class HADatAcThing {
                 model, CollectionUtil.getCollectionPath(
                         CollectionUtil.Collection.SPARQL_GRAPH));
 
+        System.out.println("For Uri " + uri + " num committed is " + numCommitted);
         return numCommitted >= 0;
     }
 

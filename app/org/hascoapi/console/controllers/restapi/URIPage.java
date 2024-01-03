@@ -72,10 +72,14 @@ public class URIPage extends Controller {
                 finalResult = StudyObject.find(uri);
             } else if (result.getHascoTypeUri().equals(HASCO.STUDY_OBJECT_COLLECTION)) {
                 finalResult = StudyObjectCollection.find(uri);
+            } else if (result.getHascoTypeUri().equals(HASCO.STUDY_ROLE)) {
+                finalResult = StudyRole.find(uri);
             } else if (result.getHascoTypeUri().equals(HASCO.SEMANTIC_VARIABLE)) {
                 finalResult = SemanticVariable.find(uri);
             } else if (result.getHascoTypeUri().equals(HASCO.SDD)) {
                 finalResult = SDD.find(uri);
+            } else if (result.getHascoTypeUri().equals(HASCO.VIRTUAL_COLUMN)) {
+                finalResult = VirtualColumn.find(uri);
             } else if (result.getHascoTypeUri().equals(SIO.ATTRIBUTE)) {
                 finalResult = Attribute.find(uri);
             } else if (result.getHascoTypeUri().equals(SIO.ENTITY)) {

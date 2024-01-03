@@ -75,6 +75,10 @@ public class GenericFind<T> {
             return StudyObjectCollection.class;
         } else if (elementType.equals("studyobject")) {
             return StudyObject.class;
+        } else if (elementType.equals("studyrole")) {
+            return StudyRole.class;
+        } else if (elementType.equals("virtualcolumn")) {
+            return VirtualColumn.class;
         } 
         return null;
     }
@@ -115,6 +119,8 @@ public class GenericFind<T> {
             return URIUtils.replaceNameSpace(HASCO.STUDY_OBJECT_COLLECTION);
         } else if (clazz == StudyObject.class) {
             return URIUtils.replaceNameSpace(HASCO.STUDY_OBJECT);
+        } else if (clazz == StudyRole.class) {
+            return URIUtils.replaceNameSpace(HASCO.STUDY_ROLE);
         }
         return null;
     }
@@ -141,6 +147,8 @@ public class GenericFind<T> {
             return URIUtils.replaceNameSpace(SIO.ATTRIBUTE);
         } else if (clazz == Unit.class) {
             return URIUtils.replaceNameSpace(SIO.UNIT);
+        } else if (clazz == VirtualColumn.class) {
+            return URIUtils.replaceNameSpace(HASCO.VIRTUAL_COLUMN);
         } 
         return null;
     }
@@ -253,6 +261,7 @@ public class GenericFind<T> {
                 " ?type rdfs:subClassOf* " + className + " . " +
                 " ?uri a ?type ." +
                 "}";
+        //System.out.println("findTotalInstances: " + queryString);
         return findTotalByQuery(queryString);
     }
 
@@ -537,6 +546,7 @@ public class GenericFind<T> {
 
 	public List<T> findByManagerEmailWithPages(Class clazz, String managerEmail, int pageSize, int offset) {
         String className = classNameWithNamespace(clazz);
+        //System.out.println("findByManagerEmailWithPages: Clazz=[" + clazz + "]");
         if (className != null) {
             if (clazz == Detector.class) {
               return findDetectorInstancesByManagerEmailWithPages(clazz, className, managerEmail, pageSize, offset);
@@ -596,6 +606,7 @@ public class GenericFind<T> {
 				" ORDER BY ASC(?label) " +
 				" LIMIT " + pageSize +
 				" OFFSET " + offset;
+        System.out.println("findInstancesByManagerEmailWithPages: clazz: " + clazz);
 		return findByQuery(clazz, queryString);
 	}
 
@@ -610,6 +621,7 @@ public class GenericFind<T> {
 				" ORDER BY ASC(?label) " +
 				" LIMIT " + pageSize +
 				" OFFSET " + offset;
+        System.out.println("subclasses: " + queryString);
 		return findByQuery(clazz, queryString);
 	}
 
@@ -672,6 +684,8 @@ public class GenericFind<T> {
             return (T)StudyObjectCollectionType.find(uri);
         } else if (clazz == StudyObjectType.class) {
             return (T)StudyObjectType.find(uri);
+        } else if (clazz == VirtualColumn.class) {
+            return (T)VirtualColumn.find(uri);
 
         // List of elements
         } else if (clazz == Instrument.class) {
@@ -708,6 +722,8 @@ public class GenericFind<T> {
             return (T)StudyObjectCollection.find(uri);
         } else if (clazz == StudyObject.class) {
             return (T)StudyObject.find(uri);
+        } else if (clazz == StudyRole.class) {
+            return (T)StudyRole.find(uri);
         }
         return null;
     

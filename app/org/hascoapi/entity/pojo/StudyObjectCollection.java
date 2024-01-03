@@ -18,11 +18,13 @@ import org.apache.jena.update.UpdateExecutionFactory;
 import org.apache.jena.update.UpdateFactory;
 import org.apache.jena.update.UpdateProcessor;
 import org.apache.jena.update.UpdateRequest;
+import org.hascoapi.Constants;
 import org.hascoapi.utils.CollectionUtil;
-import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.FirstLabel;
-import org.hascoapi.utils.URIUtils;
+import org.hascoapi.utils.GSPClient;
+import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.SPARQLUtils;
+import org.hascoapi.utils.URIUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,14 +43,16 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
     public static String INDENT1 = "   ";
     public static String INSERT_LINE1 = "INSERT DATA {  ";
     public static String DELETE_LINE1 = "DELETE WHERE {  ";
-    public static String LINE3 = INDENT1 + "a         hasco:StudyObjectCollection;  ";
+    public static String LINE3 = INDENT1 + "a hasco:StudyObjectCollection;  ";
     public static String DELETE_LINE3 = INDENT1 + " ?p ?o . ";
     public static String DELETE_LINE4 = "  hasco:hasLastCounter ?o . ";
     public static String LINE_LAST = "}  ";
 
-    private String studyUri = "";
+    //private String studyUri = "";
+    private String isMemberOf = "";
     private String hasVirtualColumnUri = "";
     private String hasRoleLabel = "";
+    private String hasSIRManagerEmail = "";
     private String hasLastCounter = "0";
     private String hasScopeUri = "";
     private VirtualColumn virtualColumn = null;
@@ -61,10 +65,12 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
     public StudyObjectCollection() {
         this.uri = "";
         this.typeUri = "";
+        this.hascoTypeUri = "";
         this.label = "";
         this.comment = "";
-        this.studyUri = "";
+        this.isMemberOf = "";
         this.hasRoleLabel = "";
+        this.hasSIRManagerEmail = "";
         this.hasVirtualColumnUri = "";
         this.hasLastCounter = "0";
         this.hasScopeUri = "";
@@ -76,11 +82,13 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
     public StudyObjectCollection(
             String uri,
             String typeUri,
+            String hascoTypeUri,
             String label,
             String comment,
-            String studyUri,
+            String isMemberOf,
             String hasVirtualColumnUri,
             String hasRoleLabel,
+            String hasSIRManagerEmail,
             String hasScopeUri,
             List<String> spaceScopeUris,
             List<String> timeScopeUris,
@@ -88,11 +96,13 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
             String hasLastCounter) {
         this.setUri(uri);
         this.setTypeUri(typeUri);
+        this.setHascoTypeUri(hascoTypeUri);
         this.setLabel(label);
         this.setComment(comment);
-        this.setStudyUri(studyUri);
+        this.setIsMemberOf(isMemberOf);
         this.setVirtualColumnUri(hasVirtualColumnUri);
         this.setRoleLabel(hasRoleLabel);
+        this.setHasSIRManagerEmail(hasSIRManagerEmail);
         this.setHasScopeUri(hasScopeUri);
         this.setSpaceScopeUris(spaceScopeUris);
         this.setTimeScopeUris(timeScopeUris);
@@ -102,16 +112,19 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
 
     public StudyObjectCollection(String uri,
             String typeUri,
+            String hascoTypeUri,
             String label,
             String comment,
             String studyUri) {
         this.setUri(uri);
         this.setTypeUri(typeUri);
+        this.setHascoTypeUri(hascoTypeUri);
         this.setLabel(label);
         this.setComment(comment);
-        this.setStudyUri(studyUri);
+        this.setIsMemberOf(studyUri);
         this.setVirtualColumnUri("");
         this.setRoleLabel("");
+        this.setHasSIRManagerEmail("");
         this.setHasScopeUri("");
         this.setSpaceScopeUris(spaceScopeUris);
         this.setTimeScopeUris(timeScopeUris);
@@ -151,11 +164,9 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         increaseNextCounter();
         return hasLastCounter;
     }
-
     public void setLastCounter(String hasLastCounter) {
         this.hasLastCounter = hasLastCounter;
     }
-
     private void increaseNextCounter() {
         long longCounter = Long.parseLong(hasLastCounter) + 1;
         hasLastCounter = String.valueOf(longCounter);
@@ -163,16 +174,20 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         // in triple store, delete existing counter
         String query = "";
 
-        String soc_uri = "";
+        String socUri = "";
         if (this.getUri().startsWith("<")) {
-            soc_uri = this.getUri();
+            socUri = this.getUri();
         } else {
-            soc_uri = "<" + this.getUri() + ">";
+            socUri = "<" + this.getUri() + ">";
         }
 
         query += NameSpaces.getInstance().printSparqlNameSpaceList();
         query += DELETE_LINE1;
-        query += "GRAPH <"+getNamedGraph()+"> { " + soc_uri + "  ";
+        if (getNamedGraph() != null && !getNamedGraph().isEmpty()) {
+            query += "GRAPH <" + getNamedGraph() + "> { " + socUri + "  ";
+        } else {
+            query += "GRAPH <" + Constants.DEFAULT_REPOSITORY + "> { " + socUri + "  ";
+        }
         query += DELETE_LINE4;
         query += LINE_LAST+LINE_LAST;
 
@@ -189,13 +204,14 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
 
         if (!getNamedGraph().isEmpty()) {
             insert += " GRAPH <" + getNamedGraph() + "> { ";
+        } else {
+            insert += " GRAPH <" + Constants.DEFAULT_REPOSITORY + "> { ";
         }
 
-        insert += soc_uri + " hasco:hasLastCounter  \"" + this.hasLastCounter + "\" . ";
+        insert += socUri + " hasco:hasLastCounter  \"" + this.hasLastCounter + "\" . ";
 
-        if (!getNamedGraph().isEmpty()) {
-            insert += " } ";
-        }
+        // CLOSING NAMEDGRAPH
+        insert += " } ";
 
         insert += LINE_LAST;
 
@@ -211,15 +227,17 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
 
     }
 
-    public String getStudyUri() {
-        return studyUri;
-    }
-
+    //public String getStudyUri() {
+    //    return studyUri;
+    //}
+    //public void setStudyUri(String studyUri) {
+    //    this.studyUri = studyUri;
+    //}
     public Study getStudy() {
-        if (studyUri == null || studyUri.equals("")) {
+        if (isMemberOf == null || isMemberOf.isEmpty()) {
             return null;
         }
-        return Study.find(studyUri);
+        return Study.find(isMemberOf);
     }
 
     public boolean isDomainCollection() {
@@ -241,10 +259,6 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
             return false;
         }
         return typeUri.equals(TIME_COLLECTION);
-    }
-
-    public void setStudyUri(String studyUri) {
-        this.studyUri = studyUri;
     }
 
     public List<String> getObjectUris() {
@@ -298,7 +312,9 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
     public String getHasScopeUri() {
         return hasScopeUri;
     }
-
+    public void setHasScopeUri(String hasScopeUri) {
+        this.hasScopeUri = hasScopeUri;
+    }
     public StudyObjectCollection getHasScope() {
         if (hasScopeUri == null || hasScopeUri.equals("")) {
             return null;
@@ -306,23 +322,17 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         return StudyObjectCollection.find(hasScopeUri);
     }
 
-    public void setVirtualColumnUri(String vcUri) {
-        this.hasVirtualColumnUri = vcUri;
-    }
-
     public String getVirtualColumnUri() {
         return hasVirtualColumnUri;
     }
-
+    public void setVirtualColumnUri(String vcUri) {
+        this.hasVirtualColumnUri = vcUri;
+    }
     public VirtualColumn getVirtualColumn() {
         if (null == virtualColumn || !virtualColumn.getUri().equals(hasVirtualColumnUri)) {
             virtualColumn = VirtualColumn.find(hasVirtualColumnUri);
         }
         return virtualColumn;
-    }
-
-    public void setHasScopeUri(String hasScopeUri) {
-        this.hasScopeUri = hasScopeUri;
     }
 
     public String getSOCReference() {
@@ -344,15 +354,30 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
     public void setRoleLabel(String roleLabel) {
         this.hasRoleLabel = roleLabel;
     }
-
     public String getRoleLabel() {
         return hasRoleLabel;
+    }
+
+    public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
+        this.hasSIRManagerEmail = hasSIRManagerEmail;
+    }
+    public String getHasSIRManagerEmail() {
+        return hasSIRManagerEmail;
+    }
+
+    public void setIsMemberOf(String isMemberOf) {
+        this.isMemberOf = isMemberOf;
+    }
+    public String getIsMemberOf() {
+        return isMemberOf;
     }
 
     public List<String> getSpaceScopeUris() {
         return spaceScopeUris;
     }
-
+    public void setSpaceScopeUris(List<String> spaceScopeUris) {
+        this.spaceScopeUris = spaceScopeUris;
+    }
     public List<StudyObjectCollection> getSpaceScopes() {
         if (spaceScopeUris == null || spaceScopeUris.isEmpty()) {
             return null;
@@ -367,14 +392,12 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         return spaceScopes;
     }
 
-    public void setSpaceScopeUris(List<String> spaceScopeUris) {
-        this.spaceScopeUris = spaceScopeUris;
-    }
-
     public List<String> getTimeScopeUris() {
         return timeScopeUris;
     }
-
+    public void setTimeScopeUris(List<String> timeScopeUris) {
+        this.timeScopeUris = timeScopeUris;
+    }
     public List<StudyObjectCollection> getTimeScopes() {
         if (timeScopeUris == null || timeScopeUris.equals("")) {
             return null;
@@ -389,14 +412,13 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         return timeScopes;
     }
 
-    public void setTimeScopeUris(List<String> timeScopeUris) {
-        this.timeScopeUris = timeScopeUris;
-    }
 
     public List<String> getGroupUris() {
         return groupUris;
     }
-
+    public void setGroupUris(List<String> groupUris) {
+        this.groupUris = groupUris;
+    }
     public List<SOCGroup> getGroups() {
         if (groupUris == null || groupUris.equals("")) {
             return null;
@@ -409,10 +431,6 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
             }
         }
         return groups;
-    }
-
-    public void setGroupUris(List<String> groupUris) {
-        this.groupUris = groupUris;
     }
 
     public long getNumOfObjects() {
@@ -432,37 +450,37 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         return 0;
     }
 
-    public boolean isConnected(StudyObjectCollection oc) {
+    public boolean isConnected(StudyObjectCollection soc) {
 
         // Check if oc is valid
-        if (oc.getUri() == null || oc.getUri().equals("")) {
+        if (soc.getUri() == null || soc.getUri().equals("")) {
             return false;
         }
 
         // Check if oc is in scope of current object collection
         if (this.hasScopeUri != null && !this.hasScopeUri.equals("")) {
             StudyObjectCollection domainScope = StudyObjectCollection.find(this.hasScopeUri);
-            if (oc.equals(domainScope)) {
+            if (soc.equals(domainScope)) {
                 return true;
             }
         }
         if (this.getTimeScopes() != null && this.getTimeScopes().size() > 0) {
             List<StudyObjectCollection> timeScopes = this.getTimeScopes();
-            if (timeScopes.contains(oc)) {
+            if (timeScopes.contains(soc)) {
                 return true;
             }
         }
 
         // Check if current is in scope of oc
-        if (oc.getHasScopeUri() != null && !oc.getHasScopeUri().equals("")) {
-            StudyObjectCollection ocDomainScope = StudyObjectCollection.find(oc.hasScopeUri);
-            if (this.equals(ocDomainScope)) {
+        if (soc.getHasScopeUri() != null && !soc.getHasScopeUri().equals("")) {
+            StudyObjectCollection socDomainScope = StudyObjectCollection.find(soc.hasScopeUri);
+            if (this.equals(socDomainScope)) {
                 return true;
             }
         }
-        if (oc.getTimeScopes() != null && oc.getTimeScopes().size() > 0) {
-            List<StudyObjectCollection> ocTimeScopes = oc.getTimeScopes();
-            if (ocTimeScopes.contains(this)) {
+        if (soc.getTimeScopes() != null && soc.getTimeScopes().size() > 0) {
+            List<StudyObjectCollection> socTimeScopes = soc.getTimeScopes();
+            if (socTimeScopes.contains(this)) {
                 return true;
             }
         }
@@ -504,12 +522,12 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         return count;
     }// /getCollectionSize()
 
-    private static List<String> retrieveSpaceScope(String soc_uri) {
+    private static List<String> retrieveSpaceScope(String socUri) {
         List<String> scopeUris = new ArrayList<String>();
         String scopeUri = ""; 
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + 
                 "SELECT ?spaceScopeUri WHERE { \n" + 
-                " <" + soc_uri + "> hasco:hasSpaceScope ?spaceScopeUri . \n" + 
+                " <" + socUri + "> hasco:hasSpaceScope ?spaceScopeUri . \n" + 
                 "}";
 
         ResultSetRewindable resultsrw = SPARQLUtils.select(
@@ -533,12 +551,12 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         return scopeUris;
     }
 
-    private static List<String> retrieveTimeScope(String soc_uri) {
+    private static List<String> retrieveTimeScope(String socUri) {
         List<String> scopeUris = new ArrayList<String>();
         String scopeUri = "";
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + 
                 "SELECT  ?timeScopeUri WHERE { " + 
-                " <" + soc_uri + "> hasco:hasTimeScope ?timeScopeUri . " + 
+                " <" + socUri + "> hasco:hasTimeScope ?timeScopeUri . " + 
                 "}";
 
         ResultSetRewindable resultsrw = SPARQLUtils.select(
@@ -562,12 +580,12 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         return scopeUris;
     }
 
-    private static List<String> retrieveGroup(String soc_uri) {
+    private static List<String> retrieveGroup(String socUri) {
         List<String> groupUris = new ArrayList<String>();
         String groupUri = "";
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + 
                 "SELECT  ?groupUri WHERE { " + 
-                " <" + soc_uri + "> hasco:hasGroup ?groupUri . " + 
+                " <" + socUri + "> hasco:hasGroup ?groupUri . " + 
                 "}";
 
         ResultSetRewindable resultsrw = SPARQLUtils.select(
@@ -591,12 +609,12 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         return groupUris;
     }
 
-    public static List<StudyObjectCollection> findMatchingScopeCollections(String soc_uri) {
+    public static List<StudyObjectCollection> findMatchingScopeCollections(String socUri) {
 
     	List<StudyObjectCollection> matchingSOCs = new ArrayList<StudyObjectCollection>(); 
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + 
                 "SELECT ?matchingUri WHERE { \n" + 
-                "  ?matchingUri hasco:hasScope <" + soc_uri + "> . \n" + 
+                "  ?matchingUri hasco:hasScope <" + socUri + "> . \n" + 
                 "  ?matchingUri a <" + StudyObjectCollection.MATCHING_COLLECTION + "> . \n" + 
                 "}";
 
@@ -621,35 +639,39 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         return matchingSOCs;
     }
 
-    public static StudyObjectCollection find(String soc_uri) {
-        StudyObjectCollection oc = null;
+    public static StudyObjectCollection find(String socUri) {
+        StudyObjectCollection soc = null;
 
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + 
-                "SELECT ?ocType ?comment ?studyUri ?hasScopeUri ?hasRoleLabel ?hasVirtualColumnUri ?spaceScopeUri ?timeScopeUri ?lastCounter WHERE { \n" + 
-                "    <" + soc_uri + "> a ?ocType . \n" + 
-                "    <" + soc_uri + "> hasco:isMemberOf ?studyUri . \n" + 
-                "    OPTIONAL { <" + soc_uri + "> rdfs:comment ?comment } . \n" + 
-                "    OPTIONAL { <" + soc_uri + "> hasco:hasScope ?hasScopeUri } . \n" + 
-                "    OPTIONAL { <" + soc_uri + "> hasco:hasReference ?hasVirtualColumnUri } . \n" + 
-                "    OPTIONAL { <" + soc_uri + "> hasco:hasRoleLabel ?hasRoleLabel } . \n" + 
-                "    OPTIONAL { <" + soc_uri + "> hasco:hasLastCounter ?lastCounter } . \n" + 
+                "SELECT ?socType ?hascoType ?comment ?isMemberOf ?hasScopeUri ?hasRoleLabel ?hasSIRManagerEmail ?hasVirtualColumnUri ?spaceScopeUri ?timeScopeUri ?lastCounter WHERE { \n" + 
+                "    <" + socUri + "> a ?socType . \n" + 
+                "    <" + socUri + "> hasco:isMemberOf ?isMemberOf . \n" + 
+                "    OPTIONAL { <" + socUri + "> hasco:hascoType ?hascoType } . \n" + 
+                "    OPTIONAL { <" + socUri + "> rdfs:comment ?comment } . \n" + 
+                "    OPTIONAL { <" + socUri + "> hasco:hasScope ?hasScopeUri } . \n" + 
+                "    OPTIONAL { <" + socUri + "> hasco:hasVirtualColumn ?hasVirtualColumnUri } . \n" + 
+                "    OPTIONAL { <" + socUri + "> hasco:hasRoleLabel ?hasRoleLabel } . \n" + 
+                "    OPTIONAL { <" + socUri + "> vstoi:hasSIRManagerEmail ?hasSIRManagerEmail } . \n" + 
+                "    OPTIONAL { <" + socUri + "> hasco:hasLastCounter ?lastCounter } . \n" + 
                 "}";
 
         ResultSetRewindable resultsrw = SPARQLUtils.select(
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
         if (!resultsrw.hasNext()) {
-            System.out.println("[WARNING] StudyObjectCollection. Could not find OC with URI: <" + soc_uri + ">");
-            return oc;
+            System.out.println("[WARNING] StudyObjectCollection. Could not find OC with URI: <" + socUri + ">");
+            return soc;
         }
 
         String typeStr = "";
+        String hascoTypeStr = "";
         String labelStr = "";
-        String studyUriStr = "";
+        String isMemberOfStr = "";
         String commentStr = "";
         String hasScopeUriStr = "";
         String hasVirtualColumnUriStr = "";
         String hasRoleLabelStr = "";
+        String hasSIRManagerEmailStr = "";
         String lastCounterStr = "0";
         List<String> spaceScopeUrisStr = new ArrayList<String>();
         List<String> timeScopeUrisStr = new ArrayList<String>();
@@ -660,21 +682,29 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
             if (soln != null) {
 
                 try {
-                    if (soln.getResource("ocType") != null && soln.getResource("ocType").getURI() != null) {
-                        typeStr = soln.getResource("ocType").getURI();
+                    if (soln.getResource("socType") != null && soln.getResource("socType").getURI() != null) {
+                        typeStr = soln.getResource("socType").getURI();
                     }
                 } catch (Exception e1) {
                     typeStr = "";
                 }
 
-                labelStr = FirstLabel.getLabel(soc_uri);
-
                 try {
-                    if (soln.getResource("studyUri") != null && soln.getResource("studyUri").getURI() != null) {
-                        studyUriStr = soln.getResource("studyUri").getURI();
+                    if (soln.getResource("hascoType") != null && soln.getResource("hascoType").getURI() != null) {
+                        hascoTypeStr = soln.getResource("hascoType").getURI();
                     }
                 } catch (Exception e1) {
-                    studyUriStr = "";
+                    hascoTypeStr = "";
+                }
+
+                labelStr = FirstLabel.getLabel(socUri);
+
+                try {
+                    if (soln.getResource("isMemberOf") != null && soln.getResource("isMemberOf").getURI() != null) {
+                        isMemberOfStr = soln.getResource("isMemberOf").getURI();
+                    }
+                } catch (Exception e1) {
+                    isMemberOfStr = "";
                 }
 
                 try {
@@ -710,6 +740,14 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
                 }
 
                 try {
+                    if (soln.getLiteral("hasSIRManagerEmail") != null && soln.getLiteral("hasSIRManagerEmail").getString() != null) {
+                        hasSIRManagerEmailStr = soln.getLiteral("hasSIRManagerEmail").getString();
+                    }
+                } catch (Exception e1) {
+                    hasSIRManagerEmailStr = "";
+                }
+
+                try {
                     if (soln.getLiteral("lastCounter") != null && soln.getLiteral("lastCounter").getString() != null) {
                         lastCounterStr = soln.getLiteral("lastCounter").getString();
                     }
@@ -717,20 +755,22 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
                     lastCounterStr = "";
                 }
 
-                spaceScopeUrisStr = retrieveSpaceScope(soc_uri);
+                spaceScopeUrisStr = retrieveSpaceScope(socUri);
 
-                timeScopeUrisStr = retrieveTimeScope(soc_uri);
+                timeScopeUrisStr = retrieveTimeScope(socUri);
 
-                groupUrisStr = retrieveGroup(soc_uri);
+                groupUrisStr = retrieveGroup(socUri);
 
-                oc = new StudyObjectCollection(
-                        soc_uri, 
-                        typeStr, 
+                soc = new StudyObjectCollection(
+                        socUri, 
+                        typeStr,
+                        hascoTypeStr, 
                         labelStr, 
                         commentStr, 
-                        studyUriStr,  
+                        isMemberOfStr,  
                         hasVirtualColumnUriStr, 
-                        hasRoleLabelStr, 
+                        hasRoleLabelStr,
+                        hasSIRManagerEmailStr, 
                         hasScopeUriStr, 
                         spaceScopeUrisStr, 
                         timeScopeUrisStr,
@@ -742,7 +782,7 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         // retrieve URIs of objects that are member of the collection
         String queryMemberStr = NameSpaces.getInstance().printSparqlNameSpaceList() + 
                 "SELECT  ?uriMember WHERE { \n" + 
-                "    ?uriMember hasco:isMemberOf <" + soc_uri + "> . \n" + 
+                "    ?uriMember hasco:isMemberOf <" + socUri + "> . \n" + 
                 "}";
 
         ResultSetRewindable resultsrwMember = SPARQLUtils.select(
@@ -757,7 +797,7 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
                     try {
                         if (soln.getResource("uriMember") != null && soln.getResource("uriMember").getURI() != null) {
                             uriMemberStr = soln.getResource("uriMember").getURI();
-                            oc.getObjectUris().add(uriMemberStr);
+                            soc.getObjectUris().add(uriMemberStr);
                         }
                     } catch (Exception e1) {
                         uriMemberStr = "";
@@ -766,20 +806,20 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
             }
         }
 
-        return oc;
+        return soc;
     }
 
     public static List<StudyObjectCollection> findDomainByStudyUri(String studyUri) {
-        List<StudyObjectCollection> ocList = new ArrayList<StudyObjectCollection>();
-        for (StudyObjectCollection oc : StudyObjectCollection.findByStudyUri(studyUri)) {
-            if (oc.isDomainCollection()) {
-                ocList.add(oc);
+        List<StudyObjectCollection> socList = new ArrayList<StudyObjectCollection>();
+        for (StudyObjectCollection soc : StudyObjectCollection.findSOCsByStudy(studyUri)) {
+            if (soc.isDomainCollection()) {
+                socList.add(soc);
             }
         }
-        return ocList;
+        return socList;
     }
 
-    public static List<StudyObjectCollection> findByStudyUri(String studyUri) {
+    public static List<StudyObjectCollection> findSOCsByStudy(String studyUri) {
         if (studyUri == null) {
             return null;
         }
@@ -787,10 +827,11 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
 
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + 
                 "SELECT ?uri WHERE { \n" + 
-                "   ?ocType rdfs:subClassOf* hasco:StudyObjectCollection . \n" +
-                "   ?uri a ?ocType . \n" +
+                "   ?socType rdfs:subClassOf* hasco:StudyObjectCollection . \n" +
+                "   ?uri a ?socType . \n" +
                 "   ?uri hasco:isMemberOf <" + studyUri + "> . \n" +
                 " } ";
+        System.out.println("findSOCsByStudy: query=[" + queryString + "]");
         ResultSetRewindable resultsrw = SPARQLUtils.select(
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
@@ -809,7 +850,7 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
             return null;
         }
         Map<String, String> labelsMap = new HashMap<String, String>();
-        List<StudyObjectCollection> socList = findByStudyUri(studyUri);
+        List<StudyObjectCollection> socList = findSOCsByStudy(studyUri);
 
         for (StudyObjectCollection soc : socList) {
             if (soc.getGroundingLabel() != null && !soc.getGroundingLabel().equals("")) {
@@ -848,7 +889,7 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         return "";
     }
 
-    private void saveObjectUris(String ssoc_uri) {
+    private void saveObjectUris(String ssocUri) {
         if (objectUris == null || objectUris.size() == 0) {
             return;
         }
@@ -860,9 +901,9 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         for (String uri : objectUris) {
             if (uri != null && !uri.equals("")) {
                 if (uri.startsWith("http")) {
-                    insert += "  <" + uri + "> hasco:isMemberOf  " + ssoc_uri + " . ";
+                    insert += "  <" + uri + "> hasco:isMemberOf  " + ssocUri + " . ";
                 } else {
-                    insert += "  " + uri + " hasco:isMemberOf  " + ssoc_uri + " . ";
+                    insert += "  " + uri + " hasco:isMemberOf  " + ssocUri + " . ";
                 }
             }
         }
@@ -874,14 +915,22 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
     }
 
     @Override
+    public void save() {
+        System.out.println("StudyObjectCollection. Saving. Study: " + getIsMemberOf() + " VC: " + getVirtualColumn());
+        saveToTripleStore();
+        System.out.println("StudyObjectCollection. Saving. Executed saveToTripleStore()");
+        return;
+    }
+
+    @Override
     public boolean saveToTripleStore() {
         String insert = "";
 
-        String soc_uri = "";
+        String socUri = "";
         if (this.getUri().startsWith("<")) {
-            soc_uri = this.getUri();
+            socUri = this.getUri();
         } else {
-            soc_uri = "<" + this.getUri() + ">";
+            socUri = "<" + this.getUri() + ">";
         }
 
         insert += NameSpaces.getInstance().printSparqlNameSpaceList();
@@ -889,43 +938,49 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
 
         if (!getNamedGraph().isEmpty()) {
             insert += " GRAPH <" + getNamedGraph() + "> { ";
+        } else {
+            insert += " GRAPH <" + Constants.DEFAULT_REPOSITORY + "> { ";
         }
 
-        insert += soc_uri + " a <" + typeUri + "> . ";
-        insert += soc_uri + " rdfs:label  \"" + this.getLabel() + "\" . ";
-        if (this.getStudyUri().startsWith("http")) {
-            insert += soc_uri + " hasco:isMemberOf  <" + this.getStudyUri() + "> . ";
+        insert += socUri + " a <" + typeUri + "> . ";
+        insert += socUri + " hasco:hascoType <" + hascoTypeUri + "> . ";
+        insert += socUri + " rdfs:label  \"" + this.getLabel() + "\" . ";
+        if (this.getIsMemberOf().startsWith("http")) {
+            insert += socUri + " hasco:isMemberOf  <" + this.getIsMemberOf() + "> . ";
         } else {
-            insert += soc_uri + " hasco:isMemberOf  " + this.getStudyUri() + " . ";
+            insert += socUri + " hasco:isMemberOf  " + this.getIsMemberOf() + " . ";
         }
         if (this.getComment() != null && !this.getComment().equals("")) {
-            insert += soc_uri + " rdfs:comment  \"" + this.getComment() + "\" . ";
+            insert += socUri + " rdfs:comment  \"" + this.getComment() + "\" . ";
         }
         if (this.getHasScopeUri() != null && !this.getHasScopeUri().equals("")) {
             if (this.getHasScopeUri().startsWith("http")) {
-                insert += soc_uri + " hasco:hasScope  <" + this.getHasScopeUri() + "> . ";
+                insert += socUri + " hasco:hasScope  <" + this.getHasScopeUri() + "> . ";
             } else {
-                insert += soc_uri + " hasco:hasScope  " + this.getHasScopeUri() + " . ";
+                insert += socUri + " hasco:hasScope  " + this.getHasScopeUri() + " . ";
             }
         }
         /*
         if (this.getGroundingLabel() != null && !this.getGroundingLabel().equals("")) {
-            insert += soc_uri + " hasco:hasGroundingLabel  \"" + this.getGroundingLabel() + "\" . ";
+            insert += socUri + " hasco:hasGroundingLabel  \"" + this.getGroundingLabel() + "\" . ";
         }*/
         if (this.getVirtualColumnUri() != null && !this.getVirtualColumnUri().equals("")) {
-            insert += soc_uri + " hasco:hasReference  <" + this.getVirtualColumnUri() + "> . ";
+            insert += socUri + " hasco:hasVirtualColumn  <" + this.getVirtualColumnUri() + "> . ";
         }
         if (this.getRoleLabel() != null && !this.getRoleLabel().equals("")) {
-            insert += soc_uri + " hasco:hasRoleLabel  \"" + this.getRoleLabel() + "\" . ";
+            insert += socUri + " hasco:hasRoleLabel  \"" + this.getRoleLabel() + "\" . ";
         }
-        insert += soc_uri + " hasco:hasLastCounter  \"" + this.hasLastCounter + "\" . ";
+        if (this.getHasSIRManagerEmail() != null && !this.getHasSIRManagerEmail().equals("")) {
+            insert += socUri + " vstoi:hasSIRManagerEmail  \"" + this.getHasSIRManagerEmail() + "\" . ";
+        }
+        insert += socUri + " hasco:hasLastCounter  \"" + this.hasLastCounter + "\" . ";
         if (this.getSpaceScopeUris() != null && this.getSpaceScopeUris().size() > 0) {
             for (String spaceScope : this.getSpaceScopeUris()) {
                 if (spaceScope.length() > 0){
                     if (spaceScope.startsWith("http")) {
-                        insert += soc_uri + " hasco:hasSpaceScope  <" + spaceScope + "> . ";
+                        insert += socUri + " hasco:hasSpaceScope  <" + spaceScope + "> . ";
                     } else {
-                        insert += soc_uri + " hasco:hasSpaceScope  " + spaceScope + " . ";
+                        insert += socUri + " hasco:hasSpaceScope  " + spaceScope + " . ";
                     }
                 }
             }
@@ -934,10 +989,10 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
             for (String timeScope : this.getTimeScopeUris()) {
                 if (timeScope.length() > 0){
                     if (timeScope.startsWith("http")) {
-                        insert += soc_uri + " hasco:hasTimeScope  <" + timeScope + "> . ";
+                        insert += socUri + " hasco:hasTimeScope  <" + timeScope + "> . ";
                     } else {
-                        insert += soc_uri + " hasco:hasTimeScope  " + timeScope + " . ";
-                        //System.out.println(soc_uri + " hasco:hasTimeScope  " + timeScope + " . ");
+                        insert += socUri + " hasco:hasTimeScope  " + timeScope + " . ";
+                        //System.out.println(socUri + " hasco:hasTimeScope  " + timeScope + " . ");
                     }
                 }
             }
@@ -946,20 +1001,21 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
             for (String group : this.getGroupUris()) {
                 if (group.length() > 0){
                     if (group.startsWith("http")) {
-                        insert += soc_uri + " hasco:hasGroup  <" + group + "> . ";
+                        insert += socUri + " hasco:hasGroup  <" + group + "> . ";
                     } else {
-                        insert += soc_uri + " hasco:hasGroup  " + group + " . ";
-                        //System.out.println(soc_uri + " hasco:hasGroup  " + group + " . ");
+                        insert += socUri + " hasco:hasGroup  " + group + " . ";
+                        //System.out.println(socUri + " hasco:hasGroup  " + group + " . ");
                     }
                 }
             }
         }
 
-        if (!getNamedGraph().isEmpty()) {
-            insert += " } ";
-        }
+        // NAMEDGRAPH CLOSING
+        insert += " } ";
 
         insert += LINE_LAST;
+
+        System.out.println("save to TS: insert = " + insert);
 
         try {
             UpdateRequest request = UpdateFactory.create(insert);
@@ -971,7 +1027,7 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
             throw e;
         }
 
-        saveObjectUris(soc_uri);
+        saveObjectUris(socUri);
 
         return true;
     }
@@ -987,7 +1043,9 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         insert += NameSpaces.getInstance().printSparqlNameSpaceList();
         insert += INSERT_LINE1;
         if(!getNamedGraph().isEmpty()){
-            insert += "graph  <"+getNamedGraph()+"> { " ;
+            insert += " GRAPH  <" + getNamedGraph() + "> { " ;
+        } else {
+            insert += " GRAPH  <" + Constants.DEFAULT_REPOSITORY + "> { " ;
         }
         if (uri.startsWith("http")) {
             insert += "  <" + uri + "> hasco:hasRoleLabel \"" + label + "\" . ";
@@ -996,13 +1054,19 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
             insert += "  " + uri + " hasco:hasRoleLabel \"" + label + "\" . ";
         }
         insert += LINE_LAST;
-        if(!getNamedGraph().isEmpty()){
-            insert += LINE_LAST;
-        }
+        
+        // CLOSING OF NAMEDGRAPH
+        insert += LINE_LAST;
+        
         UpdateRequest request = UpdateFactory.create(insert);
         UpdateProcessor processor = UpdateExecutionFactory.createRemote(
                 request, CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
         processor.execute();
+    }
+
+    @Override
+    public void delete() {
+        deleteFromTripleStore();
     }
 
     @Override
@@ -1018,55 +1082,55 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
     	System.out.println("StudyObjectCollection: deleted SOC " + this.getLabel() + " and its " + totObj + " objects.");
     }
 
-    public static String computeRouteLabel (StudyObjectCollection oc, List<StudyObjectCollection> studyOCs) {
-        if (oc.getGroundingLabel() != null && !oc.getGroundingLabel().equals("")) {
-            return oc.getGroundingLabel();
+    public static String computeRouteLabel (StudyObjectCollection soc, List<StudyObjectCollection> studySOCs) {
+        if (soc.getGroundingLabel() != null && !soc.getGroundingLabel().equals("")) {
+            return soc.getGroundingLabel();
         } else {
-            List<StudyObjectCollection> ocList = new ArrayList<StudyObjectCollection>();
+            List<StudyObjectCollection> socList = new ArrayList<StudyObjectCollection>();
             List<StudyObjectCollection> allList = new ArrayList<StudyObjectCollection>();
             List<StudyObjectCollection> inspectedList = new ArrayList<StudyObjectCollection>();
-            ocList.add(oc);
-            for (StudyObjectCollection receivedOC : studyOCs) {
-                if (!receivedOC.equals(oc)) {
-                    allList.add(receivedOC);
-                    inspectedList.add(receivedOC);
+            socList.add(soc);
+            for (StudyObjectCollection receivedSOC : studySOCs) {
+                if (!receivedSOC.equals(soc)) {
+                    allList.add(receivedSOC);
+                    inspectedList.add(receivedSOC);
                 }
             } 
-            return traverseRouteLabel(ocList, allList, inspectedList);
+            return traverseRouteLabel(socList, allList, inspectedList);
         }
     }
 
     private static String traverseRouteLabel(List<StudyObjectCollection> path, List<StudyObjectCollection> inspectedList, List<StudyObjectCollection> allList) {
         //System.out.println("Path " + path);
         //System.out.println("StudyOCs " + inspectedList);
-        for (StudyObjectCollection oc : inspectedList) {
-            //System.out.println("    - oc " + oc.getUri());
+        for (StudyObjectCollection soc : inspectedList) {
+            //System.out.println("    - soc " + soc.getUri());
             //System.out.println("    - current.domain " + path.get(path.size() - 1).getHasScopeUri());
             //System.out.println("    - current.time " + path.get(path.size() - 1).getTimeScopes());
-            //System.out.println("    - oc.domain " + oc.getHasScopeUri());
-            //System.out.println("    - oc.time " + oc.getTimeScopes());
-            if (path.get(path.size() - 1).isConnected(oc)) {
-                //System.out.println(oc.getUri() + " is connected to " + path.get(path.size() - 1).getUri());
-                if (oc.getGroundingLabel() != null && !oc.getGroundingLabel().equals("")) {
-                    String finalLabel = oc.getGroundingLabel();
+            //System.out.println("    - soc.domain " + soc.getHasScopeUri());
+            //System.out.println("    - soc.time " + soc.getTimeScopes());
+            if (path.get(path.size() - 1).isConnected(soc)) {
+                //System.out.println(soc.getUri() + " is connected to " + path.get(path.size() - 1).getUri());
+                if (soc.getGroundingLabel() != null && !soc.getGroundingLabel().equals("")) {
+                    String finalLabel = soc.getGroundingLabel();
                     for (int i = path.size() - 1; i >= 0; i--) {
                         finalLabel = finalLabel + " " + path.get(i).getLabel();
                     }
                     //System.out.println(" final label ==> <" + finalLabel + ">");
                     return finalLabel;
                 } else {
-                    path.add(oc);
+                    path.add(soc);
                     List<StudyObjectCollection> newList = new ArrayList<StudyObjectCollection>();
-                    for (StudyObjectCollection ocFromAllList : allList) {
-                        if (!path.contains(ocFromAllList)) {
-                            newList.add(ocFromAllList);
+                    for (StudyObjectCollection socFromAllList : allList) {
+                        if (!path.contains(socFromAllList)) {
+                            newList.add(socFromAllList);
                         }
                     }
                     return traverseRouteLabel(path, newList, allList);
                 }
             } else {
                 //System.out.println("next iteration of traverseRouteLabel");
-                inspectedList.remove(oc);
+                inspectedList.remove(soc);
                 return traverseRouteLabel(path, inspectedList, allList);
             }
         }

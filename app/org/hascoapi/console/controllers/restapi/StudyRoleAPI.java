@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 import org.hascoapi.Constants;
-import org.hascoapi.entity.pojo.StudyObjectCollection;
+import org.hascoapi.entity.pojo.StudyRole;
 import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.HAScOMapper;
 import org.hascoapi.vocabularies.HASCO;
@@ -16,21 +16,16 @@ import play.mvc.Result;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 
-public class StudyObjectCollectionAPI extends Controller {
+public class StudyRoleAPI extends Controller {
 
-    public static Result getStudyObjectCollections(List<StudyObjectCollection> results){
+    public static Result getStudyRoles(List<StudyRole> results){
         if (results == null) {
-            return ok(ApiUtil.createResponse("No Study Object Collection has been found", false));
+            return ok(ApiUtil.createResponse("No Study Role has been found", false));
         } else {
-            ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL,HASCO.STUDY_OBJECT_COLLECTION);
+            ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL,HASCO.STUDY_ROLE);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));
         }
-    }
-
-    public Result getSOCsByStudy(String studyUri){
-        List<StudyObjectCollection> results = StudyObjectCollection.findSOCsByStudy(studyUri);
-        return getStudyObjectCollections(results);
     }
 
 }

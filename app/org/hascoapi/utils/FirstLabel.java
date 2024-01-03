@@ -5,6 +5,7 @@ import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSetRewindable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.hascoapi.Constants;
 
 public class FirstLabel {
 
@@ -85,10 +86,11 @@ public class FirstLabel {
         // if more than label is returned, use the one returned by the preferred namedGraph
 
         if ( namedGraph == null || namedGraph.isEmpty() ) {
-            namedGraph = ConfigFactory.load().getString("hadatac.graph.preferred");
-            if (namedGraph == null || namedGraph.isEmpty()) {
-                log.warn("multiple labels encounterred with URI " + uri + ", but no preferred graph is specified");
-            }
+            namedGraph = Constants.DEFAULT_REPOSITORY;
+            //namedGraph = ConfigFactory.load().getString("hadatac.graph.preferred");
+            //if (namedGraph == null || namedGraph.isEmpty()) {
+            //    log.warn("multiple labels encounterred with URI " + uri + ", but no preferred graph is specified");
+            //}
         }
 
         while (resultsrw.hasNext()) {

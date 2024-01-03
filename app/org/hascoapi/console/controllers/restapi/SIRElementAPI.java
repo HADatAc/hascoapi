@@ -228,6 +228,25 @@ public class SIRElementAPI extends Controller {
                 message = e.getMessage();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
+        } else if (clazz == StudyRole.class) {
+            try {
+                StudyRole object;
+                object = (StudyRole)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == VirtualColumn.class) {
+            try {
+                VirtualColumn object;
+                object = (VirtualColumn)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                System.out.println("Error processing vc: " + e.getMessage());
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
         } 
         if (!success) {
             return ok(ApiUtil.createResponse("Error processing JSON: " + message, false));
@@ -389,6 +408,18 @@ public class SIRElementAPI extends Controller {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
+        } else if (clazz == StudyRole.class) {
+            StudyRole object = StudyRole.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == VirtualColumn.class) {
+            VirtualColumn object = VirtualColumn.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
         } 
         return ok(ApiUtil.createResponse("Element with URI [" + uri + "] has been deleted", true));
     }
@@ -508,6 +539,14 @@ public class SIRElementAPI extends Controller {
             GenericFind<StudyObject> query = new GenericFind<StudyObject>();
             List<StudyObject> results = query.findByKeywordWithPages(StudyObject.class,keyword, pageSize, offset);
             return StudyObjectAPI.getStudyObjects(results);
+        }  else if (elementType.equals("studyrole")) {
+            GenericFind<StudyRole> query = new GenericFind<StudyRole>();
+            List<StudyRole> results = query.findByKeywordWithPages(StudyRole.class,keyword, pageSize, offset);
+            return StudyRoleAPI.getStudyRoles(results);
+        }  else if (elementType.equals("virtualcolumn")) {
+            GenericFind<VirtualColumn> query = new GenericFind<VirtualColumn>();
+            List<VirtualColumn> results = query.findByKeywordWithPages(VirtualColumn.class,keyword, pageSize, offset);
+            return VirtualColumnAPI.getVirtualColumns(results);
         } 
         return ok("No valid element type.");
     }
@@ -606,6 +645,14 @@ public class SIRElementAPI extends Controller {
             GenericFind<StudyObject> query = new GenericFind<StudyObject>();
             List<StudyObject> results = query.findByKeywordAndLanguageWithPages(StudyObject.class, keyword, language, pageSize, offset);
             return StudyObjectAPI.getStudyObjects(results);
+        }  else if (elementType.equals("studyrole")) {
+            GenericFind<StudyRole> query = new GenericFind<StudyRole>();
+            List<StudyRole> results = query.findByKeywordAndLanguageWithPages(StudyRole.class, keyword, language, pageSize, offset);
+            return StudyRoleAPI.getStudyRoles(results);
+        }  else if (elementType.equals("virtualcolumn")) {
+            GenericFind<VirtualColumn> query = new GenericFind<VirtualColumn>();
+            List<VirtualColumn> results = query.findByKeywordAndLanguageWithPages(VirtualColumn.class, keyword, language, pageSize, offset);
+            return VirtualColumnAPI.getVirtualColumns(results);
         } 
         return ok("No valid element type.");
     }
@@ -751,6 +798,21 @@ public class SIRElementAPI extends Controller {
             GenericFind<StudyObject> query = new GenericFind<StudyObject>();
             List<StudyObject> results = query.findByManagerEmailWithPages(StudyObject.class, managerEmail, pageSize, offset);
             return StudyObjectAPI.getStudyObjects(results);
+        }  else if (elementType.equals("studyrole")) {
+            GenericFind<StudyRole> query = new GenericFind<StudyRole>();
+            List<StudyRole> results = query.findByManagerEmailWithPages(StudyRole.class, managerEmail, pageSize, offset);
+            return StudyRoleAPI.getStudyRoles(results);
+        }  else if (elementType.equals("virtualcolumn")) {
+            GenericFind<VirtualColumn> query = new GenericFind<VirtualColumn>();
+            System.out.println("VC HERE 1");
+            List<VirtualColumn> results = query.findByManagerEmailWithPages(VirtualColumn.class, managerEmail, pageSize, offset);
+            System.out.println("VC HERE 2");
+            if (results == null) {            
+                System.out.println("     VC RESULTS NULL");
+            } else {
+                System.out.println("     VC RESULTS SIZE IS " + results.size());
+            }
+            return VirtualColumnAPI.getVirtualColumns(results);
         } 
         return ok("No valid element type.");
 

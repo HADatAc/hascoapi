@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.text.WordUtils;
 import org.apache.jena.query.QuerySolution;
@@ -24,7 +23,6 @@ import org.hascoapi.vocabularies.RDFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@JsonFilter("studyObjectCollectionTypeFilter")
 public class StudyObjectCollectionType extends HADatAcClass implements Comparable<StudyObjectCollectionType> {
 
 	private static final Logger log = LoggerFactory.getLogger(StudyObjectCollection.class);
