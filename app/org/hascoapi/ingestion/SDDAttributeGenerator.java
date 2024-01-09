@@ -25,6 +25,7 @@ public class SDDAttributeGenerator extends BaseGenerator {
     String startTime = "";
     String SDDName = "";
     String filename = "";
+    Templates templates;
     Map<String, String> codeMap;
     Map<String, List<String>> hasEntityMap = new HashMap<String, List<String>>();
     Map<String, List<String>> mergedEA = new HashMap<String, List<String>>();
@@ -32,13 +33,14 @@ public class SDDAttributeGenerator extends BaseGenerator {
     List<String> AttrList = new ArrayList<String>();
     Map<String, String> currentHasEntity = new HashMap<String, String>();
 
-    public SDDAttributeGenerator(DataFile dataFile, String SDDName, Map<String, String> codeMap, List<Map<String, List<String>>> merging) {
+    public SDDAttributeGenerator(DataFile dataFile, String SDDName, Map<String, String> codeMap, List<Map<String, List<String>>> merging, String templateFile) {
         super(dataFile);
         this.codeMap = codeMap;
         this.SDDName = SDDName;
         this.mergedEA = merging.get(0);
         this.mergedAA = merging.get(1);
         this.fileName = dataFile.getFilename();
+        this.templates = new Templates(templateFile);
         logger.println("[Merged Attributes] : " + mergedEA.keySet());
         logger.println("[Derived Attributes] : " + mergedAA.keySet());
 
@@ -60,17 +62,17 @@ public class SDDAttributeGenerator extends BaseGenerator {
     @Override
     public void initMapping() {
         mapCol.clear();
-        mapCol.put("Label", Templates.LABEL);
-        mapCol.put("AttributeType", Templates.ATTRIBUTETYPE);
-        mapCol.put("AttributeOf", Templates.ATTTRIBUTEOF);
-        mapCol.put("Unit", Templates.UNIT);
-        mapCol.put("Time", Templates.TIME);
-        mapCol.put("Entity", Templates.ENTITY);
-        mapCol.put("Role", Templates.ROLE);
-        mapCol.put("Relation", Templates.RELATION);
-        mapCol.put("InRelationTo", Templates.INRELATIONTO);
-        mapCol.put("WasDerivedFrom", Templates.WASDERIVEDFROM);       
-        mapCol.put("WasGeneratedBy", Templates.WASGENERATEDBY);
+        mapCol.put("Label", templates.getLABEL());
+        mapCol.put("AttributeType", templates.getATTRIBUTETYPE());
+        mapCol.put("AttributeOf", templates.getATTTRIBUTEOF());
+        mapCol.put("Unit", templates.getUNIT());
+        mapCol.put("Time", templates.getTIME());
+        mapCol.put("Entity", templates.getENTITY());
+        mapCol.put("Role", templates.getROLE());
+        mapCol.put("Relation", templates.getRELATION());
+        mapCol.put("InRelationTo", templates.getINRELATIONTO());
+        mapCol.put("WasDerivedFrom", templates.getWASDERIVEDFROM());       
+        mapCol.put("WasGeneratedBy", templates.getWASGENERATEDBY());
     }
 
     private String getLabel(Record rec) {

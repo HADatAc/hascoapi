@@ -63,6 +63,7 @@ public class SDD extends HADatAcThing {
     private Map<String, Map<String, String>> possibleValuesCache = new HashMap<String, Map<String, String>>();
     private DataFile sddfile = null;
     private IngestionLogger logger = null;
+    private Templates templates = null;
 
     @PropertyField(uri = "vstoi:hasStatus")    
     private String hasStatus;
@@ -223,11 +224,9 @@ public class SDD extends HADatAcThing {
     public String getUri() {
         return uri;
     }
-
     public String getUriNamespace() {
         return URIUtils.replaceNameSpaceEx(uri);
     }
-
     public void setUri(String uri) {
         this.uri = uri;
     }
@@ -235,7 +234,6 @@ public class SDD extends HADatAcThing {
     public String getLabel() {
         return label;
     }
-
     public void setLabel(String label) {
         this.label = label;
     }
@@ -243,7 +241,6 @@ public class SDD extends HADatAcThing {
     public String getHasVersion() {
         return hasVersion;
     }
-
     public void setHasVersion(String hasVersion) {
         this.hasVersion = hasVersion;
     }
@@ -251,11 +248,9 @@ public class SDD extends HADatAcThing {
     public String getHasDataFile() {
         return hasDataFileUri;
     }
-
     public void setHasDataFile(String hasDataFileUri) {
         this.hasDataFileUri = hasDataFileUri;
     }
-
     public DataFile getDataFile() {
         //System.out.println("Inside SDD.getDataFile(). hasDataFileuri is " + this.hasDataFileUri);
         DataFile dataFile = DataFile.find(this.hasDataFileUri);
@@ -265,7 +260,6 @@ public class SDD extends HADatAcThing {
     public String getHasStatus() {
         return hasStatus;
     }
-
     public void setHasStatus(String hasStatus) {
         this.hasStatus = hasStatus;
     }
@@ -273,7 +267,6 @@ public class SDD extends HADatAcThing {
     public String getTimestampLabel() {
         return timestampLabel;
     }
-
     public void setTimestampLabel(String timestampLabel) {
         this.timestampLabel = timestampLabel;
     }
@@ -281,7 +274,6 @@ public class SDD extends HADatAcThing {
     public String getTimeInstantLabel() {
         return timeInstantLabel;
     }
-
     public void setTimeInstantLabel(String timeInstantLabel) {
         this.timeInstantLabel = timeInstantLabel;
     }
@@ -289,7 +281,6 @@ public class SDD extends HADatAcThing {
     public String getNamedTimeLabel() {
         return namedTimeLabel;
     }
-
     public void setNamedTimeLabel(String namedTimeLabel) {
         this.namedTimeLabel = namedTimeLabel;
     }
@@ -297,7 +288,6 @@ public class SDD extends HADatAcThing {
     public String getIdLabel() {
         return idLabel;
     }
-
     public void setIdLabel(String idLabel) {
         this.idLabel = idLabel;
     }
@@ -305,7 +295,6 @@ public class SDD extends HADatAcThing {
     public String getOriginalIdLabel() {
         return originalIdLabel;
     }
-
     public void setOriginalIdLabel(String originalIdLabel) {
         this.originalIdLabel = originalIdLabel;
     }
@@ -313,7 +302,6 @@ public class SDD extends HADatAcThing {
     public String getLODLabel() {
         return lodLabel;
     }
-
     public void setLODLabel(String lodLabel) {
         this.lodLabel = lodLabel;
     }
@@ -321,7 +309,6 @@ public class SDD extends HADatAcThing {
     public String getGroupLabel() {
         return groupLabel;
     }
-
     public void setGroupLabel(String groupLabel) {
         this.groupLabel = groupLabel;
     }
@@ -329,7 +316,6 @@ public class SDD extends HADatAcThing {
     public String getMatchingLabel() {
         return matchingLabel;
     }
-
     public void setMatchingLabel(String matchingLabel) {
         this.matchingLabel = matchingLabel;
     }
@@ -337,7 +323,6 @@ public class SDD extends HADatAcThing {
     public String getHasSIRManagerEmail() {
         return hasSIRManagerEmail;
     }
-
     public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
         this.hasSIRManagerEmail = hasSIRManagerEmail;
     }
@@ -345,7 +330,6 @@ public class SDD extends HADatAcThing {
     public String getElevationLabel() {
         return elevationLabel;
     }
-
     public void setElevationLabel(String elevationLabel) {
         this.elevationLabel = elevationLabel;
     }
@@ -353,7 +337,6 @@ public class SDD extends HADatAcThing {
     public String getEntityLabel() {
         return entityLabel;
     }
-
     public void setEntityLabel(String entityLabel) {
         this.entityLabel = entityLabel;
     }
@@ -361,7 +344,6 @@ public class SDD extends HADatAcThing {
     public String getUnitLabel() {
         return unitLabel;
     }
-
     public void setUnitLabel(String unitLabel) {
         this.unitLabel = unitLabel;
     }
@@ -369,9 +351,12 @@ public class SDD extends HADatAcThing {
     public String getInRelationToLabel() {
         return inRelationToLabel;
     }
-
     public void setInRelationToLabel(String inRelationToLabel) {
         this.inRelationToLabel = inRelationToLabel;
+    }
+
+    public void setTemplates(String templateFile) {
+        this.templates = new Templates(templateFile);
     }
 
     public int getTotalSDDA() {
@@ -980,8 +965,8 @@ public class SDD extends HADatAcThing {
                 return false;
             }
 
-            mapAttrObj.put(record.getValueByColumnName(Templates.LABEL),
-                    record.getValueByColumnName(Templates.ATTTRIBUTEOF));
+            mapAttrObj.put(record.getValueByColumnName(templates.getLABEL()),
+                    record.getValueByColumnName(templates.getATTTRIBUTEOF()));
         }
 
         System.out.println("SDD: read Data Dictionary 3");
@@ -1049,8 +1034,8 @@ public class SDD extends HADatAcThing {
         }
 
         for (Record record : file.getRecords()) {
-            if (!record.getValueByColumnName(Templates.LABEL).isEmpty()) {
-                String colName = record.getValueByColumnName(Templates.LABEL);
+            if (!record.getValueByColumnName(templates.getLABEL()).isEmpty()) {
+                String colName = record.getValueByColumnName(templates.getLABEL());
                 Map<String, String> mapCodeClass = null;
                 if (!codebook.containsKey(colName)) {
                     mapCodeClass = new HashMap<String, String>();
@@ -1059,10 +1044,10 @@ public class SDD extends HADatAcThing {
                     mapCodeClass = codebook.get(colName);
                 }
                 String classUri = "";
-                if (!record.getValueByColumnName(Templates.CLASS).isEmpty()) {
-                    classUri = URIUtils.replacePrefixEx(record.getValueByColumnName(Templates.CLASS));
+                if (!record.getValueByColumnName(templates.getCLASS()).isEmpty()) {
+                    classUri = URIUtils.replacePrefixEx(record.getValueByColumnName(templates.getCLASS()));
                 }
-                mapCodeClass.put(record.getValueByColumnName(Templates.CODE), classUri);
+                mapCodeClass.put(record.getValueByColumnName(templates.getCODE()), classUri);
             }
         }
 

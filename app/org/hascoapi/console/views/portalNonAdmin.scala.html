@@ -64,6 +64,11 @@
         <div style=" padding: 10px; background-color: lightgray;">
             <div class="row dash-text">
                 <div class="col-md-1 text-center">
+                    <div class="dashNumber">0</div>
+                    <a href="" id="INS" class="btn btn-dark w-100 disabled" role="button">INS</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
                     <div class="dashNumber">@GenericFind.getNumberElements("instrumenttype")</div>
                     <a href="" id="instrumentTypes" class="btn btn-primary w-100 disabled" role="button">Instrument Types</a>
                     <br>
@@ -93,13 +98,13 @@
                     <a href="" id="detectorStems" class="btn btn-primary w-100 disabled" role="button">Detector Stems</a>
                     <br>
                 </div>
+            </div>
+            <div class="row dash-text">
                 <div class="col-md-1 text-center">
                     <div class="dashNumber">@GenericFind.getNumberElements("detector")</div>
                     <a href="" id="detectors" class="btn btn-primary w-100 disabled" role="button">Detectors</a>
                     <br>
                 </div>
-            </div>
-            <div class="row dash-text">
                 <div class="col-md-1 text-center">
                     <div class="dashNumber">@GenericFind.getNumberElements("codebook")</div>
                     <a href="" id="codebooks" class="btn btn-primary w-100 disabled" role="button">Codebooks</a>
@@ -137,13 +142,25 @@
         <div style=" padding: 10px; background-color: lightgray;">
             <div class="row dash-text">
                 <div class="col-md-1 text-center">
-                    <div class="dashNumber">@GenericFind.getNumberElements("sdd")</div>
-                    <a href="" id="sdds" class="btn btn-primary w-100 disabled" role="button">SDD</a>
+                    <div class="dashNumber">0</div>
+                    <a href="" id="DD" class="btn btn-dark w-100 disabled" role="button">DD</a>
                     <br>
                 </div>
                 <div class="col-md-1 text-center">
                     <div class="dashNumber">0</div>
-                    <a href="" id="sddas" class="btn btn-primary w-100 disabled" role="button">SDD Attributes</a>
+                    <a href="" id="variables" class="btn btn-primary w-100 disabled" role="button">Variables</a>
+                    <br>
+                </div>
+            </div>
+            <div class="row dash-text">
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@GenericFind.getNumberElements("sdd")</div>
+                    <a href="" id="sdds" class="btn btn-dark w-100 disabled" role="button">SDD</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">0</div>
+                    <a href="" id="sddas" class="btn btn-primary w-100 disabled" role="button">SDD Variables</a>
                     <br>
                 </div>
                 <div class="col-md-1 text-center">
@@ -171,17 +188,17 @@
                     <a href="" id="units" class="btn btn-primary w-100 disabled" role="button">Units</a>
                     <br>
                 </div>
-                <div class="col-md-1 text-center">
-                    <div class="dashNumber">@GenericFind.getNumberElements("agent")</div>
-                    <a href="" id="units" class="btn btn-primary w-100 disabled" role="button">Agents</a>
-                    <br>
-                </div>
             </div>
         </div>
         <br>
         <h4>Study Elements</h4>
         <div style=" padding: 10px; background-color: lightgray;">
             <div class="row dash-text">
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">0</div>
+                    <a href="" id="STD" class="btn btn-dark w-100 disabled" role="button">STD</a>
+                    <br>
+                </div>
                 <div class="col-md-1 text-center">
                     <div class="dashNumber">@GenericFind.getNumberElements("study")</div>
                     <a href="" id="study" class="btn btn-primary w-100 disabled" role="button">Studies</a>
@@ -208,6 +225,23 @@
                     <br>
                 </div>
                 <div class="col-md-1 text-center">
+                    <div class="dashNumber">@GenericFind.getNumberElements("agent")</div>
+                    <a href="" id="units" class="btn btn-primary w-100 disabled" role="button">Agents</a>
+                    <br>
+                </div>
+            </div>
+            <div class="row dash-text">
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">0</div>
+                    <a href="" id="DA" class="btn btn-dark w-100 disabled" role="button">DA</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">0</div>
+                    <a href="" id="stream" class="btn btn-primary w-100 disabled" role="button">Streams</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
                     <div class="dashNumber">0</div> 
                     <a href="" id="deployment" class="btn btn-primary w-100 disabled" role="button">Values</a>
                     <br>
@@ -215,9 +249,14 @@
             </div>
         </div>
         <br>
-        <h4>Instrument Infrastructure</h4>
+        <h4>Instrument Infrastructure (Deployments)</h4>
         <div style=" padding: 10px; background-color: lightgray;">
             <div class="row dash-text">
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">0</div>
+                    <a href="" id="DPL" class="btn btn-dark w-100 disabled" role="button">DPL</a>
+                    <br>
+                </div>
                 <div class="col-md-1 text-center">
                     <div class="dashNumber">0</div> 
                     <a href="" id="deployment" class="btn btn-primary w-100 disabled" role="button">Deployments</a>
@@ -231,21 +270,6 @@
                 <div class="col-md-1 text-center">
                     <div class="dashNumber">0</div>
                     <a href="" id="platform" class="btn btn-primary w-100 disabled" role="button">Platforms</a>
-                    <br>
-                </div>
-                <div class="col-md-1 text-center">
-                    <div class="dashNumber">0</div>
-                    <a href="" id="DD" class="btn btn-primary w-100 disabled" role="button">Data Dictionaries</a>
-                    <br>
-                </div>
-                <div class="col-md-1 text-center">
-                    <div class="dashNumber">0</div>
-                    <a href="" id="variables" class="btn btn-primary w-100 disabled" role="button">Variables</a>
-                    <br>
-                </div>
-                <div class="col-md-1 text-center">
-                    <div class="dashNumber">0</div>
-                    <a href="" id="stream" class="btn btn-primary w-100 disabled" role="button">Streams</a>
                     <br>
                 </div>
             </div>

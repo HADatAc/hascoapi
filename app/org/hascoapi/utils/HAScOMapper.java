@@ -267,7 +267,7 @@ public class HAScOMapper {
         } else {
             filterProvider.addFilter("studyObjectCollectionFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment"));
+                            "hascoTypeLabel", "comment", "isMemberOf"));
         }
 
         // STUDY OBJECT

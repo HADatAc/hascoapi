@@ -49,7 +49,9 @@ public class IngestionLogger {
 
     public void setLog(String log) {
         this.log = log;
-        if (parent != null) {
+        if (parent != null && 
+            parent.getNamedGraph() != null && 
+            !parent.getNamedGraph().isEmpty()) {
             parent.save();
         }
         //if (stream != null) {

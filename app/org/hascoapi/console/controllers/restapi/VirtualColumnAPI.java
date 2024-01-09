@@ -24,7 +24,7 @@ public class VirtualColumnAPI extends Controller {
         } else {
             ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL,HASCO.VIRTUAL_COLUMN);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
-            System.out.println("VirtualColumnAPI: json=[" + ApiUtil.createResponse(jsonObject, true) + "]");
+            //System.out.println("VirtualColumnAPI: json=[" + ApiUtil.createResponse(jsonObject, true) + "]");
             return ok(ApiUtil.createResponse(jsonObject, true));
         }
     }

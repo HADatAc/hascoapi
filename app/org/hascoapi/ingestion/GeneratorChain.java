@@ -98,9 +98,13 @@ public class GeneratorChain {
         for (BaseGenerator generator : chain) {
         	//System.out.println("GeneratorChain: Executing generator of type [" + generator.getClass(). getSimpleName() + "]");
             try {
+                System.out.println("GenerationChain: PreProcess");
                 generator.preprocess();
+                System.out.println("GenerationChain: CreateRows");
                 generator.createRows();
+                System.out.println("GenerationChain: CreateObjects");
                 generator.createObjects();
+                System.out.println("GenerationChain:PostProcess");
                 generator.postprocess();
             } catch (Exception e) {
                 System.out.println("[ERROR] GenerationChain: " + generator.getErrorMsg(e));

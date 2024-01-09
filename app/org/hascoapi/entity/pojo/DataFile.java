@@ -418,10 +418,18 @@ public class DataFile extends HADatAcThing implements Cloneable {
         getLogger().setLog(log);
         this.log = log;
     }
-
+ 
     @Override
     public void save() {
         this.log = getLog();
+        if (uri.isEmpty() && getNamedGraph().isEmpty()) {
+            System.out.println("[ERROR] (DataFile.java) Trying to save Datafile outside named graph.");
+            return;
+        }
+        if (!uri.isEmpty()) {
+            System.out.println("[WARNING] (DataFile.java) Using Datafile's URI as named graph's name.");
+            this.setNamedGraph(uri);
+        }
         saveToTripleStore();
     }
 
@@ -438,6 +446,7 @@ public class DataFile extends HADatAcThing implements Cloneable {
         setCompletionTime("");
     }
 
+    /** 
     public static DataFile create(String id, String filename, String hasSIRManagerEmail, String status) {
         DataFile dataFile = new DataFile(id, filename);
         dataFile.setHasSIRManagerEmail(hasSIRManagerEmail);
@@ -453,6 +462,7 @@ public class DataFile extends HADatAcThing implements Cloneable {
 
         return dataFile;
     }
+    */
 
     public static DataFile find(String uri) {
         DataFile dataFile = null;

@@ -58,6 +58,9 @@ public class Study extends HADatAcThing {
     @PropertyField(uri = "vstoi:hasStatus")
     private String hasStatus;
 
+    @PropertyField(uri = "hasco:hasDataFile")
+    private String hasDataFileUri;
+
     @PropertyField(uri="hasco:hasImage")
     private String image;
 
@@ -76,8 +79,8 @@ public class Study extends HADatAcThing {
     @PropertyField(uri="hasco:hasAgent", valueType=PropertyValueType.URI)
     private String agentUri;
 
-    @PropertyField(uri="hasco:hasLastId")
-    private String lastId;
+    //@PropertyField(uri="hasco:hasLastId")
+    //private String lastId;
 
     @PropertyField(uri="vstoi:hasSIRManagerEmail")
     private String hasSIRManagerEmail;
@@ -120,7 +123,7 @@ public class Study extends HADatAcThing {
         this.setEndedAt(endDateTime);
         this.dataAcquisitionUris = new ArrayList<String>();
         this.objectCollectionUris = new ArrayList<String>();
-        this.lastId= "0";
+        //this.lastId= "0";
     }
 
     public Study() {
@@ -137,7 +140,7 @@ public class Study extends HADatAcThing {
         this.setEndedAt("");
         this.dataAcquisitionUris = new ArrayList<String>();
         this.objectCollectionUris = new ArrayList<String>();
-        this.lastId = "0";
+        //this.lastId = "0";
     }
 
     public String getId() {
@@ -152,6 +155,20 @@ public class Study extends HADatAcThing {
     }
     public void setHasStatus(String hasStatus) {
         this.hasStatus = hasStatus;
+    }
+
+    public String getHasDataFile() {
+        return hasDataFileUri;
+    }
+    public void setHasDataFile(String hasDataFileUri) {
+        this.hasDataFileUri = hasDataFileUri;
+    }
+    public DataFile getDataFile() {
+        if (this.hasDataFileUri == null) {
+            return null;
+        }
+        //System.out.println("Inside STD.getDataFile(). hasDataFileUri is " + this.hasDataFileUri);
+        return DataFile.find(this.hasDataFileUri);
     }
 
     public String getImage() {
@@ -242,15 +259,15 @@ public class Study extends HADatAcThing {
         this.hasSIRManagerEmail = hasSIRManagerEmail;
     }
 
-    public long getLastId() {
-        if (this.lastId == null) {
-            return 0;
-        }
-        return Long.parseLong(this.lastId);
-    }
-    public void setLastId(String lastId) {
-        this.lastId = lastId;
-    }
+    //public long getLastId() {
+    //    if (this.lastId == null) {
+    //        return 0;
+    //    }
+    //    return Long.parseLong(this.lastId);
+    //}
+    //public void setLastId(String lastId) {
+    //    this.lastId = lastId;
+    //}
 
     public static int getNumberStudies() {
         String query = "";
@@ -297,14 +314,14 @@ public class Study extends HADatAcThing {
         return formatter.withZone(DateTimeZone.UTC).print(endedAt);
     }
 
-    public void increaseLastId(long quantity) {
-        if (quantity > 0) {
-            long l = Long.parseLong(this.lastId);
-            long newL = l + quantity;
-            this.lastId = Long.toString(newL);
-            save();
-        }
-    }
+    //public void increaseLastId(long quantity) {
+    //    if (quantity > 0) {
+    //        long l = Long.parseLong(this.lastId);
+    //        long newL = l + quantity;
+    //        this.lastId = Long.toString(newL);
+    //        save();
+    //    }
+    //}
 
     // set Start Time Methods
     public void setStartedAt(String startedAt) {
@@ -423,6 +440,8 @@ public class Study extends HADatAcThing {
 					study.setHascoTypeUri(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
 					study.setHasStatus(str);
+                } else if (statement.getPredicate().getURI().equals(HASCO.HAS_DATAFILE)) {
+                    study.setHasDataFile(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
 					study.setImage(str);
 				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
@@ -435,8 +454,8 @@ public class Study extends HADatAcThing {
 					study.setAgentUri(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_INSTITUTION)) {
 					study.setInstitutionUri(str);
-				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_LAST_ID)) {
-					study.setLastId(str);
+//				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_LAST_ID)) {
+//					study.setLastId(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
 					study.setHasSIRManagerEmail(str);
 				}
@@ -632,6 +651,27 @@ public class Study extends HADatAcThing {
         return studies;
     }
 
+    public int getTotalStudyRoles() {
+        return findTotal(HASCO.STUDY_ROLE);
+    }
+
+    public int getTotalVirtualColumns() {
+        return findTotal(HASCO.VIRTUAL_COLUMN);
+    }
+
+    public int getTotalStudyObjectCollections() {
+        return findTotal(HASCO.STUDY_OBJECT_COLLECTION);
+    }
+
+    private int findTotal(String conceptUri) {
+		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+		queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
+				" ?uri hasco:hascoType <" + conceptUri + "> . " +
+				" ?uri hasco:isMemberOf <" + uri + "> . " +
+				"}";
+        return GenericFind.findTotalByQuery(queryString);
+	}
+
     @Override
     public void save() {
         saveToTripleStore();
@@ -655,7 +695,6 @@ public class Study extends HADatAcThing {
         // Delete study itself
         deleteFromTripleStore();
     }
-
 
     @Override
     public void deleteFromTripleStore() {

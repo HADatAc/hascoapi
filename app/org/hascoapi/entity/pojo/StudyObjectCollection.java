@@ -831,7 +831,6 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
                 "   ?uri a ?socType . \n" +
                 "   ?uri hasco:isMemberOf <" + studyUri + "> . \n" +
                 " } ";
-        System.out.println("findSOCsByStudy: query=[" + queryString + "]");
         ResultSetRewindable resultsrw = SPARQLUtils.select(
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
@@ -916,9 +915,7 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
 
     @Override
     public void save() {
-        System.out.println("StudyObjectCollection. Saving. Study: " + getIsMemberOf() + " VC: " + getVirtualColumn());
         saveToTripleStore();
-        System.out.println("StudyObjectCollection. Saving. Executed saveToTripleStore()");
         return;
     }
 

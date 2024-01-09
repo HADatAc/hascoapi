@@ -21,7 +21,7 @@ public class SIRElementAPI extends Controller {
      */
 
     public Result createElement(String elementType, String json) {
-        System.out.println("Type: [" + elementType + "]  JSON [" + json + "]");
+        //System.out.println("Type: [" + elementType + "]  JSON [" + json + "]");
         if (json == null || json.equals("")) {
             return ok(ApiUtil.createResponse("No json content has been provided.", false));
         }
@@ -29,7 +29,7 @@ public class SIRElementAPI extends Controller {
             return ok(ApiUtil.createResponse("No elementType has been provided", false));
         }
         Class clazz = GenericFind.getElementClass(elementType);
-        System.out.println("Clazz: [" + clazz + "]");
+        //System.out.println("Clazz: [" + clazz + "]");
         if (clazz == null) {
             return ok(ApiUtil.createResponse("No valid elementType has been provided", false));
         }
@@ -548,7 +548,7 @@ public class SIRElementAPI extends Controller {
             List<VirtualColumn> results = query.findByKeywordWithPages(VirtualColumn.class,keyword, pageSize, offset);
             return VirtualColumnAPI.getVirtualColumns(results);
         } 
-        return ok("No valid element type.");
+        return ok("[getElementsByKeywordWithPage] No valid element type.");
     }
 
     public Result getTotalElementsByKeyword(String elementType, String keyword) {
@@ -654,7 +654,7 @@ public class SIRElementAPI extends Controller {
             List<VirtualColumn> results = query.findByKeywordAndLanguageWithPages(VirtualColumn.class, keyword, language, pageSize, offset);
             return VirtualColumnAPI.getVirtualColumns(results);
         } 
-        return ok("No valid element type.");
+        return ok("[getElementsByKeywordAndLanguageWithPage] No valid element type.");
     }
 
     public Result getTotalElementsByKeywordAndLanguage(String elementType, String keyword, String language) {
@@ -679,65 +679,6 @@ public class SIRElementAPI extends Controller {
         return ok(ApiUtil.createResponse("query method getTotalElementsByKeyword() failed to retrieve total number of [" + elementType + "]", false));
     }
         
-    /** 
-    public Result getElementsByKeywordAndLanguage(String elementType, String keyword, String language, int pageSize, int offset) {
-        if (keyword.equals("_")) {
-            keyword = "";
-        }
-        if (language.equals("_")) {
-            language = "";
-        }
-        if (elementType.equals("instrument")) {
-            List<Instrument> results = Instrument.findByKeywordAndLanguageWithPages(keyword, language, pageSize, offset);
-            return InstrumentAPI.getInstruments(results);
-        } else if (elementType.equals("detectorstem")) {
-            List<DetectorStem> results = DetectorStem.findByKeywordAndLanguageWithPages(keyword, language, pageSize, offset);
-            return DetectorStemAPI.getDetectorStems(results);
-        } else if (elementType.equals("detector")) {
-            List<Detector> results = Detector.findDetectorsByKeywordAndLanguageWithPages(keyword, language, pageSize, offset);
-            return DetectorAPI.getDetectors(results);
-        } else if (elementType.equals("codebook")) {
-            List<Codebook> results = Codebook.findByKeywordAndLanguageWithPages(keyword, language, pageSize, offset);
-            return CodebookAPI.getCodebooks(results);
-        } else if (elementType.equals("responseoption")) {
-            List<ResponseOption> results = ResponseOption.findByKeywordAndLanguageWithPages(keyword, language, pageSize, offset);
-            return ResponseOptionAPI.getResponseOptions(results);
-        }
-        return ok("No valid element type.");
-    }
-
-    public Result getTotalElementsByKeywordAndLanguage(String elementType, String keyword, String language){
-        if (keyword.equals("_")) {
-            keyword = "";
-        }
-        if (language.equals("_")) {
-            language = "";
-        }
-        if (elementType.equals("instrument")) {
-            int totalInstruments = Instrument.findTotalByKeywordAndLanguage(keyword, language);
-            String totalInstrumentsJSON = "{\"total\":" + totalInstruments + "}";
-            return ok(ApiUtil.createResponse(totalInstrumentsJSON, true));
-        } else if (elementType.equals("detectorstem")) {
-            int totalDetectorStems = DetectorStem.findTotalByKeywordAndLanguage(keyword, language);
-            String totalDetectorStemsJSON = "{\"total\":" + totalDetectorStems + "}";
-            return ok(ApiUtil.createResponse(totalDetectorStemsJSON, true));
-        } else if (elementType.equals("detector")) {
-            int totalDetectors = Detector.findTotalDetectorsByKeywordAndLanguage(keyword, language);
-            String totalDetectorsJSON = "{\"total\":" + totalDetectors + "}";
-            return ok(ApiUtil.createResponse(totalDetectorsJSON, true));
-        } else if (elementType.equals("codebook")) {
-            int totalCodebooks = Codebook.findTotalByKeywordAndLanguage(keyword, language);
-            String totalCodebooksJSON = "{\"total\":" + totalCodebooks + "}";
-            return ok(ApiUtil.createResponse(totalCodebooksJSON, true));
-        } else if (elementType.equals("responseoption")) {
-            int totalResponseOptions = ResponseOption.findTotalByKeywordAndLanguage(keyword, language);
-            String totalResponseOptionsJSON = "{\"total\":" + totalResponseOptions + "}";
-            return ok(ApiUtil.createResponse(totalResponseOptionsJSON, true));
-        }
-        return ok("No valid element type.");
-    }
-    */
-
     /**
      *   GET ELEMENTS BY MANAGER EMAIL WITH PAGE
      */
@@ -786,6 +727,10 @@ public class SIRElementAPI extends Controller {
             GenericFind<DataFile> query = new GenericFind<DataFile>();
             List<DataFile> results = query.findByManagerEmailWithPages(DataFile.class, managerEmail, pageSize, offset);
             return DataFileAPI.getDataFiles(results);
+        }  else if (elementType.equals("std")) {
+            GenericFind<Study> query = new GenericFind<Study>();
+            List<Study> results = query.findByManagerEmailWithPages(STD.class, managerEmail, pageSize, offset);
+            return StudyAPI.getStudies(results);
         }  else if (elementType.equals("study")) {
             GenericFind<Study> query = new GenericFind<Study>();
             List<Study> results = query.findByManagerEmailWithPages(Study.class, managerEmail, pageSize, offset);
@@ -804,17 +749,10 @@ public class SIRElementAPI extends Controller {
             return StudyRoleAPI.getStudyRoles(results);
         }  else if (elementType.equals("virtualcolumn")) {
             GenericFind<VirtualColumn> query = new GenericFind<VirtualColumn>();
-            System.out.println("VC HERE 1");
             List<VirtualColumn> results = query.findByManagerEmailWithPages(VirtualColumn.class, managerEmail, pageSize, offset);
-            System.out.println("VC HERE 2");
-            if (results == null) {            
-                System.out.println("     VC RESULTS NULL");
-            } else {
-                System.out.println("     VC RESULTS SIZE IS " + results.size());
-            }
             return VirtualColumnAPI.getVirtualColumns(results);
         } 
-        return ok("No valid element type.");
+        return ok("[getElementsByManagerEmail] No valid element type.");
 
     }
 
@@ -827,7 +765,8 @@ public class SIRElementAPI extends Controller {
         if (clazz == null) {        
             return ok(ApiUtil.createResponse("[" + elementType + "] is not a valid elementType", false));
         }
-        int totalElements = GenericFind.findTotalByManagerEmail(clazz, managerEmail);
+        
+        int totalElements = totalElements = GenericFind.findTotalByManagerEmail(clazz, managerEmail);
         if (totalElements >= 0) {
             String totalElementsJSON = "{\"total\":" + totalElements + "}";
             return ok(ApiUtil.createResponse(totalElementsJSON, true));
@@ -839,7 +778,7 @@ public class SIRElementAPI extends Controller {
     public Result usage(String elementUri){
         HADatAcThing object = URIPage.objectFromUri(elementUri);
         if (object == null || object.getHascoTypeUri() == null) {
-            return ok("No valid element type.");
+            return ok("[usage] No valid element type. Provided uri is null.");
         }
         String elementType = object.getHascoTypeUri();
         //System.out.println("SIREelementAPI: element type is " + elementType);
@@ -852,13 +791,13 @@ public class SIRElementAPI extends Controller {
         //    String totalDetectorsJSON = "{\"total\":" + totalDetectors + "}";
         //    return ok(ApiUtil.createResponse(totalDetectorsJSON, true));
         //}
-        return ok("No valid element type.");
+        return ok("[usage] No valid element type.");
     }
 
     public Result derivation(String elementUri){
         HADatAcThing object = URIPage.objectFromUri(elementUri);
         if (object == null || object.getHascoTypeUri() == null) {
-            return ok("No valid element type.");
+            return ok("[derivation] No valid element type. Provided uri is null.");
         }
         String elementType = object.getHascoTypeUri();
         //System.out.println("SIREelementAPI: element type is " + elementType);
@@ -871,7 +810,7 @@ public class SIRElementAPI extends Controller {
         //    String totalDetectorsJSON = "{\"total\":" + totalDetectors + "}";
         //    return ok(ApiUtil.createResponse(totalDetectorsJSON, true));
         //}
-        return ok("No valid element type.");
+        return ok("[derivation] No valid element type.");
     }
 
 }

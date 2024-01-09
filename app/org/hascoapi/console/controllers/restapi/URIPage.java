@@ -25,9 +25,12 @@ public class URIPage extends Controller {
             return ok(ApiUtil.createResponse("Uri [" + uri + "] returned no object from the knowledge graph", false));
         }
 
-        String typeUri = finalResult.getHascoTypeUri();
-        if (typeUri == null || typeUri.equals("")) {
-            return ok(ApiUtil.createResponse("No type-specific instance found for uri [" + uri + "]", false));
+        String hascoTypeUri = finalResult.getHascoTypeUri();
+        if (hascoTypeUri == null || hascoTypeUri.equals("")) {
+            String typeUri = finalResult.getTypeUri();
+            if (typeUri == null || typeUri.equals("")) {
+                return ok(ApiUtil.createResponse("No type-specific instance found for uri [" + uri + "]", false));
+            }
         }
 
         return processResult(finalResult, finalResult.getHascoTypeUri(), uri);

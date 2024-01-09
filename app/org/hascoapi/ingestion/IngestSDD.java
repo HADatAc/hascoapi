@@ -38,7 +38,7 @@ import org.apache.jena.update.UpdateRequest;
 
 public class IngestSDD {
 
-    public static void exec(SDD sdd, DataFile dataFile, File file) {
+    public static void exec(SDD sdd, DataFile dataFile, File file, String templateFile) {
 
         System.out.println("IngestSDD.exec(): Step 1 of 5 = Processing file: " + dataFile.getFilename());
 
@@ -76,7 +76,7 @@ public class IngestSDD {
 
         if (fileName.startsWith("SDD-")) {
             System.out.println("IngestSDD.exec(): Step 5 of 5 - calling IngestSDD.buildChain()");
-            chain = buildChain(sdd, dataFile,file);           
+            chain = buildChain(sdd, dataFile, file, templateFile);           
         } 
 
         if (chain != null) {
@@ -101,7 +101,7 @@ public class IngestSDD {
      *    SDD                   *
      ****************************/    
     
-    public static GeneratorChain buildChain(SDD sdd, DataFile dataFile, File file) {
+    public static GeneratorChain buildChain(SDD sdd, DataFile dataFile, File file, String templateFile) {
         System.out.println("IngestSDD.buildChain(): Processing SDD file ...");
         
         RecordFile recordFile = new SpreadsheetRecordFile(file, "InfoSheet");
@@ -215,7 +215,7 @@ public class IngestSDD {
             try {
                 dictionaryFile = (DataFile)dataFile.clone();
                 dictionaryFile.setRecordFile(dictionaryRecordFile);
-                chain.addGenerator(new SDDAttributeGenerator(dictionaryFile, sddName, sdd.getCodeMapping(), sdd.readDDforEAmerge(dictionaryRecordFile)));
+                chain.addGenerator(new SDDAttributeGenerator(dictionaryFile, sddName, sdd.getCodeMapping(), sdd.readDDforEAmerge(dictionaryRecordFile), templateFile));
                 chain.addGenerator(new SDDObjectGenerator(dictionaryFile, sddName, sdd.getCodeMapping()));
             } catch (CloneNotSupportedException e) {
                 e.printStackTrace();

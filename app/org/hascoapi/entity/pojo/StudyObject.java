@@ -72,6 +72,9 @@ public class StudyObject extends HADatAcThing {
     @PropertyField(uri="hasco:hasSpaceObjectScope", valueType=PropertyValueType.URI)
     List<String> spaceScopeUris = new ArrayList<String>();
 
+    @PropertyField(uri="vstoi:hasSIRManagerEmail")
+    String hasSIRManagerEmail;
+    
     public StudyObject() {
         this("", "");
     }
@@ -79,23 +82,28 @@ public class StudyObject extends HADatAcThing {
     public StudyObject(String uri, String isMemberOf) {
         setUri(uri);
         setTypeUri("");
+        setHascoTypeUri("");
         setOriginalId("");
         setLabel("");
         setIsMemberOf(isMemberOf);
         setComment("");
+        setHasSIRManagerEmail("");
     }
 
     public StudyObject(String uri,
             String typeUri,
+            String hascoTypeUri,
             String originalId,
             String label,
             String isMemberOf,
             String comment,
             List<String> scopeUris,
             List<String> timeScopeUris,
-            List<String> spaceScopeUris) {
+            List<String> spaceScopeUris,
+            String hasSIRManagerEmail) {
         setUri(uri);
         setTypeUri(typeUri);
+        setHascoTypeUri(hascoTypeUri);
         setOriginalId(originalId);
         setLabel(label);
         setIsMemberOf(isMemberOf);
@@ -103,20 +111,25 @@ public class StudyObject extends HADatAcThing {
         setScopeUris(scopeUris);
         setTimeScopeUris(timeScopeUris);
         setSpaceScopeUris(spaceScopeUris);
+        setHasSIRManagerEmail(hasSIRManagerEmail);
     }
 
     public StudyObject(String uri,
             String typeUri,
+            String hascoTypeUri,
             String originalId,
             String label,
             String isMemberOf,
-            String comment) { 
+            String comment,
+            String hasSIRManagerEmail) { 
         setUri(uri);
         setTypeUri(typeUri);
+        setHascoTypeUri(hascoTypeUri);
         setOriginalId(originalId);
         setLabel(label);
         setIsMemberOf(isMemberOf);
         setComment(comment);
+        setHasSIRManagerEmail(hasSIRManagerEmail);
     }
 
     public StudyObjectType getStudyObjectType() {
@@ -143,7 +156,6 @@ public class StudyObject extends HADatAcThing {
     public String getRoleUri() {
         return roleUri;
     }
-
     public void setRoleUri(String roleUri) {
         this.roleUri = roleUri;
     }
@@ -151,7 +163,9 @@ public class StudyObject extends HADatAcThing {
     public String getOriginalId() {
         return originalId;
     }
-
+    public void setOriginalId(String originalId) {
+        this.originalId = originalId;
+    }
     public String getOriginalIdLabel() {
     	if (originalId != null && !originalId.isEmpty()) {
     		return originalId;
@@ -159,22 +173,29 @@ public class StudyObject extends HADatAcThing {
     	return uri;
     }
 
-    public void setOriginalId(String originalId) {
-        this.originalId = originalId;
-    }
-
     public String getIsMemberOf() {
         return isMemberOf;
     }
-
     public void setIsMemberOf(String isMemberOf) {
         this.isMemberOf = isMemberOf;
+    }
+    public StudyObjectCollection getStudyObjectCollection() {
+        if (isMemberOf == null) {
+            return null;
+        }
+        return StudyObjectCollection.find(isMemberOf);
+    }	
+
+    public String getHasSIRManagerEmail() {
+        return hasSIRManagerEmail;
+    }
+    public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
+        this.hasSIRManagerEmail = hasSIRManagerEmail;
     }	
 
     public List<String> getScopeUris() {
         return scopeUris;
     }
-
     public void setScopeUris(List<String> scopeUris) {
         this.scopeUris = scopeUris;
     }
@@ -182,7 +203,6 @@ public class StudyObject extends HADatAcThing {
     public void addScopeUri(String scopeUri) {
         this.scopeUris.add(scopeUri);
     }
-
     public List<String> getTimeScopeUris() {
         return timeScopeUris;
     }
@@ -190,7 +210,6 @@ public class StudyObject extends HADatAcThing {
     public void setTimeScopeUris(List<String> timeScopeUris) {
         this.timeScopeUris = timeScopeUris;
     }
-
     public void addTimeScopeUri(String timeScopeUri) {
         this.timeScopeUris.add(timeScopeUri);
     }
@@ -198,11 +217,9 @@ public class StudyObject extends HADatAcThing {
     public List<String> getSpaceScopeUris() {
         return spaceScopeUris;
     }
-
     public void setSpaceScopeUris(List<String> spaceScopeUris) {
         this.spaceScopeUris = spaceScopeUris;
     }
-
     public void addSpaceScopeUri(String spaceScopeUri) {
         this.spaceScopeUris.add(spaceScopeUri);
     }
@@ -252,32 +269,11 @@ public class StudyObject extends HADatAcThing {
         return -1;
     }
 
-    public static int getNumberStudyObjectsByCollection(String oc_uri) {
-        String query = "";
-        query += NameSpaces.getInstance().printSparqlNameSpaceList();
-        query += " select (count(?obj) as ?tot) where " + 
-                " { ?obj hasco:isMemberOf <" + oc_uri + "> . ?obj a ?objType . " + 
-                " FILTER NOT EXISTS { ?objType rdfs:subClassOf* hasco:StudyObjectCollection . } " + 
-                "}";
-        try {
-            ResultSetRewindable resultsrw = SPARQLUtils.select(
-                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), query);
-
-            if (resultsrw.hasNext()) {
-                QuerySolution soln = resultsrw.next();
-                return Integer.parseInt(soln.getLiteral("tot").getString());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return -1;
-    }
-
-    public static List<String> retrieveScopeUris(String obj_uri) {
+    public static List<String> retrieveScopeUris(String objUri) {
         List<String> retrievedUris = new ArrayList<String>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + 
                 "SELECT  ?scopeUri WHERE { " + 
-                " <" + obj_uri + "> hasco:hasObjectScope ?scopeUri . " + 
+                " <" + objUri + "> hasco:hasObjectScope ?scopeUri . " + 
                 "}";
 
         //System.out.println("Study.retrieveScopeUris() queryString: \n" + queryString);
@@ -302,11 +298,11 @@ public class StudyObject extends HADatAcThing {
         return retrievedUris;
     }
 
-    public static List<String> retrieveTimeScopeUris(String obj_uri) {
+    public static List<String> retrieveTimeScopeUris(String objUri) {
         List<String> retrievedUris = new ArrayList<String>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + 
                 "SELECT  ?timeScopeUri WHERE { " + 
-                " <" + obj_uri + "> hasco:hasTimeObjectScope ?timeScopeUri . " + 
+                " <" + objUri + "> hasco:hasTimeObjectScope ?timeScopeUri . " + 
                 "}";
 
         //System.out.println("Study.retrieveTimeScopeUris() queryString: \n" + queryString);
@@ -331,11 +327,11 @@ public class StudyObject extends HADatAcThing {
         return retrievedUris;
     }
 
-    public static List<String> retrieveTimeScopeTypeUris(String obj_uri) {
+    public static List<String> retrieveTimeScopeTypeUris(String objUri) {
         List<String> retrievedUris = new ArrayList<String>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + 
                 "SELECT DISTINCT ?timeScopeUri ?timeScopeTypeUri WHERE { " + 
-                " <" + obj_uri + "> hasco:hasTimeObjectScope ?timeScopeUri . " + 
+                " <" + objUri + "> hasco:hasTimeObjectScope ?timeScopeUri . " + 
                 " ?timeScopeUri a ?timeScopeTypeUri . " +
                 "}";
 
@@ -361,11 +357,11 @@ public class StudyObject extends HADatAcThing {
         return retrievedUris;
     }
 
-    public static List<String> retrieveSpaceScopeUris(String obj_uri) {
+    public static List<String> retrieveSpaceScopeUris(String objUri) {
         List<String> retrievedUris = new ArrayList<String>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + 
                 "SELECT  ?spaceScopeUri WHERE { " + 
-                " <" + obj_uri + "> hasco:hasSpaceObjectScope ?spaceScopeUri . " + 
+                " <" + objUri + "> hasco:hasSpaceObjectScope ?spaceScopeUri . " + 
                 "}";
 
         //System.out.println("Study.retrieveSpaceScopeUris() queryString: \n" + queryString);
@@ -390,20 +386,23 @@ public class StudyObject extends HADatAcThing {
         return retrievedUris;
     }
 
-    public static StudyObject find(String obj_uri) {
+    public static StudyObject find(String objUri) {
         StudyObject obj = null;
-        if (obj_uri == null || obj_uri.trim().equals("")) {
+        if (objUri == null || objUri.trim().equals("")) {
             return obj;
         }
-        obj_uri = obj_uri.trim();
+        objUri = objUri.trim();
 
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + 
-                "SELECT  ?objType ?originalId ?isMemberOf ?hasLabel ?hasComment WHERE { \n" + 
-                "    <" + obj_uri + "> a ?objType . \n" + 
-                "    <" + obj_uri + "> hasco:isMemberOf ?isMemberOf . \n" + 
-                "    OPTIONAL { <" + obj_uri + "> hasco:originalID ?originalId } . \n" + 
-                "    OPTIONAL { <" + obj_uri + "> rdfs:label ?hasLabel } . \n" + 
-                "    OPTIONAL { <" + obj_uri + "> rdfs:comment ?hasComment } . \n" + 
+                "SELECT  ?objType ?objHascoType ?originalId ?isMemberOf ?hasLabel " + 
+                "        ?hasComment ?hasSIRManagerEmail WHERE { \n" + 
+                "    <" + objUri + "> a ?objType . \n" + 
+                "    <" + objUri + "> hasco:hascoType ?objHascoType . \n" + 
+                "    <" + objUri + "> hasco:isMemberOf ?isMemberOf . \n" + 
+                "    OPTIONAL { <" + objUri + "> hasco:originalID ?originalId } . \n" + 
+                "    OPTIONAL { <" + objUri + "> rdfs:label ?hasLabel } . \n" + 
+                "    OPTIONAL { <" + objUri + "> rdfs:comment ?hasComment } . \n" + 
+                "    OPTIONAL { <" + objUri + "> vstoi:hasSIRManagerEmail ?hasSIRManagerEmail } . \n" + 
                 "}";
 
         //System.out.println("StudyObject find() queryString:\n" + queryString);
@@ -412,14 +411,16 @@ public class StudyObject extends HADatAcThing {
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
         if (!resultsrw.hasNext()) {
-            //System.out.println("[WARNING] StudyObject. Could not find OBJ with URI: <" + obj_uri + ">");
+            //System.out.println("[WARNING] StudyObject. Could not find OBJ with URI: <" + objUri + ">");
             return obj;
         }
 
         String typeStr = "";
+        String hascoTypeStr = "";
         String originalIdStr = "";
         String isMemberOfStr = "";
         String commentStr = "";
+        String hasSIRManagerEmailStr = "";
 
         while (resultsrw.hasNext()) {
             QuerySolution soln = resultsrw.next();
@@ -431,6 +432,14 @@ public class StudyObject extends HADatAcThing {
                     }
                 } catch (Exception e1) {
                     typeStr = "";
+                }
+
+                try {
+                    if (soln.getResource("objHascoType") != null && soln.getResource("objHascoType").getURI() != null) {
+                        hascoTypeStr = soln.getResource("objHascoType").getURI();
+                    }
+                } catch (Exception e1) {
+                    hascoTypeStr = "";
                 }
 
                 try {
@@ -457,15 +466,25 @@ public class StudyObject extends HADatAcThing {
                     commentStr = "";
                 }
 
-                obj = new StudyObject(obj_uri,
+                try {
+                    if (soln.getLiteral("hasSIRManagerEmail") != null && soln.getLiteral("hasSIRManagerEmail").getString() != null) {
+                        hasSIRManagerEmailStr = soln.getLiteral("hasSIRManagerEmail").getString();
+                    }
+                } catch (Exception e1) {
+                    hasSIRManagerEmailStr = "";
+                }
+
+                obj = new StudyObject(objUri,
                         typeStr,
+                        hascoTypeStr,
                         originalIdStr,
-                        FirstLabel.getLabel(obj_uri),
+                        FirstLabel.getLabel(objUri),
                         isMemberOfStr,
                         commentStr,
-                        retrieveScopeUris(obj_uri),
-                        retrieveTimeScopeUris(obj_uri),
-                        retrieveSpaceScopeUris(obj_uri));
+                        retrieveScopeUris(objUri),
+                        retrieveTimeScopeUris(objUri),
+                        retrieveSpaceScopeUris(objUri),
+                        hasSIRManagerEmailStr);
             }
         }
 
@@ -671,15 +690,15 @@ public class StudyObject extends HADatAcThing {
         return "";
     }
 
-    public static List<StudyObject> findByCollection(StudyObjectCollection oc) {
-        if (oc == null) {
+    public static List<StudyObject> findByCollection(StudyObjectCollection soc) {
+        if (soc == null) {
             return null;
         }
         List<StudyObject> objects = new ArrayList<StudyObject>();
 
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + 
                 "SELECT ?uri WHERE { " + 
-                "   ?uri hasco:isMemberOf  <" + oc.getUri() + "> . " +
+                "   ?uri hasco:isMemberOf  <" + soc.getUri() + "> . " +
                 " } ";
 
         ResultSetRewindable resultsrw = SPARQLUtils.select(
@@ -695,26 +714,24 @@ public class StudyObject extends HADatAcThing {
         return objects;
     }
 
-    public static List<StudyObject> findByCollectionWithPages(StudyObjectCollection oc, int pageSize, int offset) {
-        if (oc == null) {
+    public static List<StudyObject> findByCollectionWithPages(StudyObjectCollection soc, int pageSize, int offset) {
+        if (soc == null || soc.getUri() == null) {
+            return null;
+        }
+        return findByCollectionWithPage(soc.getUri(), pageSize, offset);
+    }
+
+    public static List<StudyObject> findByCollectionWithPage(String socUri, int pageSize, int offset) {
+        if (socUri == null || socUri.isEmpty()) {
             return null;
         }
         List<StudyObject> objects = new ArrayList<StudyObject>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + 
         		"SELECT ?uri WHERE { " + 
-                "   ?uri hasco:isMemberOf  <" + oc.getUri() + "> . " +
+                "   ?uri hasco:isMemberOf  <" + socUri + "> . " +
                 " } " + 
                 " LIMIT " + pageSize + 
                 " OFFSET " + offset;
-
-        /* 
-        "SELECT ?uri ?id WHERE { " + 
-        "   ?uri hasco:isMemberOf  <" + oc.getUri() + "> . " +
-        "   ?uri hasco:originalID  ?id . " +
-        " } ORDER BY ASC (?id)" + 
-        " LIMIT " + pageSize + 
-        " OFFSET " + offset;
-        */
 
         ResultSetRewindable resultsrw = SPARQLUtils.select(
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
@@ -727,6 +744,27 @@ public class StudyObject extends HADatAcThing {
             }
         }
         return objects;
+    }
+
+    public static int getNumberStudyObjectsByCollection(String socUri) {
+        String query = "";
+        query += NameSpaces.getInstance().printSparqlNameSpaceList();
+        query += " select (count(?obj) as ?tot) where " + 
+                " { ?obj hasco:isMemberOf <" + socUri + "> . ?obj a ?objType . " + 
+                " FILTER NOT EXISTS { ?objType rdfs:subClassOf* hasco:StudyObjectCollection . } " + 
+                "}";
+        try {
+            ResultSetRewindable resultsrw = SPARQLUtils.select(
+                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), query);
+
+            if (resultsrw.hasNext()) {
+                QuerySolution soln = resultsrw.next();
+                return Integer.parseInt(soln.getLiteral("tot").getString());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1;
     }
 
     public static String findByCollectionJSON(StudyObjectCollection oc) {
@@ -828,6 +866,18 @@ public class StudyObject extends HADatAcThing {
         //System.out.println("mapIdUriMappings: " + mapIdUriMappings.keySet().size());
         
         return mapIdUriMappings;
+    }
+
+    @Override
+    public void save() {
+        saveToTripleStore();
+        return;
+    }
+
+    @Override
+    public void delete() {
+        deleteFromTripleStore();
+        return;
     }
 
     @Override

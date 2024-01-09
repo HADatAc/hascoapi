@@ -69,6 +69,8 @@ public class GenericFind<T> {
             return SDD.class;
         } else if (elementType.equals("datafile")) {
             return DataFile.class;
+        } else if (elementType.equals("std")) {
+            return STD.class;
         } else if (elementType.equals("study")) {
             return Study.class;
         } else if (elementType.equals("studyobjectcollection")) {
@@ -113,6 +115,8 @@ public class GenericFind<T> {
             return URIUtils.replaceNameSpace(HASCO.SDD);
         } else if (clazz == DataFile.class) {
             return URIUtils.replaceNameSpace(HASCO.DATAFILE);
+        } else if (clazz == STD.class) {
+            return URIUtils.replaceNameSpace(HASCO.STUDY);
         } else if (clazz == Study.class) {
             return URIUtils.replaceNameSpace(HASCO.STUDY);
         } else if (clazz == StudyObjectCollection.class) {
@@ -135,6 +139,26 @@ public class GenericFind<T> {
         }
         return false;
     }
+
+    public static boolean isMT (Class clazz) {
+        // MT is Metadata Template
+        if (//clazz == DD.class ||
+            //clazz == SDD.class ||
+            ///clazz == DPL.class || 
+            //clazz == SSD.class ||
+            //clazz == STR.class ||
+            clazz == STD.class) {
+            return true;
+        }
+        return false;
+    }
+
+    private static Class superClassOfMT(Class clazz) {
+        if (clazz == STD.class) {
+            return Study.class;
+        }
+        return null;
+    } 
 
     private static String superclassNameWithNamespace (Class clazz) {
         if (clazz == InstrumentType.class) {
@@ -167,6 +191,8 @@ public class GenericFind<T> {
               return findDetectorInstancesWithPages(clazz, className, pageSize, offset);
             } else if (isSIR(clazz)) {
               return findSIRInstancesWithPages(clazz, className, pageSize, offset);
+            } else if (isMT(clazz)) {
+              return findMTInstancesWithPages(clazz, className, pageSize, offset);
             } else {
               return findInstancesWithPages(clazz, className, pageSize, offset);
             }
@@ -200,6 +226,20 @@ public class GenericFind<T> {
                 " ?uri vstoi:hasContent ?content . " +
                 "} " +
                 " ORDER BY ASC(?content) " +
+                " LIMIT " + pageSize +
+                " OFFSET " + offset;
+        return findByQuery(clazz, queryString);
+    }
+        
+    private static <T> List<T> findMTInstancesWithPages(Class clazz, String className, int pageSize, int offset) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT ?uri WHERE { " +
+                " ?type rdfs:subClassOf* " + className + " . " +
+                " ?uri a ?type ." +
+                " ?uri hasco:hasDataFile ?dataFile . " +   // a MT concept requires an associated DataFile
+                " OPTIONAL { ?uri rdfs:label ?label . } " +
+                "} " +
+                " ORDER BY ASC(?label) " +
                 " LIMIT " + pageSize +
                 " OFFSET " + offset;
         return findByQuery(clazz, queryString);
@@ -258,8 +298,9 @@ public class GenericFind<T> {
         String queryString = "";
         queryString += NameSpaces.getInstance().printSparqlNameSpaceList();
         queryString += " select (count(?uri) as ?tot) where { " +
-                " ?type rdfs:subClassOf* " + className + " . " +
-                " ?uri a ?type ." +
+                //" ?type rdfs:subClassOf* " + className + " . " +
+                //" ?uri a ?type ." +
+                " ?uri hasco:hascoType " + className + " . " +
                 "}";
         //System.out.println("findTotalInstances: " + queryString);
         return findTotalByQuery(queryString);
@@ -549,11 +590,14 @@ public class GenericFind<T> {
         //System.out.println("findByManagerEmailWithPages: Clazz=[" + clazz + "]");
         if (className != null) {
             if (clazz == Detector.class) {
-              return findDetectorInstancesByManagerEmailWithPages(clazz, className, managerEmail, pageSize, offset);
+                return findDetectorInstancesByManagerEmailWithPages(clazz, className, managerEmail, pageSize, offset);
             } else if (isSIR(clazz)) {
-              return findSIRInstancesByManagerEmailWithPages(clazz, className, managerEmail, pageSize, offset);
+                return findSIRInstancesByManagerEmailWithPages(clazz, className, managerEmail, pageSize, offset);
+            } else if (isMT(clazz)) {
+                Class superClazz = superClassOfMT(clazz);
+                return findMTInstancesByManagerEmailWithPages(superClazz, className, managerEmail, pageSize, offset);
             } else {
-              return findInstancesByManagerEmailWithPages(clazz, className, managerEmail, pageSize, offset);
+                return findInstancesByManagerEmailWithPages(clazz, className, managerEmail, pageSize, offset);
             }
         }
         String subClassName = superclassNameWithNamespace(clazz);
@@ -597,8 +641,9 @@ public class GenericFind<T> {
 	public List<T> findInstancesByManagerEmailWithPages(Class clazz, String className, String managerEmail, int pageSize, int offset) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
 		queryString += " SELECT ?uri WHERE { " +
-				" ?model rdfs:subClassOf* " + className + " . " +
-				" ?uri a ?model ." +
+				//" ?model rdfs:subClassOf* " + className + " . " +
+				//" ?uri a ?model ." +
+				" ?uri hasco:hascoType " + className + " . " +
 				" OPTIONAL { ?uri rdfs:label ?label . } " +
 				" ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
 				"   FILTER (?managerEmail = \"" + managerEmail + "\") " +
@@ -606,7 +651,23 @@ public class GenericFind<T> {
 				" ORDER BY ASC(?label) " +
 				" LIMIT " + pageSize +
 				" OFFSET " + offset;
-        System.out.println("findInstancesByManagerEmailWithPages: clazz: " + clazz);
+		return findByQuery(clazz, queryString);
+	}
+
+	public List<T> findMTInstancesByManagerEmailWithPages(Class clazz, String className, String managerEmail, int pageSize, int offset) {
+		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+		queryString += " SELECT ?uri WHERE { " +
+				//" ?model rdfs:subClassOf* " + className + " . " +
+				//" ?uri a ?model ." +
+				" ?uri hasco:hascoType " + className + " . " +
+				" OPTIONAL { ?uri rdfs:label ?label . } " +
+                " ?uri hasco:hasDataFile ?dataFile . " +   // a MT concept requires an associated DataFile
+				" ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
+				"   FILTER (?managerEmail = \"" + managerEmail + "\") " +
+				"}" +
+				" ORDER BY ASC(?label) " +
+				" LIMIT " + pageSize +
+				" OFFSET " + offset;
 		return findByQuery(clazz, queryString);
 	}
 
@@ -621,15 +682,38 @@ public class GenericFind<T> {
 				" ORDER BY ASC(?label) " +
 				" LIMIT " + pageSize +
 				" OFFSET " + offset;
-        System.out.println("subclasses: " + queryString);
+        //System.out.println("subclasses: " + queryString);
 		return findByQuery(clazz, queryString);
 	}
 
 	public static int findTotalByManagerEmail(Class clazz, String managerEmail) {
+        if (isMT(clazz)) {
+            Class superClazz = superClassOfMT(clazz);
+            return findTotalMTByManagerEmail(superClazz,managerEmail);
+        } else {
+            return findTotalInstancesByManagerEmail(clazz,managerEmail);
+        }
+    }
+
+	public static int findTotalInstancesByManagerEmail(Class clazz, String managerEmail) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
 		queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
-				" ?model rdfs:subClassOf* " + classNameWithNamespace(clazz) + " . " +
-				" ?uri a ?model ." +
+				//" ?model rdfs:subClassOf* " + classNameWithNamespace(clazz) + " . " +
+				//" ?uri a ?model ." +
+				" ?uri hasco:hascoType " + classNameWithNamespace(clazz) + " . " +
+				" ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
+				"   FILTER (?managerEmail = \"" + managerEmail + "\") " +
+				"}";
+        return findTotalByQuery(queryString);
+	}
+
+	public static int findTotalMTByManagerEmail(Class clazz, String managerEmail) {
+		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+		queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
+				//" ?model rdfs:subClassOf* " + classNameWithNamespace(clazz) + " . " +
+				//" ?uri a ?model ." +
+				" ?uri hasco:hascoType " + classNameWithNamespace(clazz) + " . " +
+                " ?uri hasco:hasDataFile ?dataFile . " +   // a MT concept requires an associated DataFile
 				" ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
 				"   FILTER (?managerEmail = \"" + managerEmail + "\") " +
 				"}";
@@ -660,7 +744,7 @@ public class GenericFind<T> {
                       list.add(element);
                     }
                 } else {
-                    System.out.println("Failed to retrieve URI for objects selected in a query.");
+                    System.out.println("[ERROR] Failed to retrieve URI for objects selected in a query.");
                 }
             }
         }

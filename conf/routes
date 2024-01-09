@@ -79,10 +79,12 @@ GET     /hascoapi/api/slots/bycodebook/:codebookUri                             
 
 GET     /hascoapi/api/studyobjectcollection/bystudy/:studyUri         org.hascoapi.console.controllers.restapi.StudyObjectCollectionAPI.getSOCsByStudy(studyUri: String)
 GET     /hascoapi/api/virtualcolumn/bystudy/:studyUri                 org.hascoapi.console.controllers.restapi.VirtualColumnAPI.getVCsByStudy(studyUri: String)
+GET     /hascoapi/api/studyobject/bysoc/:socUri/:pageSize/:offset     org.hascoapi.console.controllers.restapi.StudyObjectAPI.getStudyObjectsBySOCWithPage(socUri: String, pageSize: Integer, offset: Integer)
+GET     /hascoapi/api/studyobject/bysoc/total/:socUri                 org.hascoapi.console.controllers.restapi.StudyObjectAPI.getTotalStudyObjectsBySOC(socUri: String)
 
 # INGESTION METHODS
 
-POST    /hascoapi/api/ingest/sdd/:sddUri                 org.hascoapi.console.controllers.restapi.IngestionAPI.uploadSDD(sddUri: String, request: play.mvc.Http.Request)
+POST    /hascoapi/api/ingest/:elementType/:elementUri    org.hascoapi.console.controllers.restapi.IngestionAPI.uploadTemplate(elementType: String, elementUri: String, request: play.mvc.Http.Request)
 GET     /hascoapi/api/uningest/:dataFileUri              org.hascoapi.console.controllers.restapi.IngestionAPI.uningest(dataFileUri: String)
 GET     /hascoapi/api/ingestion/:dataFileUri/log         org.hascoapi.console.controllers.restapi.IngestionAPI.getLog(dataFileUri : String)
 

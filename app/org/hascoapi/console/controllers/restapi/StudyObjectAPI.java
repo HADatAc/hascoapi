@@ -26,8 +26,20 @@ public class StudyObjectAPI extends Controller {
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));
         }
+    }             
+
+    public Result getStudyObjectsBySOCWithPage(String socUri, int pageSize, int offset){
+        List<StudyObject> results = StudyObject.findByCollectionWithPage(socUri, pageSize, offset);
+        return getStudyObjects(results);
     }
 
-
+    public Result getTotalStudyObjectsBySOC(String socUri){
+        int totalElements = StudyObject.getNumberStudyObjectsByCollection(socUri) ;
+        if (totalElements >= 0) {
+            String totalElementsJSON = "{\"total\":" + totalElements + "}";
+            return ok(ApiUtil.createResponse(totalElementsJSON, true));
+        }
+        return ok(ApiUtil.createResponse("query method getTotalElements() failed to retrieve total number of element", false));
+    }
 
 }

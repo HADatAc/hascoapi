@@ -19,6 +19,7 @@ import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.sparql.SPARQLRepository;
+import org.hascoapi.utils.Templates;
 import org.hascoapi.utils.IngestionLogger;
 import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.entity.pojo.HADatAcThing;
@@ -42,25 +43,40 @@ public abstract class BaseGenerator {
 
     protected String studyUri = "";
     protected String namedGraphUri = "";
-    
+    protected Templates templates = null;
+
     protected IngestionLogger logger = null;
 
     public BaseGenerator(DataFile dataFile) {
-    	this(dataFile, null);
+    	this(dataFile, null, null);
     }
     
     public BaseGenerator(DataFile dataFile, String studyUri) {
+    	this(dataFile, studyUri, null);
+    }
+
+    public BaseGenerator(DataFile dataFile, String studyUri, String templateFile) {
     	if (studyUri != null) {
     		this.studyUri = studyUri;
     	}
+        if (templateFile != null) {
+            templates = new Templates(templateFile);
+        }
+
+        System.out.println("BaseGenerator: (Constructor) process dataFile");
     	if (dataFile != null) {
     		this.dataFile = dataFile;
+            System.out.println("BaseGenerator: (Constructor) process dataFile: file");
     		file = dataFile.getRecordFile();
+            System.out.println("BaseGenerator: (Constructor) process dataFile: records");
     		records = file.getRecords();
+            System.out.println("BaseGenerator: (Constructor) process dataFile: filename");
     		fileName = dataFile.getFilename();
+            System.out.println("BaseGenerator: (Constructor) process dataFile: logger");
     		logger = dataFile.getLogger();
     	}
     	
+        System.out.println("BaseGenerator: (Constructor) process initMapping");
         initMapping();
     }
 
@@ -246,6 +262,7 @@ public abstract class BaseGenerator {
     }
 
     public boolean commitRowsToTripleStore(List<Map<String, Object>> rows) {
+        System.out.println("BaseGenerator: commitRowsToTripleStore(): getNamedGraphUri() is " + getNamedGraphUri());
         Model model = MetadataFactory.createModel(rows, getNamedGraphUri());
         int numCommitted = MetadataFactory.commitModelToTripleStore(
                 model, CollectionUtil.getCollectionPath(
@@ -263,6 +280,7 @@ public abstract class BaseGenerator {
         for (HADatAcThing obj : objects) {
             obj.setNamedGraph(getNamedGraphUri());
 
+            System.out.println("BaseGenerator.commitObjectsToTriplestore() [1]");
             if (obj.saveToTripleStore()) {
                 count++;
             }
@@ -275,6 +293,7 @@ public abstract class BaseGenerator {
                 System.out.println("cache " + name + " size: Total " + caches.get(name).getMapCache().values().size());
                 for (Object obj : caches.get(name).getNewCache().values()) {
                     if (obj instanceof HADatAcThing) {
+                        System.out.println("BaseGenerator.commitObjectsToTriplestore() [2]");
                         ((HADatAcThing) obj).saveToTripleStore();
                         count++;
                     }
