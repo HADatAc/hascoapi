@@ -247,6 +247,26 @@ public class SIRElementAPI extends Controller {
                 message = e.getMessage();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
+        } else if (clazz == Person.class) {
+            try {
+                Person object;
+                object = (Person)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                System.out.println("Error processing vc: " + e.getMessage());
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == Organization.class) {
+            try {
+                Organization object;
+                object = (Organization)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                System.out.println("Error processing vc: " + e.getMessage());
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
         } 
         if (!success) {
             return ok(ApiUtil.createResponse("Error processing JSON: " + message, false));
@@ -420,6 +440,18 @@ public class SIRElementAPI extends Controller {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
+        } else if (clazz == Person.class) {
+            Person object = Person.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == Organization.class) {
+            Organization object = Organization.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
         } 
         return ok(ApiUtil.createResponse("Element with URI [" + uri + "] has been deleted", true));
     }
@@ -547,6 +579,14 @@ public class SIRElementAPI extends Controller {
             GenericFind<VirtualColumn> query = new GenericFind<VirtualColumn>();
             List<VirtualColumn> results = query.findByKeywordWithPages(VirtualColumn.class,keyword, pageSize, offset);
             return VirtualColumnAPI.getVirtualColumns(results);
+        }  else if (elementType.equals("person")) {
+            GenericFind<Person> query = new GenericFind<Person>();
+            List<Person> results = query.findByKeywordWithPages(Person.class,keyword, pageSize, offset);
+            return PersonAPI.getPeople(results);
+        }  else if (elementType.equals("organization")) {
+            GenericFind<Organization> query = new GenericFind<Organization>();
+            List<Organization> results = query.findByKeywordWithPages(Organization.class,keyword, pageSize, offset);
+            return OrganizationAPI.getOrganizations(results);
         } 
         return ok("[getElementsByKeywordWithPage] No valid element type.");
     }
@@ -653,6 +693,14 @@ public class SIRElementAPI extends Controller {
             GenericFind<VirtualColumn> query = new GenericFind<VirtualColumn>();
             List<VirtualColumn> results = query.findByKeywordAndLanguageWithPages(VirtualColumn.class, keyword, language, pageSize, offset);
             return VirtualColumnAPI.getVirtualColumns(results);
+        }  else if (elementType.equals("person")) {
+            GenericFind<Person> query = new GenericFind<Person>();
+            List<Person> results = query.findByKeywordAndLanguageWithPages(Person.class, keyword, language, pageSize, offset);
+            return PersonAPI.getPeople(results);
+        }  else if (elementType.equals("organization")) {
+            GenericFind<Organization> query = new GenericFind<Organization>();
+            List<Organization> results = query.findByKeywordAndLanguageWithPages(Organization.class, keyword, language, pageSize, offset);
+            return OrganizationAPI.getOrganizations(results);
         } 
         return ok("[getElementsByKeywordAndLanguageWithPage] No valid element type.");
     }
@@ -751,6 +799,14 @@ public class SIRElementAPI extends Controller {
             GenericFind<VirtualColumn> query = new GenericFind<VirtualColumn>();
             List<VirtualColumn> results = query.findByManagerEmailWithPages(VirtualColumn.class, managerEmail, pageSize, offset);
             return VirtualColumnAPI.getVirtualColumns(results);
+        }  else if (elementType.equals("person")) {
+            GenericFind<Person> query = new GenericFind<Person>();
+            List<Person> results = query.findByManagerEmailWithPages(Person.class, managerEmail, pageSize, offset);
+            return PersonAPI.getPeople(results);
+        }  else if (elementType.equals("organization")) {
+            GenericFind<Organization> query = new GenericFind<Organization>();
+            List<Organization> results = query.findByManagerEmailWithPages(Organization.class, managerEmail, pageSize, offset);
+            return OrganizationAPI.getOrganizations(results);
         } 
         return ok("[getElementsByManagerEmail] No valid element type.");
 

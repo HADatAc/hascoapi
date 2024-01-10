@@ -19,52 +19,18 @@ import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.VSTOI;
 import org.hascoapi.vocabularies.FOAF;
 
-public class Agent extends HADatAcThing implements Comparable<Agent> {
+public class Person extends Agent {
 
-    protected String agentType;
-    protected String name;
-    protected String familyName;
-    protected String givenName;
-
-    public String getName() {
-        return name;
-    }
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getFamilyName() {
-        return familyName;
-    }
-    public void setFamilyName(String familyName) {
-        this.familyName = familyName;
-    }
-
-    public String getGivenName() {
-        return givenName;
-    }
-    public void setGivenName(String givenName) {
-        this.givenName = givenName;
-    }
-
-    public static List<Agent> findOrganizations() {
+    public static List<Person> find() {
         String query =
-                " SELECT ?uri WHERE { " +
-                        " ?uri a foaf:Group ." +
-                        "} ";
+            " SELECT ?uri WHERE { " +
+            " ?uri a foaf:Person ." +
+            "} ";
         return findByQuery(query);
     }
 
-    public static List<Agent> findPersons() {
-        String query =
-                " SELECT ?uri WHERE { " +
-                        " ?uri a foaf:Person ." +
-                        "} ";
-        return findByQuery(query);
-    }
-
-    private static List<Agent> findByQuery(String requestedQuery) {
-        List<Agent> agents = new ArrayList<Agent>();
+    private static List<Person> findByQuery(String requestedQuery) {
+        List<Person> people = new ArrayList<Person>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + requestedQuery;
 
         ResultSetRewindable resultsrw = SPARQLUtils.select(
@@ -72,31 +38,31 @@ public class Agent extends HADatAcThing implements Comparable<Agent> {
 
         while (resultsrw.hasNext()) {
             QuerySolution soln = resultsrw.next();
-            String resp_uri = soln.getResource("uri").getURI();
-            Agent agent = Agent.find(resp_uri);
-            agents.add(agent);
+            String uri = soln.getResource("uri").getURI();
+            Person person = Person.find(uri);
+            people.add(person);
         }
 
-        java.util.Collections.sort((List<Agent>) agents);
-        return agents;
+        java.util.Collections.sort((List<Person>) people);
+        return people;
     }
 
-    public static Agent find(String agent_uri) {
-        Agent agent = null;
+    public static Person find(String uri) {
+        Person person = null;
         Statement statement;
         RDFNode object;
         String queryString;
 
-        if (agent_uri.startsWith("<")) {
-            queryString = "DESCRIBE " + agent_uri + " ";
+        if (uri.startsWith("<")) {
+            queryString = "DESCRIBE " + uri + " ";
         } else {
-            queryString = "DESCRIBE <" + agent_uri + ">";
+            queryString = "DESCRIBE <" + uri + ">";
         }
 
         Model model = SPARQLUtils.describe(CollectionUtil.getCollectionPath(
                 CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
-        agent = new Agent();
+        person = new Person();
         StmtIterator stmtIterator = model.listStatements();
 
         while (stmtIterator.hasNext()) {
@@ -104,33 +70,30 @@ public class Agent extends HADatAcThing implements Comparable<Agent> {
             object = statement.getObject();
             String str = URIUtils.objectRDFToString(object);
              if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-                agent.setLabel(str);
+                person.setLabel(str);
             } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
-                agent.setTypeUri(str);
+                person.setTypeUri(str);
             } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
-                agent.setComment(str);
+                person.setComment(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
-                agent.setHascoTypeUri(str);
+                person.setHascoTypeUri(str);
             } else if (statement.getPredicate().getURI().equals(FOAF.NAME)) {
-                agent.setName(str);
+                person.setName(str);
             } else if (statement.getPredicate().getURI().equals(FOAF.FAMILY_NAME)) {
-                agent.setFamilyName(str);
+                person.setFamilyName(str);
             } else if (statement.getPredicate().getURI().equals(FOAF.GIVEN_NAME)) {
-                agent.setGivenName(str);
+                person.setGivenName(str);
             }
         }
 
-        agent.setUri(agent_uri);
+        person.setUri(uri);
 
-        return agent;
+        return person;
     }
 
     @Override
-    public int compareTo(Agent another) {
-        if (this.getName() == null || another == null || another.getName() == null) {
-            return 0;
-        }
-        return this.getName().compareTo(another.getName());
+    public void save() {
+        saveToTripleStore();
     }
 
     @Override

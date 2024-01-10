@@ -19,10 +19,11 @@ import org.hascoapi.utils.SPARQLUtils;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.URIUtils;
+import org.hascoapi.vocabularies.FOAF;
 import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.RDFS;
-import org.hascoapi.vocabularies.SKOS;
 import org.hascoapi.vocabularies.SIO;
+import org.hascoapi.vocabularies.SKOS;
 import org.hascoapi.vocabularies.VSTOI;
 
 public class GenericFind<T> {
@@ -81,6 +82,10 @@ public class GenericFind<T> {
             return StudyRole.class;
         } else if (elementType.equals("virtualcolumn")) {
             return VirtualColumn.class;
+        } else if (elementType.equals("person")) {
+            return Person.class;
+        } else if (elementType.equals("organization")) {
+            return Organization.class;
         } 
         return null;
     }
@@ -125,6 +130,10 @@ public class GenericFind<T> {
             return URIUtils.replaceNameSpace(HASCO.STUDY_OBJECT);
         } else if (clazz == StudyRole.class) {
             return URIUtils.replaceNameSpace(HASCO.STUDY_ROLE);
+        } else if (clazz == Person.class) {
+            return URIUtils.replaceNameSpace(FOAF.PERSON);
+        } else if (clazz == Organization.class) {
+            return URIUtils.replaceNameSpace(FOAF.ORGANIZATION);
         }
         return null;
     }
@@ -562,8 +571,8 @@ public class GenericFind<T> {
 	public static int findTotalByKeywordAndLanguage(Class clazz, String keyword, String language) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
 		queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
-				" ?instModel rdfs:subClassOf* " + classNameWithNamespace(clazz) + " . " +
-				" ?uri a ?instModel .";
+				" ?type rdfs:subClassOf* " + classNameWithNamespace(clazz) + " . " +
+				" ?uri a ?type .";
 		if (!language.isEmpty()) {
 			queryString += " ?uri vstoi:hasLanguage ?language . ";
 		}
@@ -808,6 +817,10 @@ public class GenericFind<T> {
             return (T)StudyObject.find(uri);
         } else if (clazz == StudyRole.class) {
             return (T)StudyRole.find(uri);
+        } else if (clazz == Person.class) {
+            return (T)Person.find(uri);
+        } else if (clazz == Organization.class) {
+            return (T)Organization.find(uri);
         }
         return null;
     
