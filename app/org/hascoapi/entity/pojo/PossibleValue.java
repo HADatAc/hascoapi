@@ -15,11 +15,12 @@ import org.apache.jena.update.UpdateExecutionFactory;
 import org.apache.jena.update.UpdateFactory;
 import org.apache.jena.update.UpdateProcessor;
 import org.apache.jena.update.UpdateRequest;
+import org.hascoapi.Constants;
 import org.hascoapi.annotations.PropertyField;
+import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.SPARQLUtils;
 import org.hascoapi.utils.URIUtils;
 import org.hascoapi.utils.NameSpaces;
-import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.RDFS;
 import org.slf4j.Logger;
@@ -41,7 +42,7 @@ public class PossibleValue extends HADatAcClass implements Comparable<PossibleVa
     }
 
     @PropertyField(uri="hasco:isPossibleValueOf")
-    private String hasDASAUri;
+    private String hasSDDAUri;
 
     @PropertyField(uri="hasco:hasVariable")
     private String hasVariable;
@@ -61,12 +62,12 @@ public class PossibleValue extends HADatAcClass implements Comparable<PossibleVa
     @PropertyField(uri="hasco:otherFor")
     private String hasOtherFor;
 
-    public String getHasDASAUri() {
-        return hasDASAUri;
+    public String getHasSDDAUri() {
+        return hasSDDAUri;
     }
 
-    public void setHasDASAUri(String hasDASAUri) {
-        this.hasDASAUri = hasDASAUri;
+    public void setHasSDDAUri(String hasSDDAUri) {
+        this.hasSDDAUri = hasSDDAUri;
     }
 
     public String getHasVariable() {
@@ -340,7 +341,7 @@ public class PossibleValue extends HADatAcClass implements Comparable<PossibleVa
             if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
                 code.setLabel(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(HASCO.IS_POSSIBLE_VALUE_OF)) {
-                code.setHasDASAUri(object.asResource().getURI());
+                code.setHasSDDAUri(object.asResource().getURI());
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_CODE)) {
                 code.setHasCode(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_VARIABLE)) {
@@ -418,6 +419,8 @@ public class PossibleValue extends HADatAcClass implements Comparable<PossibleVa
 
         if (!getNamedGraph().isEmpty()) {
             insert += " GRAPH <" + getNamedGraph() + "> { ";
+        } else {
+            insert += " GRAPH <" + Constants.DEFAULT_REPOSITORY + "> { ";
         }
 
         insert += "<" + this.getUri() + ">  ";
@@ -427,9 +430,8 @@ public class PossibleValue extends HADatAcClass implements Comparable<PossibleVa
             insert += " <http://hadatac.org/ont/hasco/hasClass> <" + this.getHasClass() + "> ;   ";
         }
 
-        if (!getNamedGraph().isEmpty()) {
-            insert += " } ";
-        }
+        // CLOSING NAMEDGRAPH
+        insert += " } ";
 
         insert += LINE_LAST;
 

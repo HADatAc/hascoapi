@@ -403,13 +403,4 @@ public abstract class Container extends HADatAcThing implements SIRElement, Comp
 		deleteFromTripleStore();
 	}
 
-    @Override
-    public boolean saveToSolr() {
-        return false;
-    }
-    
-    @Override
-    public int deleteFromSolr() {
-        return 0;
-    }
 }

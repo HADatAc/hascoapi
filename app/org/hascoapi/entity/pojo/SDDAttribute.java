@@ -14,6 +14,7 @@ import org.apache.jena.update.UpdateExecutionFactory;
 import org.apache.jena.update.UpdateFactory;
 import org.apache.jena.update.UpdateProcessor;
 import org.apache.jena.update.UpdateRequest;
+import org.hascoapi.Constants;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.FirstLabel;
@@ -458,14 +459,6 @@ public class SDDAttribute extends HADatAcThing {
     }
 
     public String getObjectViewLabel() {
-        /*
-        if (attributes.equals(URIUtils.replaceNameSpaceEx("hasco:originalID"))) {
-            return "[DefaultObject]";
-        }
-        if (isMeta) {
-            return "";
-        }
-         */
         if (sddoUri == null || sddoUri.equals("")) {
             if (sdd != null && (!sdd.getIdLabel().equals("") || !sdd.getOriginalIdLabel().equals(""))) {
                 return "[DefaultObject]";
@@ -487,14 +480,6 @@ public class SDDAttribute extends HADatAcThing {
     public void setEventUri(String sddeUri) {
         this.sddeUri = sddeUri;
     }
-    
-    /*
-    public SDDEvent getEvent() {
-        if (sddeUri == null || sddeUri.equals("")) {
-            return null;
-        }
-        return SDDEvent.find(sddeUri);
-	}*/
     
     public SDDObject getEvent() {
         if (sddeUri == null || sddeUri.equals("")) {
@@ -553,18 +538,6 @@ public class SDDAttribute extends HADatAcThing {
 
     public static SDDAttribute find(String sdda_uri) {
 
-        // debug
-        if ( sdda_uri.contains("zvalue-bwt-gage-sex-d")) {
-            int x = 1;
-        }
-        if ( sdda_uri.contains("ZBFA")) {
-            int x = 1;
-        }
-        if ( sdda_uri.contains("ZHFA")) {
-            int x = 1;
-        }
-        // end of debug
-
         if (SDDAttribute.getCache().get(sdda_uri) != null) {
             return SDDAttribute.getCache().get(sdda_uri);
         }
@@ -593,7 +566,7 @@ public class SDDAttribute extends HADatAcThing {
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
         if (!resultsrw.hasNext()) {
-            System.out.println("[WARNING] SDDAttribute. Could not find SDDA with URI: <" + sdda_uri + ">");
+            //System.out.println("[WARNING] SDDAttribute. Could not find SDDA with URI: <" + sdda_uri + ">");
             return sdda;
         }
 
@@ -654,18 +627,6 @@ public class SDDAttribute extends HADatAcThing {
 
         }
 
-        // debug
-        if ( sdda_uri.contains("zvalue-bwt-gage-sex-d")) {
-            int x = 1;
-        }
-        if ( sdda_uri.contains("ZBFA")) {
-            int x = 1;
-        }
-        if ( sdda_uri.contains("ZHFA")) {
-            int x = 1;
-        }
-        // end of debug
-
         sdda = new SDDAttribute(
                 sdda_uri,
                 localNameStr,
@@ -698,8 +659,8 @@ public class SDDAttribute extends HADatAcThing {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + 
                 "SELECT ?uri ?hasEntity ?schemaUri ?attrUri" + 
                 " ?hasUnit ?hasSDDO ?hasSDDE ?hasSource ?isPIConfirmed WHERE { " + 
-                "    ?da hasco:isDataAcquisitionOf " + studyUri + " .  " +
-                "    ?da hasco:hasSchema ?schemaUri .  "+
+                "    ?sdd hasco:isSDDOf " + studyUri + " .  " +
+                "    ?sdd hasco:hasSchema ?schemaUri .  "+
                 "    ?uri hasco:partOfSchema ?schemaUri .  " +
                 "    ?uri a hasco:SDDAttribute . " + 
                 "    ?uri hasco:hasAttribute ?attrUri . " +
@@ -710,7 +671,7 @@ public class SDDAttribute extends HADatAcThing {
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
         if (!resultsrw.hasNext()) {
-            System.out.println("[WARNING] SDDAttribute. Could not find SDDA's with attribute: " + studyUri);
+            //System.out.println("[WARNING] SDDAttribute. Could not find SDDA's with attribute: " + studyUri);
             return attributes;
         }
 
@@ -750,7 +711,7 @@ public class SDDAttribute extends HADatAcThing {
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
         if (!resultsrw.hasNext()) {
-            System.out.println("[WARNING] SDDAttribute. Could not find attributes for schema: <" + schemaUri + ">");
+            //System.out.println("[WARNING] SDDAttribute. Could not find attributes for schema: <" + schemaUri + ">");
             return attributeUris;
         }
 
@@ -785,7 +746,7 @@ public class SDDAttribute extends HADatAcThing {
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
         if (!resultsrw.hasNext()) {
-            System.out.println("[WARNING] SDDAttribute. Could not find attributes for schema: <" + schemaUri + ">");
+            //System.out.println("[WARNING] SDDAttribute. Could not find attributes for schema: <" + schemaUri + ">");
             return attributes;
         }
 
@@ -831,6 +792,8 @@ public class SDDAttribute extends HADatAcThing {
 
         if (!getNamedGraph().isEmpty()) {
             insert += " GRAPH <" + getNamedGraph() + "> { ";
+        } else {
+            insert += " GRAPH <" + Constants.DEFAULT_REPOSITORY + "> { ";
         }
 
         insert += this.getUri() + " a hasco:SDDAttribute . ";
@@ -898,15 +861,6 @@ public class SDDAttribute extends HADatAcThing {
         SDDAttribute.resetCache();
     }
 
-    @Override
-    public boolean saveToSolr() {
-        return false;
-    }
-
-    @Override
-    public int deleteFromSolr() {
-        return 0;
-    }
 }
 
 

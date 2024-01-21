@@ -51,6 +51,7 @@ public class MetadataFactory {
                     if ("a".equals(key)) {
                         pred = factory.createIRI(URIUtils.replacePrefixEx("rdf:type"));
                     } else {
+                        //System.out.println("MetadataFactory: Key " + key);
                         pred = factory.createIRI(URIUtils.replacePrefixEx(key));
                     }
 

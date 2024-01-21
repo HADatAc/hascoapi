@@ -12,6 +12,7 @@ import org.apache.jena.update.UpdateExecutionFactory;
 import org.apache.jena.update.UpdateFactory;
 import org.apache.jena.update.UpdateProcessor;
 import org.apache.jena.update.UpdateRequest;
+import org.hascoapi.Constants;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.FirstLabel;
@@ -26,9 +27,9 @@ public class SDDObject extends HADatAcThing {
     public static String LINE3 = INDENT1 + "a         hasco:SDDObject;  ";
     public static String DELETE_LINE3 = " ?p ?o . ";
     public static String LINE_LAST = "}  ";
-    public static String PREFIX = "DASO-";
+    public static String PREFIX = "SDDO-";
 
-    private static Map<String, SDDObject> DASOCache;
+    private static Map<String, SDDObject> SDDOCache;
 
     private String uri;
     private String label;
@@ -48,14 +49,14 @@ public class SDDObject extends HADatAcThing {
     private String alternativeName = "";
 
     private static Map<String, SDDObject> getCache() {
-        if (DASOCache == null) {
-            DASOCache = new HashMap<String, SDDObject>();
+        if (SDDOCache == null) {
+            SDDOCache = new HashMap<String, SDDObject>();
         }
-        return DASOCache;
+        return SDDOCache;
     }
 
     public static void resetCache() {
-        DASOCache = null;
+        SDDOCache = null;
     }
 
     public SDDObject() {}
@@ -311,7 +312,7 @@ public class SDDObject extends HADatAcThing {
                 CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
         if (!resultsrw.hasNext()) {
-            System.out.println("[WARNING] SDDObject. Could not find object with uri: " + uri);
+            //System.out.println("[WARNING] SDDObject. Could not find object with uri: " + uri);
             SDDObject.getCache().put(uri, null);
             return null;
         }
@@ -431,7 +432,7 @@ public class SDDObject extends HADatAcThing {
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
         if (!resultsrw.hasNext()) {
-            System.out.println("[WARNING] SDDObject. Could not find objects for schema: " + schemaUri);
+            //System.out.println("[WARNING] SDDObject. Could not find objects for schema: " + schemaUri);
             return objectUris;
         }
 
@@ -520,11 +521,11 @@ public class SDDObject extends HADatAcThing {
     @Override
     public boolean saveToTripleStore() {
         if (uri == null || uri.equals("")) {
-            System.out.println("[ERROR] Trying to save DASO without assigning an URI");
+            System.out.println("[ERROR] Trying to save SDDO without assigning an URI");
             return false;
         }
         if (partOfSchema == null || partOfSchema.equals("")) {
-            System.out.println("[ERROR] Trying to save DASO without assigning DAS's URI");
+            System.out.println("[ERROR] Trying to save SDDO without assigning SDD's URI");
             return false;
         }
 
@@ -536,6 +537,8 @@ public class SDDObject extends HADatAcThing {
 
         if (!getNamedGraph().isEmpty()) {
             insert += " GRAPH <" + getNamedGraph() + "> { ";
+        } else {
+            insert += " GRAPH <" + Constants.DEFAULT_REPOSITORY + "> { ";
         }
 
         insert += this.getUri() + " a hasco:SDDObject . ";
@@ -568,9 +571,8 @@ public class SDDObject extends HADatAcThing {
             }
         }
 
-        if (!getNamedGraph().isEmpty()) {
-            insert += " } ";
-        }
+        // CLOSING NAMEDGRAPH
+        insert += " } ";
 
         insert += LINE_LAST;
 
@@ -593,14 +595,5 @@ public class SDDObject extends HADatAcThing {
         SDDObject.resetCache();
     }
 
-    @Override
-    public boolean saveToSolr() {
-        return false;
-    }
-
-    @Override
-    public int deleteFromSolr() {
-        return 0;
-    }
 }
 

@@ -11,6 +11,7 @@ import org.hascoapi.annotations.PropertyField;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.SPARQLUtils;
+import org.hascoapi.utils.URIUtils;
 import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.RDF;
 import org.hascoapi.vocabularies.RDFS;
@@ -120,28 +121,29 @@ public class ResponseOption extends HADatAcThing implements SIRElement /*, Compa
         while (stmtIterator.hasNext()) {
             statement = stmtIterator.next();
             object = statement.getObject();
+            String str = URIUtils.objectRDFToString(object);
             if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-                responseOption.setLabel(object.asLiteral().getString());
+                responseOption.setLabel(str);
             } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
-                responseOption.setTypeUri(object.asResource().getURI());
+                responseOption.setTypeUri(str);
             } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
-                responseOption.setComment(object.asLiteral().getString());
+                responseOption.setComment(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
-                responseOption.setHascoTypeUri(object.asResource().getURI());
+                responseOption.setHascoTypeUri(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
-                responseOption.setHasStatus(object.asLiteral().getString());
+                responseOption.setHasStatus(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
-                responseOption.setSerialNumber(object.asLiteral().getString());
+                responseOption.setSerialNumber(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
-                responseOption.setImage(object.asLiteral().getString());
+                responseOption.setImage(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_CONTENT)) {
-                responseOption.setHasContent(object.asLiteral().getString());
+                responseOption.setHasContent(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
-                responseOption.setHasLanguage(object.asLiteral().getString());
+                responseOption.setHasLanguage(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
-                responseOption.setHasVersion(object.asLiteral().getString());
+                responseOption.setHasVersion(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
-                responseOption.setHasSIRManagerEmail(object.asLiteral().getString());
+                responseOption.setHasSIRManagerEmail(str);
             }
         }
 
@@ -181,13 +183,4 @@ public class ResponseOption extends HADatAcThing implements SIRElement /*, Compa
         deleteFromTripleStore();
     }
 
-    @Override
-    public boolean saveToSolr() {
-        return false;
-    }
-
-    @Override
-    public int deleteFromSolr() {
-        return 0;
-    }
 }

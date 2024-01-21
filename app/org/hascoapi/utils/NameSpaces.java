@@ -176,6 +176,19 @@ public class NameSpaces {
         FHIR_NAMESPACE.setPriority(10);
         namespaces.add(FHIR_NAMESPACE);
 
+        // FOAF
+        NameSpace FOAF_NAMESPACE = new NameSpace();
+        FOAF_NAMESPACE.setAbbreviation("foaf");
+        FOAF_NAMESPACE.setName("http://xmlns.com/foaf/0.1/");
+        FOAF_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
+        FOAF_NAMESPACE.setMimeType("application/rdf+xml");
+        FOAF_NAMESPACE.setURL("http://xmlns.com/foaf/spec/index.rdf");
+        FOAF_NAMESPACE.setComment("Friend of a Friend (FOAF) vocabulary");
+        FOAF_NAMESPACE.setVersion("0.1");
+        FOAF_NAMESPACE.updateNumberOfLoadedTriples();
+        FOAF_NAMESPACE.setPriority(11);
+        namespaces.add(FOAF_NAMESPACE);
+
         // DEFAULT
         NameSpace DEFAULT_NAMESPACE = new NameSpace();
         DEFAULT_NAMESPACE.setAbbreviation("default");
@@ -184,7 +197,7 @@ public class NameSpaces {
         DEFAULT_NAMESPACE.setComment("Default Namespace");
         DEFAULT_NAMESPACE.setVersion("0.1");
         DEFAULT_NAMESPACE.updateNumberOfLoadedTriples();
-        DEFAULT_NAMESPACE.setPriority(11);
+        DEFAULT_NAMESPACE.setPriority(12);
         namespaces.add(DEFAULT_NAMESPACE);
 
         // TEST

@@ -438,13 +438,4 @@ public class Detector extends DetectorStem {
         deleteFromTripleStore();
     }
 
-    @Override
-    public boolean saveToSolr() {
-        return false;
-    }
-
-    @Override
-    public int deleteFromSolr() {
-        return 0;
-    }
 }

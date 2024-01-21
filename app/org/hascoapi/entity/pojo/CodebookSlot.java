@@ -298,14 +298,4 @@ public class CodebookSlot extends HADatAcThing implements Comparable<CodebookSlo
         deleteFromTripleStore();
     }
 
-    @Override
-    public boolean saveToSolr() {
-        return false;
-    }
-
-    @Override
-    public int deleteFromSolr() {
-        return 0;
-    }
-
 }

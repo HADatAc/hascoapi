@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Properties;
+import org.hascoapi.RepositoryInstance;
 
 import org.json.simple.JSONArray;
 
@@ -59,16 +60,20 @@ public class ConfigProp {
     }
 
     public static String getJWTSecret() {
-        return ConfigFactory.load().getString("pac4j.jwt.secret");
+        return ConfigFactory.load("application.conf").getString("pac4j.jwt.secret");
     }
+    public static String getKbPrefix() {
+        return RepositoryInstance.getInstance().getHasDefaultNamespaceAbbreviation() + "-kb:";
+    }
+
+	public static String getTemplateFileName() {
+        System.out.println("ConfigProp: getTemplateFileName()=" + ConfigFactory.load().getString("hascoapi.templates.template_filename"));
+		return ConfigFactory.load().getString("hascoapi.templates.template_filename");
+	}
 
     /**
     public static String getBasePrefix() {
         return ConfigFactory.load().getString("hascoapi.community.ont_prefix");
-    }
-
-    public static String getKbPrefix() {
-        return ConfigFactory.load().getString("hascoapi.community.ont_prefix") + "-kb:";
     }
 
     public static String getPageTitle() {

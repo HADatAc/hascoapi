@@ -298,13 +298,4 @@ public class DetectorStem extends HADatAcThing implements SIRElement, Comparable
         deleteFromTripleStore();
     }
 
-    @Override
-    public boolean saveToSolr() {
-        return false;
-    }
-
-    @Override
-    public int deleteFromSolr() {
-        return 0;
-    }
 }

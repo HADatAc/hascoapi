@@ -12,10 +12,10 @@ public class Constants {
     public static final String TEST_KB = "http://hadatac.org/kb/test/";
 
     public static final String TEST_INSTRUMENT_URI = TEST_KB + "TestInstrument";
-    public static final int TEST_INSTRUMENT_TOT_CONTAINER_SLOTS = 2;
+    public static final int    TEST_INSTRUMENT_TOT_CONTAINER_SLOTS = 2;
     public static final String TEST_SUBCONTAINER1_URI = TEST_KB + "TestSubcontainer1";
     public static final String TEST_SUBCONTAINER2_URI = TEST_KB + "TestSubcontainer2";
-    public static final int TEST_SUBCONTAINER_TOT_CONTAINER_SLOTS = 2;
+    public static final int    TEST_SUBCONTAINER_TOT_CONTAINER_SLOTS = 2;
     public static final String TEST_CONTAINER_SLOT1_URI = TEST_INSTRUMENT_URI + "/" + CONTAINER_SLOT_PREFIX + "/0001";
     public static final String TEST_CONTAINER_SLOT2_URI = TEST_INSTRUMENT_URI + "/" + CONTAINER_SLOT_PREFIX + "/0002";
     public static final String TEST_CONTAINER_SLOT3_URI = TEST_SUBCONTAINER1_URI + "/" + CONTAINER_SLOT_PREFIX + "/0001";
@@ -53,6 +53,13 @@ public class Constants {
 
     public static final String DEFAULT_KB = "http://hadatac.org/kb/default/";
     public static final String DEFAULT_REPOSITORY = DEFAULT_KB + "repository";
+    /**
+     * Any submissions without a valid graph uri will be stored under this graph.
+     *
+     * We aren't posting to the standard default graph
+     * because it isn't included in default queries with fuseki's tdb2 unionDefaultGraph setting
+     */
+    //public static final String DEFAULT_GRAPH_URI = "http://hadatac.org/ont/graph#DEFAULT";
 
     public static final String META_VARIABLE_CONTENT = "%%CONTENT%%";
     public static final String META_VARIABLE_PAGE = "%%PAGE%%";

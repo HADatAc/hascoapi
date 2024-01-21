@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.lang3.NotImplementedException;
 import org.hascoapi.utils.MetadataFactory;
 import org.apache.jena.query.QuerySolution;
@@ -277,7 +278,10 @@ public abstract class HADatAcThing {
         return -1;
     }
 
+    @JsonIgnore
     public void save() { throw new NotImplementedException("Used unimplemented HADatAcThing.save() method"); }
+
+    @JsonIgnore
     public void delete() { throw new NotImplementedException("Used unimplemented HADatAcThing.delete() method"); }
 
     private Model generateRDFModel() {
@@ -291,7 +295,15 @@ public abstract class HADatAcThing {
                 //System.out.println("inside HADatAcThing.generateRDFModel(): hasURI: [" + uri + "]");
 
                 for (Field field: currentClass.getDeclaredFields()) {
-                    //System.out.println("inside HADatAcThing.saveToTripleStore(): field [" + field.getName() + "] or type [" + field.getType() + "]");
+
+                    String value2 = "";
+                    try {
+                        if (field.getType().equals(String.class)) {
+                            value2 = (String)field.get(this);
+                        }
+                    } catch (Exception e) {
+                    }
+                    //System.out.println("inside HADatAcThing.saveToTripleStore(): field [" + field.getName() + "] or type [" + field.getType() + "]  Value [" + value2 + "]");
                     field.setAccessible(true);
                     if (field.isAnnotationPresent(Subject.class)) {
                         String uri = (String)field.get(this);
@@ -312,6 +324,7 @@ public abstract class HADatAcThing {
                         if (field.getType().equals(String.class)) {
                             String value = (String)field.get(this);
                             if (!value.isEmpty()) {
+                                //System.out.println("Prop: " + propertyUri + "  Value: " + value);
                                 Map<String, Object> rvs_row = new HashMap<String, Object>();
                                 rvs_row.put(propertyUri, value);
                                 reversed_rows.add(rvs_row);
@@ -336,7 +349,7 @@ public abstract class HADatAcThing {
 
                         if (field.getType().equals(List.class)) {
                             List<?> list = (List<?>)field.get(this);
-                            if (!list.isEmpty() && list.get(0) instanceof String) {
+                            if (list != null && !list.isEmpty() && list.get(0) instanceof String) {
                                 for (String element : (List<String>)list) {
                                     if (element != null && !element.isEmpty()) {
                                         //System.out.println("in List assigned [" + element + "] to [" + propertyUri + "]");
@@ -454,6 +467,7 @@ public abstract class HADatAcThing {
                 model, CollectionUtil.getCollectionPath(
                         CollectionUtil.Collection.SPARQL_GRAPH));
 
+        //System.out.println("For Uri " + uri + " num committed is " + numCommitted);
         return numCommitted >= 0;
     }
 
@@ -614,8 +628,5 @@ public abstract class HADatAcThing {
 
         //System.out.println("Deleted <" + getUri() + "> from triple store");
     }
-
-    public abstract boolean saveToSolr();
-    public abstract int deleteFromSolr();
 
 }

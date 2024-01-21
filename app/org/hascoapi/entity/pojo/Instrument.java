@@ -164,13 +164,4 @@ public class Instrument extends Container {
 		deleteFromTripleStore();
 	}
 
-    @Override
-    public boolean saveToSolr() {
-        return false;
-    }
-    
-    @Override
-    public int deleteFromSolr() {
-        return 0;
-    }
 }

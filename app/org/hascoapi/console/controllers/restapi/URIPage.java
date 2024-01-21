@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.hascoapi.entity.pojo.*;
 import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.HAScOMapper;
+import org.hascoapi.vocabularies.FOAF;
 import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.SIO;
 import org.hascoapi.vocabularies.VSTOI;
@@ -25,9 +26,12 @@ public class URIPage extends Controller {
             return ok(ApiUtil.createResponse("Uri [" + uri + "] returned no object from the knowledge graph", false));
         }
 
-        String typeUri = finalResult.getHascoTypeUri();
-        if (typeUri == null || typeUri.equals("")) {
-            return ok(ApiUtil.createResponse("No type-specific instance found for uri [" + uri + "]", false));
+        String hascoTypeUri = finalResult.getHascoTypeUri();
+        if (hascoTypeUri == null || hascoTypeUri.equals("")) {
+            String typeUri = finalResult.getTypeUri();
+            if (typeUri == null || typeUri.equals("")) {
+                return ok(ApiUtil.createResponse("No type-specific instance found for uri [" + uri + "]", false));
+            }
         }
 
         return processResult(finalResult, finalResult.getHascoTypeUri(), uri);
@@ -62,34 +66,54 @@ public class URIPage extends Controller {
              * }
              */
 
-            if (result.getHascoTypeUri().equals(VSTOI.INSTRUMENT)) {
-                finalResult = Instrument.find(uri);
-            } else if (result.getHascoTypeUri().equals(VSTOI.SUBCONTAINER)) {
-                finalResult = Subcontainer.find(uri);
-            } else if (result.getHascoTypeUri().equals(VSTOI.CONTAINER_SLOT)) {
-                finalResult = ContainerSlot.find(uri);
-            } else if (result.getHascoTypeUri().equals(VSTOI.DETECTOR_STEM)) {
-                finalResult = DetectorStem.find(uri);
-            } else if (result.getHascoTypeUri().equals(VSTOI.DETECTOR)) {
-                finalResult = Detector.findDetector(uri);
+            if (result.getHascoTypeUri().equals(FOAF.ORGANIZATION)) {
+                finalResult = Organization.find(uri);
+            } else if (result.getHascoTypeUri().equals(FOAF.PERSON)) {
+                finalResult = Person.find(uri);
+            } else if (result.getHascoTypeUri().equals(HASCO.DATAFILE)) {
+                finalResult = DataFile.find(uri);
+            } else if (result.getHascoTypeUri().equals(HASCO.SEMANTIC_VARIABLE)) {
+                finalResult = SemanticVariable.find(uri);
+            } else if (result.getHascoTypeUri().equals(HASCO.STUDY)) {
+                finalResult = Study.find(uri);
+            } else if (result.getHascoTypeUri().equals(HASCO.STUDY_OBJECT)) {
+                finalResult = StudyObject.find(uri);
+            } else if (result.getHascoTypeUri().equals(HASCO.STUDY_OBJECT_COLLECTION)) {
+                finalResult = StudyObjectCollection.find(uri);
+            } else if (result.getHascoTypeUri().equals(HASCO.STUDY_ROLE)) {
+                finalResult = StudyRole.find(uri);
+            } else if (result.getHascoTypeUri().equals(HASCO.SEMANTIC_VARIABLE)) {
+                finalResult = SemanticVariable.find(uri);
+            } else if (result.getHascoTypeUri().equals(HASCO.SDD)) {
+                finalResult = SDD.find(uri);
+            } else if (result.getHascoTypeUri().equals(HASCO.VIRTUAL_COLUMN)) {
+                finalResult = VirtualColumn.find(uri);
+            } else if (result.getHascoTypeUri().equals(SIO.ATTRIBUTE)) {
+                finalResult = Attribute.find(uri);
+            } else if (result.getHascoTypeUri().equals(SIO.ENTITY)) {
+                finalResult = Entity.find(uri);
+            } else if (result.getHascoTypeUri().equals(SIO.UNIT)) {
+                finalResult = Unit.find(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.ANNOTATION)) {
+                finalResult = Annotation.find(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.ANNOTATION_STEM)) {
+                finalResult = AnnotationStem.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.CODEBOOK)) {
                 finalResult = Codebook.find(uri);            
             } else if (result.getHascoTypeUri().equals(VSTOI.CODEBOOK_SLOT)) {
                 finalResult = CodebookSlot.find(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.CONTAINER_SLOT)) {
+                finalResult = ContainerSlot.find(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.DETECTOR)) {
+                finalResult = Detector.findDetector(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.DETECTOR_STEM)) {
+                finalResult = DetectorStem.find(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.INSTRUMENT)) {
+                finalResult = Instrument.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.RESPONSE_OPTION)) {
                 finalResult = ResponseOption.find(uri);
-            } else if (result.getHascoTypeUri().equals(VSTOI.ANNOTATION_STEM)) {
-                finalResult = AnnotationStem.find(uri);
-            } else if (result.getHascoTypeUri().equals(VSTOI.ANNOTATION)) {
-                finalResult = Annotation.find(uri);
-            } else if (result.getHascoTypeUri().equals(HASCO.SEMANTIC_VARIABLE)) {
-                finalResult = SemanticVariable.find(uri);
-            } else if (result.getHascoTypeUri().equals(SIO.ENTITY)) {
-                finalResult = Entity.find(uri);
-            } else if (result.getHascoTypeUri().equals(SIO.ATTRIBUTE)) {
-                finalResult = Attribute.find(uri);
-            } else if (result.getHascoTypeUri().equals(SIO.UNIT)) {
-                finalResult = Unit.find(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.SUBCONTAINER)) {
+                finalResult = Subcontainer.find(uri);
             } else {
                 finalResult = result;
             }

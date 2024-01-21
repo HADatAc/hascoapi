@@ -30,7 +30,9 @@ GET     /hascoapi/api/:elementType/manageremail/total/:managerEmail             
 # MANAGEMENT GENERIC 
 
 POST    /hascoapi/api/:elementType/create/:json             org.hascoapi.console.controllers.restapi.SIRElementAPI.createElement(elementType: String, json: String)
+GET     /hascoapi/api/:elementType/create/:json             org.hascoapi.console.controllers.restapi.SIRElementAPI.createElement(elementType: String, json: String)
 POST    /hascoapi/api/:elementType/delete/:uri              org.hascoapi.console.controllers.restapi.SIRElementAPI.deleteElement(elementType: String, uri: String)
+GET     /hascoapi/api/:elementType/delete/:uri              org.hascoapi.console.controllers.restapi.SIRElementAPI.deleteElement(elementType: String, uri: String)
 
 # RETRIEVAL REPO
 
@@ -71,9 +73,20 @@ GET     /hascoapi/api/slots/container/detach/:containerSlotUri                  
 GET     /hascoapi/api/slots/codebook/attach/:responseOptionUri/:codebookSlotUri     org.hascoapi.console.controllers.restapi.CodebookAPI.attach(responseOptionUri: String, codebookSlotUri : String)
 GET     /hascoapi/api/slots/codebook/detach/:codebookSlotUri                        org.hascoapi.console.controllers.restapi.CodebookAPI.detach(codebookSlotUri : String)
         
-GET     /hascoapi/api/slotelements/bycontainer/:containerUri          org.hascoapi.console.controllers.restapi.ContainerAPI.getSlotElements(containerUri: String)
+GET     /hascoapi/api/slotelements/bycontainer/:containerUri                        org.hascoapi.console.controllers.restapi.ContainerAPI.getSlotElements(containerUri: String)
 GET     /hascoapi/api/annotationsbycontainerposition/:containerUri/:positionUri     org.hascoapi.console.controllers.restapi.AnnotationAPI.getAnnotationByContainerAndPosition(containerUri: String, positionUri: String)
-GET     /hascoapi/api/slots/bycodebook/:codebookUri                   org.hascoapi.console.controllers.restapi.CodebookSlotAPI.getCodebookSlotsByCodebook(codebookUri: String)
+GET     /hascoapi/api/slots/bycodebook/:codebookUri                                 org.hascoapi.console.controllers.restapi.CodebookSlotAPI.getCodebookSlotsByCodebook(codebookUri: String)
+
+GET     /hascoapi/api/studyobjectcollection/bystudy/:studyUri         org.hascoapi.console.controllers.restapi.StudyObjectCollectionAPI.getSOCsByStudy(studyUri: String)
+GET     /hascoapi/api/virtualcolumn/bystudy/:studyUri                 org.hascoapi.console.controllers.restapi.VirtualColumnAPI.getVCsByStudy(studyUri: String)
+GET     /hascoapi/api/studyobject/bysoc/:socUri/:pageSize/:offset     org.hascoapi.console.controllers.restapi.StudyObjectAPI.getStudyObjectsBySOCWithPage(socUri: String, pageSize: Integer, offset: Integer)
+GET     /hascoapi/api/studyobject/bysoc/total/:socUri                 org.hascoapi.console.controllers.restapi.StudyObjectAPI.getTotalStudyObjectsBySOC(socUri: String)
+
+# INGESTION METHODS
+
+POST    /hascoapi/api/ingest/:elementType/:elementUri    org.hascoapi.console.controllers.restapi.IngestionAPI.uploadTemplate(elementType: String, elementUri: String, request: play.mvc.Http.Request)
+GET     /hascoapi/api/uningest/:dataFileUri              org.hascoapi.console.controllers.restapi.IngestionAPI.uningest(dataFileUri: String)
+GET     /hascoapi/api/ingestion/:dataFileUri/log         org.hascoapi.console.controllers.restapi.IngestionAPI.getLog(dataFileUri : String)
 
 # TESTING METHODS
 

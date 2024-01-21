@@ -271,13 +271,7 @@ public class NameSpace extends HADatAcThing {
     public void save() { }
 
     @Override
-    public boolean saveToSolr() { return true; }
-
-    @Override
     public void delete() { }
-
-    @Override
-    public int deleteFromSolr() { return 0; }
 
     public static int deleteAll() {  return 0; }
 

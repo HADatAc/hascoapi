@@ -21,7 +21,7 @@ public class SIRElementAPI extends Controller {
      */
 
     public Result createElement(String elementType, String json) {
-        //System.out.println("Type: [" + elementType + "  JSON [" + json + "]");
+        //System.out.println("Type: [" + elementType + "]  JSON [" + json + "]");
         if (json == null || json.equals("")) {
             return ok(ApiUtil.createResponse("No json content has been provided.", false));
         }
@@ -29,6 +29,7 @@ public class SIRElementAPI extends Controller {
             return ok(ApiUtil.createResponse("No elementType has been provided", false));
         }
         Class clazz = GenericFind.getElementClass(elementType);
+        //System.out.println("Clazz: [" + clazz + "]");
         if (clazz == null) {
             return ok(ApiUtil.createResponse("No valid elementType has been provided", false));
         }
@@ -41,8 +42,8 @@ public class SIRElementAPI extends Controller {
                 object = (Instrument)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
-                success = false;
                 message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
         } else if (clazz == Subcontainer.class) {
             try {
@@ -51,8 +52,8 @@ public class SIRElementAPI extends Controller {
                 //System.out.println("SIRElementAPI.create(Subcontainer): JSON=[" + json + "]");
                 object.saveAsSlot();
             } catch (JsonProcessingException e) {
-                success = false;
                 message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
         } else if (clazz == DetectorStem.class) {
             try {
@@ -60,8 +61,8 @@ public class SIRElementAPI extends Controller {
                 object = (DetectorStem)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
-                success = false;
                 message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
         } else if (clazz == Detector.class) {
             try {
@@ -69,8 +70,8 @@ public class SIRElementAPI extends Controller {
                 object = (Detector)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
-                success = false;
                 message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
         } else if (clazz == ContainerSlot.class) {
             // NOTE: Use ContainerSlot.createContainerSlots(container,totContainerSlots) to create container slots
@@ -80,8 +81,8 @@ public class SIRElementAPI extends Controller {
                 object = (Codebook)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
-                success = false;
                 message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
         } else if (clazz == ResponseOption.class) {
             try {
@@ -89,8 +90,8 @@ public class SIRElementAPI extends Controller {
                 object = (ResponseOption)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
-                success = false;
                 message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
         } else if (clazz == CodebookSlot.class) {
             try {
@@ -98,8 +99,8 @@ public class SIRElementAPI extends Controller {
                 object = (CodebookSlot)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
-                success = false;
                 message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
         } else if (clazz == AnnotationStem.class) {
             try {
@@ -107,8 +108,8 @@ public class SIRElementAPI extends Controller {
                 object = (AnnotationStem)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
-                success = false;
                 message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
         } else if (clazz == Annotation.class) {
             try {
@@ -116,8 +117,8 @@ public class SIRElementAPI extends Controller {
                 object = (Annotation)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
-                success = false;
                 message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
         } else if (clazz == SemanticVariable.class) {
             try {
@@ -125,8 +126,8 @@ public class SIRElementAPI extends Controller {
                 object = (SemanticVariable)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
-                success = false;
                 message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
         } else if (clazz == InstrumentType.class) {
             try {
@@ -134,8 +135,8 @@ public class SIRElementAPI extends Controller {
                 object = (InstrumentType)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
-                success = false;
                 message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
         } else if (clazz == DetectorStemType.class) {
             try {
@@ -143,8 +144,8 @@ public class SIRElementAPI extends Controller {
                 object = (DetectorStemType)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
-                success = false;
                 message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
         } else if (clazz == Entity.class) {
             try {
@@ -152,8 +153,8 @@ public class SIRElementAPI extends Controller {
                 object = (Entity)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
-                success = false;
                 message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
         } else if (clazz == Attribute.class) {
             try {
@@ -161,8 +162,8 @@ public class SIRElementAPI extends Controller {
                 object = (Attribute)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
-                success = false;
                 message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
         } else if (clazz == Unit.class) {
             try {
@@ -170,17 +171,92 @@ public class SIRElementAPI extends Controller {
                 object = (Unit)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
-                success = false;
                 message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
-        } else if (clazz == Agent.class) {
+        } else if (clazz == SDD.class) {
             try {
-                Agent object;
-                object = (Agent)objectMapper.readValue(json, clazz);
+                SDD object;
+                object = (SDD)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
-                success = false;
                 message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == DataFile.class) {
+            try {
+                DataFile object;
+                object = (DataFile)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == Study.class) {
+            try {
+                Study object;
+                object = (Study)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == StudyObjectCollection.class) {
+            try {
+                StudyObjectCollection object;
+                object = (StudyObjectCollection)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == StudyObject.class) {
+            try {
+                StudyObject object;
+                object = (StudyObject)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == StudyRole.class) {
+            try {
+                StudyRole object;
+                object = (StudyRole)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == VirtualColumn.class) {
+            try {
+                VirtualColumn object;
+                object = (VirtualColumn)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                System.out.println("Error processing vc: " + e.getMessage());
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == Person.class) {
+            try {
+                Person object;
+                object = (Person)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                System.out.println("Error processing vc: " + e.getMessage());
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == Organization.class) {
+            try {
+                Organization object;
+                object = (Organization)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                System.out.println("Error processing vc: " + e.getMessage());
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
         } 
         if (!success) {
@@ -307,8 +383,56 @@ public class SIRElementAPI extends Controller {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
-        } else if (clazz == Agent.class) {
-            Agent object = Agent.find(uri);
+        } else if (clazz == SDD.class) {
+            SDD object = SDD.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == DataFile.class) {
+            DataFile object = DataFile.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == Study.class) {
+            Study object = Study.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == StudyObjectCollection.class) {
+            StudyObjectCollection object = StudyObjectCollection.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == StudyObject.class) {
+            StudyObject object = StudyObject.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == StudyRole.class) {
+            StudyRole object = StudyRole.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == VirtualColumn.class) {
+            VirtualColumn object = VirtualColumn.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == Person.class) {
+            Person object = Person.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == Organization.class) {
+            Organization object = Organization.find(uri);
             if (object == null) {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
@@ -412,8 +536,44 @@ public class SIRElementAPI extends Controller {
             GenericFind<Unit> query = new GenericFind<Unit>();
             List<Unit> results = query.findByKeywordWithPages(Unit.class,keyword, pageSize, offset);
             return UnitAPI.getUnits(results);
+        }  else if (elementType.equals("sdd")) {
+            GenericFind<SDD> query = new GenericFind<SDD>();
+            List<SDD> results = query.findByKeywordWithPages(SDD.class,keyword, pageSize, offset);
+            return SDDAPI.getSDDs(results);
+        }  else if (elementType.equals("datafile")) {
+            GenericFind<DataFile> query = new GenericFind<DataFile>();
+            List<DataFile> results = query.findByKeywordWithPages(DataFile.class,keyword, pageSize, offset);
+            return DataFileAPI.getDataFiles(results);
+        }  else if (elementType.equals("study")) {
+            GenericFind<Study> query = new GenericFind<Study>();
+            List<Study> results = query.findByKeywordWithPages(Study.class,keyword, pageSize, offset);
+            return StudyAPI.getStudies(results);
+        }  else if (elementType.equals("studyobjectcollection")) {
+            GenericFind<StudyObjectCollection> query = new GenericFind<StudyObjectCollection>();
+            List<StudyObjectCollection> results = query.findByKeywordWithPages(StudyObjectCollection.class,keyword, pageSize, offset);
+            return StudyObjectCollectionAPI.getStudyObjectCollections(results);
+        }  else if (elementType.equals("studyobject")) {
+            GenericFind<StudyObject> query = new GenericFind<StudyObject>();
+            List<StudyObject> results = query.findByKeywordWithPages(StudyObject.class,keyword, pageSize, offset);
+            return StudyObjectAPI.getStudyObjects(results);
+        }  else if (elementType.equals("studyrole")) {
+            GenericFind<StudyRole> query = new GenericFind<StudyRole>();
+            List<StudyRole> results = query.findByKeywordWithPages(StudyRole.class,keyword, pageSize, offset);
+            return StudyRoleAPI.getStudyRoles(results);
+        }  else if (elementType.equals("virtualcolumn")) {
+            GenericFind<VirtualColumn> query = new GenericFind<VirtualColumn>();
+            List<VirtualColumn> results = query.findByKeywordWithPages(VirtualColumn.class,keyword, pageSize, offset);
+            return VirtualColumnAPI.getVirtualColumns(results);
+        }  else if (elementType.equals("person")) {
+            GenericFind<Person> query = new GenericFind<Person>();
+            List<Person> results = query.findByKeywordWithPages(Person.class,keyword, pageSize, offset);
+            return PersonAPI.getPeople(results);
+        }  else if (elementType.equals("organization")) {
+            GenericFind<Organization> query = new GenericFind<Organization>();
+            List<Organization> results = query.findByKeywordWithPages(Organization.class,keyword, pageSize, offset);
+            return OrganizationAPI.getOrganizations(results);
         } 
-        return ok("No valid element type.");
+        return ok("[getElementsByKeywordWithPage] No valid element type.");
     }
 
     public Result getTotalElementsByKeyword(String elementType, String keyword) {
@@ -490,8 +650,44 @@ public class SIRElementAPI extends Controller {
             GenericFind<Unit> query = new GenericFind<Unit>();
             List<Unit> results = query.findByKeywordAndLanguageWithPages(Unit.class, keyword, language, pageSize, offset);
             return UnitAPI.getUnits(results);
+        }  else if (elementType.equals("sdd")) {
+            GenericFind<SDD> query = new GenericFind<SDD>();
+            List<SDD> results = query.findByKeywordAndLanguageWithPages(SDD.class, keyword, language, pageSize, offset);
+            return SDDAPI.getSDDs(results);
+        }  else if (elementType.equals("datafile")) {
+            GenericFind<DataFile> query = new GenericFind<DataFile>();
+            List<DataFile> results = query.findByKeywordAndLanguageWithPages(DataFile.class, keyword, language, pageSize, offset);
+            return DataFileAPI.getDataFiles(results);
+        }  else if (elementType.equals("study")) {
+            GenericFind<Study> query = new GenericFind<Study>();
+            List<Study> results = query.findByKeywordAndLanguageWithPages(Study.class, keyword, language, pageSize, offset);
+            return StudyAPI.getStudies(results);
+        }  else if (elementType.equals("studyobjectcollection")) {
+            GenericFind<StudyObjectCollection> query = new GenericFind<StudyObjectCollection>();
+            List<StudyObjectCollection> results = query.findByKeywordAndLanguageWithPages(StudyObjectCollection.class, keyword, language, pageSize, offset);
+            return StudyObjectCollectionAPI.getStudyObjectCollections(results);
+        }  else if (elementType.equals("studyobject")) {
+            GenericFind<StudyObject> query = new GenericFind<StudyObject>();
+            List<StudyObject> results = query.findByKeywordAndLanguageWithPages(StudyObject.class, keyword, language, pageSize, offset);
+            return StudyObjectAPI.getStudyObjects(results);
+        }  else if (elementType.equals("studyrole")) {
+            GenericFind<StudyRole> query = new GenericFind<StudyRole>();
+            List<StudyRole> results = query.findByKeywordAndLanguageWithPages(StudyRole.class, keyword, language, pageSize, offset);
+            return StudyRoleAPI.getStudyRoles(results);
+        }  else if (elementType.equals("virtualcolumn")) {
+            GenericFind<VirtualColumn> query = new GenericFind<VirtualColumn>();
+            List<VirtualColumn> results = query.findByKeywordAndLanguageWithPages(VirtualColumn.class, keyword, language, pageSize, offset);
+            return VirtualColumnAPI.getVirtualColumns(results);
+        }  else if (elementType.equals("person")) {
+            GenericFind<Person> query = new GenericFind<Person>();
+            List<Person> results = query.findByKeywordAndLanguageWithPages(Person.class, keyword, language, pageSize, offset);
+            return PersonAPI.getPeople(results);
+        }  else if (elementType.equals("organization")) {
+            GenericFind<Organization> query = new GenericFind<Organization>();
+            List<Organization> results = query.findByKeywordAndLanguageWithPages(Organization.class, keyword, language, pageSize, offset);
+            return OrganizationAPI.getOrganizations(results);
         } 
-        return ok("No valid element type.");
+        return ok("[getElementsByKeywordAndLanguageWithPage] No valid element type.");
     }
 
     public Result getTotalElementsByKeywordAndLanguage(String elementType, String keyword, String language) {
@@ -516,65 +712,6 @@ public class SIRElementAPI extends Controller {
         return ok(ApiUtil.createResponse("query method getTotalElementsByKeyword() failed to retrieve total number of [" + elementType + "]", false));
     }
         
-    /** 
-    public Result getElementsByKeywordAndLanguage(String elementType, String keyword, String language, int pageSize, int offset) {
-        if (keyword.equals("_")) {
-            keyword = "";
-        }
-        if (language.equals("_")) {
-            language = "";
-        }
-        if (elementType.equals("instrument")) {
-            List<Instrument> results = Instrument.findByKeywordAndLanguageWithPages(keyword, language, pageSize, offset);
-            return InstrumentAPI.getInstruments(results);
-        } else if (elementType.equals("detectorstem")) {
-            List<DetectorStem> results = DetectorStem.findByKeywordAndLanguageWithPages(keyword, language, pageSize, offset);
-            return DetectorStemAPI.getDetectorStems(results);
-        } else if (elementType.equals("detector")) {
-            List<Detector> results = Detector.findDetectorsByKeywordAndLanguageWithPages(keyword, language, pageSize, offset);
-            return DetectorAPI.getDetectors(results);
-        } else if (elementType.equals("codebook")) {
-            List<Codebook> results = Codebook.findByKeywordAndLanguageWithPages(keyword, language, pageSize, offset);
-            return CodebookAPI.getCodebooks(results);
-        } else if (elementType.equals("responseoption")) {
-            List<ResponseOption> results = ResponseOption.findByKeywordAndLanguageWithPages(keyword, language, pageSize, offset);
-            return ResponseOptionAPI.getResponseOptions(results);
-        }
-        return ok("No valid element type.");
-    }
-
-    public Result getTotalElementsByKeywordAndLanguage(String elementType, String keyword, String language){
-        if (keyword.equals("_")) {
-            keyword = "";
-        }
-        if (language.equals("_")) {
-            language = "";
-        }
-        if (elementType.equals("instrument")) {
-            int totalInstruments = Instrument.findTotalByKeywordAndLanguage(keyword, language);
-            String totalInstrumentsJSON = "{\"total\":" + totalInstruments + "}";
-            return ok(ApiUtil.createResponse(totalInstrumentsJSON, true));
-        } else if (elementType.equals("detectorstem")) {
-            int totalDetectorStems = DetectorStem.findTotalByKeywordAndLanguage(keyword, language);
-            String totalDetectorStemsJSON = "{\"total\":" + totalDetectorStems + "}";
-            return ok(ApiUtil.createResponse(totalDetectorStemsJSON, true));
-        } else if (elementType.equals("detector")) {
-            int totalDetectors = Detector.findTotalDetectorsByKeywordAndLanguage(keyword, language);
-            String totalDetectorsJSON = "{\"total\":" + totalDetectors + "}";
-            return ok(ApiUtil.createResponse(totalDetectorsJSON, true));
-        } else if (elementType.equals("codebook")) {
-            int totalCodebooks = Codebook.findTotalByKeywordAndLanguage(keyword, language);
-            String totalCodebooksJSON = "{\"total\":" + totalCodebooks + "}";
-            return ok(ApiUtil.createResponse(totalCodebooksJSON, true));
-        } else if (elementType.equals("responseoption")) {
-            int totalResponseOptions = ResponseOption.findTotalByKeywordAndLanguage(keyword, language);
-            String totalResponseOptionsJSON = "{\"total\":" + totalResponseOptions + "}";
-            return ok(ApiUtil.createResponse(totalResponseOptionsJSON, true));
-        }
-        return ok("No valid element type.");
-    }
-    */
-
     /**
      *   GET ELEMENTS BY MANAGER EMAIL WITH PAGE
      */
@@ -615,8 +752,48 @@ public class SIRElementAPI extends Controller {
             GenericFind<Annotation> query = new GenericFind<Annotation>();
             List<Annotation> results = query.findByManagerEmailWithPages(Annotation.class, managerEmail, pageSize, offset);
             return AnnotationAPI.getAnnotations(results);
+        }  else if (elementType.equals("sdd")) {
+            GenericFind<SDD> query = new GenericFind<SDD>();
+            List<SDD> results = query.findByManagerEmailWithPages(SDD.class, managerEmail, pageSize, offset);
+            return SDDAPI.getSDDs(results);
+        }  else if (elementType.equals("datafile")) {
+            GenericFind<DataFile> query = new GenericFind<DataFile>();
+            List<DataFile> results = query.findByManagerEmailWithPages(DataFile.class, managerEmail, pageSize, offset);
+            return DataFileAPI.getDataFiles(results);
+        }  else if (elementType.equals("std")) {
+            GenericFind<Study> query = new GenericFind<Study>();
+            List<Study> results = query.findByManagerEmailWithPages(STD.class, managerEmail, pageSize, offset);
+            return StudyAPI.getStudies(results);
+        }  else if (elementType.equals("study")) {
+            GenericFind<Study> query = new GenericFind<Study>();
+            List<Study> results = query.findByManagerEmailWithPages(Study.class, managerEmail, pageSize, offset);
+            return StudyAPI.getStudies(results);
+        }  else if (elementType.equals("studyobjectcollection")) {
+            GenericFind<StudyObjectCollection> query = new GenericFind<StudyObjectCollection>();
+            List<StudyObjectCollection> results = query.findByManagerEmailWithPages(StudyObjectCollection.class, managerEmail, pageSize, offset);
+            return StudyObjectCollectionAPI.getStudyObjectCollections(results);
+        }  else if (elementType.equals("studyobject")) {
+            GenericFind<StudyObject> query = new GenericFind<StudyObject>();
+            List<StudyObject> results = query.findByManagerEmailWithPages(StudyObject.class, managerEmail, pageSize, offset);
+            return StudyObjectAPI.getStudyObjects(results);
+        }  else if (elementType.equals("studyrole")) {
+            GenericFind<StudyRole> query = new GenericFind<StudyRole>();
+            List<StudyRole> results = query.findByManagerEmailWithPages(StudyRole.class, managerEmail, pageSize, offset);
+            return StudyRoleAPI.getStudyRoles(results);
+        }  else if (elementType.equals("virtualcolumn")) {
+            GenericFind<VirtualColumn> query = new GenericFind<VirtualColumn>();
+            List<VirtualColumn> results = query.findByManagerEmailWithPages(VirtualColumn.class, managerEmail, pageSize, offset);
+            return VirtualColumnAPI.getVirtualColumns(results);
+        }  else if (elementType.equals("person")) {
+            GenericFind<Person> query = new GenericFind<Person>();
+            List<Person> results = query.findByManagerEmailWithPages(Person.class, managerEmail, pageSize, offset);
+            return PersonAPI.getPeople(results);
+        }  else if (elementType.equals("organization")) {
+            GenericFind<Organization> query = new GenericFind<Organization>();
+            List<Organization> results = query.findByManagerEmailWithPages(Organization.class, managerEmail, pageSize, offset);
+            return OrganizationAPI.getOrganizations(results);
         } 
-        return ok("No valid element type.");
+        return ok("[getElementsByManagerEmail] No valid element type.");
 
     }
 
@@ -629,7 +806,8 @@ public class SIRElementAPI extends Controller {
         if (clazz == null) {        
             return ok(ApiUtil.createResponse("[" + elementType + "] is not a valid elementType", false));
         }
-        int totalElements = GenericFind.findTotalByManagerEmail(clazz, managerEmail);
+        
+        int totalElements = totalElements = GenericFind.findTotalByManagerEmail(clazz, managerEmail);
         if (totalElements >= 0) {
             String totalElementsJSON = "{\"total\":" + totalElements + "}";
             return ok(ApiUtil.createResponse(totalElementsJSON, true));
@@ -641,7 +819,7 @@ public class SIRElementAPI extends Controller {
     public Result usage(String elementUri){
         HADatAcThing object = URIPage.objectFromUri(elementUri);
         if (object == null || object.getHascoTypeUri() == null) {
-            return ok("No valid element type.");
+            return ok("[usage] No valid element type. Provided uri is null.");
         }
         String elementType = object.getHascoTypeUri();
         //System.out.println("SIREelementAPI: element type is " + elementType);
@@ -654,13 +832,13 @@ public class SIRElementAPI extends Controller {
         //    String totalDetectorsJSON = "{\"total\":" + totalDetectors + "}";
         //    return ok(ApiUtil.createResponse(totalDetectorsJSON, true));
         //}
-        return ok("No valid element type.");
+        return ok("[usage] No valid element type.");
     }
 
     public Result derivation(String elementUri){
         HADatAcThing object = URIPage.objectFromUri(elementUri);
         if (object == null || object.getHascoTypeUri() == null) {
-            return ok("No valid element type.");
+            return ok("[derivation] No valid element type. Provided uri is null.");
         }
         String elementType = object.getHascoTypeUri();
         //System.out.println("SIREelementAPI: element type is " + elementType);
@@ -673,7 +851,7 @@ public class SIRElementAPI extends Controller {
         //    String totalDetectorsJSON = "{\"total\":" + totalDetectors + "}";
         //    return ok(ApiUtil.createResponse(totalDetectorsJSON, true));
         //}
-        return ok("No valid element type.");
+        return ok("[derivation] No valid element type.");
     }
 
 }
