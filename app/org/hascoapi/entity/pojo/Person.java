@@ -3,6 +3,7 @@ package org.hascoapi.entity.pojo;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSetRewindable;
 import org.apache.jena.rdf.model.Model;
@@ -19,7 +20,15 @@ import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.VSTOI;
 import org.hascoapi.vocabularies.FOAF;
 
+@JsonFilter("personFilter")
 public class Person extends Agent {
+
+    public Organization getAffiliation() {
+        if (this.getMember() == null) {
+            return null;
+        }
+        return Organization.find(this.getMember());
+    }
 
     public static List<Person> find() {
         String query =
@@ -83,6 +92,12 @@ public class Person extends Agent {
                 person.setFamilyName(str);
             } else if (statement.getPredicate().getURI().equals(FOAF.GIVEN_NAME)) {
                 person.setGivenName(str);
+            } else if (statement.getPredicate().getURI().equals(FOAF.MBOX)) {
+                person.setMbox(str);
+            } else if (statement.getPredicate().getURI().equals(FOAF.MEMBER)) {
+                person.setMember(str);
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
+                person.setHasSIRManagerEmail(str);
             }
         }
 

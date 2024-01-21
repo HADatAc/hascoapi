@@ -39,7 +39,7 @@ public class Repository extends HADatAcThing {
 
     private DateTime startedAt;
 
-    private Agent institution;
+    private Organization institution;
 
     @PropertyField(uri="hasco:hasDefaultNamespaceAbbreviation")
     private String hasDefaultNamespaceAbbreviation;
@@ -92,14 +92,14 @@ public class Repository extends HADatAcThing {
         return institutionUri;
     }
 
-    public Agent getInstitution() {
+    public Organization getInstitution() {
         if (institutionUri == null || institutionUri.equals("")) {
             return null;
         }
         if (institution != null && institution.getUri().equals(institutionUri)) {
             return institution;
         }
-        return (Agent)Agent.find(institutionUri);
+        return Organization.find(institutionUri);
     }
 
     public String getHasDefaultNamespaceAbbreviation() {

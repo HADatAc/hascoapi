@@ -9,6 +9,7 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
+import org.hascoapi.annotations.PropertyField;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.SPARQLUtils;
@@ -21,10 +22,23 @@ import org.hascoapi.vocabularies.FOAF;
 
 public class Agent extends HADatAcThing implements Comparable<Agent> {
 
-    protected String agentType;
+    @PropertyField(uri="foaf:name")
     protected String name;
+
+    @PropertyField(uri="foaf:familyName")
     protected String familyName;
+
+    @PropertyField(uri="foaf:givenName")
     protected String givenName;
+
+    @PropertyField(uri="foaf:mbox")
+    protected String mbox;
+
+    @PropertyField(uri="foaf:member")
+    protected String member;
+
+    @PropertyField(uri="vstoi:hasSIRManagerEmail")
+    protected String hasSIRManagerEmail;
 
     public String getName() {
         return name;
@@ -47,6 +61,28 @@ public class Agent extends HADatAcThing implements Comparable<Agent> {
         this.givenName = givenName;
     }
 
+    public String getMbox() {
+        return mbox;
+    }
+    public void setMbox(String mbox) {
+        this.mbox = mbox;
+    }
+
+    public String getMember() {
+        return member;
+    }
+    public void setMember(String member) {
+        this.member = member;
+    }
+
+    public String getHasSIRManagerEmail() {
+        return hasSIRManagerEmail;
+    }
+    public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
+        this.hasSIRManagerEmail = hasSIRManagerEmail;
+    }
+
+    /** 
     public static List<Agent> findOrganizations() {
         String query =
                 " SELECT ?uri WHERE { " +
@@ -62,7 +98,9 @@ public class Agent extends HADatAcThing implements Comparable<Agent> {
                         "} ";
         return findByQuery(query);
     }
+    */
 
+    /** 
     private static List<Agent> findByQuery(String requestedQuery) {
         List<Agent> agents = new ArrayList<Agent>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + requestedQuery;
@@ -80,7 +118,9 @@ public class Agent extends HADatAcThing implements Comparable<Agent> {
         java.util.Collections.sort((List<Agent>) agents);
         return agents;
     }
+    */
 
+    /** 
     public static Agent find(String agent_uri) {
         Agent agent = null;
         Statement statement;
@@ -117,6 +157,12 @@ public class Agent extends HADatAcThing implements Comparable<Agent> {
                 agent.setFamilyName(str);
             } else if (statement.getPredicate().getURI().equals(FOAF.GIVEN_NAME)) {
                 agent.setGivenName(str);
+            } else if (statement.getPredicate().getURI().equals(FOAF.MBOX)) {
+                agent.setMbox(str);
+            } else if (statement.getPredicate().getURI().equals(FOAF.MEMBER)) {
+                agent.setMember(str);
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
+                agent.setHasSIRManagerEmail(str);
             }
         }
 
@@ -124,6 +170,7 @@ public class Agent extends HADatAcThing implements Comparable<Agent> {
 
         return agent;
     }
+    */
 
     @Override
     public int compareTo(Agent another) {
@@ -131,11 +178,6 @@ public class Agent extends HADatAcThing implements Comparable<Agent> {
             return 0;
         }
         return this.getName().compareTo(another.getName());
-    }
-
-    @Override
-    public void delete() {
-        deleteFromTripleStore();
     }
 
 }

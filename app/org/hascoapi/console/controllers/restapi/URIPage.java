@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.hascoapi.entity.pojo.*;
 import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.HAScOMapper;
+import org.hascoapi.vocabularies.FOAF;
 import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.SIO;
 import org.hascoapi.vocabularies.VSTOI;
@@ -65,7 +66,11 @@ public class URIPage extends Controller {
              * }
              */
 
-            if (result.getHascoTypeUri().equals(HASCO.DATAFILE)) {
+            if (result.getHascoTypeUri().equals(FOAF.ORGANIZATION)) {
+                finalResult = Organization.find(uri);
+            } else if (result.getHascoTypeUri().equals(FOAF.PERSON)) {
+                finalResult = Person.find(uri);
+            } else if (result.getHascoTypeUri().equals(HASCO.DATAFILE)) {
                 finalResult = DataFile.find(uri);
             } else if (result.getHascoTypeUri().equals(HASCO.SEMANTIC_VARIABLE)) {
                 finalResult = SemanticVariable.find(uri);

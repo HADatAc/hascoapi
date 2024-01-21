@@ -3,6 +3,7 @@ package org.hascoapi.entity.pojo;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSetRewindable;
 import org.apache.jena.rdf.model.Model;
@@ -19,6 +20,7 @@ import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.VSTOI;
 import org.hascoapi.vocabularies.FOAF;
 
+@JsonFilter("organizationFilter")
 public class Organization extends Agent {
 
     public static List<Organization> find() {
@@ -69,7 +71,7 @@ public class Organization extends Agent {
             statement = stmtIterator.next();
             object = statement.getObject();
             String str = URIUtils.objectRDFToString(object);
-             if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
+            if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
                 organization.setLabel(str);
             } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
                 organization.setTypeUri(str);
@@ -83,6 +85,12 @@ public class Organization extends Agent {
                 organization.setFamilyName(str);
             } else if (statement.getPredicate().getURI().equals(FOAF.GIVEN_NAME)) {
                 organization.setGivenName(str);
+            } else if (statement.getPredicate().getURI().equals(FOAF.MBOX)) {
+                organization.setMbox(str);
+            } else if (statement.getPredicate().getURI().equals(FOAF.MEMBER)) {
+                organization.setMember(str);
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
+                organization.setHasSIRManagerEmail(str);
             }
         }
 

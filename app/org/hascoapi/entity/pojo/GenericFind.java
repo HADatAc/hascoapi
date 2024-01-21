@@ -803,8 +803,6 @@ public class GenericFind<T> {
             return (T)Annotation.find(uri);
         } else if (clazz == SemanticVariable.class) {
             return (T)SemanticVariable.find(uri);
-        } else if (clazz == Agent.class) {
-            return (T)Agent.find(uri);
         } else if (clazz == SDD.class) {
             return (T)SDD.find(uri);
         } else if (clazz == DataFile.class) {

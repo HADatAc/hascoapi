@@ -174,15 +174,6 @@ public class SIRElementAPI extends Controller {
                 message = e.getMessage();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
-        } else if (clazz == Agent.class) {
-            try {
-                Agent object;
-                object = (Agent)objectMapper.readValue(json, clazz);
-                object.save();
-            } catch (JsonProcessingException e) {
-                message = e.getMessage();
-                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
-            }
         } else if (clazz == SDD.class) {
             try {
                 SDD object;
@@ -388,12 +379,6 @@ public class SIRElementAPI extends Controller {
             object.delete();
         } else if (clazz == Unit.class) {
             Unit object = Unit.find(uri);
-            if (object == null) {
-                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
-            }
-            object.delete();
-        } else if (clazz == Agent.class) {
-            Agent object = Agent.find(uri);
             if (object == null) {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }

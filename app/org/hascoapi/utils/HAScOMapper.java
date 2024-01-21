@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import org.hascoapi.entity.pojo.*;
+import org.hascoapi.vocabularies.FOAF;
 import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.SIO;
 import org.hascoapi.vocabularies.VSTOI;
@@ -297,6 +298,24 @@ public class HAScOMapper {
                             "hascoTypeLabel", "comment", "study", "isMemberOf"));
         }
 
+        // ORGANIZATION
+        if (mode.equals(FULL) && typeResult.equals(FOAF.ORGANIZATION)) {
+            filterProvider.addFilter("organizationFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("organizationFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
+                            "hascoTypeLabel", "comment", "name","mbox"));
+        }
+
+        // PERSON
+        if (mode.equals(FULL) && typeResult.equals(FOAF.PERSON)) {
+            filterProvider.addFilter("personFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("personFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
+                            "hascoTypeLabel", "comment", "name", "mbox", "member", "givenName", "familyName", "affiliation"));
+        }
+
         mapper.setFilterProvider(filterProvider);
 
         return mapper;
@@ -344,6 +363,10 @@ public class HAScOMapper {
             return getFiltered(mode, HASCO.STUDY_ROLE);
         } else if (clazz == VirtualColumn.class) {
             return getFiltered(mode, HASCO.VIRTUAL_COLUMN);
+        } else if (clazz == Organization.class) {
+            return getFiltered(mode, FOAF.ORGANIZATION);
+        } else if (clazz == Person.class) {
+            return getFiltered(mode, FOAF.PERSON);
         } 
         return getFiltered(mode, "NONE");
     }

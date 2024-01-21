@@ -40,7 +40,6 @@ public class HASCO {
 
     public static final String DETECTS                                = "http://hadatac.org/ont/hasco/detects";
     public static final String HAS_ACRONYM                            = "http://hadatac.org/ont/hasco/hasAcronym";
-    public static final String HAS_AGENT                              = "http://hadatac.org/ont/hasco/hasAgent";
     public static final String HAS_ATTRIBUTE                          = "http://hadatac.org/ont/hasco/hasAttribute";
     public static final String HAS_CLASS                              = "http://hadatac.org/ont/hasco/hasClass";
     public static final String HAS_CODE                               = "http://hadatac.org/ont/hasco/hasCode";
@@ -79,6 +78,7 @@ public class HASCO {
     public static final String HAS_LOG                                = "http://hadatac.org/ont/hasco/hasLog";
     public static final String HAS_MANAGER_EMAIL                      = "http://hadatac.org/ont/hasco/hasManagerEmail";
     public static final String HAS_OTHER_FOR                          = "http://hadatac.org/ont/hasco/otherFor";
+    public static final String HAS_PI                                 = "http://hadatac.org/ont/hasco/hasPI";
     public static final String HAS_PROJECT                            = "http://hadatac.org/ont/hasco/hasProject";
     public static final String HAS_REFERENCE_LAYOUT                   = "http://hadatac.org/ont/hasco/hasReferenceLayout";
     public static final String HAS_RESOURCE                           = "http://hadatac.org/ont/hasco/hasResource";

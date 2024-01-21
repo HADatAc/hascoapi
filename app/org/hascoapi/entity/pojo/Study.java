@@ -76,8 +76,8 @@ public class Study extends HADatAcThing {
     @PropertyField(uri="hasco:hasInstitution", valueType=PropertyValueType.URI)
     private String institutionUri;
 
-    @PropertyField(uri="hasco:hasAgent", valueType=PropertyValueType.URI)
-    private String agentUri;
+    @PropertyField(uri="hasco:hasPI", valueType=PropertyValueType.URI)
+    private String piUri;
 
     //@PropertyField(uri="hasco:hasLastId")
     //private String lastId;
@@ -93,9 +93,9 @@ public class Study extends HADatAcThing {
 
     private List<String> objectCollectionUris;
 
-    private Agent agent;
+    private Person pi;
 
-    private Agent institution;
+    private Organization institution;
 
     public Study(String id,
                  String uri,
@@ -106,7 +106,7 @@ public class Study extends HADatAcThing {
                  String comment,
                  String externalSource,
                  String institutionUri,
-                 String agentUri,
+                 String piUri,
                  String startDateTime,
                  String endDateTime) {
         this.id = id;
@@ -118,7 +118,7 @@ public class Study extends HADatAcThing {
         this.comment = comment;
         this.externalSource = externalSource;
         this.institutionUri = institutionUri;
-        this.agentUri = agentUri;
+        this.piUri = piUri;
         this.setStartedAt(startDateTime);
         this.setEndedAt(endDateTime);
         this.dataAcquisitionUris = new ArrayList<String>();
@@ -135,7 +135,7 @@ public class Study extends HADatAcThing {
         this.comment = "";
         this.externalSource = "";
         this.institutionUri = "";
-        this.agentUri = "";
+        this.piUri = "";
         this.setStartedAt("");
         this.setEndedAt("");
         this.dataAcquisitionUris = new ArrayList<String>();
@@ -216,33 +216,33 @@ public class Study extends HADatAcThing {
     public String getInstitutionUri() {
         return institutionUri;
     }
-    public Agent getInstitution() {
+    public Organization getInstitution() {
         if (institutionUri == null || institutionUri.equals("")) {
             return null;
         }
         if (institution != null && institution.getUri().equals(institutionUri)) {
             return institution;
         }
-        return Agent.find(institutionUri);
+        return Organization.find(institutionUri);
     }
     public void setInstitutionUri(String institutionUri) {
         this.institutionUri = institutionUri;
     }
 
-    public String getAgentUri() {
-        return agentUri;
+    public String getPIUri() {
+        return piUri;
     }
-    public Agent getAgent() {
-        if (agentUri == null || agentUri.equals("")) {
+    public Person getPI() {
+        if (piUri == null || piUri.equals("")) {
             return null;
         }
-        if (agent != null && agent.getUri().equals(agentUri)) {
-            return agent;
+        if (pi != null && pi.getUri().equals(piUri)) {
+            return pi;
         }
-        return Agent.find(agentUri);
+        return Person.find(piUri);
     }
-    public void setAgentUri(String agentUri) {
-        this.agentUri = agentUri;
+    public void setPIUri(String piUri) {
+        this.piUri = piUri;
     }
 
     public String getTitle() {
@@ -450,8 +450,8 @@ public class Study extends HADatAcThing {
 					study.setProject(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_EXTERNAL_SOURCE)) {
 					study.setExternalSource(str);
-				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_AGENT)) {
-					study.setAgentUri(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_PI)) {
+					study.setPIUri(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_INSTITUTION)) {
 					study.setInstitutionUri(str);
 //				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_LAST_ID)) {
