@@ -47,11 +47,11 @@ In the example below, we named the backup file with the date of the backup. This
 
 ## How to restore a HASCOAPI backup file?
 
-6. Use sftp to copy a backup file, e.g., `/bkp/fuseki-data_17Aug2023.tar.gz` into the HASCOAPI host machine
-1. log into HASCOAPI hosting machine
-2. Go to hascoapi folder: `cd /hascoapi`
-3. Bring down hascoapi containers: `docker compose down`
-4. Go to home folder: `cd ~`
-5. Restore the backup file: `docker run --rm --volumes-from hascoapi_fuseki -v $PWD:/bkp ubuntu bash -c "tar -zxvf /bkp/fuseki-data_17Aug2023.tar.gz"`
+1. Use sftp to copy a backup file, e.g., `/bkp/fuseki-data_17Aug2023.tar.gz` into the HASCOAPI host machine
+2. log into HASCOAPI hosting machine
+3. Go to hascoapi folder: `cd /hascoapi`
+4. Bring down hascoapi containers: `docker compose down`
+5. Go to home folder: `cd ~`
+6. Restore the backup file: `docker run --rm --volumes-from hascoapi_fuseki -v $PWD:/bkp ubuntu bash -c "tar -zxvf /bkp/fuseki-data_17Aug2023.tar.gz"`
 
 
