@@ -15,7 +15,6 @@ It an API for handling HASCO-based knowledge graphs. Canonical representation of
 3. Edit `/hascoapi/conf/application.conf' and replace the value of the variable `pac4.jwt.secret` with another random string of around 40 characters. This is the JWT API token that needs to be shared with the SIR application (https://github.com/HADatAc/sir)
 4. Using `docker build .`, build HASCOAPI images
 5. Using `docker-compose up -d`, run HASCOAPI
-6. record the value of the 
 
 ## How to upgrade HASCOAPI?
 
