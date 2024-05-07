@@ -86,6 +86,8 @@ public class GenericFind<T> {
             return Person.class;
         } else if (elementType.equals("organization")) {
             return Organization.class;
+        } else if (elementType.equals("kgr")) {
+            return KGR.class;
         } 
         return null;
     }
@@ -134,6 +136,8 @@ public class GenericFind<T> {
             return URIUtils.replaceNameSpace(FOAF.PERSON);
         } else if (clazz == Organization.class) {
             return URIUtils.replaceNameSpace(FOAF.ORGANIZATION);
+        } else if (clazz == KGR.class) {
+            return URIUtils.replaceNameSpace(HASCO.KNOWLEDGE_GRAPH);
         }
         return null;
     }
@@ -156,6 +160,7 @@ public class GenericFind<T> {
             ///clazz == DPL.class || 
             //clazz == SSD.class ||
             //clazz == STR.class ||
+            clazz == KGR.class ||
             clazz == STD.class) {
             return true;
         }
@@ -165,6 +170,9 @@ public class GenericFind<T> {
     private static Class superClassOfMT(Class clazz) {
         if (clazz == STD.class) {
             return Study.class;
+        }
+        if (clazz == KGR.class) {  // the superclass of KGR is KGR itself
+            return KGR.class;
         }
         return null;
     } 
@@ -819,6 +827,8 @@ public class GenericFind<T> {
             return (T)Person.find(uri);
         } else if (clazz == Organization.class) {
             return (T)Organization.find(uri);
+        } else if (clazz == KGR.class) {
+            return (T)KGR.find(uri);
         }
         return null;
     

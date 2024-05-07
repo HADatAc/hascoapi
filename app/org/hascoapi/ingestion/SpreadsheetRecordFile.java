@@ -164,13 +164,22 @@ public class SpreadsheetRecordFile implements RecordFile {
 
     @Override
     public boolean isValid() {
+        System.out.println("(SpreadsheetRecordFile) Init with following sheetname: [" + sheetName + "]");
+                    
         Workbook workbook = null;
         try {
             workbook = WorkbookFactory.create(new FileInputStream(file));
         } catch (EncryptedDocumentException /** | InvalidFormatException */ | IOException e) {
-            //e.printStackTrace();
+            e.printStackTrace();
             return false;
         }
+
+        // Print sheet names
+        //int numberOfSheets = workbook.getNumberOfSheets();
+        //for (int i = 0; i < numberOfSheets; i++) {
+        //    Sheet sheet = workbook.getSheetAt(i);
+        //    System.out.println("Sheet Name: " + sheet.getSheetName());
+        //}
 
         Sheet sheet = null;
         if (sheetName.isEmpty()) {
@@ -182,6 +191,7 @@ public class SpreadsheetRecordFile implements RecordFile {
         } else {
             sheet = workbook.getSheet(sheetName);
         }
+
 
         return sheet != null;
     }

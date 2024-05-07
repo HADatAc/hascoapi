@@ -28,10 +28,10 @@ public class Organization extends Agent {
             " SELECT ?uri WHERE { " +
             " ?uri a foaf:Organization ." +
             "} ";
-        return findByQuery(query);
+        return findManyByQuery(query);
     }
 
-    private static List<Organization> findByQuery(String requestedQuery) {
+    private static List<Organization> findManyByQuery(String requestedQuery) {
         List<Organization> organizations = new ArrayList<Organization>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + requestedQuery;
 
@@ -47,6 +47,53 @@ public class Organization extends Agent {
 
         java.util.Collections.sort((List<Organization>) organizations);
         return organizations;
+    }
+
+    public static Organization findByOriginalID(String originalID) {
+        if (originalID == null || originalID.isEmpty()) {
+            return null;
+        }
+        String query = 
+                "SELECT ?uri " +
+                " WHERE {  ?subUri rdfs:subClassOf* foaf:Organization . " +
+                "          ?uri a ?subUri . " +
+                "          ?uri hasco:hasOriginalId ?id .  " +
+                "        FILTER (?id=\"" + originalID + "\"^^xsd:string)  . " +
+                " }";
+        return findOneByQuery(query);
+    }        
+
+    public static Organization findByEmail(String email) {
+        if (email == null || email.isEmpty()) {
+            return null;
+        }
+        String query = 
+                "SELECT ?uri " +
+                " WHERE {  ?subUri rdfs:subClassOf* foaf:Organization . " +
+                "          ?uri a ?subUri . " +
+                "          ?uri foaf:mbox ?email .  " +
+                "        FILTER (?email=\"" + email + "\"^^xsd:string)  . " +
+                " }";
+        return findOneByQuery(query);
+    }        
+
+    private static Organization findOneByQuery(String requestedQuery) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + requestedQuery;
+        
+        ResultSetRewindable resultsrw = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+        String uri = null;
+        Organization organization = null;
+        if (resultsrw.hasNext()) {
+            QuerySolution soln = resultsrw.next();
+            if (soln != null && soln.get("uri") != null) {
+                uri = soln.get("uri").toString();
+                organization = Organization.find(uri);
+            }
+        }
+
+        return organization;
     }
 
     public static Organization find(String uri) {

@@ -30,15 +30,48 @@ public class Person extends Agent {
         return Organization.find(this.getMember());
     }
 
+    public static Person findByEmail(String email) {
+        if (email == null || email.isEmpty()) {
+            return null;
+        }
+        String query = 
+                "SELECT ?uri " +
+                " WHERE {  ?subUri rdfs:subClassOf* foaf:Person . " +
+                "          ?uri a ?subUri . " +
+                "          ?uri foaf:mbox ?email .  " +
+                "        FILTER (?email=\"" + email + "\"^^xsd:string)  . " +
+                " }";
+        return findOneByQuery(query);
+    }        
+
+    private static Person findOneByQuery(String requestedQuery) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + requestedQuery;
+        
+        ResultSetRewindable resultsrw = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+        String uri = null;
+        Person person = null;
+        if (resultsrw.hasNext()) {
+            QuerySolution soln = resultsrw.next();
+            if (soln != null && soln.get("uri") != null) {
+                uri = soln.get("uri").toString();
+                person = Person.find(uri);
+            }
+        }
+
+        return person;
+    }
+
     public static List<Person> find() {
         String query =
             " SELECT ?uri WHERE { " +
             " ?uri a foaf:Person ." +
             "} ";
-        return findByQuery(query);
+        return findManyByQuery(query);
     }
 
-    private static List<Person> findByQuery(String requestedQuery) {
+    private static List<Person> findManyByQuery(String requestedQuery) {
         List<Person> people = new ArrayList<Person>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + requestedQuery;
 

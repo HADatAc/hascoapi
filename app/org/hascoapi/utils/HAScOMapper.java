@@ -88,7 +88,7 @@ public class HAScOMapper {
         } else {
             filterProvider.addFilter("dataFileFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "id", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "filename", "fileStatus", "lastProcessTime"));
+                            "hascoTypeLabel", "comment", "filename", "fileStatus", "lastProcessTime", "file"));
         }
 
         // SDD
@@ -316,6 +316,15 @@ public class HAScOMapper {
                             "hascoTypeLabel", "comment", "name", "mbox", "member", "givenName", "familyName", "affiliation"));
         }
 
+        // KGR
+        if (mode.equals(FULL) && typeResult.equals(HASCO.KNOWLEDGE_GRAPH)) {
+            filterProvider.addFilter("kgrFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("kgrFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
+                            "hascoTypeLabel", "comment", "hasDataFile", "dataFile"));
+        }
+
         mapper.setFilterProvider(filterProvider);
 
         return mapper;
@@ -367,6 +376,8 @@ public class HAScOMapper {
             return getFiltered(mode, FOAF.ORGANIZATION);
         } else if (clazz == Person.class) {
             return getFiltered(mode, FOAF.PERSON);
+        } else if (clazz == KGR.class) {
+            return getFiltered(mode, HASCO.KNOWLEDGE_GRAPH);
         } 
         return getFiltered(mode, "NONE");
     }

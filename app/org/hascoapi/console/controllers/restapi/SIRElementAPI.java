@@ -21,7 +21,7 @@ public class SIRElementAPI extends Controller {
      */
 
     public Result createElement(String elementType, String json) {
-        //System.out.println("Type: [" + elementType + "]  JSON [" + json + "]");
+        System.out.println("Type: [" + elementType + "]  JSON [" + json + "]");
         if (json == null || json.equals("")) {
             return ok(ApiUtil.createResponse("No json content has been provided.", false));
         }
@@ -258,6 +258,16 @@ public class SIRElementAPI extends Controller {
                 message = e.getMessage();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
+        } else if (clazz == KGR.class) {
+            try {
+                KGR object;
+                object = (KGR)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                System.out.println("Error processing vc: " + e.getMessage());
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
         } 
         if (!success) {
             return ok(ApiUtil.createResponse("Error processing JSON: " + message, false));
@@ -270,7 +280,7 @@ public class SIRElementAPI extends Controller {
      */
 
     public Result deleteElement(String elementType, String uri) {
-        //System.out.println("Delete element => Type: [" + elementType + "]  URI [" + uri + "]");
+        System.out.println("Delete element => Type: [" + elementType + "]  URI [" + uri + "]");
         if (uri == null || uri.equals("")) {
             return ok(ApiUtil.createResponse("No uri has been provided.", false));
         }
@@ -391,10 +401,12 @@ public class SIRElementAPI extends Controller {
             object.delete();
         } else if (clazz == DataFile.class) {
             DataFile object = DataFile.find(uri);
+            System.out.println("deleting datafile " + uri);
             if (object == null) {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
+            System.out.println("datafile " + uri + " has been deleted");
         } else if (clazz == Study.class) {
             Study object = Study.find(uri);
             if (object == null) {
@@ -433,6 +445,12 @@ public class SIRElementAPI extends Controller {
             object.delete();
         } else if (clazz == Organization.class) {
             Organization object = Organization.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == KGR.class) {
+            KGR object = KGR.find(uri);
             if (object == null) {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
@@ -572,6 +590,10 @@ public class SIRElementAPI extends Controller {
             GenericFind<Organization> query = new GenericFind<Organization>();
             List<Organization> results = query.findByKeywordWithPages(Organization.class,keyword, pageSize, offset);
             return OrganizationAPI.getOrganizations(results);
+        }  else if (elementType.equals("kgr")) {
+            GenericFind<KGR> query = new GenericFind<KGR>();
+            List<KGR> results = query.findByKeywordWithPages(KGR.class,keyword, pageSize, offset);
+            return KGRAPI.getKGRs(results);
         } 
         return ok("[getElementsByKeywordWithPage] No valid element type.");
     }
@@ -686,6 +708,10 @@ public class SIRElementAPI extends Controller {
             GenericFind<Organization> query = new GenericFind<Organization>();
             List<Organization> results = query.findByKeywordAndLanguageWithPages(Organization.class, keyword, language, pageSize, offset);
             return OrganizationAPI.getOrganizations(results);
+        }  else if (elementType.equals("kgr")) {
+            GenericFind<KGR> query = new GenericFind<KGR>();
+            List<KGR> results = query.findByKeywordAndLanguageWithPages(KGR.class, keyword, language, pageSize, offset);
+            return KGRAPI.getKGRs(results);
         } 
         return ok("[getElementsByKeywordAndLanguageWithPage] No valid element type.");
     }
@@ -792,6 +818,10 @@ public class SIRElementAPI extends Controller {
             GenericFind<Organization> query = new GenericFind<Organization>();
             List<Organization> results = query.findByManagerEmailWithPages(Organization.class, managerEmail, pageSize, offset);
             return OrganizationAPI.getOrganizations(results);
+        }  else if (elementType.equals("kgr")) {
+            GenericFind<KGR> query = new GenericFind<KGR>();
+            List<KGR> results = query.findByManagerEmailWithPages(KGR.class, managerEmail, pageSize, offset);
+            return KGRAPI.getKGRs(results);
         } 
         return ok("[getElementsByManagerEmail] No valid element type.");
 

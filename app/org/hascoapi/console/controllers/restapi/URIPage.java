@@ -66,7 +66,9 @@ public class URIPage extends Controller {
              * }
              */
 
-            if (result.getHascoTypeUri().equals(FOAF.ORGANIZATION)) {
+            if (result.getHascoTypeUri().equals(HASCO.KNOWLEDGE_GRAPH)) {
+                finalResult = KGR.find(uri);
+            } else if (result.getHascoTypeUri().equals(FOAF.ORGANIZATION)) {
                 finalResult = Organization.find(uri);
             } else if (result.getHascoTypeUri().equals(FOAF.PERSON)) {
                 finalResult = Person.find(uri);

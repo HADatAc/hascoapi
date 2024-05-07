@@ -1,6 +1,7 @@
 package org.hascoapi.utils;
 
 import org.apache.commons.configuration2.INIConfiguration;
+import java.util.Set;
 
 public class Templates {
 
@@ -10,6 +11,13 @@ public class Templates {
     public Templates(String templateFile) {
         this.templateFile = templateFile;
         this.iniConfig = new HASCOConfig(templateFile); 
+
+        // Print all section names
+        //Set<String> sections = this.iniConfig.getSections();
+        //System.out.println("Sections:");
+        //for (String section: sections) {
+        //    System.out.println(section);
+        //}
     }
 
     // STD Template (Study)
@@ -148,4 +156,15 @@ public class Templates {
     public String getOBJECTTYPE() { return iniConfig.getSection("MAP").getString("objecttype"); }
     public String getMAPSTUDYID() { return iniConfig.getSection("MAP").getString("studyId"); }
     public String getTIMESCOPEID() { return iniConfig.getSection("MAP").getString("timeScope"); }
+
+    // KGR Template
+    public String getAgentOriginalID() { return iniConfig.getSection("KGR").getString("agentOriginalID"); }
+    public String getAgentType() { return iniConfig.getSection("KGR").getString("agentType"); }
+    public String getAgentName() { return iniConfig.getSection("KGR").getString("agentName"); }
+    public String getAgentGivenName() { return iniConfig.getSection("KGR").getString("agentGivenName"); }
+    public String getAgentFamilyName() { return iniConfig.getSection("KGR").getString("agentFamilyName"); }
+    public String getAgentEmail() { return iniConfig.getSection("KGR").getString("agentEmail"); }
+    public String getAgentIsMemberOf() { return iniConfig.getSection("KGR").getString("agentIsMemberOf"); }
+    public String getManagerEmail() { return iniConfig.getSection("KGR").getString("managerEmail"); }
+    
 }

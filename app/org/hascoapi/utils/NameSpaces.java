@@ -63,9 +63,18 @@ public class NameSpaces {
         RDFS_NAMESPACE.setPriority(2);
         namespaces.add(RDFS_NAMESPACE);
 
-
         // XMLS
-        // xsd=http://www.w3.org/2001/XMLSchema#,,
+        NameSpace XSD_NAMESPACE = new NameSpace();
+        XSD_NAMESPACE.setAbbreviation("xsd");
+        XSD_NAMESPACE.setName("http://www.w3.org/2001/XMLSchema#");
+        XSD_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
+        XSD_NAMESPACE.setMimeType("application/rdf+xml");
+        XSD_NAMESPACE.setURL("http://www.w3.org/2001/XMLSchema#");
+        XSD_NAMESPACE.setComment("W3C's XML Schema");
+        XSD_NAMESPACE.setVersion("1.0");
+        XSD_NAMESPACE.updateNumberOfLoadedTriples();
+        XSD_NAMESPACE.setPriority(3);
+        namespaces.add(XSD_NAMESPACE);
 
         // OWL
         NameSpace OWL_NAMESPACE = new NameSpace();
@@ -77,7 +86,7 @@ public class NameSpaces {
         OWL_NAMESPACE.setComment("W3C's Ontology Web Language");
         OWL_NAMESPACE.setVersion("1.0");
         OWL_NAMESPACE.updateNumberOfLoadedTriples();
-        OWL_NAMESPACE.setPriority(3);
+        OWL_NAMESPACE.setPriority(4);
         namespaces.add(OWL_NAMESPACE);
 
 
@@ -89,7 +98,7 @@ public class NameSpaces {
         SKOS_NAMESPACE.setComment("Simple Knowledge Organization System Namespace Document");
         SKOS_NAMESPACE.setVersion("18-August-2009");
         SKOS_NAMESPACE.updateNumberOfLoadedTriples();
-        SKOS_NAMESPACE.setPriority(4);
+        SKOS_NAMESPACE.setPriority(5);
         namespaces.add(SKOS_NAMESPACE);
 
         // DCTERMS
@@ -105,7 +114,7 @@ public class NameSpaces {
         PROV_NAMESPACE.setComment("The W3C Provenance Ontology");
         PROV_NAMESPACE.setVersion("30-April-2013");
         PROV_NAMESPACE.updateNumberOfLoadedTriples();
-        PROV_NAMESPACE.setPriority(5);
+        PROV_NAMESPACE.setPriority(6);
         namespaces.add(PROV_NAMESPACE);
 
 
@@ -119,7 +128,7 @@ public class NameSpaces {
         SIO_NAMESPACE.setComment("Semanticscience Integrated Ontology");
         SIO_NAMESPACE.setVersion("1.59");
         SIO_NAMESPACE.updateNumberOfLoadedTriples();
-        SIO_NAMESPACE.setPriority(6);
+        SIO_NAMESPACE.setPriority(7);
         namespaces.add(SIO_NAMESPACE);
 
 
@@ -136,7 +145,7 @@ public class NameSpaces {
         HASCO_NAMESPACE.setComment("Human-Aware Science Ontology");
         HASCO_NAMESPACE.setVersion("1.0");
         HASCO_NAMESPACE.updateNumberOfLoadedTriples();
-        HASCO_NAMESPACE.setPriority(7);
+        HASCO_NAMESPACE.setPriority(8);
         namespaces.add(HASCO_NAMESPACE);
 
         // VSTOI
@@ -149,7 +158,7 @@ public class NameSpaces {
         VSTOI_NAMESPACE.setComment("Virtual Terrestrial Solar Observatory - Instruments");
         VSTOI_NAMESPACE.setVersion("1.0");
         VSTOI_NAMESPACE.updateNumberOfLoadedTriples();
-        VSTOI_NAMESPACE.setPriority(8);
+        VSTOI_NAMESPACE.setPriority(9);
         namespaces.add(VSTOI_NAMESPACE);
 
         // Languages
@@ -162,7 +171,7 @@ public class NameSpaces {
         lcc_639_1_NAMESPACE.setComment("Language codes from ISO 639-1, as expressed in https://www.w3schools.com/tags/ref_language_codes.asp");
         lcc_639_1_NAMESPACE.setVersion("1.0");
         lcc_639_1_NAMESPACE.updateNumberOfLoadedTriples();
-        lcc_639_1_NAMESPACE.setPriority(9);
+        lcc_639_1_NAMESPACE.setPriority(10);
         namespaces.add(lcc_639_1_NAMESPACE);
 
         // FHIR
@@ -173,7 +182,7 @@ public class NameSpaces {
         FHIR_NAMESPACE.setComment("FHIR is a standard for health care data exchange, published by HL7.");
         FHIR_NAMESPACE.setVersion("R5");
         FHIR_NAMESPACE.updateNumberOfLoadedTriples();
-        FHIR_NAMESPACE.setPriority(10);
+        FHIR_NAMESPACE.setPriority(11);
         namespaces.add(FHIR_NAMESPACE);
 
         // FOAF
@@ -186,7 +195,7 @@ public class NameSpaces {
         FOAF_NAMESPACE.setComment("Friend of a Friend (FOAF) vocabulary");
         FOAF_NAMESPACE.setVersion("0.1");
         FOAF_NAMESPACE.updateNumberOfLoadedTriples();
-        FOAF_NAMESPACE.setPriority(11);
+        FOAF_NAMESPACE.setPriority(12);
         namespaces.add(FOAF_NAMESPACE);
 
         // DEFAULT
@@ -197,7 +206,7 @@ public class NameSpaces {
         DEFAULT_NAMESPACE.setComment("Default Namespace");
         DEFAULT_NAMESPACE.setVersion("0.1");
         DEFAULT_NAMESPACE.updateNumberOfLoadedTriples();
-        DEFAULT_NAMESPACE.setPriority(12);
+        DEFAULT_NAMESPACE.setPriority(13);
         namespaces.add(DEFAULT_NAMESPACE);
 
         // TEST

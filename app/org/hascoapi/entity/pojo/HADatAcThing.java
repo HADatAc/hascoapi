@@ -542,6 +542,8 @@ public abstract class HADatAcThing {
             return;
         }
 
+        //System.out.println("Default named graph: " + RepositoryInstance.getInstance().getHasDefaultNamespaceURL());
+        //System.out.println("Deleting thing with namedGraph [" + this.getNamedGraph() + "]");
         //System.out.println("Deleting <" + getUri() + "> from triple store");
 
         query += NameSpaces.getInstance().printSparqlNameSpaceList();
@@ -574,7 +576,8 @@ public abstract class HADatAcThing {
             // The original default named graph is GSPClient.defaultGraphUri
             // Inside the HAScO API, we use the repository Instance default namespace URL
             String query1 = query + " DELETE WHERE { \n " +
-                   "    GRAPH <" + this.getNamedGraph() + "> { \n";
+                   "    GRAPH <" + this.getNamedGraph() + "> " + 
+                   " { \n";
             if (getUri().startsWith("http")) {
                 query1 += "<" + this.getUri() + ">";
             } else {

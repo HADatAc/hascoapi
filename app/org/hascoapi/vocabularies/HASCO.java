@@ -12,6 +12,7 @@ public class HASCO {
     public static final String DATA_ACQUISITION                       = "http://hadatac.org/ont/hasco/DataAcquisition";
     public static final String DATAFILE                               = "http://hadatac.org/ont/hasco/DataFile";
     public static final String DEPLOYMENT                             = "http://hadatac.org/ont/hasco/Deployment";
+    public static final String KNOWLEDGE_GRAPH                        = "http://hadatac.org/ont/hasco/KnowledgeGraph";
     public static final String LOCATION_COLLECTION                    = "http://hadatac.org/ont/hasco/LocationCollection";
     public static final String MANAGED_ONTOLOGY                       = "http://hadatac.org/ont/hasco/ManagedOntology";
     public static final String MATCHING_COLLECTION                    = "http://hadatac.org/ont/hasco/MatchingCollection";

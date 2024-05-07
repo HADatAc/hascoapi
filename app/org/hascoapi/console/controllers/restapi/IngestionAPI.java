@@ -7,9 +7,11 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 import org.hascoapi.Constants;
 import org.hascoapi.entity.pojo.DataFile;
+import org.hascoapi.entity.pojo.KGR;
 import org.hascoapi.entity.pojo.SDD;
 import org.hascoapi.entity.pojo.STD;
 import org.hascoapi.entity.pojo.Study;
+import org.hascoapi.ingestion.IngestKGR;
 import org.hascoapi.ingestion.IngestSDD;
 import org.hascoapi.ingestion.IngestSTD;
 import org.hascoapi.utils.ApiUtil;
@@ -102,7 +104,29 @@ public class IngestionAPI extends Controller {
                 IngestSTD.exec(study, dataFile, file, templateFile());
             });
             System.out.println("IngestionAPI.uploadTemplate(): API has just called IngestSTD.exec()");
-
+        } else if (elementType.equals("kgr")) {
+            System.out.println("IngestionAPI.uploadTemplate(): inside elementType=[" + elementType + "]");
+            KGR kgr = KGR.find(elementUri);
+            if (kgr == null) {
+                return ok(ApiUtil.createResponse("File FAILED to be ingested: could not retrieve " + elementType + ". ",false));
+            }
+            System.out.println("IngestionAPI.uploadTemplate(): API has read draft " + elementType + " from triplestore");
+            DataFile dataFile = DataFile.find(kgr.getHasDataFile());
+            if (dataFile != null) {
+                dataFile.setLastProcessTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
+                dataFile.setFileStatus(DataFile.WORKING);
+                dataFile.getLogger().resetLog();
+                dataFile.save();
+                System.out.println("IngestionAPI.uploadTemplate(): API has read DataFile from triplestore");
+            } else {
+                return ok(ApiUtil.createResponse("File FAILED to be ingested: could not retrieve DataFile. ",false));
+            }
+            CompletableFuture.runAsync(() -> {
+                IngestKGR.exec(kgr, dataFile, file, templateFile());
+            });
+            System.out.println("IngestionAPI.uploadTemplate(): API has just called IngestKGR.exec()");
+        } else {
+            return ok(ApiUtil.createResponse("Could not find ingestion procedure for element type " + elementType,false));
         }
 
         return ok(ApiUtil.createResponse("File submitted for ingestion. Check file's log for ingestion status ",true));
