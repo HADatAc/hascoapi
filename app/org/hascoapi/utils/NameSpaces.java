@@ -198,6 +198,19 @@ public class NameSpaces {
         FOAF_NAMESPACE.setPriority(12);
         namespaces.add(FOAF_NAMESPACE);
 
+        // SCHEMA
+        NameSpace SCHEMA_NAMESPACE = new NameSpace();
+        SCHEMA_NAMESPACE.setAbbreviation("schema");
+        SCHEMA_NAMESPACE.setName("https://schema.org/");
+        SCHEMA_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
+        SCHEMA_NAMESPACE.setMimeType("text/turtle");
+        SCHEMA_NAMESPACE.setURL("https://raw.githubusercontent.com/schemaorg/schemaorg/main/data/releases/25.0/schemaorg-all-https.ttl");
+        SCHEMA_NAMESPACE.setComment("Schema Namespace");
+        SCHEMA_NAMESPACE.setVersion("25.0");
+        SCHEMA_NAMESPACE.updateNumberOfLoadedTriples();
+        SCHEMA_NAMESPACE.setPriority(13);
+        namespaces.add(SCHEMA_NAMESPACE);
+
         // DEFAULT
         NameSpace DEFAULT_NAMESPACE = new NameSpace();
         DEFAULT_NAMESPACE.setAbbreviation("default");
@@ -206,7 +219,7 @@ public class NameSpaces {
         DEFAULT_NAMESPACE.setComment("Default Namespace");
         DEFAULT_NAMESPACE.setVersion("0.1");
         DEFAULT_NAMESPACE.updateNumberOfLoadedTriples();
-        DEFAULT_NAMESPACE.setPriority(13);
+        DEFAULT_NAMESPACE.setPriority(14);
         namespaces.add(DEFAULT_NAMESPACE);
 
         // TEST

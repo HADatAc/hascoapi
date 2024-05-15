@@ -16,6 +16,10 @@ import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
+import org.apache.jena.update.UpdateExecutionFactory;
+import org.apache.jena.update.UpdateFactory;
+import org.apache.jena.update.UpdateProcessor;
+import org.apache.jena.update.UpdateRequest;
 import org.apache.jena.sparql.engine.http.QueryExceptionHTTP;
 import org.hascoapi.annotations.PropertyField;
 import org.hascoapi.annotations.PropertyValueType;
@@ -63,6 +67,7 @@ public class KGR extends HADatAcThing {
     }
     public void setHasDataFile(String hasDataFileUri) {
         this.hasDataFileUri = hasDataFileUri;
+        this.setNamedGraph(hasDataFileUri);
     }
     public DataFile getDataFile() {
         if (this.hasDataFileUri == null) {
@@ -228,9 +233,13 @@ public class KGR extends HADatAcThing {
                         isMemberOf = record.getValueByColumnName(templates.getAgentIsMemberOf());
                     }
                     if (isMemberOf != null && !isMemberOf.isEmpty()) {
-                        Organization affiliation = Organization.findByEmail(email);
+                        System.out.println("Person [" + familyName + "] Looking for organization [" + isMemberOf + "]");
+                        Organization affiliation = Organization.findByEmail(isMemberOf);
                         if (affiliation != null && affiliation.getUri() != null && !affiliation.getUri().isEmpty()) {
+                            System.out.println("Found organization with URI [" + affiliation.getUri() + "]");
                             mapPersonProperties.put(templates.getAgentIsMemberOf(), affiliation.getUri());
+                        } else {
+                            System.out.println("Not found organization");
                         }
                     }
                     mapPersonProperties.put(templates.getManagerEmail(), getHasSIRManagerEmail());

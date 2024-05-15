@@ -10,18 +10,50 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
+import org.hascoapi.annotations.PropertyField;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.SPARQLUtils;
 import org.hascoapi.utils.URIUtils;
+import org.hascoapi.vocabularies.FOAF;
+import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.RDF;
 import org.hascoapi.vocabularies.RDFS;
-import org.hascoapi.vocabularies.HASCO;
+import org.hascoapi.vocabularies.SCHEMA;
 import org.hascoapi.vocabularies.VSTOI;
-import org.hascoapi.vocabularies.FOAF;
 
 @JsonFilter("personFilter")
 public class Person extends Agent {
+
+    @PropertyField(uri="foaf:familyName")
+    protected String familyName;
+
+    @PropertyField(uri="foaf:givenName")
+    protected String givenName;
+
+    @PropertyField(uri="schema:jobTitle")
+    protected String jobTitle;
+
+    public String getFamilyName() {
+        return familyName;
+    }
+    public void setFamilyName(String familyName) {
+        this.familyName = familyName;
+    }
+
+    public String getGivenName() {
+        return givenName;
+    }
+    public void setGivenName(String givenName) {
+        this.givenName = givenName;
+    }
+
+    public String getJobTitle() {
+        return jobTitle;
+    }
+    public void setJobTitle(String jobTitle) {
+        this.jobTitle = jobTitle;
+    }
 
     public Organization getAffiliation() {
         if (this.getMember() == null) {
@@ -127,8 +159,14 @@ public class Person extends Agent {
                 person.setGivenName(str);
             } else if (statement.getPredicate().getURI().equals(FOAF.MBOX)) {
                 person.setMbox(str);
+            } else if (statement.getPredicate().getURI().equals(SCHEMA.TELEPHONE)) {
+                person.setTelephone(str);
             } else if (statement.getPredicate().getURI().equals(FOAF.MEMBER)) {
                 person.setMember(str);
+            } else if (statement.getPredicate().getURI().equals(SCHEMA.URL)) {
+                person.setHasUrl(str);
+            } else if (statement.getPredicate().getURI().equals(SCHEMA.JOB_TITLE)) {
+                person.setJobTitle(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
                 person.setHasSIRManagerEmail(str);
             }

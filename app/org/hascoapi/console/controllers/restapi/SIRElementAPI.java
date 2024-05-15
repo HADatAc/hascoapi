@@ -280,7 +280,7 @@ public class SIRElementAPI extends Controller {
      */
 
     public Result deleteElement(String elementType, String uri) {
-        System.out.println("Delete element => Type: [" + elementType + "]  URI [" + uri + "]");
+        //System.out.println("Delete element => Type: [" + elementType + "]  URI [" + uri + "]");
         if (uri == null || uri.equals("")) {
             return ok(ApiUtil.createResponse("No uri has been provided.", false));
         }
@@ -401,12 +401,10 @@ public class SIRElementAPI extends Controller {
             object.delete();
         } else if (clazz == DataFile.class) {
             DataFile object = DataFile.find(uri);
-            System.out.println("deleting datafile " + uri);
             if (object == null) {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
-            System.out.println("datafile " + uri + " has been deleted");
         } else if (clazz == Study.class) {
             Study object = Study.find(uri);
             if (object == null) {
@@ -717,6 +715,7 @@ public class SIRElementAPI extends Controller {
     }
 
     public Result getTotalElementsByKeywordAndLanguage(String elementType, String keyword, String language) {
+        //System.out.println("ElementType: " + elementType);
         if (keyword.equals("_")) {
             keyword = "";
         }

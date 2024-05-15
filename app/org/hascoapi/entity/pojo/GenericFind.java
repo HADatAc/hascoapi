@@ -116,6 +116,12 @@ public class GenericFind<T> {
             return URIUtils.replaceNameSpace(VSTOI.ANNOTATION);
         } else if (clazz == SemanticVariable.class) {
             return URIUtils.replaceNameSpace(HASCO.SEMANTIC_VARIABLE);
+        } else if (clazz == Entity.class) {
+            return URIUtils.replaceNameSpace(SIO.ENTITY);
+        } else if (clazz == Attribute.class) {
+            return URIUtils.replaceNameSpace(SIO.ATTRIBUTE);
+        } else if (clazz == Unit.class) {
+            return URIUtils.replaceNameSpace(SIO.UNIT);
         } else if (clazz == Agent.class) {
             return URIUtils.replaceNameSpace(HASCO.AGENT);
         } else if (clazz == SDD.class) {

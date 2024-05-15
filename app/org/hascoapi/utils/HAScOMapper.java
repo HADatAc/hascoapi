@@ -304,7 +304,7 @@ public class HAScOMapper {
         } else {
             filterProvider.addFilter("organizationFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "name","mbox"));
+                            "hascoTypeLabel", "comment", "name", "mbox", "telephone", "url", "parentOrganization"));
         }
 
         // PERSON
@@ -313,7 +313,8 @@ public class HAScOMapper {
         } else {
             filterProvider.addFilter("personFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "name", "mbox", "member", "givenName", "familyName", "affiliation"));
+                            "hascoTypeLabel", "comment", "name", "mbox", "telephone", "member", "givenName", "familyName", 
+                            "affiliation", "hasUrl", "jobTitle"));
         }
 
         // KGR

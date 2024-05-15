@@ -10,18 +10,30 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
+import org.hascoapi.annotations.PropertyField;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.SPARQLUtils;
 import org.hascoapi.utils.URIUtils;
+import org.hascoapi.vocabularies.FOAF;
+import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.RDF;
 import org.hascoapi.vocabularies.RDFS;
-import org.hascoapi.vocabularies.HASCO;
+import org.hascoapi.vocabularies.SCHEMA;
 import org.hascoapi.vocabularies.VSTOI;
-import org.hascoapi.vocabularies.FOAF;
 
 @JsonFilter("organizationFilter")
 public class Organization extends Agent {
+
+    @PropertyField(uri="schema:parentOrganization")
+    protected String parentOrganization;
+
+    public String getParentOrganization() {
+        return parentOrganization;
+    }
+    public void setParentOrganization(String parentOrganization) {
+        this.parentOrganization = parentOrganization;
+    }
 
     public static List<Organization> find() {
         String query =
@@ -128,14 +140,16 @@ public class Organization extends Agent {
                 organization.setHascoTypeUri(str);
             } else if (statement.getPredicate().getURI().equals(FOAF.NAME)) {
                 organization.setName(str);
-            } else if (statement.getPredicate().getURI().equals(FOAF.FAMILY_NAME)) {
-                organization.setFamilyName(str);
-            } else if (statement.getPredicate().getURI().equals(FOAF.GIVEN_NAME)) {
-                organization.setGivenName(str);
             } else if (statement.getPredicate().getURI().equals(FOAF.MBOX)) {
                 organization.setMbox(str);
+            } else if (statement.getPredicate().getURI().equals(SCHEMA.TELEPHONE)) {
+                organization.setTelephone(str);
             } else if (statement.getPredicate().getURI().equals(FOAF.MEMBER)) {
                 organization.setMember(str);
+            } else if (statement.getPredicate().getURI().equals(SCHEMA.PARENT_ORGANIZATION)) {
+                organization.setParentOrganization(str);
+            } else if (statement.getPredicate().getURI().equals(SCHEMA.URL)) {
+                organization.setHasUrl(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
                 organization.setHasSIRManagerEmail(str);
             }
