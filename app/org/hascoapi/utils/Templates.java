@@ -166,5 +166,18 @@ public class Templates {
     public String getAgentEmail() { return iniConfig.getSection("KGR").getString("agentEmail"); }
     public String getAgentIsMemberOf() { return iniConfig.getSection("KGR").getString("agentIsMemberOf"); }
     public String getManagerEmail() { return iniConfig.getSection("KGR").getString("managerEmail"); }
-    
-}
+    public String getAgentTelephone() { return iniConfig.getSection("KGR").getString("agentTelephone"); }
+    public String getAgentUrl() { return iniConfig.getSection("KGR").getString("agentUrl"); }
+    public String getAgentParentOrganization() { return iniConfig.getSection("KGR").getString("agentParentOrganization"); }
+    public String getPlaceOriginalID() { return iniConfig.getSection("KGR").getString("agentOriginalID"); }
+    public String getPlaceType() { return iniConfig.getSection("KGR").getString("placeType"); }
+    public String getPlaceName() { return iniConfig.getSection("KGR").getString("placeName"); }
+    public String getPlaceImage() { return iniConfig.getSection("KGR").getString("placeImage"); }
+    public String getPlaceContainedIn() { return iniConfig.getSection("KGR").getString("placeContainedIn"); }
+    public String getPlaceIdentifier() { return iniConfig.getSection("KGR").getString("placeIdentifier"); }
+    public String getPlaceGeo() { return iniConfig.getSection("KGR").getString("placeGeo"); }
+    public String getPlaceLatitude() { return iniConfig.getSection("KGR").getString("placeLatitude"); }
+    public String getPlaceLongitude() { return iniConfig.getSection("KGR").getString("placeLongitude"); }
+    public String getPlaceUrl() { return iniConfig.getSection("KGR").getString("placeUrl"); }
+
+}    

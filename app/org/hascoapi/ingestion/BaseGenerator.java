@@ -262,12 +262,12 @@ public abstract class BaseGenerator {
     }
 
     public boolean commitRowsToTripleStore(List<Map<String, Object>> rows) {
-        System.out.println("BaseGenerator: commitRowsToTripleStore(): received values");
-        for (Map<String, Object> row : rows) {
-            for (Map.Entry<String, Object> entry : row.entrySet()) {
-                System.out.println("Row: " + entry.getKey() + ": " + entry.getValue());
-            }
-        }
+        //System.out.println("BaseGenerator: commitRowsToTripleStore(): received values");
+        //for (Map<String, Object> row : rows) {
+        //    for (Map.Entry<String, Object> entry : row.entrySet()) {
+        //        System.out.println("Row: " + entry.getKey() + ": " + entry.getValue());
+        //    }
+        //}
         System.out.println("BaseGenerator: commitRowsToTripleStore(): getNamedGraphUri() is " + getNamedGraphUri());
         Model model = MetadataFactory.createModel(rows, getNamedGraphUri());
         int numCommitted = MetadataFactory.commitModelToTripleStore(

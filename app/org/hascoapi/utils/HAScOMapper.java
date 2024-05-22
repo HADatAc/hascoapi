@@ -3,10 +3,13 @@ package org.hascoapi.utils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+
+import org.hascoapi.annotations.PropertyField;
 import org.hascoapi.entity.pojo.*;
 import org.hascoapi.vocabularies.FOAF;
 import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.SIO;
+import org.hascoapi.vocabularies.SCHEMA;
 import org.hascoapi.vocabularies.VSTOI;
 
 public class HAScOMapper {
@@ -317,6 +320,16 @@ public class HAScOMapper {
                             "affiliation", "hasUrl", "jobTitle"));
         }
 
+        // PLACE
+        if (mode.equals(FULL) && typeResult.equals(SCHEMA.PLACE)) {
+            filterProvider.addFilter("placeFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("placeFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
+                            "hascoTypeLabel", "comment", "name", "hasAddress", "containedInPlace", "hasIdentifier", 
+                            "hasGeo", "hasLatitude", "hasLongitude", "hasUrl"));
+        }
+ 
         // KGR
         if (mode.equals(FULL) && typeResult.equals(HASCO.KNOWLEDGE_GRAPH)) {
             filterProvider.addFilter("kgrFilter", SimpleBeanPropertyFilter.serializeAll());
@@ -377,6 +390,8 @@ public class HAScOMapper {
             return getFiltered(mode, FOAF.ORGANIZATION);
         } else if (clazz == Person.class) {
             return getFiltered(mode, FOAF.PERSON);
+        } else if (clazz == Place.class) {
+            return getFiltered(mode, SCHEMA.PLACE);
         } else if (clazz == KGR.class) {
             return getFiltered(mode, HASCO.KNOWLEDGE_GRAPH);
         } 

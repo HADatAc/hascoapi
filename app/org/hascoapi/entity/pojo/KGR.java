@@ -42,6 +42,7 @@ public class KGR extends HADatAcThing {
     public String className = "hasco:KnowledgeGraph";
 
     private Map<String, String> mapCatalog = new HashMap<String, String>();
+    private Map<String, Map<String, String>> places = new HashMap<String, Map<String, String>>();
     private Map<String, Map<String, String>> organizations = new HashMap<String, Map<String, String>>();
     private Map<String, Map<String, String>> persons = new HashMap<String, Map<String, String>>();
     private Templates templates = null;
@@ -142,6 +143,41 @@ public class KGR extends HADatAcThing {
         kgr.setUri(uri);
         
         return kgr;
+    }
+
+    public boolean readPlaces(RecordFile file) {
+        if (!file.isValid()) {
+            System.out.println("[ERROR] Record file is considered invalid");
+            return false;
+        }
+
+        for (Record record : file.getRecords()) {
+            if (!record.getValueByColumnName(templates.getPlaceName()).isEmpty()) {
+                String placeName = record.getValueByColumnName(templates.getPlaceName());
+                Place placeTest = null;
+                if (placeName != null && !placeName.isEmpty()) {
+                    placeTest = Place.findByName(placeName);
+                }
+                if (placeTest != null) {
+                    System.out.println("[WARNING] Place with name " + placeName + " already exist. It has been ignored.");
+                } else {
+                    Map<String, String> mapPlaceProperties = null;
+                    if (!places.containsKey(placeName)) {
+                        mapPlaceProperties = new HashMap<String, String>();
+                        places.put(placeName, mapPlaceProperties);
+                    } else {
+                        mapPlaceProperties = places.get(placeName);
+                    }
+                    mapPlaceProperties.put(templates.getManagerEmail(), getHasSIRManagerEmail());
+                }
+            }
+        }
+
+        if (places.isEmpty()) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     public boolean readOrganizations(RecordFile file) {

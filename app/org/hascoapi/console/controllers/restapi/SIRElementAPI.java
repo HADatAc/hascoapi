@@ -258,6 +258,16 @@ public class SIRElementAPI extends Controller {
                 message = e.getMessage();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
+        } else if (clazz == Place.class) {
+            try {
+                Place object;
+                object = (Place)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                System.out.println("Error processing vc: " + e.getMessage());
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
         } else if (clazz == KGR.class) {
             try {
                 KGR object;
@@ -447,6 +457,12 @@ public class SIRElementAPI extends Controller {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
+        } else if (clazz == Place.class) {
+            Place object = Place.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
         } else if (clazz == KGR.class) {
             KGR object = KGR.find(uri);
             if (object == null) {
@@ -588,6 +604,10 @@ public class SIRElementAPI extends Controller {
             GenericFind<Organization> query = new GenericFind<Organization>();
             List<Organization> results = query.findByKeywordWithPages(Organization.class,keyword, pageSize, offset);
             return OrganizationAPI.getOrganizations(results);
+        }  else if (elementType.equals("place")) {
+            GenericFind<Place> query = new GenericFind<Place>();
+            List<Place> results = query.findByKeywordWithPages(Place.class,keyword, pageSize, offset);
+            return PlaceAPI.getPlaces(results);
         }  else if (elementType.equals("kgr")) {
             GenericFind<KGR> query = new GenericFind<KGR>();
             List<KGR> results = query.findByKeywordWithPages(KGR.class,keyword, pageSize, offset);
@@ -706,6 +726,10 @@ public class SIRElementAPI extends Controller {
             GenericFind<Organization> query = new GenericFind<Organization>();
             List<Organization> results = query.findByKeywordAndLanguageWithPages(Organization.class, keyword, language, pageSize, offset);
             return OrganizationAPI.getOrganizations(results);
+        }  else if (elementType.equals("place")) {
+            GenericFind<Place> query = new GenericFind<Place>();
+            List<Place> results = query.findByKeywordAndLanguageWithPages(Place.class, keyword, language, pageSize, offset);
+            return PlaceAPI.getPlaces(results);
         }  else if (elementType.equals("kgr")) {
             GenericFind<KGR> query = new GenericFind<KGR>();
             List<KGR> results = query.findByKeywordAndLanguageWithPages(KGR.class, keyword, language, pageSize, offset);
@@ -817,6 +841,10 @@ public class SIRElementAPI extends Controller {
             GenericFind<Organization> query = new GenericFind<Organization>();
             List<Organization> results = query.findByManagerEmailWithPages(Organization.class, managerEmail, pageSize, offset);
             return OrganizationAPI.getOrganizations(results);
+        }  else if (elementType.equals("place")) {
+            GenericFind<Place> query = new GenericFind<Place>();
+            List<Place> results = query.findByManagerEmailWithPages(Place.class, managerEmail, pageSize, offset);
+            return PlaceAPI.getPlaces(results);
         }  else if (elementType.equals("kgr")) {
             GenericFind<KGR> query = new GenericFind<KGR>();
             List<KGR> results = query.findByManagerEmailWithPages(KGR.class, managerEmail, pageSize, offset);

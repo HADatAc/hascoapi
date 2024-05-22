@@ -66,5 +66,8 @@ public class Constants {
 
     public static final String PREFIX_INSTRUMENT = "IN";
     public static final String PREFIX_SUBCONTAINER = "SC";
+    public static final String PREFIX_ORGANIZATION = "OR";
+    public static final String PREFIX_PERSON = "PS";
+    public static final String PREFIX_PLACE = "PL";
 
 }

@@ -1,5 +1,6 @@
 package org.hascoapi.ingestion;
 
+import org.hascoapi.Constants;
 import org.hascoapi.entity.pojo.Organization;
 import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.entity.pojo.NameSpace;
@@ -100,7 +101,7 @@ public class PersonGenerator extends BaseGenerator {
         Random random = new Random();
         int randomNumber = random.nextInt(99999 - 10000 + 1) + 10000;
 
-		return kbPrefix + "/PS" + timestamp + randomNumber;
+		return kbPrefix + "/" + Constants.PREFIX_PERSON + timestamp + randomNumber;
 	}
 
 	@Override

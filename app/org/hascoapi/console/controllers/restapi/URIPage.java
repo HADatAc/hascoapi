@@ -8,6 +8,7 @@ import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.HAScOMapper;
 import org.hascoapi.vocabularies.FOAF;
 import org.hascoapi.vocabularies.HASCO;
+import org.hascoapi.vocabularies.SCHEMA;
 import org.hascoapi.vocabularies.SIO;
 import org.hascoapi.vocabularies.VSTOI;
 import play.mvc.Controller;
@@ -68,6 +69,8 @@ public class URIPage extends Controller {
 
             if (result.getHascoTypeUri().equals(HASCO.KNOWLEDGE_GRAPH)) {
                 finalResult = KGR.find(uri);
+            } else if (result.getHascoTypeUri().equals(SCHEMA.PLACE)) {
+                finalResult = Place.find(uri);
             } else if (result.getHascoTypeUri().equals(FOAF.ORGANIZATION)) {
                 finalResult = Organization.find(uri);
             } else if (result.getHascoTypeUri().equals(FOAF.PERSON)) {

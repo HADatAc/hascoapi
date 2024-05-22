@@ -89,6 +89,20 @@ public class Organization extends Agent {
         return findOneByQuery(query);
     }        
 
+    public static Organization findByName(String name) {
+        if (name == null || name.isEmpty()) {
+            return null;
+        }
+        String query = 
+                "SELECT ?uri " +
+                " WHERE {  ?subUri rdfs:subClassOf* foaf:Organization . " +
+                "          ?uri a ?subUri . " +
+                "          ?uri foaf:name ?name .  " +
+                "        FILTER (?name=\"" + name + "\"^^xsd:string)  . " +
+                " }";
+        return findOneByQuery(query);
+    }        
+
     private static Organization findOneByQuery(String requestedQuery) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + requestedQuery;
         

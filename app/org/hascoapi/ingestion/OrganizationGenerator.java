@@ -1,5 +1,6 @@
 package org.hascoapi.ingestion;
 
+import org.hascoapi.Constants;
 import org.hascoapi.entity.pojo.Organization;
 import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.entity.pojo.NameSpace;
@@ -53,6 +54,9 @@ public class OrganizationGenerator extends BaseGenerator {
 		mapCol.put("Type", templates.getAgentType());
 		mapCol.put("Name", templates.getAgentName());
 		mapCol.put("Email", templates.getAgentEmail());
+		mapCol.put("Telephone", templates.getAgentTelephone());
+		mapCol.put("Url", templates.getAgentUrl());
+		mapCol.put("ParentOrganization", templates.getAgentParentOrganization());
 	}
 
     private String getOriginalID(Record rec) {
@@ -79,13 +83,36 @@ public class OrganizationGenerator extends BaseGenerator {
 		return rec.getValueByColumnName(mapCol.get("Email"));
 	}
 
+	private String getTelephone(Record rec) {
+		return rec.getValueByColumnName(mapCol.get("Telephone"));
+	}
+
+	private String getUrl(Record rec) {
+		return rec.getValueByColumnName(mapCol.get("Url"));
+	}
+
+	private String getParentOrganization(Record rec) {
+		String parentName = rec.getValueByColumnName(mapCol.get("ParentOrganization"));
+		if (parentName == null || parentName.isEmpty()) {
+			System.out.println("[WARNING] OrganizationGenerator: No parent organization for " + getName(rec));
+			return "";
+		} else {
+			Organization parent = Organization.findByName(parentName);
+			if (parent == null) {
+				System.out.println("[ERROR] OrganizationGenerator: Could not find parent " + parentName + " for organization " + getName(rec));
+				return "";
+			}
+			return parent.getUri();
+		}
+	}
+
 	public String createOrganizationUri() throws Exception {
 
         // Generate a random integer between 10000 and 99999
         Random random = new Random();
         int randomNumber = random.nextInt(99999 - 10000 + 1) + 10000;
 
-		return kbPrefix + "/OR" + timestamp + randomNumber;
+		return kbPrefix + "/" + Constants.PREFIX_ORGANIZATION + timestamp + randomNumber;
 	}
 
 	@Override
@@ -98,6 +125,9 @@ public class OrganizationGenerator extends BaseGenerator {
 		row.put("rdfs:label", getName(rec));
 		row.put("foaf:name", getName(rec));
 		row.put("foaf:mbox", getEmail(rec));
+		row.put("schema:telephone", getTelephone(rec));
+		row.put("schema:url", getUrl(rec));
+		row.put("schema:parentOrganization", getParentOrganization(rec));
 		row.put("vstoi:hasSIRManagerEmail", managerEmail);
 		return row;
 	}
