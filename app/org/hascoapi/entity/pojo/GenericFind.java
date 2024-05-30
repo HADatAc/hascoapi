@@ -89,6 +89,8 @@ public class GenericFind<T> {
             return Organization.class;
         } else if (elementType.equals("place")) {
             return Place.class;
+        } else if (elementType.equals("postaladdress")) {
+            return PostalAddress.class;
         } else if (elementType.equals("kgr")) {
             return KGR.class;
         } 
@@ -147,6 +149,8 @@ public class GenericFind<T> {
             return URIUtils.replaceNameSpace(FOAF.ORGANIZATION);
         } else if (clazz == Place.class) {
             return URIUtils.replaceNameSpace(SCHEMA.PLACE);
+        } else if (clazz == PostalAddress.class) {
+            return URIUtils.replaceNameSpace(SCHEMA.POSTAL_ADDRESS);
         } else if (clazz == KGR.class) {
             return URIUtils.replaceNameSpace(HASCO.KNOWLEDGE_GRAPH);
         }
@@ -840,6 +844,8 @@ public class GenericFind<T> {
             return (T)Organization.find(uri);
         } else if (clazz == Place.class) {
             return (T)Place.find(uri);
+        } else if (clazz == PostalAddress.class) {
+            return (T)PostalAddress.find(uri);
         } else if (clazz == KGR.class) {
             return (T)KGR.find(uri);
         }

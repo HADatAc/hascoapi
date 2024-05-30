@@ -182,6 +182,21 @@ public class Place extends HADatAcThing implements Comparable<Place> {
         return findOneByQuery(query);
     }        
 
+    public static Place findSubclassByName(String subclass, String name) {
+        if (name == null || name.isEmpty() ||
+			subclass == null || subclass.isEmpty()) {
+            return null;
+        }
+        String query = 
+                "SELECT ?uri " +
+                " WHERE {  ?subUri rdfs:subClassOf* <" + subclass + "> . " +
+                "          ?uri a ?subUri . " +
+                "          ?uri foaf:name ?id .  " +
+                "        FILTER (?id=\"" + name + "\"^^xsd:string)  . " +
+                " }";
+        return findOneByQuery(query);
+    }        
+
 	private static Place findOneByQuery(String requestedQuery) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + requestedQuery;
         

@@ -84,7 +84,7 @@ GET     /hascoapi/api/studyobject/bysoc/total/:socUri                 org.hascoa
 
 # INGESTION METHODS
 
-POST    /hascoapi/api/ingest/:elementType/:elementUri    org.hascoapi.console.controllers.restapi.IngestionAPI.uploadTemplate(elementType: String, elementUri: String, request: play.mvc.Http.Request)
+POST    /hascoapi/api/ingest/:elementType/:elementUri    org.hascoapi.console.controllers.restapi.IngestionAPI.ingest(elementType: String, elementUri: String, request: play.mvc.Http.Request)
 GET     /hascoapi/api/uningest/:dataFileUri              org.hascoapi.console.controllers.restapi.IngestionAPI.uningest(dataFileUri: String)
 GET     /hascoapi/api/ingestion/:dataFileUri/log         org.hascoapi.console.controllers.restapi.IngestionAPI.getLog(dataFileUri : String)
 

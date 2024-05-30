@@ -2,6 +2,7 @@ package org.hascoapi.ingestion;
 
 import org.hascoapi.Constants;
 import org.hascoapi.entity.pojo.Organization;
+import org.hascoapi.entity.pojo.PostalAddress;
 import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.entity.pojo.NameSpace;
 import org.hascoapi.utils.URIUtils;
@@ -56,6 +57,7 @@ public class PersonGenerator extends BaseGenerator {
 		mapCol.put("FamilyName", templates.getAgentFamilyName());
 		mapCol.put("Email", templates.getAgentEmail());
 		mapCol.put("IsMemberOf", templates.getAgentIsMemberOf());
+		mapCol.put("Address", templates.getAgentAddress());
 	}
 
     private String getOriginalID(Record rec) {
@@ -95,6 +97,18 @@ public class PersonGenerator extends BaseGenerator {
 		return "";
 	}
 
+	private String getAddress(Record rec) {
+		String addressKey = rec.getValueByColumnName(mapCol.get("Address"));
+		if (addressKey != null && !addressKey.isEmpty()) {
+			String[] parts = addressKey.split("\\|", 2);
+			PostalAddress postalAddress = PostalAddress.findByAddress(parts[0], parts[1]);
+			if (postalAddress != null && postalAddress.getUri() != null) {
+				return postalAddress.getUri();
+			}
+		}
+		return "";
+	}
+
 	public String createPersonUri() throws Exception {
 
         // Generate a random integer between 10000 and 99999
@@ -116,6 +130,7 @@ public class PersonGenerator extends BaseGenerator {
 		row.put("foaf:familyName", getFamilyName(rec));
 		row.put("foaf:mbox", getEmail(rec));
 		row.put("foaf:member", getIsMemberOf(rec));
+		row.put("schema:address", getAddress(rec));
 		row.put("vstoi:hasSIRManagerEmail", managerEmail);
 		return row;
 	}

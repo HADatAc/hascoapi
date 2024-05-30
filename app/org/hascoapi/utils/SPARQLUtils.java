@@ -31,7 +31,7 @@ public class SPARQLUtils {
     }
 
     public static Model describe(String sparqlService, String queryString) {
-        // System.out.println("\nqueryString: " + queryString + "\n");
+        //System.out.println("\nqueryString: " + queryString + "\n");
 
         try {
             Query query = QueryFactory.create(queryString);

@@ -69,5 +69,6 @@ public class Constants {
     public static final String PREFIX_ORGANIZATION = "OR";
     public static final String PREFIX_PERSON = "PS";
     public static final String PREFIX_PLACE = "PL";
+    public static final String PREFIX_POSTAL_ADDRESS = "PA";
 
 }

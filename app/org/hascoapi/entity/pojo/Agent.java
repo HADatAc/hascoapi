@@ -34,6 +34,9 @@ public class Agent extends HADatAcThing implements Comparable<Agent> {
     @PropertyField(uri="foaf:member")
     protected String member;
 
+    @PropertyField(uri="schema:address")
+    protected String hasAddressUri;
+
     @PropertyField(uri="schema:url")
     protected String hasUrl;
 
@@ -66,6 +69,19 @@ public class Agent extends HADatAcThing implements Comparable<Agent> {
     }
     public void setMember(String member) {
         this.member = member;
+    }
+
+    public String getHasAddressUri() {
+        return hasAddressUri;
+    }
+    public void setHasAddressUri(String hasAddressUri) {
+        this.hasAddressUri = hasAddressUri;
+    }
+    public PostalAddress getAddress() {
+        if (this.hasAddressUri == null || this.hasAddressUri.isEmpty()) {
+            return null;
+        }
+        return PostalAddress.find(this.hasAddressUri);
     }
 
     public String getHasUrl() {

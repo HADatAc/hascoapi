@@ -160,6 +160,7 @@ public class Templates {
     // KGR Template
     public String getAgentOriginalID() { return iniConfig.getSection("KGR").getString("agentOriginalID"); }
     public String getAgentType() { return iniConfig.getSection("KGR").getString("agentType"); }
+    public String getAgentShortName() { return iniConfig.getSection("KGR").getString("agentShortName"); }
     public String getAgentName() { return iniConfig.getSection("KGR").getString("agentName"); }
     public String getAgentGivenName() { return iniConfig.getSection("KGR").getString("agentGivenName"); }
     public String getAgentFamilyName() { return iniConfig.getSection("KGR").getString("agentFamilyName"); }
@@ -169,6 +170,7 @@ public class Templates {
     public String getAgentTelephone() { return iniConfig.getSection("KGR").getString("agentTelephone"); }
     public String getAgentUrl() { return iniConfig.getSection("KGR").getString("agentUrl"); }
     public String getAgentParentOrganization() { return iniConfig.getSection("KGR").getString("agentParentOrganization"); }
+    public String getAgentAddress() { return iniConfig.getSection("KGR").getString("agentAddress"); }
     public String getPlaceOriginalID() { return iniConfig.getSection("KGR").getString("agentOriginalID"); }
     public String getPlaceType() { return iniConfig.getSection("KGR").getString("placeType"); }
     public String getPlaceName() { return iniConfig.getSection("KGR").getString("placeName"); }
@@ -179,5 +181,10 @@ public class Templates {
     public String getPlaceLatitude() { return iniConfig.getSection("KGR").getString("placeLatitude"); }
     public String getPlaceLongitude() { return iniConfig.getSection("KGR").getString("placeLongitude"); }
     public String getPlaceUrl() { return iniConfig.getSection("KGR").getString("placeUrl"); }
-
+    public String getPostalAddressType() { return iniConfig.getSection("KGR").getString("postalAddressType"); }
+    public String getPostalAddressStreet() { return iniConfig.getSection("KGR").getString("postalAddressStreet"); }
+    public String getPostalAddressPostalCode() { return iniConfig.getSection("KGR").getString("postalAddressPostalCode"); }
+    public String getPostalAddressCountry() { return iniConfig.getSection("KGR").getString("postalAddressCountry"); }
+    public String getPostalAddressLocality() { return iniConfig.getSection("KGR").getString("postalAddressLocality"); }
+    public String getPostalAddressRegion() { return iniConfig.getSection("KGR").getString("postalAddressRegion"); }
 }    

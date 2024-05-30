@@ -42,6 +42,7 @@ public class KGR extends HADatAcThing {
     public String className = "hasco:KnowledgeGraph";
 
     private Map<String, String> mapCatalog = new HashMap<String, String>();
+    private Map<String, Map<String, String>> postalAddresses = new HashMap<String, Map<String, String>>();
     private Map<String, Map<String, String>> places = new HashMap<String, Map<String, String>>();
     private Map<String, Map<String, String>> organizations = new HashMap<String, Map<String, String>>();
     private Map<String, Map<String, String>> persons = new HashMap<String, Map<String, String>>();
@@ -143,6 +144,49 @@ public class KGR extends HADatAcThing {
         kgr.setUri(uri);
         
         return kgr;
+    }
+
+    public boolean readPostalAddresses(RecordFile file) {
+        if (!file.isValid()) {
+            System.out.println("[ERROR] Record file is considered invalid");
+            return false;
+        }
+
+        try {
+            for (Record record : file.getRecords()) {
+                if (!record.getValueByColumnName(templates.getPostalAddressStreet()).isEmpty() &&
+                    !record.getValueByColumnName(templates.getPostalAddressPostalCode()).isEmpty() ) {
+                    //System.out.println(record.getValueByColumnName(templates.getPostalAddressStreet()));    
+                    //System.out.println(record.getValueByColumnName(templates.getPostalAddressPostalCode()));    
+                    String postalAddressStreet = record.getValueByColumnName(templates.getPostalAddressStreet());
+                    String postalAddressPostalCode = record.getValueByColumnName(templates.getPostalAddressPostalCode());
+                    String postalAddressKey = postalAddressStreet + "|" + postalAddressPostalCode;
+                    PostalAddress postalAddressTest = PostalAddress.findByAddress(postalAddressStreet, postalAddressPostalCode);
+                    if (postalAddressTest != null) {
+                        System.out.println("[WARNING] PostalAddress with address " + 
+                            postalAddressStreet + " " + postalAddressPostalCode + 
+                            " already exist. It has been ignored.");
+                    } else {
+                        Map<String, String> mapPostalAddressProperties = null;
+                        if (!postalAddresses.containsKey(postalAddressKey)) {
+                            mapPostalAddressProperties = new HashMap<String, String>();
+                            postalAddresses.put(postalAddressKey, mapPostalAddressProperties);
+                        } else {
+                            mapPostalAddressProperties = postalAddresses.get(postalAddressKey);
+                        }
+                        mapPostalAddressProperties.put(templates.getManagerEmail(), getHasSIRManagerEmail());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (postalAddresses.isEmpty()) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     public boolean readPlaces(RecordFile file) {
@@ -269,13 +313,11 @@ public class KGR extends HADatAcThing {
                         isMemberOf = record.getValueByColumnName(templates.getAgentIsMemberOf());
                     }
                     if (isMemberOf != null && !isMemberOf.isEmpty()) {
-                        System.out.println("Person [" + familyName + "] Looking for organization [" + isMemberOf + "]");
                         Organization affiliation = Organization.findByEmail(isMemberOf);
                         if (affiliation != null && affiliation.getUri() != null && !affiliation.getUri().isEmpty()) {
-                            System.out.println("Found organization with URI [" + affiliation.getUri() + "]");
                             mapPersonProperties.put(templates.getAgentIsMemberOf(), affiliation.getUri());
                         } else {
-                            System.out.println("Not found organization");
+                            System.out.println("[WARNING] KGR.java: Not found isMemberOf [" + isMemberOf + "] for PersonID [" + personID + "]");
                         }
                     }
                     mapPersonProperties.put(templates.getManagerEmail(), getHasSIRManagerEmail());

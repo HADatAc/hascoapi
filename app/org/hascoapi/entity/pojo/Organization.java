@@ -162,6 +162,8 @@ public class Organization extends Agent {
                 organization.setMember(str);
             } else if (statement.getPredicate().getURI().equals(SCHEMA.PARENT_ORGANIZATION)) {
                 organization.setParentOrganization(str);
+            } else if (statement.getPredicate().getURI().equals(SCHEMA.ADDRESS)) {
+                organization.setHasAddressUri(str);
             } else if (statement.getPredicate().getURI().equals(SCHEMA.URL)) {
                 organization.setHasUrl(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {

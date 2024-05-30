@@ -90,21 +90,21 @@ public class GeneratorChain {
             return false;
         }
 
-        int i = 0;
-        for (BaseGenerator generator : chain) {
-        	log.info("GeneratorChain: Position " + i++ + " has generator of type [" + generator.getClass(). getSimpleName() + "]");
-        }
+        //int i = 0;
+        //for (BaseGenerator generator : chain) {
+        //	log.info("GeneratorChain: Position " + i++ + " has generator of type [" + generator.getClass(). getSimpleName() + "]");
+        //}
 
         for (BaseGenerator generator : chain) {
-        	//System.out.println("GeneratorChain: Executing generator of type [" + generator.getClass(). getSimpleName() + "]");
+        	System.out.println("GeneratorChain: Executing generator of type [" + generator.getClass().getSimpleName() + "]");
             try {
-                System.out.println("GenerationChain: PreProcess");
+                System.out.println("  - GenerationChain: PreProcess");
                 generator.preprocess();
-                System.out.println("GenerationChain: CreateRows");
+                System.out.println("  - GenerationChain: CreateRows");
                 generator.createRows();
-                System.out.println("GenerationChain: CreateObjects");
+                System.out.println("  - GenerationChain: CreateObjects");
                 generator.createObjects();
-                System.out.println("GenerationChain:PostProcess");
+                System.out.println("  - GenerationChain:PostProcess");
                 generator.postprocess();
             } catch (Exception e) {
                 System.out.println("[ERROR] GenerationChain: " + generator.getErrorMsg(e));
@@ -155,6 +155,38 @@ public class GeneratorChain {
 
         postprocess();
 
+        return true;
+    }
+
+    public boolean generateImmediateCommit() {
+        if (!isValid()) {
+            return false;
+        }
+
+        for (BaseGenerator generator : chain) {
+        	System.out.println("GeneratorChain: Executing generator of type [" + generator.getClass().getSimpleName() + "]");
+            if (!getNamedGraphUri().isEmpty()) {
+                generator.setNamedGraphUri(getNamedGraphUri());
+            }             
+            try {
+                System.out.println("  - GenerationChain: PreProcess");
+                generator.preprocess();
+                System.out.println("  - GenerationChain: CreateRows");
+                generator.createRows();
+                System.out.println("  - GenerationChain: CreateObjects");
+                generator.createObjects();
+                System.out.println("  - GenerationChain:PostProcess");
+                generator.postprocess();
+                generator.commitRowsToTripleStore(generator.getRows());
+                generator.commitObjectsToTripleStore(generator.getObjects());
+            } catch (Exception e) {
+                System.out.println("[ERROR] GenerationChain: " + generator.getErrorMsg(e));
+                e.printStackTrace();                
+                generator.getLogger().printException(generator.getErrorMsg(e));
+                return false;
+            }
+        }
+        postprocess();
         return true;
     }
 

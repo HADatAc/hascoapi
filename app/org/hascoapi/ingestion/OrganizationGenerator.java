@@ -2,6 +2,7 @@ package org.hascoapi.ingestion;
 
 import org.hascoapi.Constants;
 import org.hascoapi.entity.pojo.Organization;
+import org.hascoapi.entity.pojo.PostalAddress;
 import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.entity.pojo.NameSpace;
 import org.hascoapi.utils.URIUtils;
@@ -52,11 +53,13 @@ public class OrganizationGenerator extends BaseGenerator {
 		mapCol.clear();
 		mapCol.put("OriginalID", templates.getAgentOriginalID());
 		mapCol.put("Type", templates.getAgentType());
+		mapCol.put("ShortName", templates.getAgentShortName());
 		mapCol.put("Name", templates.getAgentName());
 		mapCol.put("Email", templates.getAgentEmail());
 		mapCol.put("Telephone", templates.getAgentTelephone());
 		mapCol.put("Url", templates.getAgentUrl());
 		mapCol.put("ParentOrganization", templates.getAgentParentOrganization());
+		mapCol.put("Address", templates.getAgentAddress());
 	}
 
     private String getOriginalID(Record rec) {
@@ -75,6 +78,10 @@ public class OrganizationGenerator extends BaseGenerator {
 		return "";
 	}
 
+	private String getShortName(Record rec) {
+		return rec.getValueByColumnName(mapCol.get("ShortName"));
+	}
+
 	private String getName(Record rec) {
 		return rec.getValueByColumnName(mapCol.get("Name"));
 	}
@@ -85,6 +92,20 @@ public class OrganizationGenerator extends BaseGenerator {
 
 	private String getTelephone(Record rec) {
 		return rec.getValueByColumnName(mapCol.get("Telephone"));
+	}
+
+	private String getAddress(Record rec) {
+		String addressKey = rec.getValueByColumnName(mapCol.get("Address"));
+		if (addressKey != null && !addressKey.isEmpty()) {
+			String[] parts = addressKey.split("\\|", 2);
+			PostalAddress postalAddress = PostalAddress.findByAddress(parts[0].trim(), parts[1].trim());
+			if (postalAddress != null && postalAddress.getUri() != null) {
+				return postalAddress.getUri();
+			} else {
+				System.out.println("[WARNING] OrganizationGenerator: could not find Postal Address for key=[" + addressKey + "]");
+			}
+		}
+		return "";
 	}
 
 	private String getUrl(Record rec) {
@@ -122,12 +143,13 @@ public class OrganizationGenerator extends BaseGenerator {
 		row.put("hasco:hasOriginalID", URIUtils.replaceNameSpaceEx(getOriginalID(rec)));
 		row.put("hasco:hascoType", FOAF.ORGANIZATION);
 		row.put("a", URIUtils.replaceNameSpaceEx(getType(rec)));		
-		row.put("rdfs:label", getName(rec));
+		row.put("rdfs:label", getShortName(rec));
 		row.put("foaf:name", getName(rec));
 		row.put("foaf:mbox", getEmail(rec));
 		row.put("schema:telephone", getTelephone(rec));
 		row.put("schema:url", getUrl(rec));
 		row.put("schema:parentOrganization", getParentOrganization(rec));
+		row.put("schema:address", getAddress(rec));
 		row.put("vstoi:hasSIRManagerEmail", managerEmail);
 		return row;
 	}

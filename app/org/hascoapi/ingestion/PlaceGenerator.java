@@ -29,7 +29,7 @@ import java.security.NoSuchAlgorithmException;
 
 public class PlaceGenerator extends BaseGenerator {
 
-	private static final Logger log = LoggerFactory.getLogger(PVGenerator.class);
+	private static final Logger log = LoggerFactory.getLogger(PlaceGenerator.class);
     private long timestamp;
 	private String managerEmail;
 	final String kbPrefix = ConfigProp.getKbPrefix();
@@ -89,8 +89,8 @@ public class PlaceGenerator extends BaseGenerator {
 	}
 
 	private String getPlaceContainedIn(Record rec) {
-		String containedInOriginalID = rec.getValueByColumnName(mapCol.get("PlaceContainedIn"));
-		Place place = Place.findByOriginalID(containedInOriginalID);
+		String containedInPlaceName = rec.getValueByColumnName(mapCol.get("PlaceContainedIn"));
+		Place place = Place.findByName(containedInPlaceName);
 		if (place != null && place.getUri() != null) {
 			return place.getUri();
 		}

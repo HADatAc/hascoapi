@@ -17,6 +17,7 @@ import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.utils.SPARQLUtils;
+import org.hascoapi.utils.URIUtils;
 import org.hascoapi.vocabularies.RDF;
 import org.hascoapi.vocabularies.RDFS;
 
@@ -61,7 +62,6 @@ public class GenericInstance extends HADatAcThing implements Comparable<GenericI
         QueryExecution qexec = QueryExecutionFactory.sparqlService(
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), query);
         model = qexec.execDescribe();
-        //System.out.println("GenericInstance.find() [1]");
 
         StmtIterator stmtIterator = model.listStatements();
         if (!stmtIterator.hasNext()) {
@@ -72,18 +72,21 @@ public class GenericInstance extends HADatAcThing implements Comparable<GenericI
         while (stmtIterator.hasNext()) {
             statement = stmtIterator.next();
             object = statement.getObject();
+            String str = URIUtils.objectRDFToString(object);
             if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-                instance.setLabel(object.asLiteral().getString());
+                instance.setLabel(str);
             } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
-                instance.setTypeUri(object.asResource().getURI());
+                instance.setTypeUri(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
-                instance.setHascoTypeUri(object.asResource().getURI());
+                instance.setHascoTypeUri(str);
             } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
-                instance.setComment(object.asLiteral().getString());
+                instance.setComment(str);
             }
         }
 
         instance.setUri(uri);
+
+        //System.out.println("GenericInstance.find() instance's URI is [" + instance.getUri() + "] and type is [" + instance.getTypeUri() + "]");
 
         return instance;
     }

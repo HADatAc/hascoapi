@@ -301,6 +301,26 @@ public class HAScOMapper {
                             "hascoTypeLabel", "comment", "study", "isMemberOf"));
         }
 
+        // PLACE
+        if (mode.equals(FULL) && typeResult.equals(SCHEMA.PLACE)) {
+            filterProvider.addFilter("placeFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("placeFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
+                            "hascoTypeLabel", "comment", "name", "hasAddress", "containedInPlace", "hasIdentifier", 
+                            "hasGeo", "hasLatitude", "hasLongitude", "hasUrl"));
+        }
+ 
+        // POSTAL_ADDRESS
+        if (mode.equals(FULL) && typeResult.equals(SCHEMA.POSTAL_ADDRESS)) {
+            filterProvider.addFilter("postalAddressFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("postalAddressFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
+                            "hascoTypeLabel", "comment", "name", "hasStreetAddress", "hasPostalCode", "hasAddressLocality",
+                            "hasAddressRegion", "hasAddressCountry", "locality", "region", "country"));
+        }
+ 
         // ORGANIZATION
         if (mode.equals(FULL) && typeResult.equals(FOAF.ORGANIZATION)) {
             filterProvider.addFilter("organizationFilter", SimpleBeanPropertyFilter.serializeAll());
@@ -320,16 +340,6 @@ public class HAScOMapper {
                             "affiliation", "hasUrl", "jobTitle"));
         }
 
-        // PLACE
-        if (mode.equals(FULL) && typeResult.equals(SCHEMA.PLACE)) {
-            filterProvider.addFilter("placeFilter", SimpleBeanPropertyFilter.serializeAll());
-        } else {
-            filterProvider.addFilter("placeFilter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "name", "hasAddress", "containedInPlace", "hasIdentifier", 
-                            "hasGeo", "hasLatitude", "hasLongitude", "hasUrl"));
-        }
- 
         // KGR
         if (mode.equals(FULL) && typeResult.equals(HASCO.KNOWLEDGE_GRAPH)) {
             filterProvider.addFilter("kgrFilter", SimpleBeanPropertyFilter.serializeAll());

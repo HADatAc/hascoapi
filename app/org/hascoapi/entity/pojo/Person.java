@@ -163,6 +163,8 @@ public class Person extends Agent {
                 person.setTelephone(str);
             } else if (statement.getPredicate().getURI().equals(FOAF.MEMBER)) {
                 person.setMember(str);
+            } else if (statement.getPredicate().getURI().equals(SCHEMA.ADDRESS)) {
+                person.setHasAddressUri(str);
             } else if (statement.getPredicate().getURI().equals(SCHEMA.URL)) {
                 person.setHasUrl(str);
             } else if (statement.getPredicate().getURI().equals(SCHEMA.JOB_TITLE)) {

@@ -18,6 +18,7 @@ public class URIPage extends Controller {
 
     public Result getUri(String uri) {
 
+        //System.out.println("URIPage.getUri() with uri [" + uri + "]");
         if (!uri.startsWith("http://") && !uri.startsWith("https://")) {
             return ok(ApiUtil.createResponse("[" + uri + "] is an invalid URI", false));
         }
@@ -40,6 +41,7 @@ public class URIPage extends Controller {
     }
 
     public static HADatAcThing objectFromUri(String uri) {
+        //System.out.println("URIPage.objectFromUri(): URI [" + uri + "]");
         String typeUri = "";
         try {
 
@@ -49,13 +51,11 @@ public class URIPage extends Controller {
 
             Object finalResult = null;
             GenericInstance result = GenericInstance.find(uri);
-            //System.out.println("URIPage.objectFromUri() [1]: URI [" + uri + "]");
 
             if (result == null) {
-                //System.out.println("No generic instance found for uri [" + uri + "]");
+                System.out.println("[WARNING] URIPage.objectFromUri(): No generic instance found for uri [" + uri + "]");
                 return null;
             }
-            //System.out.println("URIPage.objectFromUri() [1]: URI [" + uri + "]");
 
             /*
              * if (result.getHascoTypeUri() == null || result.getHascoTypeUri().isEmpty()) {
@@ -71,6 +71,8 @@ public class URIPage extends Controller {
                 finalResult = KGR.find(uri);
             } else if (result.getHascoTypeUri().equals(SCHEMA.PLACE)) {
                 finalResult = Place.find(uri);
+            } else if (result.getHascoTypeUri().equals(SCHEMA.POSTAL_ADDRESS)) {
+                finalResult = PostalAddress.find(uri);
             } else if (result.getHascoTypeUri().equals(FOAF.ORGANIZATION)) {
                 finalResult = Organization.find(uri);
             } else if (result.getHascoTypeUri().equals(FOAF.PERSON)) {

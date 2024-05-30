@@ -71,6 +71,12 @@ public class ConfigProp {
         System.out.println("ConfigProp: getTemplateFileName()=" + ConfigFactory.load().getString("hascoapi.templates.template_filename"));
 		return ConfigFactory.load().getString("hascoapi.templates.template_filename");
 	}
+    
+	public static String getPathIngestion() {
+	    return ConfigFactory.load().getString("hascoapi.paths.ingestion");
+	}
+
+
 
     /**
     public static String getBasePrefix() {

@@ -47,6 +47,15 @@ public class SpreadsheetRecordFile implements RecordFile {
     }
     
     private boolean init() {
+
+        System.out.println("SpreadsheetRecordFile: file's filename is [" + file.getName() + "]");
+        System.out.println("SpreadsheetRecordFile: RecordFile's filename is [" + fileName + "]");
+
+        if (file == null || file.getName() == null || file.getName().isEmpty()) {
+            System.out.println("[ERROR] SpreadsheetRecordFile.init() failed: file is null of file.getName() is null.");
+            return false;
+        }
+
         if (fileName.isEmpty()) {
             fileName = file.getName();
         }
@@ -164,6 +173,7 @@ public class SpreadsheetRecordFile implements RecordFile {
 
     @Override
     public boolean isValid() {
+        System.out.println("(SpreadsheetRecordFile) Init with following filename: [" + fileName + "]");
         System.out.println("(SpreadsheetRecordFile) Init with following sheetname: [" + sheetName + "]");
                     
         Workbook workbook = null;

@@ -19,11 +19,8 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.jena.query.QueryParseException;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSetRewindable;
-//import org.hascoapi.data.api.DataFactory;
 import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.entity.pojo.KGR;
-import org.hascoapi.entity.pojo.Organization;
-import org.hascoapi.entity.pojo.Person;
 import org.hascoapi.utils.SPARQLUtils;
 import org.hascoapi.utils.URIUtils;
 import org.hascoapi.utils.CollectionUtil;
@@ -67,7 +64,8 @@ public class IngestKGR {
 
         if (chain != null) {
             System.out.println("Executing generation chain...");
-            bSucceed = chain.generate();
+            //bSucceed = chain.generate();
+            bSucceed = chain.generateImmediateCommit();
             System.out.println("Generation chain has been executed.");
         }
 
@@ -87,13 +85,15 @@ public class IngestKGR {
     public static GeneratorChain buildChain(KGR kgr, DataFile dataFile, File file, String templateFile) {
         System.out.println("IngestKGR.buildChain(): Processing KGR file ...");
         
+        String fileName = dataFile.getFilename();
+
         RecordFile recordFile = new SpreadsheetRecordFile(file, "InfoSheet");
         if (!recordFile.isValid()) {
             dataFile.getLogger().printExceptionById("SDD_00001");
             return null;
         } 
 
-        System.out.println("IngestKGR.buildChain(): Build chain 1 of 9 - Reading catalog and template");
+        System.out.println("IngestKGR.buildChain(): Build chain 1 of 10 - Reading catalog and template");
 
         Map<String, String> mapCatalog = kgr.getCatalog();
         for (Record record : recordFile.getRecords()) {
@@ -104,19 +104,26 @@ public class IngestKGR {
         // the template is needed to process individual sheets
         kgr.setTemplates(templateFile);
 
-        System.out.println("IngestKGR.buildChain(): Build chain 2 of 9 - Separating sheets apart");
+        System.out.println("IngestKGR.buildChain(): Build chain 2 of 10 - Separating sheets apart");
 
+        RecordFile postalAddressRecordFile = null;
         RecordFile placeRecordFile = null;
         RecordFile organizationRecordFile = null;
         RecordFile personRecordFile = null;
+        boolean postalAddressOkay = false;
         boolean placeOkay = false;
         boolean organizationOkay = false;
         boolean personOkay = false;
 
-        String fileName = dataFile.getFilename();
-
         if (fileName.endsWith(".xlsx")) {
 
+            if (mapCatalog.get("PostalAddress") != null) {
+                System.out.print("Extracting PostalAddress sheet from spreadsheet... ");
+                postalAddressRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), mapCatalog.get("PostalAddress"));
+                System.out.println(postalAddressRecordFile.getSheetName());
+                postalAddressOkay = true;
+            }
+            
             if (mapCatalog.get("Place") != null) {
                 System.out.print("Extracting place sheet from spreadsheet... ");
                 placeRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), mapCatalog.get("Place"));
@@ -141,21 +148,28 @@ public class IngestKGR {
             
         }
 
-        System.out.println("IngestKGR.buildChain(): Build chain 3 of 9 - Processing Place Sheet");
+        System.out.println("IngestKGR.buildChain(): Build chain 3 of 10 - Processing PostalAddress Sheet");
+
+        if (postalAddressOkay && !kgr.readPostalAddresses(postalAddressRecordFile)) {
+            System.out.println("[ERROR] failed KGR's read postal addresses");
+            postalAddressOkay = false;
+        }
+
+        System.out.println("IngestKGR.buildChain(): Build chain 3 of 10 - Processing Place Sheet");
 
         if (placeOkay && !kgr.readPlaces(placeRecordFile)) {
             System.out.println("[ERROR] failed KGR's read places");
             placeOkay = false;
         }
 
-        System.out.println("IngestKGR.buildChain(): Build chain 4 of 9 - Processing Organization Sheet");
+        System.out.println("IngestKGR.buildChain(): Build chain 4 of 10 - Processing Organization Sheet");
 
         if (organizationOkay && !kgr.readOrganizations(organizationRecordFile)) {
             System.out.println("[ERROR] failed KGR's read organizations");
             organizationOkay = false;
         }
 
-        System.out.println("IngestKGR.buildChain(): Build chain 5 of 9 - Processing Person Sheet");
+        System.out.println("IngestKGR.buildChain(): Build chain 5 of 10 - Processing Person Sheet");
 
         if (personOkay && !kgr.readPersons(personRecordFile)) {
             dataFile.getLogger().printWarningById("SDD_00005");
@@ -163,11 +177,29 @@ public class IngestKGR {
             personOkay = false;
         }
 
-        System.out.println("IngestSDD.buildChain(): Build chain 6 of 9 - Creating empty generator chain");
+        System.out.println("IngestSDD.buildChain(): Build chain 6 of 10 - Creating empty generator chain");
 
         GeneratorChain chain = new GeneratorChain();
         
-        System.out.println("IngestSDD.buildChain(): Build chain 7 of 9 - Adding PlaceGenerator into generation chain");
+        System.out.println("IngestSDD.buildChain(): Build chain 7 of 10 - Adding PostalAddressGenerator into generation chain");
+
+        if (postalAddressOkay && postalAddressRecordFile != null && postalAddressRecordFile.isValid()) {
+            DataFile postalAddressFile;
+            try {
+                postalAddressFile = (DataFile)dataFile.clone();
+                postalAddressFile.setRecordFile(postalAddressRecordFile);
+                PostalAddressGenerator postalAddressGen = new PostalAddressGenerator(postalAddressFile, templateFile, kgr.getHasSIRManagerEmail());
+                postalAddressGen.setNamedGraphUri(kgr.getHasDataFile());
+                chain.addGenerator(postalAddressGen);
+                System.out.println("Adding PostalAddressGenerator into generation chain...");
+            } catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+                System.out.println("[ERROR] failed KGR's adding PostalAddressGenerator into generation chain ");
+                postalAddressOkay = false;
+            }
+        } 
+ 
+        System.out.println("IngestSDD.buildChain(): Build chain 8 of 10 - Adding PlaceGenerator into generation chain");
 
         if (placeOkay && placeRecordFile != null && placeRecordFile.isValid()) {
             DataFile placeFile;
@@ -185,7 +217,7 @@ public class IngestKGR {
             }
         }
 
-        System.out.println("IngestSDD.buildChain(): Build chain 8 of 9 - Adding OrganizationGenerator into generation chain");
+        System.out.println("IngestSDD.buildChain(): Build chain 9 of 10 - Adding OrganizationGenerator into generation chain");
 
         if (organizationOkay && organizationRecordFile != null && organizationRecordFile.isValid()) {
             DataFile organizationFile;
@@ -203,7 +235,7 @@ public class IngestKGR {
             }
         }
 
-        System.out.println("IngestSDD.buildChain(): Build chain 9 of 9 - Adding PersonGenerator into generation chain");
+        System.out.println("IngestSDD.buildChain(): Build chain 10 of 10 - Adding PersonGenerator into generation chain");
 
         // persons needs to be processed after data organizations because or persons 
         // need to be assigned members of organizations
@@ -222,6 +254,10 @@ public class IngestKGR {
                 System.out.println("[ERROR] failed KGR's adding PersonGenerator into generation chain ");
                 personOkay = false;
             }
+        }
+
+        if (!postalAddressOkay) {
+            System.out.println("[ERROR] failed KGR's PostalAddress generation");
         }
 
         if (!placeOkay) {
