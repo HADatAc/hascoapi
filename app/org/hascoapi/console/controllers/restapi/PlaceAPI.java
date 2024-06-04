@@ -28,4 +28,21 @@ public class PlaceAPI extends Controller {
         }
     }
 
+    public Result findContainsPlace(String uri, int pageSize, int offset) {
+        List<Place> results = Place.findContainsPlace(uri, pageSize, offset);
+        return PlaceAPI.getPlaces(results);
+       
+    }
+
+    public Result findTotalContainsPlace(String uri) {
+        int totalElements = Place.findTotalContainsPlace(uri);
+        if (totalElements >= 0) {
+            String totalElementsJSON = "{\"total\":" + totalElements + "}";
+            return ok(ApiUtil.createResponse(totalElementsJSON, true));
+        }     
+        return ok(ApiUtil.createResponse("Query method findTotalContainsPlace() failed to retrieve total number of element", false));   
+    }
+
+
+
 }

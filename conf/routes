@@ -27,6 +27,12 @@ GET     /hascoapi/api/:elementType/keyword/total/:keyword                       
 GET     /hascoapi/api/:elementType/manageremail/:managerEmail/:pageSize/:offset           org.hascoapi.console.controllers.restapi.SIRElementAPI.getElementsByManagerEmail(elementType: String, managerEmail : String, pageSize : Integer, offset : Integer)
 GET     /hascoapi/api/:elementType/manageremail/total/:managerEmail                       org.hascoapi.console.controllers.restapi.SIRElementAPI.getTotalElementsByManagerEmail(elementType : String, managerEmail : String)
 
+# RETRIEVAL REVERSE
+GET     /hascoapi/api/place/contains/:uri/:pageSize/:offset   org.hascoapi.console.controllers.restapi.PlaceAPI.findContainsPlace(uri: String, pageSize : Integer, offset : Integer)
+GET     /hascoapi/api/place/contains/total/:uri               org.hascoapi.console.controllers.restapi.PlaceAPI.findTotalContainsPlace(uri: String)
+GET     /hascoapi/api/organization/suborganizations/:uri/:pageSize/:offset   org.hascoapi.console.controllers.restapi.OrganizationAPI.findSubOrganizations(uri: String, pageSize : Integer, offset : Integer)
+GET     /hascoapi/api/organization/suborganizations/total/:uri               org.hascoapi.console.controllers.restapi.OrganizationAPI.findTotalSubOrganizations(uri: String)
+
 # MANAGEMENT GENERIC 
 
 POST    /hascoapi/api/:elementType/create/:json             org.hascoapi.console.controllers.restapi.SIRElementAPI.createElement(elementType: String, json: String)

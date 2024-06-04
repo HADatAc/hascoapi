@@ -26,13 +26,13 @@ import org.hascoapi.vocabularies.VSTOI;
 public class Organization extends Agent {
 
     @PropertyField(uri="schema:parentOrganization")
-    protected String parentOrganization;
+    protected String parentOrganizationUri;
 
-    public String getParentOrganization() {
-        return parentOrganization;
+    public String getParentOrganizationUri() {
+        return parentOrganizationUri;
     }
-    public void setParentOrganization(String parentOrganization) {
-        this.parentOrganization = parentOrganization;
+    public void setParentOrganizationUri(String parentOrganizationUri) {
+        this.parentOrganizationUri = parentOrganizationUri;
     }
 
     public static List<Organization> find() {
@@ -42,6 +42,36 @@ public class Organization extends Agent {
             "} ";
         return findManyByQuery(query);
     }
+
+    public static int findTotalSubOrganizations(String uri) {
+        if (uri == null || uri.isEmpty()) {
+            return 0;
+        }
+        String query = NameSpaces.getInstance().printSparqlNameSpaceList() + 
+                " SELECT (count(?uri) as ?tot)  " +
+                " WHERE {  ?subUri rdfs:subClassOf* schema:Organization . " +
+                "          ?uri a ?subUri . " +
+                "          ?uri schema:parentOrganization <" + uri + "> .  " +
+                " }";
+        return GenericFind.findTotalByQuery(query);
+    }        
+
+    public static List<Organization> findSubOrganizations(String uri, int pageSize, int offset) {
+        if (uri == null || uri.isEmpty()) {
+            return new ArrayList<Organization>();
+        }
+        String query = 
+                "SELECT ?uri " +
+                " WHERE {  ?subUri rdfs:subClassOf* schema:Organization . " +
+                "          ?uri a ?subUri . " +
+                "          ?uri schema:parentOrganization <" + uri + "> .  " +
+				"          ?uri rdfs:label ?label . " +
+                " } " +
+                " ORDER BY ASC(?label) " +
+                " LIMIT " + pageSize +
+                " OFFSET " + offset;
+        return findManyByQuery(query);
+    }        
 
     private static List<Organization> findManyByQuery(String requestedQuery) {
         List<Organization> organizations = new ArrayList<Organization>();
@@ -161,7 +191,7 @@ public class Organization extends Agent {
             } else if (statement.getPredicate().getURI().equals(FOAF.MEMBER)) {
                 organization.setMember(str);
             } else if (statement.getPredicate().getURI().equals(SCHEMA.PARENT_ORGANIZATION)) {
-                organization.setParentOrganization(str);
+                organization.setParentOrganizationUri(str);
             } else if (statement.getPredicate().getURI().equals(SCHEMA.ADDRESS)) {
                 organization.setHasAddressUri(str);
             } else if (statement.getPredicate().getURI().equals(SCHEMA.URL)) {

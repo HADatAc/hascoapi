@@ -317,8 +317,8 @@ public class HAScOMapper {
         } else {
             filterProvider.addFilter("postalAddressFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "name", "hasStreetAddress", "hasPostalCode", "hasAddressLocality",
-                            "hasAddressRegion", "hasAddressCountry", "locality", "region", "country"));
+                            "hascoTypeLabel", "comment", "name", "hasStreetAddress", "hasPostalCode", "hasAddressLocalityUri",
+                            "hasAddressRegionUri", "hasAddressCountryUri", "hasAddressLocality", "hasAddressRegion", "hasAddressCountry"));
         }
  
         // ORGANIZATION
@@ -327,7 +327,7 @@ public class HAScOMapper {
         } else {
             filterProvider.addFilter("organizationFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "name", "mbox", "telephone", "url", "parentOrganization"));
+                            "hascoTypeLabel", "comment", "name", "mbox", "telephone", "url", "parentOrganizationUri", "childrenOrganizations"));
         }
 
         // PERSON

@@ -216,10 +216,43 @@ public class Place extends HADatAcThing implements Comparable<Place> {
         return place;
     }
 
-    private static List<Place> findByQuery(String queryString) {
-        List<Place> places = new ArrayList<Place>();
+    public static int findTotalContainsPlace(String uri) {
+        if (uri == null || uri.isEmpty()) {
+            return 0;
+        }
+        String query = NameSpaces.getInstance().printSparqlNameSpaceList() + 
+                " SELECT (count(?uri) as ?tot)  " +
+                " WHERE {  ?subUri rdfs:subClassOf* schema:Place . " +
+                "          ?uri a ?subUri . " +
+                "          ?uri schema:containedInPlace <" + uri + "> .  " +
+                " }";
+        return GenericFind.findTotalByQuery(query);
+    }        
+
+    public static List<Place> findContainsPlace(String uri, int pageSize, int offset) {
+        if (uri == null || uri.isEmpty()) {
+            return new ArrayList<Place>();
+        }
+        String query = 
+                "SELECT ?uri " +
+                " WHERE {  ?subUri rdfs:subClassOf* schema:Place . " +
+                "          ?uri a ?subUri . " +
+                "          ?uri schema:containedInPlace <" + uri + "> .  " +
+				"          ?uri rdfs:label ?label . " +
+                " } " +
+                " ORDER BY ASC(?label) " +
+                " LIMIT " + pageSize +
+                " OFFSET " + offset;
+        return findManyByQuery(query);
+    }        
+
+	private static List<Place> findManyByQuery(String queryString) {
+        String query = NameSpaces.getInstance().printSparqlNameSpaceList() + queryString;
+		System.out.println(query);
+
+		List<Place> places = new ArrayList<Place>();
         ResultSetRewindable resultsrw = SPARQLUtils.select(
-                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), query);
         if (!resultsrw.hasNext()) {
             return null;
         }

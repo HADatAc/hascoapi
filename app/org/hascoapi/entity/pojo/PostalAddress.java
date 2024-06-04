@@ -37,16 +37,16 @@ public class PostalAddress extends HADatAcThing implements Comparable<PostalAddr
     protected String hasStreetAddress;
 
  	@PropertyField(uri="schema:addressLocality")
-	private String hasAddressLocality;
+	private String hasAddressLocalityUri;
 
 	@PropertyField(uri="schema:addressRegion")
-	private String hasAddressRegion;
+	private String hasAddressRegionUri;
 
 	@PropertyField(uri="schema:postalCode")
 	private String hasPostalCode;
 
 	@PropertyField(uri="schema:addressCountry")
-	private String hasAddressCountry;
+	private String hasAddressCountryUri;
 
 	@PropertyField(uri="vstoi:hasSIRManagerEmail")
 	private String hasSIRManagerEmail;
@@ -58,30 +58,30 @@ public class PostalAddress extends HADatAcThing implements Comparable<PostalAddr
 		this.hasStreetAddress = hasStreetAddress;
 	}
 
-	public String getHasAddressLocality() {
-		return hasAddressLocality;
+	public String getHasAddressLocalityUri() {
+		return hasAddressLocalityUri;
 	}
-	public void setHasAddressLocality(String hasAddressLocality) {
-		this.hasAddressLocality = hasAddressLocality;
+	public void setHasAddressLocalityUri(String hasAddressLocalityUri) {
+		this.hasAddressLocalityUri = hasAddressLocalityUri;
 	}
-	public Place getLocality() {
-		if (hasAddressLocality == null || hasAddressLocality.isEmpty()) {
+	public Place getHasAddressLocality() {
+		if (hasAddressLocalityUri == null || hasAddressLocalityUri.isEmpty()) {
 			return null;
 		}
-		return Place.find(hasAddressLocality);
+		return Place.find(hasAddressLocalityUri);
 	}
 
-	public String getHasAddressRegion() {
-		return hasAddressRegion;
+	public String getHasAddressRegionUri() {
+		return hasAddressRegionUri;
 	}
-	public void setHasAddressRegion(String hasAddressRegion) {
-		this.hasAddressRegion = hasAddressRegion;
+	public void setHasAddressRegionUri(String hasAddressRegionUri) {
+		this.hasAddressRegionUri = hasAddressRegionUri;
 	}
-	public Place getRegion() {
-		if (hasAddressRegion == null || hasAddressRegion.isEmpty()) {
+	public Place getHasAddressRegion() {
+		if (hasAddressRegionUri == null || hasAddressRegionUri.isEmpty()) {
 			return null;
 		}
-		return Place.find(hasAddressRegion);
+		return Place.find(hasAddressRegionUri);
 	}
 
 	public String getHasPostalCode() {
@@ -91,17 +91,17 @@ public class PostalAddress extends HADatAcThing implements Comparable<PostalAddr
 		this.hasPostalCode = hasPostalCode;
 	}
 
-	public String getHasAddressCountry() {
-		return hasAddressCountry;
+	public String getHasAddressCountryUri() {
+		return hasAddressCountryUri;
 	}
-	public void setHasAddressCountry(String hasAddressCountry) {
-		this.hasAddressCountry = hasAddressCountry;
+	public void setHasAddressCountryUri(String hasAddressCountryUri) {
+		this.hasAddressCountryUri = hasAddressCountryUri;
 	}
-	public Place getCountry() {
-		if (hasAddressCountry == null || hasAddressCountry.isEmpty()) {
+	public Place getHasAddressCountry() {
+		if (hasAddressCountryUri == null || hasAddressCountryUri.isEmpty()) {
 			return null;
 		}
-		return Place.find(hasAddressCountry);
+		return Place.find(hasAddressCountryUri);
 	}
 
 	public String getHasSIRManagerEmail() {
@@ -233,13 +233,13 @@ public class PostalAddress extends HADatAcThing implements Comparable<PostalAddr
 				} else if (statement.getPredicate().getURI().equals(SCHEMA.STREET_ADDRESS)) {
 					postalAddress.setHasStreetAddress(str);
 				} else if (statement.getPredicate().getURI().equals(SCHEMA.ADDRESS_LOCALITY)) {
-					postalAddress.setHasAddressLocality(str);
+					postalAddress.setHasAddressLocalityUri(str);
 				} else if (statement.getPredicate().getURI().equals(SCHEMA.ADDRESS_REGION)) {
-					postalAddress.setHasAddressRegion(str);
+					postalAddress.setHasAddressRegionUri(str);
 				} else if (statement.getPredicate().getURI().equals(SCHEMA.POSTAL_CODE)) {
 					postalAddress.setHasPostalCode(str);
 				} else if (statement.getPredicate().getURI().equals(SCHEMA.ADDRESS_COUNTRY)) {
-					postalAddress.setHasAddressCountry(str);
+					postalAddress.setHasAddressCountryUri(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
 					postalAddress.setHasSIRManagerEmail(str);
 				}

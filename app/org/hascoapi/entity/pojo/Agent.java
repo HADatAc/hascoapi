@@ -77,7 +77,7 @@ public class Agent extends HADatAcThing implements Comparable<Agent> {
     public void setHasAddressUri(String hasAddressUri) {
         this.hasAddressUri = hasAddressUri;
     }
-    public PostalAddress getAddress() {
+    public PostalAddress getHasAddress() {
         if (this.hasAddressUri == null || this.hasAddressUri.isEmpty()) {
             return null;
         }
