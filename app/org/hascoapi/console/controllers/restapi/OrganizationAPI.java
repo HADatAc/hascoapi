@@ -30,6 +30,7 @@ public class OrganizationAPI extends Controller {
     }
 
     public Result findSubOrganizations(String uri, int pageSize, int offset) {
+        //System.out.println("OrganizationAPI: " + uri);
         List<Organization> results = Organization.findSubOrganizations(uri, pageSize, offset);
         return OrganizationAPI.getOrganizations(results);
        

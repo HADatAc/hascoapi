@@ -222,9 +222,7 @@ public class Place extends HADatAcThing implements Comparable<Place> {
         }
         String query = NameSpaces.getInstance().printSparqlNameSpaceList() + 
                 " SELECT (count(?uri) as ?tot)  " +
-                " WHERE {  ?subUri rdfs:subClassOf* schema:Place . " +
-                "          ?uri a ?subUri . " +
-                "          ?uri schema:containedInPlace <" + uri + "> .  " +
+                " WHERE {  ?uri schema:containedInPlace <" + uri + "> .  " +
                 " }";
         return GenericFind.findTotalByQuery(query);
     }        
@@ -235,9 +233,7 @@ public class Place extends HADatAcThing implements Comparable<Place> {
         }
         String query = 
                 "SELECT ?uri " +
-                " WHERE {  ?subUri rdfs:subClassOf* schema:Place . " +
-                "          ?uri a ?subUri . " +
-                "          ?uri schema:containedInPlace <" + uri + "> .  " +
+                " WHERE {  ?uri schema:containedInPlace <" + uri + "> .  " +
 				"          ?uri rdfs:label ?label . " +
                 " } " +
                 " ORDER BY ASC(?label) " +

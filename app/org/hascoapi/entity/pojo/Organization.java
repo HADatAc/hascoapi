@@ -49,9 +49,8 @@ public class Organization extends Agent {
         }
         String query = NameSpaces.getInstance().printSparqlNameSpaceList() + 
                 " SELECT (count(?uri) as ?tot)  " +
-                " WHERE {  ?subUri rdfs:subClassOf* schema:Organization . " +
-                "          ?uri a ?subUri . " +
-                "          ?uri schema:parentOrganization <" + uri + "> .  " +
+                " WHERE { " +   
+                "    ?uri schema:parentOrganization <" + uri + "> .  " +
                 " }";
         return GenericFind.findTotalByQuery(query);
     }        
@@ -62,9 +61,7 @@ public class Organization extends Agent {
         }
         String query = 
                 "SELECT ?uri " +
-                " WHERE {  ?subUri rdfs:subClassOf* schema:Organization . " +
-                "          ?uri a ?subUri . " +
-                "          ?uri schema:parentOrganization <" + uri + "> .  " +
+                " WHERE {  ?uri schema:parentOrganization <" + uri + ">.  " +
 				"          ?uri rdfs:label ?label . " +
                 " } " +
                 " ORDER BY ASC(?label) " +
