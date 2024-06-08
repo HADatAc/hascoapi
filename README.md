@@ -1,4 +1,4 @@
-f# HASCOAPI - Human-Aware Science Ontology API
+# HASCOAPI - Human-Aware Science Ontology API
 
 ## What is HASCO?
 
