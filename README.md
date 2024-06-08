@@ -6,7 +6,7 @@ HASCO is an ontology describing how instruments are used to acquire and collect 
 
 ## What is HASCOAPI?
 
-It an API for handling HASCO-based knowledge graphs. The canonical representation of instruments and instrument elements are stored in RDF inside of the Fuseki triple store embedded in HASCOAPI. 
+It is an API for handling HASCO-based knowledge graphs. The canonical representation of instruments and instrument elements are stored in RDF inside of the Fuseki triple store embedded in HASCOAPI. 
 
 ## How to run HASCOAPI?
 
