@@ -308,16 +308,16 @@ public class KGR extends HADatAcThing {
                         familyName = record.getValueByColumnName(templates.getAgentFamilyName());
                     }
                     mapPersonProperties.put(templates.getAgentFamilyName(), familyName);
-                    String isMemberOf = "";
-                    if (!record.getValueByColumnName(templates.getAgentIsMemberOf()).isEmpty()) {
-                        isMemberOf = record.getValueByColumnName(templates.getAgentIsMemberOf());
+                    String hasAffiliationUri = "";
+                    if (!record.getValueByColumnName(templates.getAgentHasAffiliationUri()).isEmpty()) {
+                        hasAffiliationUri = record.getValueByColumnName(templates.getAgentHasAffiliationUri());
                     }
-                    if (isMemberOf != null && !isMemberOf.isEmpty()) {
-                        Organization affiliation = Organization.findByEmail(isMemberOf);
+                    if (hasAffiliationUri != null && !hasAffiliationUri.isEmpty()) {
+                        Organization affiliation = Organization.findByName(hasAffiliationUri);
                         if (affiliation != null && affiliation.getUri() != null && !affiliation.getUri().isEmpty()) {
-                            mapPersonProperties.put(templates.getAgentIsMemberOf(), affiliation.getUri());
+                            mapPersonProperties.put(templates.getAgentHasAffiliationUri(), affiliation.getUri());
                         } else {
-                            System.out.println("[WARNING] KGR.java: Not found isMemberOf [" + isMemberOf + "] for PersonID [" + personID + "]");
+                            System.out.println("[WARNING] KGR.java: Not found isMemberOf [" + hasAffiliationUri + "] for PersonID [" + personID + "]");
                         }
                     }
                     mapPersonProperties.put(templates.getManagerEmail(), getHasSIRManagerEmail());

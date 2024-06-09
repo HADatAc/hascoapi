@@ -244,7 +244,6 @@ public class Place extends HADatAcThing implements Comparable<Place> {
 
 	private static List<Place> findManyByQuery(String queryString) {
         String query = NameSpaces.getInstance().printSparqlNameSpaceList() + queryString;
-		System.out.println(query);
 
 		List<Place> places = new ArrayList<Place>();
         ResultSetRewindable resultsrw = SPARQLUtils.select(

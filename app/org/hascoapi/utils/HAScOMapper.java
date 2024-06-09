@@ -337,7 +337,7 @@ public class HAScOMapper {
             filterProvider.addFilter("personFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
                             "hascoTypeLabel", "comment", "name", "mbox", "telephone", "member", "givenName", "familyName", 
-                            "affiliation", "hasUrl", "jobTitle"));
+                            "hasAffiliation", "hasUrl", "jobTitle"));
         }
 
         // KGR

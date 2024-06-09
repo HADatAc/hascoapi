@@ -34,6 +34,9 @@ public class Person extends Agent {
     @PropertyField(uri="schema:jobTitle")
     protected String jobTitle;
 
+    @PropertyField(uri="foaf:member")
+    protected String hasAffiliationUri;
+
     public String getFamilyName() {
         return familyName;
     }
@@ -55,11 +58,18 @@ public class Person extends Agent {
         this.jobTitle = jobTitle;
     }
 
-    public Organization getAffiliation() {
-        if (this.getMember() == null) {
+    public String getHasAffiliationUri() {
+        return hasAffiliationUri;
+    }
+    public void setHasAffiliationUri(String hasAffiliationUri) {
+        this.hasAffiliationUri = hasAffiliationUri;
+    }
+
+    public Organization getHasAffiliation() {
+        if (this.getHasAddressUri() == null || this.getHasAffiliationUri().isEmpty()) {
             return null;
         }
-        return Organization.find(this.getMember());
+        return Organization.find(this.getHasAffiliationUri());
     }
 
     public static Person findByEmail(String email) {
@@ -162,7 +172,7 @@ public class Person extends Agent {
             } else if (statement.getPredicate().getURI().equals(SCHEMA.TELEPHONE)) {
                 person.setTelephone(str);
             } else if (statement.getPredicate().getURI().equals(FOAF.MEMBER)) {
-                person.setMember(str);
+                person.setHasAffiliationUri(str);
             } else if (statement.getPredicate().getURI().equals(SCHEMA.ADDRESS)) {
                 person.setHasAddressUri(str);
             } else if (statement.getPredicate().getURI().equals(SCHEMA.URL)) {

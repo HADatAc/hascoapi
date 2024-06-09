@@ -185,8 +185,6 @@ public class Organization extends Agent {
                 organization.setMbox(str);
             } else if (statement.getPredicate().getURI().equals(SCHEMA.TELEPHONE)) {
                 organization.setTelephone(str);
-            } else if (statement.getPredicate().getURI().equals(FOAF.MEMBER)) {
-                organization.setMember(str);
             } else if (statement.getPredicate().getURI().equals(SCHEMA.PARENT_ORGANIZATION)) {
                 organization.setParentOrganizationUri(str);
             } else if (statement.getPredicate().getURI().equals(SCHEMA.ADDRESS)) {

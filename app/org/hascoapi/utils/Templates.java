@@ -165,10 +165,11 @@ public class Templates {
     public String getAgentGivenName() { return iniConfig.getSection("KGR").getString("agentGivenName"); }
     public String getAgentFamilyName() { return iniConfig.getSection("KGR").getString("agentFamilyName"); }
     public String getAgentEmail() { return iniConfig.getSection("KGR").getString("agentEmail"); }
-    public String getAgentIsMemberOf() { return iniConfig.getSection("KGR").getString("agentIsMemberOf"); }
+    public String getAgentHasAffiliationUri() { return iniConfig.getSection("KGR").getString("agentHasAffiliationUri"); }
     public String getManagerEmail() { return iniConfig.getSection("KGR").getString("managerEmail"); }
     public String getAgentTelephone() { return iniConfig.getSection("KGR").getString("agentTelephone"); }
     public String getAgentUrl() { return iniConfig.getSection("KGR").getString("agentUrl"); }
+    public String getAgentJobTitle() { return iniConfig.getSection("KGR").getString("agentJobTitle"); }
     public String getAgentParentOrganization() { return iniConfig.getSection("KGR").getString("agentParentOrganization"); }
     public String getAgentAddress() { return iniConfig.getSection("KGR").getString("agentAddress"); }
     public String getPlaceOriginalID() { return iniConfig.getSection("KGR").getString("agentOriginalID"); }

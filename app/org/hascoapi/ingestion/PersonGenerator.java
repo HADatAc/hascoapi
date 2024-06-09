@@ -56,7 +56,10 @@ public class PersonGenerator extends BaseGenerator {
 		mapCol.put("GivenName", templates.getAgentGivenName());
 		mapCol.put("FamilyName", templates.getAgentFamilyName());
 		mapCol.put("Email", templates.getAgentEmail());
-		mapCol.put("IsMemberOf", templates.getAgentIsMemberOf());
+		mapCol.put("Telephone", templates.getAgentTelephone());
+		mapCol.put("Url", templates.getAgentUrl());
+		mapCol.put("JobTitle", templates.getAgentJobTitle());
+		mapCol.put("Affiliation", templates.getAgentHasAffiliationUri());
 		mapCol.put("Address", templates.getAgentAddress());
 	}
 
@@ -88,9 +91,21 @@ public class PersonGenerator extends BaseGenerator {
 		return rec.getValueByColumnName(mapCol.get("Email"));
 	}
 
-	private String getIsMemberOf(Record rec) {
-		String orgOriginalID = rec.getValueByColumnName(mapCol.get("IsMemberOf"));
-		Organization organization = Organization.findByOriginalID(orgOriginalID);
+	private String getTelephone(Record rec) {
+		return rec.getValueByColumnName(mapCol.get("Telephone"));
+	}
+
+	private String getUrl(Record rec) {
+		return rec.getValueByColumnName(mapCol.get("Url"));
+	}
+
+	private String getJobTitle(Record rec) {
+		return rec.getValueByColumnName(mapCol.get("JobTitle"));
+	}
+
+	private String getHasAffiliationUri(Record rec) {
+		String orgName = rec.getValueByColumnName(mapCol.get("Affiliation"));
+		Organization organization = Organization.findByName(orgName);
 		if (organization != null && organization.getUri() != null) {
 			return organization.getUri();
 		}
@@ -126,10 +141,14 @@ public class PersonGenerator extends BaseGenerator {
 		row.put("hasco:hascoType", FOAF.PERSON);
 		row.put("a", URIUtils.replaceNameSpaceEx(getType(rec)));		
 		row.put("rdfs:label", getGivenName(rec) + " " + getFamilyName(rec));
+		row.put("foaf:name", getGivenName(rec) + " " + getFamilyName(rec));
 		row.put("foaf:givenName", getGivenName(rec));
 		row.put("foaf:familyName", getFamilyName(rec));
 		row.put("foaf:mbox", getEmail(rec));
-		row.put("foaf:member", getIsMemberOf(rec));
+		row.put("schema:telephone", getTelephone(rec));
+		row.put("schema:url", getUrl(rec));
+		row.put("schema:jobTitle", getJobTitle(rec));
+		row.put("foaf:member", getHasAffiliationUri(rec));
 		row.put("schema:address", getAddress(rec));
 		row.put("vstoi:hasSIRManagerEmail", managerEmail);
 		return row;

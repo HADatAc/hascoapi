@@ -25,6 +25,7 @@ public class HASCO {
     public static final String SDD_ATTRIBUTE                          = "http://hadatac.org/ont/hasco/SDDAttribute";
     public static final String SDD_OBJECT                             = "http://hadatac.org/ont/hasco/SDDObject";
     public static final String SEMANTIC_VARIABLE                      = "http://hadatac.org/ont/hasco/SemanticVariable";
+    public static final String STD                                    = "http://hadatac.org/ont/hasco/STD";
     public static final String STUDY                                  = "http://hadatac.org/ont/hasco/Study";
     public static final String STUDY_OBJECT                           = "http://hadatac.org/ont/hasco/StudyObject";
     public static final String STUDY_OBJECT_COLLECTION                = "http://hadatac.org/ont/hasco/StudyObjectCollection";
