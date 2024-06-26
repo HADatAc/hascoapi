@@ -256,6 +256,15 @@ public class HAScOMapper {
                             "hasAnnotationStem", "annotationStem", "hasPosition", "hasStyle"));
         }
 
+        // DSG
+        if (mode.equals(FULL) && typeResult.equals(HASCO.DSG)) {
+            filterProvider.addFilter("dsgFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("dsgFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
+                            "hascoTypeLabel", "comment", "hasDataFile", "dataFile"));
+        }
+
         // STUDY
         if (mode.equals(FULL) && typeResult.equals(HASCO.STUDY)) {
             filterProvider.addFilter("studyFilter", SimpleBeanPropertyFilter.serializeAll());

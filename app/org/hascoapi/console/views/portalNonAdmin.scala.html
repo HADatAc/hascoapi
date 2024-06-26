@@ -205,8 +205,8 @@
             </div>
             <div class="row dash-text">
                 <div class="col-md-1 text-center">
-                    <div class="dashNumber">0</div>
-                    <a href="" id="STD" class="btn btn-dark w-100 disabled" role="button">STD</a>
+                    <div class="dashNumber">@GenericFind.getNumberElements("dsg")</div>
+                    <a href="" id="DSG" class="btn btn-dark w-100 disabled" role="button">DSG</a>
                     <br>
                 </div>
                 <div class="col-md-1 text-center">
@@ -251,13 +251,20 @@
                     <br>
                 </div>
                 <div class="col-md-1 text-center">
+                    <div class="dashNumber">0</div> 
+                    <a href="" id="deployment" class="btn btn-primary w-100 disabled" role="button">Values</a>
+                    <br>
+                </div>
+            </div>
+            <div class="row dash-text">
+                <div class="col-md-1 text-center">
                     <div class="dashNumber">0</div>
-                    <a href="" id="stream" class="btn btn-primary w-100 disabled" role="button">Streams</a>
+                    <a href="" id="STR" class="btn btn-dark w-100 disabled" role="button">STR</a>
                     <br>
                 </div>
                 <div class="col-md-1 text-center">
-                    <div class="dashNumber">0</div> 
-                    <a href="" id="deployment" class="btn btn-primary w-100 disabled" role="button">Values</a>
+                    <div class="dashNumber">0</div>
+                    <a href="" id="stream" class="btn btn-primary w-100 disabled" role="button">Streams</a>
                     <br>
                 </div>
             </div>
@@ -333,6 +340,11 @@
                 <div class="col-md-1 text-center">
                     <div class="dashNumber">@GenericFind.getNumberElements("person")</div>
                     <a href="" id="people" class="btn btn-primary w-100 disabled" role="button">People</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">0</div>
+                    <a href="" id="projects" class="btn btn-primary w-100 disabled" role="button">Projects</a>
                     <br>
                 </div>
             </div>

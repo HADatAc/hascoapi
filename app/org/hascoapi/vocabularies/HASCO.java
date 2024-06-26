@@ -12,6 +12,7 @@ public class HASCO {
     public static final String DATA_ACQUISITION                       = "http://hadatac.org/ont/hasco/DataAcquisition";
     public static final String DATAFILE                               = "http://hadatac.org/ont/hasco/DataFile";
     public static final String DEPLOYMENT                             = "http://hadatac.org/ont/hasco/Deployment";
+    public static final String DSG                                    = "http://hadatac.org/ont/hasco/DSG";
     public static final String KNOWLEDGE_GRAPH                        = "http://hadatac.org/ont/hasco/KnowledgeGraph";
     public static final String LOCATION_COLLECTION                    = "http://hadatac.org/ont/hasco/LocationCollection";
     public static final String MANAGED_ONTOLOGY                       = "http://hadatac.org/ont/hasco/ManagedOntology";
@@ -25,7 +26,7 @@ public class HASCO {
     public static final String SDD_ATTRIBUTE                          = "http://hadatac.org/ont/hasco/SDDAttribute";
     public static final String SDD_OBJECT                             = "http://hadatac.org/ont/hasco/SDDObject";
     public static final String SEMANTIC_VARIABLE                      = "http://hadatac.org/ont/hasco/SemanticVariable";
-    public static final String STD                                    = "http://hadatac.org/ont/hasco/STD";
+    public static final String STR                                    = "http://hadatac.org/ont/hasco/STR";
     public static final String STUDY                                  = "http://hadatac.org/ont/hasco/Study";
     public static final String STUDY_OBJECT                           = "http://hadatac.org/ont/hasco/StudyObject";
     public static final String STUDY_OBJECT_COLLECTION                = "http://hadatac.org/ont/hasco/StudyObjectCollection";

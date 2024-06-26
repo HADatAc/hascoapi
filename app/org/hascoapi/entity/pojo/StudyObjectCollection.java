@@ -19,6 +19,7 @@ import org.apache.jena.update.UpdateFactory;
 import org.apache.jena.update.UpdateProcessor;
 import org.apache.jena.update.UpdateRequest;
 import org.hascoapi.Constants;
+import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.FirstLabel;
 import org.hascoapi.utils.GSPClient;
@@ -32,13 +33,6 @@ import org.slf4j.LoggerFactory;
 public class StudyObjectCollection extends HADatAcThing implements Comparable<StudyObjectCollection> {
 
     private static final Logger log = LoggerFactory.getLogger(StudyObjectCollection.class);
-
-    public static String SUBJECT_COLLECTION = "http://hadatac.org/ont/hasco/SubjectGroup";
-    public static String SAMPLE_COLLECTION = "http://hadatac.org/ont/hasco/SampleCollection";
-    public static String LOCATION_COLLECTION = "http://hadatac.org/ont/hasco/LocationCollection";
-    public static String TIME_COLLECTION = "http://hadatac.org/ont/hasco/TimeCollection";
-    public static String MATCHING_COLLECTION = "http://hadatac.org/ont/hasco/MatchingCollection";
-    public static String OBJECT_COLLECTION = "http://hadatac.org/ont/hasco/StudyObjectCollection";
 
     public static String INDENT1 = "   ";
     public static String INSERT_LINE1 = "INSERT DATA {  ";
@@ -149,6 +143,9 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
 
     @Override
     public int compareTo(StudyObjectCollection another) {
+        if (this.getUri() == null || another.getUri() == null) {
+            return 0;
+        }
         return this.getUri().compareTo(another.getUri());
     }
 
@@ -244,21 +241,21 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         if (typeUri == null || typeUri.equals("")) {
             return false;
         }
-        return (typeUri.equals(SUBJECT_COLLECTION) || typeUri.equals(SAMPLE_COLLECTION));
+        return (typeUri.equals(HASCO.SUBJECT_COLLECTION) || typeUri.equals(HASCO.SAMPLE_COLLECTION));
     }
 
     public boolean isLocationCollection() {
         if (typeUri == null || typeUri.equals("")) {
             return false;
         }
-        return typeUri.equals(LOCATION_COLLECTION);
+        return typeUri.equals(HASCO.LOCATION_COLLECTION);
     }
 
     public boolean isTimeCollection() {
         if (typeUri == null || typeUri.equals("")) {
             return false;
         }
-        return typeUri.equals(TIME_COLLECTION);
+        return typeUri.equals(HASCO.TIME_COLLECTION);
     }
 
     public List<String> getObjectUris() {
@@ -615,7 +612,7 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + 
                 "SELECT ?matchingUri WHERE { \n" + 
                 "  ?matchingUri hasco:hasScope <" + socUri + "> . \n" + 
-                "  ?matchingUri a <" + StudyObjectCollection.MATCHING_COLLECTION + "> . \n" + 
+                "  ?matchingUri a <" + HASCO.MATCHING_COLLECTION + "> . \n" + 
                 "}";
 
         ResultSetRewindable resultsrw = SPARQLUtils.select(
@@ -823,25 +820,33 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         if (studyUri == null) {
             return null;
         }
-        List<StudyObjectCollection> socList = new ArrayList<StudyObjectCollection>();
-
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + 
                 "SELECT ?uri WHERE { \n" + 
                 "   ?socType rdfs:subClassOf* hasco:StudyObjectCollection . \n" +
                 "   ?uri a ?socType . \n" +
                 "   ?uri hasco:isMemberOf <" + studyUri + "> . \n" +
                 " } ";
+        return findManyByQuery(queryString);
+    }
+
+    public static List<StudyObjectCollection> findManyByQuery(String requestedQuery) {
+        List<StudyObjectCollection> socs = new ArrayList<StudyObjectCollection>();
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + requestedQuery;
+
         ResultSetRewindable resultsrw = SPARQLUtils.select(
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
         while (resultsrw.hasNext()) {
             QuerySolution soln = resultsrw.next();
-            if (soln != null && soln.getResource("uri").getURI() != null) { 
-                StudyObjectCollection soc = StudyObjectCollection.find(soln.getResource("uri").getURI());
-                socList.add(soc);
-            }
+            String uri = soln.getResource("uri").getURI();
+            StudyObjectCollection soc = StudyObjectCollection.find(uri);
+            socs.add(soc);
         }
-        return socList;
+
+        if (socs != null && !socs.contains(null) &&  socs.size() > 0) {
+            java.util.Collections.sort((List<StudyObjectCollection>) socs);
+        }
+        return socs;
     }
 
     public static Map<String, String> labelsByStudyUri(String studyUri) {

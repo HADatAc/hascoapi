@@ -113,7 +113,7 @@ public class Person extends Agent {
         return findManyByQuery(query);
     }
 
-    private static List<Person> findManyByQuery(String requestedQuery) {
+    public static List<Person> findManyByQuery(String requestedQuery) {
         List<Person> people = new ArrayList<Person>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + requestedQuery;
 

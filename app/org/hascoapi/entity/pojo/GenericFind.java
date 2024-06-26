@@ -71,8 +71,8 @@ public class GenericFind<T> {
             return SDD.class;
         } else if (elementType.equals("datafile")) {
             return DataFile.class;
-        } else if (elementType.equals("std")) {
-            return STD.class;
+        } else if (elementType.equals("dsg")) {
+            return DSG.class;
         } else if (elementType.equals("study")) {
             return Study.class;
         } else if (elementType.equals("studyobjectcollection")) {
@@ -133,8 +133,8 @@ public class GenericFind<T> {
             return URIUtils.replaceNameSpace(HASCO.SDD);
         } else if (clazz == DataFile.class) {
             return URIUtils.replaceNameSpace(HASCO.DATAFILE);
-        } else if (clazz == STD.class) {
-            return URIUtils.replaceNameSpace(HASCO.STUDY);
+        } else if (clazz == DSG.class) {
+            return URIUtils.replaceNameSpace(HASCO.DSG);
         } else if (clazz == Study.class) {
             return URIUtils.replaceNameSpace(HASCO.STUDY);
         } else if (clazz == StudyObjectCollection.class) {
@@ -167,7 +167,7 @@ public class GenericFind<T> {
         }
         return false;
     }
-
+ 
     public static boolean isMT (Class clazz) {
         // MT is Metadata Template
         if (//clazz == DD.class ||
@@ -176,15 +176,15 @@ public class GenericFind<T> {
             //clazz == SSD.class ||
             //clazz == STR.class ||
             clazz == KGR.class ||
-            clazz == STD.class) {
+            clazz == DSG.class) {
             return true;
         }
         return false;
     }
 
     private static Class superClassOfMT(Class clazz) {
-        if (clazz == STD.class) {
-            return Study.class;
+        if (clazz == DSG.class) {
+            return DSG.class;
         }
         if (clazz == KGR.class) {  // the superclass of KGR is KGR itself
             return KGR.class;
@@ -627,6 +627,7 @@ public class GenericFind<T> {
                 return findSIRInstancesByManagerEmailWithPages(clazz, className, managerEmail, pageSize, offset);
             } else if (isMT(clazz)) {
                 Class superClazz = superClassOfMT(clazz);
+                System.out.println("findByManagerEmailWithPages: Clazz=[" + clazz + "] className[" + className + "]");
                 return findMTInstancesByManagerEmailWithPages(superClazz, className, managerEmail, pageSize, offset);
             } else {
                 return findInstancesByManagerEmailWithPages(clazz, className, managerEmail, pageSize, offset);
@@ -830,6 +831,8 @@ public class GenericFind<T> {
             return (T)SDD.find(uri);
         } else if (clazz == DataFile.class) {
             return (T)DataFile.find(uri);
+        } else if (clazz == DSG.class) {
+            return (T)DSG.find(uri);
         } else if (clazz == Study.class) {
             return (T)Study.find(uri);
         } else if (clazz == StudyObjectCollection.class) {

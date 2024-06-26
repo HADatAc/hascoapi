@@ -21,7 +21,7 @@ public class SIRElementAPI extends Controller {
      */
 
     public Result createElement(String elementType, String json) {
-        //System.out.println("Type: [" + elementType + "]  JSON [" + json + "]");
+        System.out.println("Type: [" + elementType + "]  JSON [" + json + "]");
         if (json == null || json.equals("")) {
             return ok(ApiUtil.createResponse("No json content has been provided.", false));
         }
@@ -189,6 +189,16 @@ public class SIRElementAPI extends Controller {
                 object = (DataFile)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == DSG.class) {
+            try {
+                DSG object;
+                object = (DSG)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                System.out.println("Error processing DSG: " + e.getMessage());
                 message = e.getMessage();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
@@ -425,6 +435,12 @@ public class SIRElementAPI extends Controller {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
+        } else if (clazz == DSG.class) {
+            DSG object = DSG.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
         } else if (clazz == Study.class) {
             Study object = Study.find(uri);
             if (object == null) {
@@ -592,6 +608,10 @@ public class SIRElementAPI extends Controller {
             GenericFind<DataFile> query = new GenericFind<DataFile>();
             List<DataFile> results = query.findByKeywordWithPages(DataFile.class,keyword, pageSize, offset);
             return DataFileAPI.getDataFiles(results);
+        }  else if (elementType.equals("dsg")) {
+            GenericFind<DSG> query = new GenericFind<DSG>();
+            List<DSG> results = query.findByKeywordWithPages(DSG.class,keyword, pageSize, offset);
+            return DSGAPI.getDSGs(results);
         }  else if (elementType.equals("study")) {
             GenericFind<Study> query = new GenericFind<Study>();
             List<Study> results = query.findByKeywordWithPages(Study.class,keyword, pageSize, offset);
@@ -718,6 +738,10 @@ public class SIRElementAPI extends Controller {
             GenericFind<DataFile> query = new GenericFind<DataFile>();
             List<DataFile> results = query.findByKeywordAndLanguageWithPages(DataFile.class, keyword, language, pageSize, offset);
             return DataFileAPI.getDataFiles(results);
+        }  else if (elementType.equals("dsg")) {
+            GenericFind<DSG> query = new GenericFind<DSG>();
+            List<DSG> results = query.findByKeywordAndLanguageWithPages(DSG.class, keyword, language, pageSize, offset);
+            return DSGAPI.getDSGs(results);
         }  else if (elementType.equals("study")) {
             GenericFind<Study> query = new GenericFind<Study>();
             List<Study> results = query.findByKeywordAndLanguageWithPages(Study.class, keyword, language, pageSize, offset);
@@ -833,10 +857,10 @@ public class SIRElementAPI extends Controller {
             GenericFind<DataFile> query = new GenericFind<DataFile>();
             List<DataFile> results = query.findByManagerEmailWithPages(DataFile.class, managerEmail, pageSize, offset);
             return DataFileAPI.getDataFiles(results);
-        }  else if (elementType.equals("std")) {
-            GenericFind<Study> query = new GenericFind<Study>();
-            List<Study> results = query.findByManagerEmailWithPages(STD.class, managerEmail, pageSize, offset);
-            return StudyAPI.getStudies(results);
+        }  else if (elementType.equals("dsg")) {
+            GenericFind<DSG> query = new GenericFind<DSG>();
+            List<DSG> results = query.findByManagerEmailWithPages(DSG.class, managerEmail, pageSize, offset);
+            return DSGAPI.getDSGs(results);
         }  else if (elementType.equals("study")) {
             GenericFind<Study> query = new GenericFind<Study>();
             List<Study> results = query.findByManagerEmailWithPages(Study.class, managerEmail, pageSize, offset);

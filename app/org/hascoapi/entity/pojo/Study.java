@@ -50,7 +50,7 @@ public class Study extends HADatAcThing {
     public static String DELETE_LINE1 = "DELETE WHERE {  ";
     public static String DELETE_LINE3 = " ?p ?o . ";
     public static String LINE_LAST = "}  ";
-    public static String PREFIX = "STD-";
+    public static String PREFIX = "DSG-";
 
     @PropertyField(uri="hasco:hasId")
     private String id;
@@ -167,7 +167,6 @@ public class Study extends HADatAcThing {
         if (this.hasDataFileUri == null) {
             return null;
         }
-        //System.out.println("Inside STD.getDataFile(). hasDataFileUri is " + this.hasDataFileUri);
         return DataFile.find(this.hasDataFileUri);
     }
 
@@ -538,6 +537,32 @@ public class Study extends HADatAcThing {
         return results;
     }
 
+    public static List<StudyObjectCollection> findStudyObjectCollections(String uri, int pageSize, int offset) {
+        if (uri == null || uri.isEmpty()) {
+            return new ArrayList<StudyObjectCollection>();
+        }
+        String query = 
+                "SELECT ?uri " +
+                " WHERE {  ?uri hasco:isMemberOf  <" + uri + "> .  " +
+				"          ?uri rdfs:label ?label . " +
+                " } " +
+                " ORDER BY ASC(?label) " +
+                " LIMIT " + pageSize +
+                " OFFSET " + offset;
+        return StudyObjectCollection.findManyByQuery(query);
+    }        
+
+    public static int findTotalStudyObjectCollections(String uri) {
+        if (uri == null || uri.isEmpty()) {
+            return 0;
+        }
+        String query = NameSpaces.getInstance().printSparqlNameSpaceList() + 
+                " SELECT (count(?uri) as ?tot)  " +
+                " WHERE {  ?uri hasco:isMemberOf <" + uri + "> .  " +
+                " }";
+        return GenericFind.findTotalByQuery(query);
+    }        
+
     private static List<String> findStudyObjectCollectionUris(String study_uri) {
         //System.out.println("findStudyObjectCollectionUris() is called");
         //System.out.println("study_uri: " + study_uri);
@@ -620,7 +645,7 @@ public class Study extends HADatAcThing {
             return null;
         }
         Study returnStudy = new Study();
-        String queryUri = URIUtils.replacePrefixEx(kbPrefix + "STD-" + studyName);
+        String queryUri = URIUtils.replacePrefixEx(kbPrefix + "DSG-" + studyName);
 
         return find(queryUri);
     }

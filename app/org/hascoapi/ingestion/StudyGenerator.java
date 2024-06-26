@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.hascoapi.entity.pojo.DataFile;
-import org.hascoapi.entity.pojo.Study;
 import org.hascoapi.utils.URIUtils;
 import org.hascoapi.utils.ConfigProp;
 import org.hascoapi.utils.Templates;
@@ -15,12 +14,10 @@ public class StudyGenerator extends BaseGenerator {
 
     final String kbPrefix = ConfigProp.getKbPrefix();
     String fileName;
-    Study study;
 
-    public StudyGenerator(Study study, DataFile dataFile, String templateFile) {
-        super(dataFile,null,templateFile);
+    public StudyGenerator(DataFile dataFile) {
+        super(dataFile);
         this.fileName = dataFile.getFilename();
-        this.study = study;
     }
 
     @Override
@@ -69,10 +66,11 @@ public class StudyGenerator extends BaseGenerator {
         return rec.getValueByColumnName(mapCol.get("studyID"));
     }
 
-    private String getUri(Record rec) {
+    private String getUri() {
         //System.out.println("Study Generator: template for STUDYID: [" +  templates.getSTUDYID + "]");
-        String str = rec.getValueByColumnName(mapCol.get("studyID"));
-        return kbPrefix + "STD-" + str;
+        //String str = rec.getValueByColumnName(mapCol.get("studyID"));
+        //return kbPrefix + "STD-" + str;
+        return this.getDataFile().getUri().replace("DF","ST");
     }
 
     private String getType() {
@@ -105,16 +103,18 @@ public class StudyGenerator extends BaseGenerator {
 
     @Override
     public Map<String, Object> createRow(Record rec, int rowNumber) throws Exception {
+        System.out.println("Inside of StudyGenerator.createRow()");
         Map<String, Object> row = new HashMap<String, Object>();
-        if (getUri(rec).length() > 0) {
+        if (getUri().length() > 0) {
+            System.out.println("getID()=[" + getId(rec) + "] getTitle()=[" + getTitle(rec) + "]");
             row.put("hasco:hasId", getId(rec));
-            row.put("hasURI", getUri(rec));
+            row.put("hasURI", getUri());
             row.put("a", getType());
             row.put("hasco:hascoType", HASCO.STUDY);
             row.put("rdfs:label", getTitle(rec));
             row.put("skos:definition", getAims(rec));
             row.put("rdfs:comment", getSignificance(rec));
-            row.put("vstoi:hasSIRManagerEmail", study.getHasSIRManagerEmail());
+            row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
             if(mapCol.get("PI") != null && rec.getValueByColumnName(mapCol.get("PI")) != null && 
                     rec.getValueByColumnName(mapCol.get("PI")).length() > 0) {
                 row.put("hasco:hasAgent", getAgentUri(rec));
@@ -127,7 +127,7 @@ public class StudyGenerator extends BaseGenerator {
                     rec.getValueByColumnName(mapCol.get("externalSource")).length() > 0) {
                 row.put("hasco:hasExternalSource", getExtSource(rec));
             }
-            setStudyUri(URIUtils.replacePrefixEx(getUri(rec)));
+            setStudyUri(URIUtils.replacePrefixEx(getUri()));
         }
 
         return row;

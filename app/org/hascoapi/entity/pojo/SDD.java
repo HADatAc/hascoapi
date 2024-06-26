@@ -179,6 +179,15 @@ public class SDD extends HADatAcThing {
         SDD.getCache();
     }
 
+    public SDD(DataFile dataFile) {
+        this.uri = dataFile.getUri().replace("DF","SD");
+        this.label = "";
+        isRefreshed = false;
+        SDD.getCache();
+        getAttributes();
+        getObjects();
+    }
+
     public SDD(String uri, String label) {
         this.uri = uri;
         this.label = label;

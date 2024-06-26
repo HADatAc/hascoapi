@@ -75,7 +75,6 @@ public class KGR extends HADatAcThing {
         if (this.hasDataFileUri == null) {
             return null;
         }
-        //System.out.println("Inside STD.getDataFile(). hasDataFileUri is " + this.hasDataFileUri);
         return DataFile.find(this.hasDataFileUri);
     }
 

@@ -70,6 +70,33 @@ public class Organization extends Agent {
         return findManyByQuery(query);
     }        
 
+    public static int findTotalAffiliations(String uri) {
+        if (uri == null || uri.isEmpty()) {
+            return 0;
+        }
+        String query = NameSpaces.getInstance().printSparqlNameSpaceList() + 
+                " SELECT (count(?uri) as ?tot)  " +
+                " WHERE { " +   
+                "    ?uri foaf:member <" + uri + "> .  " +
+                " }";
+        return GenericFind.findTotalByQuery(query);
+    }        
+
+    public static List<Person> findAffiliations(String uri, int pageSize, int offset) {
+        if (uri == null || uri.isEmpty()) {
+            return new ArrayList<Person>();
+        }
+        String query = 
+                "SELECT ?uri " +
+                " WHERE {  ?uri foaf:member <" + uri + ">.  " +
+				"          ?uri rdfs:label ?label . " +
+                " } " +
+                " ORDER BY ASC(?label) " +
+                " LIMIT " + pageSize +
+                " OFFSET " + offset;
+        return Person.findManyByQuery(query);
+    }        
+
     private static List<Organization> findManyByQuery(String requestedQuery) {
         List<Organization> organizations = new ArrayList<Organization>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + requestedQuery;

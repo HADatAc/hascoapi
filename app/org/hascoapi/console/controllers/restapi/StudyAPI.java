@@ -6,7 +6,9 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 import org.hascoapi.Constants;
+import org.hascoapi.entity.pojo.Organization;
 import org.hascoapi.entity.pojo.Study;
+import org.hascoapi.entity.pojo.StudyObjectCollection;
 import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.HAScOMapper;
 import org.hascoapi.vocabularies.HASCO;
@@ -26,6 +28,21 @@ public class StudyAPI extends Controller {
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));
         }
+    }
+
+    public Result findSOCs(String uri, int pageSize, int offset) {
+        List<StudyObjectCollection> results = Study.findStudyObjectCollections(uri, pageSize, offset);
+        return StudyObjectCollectionAPI.getStudyObjectCollections(results);
+       
+    }
+
+    public Result findTotalSOCs(String uri) {
+        int totalElements = Study.findTotalStudyObjectCollections(uri);
+        if (totalElements >= 0) {
+            String totalElementsJSON = "{\"total\":" + totalElements + "}";
+            return ok(ApiUtil.createResponse(totalElementsJSON, true));
+        }     
+        return ok(ApiUtil.createResponse("Query method findTotalStudyObjectCollections() failed to retrieve total number of element", false));   
     }
 
 

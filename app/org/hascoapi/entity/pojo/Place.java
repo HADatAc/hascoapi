@@ -287,6 +287,10 @@ public class Place extends HADatAcThing implements Comparable<Place> {
 		//System.out.println("Place.find(): uri = [" + uri + "]");
 		Place place;
 		String hascoTypeUri = retrieveHASCOTypeUri(uri);
+		if (hascoTypeUri == null) {
+			System.out.println("[ERROR] Place.java: URI [" + uri + "] has no HASCO TYPE.");
+			return null;
+		}
 		//System.out.println("Place.find(): typeUri = [" + typeUri + "]");
 		if (hascoTypeUri.equals(SCHEMA.PLACE)) {
 			place = new Place();

@@ -4,8 +4,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.hascoapi.entity.pojo.DataFile;
-//import org.hascoapi.entity.pojo.MessageTopic;
-//import org.hascoapi.entity.pojo.STR;
+import org.hascoapi.entity.pojo.MessageTopic;
+import org.hascoapi.entity.pojo.STR;
 import org.hascoapi.utils.Feedback;
 
 
@@ -13,35 +13,35 @@ public class IngestionLogger {
 
     private String log = "";
     private DataFile parent = null;
-    //private STR stream = null;
-    //private MessageTopic topic = null;
+    private STR stream = null;
+    private MessageTopic topic = null;
 
     public IngestionLogger(DataFile parent) {
         this.parent = parent;
     }
 
-    //public IngestionLogger(STR stream) {
-    //    this.stream = stream;
-    //}
+    public IngestionLogger(STR stream) {
+        this.stream = stream;
+    }
 
-    //public IngestionLogger(MessageTopic topic) {
-    //    this.topic = topic;
-    //}
+    public IngestionLogger(MessageTopic topic) {
+        this.topic = topic;
+    }
 
     public IngestionLogger(DataFile parent, String log) {
         this.parent = parent;
         this.log = log;
     }
 
-    //public IngestionLogger(STR stream, String log) {
-    //    this.stream = stream;
-    //    this.log = log;
-    //}
+    public IngestionLogger(STR stream, String log) {
+        this.stream = stream;
+        this.log = log;
+    }
 
-    //public IngestionLogger(MessageTopic topic, String log) {
-    //    this.topic = topic;
-    //    this.log = log;
-    //}
+    public IngestionLogger(MessageTopic topic, String log) {
+        this.topic = topic;
+        this.log = log;
+    }
 
     public String getLog() {
         return log;
@@ -80,12 +80,12 @@ public class IngestionLogger {
         if (parent != null) {
             parent.save();
         }
-        //if (stream != null) {
-        //    stream.save();
-        //}
-        //if (topic != null) {
-        //    topic.save();
-        //}
+        if (stream != null) {
+            stream.save();
+        }
+        if (topic != null) {
+            topic.save();
+        }
     }
 
     public void printExceptionById(String id) {

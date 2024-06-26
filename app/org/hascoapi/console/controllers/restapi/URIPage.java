@@ -81,6 +81,8 @@ public class URIPage extends Controller {
                 finalResult = DataFile.find(uri);
             } else if (result.getHascoTypeUri().equals(HASCO.SEMANTIC_VARIABLE)) {
                 finalResult = SemanticVariable.find(uri);
+            } else if (result.getHascoTypeUri().equals(HASCO.DSG)) {
+                finalResult = DSG.find(uri);
             } else if (result.getHascoTypeUri().equals(HASCO.STUDY)) {
                 finalResult = Study.find(uri);
             } else if (result.getHascoTypeUri().equals(HASCO.STUDY_OBJECT)) {

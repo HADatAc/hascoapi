@@ -14,7 +14,6 @@ public class SPARQLUtils {
 
     public static ResultSetRewindable select(String sparqlService, String queryString) {
         //System.out.println("queryString: " + queryString + "\n");
-        //System.out.println("sparqlService: " + sparqlService + "\n");
 
         try {
             Query query = QueryFactory.create(queryString);
@@ -25,6 +24,7 @@ public class SPARQLUtils {
 
             return resultsrw;
         } catch (QueryParseException e) {
+            System.out.println("[ERROR] sparqlService: " + sparqlService + "\n");
             System.out.println("[ERROR] queryString: " + queryString);
             throw e;
         }

@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.hascoapi.entity.pojo.DataFile;
-import org.hascoapi.entity.pojo.Study;
+import org.hascoapi.entity.pojo.DSG;
 import org.hascoapi.utils.ConfigProp;
 import org.hascoapi.utils.Templates;
 
@@ -13,11 +13,9 @@ public class AgentGenerator extends BaseGenerator {
 
 	final String kbPrefix = ConfigProp.getKbPrefix();
 	private int counter = 1; //starting index number
-	private Study study;
 
-	public AgentGenerator(Study study, DataFile dataFile, String templateFile) {
-		super(dataFile, null, templateFile);
-		this.study = study;
+	public AgentGenerator(DataFile dataFile) {
+		super(dataFile);
 	}
 	
 	@Override
@@ -150,7 +148,7 @@ public class AgentGenerator extends BaseGenerator {
     	row.put("foaf:givenName", getPIGivenName(rec));
     	row.put("foaf:mbox", getPIMBox(rec));
     	row.put("foaf:member", getInstitutionUri(rec));
-        row.put("vstoi:hasSIRManagerEmail", study.getHasSIRManagerEmail());
+        row.put("vstoi:hasSIRManagerEmail", this.getDataFile().getHasSIRManagerEmail());
     	counter++;
     	
     	return row;
@@ -167,7 +165,7 @@ public class AgentGenerator extends BaseGenerator {
     	row.put("foaf:givenName", getCPI1GivenName(rec));
     	row.put("foaf:mbox", getCPI1MBox(rec));
     	row.put("foaf:member", getInstitutionUri(rec));
-        row.put("vstoi:hasSIRManagerEmail", study.getHasSIRManagerEmail());
+        row.put("vstoi:hasSIRManagerEmail", this.getDataFile().getHasSIRManagerEmail());
     	counter++;
     	
     	return row;
@@ -184,7 +182,7 @@ public class AgentGenerator extends BaseGenerator {
     	row.put("foaf:givenName", getCPI2GivenName(rec));
     	row.put("foaf:mbox", getCPI2MBox(rec));
     	row.put("foaf:member", getInstitutionUri(rec));
-        row.put("vstoi:hasSIRManagerEmail", study.getHasSIRManagerEmail());
+        row.put("vstoi:hasSIRManagerEmail", this.getDataFile().getHasSIRManagerEmail());
     	counter++;
     	
     	return row;
@@ -201,7 +199,7 @@ public class AgentGenerator extends BaseGenerator {
     	row.put("foaf:givenName", getContactGivenName(rec));
     	row.put("foaf:mbox", getContactMBox(rec));
     	row.put("foaf:member", getInstitutionUri(rec));
-        row.put("vstoi:hasSIRManagerEmail", study.getHasSIRManagerEmail());
+        row.put("vstoi:hasSIRManagerEmail", this.getDataFile().getHasSIRManagerEmail());
     	counter++;
     	
     	return row;
@@ -214,7 +212,7 @@ public class AgentGenerator extends BaseGenerator {
 		row.put("hasco:hascoType", "prov:Organization");
     	row.put("foaf:name", getInstitutionName(rec));
     	row.put("rdfs:comment", getInstitutionName(rec) + " Institution");
-        row.put("vstoi:hasSIRManagerEmail", study.getHasSIRManagerEmail());
+        row.put("vstoi:hasSIRManagerEmail", this.getDataFile().getHasSIRManagerEmail());
     	counter++;
     	
     	return row;
@@ -225,91 +223,93 @@ public class AgentGenerator extends BaseGenerator {
 		boolean duplicate=false;
     	rows.clear();
     	// Currently using an inefficient way to check if row already exists in the list of rows; This should be addressed in the future
-    	for (Record record : records) {
-    		if(getPIFullName(record) != null && getPIFullName(record).length() > 0) {
-    			System.out.println("Creating PI Row:" + getPIFullName(record) + ":");
-    			duplicate=false;
-    			for (Map<String, Object> row : rows) {
-    				if(row.get("hasURI").equals(getPIUri(record))) {
-    					System.out.println("Found Duplicate: " + getPIUri(record));
-    					duplicate=true;
-    					break;
-    				}
-    			}
-    			if(!duplicate){
-        			System.out.println("Didn't Find Duplicate, adding PI " + getPIUri(record) + " row to list of rows.");
-        			rows.add(createPIRow(record));
-    			}
-    		}
-    		if(getCPI1GivenName(record) != null && getCPI1GivenName(record).length() > 0) {
-    			System.out.println("Creating CPI1 Row:" + getCPI1GivenName(record) + ":");
-    			duplicate=false;
-    			for (Map<String, Object> row : rows){
-        			//System.out.println("Comparing: " + getCPI1Uri(record));
-        			//System.out.println("With: " + row.get("hasURI"));
-    				if(row.get("hasURI").equals(getCPI1Uri(record))){
-    					System.out.println("Found Duplicate: " + getCPI1Uri(record));
-    					duplicate=true;
-    					break;
-    				}
-    			}
-    			if(!duplicate){
-        			System.out.println("Didn't Find Duplicate, adding CPI1 " + getCPI1Uri(record) + " row to list of rows.");
-        			rows.add(createCPI1Row(record));
-    			}
-    		}
-    		if(getCPI2GivenName(record) != null && getCPI2GivenName(record).length() > 0) {
-    			System.out.println("Creating CPI2 Row:" + getCPI2GivenName(record) + ":");
-    			duplicate=false;
-    			for (Map<String, Object> row : rows){
-        			//System.out.println("Comparing: " + getCPI2Uri(record));
-        			//System.out.println("With: " + row.get("hasURI"));
-    				if(row.get("hasURI").equals(getCPI2Uri(record))){
-    					System.out.println("Found Duplicate: " + getCPI2Uri(record));
-    					duplicate=true;
-    					break;
-    				}
-    			}
-    			if(!duplicate){
-    				System.out.println("Didn't Find Duplicate, adding CPI2 " + getCPI2Uri(record) + " row to list of rows.");
-    				rows.add(createCPI2Row(record));
-    			}
-    		}
-    		if(getContactGivenName(record) != null && getContactGivenName(record).length() > 0) {
-    			System.out.println("Creating Contact Row:" + getContactGivenName(record) + ":");
-    			duplicate=false;
-    			for (Map<String, Object> row : rows){
-        			//System.out.println("Comparing: " + getContactUri(record));
-        			//System.out.println("With: " + row.get("hasURI"));
-    				if(row.get("hasURI").equals(getContactUri(record))){
-    					System.out.println("Found Duplicate: " + getContactUri(record));
-    					duplicate=true;
-    					break;
-    				}
-    			}
-    			if(!duplicate){
-    				System.out.println("Didn't Find Duplicate, adding Contact " + getContactUri(record) + " row to list of rows.");
-    				rows.add(createContactRow(record));
-    			}
-    		}
-    		if(getInstitutionName(record) != null && getInstitutionName(record).length() > 0) {
-    			System.out.println("Creating Institution Row:" + getInstitutionName(record) + ":");
-    			duplicate=false;
-    			for (Map<String, Object> row : rows){
-        			//System.out.println("Comparing: " + getInstitutionUri(record));
-        			//System.out.println("With: " + row.get("hasURI"));
-    				if(row.get("hasURI").equals(getInstitutionUri(record))){
-    					System.out.println("Found Duplicate: " + getInstitutionUri(record));
-    					duplicate=true;
-    					break;
-    				}
-    			}
-    			if(!duplicate){
-    				System.out.println("Didn't Find Duplicate, adding Contact " + getInstitutionUri(record) + " row to list of rows.");
-    				rows.add(createInstitutionRow(record));
-    			}
-    		}
-    	}
+		if (records != null) {
+			for (Record record : records) {
+				if(getPIFullName(record) != null && getPIFullName(record).length() > 0) {
+					System.out.println("Creating PI Row:" + getPIFullName(record) + ":");
+					duplicate=false;
+					for (Map<String, Object> row : rows) {
+						if(row.get("hasURI").equals(getPIUri(record))) {
+							System.out.println("Found Duplicate: " + getPIUri(record));
+							duplicate=true;
+							break;
+						}
+					}
+					if(!duplicate){
+						System.out.println("Didn't Find Duplicate, adding PI " + getPIUri(record) + " row to list of rows.");
+						rows.add(createPIRow(record));
+					}
+				}
+				if(getCPI1GivenName(record) != null && getCPI1GivenName(record).length() > 0) {
+					System.out.println("Creating CPI1 Row:" + getCPI1GivenName(record) + ":");
+					duplicate=false;
+					for (Map<String, Object> row : rows){
+						//System.out.println("Comparing: " + getCPI1Uri(record));
+						//System.out.println("With: " + row.get("hasURI"));
+						if(row.get("hasURI").equals(getCPI1Uri(record))){
+							System.out.println("Found Duplicate: " + getCPI1Uri(record));
+							duplicate=true;
+							break;
+						}
+					}
+					if(!duplicate){
+						System.out.println("Didn't Find Duplicate, adding CPI1 " + getCPI1Uri(record) + " row to list of rows.");
+						rows.add(createCPI1Row(record));
+					}
+				}
+				if(getCPI2GivenName(record) != null && getCPI2GivenName(record).length() > 0) {
+					System.out.println("Creating CPI2 Row:" + getCPI2GivenName(record) + ":");
+					duplicate=false;
+					for (Map<String, Object> row : rows){
+						//System.out.println("Comparing: " + getCPI2Uri(record));
+						//System.out.println("With: " + row.get("hasURI"));
+						if(row.get("hasURI").equals(getCPI2Uri(record))){
+							System.out.println("Found Duplicate: " + getCPI2Uri(record));
+							duplicate=true;
+							break;
+						}
+					}
+					if(!duplicate){
+						System.out.println("Didn't Find Duplicate, adding CPI2 " + getCPI2Uri(record) + " row to list of rows.");
+						rows.add(createCPI2Row(record));
+					}
+				}
+				if(getContactGivenName(record) != null && getContactGivenName(record).length() > 0) {
+					System.out.println("Creating Contact Row:" + getContactGivenName(record) + ":");
+					duplicate=false;
+					for (Map<String, Object> row : rows){
+						//System.out.println("Comparing: " + getContactUri(record));
+						//System.out.println("With: " + row.get("hasURI"));
+						if(row.get("hasURI").equals(getContactUri(record))){
+							System.out.println("Found Duplicate: " + getContactUri(record));
+							duplicate=true;
+							break;
+						}
+					}
+					if(!duplicate){
+						System.out.println("Didn't Find Duplicate, adding Contact " + getContactUri(record) + " row to list of rows.");
+						rows.add(createContactRow(record));
+					}
+				}
+				if(getInstitutionName(record) != null && getInstitutionName(record).length() > 0) {
+					System.out.println("Creating Institution Row:" + getInstitutionName(record) + ":");
+					duplicate=false;
+					for (Map<String, Object> row : rows){
+						//System.out.println("Comparing: " + getInstitutionUri(record));
+						//System.out.println("With: " + row.get("hasURI"));
+						if(row.get("hasURI").equals(getInstitutionUri(record))){
+							System.out.println("Found Duplicate: " + getInstitutionUri(record));
+							duplicate=true;
+							break;
+						}
+					}
+					if(!duplicate){
+						System.out.println("Didn't Find Duplicate, adding Contact " + getInstitutionUri(record) + " row to list of rows.");
+						rows.add(createInstitutionRow(record));
+					}
+				}
+			}
+		}
     }
 
 	@Override
