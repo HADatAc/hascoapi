@@ -48,8 +48,14 @@ public class SpreadsheetRecordFile implements RecordFile {
     
     private boolean init() {
 
+        StringBuilder sb = new StringBuilder(sheetName);
+        if (sb.charAt(0) == '#') {
+            sb.deleteCharAt(0);
+            sheetName = sb.toString();
+        }
         System.out.println("SpreadsheetRecordFile: file's filename is [" + file.getName() + "]");
         System.out.println("SpreadsheetRecordFile: RecordFile's filename is [" + fileName + "]");
+        System.out.println("SpreadsheetRecordFile: RecordFile's sheetname is [" + sheetName + "]");
 
         if (file == null || file.getName() == null || file.getName().isEmpty()) {
             System.out.println("[ERROR] SpreadsheetRecordFile.init() failed: file is null of file.getName() is null.");
@@ -72,6 +78,7 @@ public class SpreadsheetRecordFile implements RecordFile {
             }
             
             if (sheet == null) {
+                System.out.println("Could not find sheet [" + sheetName + "]");
                 return false;
             }
             
@@ -86,17 +93,20 @@ public class SpreadsheetRecordFile implements RecordFile {
                 }
             }
         } catch (FileNotFoundException e) {
-            //e.printStackTrace();
+            e.printStackTrace();
             return false;
         } catch (EncryptedDocumentException e) {
-            //e.printStackTrace();
+            e.printStackTrace();
             return false;
         /** 
         } catch (InvalidFormatException e) {
             //e.printStackTrace();
             return false; */
         } catch (IOException e) {
-            //e.printStackTrace();
+            e.printStackTrace();
+            return false;
+        } catch (Exception e) {
+            e.printStackTrace();
             return false;
         }
         return true;

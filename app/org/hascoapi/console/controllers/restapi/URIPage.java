@@ -3,9 +3,19 @@ package org.hascoapi.console.controllers.restapi;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Random;
+
+import org.hascoapi.Constants;
+import org.hascoapi.RepositoryInstance;
 import org.hascoapi.entity.pojo.*;
 import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.HAScOMapper;
+import org.hascoapi.utils.Utils;
 import org.hascoapi.vocabularies.FOAF;
 import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.SCHEMA;
@@ -38,6 +48,66 @@ public class URIPage extends Controller {
 
         return processResult(finalResult, finalResult.getHascoTypeUri(), uri);
 
+    }
+
+    public Result uriGen(String elementType) {
+        if (elementType == null) {
+            return ok(ApiUtil.createResponse("No elementType has been provided.", false));
+        }
+        String repoUri = RepositoryInstance.getInstance().getBaseURL();
+        if (repoUri == null || repoUri.isEmpty()) {
+            return ok(ApiUtil.createResponse("Repository's base URL needs to be setup before URIs can be generated.", false));
+        }
+
+        String shortPrefix = Utils.shortPrefix(elementType);
+        if (shortPrefix == null) {
+            return ok(ApiUtil.createResponse("Cannot generate URI for elementType [" + elementType + "]", false));
+        }
+
+        if (!repoUri.endsWith("/")) {
+            repoUri += "/";
+        }
+
+        String newUri = Utils.uriGen(repoUri, shortPrefix);
+        String newUriJSON = "{\"uri\":" + newUri + "}";
+
+        return ok(ApiUtil.createResponse(newUriJSON, true));
+    }
+    
+    private static String getCurrentUserId() {
+        // Implement this method to return the current user's ID
+        // For example, if using Spring Security, you might do:
+        // return SecurityContextHolder.getContext().getAuthentication().getName();
+        return "12345";  // Placeholder implementation
+    }
+    
+    private static int convertEmailToNumber(String email) {
+        try {
+            // Create a MessageDigest instance for MD5
+            MessageDigest md = MessageDigest.getInstance("MD5");
+
+            // Digest the email bytes
+            byte[] hashBytes = md.digest(email.getBytes(StandardCharsets.UTF_8));
+
+            // Convert the hash bytes to a positive integer
+            int hashInt = Math.abs(bytesToInt(hashBytes));
+
+            // Map the integer to a 5-digit number (range 10000 to 99999)
+            int fiveDigitNumber = 10000 + (hashInt % 90000);
+
+            return fiveDigitNumber;
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("MD5 algorithm not found", e);
+        }
+    }
+
+    private static int bytesToInt(byte[] bytes) {
+        int result = 0;
+        for (int i = 0; i < 4; i++) {
+            result <<= 8;
+            result |= (bytes[i] & 0xFF);
+        }
+        return result;
     }
 
     public static HADatAcThing objectFromUri(String uri) {
@@ -150,7 +220,7 @@ public class URIPage extends Controller {
         return ok(ApiUtil.createResponse(jsonObject, true));
     }
 
-    public String prettyPrintJsonString(JsonNode jsonNode) {
+    public static String prettyPrintJsonString(JsonNode jsonNode) {
         try {
             ObjectMapper mapper = new ObjectMapper();
             Object json = mapper.readValue(jsonNode.toString(), Object.class);

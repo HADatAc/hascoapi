@@ -4,12 +4,21 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSetRewindable;
 import org.apache.jena.sparql.engine.http.QueryExceptionHTTP;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.rdf.model.Statement;
+import org.apache.jena.rdf.model.StmtIterator;
 import org.hascoapi.Constants;
 import org.hascoapi.annotations.PropertyField;
 import org.hascoapi.annotations.PropertyValueType;
 import org.hascoapi.utils.SPARQLUtils;
+import org.hascoapi.utils.URIUtils;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.vocabularies.HASCO;
+import org.hascoapi.vocabularies.RDF;
+import org.hascoapi.vocabularies.RDFS;
+import org.hascoapi.vocabularies.SCHEMA;
+import org.hascoapi.vocabularies.VSTOI;
 import org.hascoapi.utils.NameSpaces;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -207,6 +216,66 @@ public class Repository extends HADatAcThing {
     }
 
     public static Repository getRepository() {
+
+        String uri = Constants.DEFAULT_REPOSITORY;
+        if (uri == null || uri.isEmpty()) {
+            System.out.println("[ERROR] A value need to be set for Constants.DEFEAULT_REPOSITORY.");
+            return null;
+        }
+
+        String queryString = "DESCRIBE <" + uri + ">";
+	    Model model = SPARQLUtils.describe(CollectionUtil.getCollectionPath(
+                CollectionUtil.Collection.SPARQL_QUERY), queryString);
+		
+		StmtIterator stmtIterator = model.listStatements();
+	    Statement statement;
+	    RDFNode object;
+
+		if (!stmtIterator.hasNext()) {
+			return null;
+		} 
+
+		Repository repo = new Repository();
+		while (stmtIterator.hasNext()) {
+		    statement = stmtIterator.next();
+		    object = statement.getObject();
+			String str = URIUtils.objectRDFToString(object);
+            //System.out.println(statement.getPredicate().getURI() + "  [" + str + "]");
+            if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
+                repo.setLabel(str);
+            } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
+                repo.setTypeUri(str); 
+            } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
+                repo.setComment(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
+                repo.setHascoTypeUri(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_BASE_ONTOLOGY)) {
+                repo.setBaseOntology(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_BASE_URL)) {
+                repo.setBaseURL(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_INSTITUTION)) {
+                repo.setInstitutionUri(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_DEFAULT_NAMESPACE_ABBREVIATION)) {
+                repo.setHasDefaultNamespaceAbbreviation(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_DEFAULT_NAMESPACE_URL)) {
+                repo.setHasDefaultNamespaceURL(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_NAMESPACE_ABBREVIATION)) {
+                repo.setHasNamespaceAbbreviation(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_NAMESPACE_URL)) {
+                repo.setHasNamespaceURL(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_VERSION)) {
+                repo.setHasVersion(str);
+            }
+		}
+
+		repo.setUri(uri);
+		
+		return repo;
+
+    }
+
+    /* 
+    public static Repository getRepository() {
         Repository repository = new Repository();
 
         String uri = "<" + Constants.DEFAULT_REPOSITORY + ">";
@@ -238,44 +307,45 @@ public class Repository extends HADatAcThing {
                 System.out.println("[WARNING] REPOSITORY_URI " + uri + " does not retrieve a repository object");
                 return null;
             } else {
-                QuerySolution soln = resultsrw.next();
                 repository.setUri(Constants.DEFAULT_REPOSITORY);
-
                 repository.setTypeUri(HASCO.REPOSITORY);
                 repository.setHascoTypeUri(HASCO.REPOSITORY);
 
-                if (soln.contains("label")) {
-                    repository.setLabel(soln.get("label").toString());
-                }
-                if (soln.contains("title")) {
-                    repository.setTitle(soln.get("title").toString());
-                }
-                if (soln.contains("comment")) {
-                    repository.setComment(soln.get("comment").toString());
-                }
-                if (soln.contains("baseOntology")) {
-                    repository.setComment(soln.get("baseOntology").toString());
-                }
-                if (soln.contains("baseURL")) {
-                    repository.setComment(soln.get("baseURL").toString());
-                }
-                if (soln.contains("institutionUri")) {
-                    repository.setInstitutionUri(soln.get("institutionUri").toString());
-                }
-                if (soln.contains("defaultNsAbbreviation")) {
-                    repository.setHasDefaultNamespaceAbbreviation(soln.get("defaultNsAbbreviation").toString());
-                }
-                if (soln.contains("defaultNsUrl")) {
-                    repository.setHasDefaultNamespaceURL(soln.get("defaultNsUrl").toString());
-                }
-                if (soln.contains("nsAbbreviation")) {
-                    repository.setHasNamespaceAbbreviation(soln.get("nsAbbreviation").toString());
-                }
-                if (soln.contains("nsUrl")) {
-                    repository.setHasNamespaceURL(soln.get("nsUrl").toString());
-                }
-                if (soln.contains("version")) {
-                    repository.setHasVersion(soln.get("version").toString());
+                while (resultsrw.hasNext()) {
+                    QuerySolution soln = resultsrw.next();
+                    if (soln.contains("label")) {
+                        repository.setLabel(soln.get("label").toString());
+                    }
+                    if (soln.contains("title")) {
+                        repository.setTitle(soln.get("title").toString());
+                    }
+                    if (soln.contains("comment")) {
+                        repository.setComment(soln.get("comment").toString());
+                    }
+                    if (soln.contains("baseOntology")) {
+                        repository.setBaseOntology(soln.get("baseOntology").toString());
+                    }
+                    if (soln.contains("baseURL")) {
+                        repository.setBaseUrl(soln.get("baseURL").toString());
+                    }
+                    if (soln.contains("institutionUri")) {
+                        repository.setInstitutionUri(soln.get("institutionUri").toString());
+                    }
+                    if (soln.contains("defaultNsAbbreviation")) {
+                        repository.setHasDefaultNamespaceAbbreviation(soln.get("defaultNsAbbreviation").toString());
+                    }
+                    if (soln.contains("defaultNsUrl")) {
+                        repository.setHasDefaultNamespaceURL(soln.get("defaultNsUrl").toString());
+                    }
+                    if (soln.contains("nsAbbreviation")) {
+                        repository.setHasNamespaceAbbreviation(soln.get("nsAbbreviation").toString());
+                    }
+                    if (soln.contains("nsUrl")) {
+                        repository.setHasNamespaceURL(soln.get("nsUrl").toString());
+                    }
+                    if (soln.contains("version")) {
+                        repository.setHasVersion(soln.get("version").toString());
+                    }
                 }
             }
         } catch (QueryExceptionHTTP e) {
@@ -283,6 +353,7 @@ public class Repository extends HADatAcThing {
         }
         return repository;
     }
+    */
 
     @Override
     public void save() {

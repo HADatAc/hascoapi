@@ -1,4 +1,4 @@
-package org.hascoapi.data.loader;
+package org.hascoapi.ingestion;
 
 import java.lang.String;
 import java.io.File;
@@ -23,7 +23,6 @@ import org.apache.jena.update.UpdateExecutionFactory;
 import org.apache.jena.update.UpdateFactory;
 import org.apache.jena.update.UpdateProcessor;
 import org.apache.jena.update.UpdateRequest;
-import org.hascoapi.ingestion.*;
 import org.hascoapi.entity.pojo.STR;
 import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.entity.pojo.DOI;
@@ -44,16 +43,20 @@ import org.hascoapi.utils.SPARQLUtils;
 
 public class IngestionWorker {
 
-    public static void ingest(DataFile dataFile, File file) {
+    public static void ingest(DataFile dataFile, File file, String templateFile) {
 
-        //System.out.println("Processing file: " + dataFile.getFileName());
+        System.out.println("Processing file with filename: " + dataFile.getFilename());
+        System.out.println("Processing file with URI: " + dataFile.getUri());
 
-        String studyUri = dataFile.getUri().replace("DF","ST");
+        String studyUri = "";
+        if (dataFile.getFilename().contains("DSG-")) {
+            studyUri = dataFile.getUri().replace("DF","ST");
+        }
 
         dataFile.setLastProcessTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
         dataFile.getLogger().resetLog();
         dataFile.save();
-
+ 
         String fileName = dataFile.getFilename();
 
         dataFile.getLogger().println(String.format("Processing file: %s", fileName));
@@ -64,21 +67,27 @@ public class IngestionWorker {
         if (fileName.endsWith(".csv")) {
             recordFile = new CSVRecordFile(file);
         } else if (fileName.endsWith(".xlsx")) {
-            recordFile = new SpreadsheetRecordFile(file);
+            recordFile = new SpreadsheetRecordFile(file,dataFile.getFilename(),"InfoSheet");
         //} else if (dataFile.isMediaFile()) {
         //    //System.out.println("Processing Media File " + dataFile.getFileName());
         //    processMediaFile(dataFile);
         //    return;
         } else {
             dataFile.getLogger().printExceptionByIdWithArgs("GBL_00003", fileName);
-            //dataFile.freeze();
+            System.out.println("[ERROR] IngestionWorker: invalid file extension.");
             return;
         }
-        
+
+        if (!recordFile.isValid()) {
+            dataFile.getLogger().printExceptionById("SDD_00001");
+            System.out.println("[ERROR] IngestionWorker: No InfoSheet in provided file.");
+            return;
+        } 
+       
         dataFile.setRecordFile(recordFile);
 
         boolean bSucceed = false;
-        GeneratorChain chain = getGeneratorChain(dataFile);
+        GeneratorChain chain = getGeneratorChain(dataFile, templateFile);
         if (studyUri == null || studyUri.isEmpty()) {
             chain.setStudyUri("");
         } else {
@@ -86,6 +95,7 @@ public class IngestionWorker {
         }
 
         if (chain != null) {
+            System.out.println("IngestionWorker: executing chain.generate().");
             bSucceed = chain.generate();
         }
 
@@ -127,7 +137,7 @@ public class IngestionWorker {
         } 
     }
 
-    public static GeneratorChain getGeneratorChain(DataFile dataFile) {
+    public static GeneratorChain getGeneratorChain(DataFile dataFile, String templateFile) {
         GeneratorChain chain = null;
         String fileName = FilenameUtils.getBaseName(dataFile.getFilename());
 
@@ -136,8 +146,8 @@ public class IngestionWorker {
         //    
         //} else 
         
-        if (fileName.startsWith("STD-")) {
-            chain = annotateStudyIdFile(dataFile);
+        if (fileName.startsWith("DSG-")) {
+            chain = annotateStudyFile(dataFile, templateFile);
             
         } else if (fileName.startsWith("DPL-")) {
             chain = annotateDPLFile(dataFile);
@@ -195,13 +205,51 @@ public class IngestionWorker {
      *===========================================================================================*/
     
     /****************************
-     *    STD                   *
+     *    DSG                   *
      ****************************/    
     
-    public static GeneratorChain annotateStudyIdFile(DataFile dataFile) {
+    public static GeneratorChain annotateStudyFile(DataFile dataFile, String templateFile) {
+
+        Map<String, String> mapCatalog = new HashMap<String, String>();
+        for (Record record : dataFile.getRecordFile().getRecords()) {
+            mapCatalog.put(record.getValueByColumnIndex(0), record.getValueByColumnIndex(1));
+            System.out.println(record.getValueByColumnIndex(0) + ":" + record.getValueByColumnIndex(1));
+        }
+
+        RecordFile studyRecordFile = null;
+
+        if (dataFile.getFilename().endsWith(".xlsx")) {
+
+            if (mapCatalog.get("hasStudyDescription") != null) {
+                System.out.print("Extracting STD sheet from spreadsheet... ");
+                studyRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), mapCatalog.get("hasStudyDescription"));
+                if (studyRecordFile == null) {
+                    System.out.println("[ERROR] StudyGenerator: studyRecordFile is NULL.");
+                    return null;
+                } else if (studyRecordFile.getRecords() == null) {
+                    System.out.println("[ERROR] StudyGenerator: studyRecordFile.getRecords() is NULL.");
+                    return null;
+                } else{
+                    System.out.println("studyRecordFile has [" + studyRecordFile.getRecords().size() + "]");
+                }
+                dataFile.setRecordFile(studyRecordFile);
+                System.out.print("Done extracting STD sheet. ");
+            } else {
+                System.out.println("[ERROR] StudyGenerator: could not find any sheet inside of DSG called [hasStudyDescription].");
+                return null;
+            }
+        } else {
+            System.out.println("[ERROR] StudyGenerator: DSG file needs to have suffix [.xlsx].");
+            return null;
+        }
+
         GeneratorChain chain = new GeneratorChain();
-        chain.addGenerator(new StudyGenerator(dataFile));
-        chain.addGenerator(new AgentGenerator(dataFile));
+        AgentGenerator agentGen = new AgentGenerator(dataFile,null,templateFile);
+        agentGen.setNamedGraphUri(dataFile.getUri());
+        chain.addGenerator(agentGen);
+        StudyGenerator studyGen = new StudyGenerator(dataFile,null,templateFile);
+        studyGen.setNamedGraphUri(dataFile.getUri());
+        chain.addGenerator(studyGen);
 
         return chain;
     }

@@ -2,6 +2,8 @@ package org.hascoapi.ingestion;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.hascoapi.entity.pojo.DataFile;
 //import org.hascoapi.entity.pojo.StudyObjectCollection;
@@ -13,6 +15,7 @@ public class GeneratorChain {
     private static final Logger log = LoggerFactory.getLogger(GeneratorChain.class);
 
     private List<BaseGenerator> chain = new ArrayList<BaseGenerator>();
+    private Map<String,String> uris = new HashMap<String,String>();
     private DataFile dataFile = null;
     private DataFile codebookFile = null;
     private boolean bValid = true;
@@ -100,12 +103,14 @@ public class GeneratorChain {
             try {
                 System.out.println("  - GenerationChain: PreProcess");
                 generator.preprocess();
+                generator.preprocessuris(uris);
                 System.out.println("  - GenerationChain: CreateRows");
                 generator.createRows();
                 System.out.println("  - GenerationChain: CreateObjects");
                 generator.createObjects();
                 System.out.println("  - GenerationChain:PostProcess");
                 generator.postprocess();
+                uris = generator.postprocessuris();
             } catch (Exception e) {
                 System.out.println("[ERROR] GenerationChain: " + generator.getErrorMsg(e));
                 e.printStackTrace();
@@ -171,12 +176,14 @@ public class GeneratorChain {
             try {
                 System.out.println("  - GenerationChain: PreProcess");
                 generator.preprocess();
+                generator.preprocessuris(uris);
                 System.out.println("  - GenerationChain: CreateRows");
                 generator.createRows();
                 System.out.println("  - GenerationChain: CreateObjects");
                 generator.createObjects();
                 System.out.println("  - GenerationChain:PostProcess");
                 generator.postprocess();
+                uris = generator.postprocessuris();
                 generator.commitRowsToTripleStore(generator.getRows());
                 generator.commitObjectsToTripleStore(generator.getObjects());
             } catch (Exception e) {

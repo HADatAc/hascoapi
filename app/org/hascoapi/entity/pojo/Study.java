@@ -93,9 +93,9 @@ public class Study extends HADatAcThing {
 
     private List<String> objectCollectionUris;
 
-    private Person pi;
+    //private Person pi;
 
-    private Organization institution;
+    //private Organization institution;
 
     public Study(String id,
                  String uri,
@@ -157,13 +157,13 @@ public class Study extends HADatAcThing {
         this.hasStatus = hasStatus;
     }
 
-    public String getHasDataFile() {
+    public String getHasDataFileUri() {
         return hasDataFileUri;
     }
-    public void setHasDataFile(String hasDataFileUri) {
+    public void setHasDataFileUri(String hasDataFileUri) {
         this.hasDataFileUri = hasDataFileUri;
     }
-    public DataFile getDataFile() {
+    public DataFile getHasDataFile() {
         if (this.hasDataFileUri == null) {
             return null;
         }
@@ -219,28 +219,28 @@ public class Study extends HADatAcThing {
         if (institutionUri == null || institutionUri.equals("")) {
             return null;
         }
-        if (institution != null && institution.getUri().equals(institutionUri)) {
-            return institution;
-        }
+        //if (institution != null && institution.getUri().equals(institutionUri)) {
+        //    return institution;
+        //}
         return Organization.find(institutionUri);
     }
     public void setInstitutionUri(String institutionUri) {
         this.institutionUri = institutionUri;
     }
 
-    public String getPIUri() {
+    public String getPiUri() {
         return piUri;
     }
-    public Person getPI() {
+    public Person getPi() {
         if (piUri == null || piUri.equals("")) {
             return null;
         }
-        if (pi != null && pi.getUri().equals(piUri)) {
-            return pi;
-        }
+        //if (pi != null && pi.getUri().equals(piUri)) {
+        //    return pi;
+        //}
         return Person.find(piUri);
     }
-    public void setPIUri(String piUri) {
+    public void setPiUri(String piUri) {
         this.piUri = piUri;
     }
 
@@ -440,7 +440,7 @@ public class Study extends HADatAcThing {
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
 					study.setHasStatus(str);
                 } else if (statement.getPredicate().getURI().equals(HASCO.HAS_DATAFILE)) {
-                    study.setHasDataFile(str);
+                    study.setHasDataFileUri(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
 					study.setImage(str);
 				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
@@ -450,7 +450,7 @@ public class Study extends HADatAcThing {
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_EXTERNAL_SOURCE)) {
 					study.setExternalSource(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_PI)) {
-					study.setPIUri(str);
+					study.setPiUri(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_INSTITUTION)) {
 					study.setInstitutionUri(str);
 //				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_LAST_ID)) {
@@ -466,6 +466,7 @@ public class Study extends HADatAcThing {
 		return study;
 	}
 
+    /* 
     public Map<String, StudyObject> getObjectsMap() {
         Map<String, StudyObject> resp = new HashMap<String, StudyObject>();
         String queryString = "";
@@ -492,7 +493,9 @@ public class Study extends HADatAcThing {
 
         return resp;
     }
+    */
 
+    /* 
     public Map<String, StudyObject> getObjectsMapInBatch() {
         Map<String, StudyObject> results = new HashMap<String, StudyObject>();
 
@@ -528,14 +531,13 @@ public class Study extends HADatAcThing {
             }
         }
 
-        /*
-        for (Map.Entry<String, StudyObject> entry : results.entrySet()) {
-             System.out.println("getObjectsMapInBatch(): Key = " + entry.getKey() + ", Value = " + ((StudyObject)entry.getValue()).getUri());
-        }
-        */
+        //for (Map.Entry<String, StudyObject> entry : results.entrySet()) {
+        //     System.out.println("getObjectsMapInBatch(): Key = " + entry.getKey() + ", Value = " + ((StudyObject)entry.getValue()).getUri());
+        //}
 
         return results;
     }
+    */
 
     public static List<StudyObjectCollection> findStudyObjectCollections(String uri, int pageSize, int offset) {
         if (uri == null || uri.isEmpty()) {

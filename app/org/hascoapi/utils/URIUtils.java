@@ -1,13 +1,21 @@
 package org.hascoapi.utils;
 
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
+import java.util.Random;
 
 import org.apache.jena.rdf.model.RDFNode;
 
 import org.apache.poi.ss.usermodel.Cell;
+
 import org.hascoapi.entity.pojo.NameSpace;
+import org.hascoapi.Constants;
+import org.hascoapi.RepositoryInstance;
 
 public class URIUtils {
 
@@ -293,7 +301,6 @@ public class URIUtils {
  		}
  		return null;
 	}
-
 
 
 }

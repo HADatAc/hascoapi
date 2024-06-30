@@ -627,7 +627,7 @@ public class GenericFind<T> {
                 return findSIRInstancesByManagerEmailWithPages(clazz, className, managerEmail, pageSize, offset);
             } else if (isMT(clazz)) {
                 Class superClazz = superClassOfMT(clazz);
-                System.out.println("findByManagerEmailWithPages: Clazz=[" + clazz + "] className[" + className + "]");
+                //System.out.println("findByManagerEmailWithPages: Clazz=[" + clazz + "] className[" + className + "]");
                 return findMTInstancesByManagerEmailWithPages(superClazz, className, managerEmail, pageSize, offset);
             } else {
                 return findInstancesByManagerEmailWithPages(clazz, className, managerEmail, pageSize, offset);

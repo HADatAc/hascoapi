@@ -6,13 +6,14 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 import org.hascoapi.Constants;
+import org.hascoapi.ingestion.IngestionWorker;
 import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.entity.pojo.GenericInstance;
 import org.hascoapi.entity.pojo.KGR;
 import org.hascoapi.entity.pojo.SDD;
 import org.hascoapi.entity.pojo.DSG;
 import org.hascoapi.entity.pojo.Study;
-import org.hascoapi.ingestion.IngestDSG;
+//import org.hascoapi.ingestion.IngestDSG;
 import org.hascoapi.ingestion.IngestKGR;
 import org.hascoapi.ingestion.IngestSDD;
 import org.hascoapi.utils.ApiUtil;
@@ -116,9 +117,9 @@ public class IngestionAPI extends Controller {
             File filePerm = IngestionAPI.saveFileAsPermanent(file,dataFile.getFilename());
             if (dataFile != null & filePerm != null) {
                 CompletableFuture.runAsync(() -> {
-                    IngestDSG.exec(dsg, dataFile, filePerm, templateFile());
+                    IngestionWorker.ingest(dataFile, filePerm, templateFile());
                 });
-                System.out.println("IngestionAPI.ingest(): API has just called IngestDSG.exec()");
+                System.out.println("IngestionAPI.ingest(): API has just called IngestionWorker.ingest()");
             } else {
                 return ok(ApiUtil.createResponse("Could not prepare ingestion for element type " + elementType,false));
             }

@@ -129,16 +129,18 @@ public class IngestDSG {
             }
         }
         
+        /* 
         if (stdOkay) { 
             GeneratorChain chain = new GeneratorChain();
             System.out.println("IngestDSG.exec(): Adding StudyGenerator.");
-            chain.addGenerator(new StudyGenerator(stdFile));
+            chain.addGenerator(new StudyGenerator(stdFile, templateFile));
             System.out.println("IngestDSG.exec(): Adding AgentGenerator.");
             chain.addGenerator(new AgentGenerator(stdFile));
             System.out.println("IngestDSG.exec(): chain is BUILT.");
             chain.setNamedGraphUri(dsg.getUri());
             return chain;
         }
+        */
         return null;
     }
 

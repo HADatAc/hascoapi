@@ -16,6 +16,7 @@ POST    /hascoapi/version                                   org.hascoapi.console
 # RETRIEVAL GENERIC
 
 GET     /hascoapi/api/uri/:uri                              org.hascoapi.console.controllers.restapi.URIPage.getUri(uri: String)
+GET     /hascoapi/api/urigen/:elementtype                   org.hascoapi.console.controllers.restapi.URIPage.uriGen(elementtype: String)
 GET     /hascoapi/api/usage/:uri                            org.hascoapi.console.controllers.restapi.SIRElementAPI.usage(uri: String)
 GET     /hascoapi/api/derivation/:uri                       org.hascoapi.console.controllers.restapi.SIRElementAPI.derivation(uri: String)
 GET     /hascoapi/api/:elementType/elements/:pageSize/:offset                             org.hascoapi.console.controllers.restapi.SIRElementAPI.getElementsWithPage(elementType: String, pageSize : Integer, offset : Integer)

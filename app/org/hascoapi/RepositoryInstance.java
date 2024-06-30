@@ -14,7 +14,7 @@ public class RepositoryInstance {
                 instance.save();
                 System.out.println("Brand new repository metadata has been created.");
             } else {
-                System.out.println("Existing repository metadata has been retrieved.");
+                System.out.println("Existing repository metadata has been retrieved. Namespace URL is [" + instance.getHasDefaultNamespaceURL() + "]");
             }
         }
         return instance;

@@ -66,13 +66,13 @@ public abstract class BaseGenerator {
         System.out.println("BaseGenerator: (Constructor) process dataFile");
     	if (dataFile != null) {
     		this.dataFile = dataFile;
-            System.out.println("BaseGenerator: (Constructor) process dataFile: file");
+            //System.out.println("BaseGenerator: (Constructor) process dataFile: file");
     		file = dataFile.getRecordFile();
-            System.out.println("BaseGenerator: (Constructor) process dataFile: records");
+            //System.out.println("BaseGenerator: (Constructor) process dataFile: records");
     		records = file.getRecords();
-            System.out.println("BaseGenerator: (Constructor) process dataFile: filename");
+            //System.out.println("BaseGenerator: Number of records is [" + records.size() + "]");
     		fileName = dataFile.getFilename();
-            System.out.println("BaseGenerator: (Constructor) process dataFile: logger");
+            //System.out.println("BaseGenerator: (Constructor) process dataFile: logger");
     		logger = dataFile.getLogger();
     	}
     	
@@ -163,7 +163,10 @@ public abstract class BaseGenerator {
     }
 
     public void preprocess() throws Exception {}
+    public void preprocessuris(Map<String,String> uris) throws Exception {}
+
     public void postprocess() throws Exception {}
+    public Map<String,String> postprocessuris() throws Exception { return new HashMap<String,String>(); }
 
     public void createRows() throws Exception {        
         if (records == null) {

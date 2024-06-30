@@ -61,12 +61,32 @@ public class Templates {
         return iniConfig.getSection("STD").getString("CPI1LName"); }
     public String getCPI1EMAIL() { 
         return iniConfig.getSection("STD").getString("CPI1Email"); }
+    public String getCPI1INSTITUTION() { 
+        return iniConfig.getSection("STD").getString("CPI1institution"); }
+    public String getCPI1ADDRESS() { 
+        return iniConfig.getSection("STD").getString("CPI1Address"); }
+    public String getCPI1CITY() { 
+        return iniConfig.getSection("STD").getString("CPI1City"); }
+    public String getCPI1STATE() { 
+        return iniConfig.getSection("STD").getString("CPI1State"); }
+    public String getCPI1ZIPCODE() { 
+        return iniConfig.getSection("STD").getString("CPI1ZipCode"); }
     public String getCPI2FNAME() { 
         return iniConfig.getSection("STD").getString("CPI2FName"); }
     public String getCPI2LNAME() { 
         return iniConfig.getSection("STD").getString("CPI2LName"); }
     public String getCPI2EMAIL() { 
         return iniConfig.getSection("STD").getString("CPI2Email"); }
+    public String getCPI2INSTITUTION() { 
+        return iniConfig.getSection("STD").getString("CPI2institution"); }
+    public String getCPI2ADDRESS() { 
+        return iniConfig.getSection("STD").getString("CPI2Address"); }
+    public String getCPI2CITY() { 
+        return iniConfig.getSection("STD").getString("CPI2City"); }
+    public String getCPI2STATE() { 
+        return iniConfig.getSection("STD").getString("CPI2State"); }
+    public String getCPI2ZIPCODE() { 
+        return iniConfig.getSection("STD").getString("CPI2ZipCode"); }
     public String getCONTACTFNAME() { 
         return iniConfig.getSection("STD").getString("contactFName"); }
     public String getCONTACTLNAME() { 

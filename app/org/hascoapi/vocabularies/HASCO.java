@@ -41,9 +41,14 @@ public class HASCO {
      *    PROPERTIES
      */
 
+
+
+
     public static final String DETECTS                                = "http://hadatac.org/ont/hasco/detects";
     public static final String HAS_ACRONYM                            = "http://hadatac.org/ont/hasco/hasAcronym";
     public static final String HAS_ATTRIBUTE                          = "http://hadatac.org/ont/hasco/hasAttribute";
+    public static final String HAS_BASE_ONTOLOGY                      = "http://hadatac.org/ont/hasco/hasBaseOntology";
+    public static final String HAS_BASE_URL                           = "http://hadatac.org/ont/hasco/hasBaseURL";
     public static final String HAS_CLASS                              = "http://hadatac.org/ont/hasco/hasClass";
     public static final String HAS_CODE                               = "http://hadatac.org/ont/hasco/hasCode";
     public static final String HAS_CODE_LABEL                         = "http://hadatac.org/ont/hasco/hasCodeLabel";
@@ -51,6 +56,8 @@ public class HASCO {
     public static final String HAS_COMPLETION_TIME                    = "http://hadatac.org/ont/hasco/hasCompletionTime";
     public static final String HAS_DATAFILE                           = "http://hadatac.org/ont/hasco/hasDataFile";
     public static final String HAS_DATASET                            = "http://hadatac.org/ont/hasco/hasDataset";
+    public static final String HAS_DEFAULT_NAMESPACE_ABBREVIATION     = "http://hadatac.org/ont/hasco/hasDefaultNamespaceAbbreviation";
+    public static final String HAS_DEFAULT_NAMESPACE_URL              = "http://hadatac.org/ont/hasco/hasDefaultNamespaceURL";
     public static final String HAS_DETECTOR                           = "http://hadatac.org/ont/hasco/hasDetector";
     public static final String HAS_EDITOR_EMAIL                       = "http://hadatac.org/ont/hasco/hasEditorEmail";
     public static final String HAS_ENTITY                             = "http://hadatac.org/ont/hasco/hasEntity";
@@ -80,6 +87,8 @@ public class HASCO {
     public static final String HAS_LAYOUT_HEIGHT_UNIT                 = "http://hadatac.org/ont/hasco/hasLayoutHeightUnit";
     public static final String HAS_LOG                                = "http://hadatac.org/ont/hasco/hasLog";
     public static final String HAS_MANAGER_EMAIL                      = "http://hadatac.org/ont/hasco/hasManagerEmail";
+    public static final String HAS_NAMESPACE_ABBREVIATION             = "http://hadatac.org/ont/hasco/hasNamespaceAbbreviation";
+    public static final String HAS_NAMESPACE_URL                      = "http://hadatac.org/ont/hasco/hasNamespaceURL";
     public static final String HAS_OTHER_FOR                          = "http://hadatac.org/ont/hasco/otherFor";
     public static final String HAS_PI                                 = "http://hadatac.org/ont/hasco/hasPI";
     public static final String HAS_PROJECT                            = "http://hadatac.org/ont/hasco/hasProject";
@@ -100,6 +109,7 @@ public class HASCO {
     public static final String HAS_UNIT                               = "http://hadatac.org/ont/hasco/hasUnit";
     public static final String HAS_URL                                = "http://hadatac.org/ont/hasco/hasURL";
     public static final String HAS_VARIABLE                           = "http://hadatac.org/ont/hasco/hasVariable";
+    public static final String HAS_VERSION                            = "http://hadatac.org/ont/hasco/hasVersion";
     public static final String HAS_VIEWER_EMAIL                       = "http://hadatac.org/ont/hasco/hasViewerEmail";
     public static final String HAS_VIRTUAL_COLUMN                     = "http://hadatac.org/ont/hasco/hasVirtualColumn";
     public static final String IS_MEMBER_OF                           = "http://hadatac.org/ont/hasco/isMemberOf";

@@ -1,34 +1,40 @@
 package org.hascoapi.ingestion;
 
 import java.lang.String;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.utils.URIUtils;
-import org.hascoapi.utils.ConfigProp;
-import org.hascoapi.utils.Templates;
 import org.hascoapi.vocabularies.HASCO;
 
 public class StudyGenerator extends BaseGenerator {
 
-    final String kbPrefix = ConfigProp.getKbPrefix();
-    String fileName;
+    private String fileName;
 
-    public StudyGenerator(DataFile dataFile) {
-        super(dataFile);
-        this.fileName = dataFile.getFilename();
+    private String piUri;
+
+    private String institutionUri;
+
+    private String cpi1Uri;
+
+    private String cpi2Uri;
+
+    private String contactUri;
+
+    public StudyGenerator(DataFile dataFile, String studyUri, String templateFile) {
+        super(dataFile, studyUri, templateFile);
+        this.fileName = dataFile.getFilename(); 
     }
 
     @Override
     public void initMapping() {
-        System.out.println("start initMapping");
-        System.out.println("STUDYID: " + templates.getSTUDYID());
+        System.out.println("initMapping of StudyGenerator");
         try {
         mapCol.clear();
-        System.out.println("initMapping (1) ");
         mapCol.put("studyID", templates.getSTUDYID());
-        System.out.println("initMapping (2)");
         mapCol.put("studyTitle", templates.getSTUDYTITLE());
         mapCol.put("studyAims", templates.getSTUDYAIMS());
         mapCol.put("studySignificance", templates.getSTUDYSIGNIFICANCE());
@@ -40,7 +46,6 @@ public class StudyGenerator extends BaseGenerator {
         mapCol.put("PICity", templates.getPICITY());
         mapCol.put("PIState", templates.getPISTATE());
         mapCol.put("PIZipCode", templates.getPIZIPCODE());
-        System.out.println("initMapping (3)");
         mapCol.put("PIEmail", templates.getPIEMAIL());
         mapCol.put("PIPhone", templates.getPIPHONE());
         mapCol.put("CPI1FName", templates.getCPI1FNAME());
@@ -67,9 +72,6 @@ public class StudyGenerator extends BaseGenerator {
     }
 
     private String getUri() {
-        //System.out.println("Study Generator: template for STUDYID: [" +  templates.getSTUDYID + "]");
-        //String str = rec.getValueByColumnName(mapCol.get("studyID"));
-        //return kbPrefix + "STD-" + str;
         return this.getDataFile().getUri().replace("DF","ST");
     }
 
@@ -89,13 +91,13 @@ public class StudyGenerator extends BaseGenerator {
         return rec.getValueByColumnName(mapCol.get("studySignificance"));
     }
 
-    private String getInstitutionUri(Record rec) {
-        return kbPrefix + "ORG-" + rec.getValueByColumnName(mapCol.get("institution")).replaceAll(" ", "-").replaceAll(",", "").replaceAll("'", ""); 
-    }
+    //private String getInstitutionUri(Record rec) {
+    //    return kbPrefix + "/OR" + rec.getValueByColumnName(mapCol.get("institution")).replaceAll(" ", "-").replaceAll(",", "").replaceAll("'", ""); 
+    //}
 
-    private String getAgentUri(Record rec) {
-        return kbPrefix + "PER-" + rec.getValueByColumnName(mapCol.get("PI")).replaceAll(" ", "-"); 
-    }
+    //private String getAgentUri(Record rec) {
+    //    return kbPrefix + "/PS" + rec.getValueByColumnName(mapCol.get("PI")).replaceAll(" ", "-"); 
+    //}
 
     private String getExtSource(Record rec) {
         return rec.getValueByColumnName(mapCol.get("externalSource")); 
@@ -106,22 +108,22 @@ public class StudyGenerator extends BaseGenerator {
         System.out.println("Inside of StudyGenerator.createRow()");
         Map<String, Object> row = new HashMap<String, Object>();
         if (getUri().length() > 0) {
-            System.out.println("getID()=[" + getId(rec) + "] getTitle()=[" + getTitle(rec) + "]");
+            System.out.println("getUri()=[" + getUri() + "] getID()=[" + getId(rec) + "] getTitle()=[" + getTitle(rec) + "]");
             row.put("hasco:hasId", getId(rec));
             row.put("hasURI", getUri());
             row.put("a", getType());
             row.put("hasco:hascoType", HASCO.STUDY);
-            row.put("rdfs:label", getTitle(rec));
+            row.put("rdfs:label", getId(rec));
+            row.put("hasco:hasTitle", getTitle(rec));
             row.put("skos:definition", getAims(rec));
             row.put("rdfs:comment", getSignificance(rec));
+            row.put("hasco:hasDataFile", dataFile.getUri());
             row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
-            if(mapCol.get("PI") != null && rec.getValueByColumnName(mapCol.get("PI")) != null && 
-                    rec.getValueByColumnName(mapCol.get("PI")).length() > 0) {
-                row.put("hasco:hasAgent", getAgentUri(rec));
+            if (piUri != null && !piUri.isEmpty()) {
+                row.put("hasco:hasPI", piUri);
             }
-            if(mapCol.get("institution") != null && rec.getValueByColumnName(mapCol.get("institution")) != null && 
-                    rec.getValueByColumnName(mapCol.get("institution")).length() > 0) {
-                row.put("hasco:hasInstitution", getInstitutionUri(rec));
+            if (institutionUri != null && !institutionUri.isEmpty()) {
+                row.put("hasco:hasInstitution", institutionUri);
             }
             if(mapCol.get("externalSource") != null && rec.getValueByColumnName(mapCol.get("externalSource")) != null && 
                     rec.getValueByColumnName(mapCol.get("externalSource")).length() > 0) {
@@ -138,6 +140,15 @@ public class StudyGenerator extends BaseGenerator {
         return "Study";
     }
 
+    @Override
+    public void preprocessuris(Map<String,String> uris) throws Exception {
+        this.piUri = uris.get("piUri");
+		this.institutionUri = uris.get("piInstitutionUri");
+		this.cpi1Uri = uris.get("cpi1Uri");
+		this.cpi2Uri = uris.get("cpi2Uri");
+		this.contactUri = uris.get("contactUri");
+	}
+	
     @Override
     public String getErrorMsg(Exception e) {
         return "Error in StudyGenerator: " + e.getMessage();
