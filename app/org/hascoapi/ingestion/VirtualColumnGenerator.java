@@ -22,18 +22,11 @@ public class VirtualColumnGenerator extends BaseGenerator {
         mapCol.put("sheet", "sheet");
         mapCol.put("typeUri", "type");
         mapCol.put("hasSOCReference", "hasSOCReference");
-        mapCol.put("studyUri", "isMemberOf");
         mapCol.put("groundingLabel", "groundingLabel");
     }
 
     private String getTypeUri(Record rec) {
         return rec.getValueByColumnName(mapCol.get("typeUri"));
-    }
-
-    private String getStudyUri(Record rec) {
-//        return rec.getValueByColumnName(mapCol.get("studyUri"));
-        String studyUri = URIUtils.replacePrefixEx(rec.getValueByColumnName(mapCol.get("studyUri")));
-        return (studyUri);
     }
 
     private String getSOCReference(Record rec) {
@@ -49,7 +42,7 @@ public class VirtualColumnGenerator extends BaseGenerator {
   
         // Skip if type URI, study URI and SOC Reference are all blank
     	String typeUri = this.getTypeUri(record);
-        this.studyUri = this.getStudyUri(record);
+        this.studyUri = this.getStudyUri();
         String SOCReference = this.getSOCReference(record);
         if ((typeUri == null || typeUri.equals("")) && 
         	(this.studyUri == null || this.studyUri.equals("")) && 
@@ -58,9 +51,9 @@ public class VirtualColumnGenerator extends BaseGenerator {
         }
         
         // Skip the study row in the SSD sheet
-        if (typeUri.equals("hasco:Study")) {
-            return null;
-        }
+        //if (typeUri.equals("hasco:Study")) {
+        //    return null;
+        //}
     	
         // generate error if only study URI is missing
         if (this.studyUri == null || this.studyUri.equals("")) {
@@ -75,9 +68,10 @@ public class VirtualColumnGenerator extends BaseGenerator {
         }
             
         VirtualColumn vc = new VirtualColumn(
-                getStudyUri(record),
+                getStudyUri(),
                 getGroundingLabel(record),
-                SOCReference);
+                SOCReference,
+                dataFile.getHasSIRManagerEmail());
 
         return vc;
     }   

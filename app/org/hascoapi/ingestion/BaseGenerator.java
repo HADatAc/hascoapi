@@ -63,7 +63,7 @@ public abstract class BaseGenerator {
             templates = new Templates(templateFile);
         }
 
-        System.out.println("BaseGenerator: (Constructor) process dataFile");
+        //System.out.println("BaseGenerator: (Constructor) process dataFile");
     	if (dataFile != null) {
     		this.dataFile = dataFile;
             //System.out.println("BaseGenerator: (Constructor) process dataFile: file");
@@ -289,7 +289,7 @@ public abstract class BaseGenerator {
         for (HADatAcThing obj : objects) {
             obj.setNamedGraph(getNamedGraphUri());
 
-            System.out.println("BaseGenerator.commitObjectsToTriplestore() [1]");
+            //System.out.println("BaseGenerator.commitObjectsToTriplestore() [1]");
             if (obj.saveToTripleStore()) {
                 count++;
             }
@@ -302,7 +302,7 @@ public abstract class BaseGenerator {
                 System.out.println("cache " + name + " size: Total " + caches.get(name).getMapCache().values().size());
                 for (Object obj : caches.get(name).getNewCache().values()) {
                     if (obj instanceof HADatAcThing) {
-                        System.out.println("BaseGenerator.commitObjectsToTriplestore() [2]");
+                        //System.out.println("BaseGenerator.commitObjectsToTriplestore() [2]");
                         ((HADatAcThing) obj).saveToTripleStore();
                         count++;
                     }

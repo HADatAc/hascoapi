@@ -12,7 +12,7 @@ public class SSDGeneratorChain extends GeneratorChain {
             return;
         }
         
-        List<StudyObjectCollection> studySOCs = StudyObjectCollection.findSOCsByStudy(this.getStudyUri());
+        List<StudyObjectCollection> studySOCs = StudyObjectCollection.findStudyObjectCollectionsByStudy(this.getStudyUri());
         for (StudyObjectCollection soc: studySOCs) {
             //AnnotationLog.println("SOC has URI  " + oc.getUri() + " and label " + oc.getLabel(), file.getFile().getName());
             String labelResult = StudyObjectCollection.computeRouteLabel(soc, studySOCs);

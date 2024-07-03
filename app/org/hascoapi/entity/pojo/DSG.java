@@ -59,14 +59,14 @@ public class DSG extends HADatAcThing {
         this.hasStatus = hasStatus;
     }
 
-    public String getHasDataFile() {
+    public String getHasDataFileUri() {
         return hasDataFileUri;
     }
-    public void setHasDataFile(String hasDataFileUri) {
+    public void setHasDataFileUri(String hasDataFileUri) {
         this.hasDataFileUri = hasDataFileUri;
         this.setNamedGraph(hasDataFileUri);
     }
-    public DataFile getDataFile() {
+    public DataFile getHasDataFile() {
         if (this.hasDataFileUri == null) {
             return null;
         }
@@ -126,7 +126,7 @@ public class DSG extends HADatAcThing {
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
                     dsg.setHasStatus(str);
                 } else if (statement.getPredicate().getURI().equals(HASCO.HAS_DATAFILE)) {
-                    dsg.setHasDataFile(str);
+                    dsg.setHasDataFileUri(str);
                 } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
                     dsg.setComment(str);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {

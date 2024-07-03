@@ -92,6 +92,7 @@ public class GeneratorChain {
         if (!isValid()) {
             return false;
         }
+        System.out.println("GeneratorChain: Executing [NORMAL] generator chain.");
 
         //int i = 0;
         //for (BaseGenerator generator : chain) {
@@ -100,15 +101,16 @@ public class GeneratorChain {
 
         for (BaseGenerator generator : chain) {
         	System.out.println("GeneratorChain: Executing generator of type [" + generator.getClass().getSimpleName() + "]");
+        	//System.out.println("GeneratorChain: Named Graph is [" + generator.getNamedGraphUri() + "]");
             try {
-                System.out.println("  - GenerationChain: PreProcess");
+                //System.out.println("  - GenerationChain: PreProcess");
                 generator.preprocess();
                 generator.preprocessuris(uris);
-                System.out.println("  - GenerationChain: CreateRows");
+                //System.out.println("  - GenerationChain: CreateRows");
                 generator.createRows();
-                System.out.println("  - GenerationChain: CreateObjects");
+                //System.out.println("  - GenerationChain: CreateObjects");
                 generator.createObjects();
-                System.out.println("  - GenerationChain:PostProcess");
+                //System.out.println("  - GenerationChain:PostProcess");
                 generator.postprocess();
                 uris = generator.postprocessuris();
             } catch (Exception e) {
@@ -118,14 +120,21 @@ public class GeneratorChain {
                 generator.getLogger().printException(generator.getErrorMsg(e));
                 return false;
             }
+        	System.out.println("GeneratorChain: Ended execution of generator of type [" + generator.getClass().getSimpleName() + "]");
         }
         
         if (!bCommit) {
             return true;
         }
 
+        System.out.println("GeneratorChain: Starting commits.");
+
         // Commit if no errors occurred
         for (BaseGenerator generator : chain) {
+        	System.out.println("GeneratorChain: Started commit of generator of type [" + generator.getClass().getSimpleName() + "]");
+            if (!getNamedGraphUri().isEmpty()) {
+                generator.setNamedGraphUri(getNamedGraphUri());
+            }             
             if (!generator.getStudyUri().isEmpty()) {
                 setStudyUri(generator.getStudyUri());
             }
@@ -133,13 +142,7 @@ public class GeneratorChain {
             if (generator.getStudyUri().isEmpty() && !getStudyUri().isEmpty()) {
                 generator.setStudyUri(getStudyUri());
             }
-            
-            if (!getNamedGraphUri().isEmpty()) {
-                generator.setNamedGraphUri(getNamedGraphUri());
-            } else if (!generator.getStudyUri().isEmpty()) {
-                generator.setNamedGraphUri(generator.getStudyUri());
-            }
-            
+                        
             try {
                 generator.commitRowsToTripleStore(generator.getRows());
                 generator.commitObjectsToTripleStore(generator.getObjects());
@@ -150,6 +153,7 @@ public class GeneratorChain {
                 generator.getLogger().printException(generator.getErrorMsg(e));
                 return false;
             }
+        	System.out.println("GeneratorChain: Finished commit of generator of type [" + generator.getClass().getSimpleName() + "]");
         }
 
         for (BaseGenerator generator : chain) {
@@ -159,6 +163,7 @@ public class GeneratorChain {
         }
 
         postprocess();
+        System.out.println("GeneratorChain: Ended [NORMAL] execution of generator chain.");
 
         return true;
     }
@@ -167,6 +172,7 @@ public class GeneratorChain {
         if (!isValid()) {
             return false;
         }
+        System.out.println("GeneratorChain: Executing [IMMEDIATE COMMIT] generator chain.");
 
         for (BaseGenerator generator : chain) {
         	System.out.println("GeneratorChain: Executing generator of type [" + generator.getClass().getSimpleName() + "]");
@@ -174,14 +180,14 @@ public class GeneratorChain {
                 generator.setNamedGraphUri(getNamedGraphUri());
             }             
             try {
-                System.out.println("  - GenerationChain: PreProcess");
+                //System.out.println("  - GenerationChain: PreProcess");
                 generator.preprocess();
                 generator.preprocessuris(uris);
-                System.out.println("  - GenerationChain: CreateRows");
+                //System.out.println("  - GenerationChain: CreateRows");
                 generator.createRows();
-                System.out.println("  - GenerationChain: CreateObjects");
+                //System.out.println("  - GenerationChain: CreateObjects");
                 generator.createObjects();
-                System.out.println("  - GenerationChain:PostProcess");
+                //System.out.println("  - GenerationChain:PostProcess");
                 generator.postprocess();
                 uris = generator.postprocessuris();
                 generator.commitRowsToTripleStore(generator.getRows());

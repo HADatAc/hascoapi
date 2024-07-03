@@ -1,9 +1,7 @@
 package org.hascoapi.ingestion;
 
 import java.lang.String;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.hascoapi.entity.pojo.DataFile;
@@ -31,7 +29,7 @@ public class StudyGenerator extends BaseGenerator {
 
     @Override
     public void initMapping() {
-        System.out.println("initMapping of StudyGenerator");
+        //System.out.println("initMapping of StudyGenerator");
         try {
         mapCol.clear();
         mapCol.put("studyID", templates.getSTUDYID());
@@ -64,7 +62,7 @@ public class StudyGenerator extends BaseGenerator {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("end initMapping");
+        //System.out.println("end initMapping");
     }
 
     private String getId(Record rec) {

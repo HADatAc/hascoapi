@@ -1,6 +1,7 @@
 package org.hascoapi.utils;
 
 import java.util.Random;
+import java.security.*;
 
 import org.hascoapi.Constants;
 import org.hascoapi.RepositoryInstance;
@@ -138,7 +139,7 @@ public class Utils {
         }
 
         String generatedUri = Utils.uriGen(repoUri, shortPrefix);
-        System.out.println("Utils.uriGen() generated [" + generatedUri + "]");
+        //System.out.println("Utils.uriGen() generated [" + generatedUri + "]");
 
         return generatedUri;
     }
@@ -147,6 +148,84 @@ public class Utils {
         //String uid = getCurrentUserId();
         String iid = System.currentTimeMillis() + String.valueOf(new Random().nextInt(90000) + 10000); // + uid;
         return repoUri + shortPrefix + iid;
+    }
+
+    public static String uriHashGen(String elementType, String identifier) {
+        if (elementType == null) {
+            System.out.println("[ERROR] Utils.uriHashGen(): elementType not provided.");
+            return null;
+        }
+        String repoUri = RepositoryInstance.getInstance().getHasDefaultNamespaceURL();
+        if (repoUri == null || repoUri.isEmpty()) {
+            System.out.println("[ERROR] Utils.uriHashGen(): no baseURL found for current repository.");
+            return null;
+        }
+
+        String shortPrefix = Utils.shortPrefix(elementType);
+        if (shortPrefix == null) {
+            System.out.println("[ERROR] Utils.uriHashGen(): could not found valid short prefix for elementType [" + elementType + "]");
+            return null;
+        }
+
+        if (!repoUri.endsWith("/")) {
+            repoUri += "/";
+        }
+
+        String hexString = null;        
+        try {
+            // Convert input string to bytes
+            byte[] inputBytes = identifier.getBytes("UTF-8");
+
+            // Calculate MD5 hash
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] md5Bytes = md.digest(inputBytes);
+
+            // Convert byte array to hexadecimal string
+            StringBuilder sb = new StringBuilder();
+            for (byte b : md5Bytes) {
+                sb.append(String.format("%02x", b & 0xff));
+            }
+            hexString = sb.toString();
+
+            // Ensure the hexString is exactly 16 digits
+            if (hexString.length() < 16) {
+                hexString = String.format("%16s", hexString).replace(' ', '0');
+            } else if (hexString.length() > 16) {
+                hexString = hexString.substring(0, 16);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return repoUri + shortPrefix + hexString;
+
+    }
+
+    public static String uriPlainGen(String elementType, String identifier) {
+        if (elementType == null) {
+            System.out.println("[ERROR] Utils.uriHashGen(): elementType not provided.");
+            return null;
+        }
+        String repoUri = RepositoryInstance.getInstance().getHasDefaultNamespaceURL();
+        if (repoUri == null || repoUri.isEmpty()) {
+            System.out.println("[ERROR] Utils.uriHashGen(): no baseURL found for current repository.");
+            return null;
+        }
+
+        String shortPrefix = Utils.shortPrefix(elementType);
+        if (shortPrefix == null) {
+            System.out.println("[ERROR] Utils.uriHashGen(): could not found valid short prefix for elementType [" + elementType + "]");
+            return null;
+        }
+
+        if (!repoUri.endsWith("/")) {
+            repoUri += "/";
+        }
+
+        return repoUri + shortPrefix + '_' + identifier;
+
     }
 
 }

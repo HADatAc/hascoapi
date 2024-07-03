@@ -143,6 +143,8 @@ public class GenericFind<T> {
             return URIUtils.replaceNameSpace(HASCO.STUDY_OBJECT);
         } else if (clazz == StudyRole.class) {
             return URIUtils.replaceNameSpace(HASCO.STUDY_ROLE);
+        } else if (clazz == VirtualColumn.class) {
+            return URIUtils.replaceNameSpace(HASCO.VIRTUAL_COLUMN);
         } else if (clazz == Person.class) {
             return URIUtils.replaceNameSpace(FOAF.PERSON);
         } else if (clazz == Organization.class) {
@@ -203,8 +205,6 @@ public class GenericFind<T> {
             return URIUtils.replaceNameSpace(SIO.ATTRIBUTE);
         } else if (clazz == Unit.class) {
             return URIUtils.replaceNameSpace(SIO.UNIT);
-        } else if (clazz == VirtualColumn.class) {
-            return URIUtils.replaceNameSpace(HASCO.VIRTUAL_COLUMN);
         } 
         return null;
     }
@@ -801,8 +801,6 @@ public class GenericFind<T> {
             return (T)StudyObjectCollectionType.find(uri);
         } else if (clazz == StudyObjectType.class) {
             return (T)StudyObjectType.find(uri);
-        } else if (clazz == VirtualColumn.class) {
-            return (T)VirtualColumn.find(uri);
 
         // List of elements
         } else if (clazz == Instrument.class) {
@@ -841,6 +839,8 @@ public class GenericFind<T> {
             return (T)StudyObject.find(uri);
         } else if (clazz == StudyRole.class) {
             return (T)StudyRole.find(uri);
+        } else if (clazz == VirtualColumn.class) {
+            return (T)VirtualColumn.find(uri);
         } else if (clazz == Person.class) {
             return (T)Person.find(uri);
         } else if (clazz == Organization.class) {

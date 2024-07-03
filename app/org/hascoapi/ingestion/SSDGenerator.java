@@ -6,21 +6,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.hascoapi.utils.ConfigProp;
 import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.entity.pojo.HADatAcThing;
 import org.hascoapi.entity.pojo.StudyObjectCollection;
 import org.hascoapi.utils.URIUtils;
+import org.hascoapi.utils.Utils;
 import org.hascoapi.vocabularies.HASCO;
 
 public class SSDGenerator extends BaseGenerator {
 
-    final String kbPrefix = ConfigProp.getKbPrefix();
     String SDDName = ""; //used for reference column uri
 
     public SSDGenerator(DataFile dataFile) {
         super(dataFile);
-        this.SDDName = dataFile.getBaseName().replaceAll("SSD-", "");
+        //this.SDDName = dataFile.getBaseName().replaceAll("SSD-", "");
         
         if (records.get(0) != null) {
             studyUri = URIUtils.replacePrefixEx(getUri(records.get(0)));
@@ -38,7 +37,6 @@ public class SSDGenerator extends BaseGenerator {
         mapCol.put("hasSOCReference", "hasSOCReference");
         mapCol.put("hasRoleLabel", "hasRoleLabel");
         mapCol.put("label", "label");
-        mapCol.put("studyUri", "isMemberOf");
         mapCol.put("hasScopeUri", "hasScope");
         //mapCol.put("groundingLabel", "groundingLabel");
         mapCol.put("spaceScopeUris", "hasSpaceScope");
@@ -47,7 +45,7 @@ public class SSDGenerator extends BaseGenerator {
     }
 
     private String getUri(Record rec) {
-        return rec.getValueByColumnName(mapCol.get("uri"));
+        return Utils.uriPlainGen("studyobjectcollection", rec.getValueByColumnName(mapCol.get("uri")));
     }
 
     private String getTypeUri(Record rec) {
@@ -58,12 +56,11 @@ public class SSDGenerator extends BaseGenerator {
         return rec.getValueByColumnName(mapCol.get("label"));
     }
 
-    private String getStudyUri(Record rec) {
-        return rec.getValueByColumnName(mapCol.get("studyUri"));
-    }
-
     private String getVirtualColumnUri(Record rec) {
-        return getStudyUri().replace("STD", "VC") + "-" + getSOCReference(rec).replace("??", "");
+        String vcUri= 
+            studyUri.replace("ST", "VC") + "-" + 
+            getSOCReference(rec).replace("??", "");
+        return vcUri;
     }
     
     private String getSOCReference(Record rec) {
@@ -83,7 +80,11 @@ public class SSDGenerator extends BaseGenerator {
     }
 
     private String getHasScopeUri(Record rec) {
-        return rec.getValueByColumnName(mapCol.get("hasScopeUri"));
+        if (rec.getValueByColumnName(mapCol.get("hasScopeUri")) == null ||
+            rec.getValueByColumnName(mapCol.get("hasScopeUri")).isEmpty()) {
+            return null;
+        }
+        return Utils.uriPlainGen("studyobjectcollection", rec.getValueByColumnName(mapCol.get("hasScopeUri")));
     }
 
     /*private String getGroundingLabel(Record rec) {
@@ -98,7 +99,15 @@ public class SSDGenerator extends BaseGenerator {
                 .stream()
                 .map(s -> URIUtils.replacePrefixEx(s))
                 .collect(Collectors.toList());
-        return ans;
+        List<String> uris = new ArrayList<String>();
+        for (String item : ans) {
+            if (item == null || item.isEmpty()) {
+                uris.add(null);
+            } else {
+                uris.add(Utils.uriPlainGen("studyobjectcollection", item));
+            }
+        }
+        return uris;
     }
 
     private List<String> getTimeScopeUris(Record rec) {
@@ -111,7 +120,15 @@ public class SSDGenerator extends BaseGenerator {
                 .stream()
                 .map(s -> URIUtils.replacePrefixEx(s))
                 .collect(Collectors.toList());
-        return ans;
+        List<String> uris = new ArrayList<String>();
+        for (String item : ans) {
+            if (item == null || item.isEmpty()) {
+                uris.add(null);
+            } else {
+                uris.add(Utils.uriPlainGen("studyobjectcollection", item));
+            }
+        }
+        return uris;
     }
 
     private List<String> getGroupUris(Record rec) {
@@ -127,15 +144,20 @@ public class SSDGenerator extends BaseGenerator {
 
     public StudyObjectCollection createObjectCollection(Record record) throws Exception {
 
-        // Skip the study row in the SSD sheet
+        String uri = this.getUri(record);
     	String typeUri = this.getTypeUri(record);
-    	if (typeUri.equals("hasco:Study")) {
-            return null;
-        }
+
+        // Skip the study row in the SSD sheet
+    	//if (typeUri.equals("hasco:Study")) {
+        //    return null;
+        //}
         
         // Skip the SOC generator for columns with just VirtualColumn info (i.e., blank type and filled out SOC reference
         String SOCReference = getSOCReference(record);
-        if (typeUri.equals("") && SOCReference != null && !SOCReference.equals("")) {
+
+        System.out.println("SSDGenerator: typeUri=[" + typeUri + "] SOCReference=[" + SOCReference + "]");
+
+        if (typeUri.isEmpty() && SOCReference != null && !SOCReference.isEmpty()) {
             return null;
         }
         
@@ -143,20 +165,25 @@ public class SSDGenerator extends BaseGenerator {
         	return null;
         }
         
-        System.out.println("SSDGenerator: row's type: [" + typeUri + "]   [" + SOCReference + "]");
-
-        if (this.studyUri == null || this.studyUri.equals("")) {
+        if (this.studyUri == null || this.studyUri.isEmpty()) {
             logger.printExceptionByIdWithArgs("SSD_00001", typeUri);
             return null;
         }
             
-        if (SOCReference == null || SOCReference.equals("")) {
+        if (SOCReference == null || SOCReference.isEmpty()) {
             logger.printExceptionById("SSD_00002");
             return null;
         }
 
-        StudyObjectCollection oc = new StudyObjectCollection(
-                URIUtils.replacePrefixEx(getUri(record)),
+        String scopeUri = getHasScopeUri(record);
+        if (scopeUri == null) {
+            scopeUri = "";
+        } else {
+            scopeUri = URIUtils.replacePrefixEx(scopeUri);
+        }
+
+        StudyObjectCollection soc = new StudyObjectCollection(
+                getUri(record),
                 URIUtils.replacePrefixEx(typeUri),
                 URIUtils.replacePrefixEx(HASCO.STUDY_OBJECT_COLLECTION),
                 getLabel(record),
@@ -164,14 +191,17 @@ public class SSDGenerator extends BaseGenerator {
                 getStudyUri(),
                 getVirtualColumnUri(record),
                 getRoleLabel(record),
-                "", //hasSIRManagerEmail
-                URIUtils.replacePrefixEx(getHasScopeUri(record)),
+                this.dataFile.getHasSIRManagerEmail(),
+                scopeUri,
                 getSpaceScopeUris(record),
                 getTimeScopeUris(record),
                 getGroupUris(record),
                 "0");
         
-        return oc;
+        System.out.println("New SOC: uri=[" + getUri(record) +
+                "] label=[" + getLabel(record) + "]");
+
+        return soc;
     }   
         
     @Override

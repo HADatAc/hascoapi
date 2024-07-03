@@ -767,6 +767,18 @@ public class StudyObject extends HADatAcThing {
         return -1;
     }
 
+    public static int getNumberStudyObjectsByStudy(String studyuri) {
+        String query = "";
+        query += NameSpaces.getInstance().printSparqlNameSpaceList();
+        query += " select (count(?obj) as ?tot) where { " + 
+            "   ?subtype rdfs:subClassOf* hasco:StudyObject .  " + 
+            "   ?uri a ?subtype .  " + 
+            "   ?uri hasco:isMemberOf ?socuri . " +
+            "   ?socuri hasco:isMemberOf <" + studyuri + "> . " + 
+            " }";
+        return GenericFind.findTotalByQuery(query);
+    }
+    
     public static String findByCollectionJSON(StudyObjectCollection oc) {
         if (oc == null) {
             return null;

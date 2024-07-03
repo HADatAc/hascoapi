@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 import org.hascoapi.Constants;
+import org.hascoapi.entity.pojo.Place;
 import org.hascoapi.entity.pojo.VirtualColumn;
 import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.HAScOMapper;
@@ -32,6 +33,15 @@ public class VirtualColumnAPI extends Controller {
     public Result getVCsByStudy(String studyUri){
         List<VirtualColumn> results = VirtualColumn.findVCsByStudy(studyUri);
         return getVirtualColumns(results);
+    }
+
+    public Result findTotalVCsByStudy(String studyuri) {
+        int totalElements = VirtualColumn.findTotalVCsByStudy(studyuri);
+        if (totalElements >= 0) {
+            String totalElementsJSON = "{\"total\":" + totalElements + "}";
+            return ok(ApiUtil.createResponse(totalElementsJSON, true));
+        }     
+        return ok(ApiUtil.createResponse("Query method findTotalVCsByStudy() failed to retrieve total number of VCs by study", false));   
     }
 
 }

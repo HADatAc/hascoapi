@@ -258,16 +258,6 @@ public class Study extends HADatAcThing {
         this.hasSIRManagerEmail = hasSIRManagerEmail;
     }
 
-    //public long getLastId() {
-    //    if (this.lastId == null) {
-    //        return 0;
-    //    }
-    //    return Long.parseLong(this.lastId);
-    //}
-    //public void setLastId(String lastId) {
-    //    this.lastId = lastId;
-    //}
-
     public static int getNumberStudies() {
         String query = "";
         query += NameSpaces.getInstance().printSparqlNameSpaceList();
@@ -312,15 +302,6 @@ public class Study extends HADatAcThing {
         DateTimeFormatter formatter = ISODateTimeFormat.dateTimeNoMillis();
         return formatter.withZone(DateTimeZone.UTC).print(endedAt);
     }
-
-    //public void increaseLastId(long quantity) {
-    //    if (quantity > 0) {
-    //        long l = Long.parseLong(this.lastId);
-    //        long newL = l + quantity;
-    //        this.lastId = Long.toString(newL);
-    //        save();
-    //    }
-    //}
 
     // set Start Time Methods
     public void setStartedAt(String startedAt) {

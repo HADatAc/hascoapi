@@ -120,7 +120,7 @@ public class AgentGenerator extends BaseGenerator {
 	@Override
 	public void initMapping() {
 		try {
-			System.out.println("initMapping of AgentGenerator");
+			//System.out.println("initMapping of AgentGenerator");
 			mapCol.clear();
 			mapCol.put("studyID", templates.getSTUDYID());
 			mapCol.put("studyTitle", templates.getSTUDYTITLE());
@@ -161,7 +161,7 @@ public class AgentGenerator extends BaseGenerator {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		System.out.println("ended initMapping of AgentGenerator");
+		//System.out.println("ended initMapping of AgentGenerator");
 	}
 	
 	private String getInstitutionName(Record rec) {

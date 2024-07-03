@@ -95,8 +95,9 @@ public class IngestionWorker {
         }
 
         if (chain != null) {
-            System.out.println("IngestionWorker: executing chain.generate().");
+            System.out.println("IngestionWorker: chain.generate() STARTED.");
             bSucceed = chain.generate();
+            System.out.println("IngestionWorker: chain.generate() ENDED.");
         }
 
         if (bSucceed) {
@@ -125,7 +126,11 @@ public class IngestionWorker {
             dataFile.delete();
             */
 
-            dataFile.setFileStatus(DataFile.PROCESSED);
+            if (dataFile.getFileStatus().equals(DataFile.WORKING_STD)) {
+                dataFile.setFileStatus(DataFile.PROCESSED_STD);
+            } else {
+                dataFile.setFileStatus(DataFile.PROCESSED);
+            }
             dataFile.setCompletionTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
             dataFile.setStudyUri(chain.getStudyUri());
             dataFile.save();
@@ -134,7 +139,13 @@ public class IngestionWorker {
             file.renameTo(new File(destFolder + "/" + dataFile.getStorageFileName()));
             file.delete();
             */
-        } 
+        }
+        
+        if (dataFile.getFileStatus().equals(DataFile.PROCESSED_STD)) {
+            System.out.println("================> REINVOKING DSG for SDD processing");
+            System.out.println("  DataFile Status: [" + dataFile.getFileStatus() + "]");
+            IngestionWorker.ingest(dataFile, file, templateFile);
+        }
     }
 
     public static GeneratorChain getGeneratorChain(DataFile dataFile, String templateFile) {
@@ -146,8 +157,13 @@ public class IngestionWorker {
         //    
         //} else 
         
-        if (fileName.startsWith("DSG-")) {
-            chain = annotateStudyFile(dataFile, templateFile);
+        if (fileName.startsWith("DSG-") && 
+            dataFile.getFileStatus().equals(DataFile.WORKING_STD)) {
+            chain = annotateSTDFile(dataFile, templateFile);
+            
+        } else if (fileName.startsWith("DSG-") && 
+            dataFile.getFileStatus().equals(DataFile.PROCESSED_STD)) {
+            chain = annotateSSDFile(dataFile, templateFile);
             
         } else if (fileName.startsWith("DPL-")) {
             chain = annotateDPLFile(dataFile);
@@ -158,9 +174,6 @@ public class IngestionWorker {
             
         } else if (fileName.startsWith("SDD-")) {
             chain = annotateSDDFile(dataFile);
-            
-        } else if (fileName.startsWith("SSD-")) {
-            chain = annotateSSDFile(dataFile);
             
         } else if (fileName.startsWith("DOI-")) {
             chain = annotateDOIFile(dataFile);
@@ -208,7 +221,7 @@ public class IngestionWorker {
      *    DSG                   *
      ****************************/    
     
-    public static GeneratorChain annotateStudyFile(DataFile dataFile, String templateFile) {
+    public static GeneratorChain annotateSTDFile(DataFile dataFile, String templateFile) {
 
         Map<String, String> mapCatalog = new HashMap<String, String>();
         for (Record record : dataFile.getRecordFile().getRecords()) {
@@ -244,13 +257,150 @@ public class IngestionWorker {
         }
 
         GeneratorChain chain = new GeneratorChain();
-        AgentGenerator agentGen = new AgentGenerator(dataFile,null,templateFile);
-        agentGen.setNamedGraphUri(dataFile.getUri());
-        chain.addGenerator(agentGen);
-        StudyGenerator studyGen = new StudyGenerator(dataFile,null,templateFile);
-        studyGen.setNamedGraphUri(dataFile.getUri());
-        chain.addGenerator(studyGen);
+        chain.setNamedGraphUri(dataFile.getUri());
+        chain.addGenerator(new AgentGenerator(dataFile,null,templateFile));
+        chain.addGenerator(new StudyGenerator(dataFile,null,templateFile));
 
+        return chain;
+    }
+
+    /****************************
+     *    SSD                   *
+     ****************************/    
+    
+     public static GeneratorChain annotateSSDFile(DataFile dataFile, String templateFile) {
+        String studyUri = dataFile.getUri().replaceAll("DF", "ST");
+        System.out.println("Processing SSD file of " + studyUri + "...");
+
+        Map<String, String> mapCatalog = new HashMap<String, String>();
+        for (Record record : dataFile.getRecordFile().getRecords()) {
+            mapCatalog.put(record.getValueByColumnIndex(0), record.getValueByColumnIndex(1));
+            System.out.println(record.getValueByColumnIndex(0) + ":" + record.getValueByColumnIndex(1));
+        }
+
+        RecordFile ssdRecordFile = null;
+
+        if (dataFile.getFilename().endsWith(".xlsx")) {
+
+            if (mapCatalog.get("hasEntityDesign") != null) {
+                System.out.print("Extracting SSD sheet from spreadsheet... ");
+                ssdRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), mapCatalog.get("hasEntityDesign"));
+                if (ssdRecordFile == null) {
+                    System.out.println("[ERROR] IngestionWorker: ssdRecordFile is NULL.");
+                    return null;
+                } else if (ssdRecordFile.getRecords() == null) {
+                    System.out.println("[ERROR] IngestionWorker: ssdRecordFile.getRecords() is NULL.");
+                    return null;
+                } else{
+                    System.out.println("ssdRecordFile has [" + ssdRecordFile.getRecords().size() + "]");
+                }
+                dataFile.setRecordFile(ssdRecordFile);
+                System.out.print("Done extracting SSD sheet. ");
+            } else {
+                System.out.println("[ERROR] IngestionWorker: could not find any sheet inside of DSG called [hasEntityDesign].");
+                return null;
+            }
+        } else {
+            System.out.println("[ERROR] IngestionWorker: DSG file needs to have suffix [.xlsx].");
+            return null;
+        }
+
+        SSDSheet ssd = new SSDSheet(dataFile);
+        //Map<String, String> mapCatalog = ssd.getCatalog();
+        mapCatalog = ssd.getCatalog();
+        Map<String, List<String>> mapContent = ssd.getMapContent();
+        
+        //RecordFile SSDsheet = new SpreadsheetRecordFile(dataFile.getFile(), "SSD");
+        //dataFile.setRecordFile(SSDsheet);
+
+        SSDGeneratorChain chain = new SSDGeneratorChain();
+        chain.setNamedGraphUri(dataFile.getUri());
+
+        Study study = null;
+
+        //if (SSDsheet.isValid()) {
+        if (ssdRecordFile.isValid()) {
+
+            System.out.println("SSD Processing: adding VirtualColumnGenerator");
+            VirtualColumnGenerator vcgen = new VirtualColumnGenerator(dataFile);
+            vcgen.setStudyUri(studyUri);
+            chain.addGenerator(vcgen);
+            //System.out.println("added VirtualColumnGenerator for " + dataFile.getAbsolutePath());
+            
+            System.out.println("SSD Processing: adding SSDGenerator");
+            SSDGenerator socgen = new SSDGenerator(dataFile);
+            socgen.setStudyUri(studyUri);
+            chain.addGenerator(socgen);
+            //System.out.println("added SSDGenerator for " + dataFile.getAbsolutePath());
+
+            //String studyUri = socgen.getStudyUri();
+            if (studyUri == null || studyUri.isEmpty()) {
+                return null;
+            } else {
+                chain.setStudyUri(studyUri);
+                study = Study.find(studyUri);
+                if (study != null) {
+                    System.out.println("SSD Processing: Found study [" + study.getUri() + "]");
+                    dataFile.getLogger().println("SSD ingestion: The study uri :" + studyUri + " is in the TripleStore.");
+                    socgen.setStudyUri(studyUri);
+                } else {
+                    dataFile.getLogger().printExceptionByIdWithArgs("SSD_00005", studyUri);
+                    return null;
+                }
+            }
+
+            System.out.println("SSD Processing: SubjectGroup verification.");
+            // check the rule for hasco:SubjectGroup, there should be one and only such type
+            int subjectGroupCount = 0;
+            for (Record record : dataFile.getRecordFile().getRecords()) {
+                //String socName = record.getValueByColumnIndex(1);
+                String socType = record.getValueByColumnIndex(2);
+                if (socType.contains("SubjectGroup")) {
+                    subjectGroupCount++;
+                }
+            }
+
+            if ( subjectGroupCount == 0 ) {
+                System.out.println("[ERROR] SSD Processing: NO SubjectGroup.");
+                dataFile.getLogger().printExceptionById("SSD_00006");
+                return null;
+            }
+            if ( subjectGroupCount > 1 ) {
+                System.out.println("SSD Processing: More than one SubjectGroup.");
+                dataFile.getLogger().printExceptionById("SSD_00007");
+                return null;
+            }
+
+            chain.setNamedGraphUri(dataFile.getUri());
+            chain.setDataFile(dataFile);
+
+        } else {
+            //chain.setInvalid();
+            dataFile.getLogger().printException("Cannot locate SSD's sheet ");
+        }
+
+        System.out.println("IngestionWorker: pre-processing StudyObjectGenerator. Study Id is  " + study.getId());
+        String study_uri = chain.getStudyUri();
+        for (String i : mapCatalog.keySet()) {
+            if (mapCatalog.get(i) != null && !mapCatalog.get(i).isEmpty()) {
+                try {
+                    System.out.println("Pre-processing SOC [" + mapCatalog.get(i) + "]");
+                    RecordFile SOsheet = new SpreadsheetRecordFile(dataFile.getFile(), mapCatalog.get(i).replace("#", ""));
+                    DataFile dataFileForSheet = (DataFile)dataFile.clone();
+                    dataFileForSheet.setRecordFile(SOsheet);
+                    if (mapContent == null || mapContent.get(i) == null) {
+                        dataFile.getLogger().printException("No value for MapContent with index [" + i + "]");
+                    } else {
+                        System.out.println("SSD Processing: adding StudyObjectGenerator");
+                        chain.addGenerator(new StudyObjectGenerator(dataFileForSheet, mapContent.get(i), mapContent, study_uri, study.getId()));
+                    }
+                } catch (CloneNotSupportedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        System.out.println("SSD Processing: Completed GeneratorChain()");
         return chain;
     }
 
@@ -585,98 +735,6 @@ public class IngestionWorker {
         generalGenerator.addRow(row);
         chain.addGenerator(generalGenerator);
         chain.setNamedGraphUri(URIUtils.replacePrefixEx(sddUri));
-
-        return chain;
-    }
-
-    /****************************
-     *    SSD                   *
-     ****************************/    
-    
-    public static GeneratorChain annotateSSDFile(DataFile dataFile) {
-        String studyId = dataFile.getBaseName().replaceAll("SSD-", "");
-        System.out.println("Processing SSD file of " + studyId + "...");
-
-        SSDSheet ssd = new SSDSheet(dataFile);
-        Map<String, String> mapCatalog = ssd.getCatalog();
-        Map<String, List<String>> mapContent = ssd.getMapContent();
-        
-        RecordFile SSDsheet = new SpreadsheetRecordFile(dataFile.getFile(), "SSD");
-        dataFile.setRecordFile(SSDsheet);
-
-        SSDGeneratorChain chain = new SSDGeneratorChain();
-
-        Study study = null;
-
-        if (SSDsheet.isValid()) {
-
-            VirtualColumnGenerator vcgen = new VirtualColumnGenerator(dataFile);
-            chain.addGenerator(vcgen);
-            //System.out.println("added VirtualColumnGenerator for " + dataFile.getAbsolutePath());
-            
-            SSDGenerator socgen = new SSDGenerator(dataFile);
-            chain.addGenerator(socgen);
-            //System.out.println("added SSDGenerator for " + dataFile.getAbsolutePath());
-
-            String studyUri = socgen.getStudyUri();
-            if (studyUri == null || studyUri.isEmpty()) {
-                return null;
-            } else {
-                chain.setStudyUri(studyUri);
-                study = Study.find(studyUri);
-                if (study != null) {
-                    dataFile.getLogger().println("SSD ingestion: The study uri :" + studyUri + " is in the TS.");
-                    socgen.setStudyUri(studyUri);
-                } else {
-                    dataFile.getLogger().printExceptionByIdWithArgs("SSD_00005", studyUri);
-                    return null;
-                }
-            }
-
-            // check the rule for hasco:SubjectGroup, there should be one and only such type
-            int subjectGroupCount = 0;
-            for ( Map.Entry<String, List<String>> entry : mapContent.entrySet() ) {
-                List<String> items = entry.getValue();
-                for ( String item : items ) {
-                    if (item.contains("SubjectGroup")) subjectGroupCount++;
-                }
-            }
-            if ( subjectGroupCount == 0 ) {
-                dataFile.getLogger().printExceptionById("SSD_00006");
-                return null;
-            }
-            if ( subjectGroupCount > 1 ) {
-                dataFile.getLogger().printExceptionById("SSD_00007");
-                return null;
-            }
-
-            chain.setNamedGraphUri(studyUri.replaceAll("STD","SSD"));
-            chain.setDataFile(dataFile);
-
-        } else {
-            //chain.setInvalid();
-            dataFile.getLogger().printException("Cannot locate SSD's sheet ");
-        }
-
-        //System.out.println("AnnotationWork: pre-processing StudyObjectGenerator. Study Id is  " + study.getId());
-        
-        String study_uri = chain.getStudyUri();
-        for (String i : mapCatalog.keySet()) {
-            if (mapCatalog.get(i) != null && mapCatalog.get(i).length() > 0) {
-                try {
-                    RecordFile SOsheet = new SpreadsheetRecordFile(dataFile.getFile(), mapCatalog.get(i).replace("#", ""));
-                    DataFile dataFileForSheet = (DataFile)dataFile.clone();
-                    dataFileForSheet.setRecordFile(SOsheet);
-                    if (mapContent == null || mapContent.get(i) == null) {
-                        dataFile.getLogger().printException("No value for MapContent with index [" + i + "]");
-                    } else {
-                    	chain.addGenerator(new StudyObjectGenerator(dataFileForSheet, mapContent.get(i), mapContent, study_uri, study.getId()));
-                    }
-                } catch (CloneNotSupportedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
 
         return chain;
     }

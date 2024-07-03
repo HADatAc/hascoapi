@@ -262,7 +262,7 @@ public class HAScOMapper {
         } else {
             filterProvider.addFilter("dsgFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "hasDataFile", "dataFile"));
+                            "hascoTypeLabel", "comment", "hasDataFileUri", "hasDataFile"));
         }
 
         // STUDY
@@ -280,7 +280,7 @@ public class HAScOMapper {
         } else {
             filterProvider.addFilter("studyObjectCollectionFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "isMemberOf"));
+                            "hascoTypeLabel", "comment", "isMemberOfUri"));
         }
 
         // STUDY OBJECT
@@ -307,7 +307,7 @@ public class HAScOMapper {
         } else {
             filterProvider.addFilter("virtualColumnFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "study", "isMemberOf"));
+                            "hascoTypeLabel", "comment", "socreference", "groundingLabel", "isMemberOf", "isMemberOfUri"));
         }
 
         // PLACE

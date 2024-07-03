@@ -177,11 +177,11 @@ public class IngestKGR {
             personOkay = false;
         }
 
-        System.out.println("IngestSDD.buildChain(): Build chain 6 of 10 - Creating empty generator chain");
+        System.out.println("IngestKGR.buildChain(): Build chain 6 of 10 - Creating empty generator chain");
 
         GeneratorChain chain = new GeneratorChain();
         
-        System.out.println("IngestSDD.buildChain(): Build chain 7 of 10 - Adding PostalAddressGenerator into generation chain");
+        System.out.println("IngestKGR.buildChain(): Build chain 7 of 10 - Adding PostalAddressGenerator into generation chain");
 
         if (postalAddressOkay && postalAddressRecordFile != null && postalAddressRecordFile.isValid()) {
             DataFile postalAddressFile;

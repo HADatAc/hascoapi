@@ -8,7 +8,9 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import org.hascoapi.Constants;
 import org.hascoapi.entity.pojo.Organization;
 import org.hascoapi.entity.pojo.Study;
+import org.hascoapi.entity.pojo.StudyObject;
 import org.hascoapi.entity.pojo.StudyObjectCollection;
+import org.hascoapi.entity.pojo.VirtualColumn;
 import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.HAScOMapper;
 import org.hascoapi.vocabularies.HASCO;
@@ -45,6 +47,29 @@ public class StudyAPI extends Controller {
         return ok(ApiUtil.createResponse("Query method findTotalStudyObjectCollections() failed to retrieve total number of element", false));   
     }
 
+    public Result findVCs(String studyuri) {
+        List<VirtualColumn> results = VirtualColumn.findVCsByStudy(studyuri);
+        return VirtualColumnAPI.getVirtualColumns(results);
+       
+    }
 
+    public Result findTotalVCs(String studyuri) {
+        int totalElements = VirtualColumn.findTotalVCsByStudy(studyuri);
+        if (totalElements >= 0) {
+            String totalElementsJSON = "{\"total\":" + totalElements + "}";
+            return ok(ApiUtil.createResponse(totalElementsJSON, true));
+        }     
+        return ok(ApiUtil.createResponse("Query method findTotalVCss() failed to retrieve total number of element", false));   
+    }
 
+    public Result findTotalSOs(String studyuri) {
+        int totalElements = StudyObject.getNumberStudyObjectsByStudy(studyuri);
+        if (totalElements >= 0) {
+            String totalElementsJSON = "{\"total\":" + totalElements + "}";
+            return ok(ApiUtil.createResponse(totalElementsJSON, true));
+        }     
+        return ok(ApiUtil.createResponse("Query method findTotalSOs() failed to retrieve total number of element", false));   
+    }
+    
+    
 }

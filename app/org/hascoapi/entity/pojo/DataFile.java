@@ -44,7 +44,9 @@ public class DataFile extends HADatAcThing implements Cloneable {
     // Process status for auto-annotator
     public static final String UNPROCESSED = "UNPROCESSED";
     public static final String PROCESSED = "PROCESSED";
+    public static final String PROCESSED_STD = "PROCESSED_STD";
     public static final String WORKING = "WORKING";
+    public static final String WORKING_STD = "WORKING_STD";
 
     // Process status for downloader
     public static final String CREATING = "CREATING";

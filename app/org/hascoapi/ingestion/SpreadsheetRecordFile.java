@@ -53,9 +53,9 @@ public class SpreadsheetRecordFile implements RecordFile {
             sb.deleteCharAt(0);
             sheetName = sb.toString();
         }
-        System.out.println("SpreadsheetRecordFile: file's filename is [" + file.getName() + "]");
-        System.out.println("SpreadsheetRecordFile: RecordFile's filename is [" + fileName + "]");
-        System.out.println("SpreadsheetRecordFile: RecordFile's sheetname is [" + sheetName + "]");
+        //System.out.println("SpreadsheetRecordFile: file's filename is [" + file.getName() + "]");
+        //System.out.println("SpreadsheetRecordFile: RecordFile's filename is [" + fileName + "]");
+        //System.out.println("SpreadsheetRecordFile: RecordFile's sheetname is [" + sheetName + "]");
 
         if (file == null || file.getName() == null || file.getName().isEmpty()) {
             System.out.println("[ERROR] SpreadsheetRecordFile.init() failed: file is null of file.getName() is null.");
@@ -183,8 +183,8 @@ public class SpreadsheetRecordFile implements RecordFile {
 
     @Override
     public boolean isValid() {
-        System.out.println("(SpreadsheetRecordFile) Init with following filename: [" + fileName + "]");
-        System.out.println("(SpreadsheetRecordFile) Init with following sheetname: [" + sheetName + "]");
+        //System.out.println("(SpreadsheetRecordFile) Init with following filename: [" + fileName + "]");
+        //System.out.println("(SpreadsheetRecordFile) Init with following sheetname: [" + sheetName + "]");
                     
         Workbook workbook = null;
         try {
@@ -206,7 +206,7 @@ public class SpreadsheetRecordFile implements RecordFile {
             try {
                 sheet = workbook.getSheetAt(0);
             } catch (IllegalArgumentException e) {
-                System.out.println("Error in SpreadsheetRecordFile.isValid(): sheet with index 0 does NOT exist!");
+                System.out.println("[ERROR] SpreadsheetRecordFile.isValid(): sheet with index 0 does NOT exist!");
             }
         } else {
             sheet = workbook.getSheet(sheetName);

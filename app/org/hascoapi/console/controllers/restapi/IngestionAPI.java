@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -104,10 +105,10 @@ public class IngestionAPI extends Controller {
             if (dsg == null) {
                 return ok(ApiUtil.createResponse("IngestionAPI.ingest(): File FAILED to be ingested: could not retrieve " + elementType + ". ",false));
             }
-            DataFile dataFile = DataFile.find(dsg.getHasDataFile());
+            DataFile dataFile = DataFile.find(dsg.getHasDataFileUri());
             if (dataFile != null) {
                 dataFile.setLastProcessTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
-                dataFile.setFileStatus(DataFile.WORKING);
+                dataFile.setFileStatus(DataFile.WORKING_STD);
                 dataFile.getLogger().resetLog();
                 dataFile.save();
                 System.out.println("IngestionAPI.ingest(): API has read DataFile from triplestore");
@@ -184,8 +185,14 @@ public class IngestionAPI extends Controller {
             // Ensure the temporary file is deleted on exit
             tempFile.deleteOnExit();
 
+            // Define options for file copy (to overwrite if exists)
+            CopyOption[] options = new CopyOption[]{
+                StandardCopyOption.REPLACE_EXISTING, // Option to replace the existing file
+                StandardCopyOption.COPY_ATTRIBUTES // Option to copy file attributes
+            };            
+        
             // Copy the file to the permanent location
-            Files.copy(tempFile.toPath(), permanentPath);
+            Files.copy(tempFile.toPath(), permanentPath, options);
 
             System.out.println("Temporary file has been successfully saved as " + pathString);
 
@@ -246,6 +253,8 @@ public class IngestionAPI extends Controller {
 
         String mtType = null;
         GenericInstance mtRaw = GenericInstance.find(metadataTemplateUri);
+        System.out.println("metadataTemplate URI: [" + metadataTemplateUri + "]");
+        System.out.println("metadataTemplate hasco type: [" + mtRaw.getHascoTypeUri() + "]");
         if (mtRaw == null) {
             String errorMsg = "[ERROR] IngestionAPI.uningestMetadataTemplate() unable to retrieve document with metadataTemplateUri = " + metadataTemplateUri;
             System.out.println(errorMsg);
@@ -259,7 +268,7 @@ public class IngestionAPI extends Controller {
                 System.out.println("IngestionAPI.uningestMetadataTemplate() read SDD");
             } else if (mtRaw.getHascoTypeUri().equals(HASCO.DSG)) {
                 mtType = HASCO.DSG;
-                System.out.println("IngestionAPI.uningestMetadataTemplate() read SDD");
+                System.out.println("IngestionAPI.uningestMetadataTemplate() read DSG");
             }
         }
 
@@ -295,9 +304,38 @@ public class IngestionAPI extends Controller {
             String msg = "IngestionAPI.uningestMetadataTemplate(): successfully ingested metadataTemplateUri " + metadataTemplateUri;
             System.out.println(msg);
             return ok(ApiUtil.createResponse(msg,true));
+
+        } else if (mtType.equals(HASCO.DSG)) {
+
+            DSG dsg = DSG.find(metadataTemplateUri);
+            if (dsg == null) {
+                String errorMsg = "[ERROR] IngestionAPI.uningestMetadataTemplate() unable to retrieve DSG with metadataTemplateUri = " + metadataTemplateUri;
+                System.out.println(errorMsg);
+                return ok(ApiUtil.createResponse(errorMsg,false));
+            }
+            DataFile dataFile = DataFile.find(dsg.getHasDataFileUri());
+            if (dataFile == null) {
+                String errorMsg = "[ERROR] IngestionAPI.uningestMetadataTemplate() unable to retrieve DSG's dataFile = " + dsg.getHasDataFileUri();
+                System.out.println(errorMsg);
+                return ok(ApiUtil.createResponse(errorMsg,false));
+            }
+
+            System.out.println("IngestionAPI.ingest(): API has able to retrieve DSG from triplestore");
+
+            // Delete API copy of metadata template
+            boolean deletedFile = IngestionAPI.deletePermanentFile(dataFile.getFilename());
+
+            // Uningest Datafile content
+            dataFile.delete();
+
+            String msg = "IngestionAPI.uningestMetadataTemplate(): successfully ingested metadataTemplateUri " + metadataTemplateUri;
+            System.out.println(msg);
+            return ok(ApiUtil.createResponse(msg,true));
+
         }
+
         String errorMsg = "[ERROR] IngestionAPI.uningestMetadataTemplate(): metadataTemplateUri " + metadataTemplateUri + 
-            " returned no valid metadata template.";
+            " returned template that cannot be uningested.";
         System.out.println(errorMsg);
         return ok(ApiUtil.createResponse(errorMsg,false));
     
