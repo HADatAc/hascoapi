@@ -94,13 +94,40 @@ public class HAScOMapper {
                             "hascoTypeLabel", "comment", "filename", "fileStatus", "lastProcessTime", "file"));
         }
 
+        // INS
+        if (mode.equals(FULL) && typeResult.equals(HASCO.INS)) {
+            filterProvider.addFilter("insFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("insFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
+                            "hascoTypeLabel", "hasVersion", "comment", "hasDataFileUri", "hasDataFile"));
+        }
+
+        // DA
+        if (mode.equals(FULL) && typeResult.equals(HASCO.DATA_ACQUISITION)) {
+            filterProvider.addFilter("daFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("daFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
+                            "hascoTypeLabel", "hasVersion",  "isMemberOf", "hasDD", "hasSDD", "comment", "hasDataFileUri", "hasDataFile"));
+        }
+
+        // DD
+        if (mode.equals(FULL) && typeResult.equals(HASCO.DD)) {
+            filterProvider.addFilter("ddFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("ddFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
+                            "hascoTypeLabel", "hasVersion",  "comment", "hasDataFileUri", "hasDataFile"));
+        }
+
         // SDD
         if (mode.equals(FULL) && typeResult.equals(HASCO.SDD)) {
             filterProvider.addFilter("sddFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("sddFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "hasDataFile", "dataFile"));
+                            "hascoTypeLabel", "hasVersion",  "comment", "hasDataFileUri", "hasDataFile"));
         }
 
         // SDD_ATTRIBUTE

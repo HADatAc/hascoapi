@@ -174,6 +174,33 @@ public class SIRElementAPI extends Controller {
                 message = e.getMessage();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
+        } else if (clazz == INS.class) {
+            try {
+                INS object;
+                object = (INS)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == DA.class) {
+            try {
+                DA object;
+                object = (DA)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == DD.class) {
+            try {
+                DD object;
+                object = (DD)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
         } else if (clazz == SDD.class) {
             try {
                 SDD object;
@@ -423,6 +450,24 @@ public class SIRElementAPI extends Controller {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
+        } else if (clazz == INS.class) {
+            INS object = INS.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == DA.class) {
+            DA object = DA.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == DD.class) {
+            DD object = DD.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
         } else if (clazz == SDD.class) {
             SDD object = SDD.find(uri);
             if (object == null) {
@@ -600,6 +645,18 @@ public class SIRElementAPI extends Controller {
             GenericFind<Unit> query = new GenericFind<Unit>();
             List<Unit> results = query.findByKeywordWithPages(Unit.class,keyword, pageSize, offset);
             return UnitAPI.getUnits(results);
+        }  else if (elementType.equals("ins")) {
+            GenericFind<INS> query = new GenericFind<INS>();
+            List<INS> results = query.findByKeywordWithPages(INS.class,keyword, pageSize, offset);
+            return INSAPI.getINSs(results);
+        }  else if (elementType.equals("da")) {
+            GenericFind<DA> query = new GenericFind<DA>();
+            List<DA> results = query.findByKeywordWithPages(DA.class,keyword, pageSize, offset);
+            return DAAPI.getDAs(results);
+        }  else if (elementType.equals("dd")) {
+            GenericFind<DD> query = new GenericFind<DD>();
+            List<DD> results = query.findByKeywordWithPages(DD.class,keyword, pageSize, offset);
+            return DDAPI.getDDs(results);
         }  else if (elementType.equals("sdd")) {
             GenericFind<SDD> query = new GenericFind<SDD>();
             List<SDD> results = query.findByKeywordWithPages(SDD.class,keyword, pageSize, offset);
@@ -730,6 +787,18 @@ public class SIRElementAPI extends Controller {
             GenericFind<Unit> query = new GenericFind<Unit>();
             List<Unit> results = query.findByKeywordAndLanguageWithPages(Unit.class, keyword, language, pageSize, offset);
             return UnitAPI.getUnits(results);
+        }  else if (elementType.equals("ins")) {
+            GenericFind<INS> query = new GenericFind<INS>();
+            List<INS> results = query.findByKeywordAndLanguageWithPages(INS.class, keyword, language, pageSize, offset);
+            return INSAPI.getINSs(results);
+        }  else if (elementType.equals("da")) {
+            GenericFind<DA> query = new GenericFind<DA>();
+            List<DA> results = query.findByKeywordAndLanguageWithPages(DA.class, keyword, language, pageSize, offset);
+            return DAAPI.getDAs(results);
+        }  else if (elementType.equals("dd")) {
+            GenericFind<DD> query = new GenericFind<DD>();
+            List<DD> results = query.findByKeywordAndLanguageWithPages(DD.class, keyword, language, pageSize, offset);
+            return DDAPI.getDDs(results);
         }  else if (elementType.equals("sdd")) {
             GenericFind<SDD> query = new GenericFind<SDD>();
             List<SDD> results = query.findByKeywordAndLanguageWithPages(SDD.class, keyword, language, pageSize, offset);
@@ -849,6 +918,18 @@ public class SIRElementAPI extends Controller {
             GenericFind<Annotation> query = new GenericFind<Annotation>();
             List<Annotation> results = query.findByManagerEmailWithPages(Annotation.class, managerEmail, pageSize, offset);
             return AnnotationAPI.getAnnotations(results);
+        }  else if (elementType.equals("ins")) {
+            GenericFind<INS> query = new GenericFind<INS>();
+            List<INS> results = query.findByManagerEmailWithPages(INS.class, managerEmail, pageSize, offset);
+            return INSAPI.getINSs(results);
+        }  else if (elementType.equals("da")) {
+            GenericFind<DA> query = new GenericFind<DA>();
+            List<DA> results = query.findByManagerEmailWithPages(DA.class, managerEmail, pageSize, offset);
+            return DAAPI.getDAs(results);
+        }  else if (elementType.equals("dd")) {
+            GenericFind<DD> query = new GenericFind<DD>();
+            List<DD> results = query.findByManagerEmailWithPages(DD.class, managerEmail, pageSize, offset);
+            return DDAPI.getDDs(results);
         }  else if (elementType.equals("sdd")) {
             GenericFind<SDD> query = new GenericFind<SDD>();
             List<SDD> results = query.findByManagerEmailWithPages(SDD.class, managerEmail, pageSize, offset);

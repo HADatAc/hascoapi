@@ -163,6 +163,12 @@ public class URIPage extends Controller {
                 finalResult = StudyRole.find(uri);
             } else if (result.getHascoTypeUri().equals(HASCO.SEMANTIC_VARIABLE)) {
                 finalResult = SemanticVariable.find(uri);
+            } else if (result.getHascoTypeUri().equals(HASCO.INS)) {
+                finalResult = INS.find(uri);
+            } else if (result.getHascoTypeUri().equals(HASCO.DATA_ACQUISITION)) {
+                finalResult = DA.find(uri);
+            } else if (result.getHascoTypeUri().equals(HASCO.DD)) {
+                finalResult = DD.find(uri);
             } else if (result.getHascoTypeUri().equals(HASCO.SDD)) {
                 finalResult = SDD.find(uri);
             } else if (result.getHascoTypeUri().equals(HASCO.VIRTUAL_COLUMN)) {

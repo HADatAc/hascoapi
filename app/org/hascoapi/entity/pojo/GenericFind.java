@@ -67,6 +67,12 @@ public class GenericFind<T> {
             return Unit.class;
         } else if (elementType.equals("agent")) {
             return Agent.class;
+        } else if (elementType.equals("ins")) {
+            return INS.class;
+        } else if (elementType.equals("da")) {
+            return DA.class;
+        } else if (elementType.equals("dd")) {
+            return DD.class;
         } else if (elementType.equals("sdd")) {
             return SDD.class;
         } else if (elementType.equals("datafile")) {
@@ -129,6 +135,12 @@ public class GenericFind<T> {
             return URIUtils.replaceNameSpace(SIO.UNIT);
         } else if (clazz == Agent.class) {
             return URIUtils.replaceNameSpace(HASCO.AGENT);
+        } else if (clazz == INS.class) {
+            return URIUtils.replaceNameSpace(HASCO.INS);
+        } else if (clazz == DA.class) {
+            return URIUtils.replaceNameSpace(HASCO.DATA_ACQUISITION);
+        } else if (clazz == DD.class) {
+            return URIUtils.replaceNameSpace(HASCO.DD);
         } else if (clazz == SDD.class) {
             return URIUtils.replaceNameSpace(HASCO.SDD);
         } else if (clazz == DataFile.class) {
@@ -172,11 +184,13 @@ public class GenericFind<T> {
  
     public static boolean isMT (Class clazz) {
         // MT is Metadata Template
-        if (//clazz == DD.class ||
-            //clazz == SDD.class ||
+        if (//clazz == SDD.class ||
             ///clazz == DPL.class || 
             //clazz == SSD.class ||
             //clazz == STR.class ||
+            clazz == INS.class ||
+            clazz == DA.class ||
+            clazz == DD.class ||
             clazz == KGR.class ||
             clazz == DSG.class) {
             return true;
@@ -185,6 +199,8 @@ public class GenericFind<T> {
     }
 
     private static Class superClassOfMT(Class clazz) {
+        return clazz;
+        /* 
         if (clazz == DSG.class) {
             return DSG.class;
         }
@@ -192,6 +208,7 @@ public class GenericFind<T> {
             return KGR.class;
         }
         return null;
+        */
     } 
 
     private static String superclassNameWithNamespace (Class clazz) {
@@ -687,11 +704,32 @@ public class GenericFind<T> {
 		return findByQuery(clazz, queryString);
 	}
 
+	public List<T> findByManagerEmailWithPagesByStudy(Class clazz, String studyuri, String managerEmail, int pageSize, int offset) {
+        String className = classNameWithNamespace(clazz);
+		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+		queryString += " SELECT ?uri WHERE { " +
+            //" ?model rdfs:subClassOf* " + className + " . " +
+            //" ?uri a ?model ." +
+            " ?uri hasco:hascoType " + className + " . " +
+            " OPTIONAL { ?uri rdfs:label ?label . } " +
+            " ?uri vstoi:hasSIRManagerEmail ?managerEmail . ";
+        if (clazz.equals(StudyObject.class)) {
+            queryString += "   ?uri hasco:isMemberOf ?socuri . " +
+                "   ?socuri hasco:isMemberOf <" + studyuri + "> . "; 
+        } else {
+            queryString += "   ?uri hasco:isMemberOf <" + studyuri + "> . "; 
+        }
+        queryString += "   FILTER (?managerEmail = \"" + managerEmail + "\") " +
+            "}" +
+            " ORDER BY ASC(?label) " +
+            " LIMIT " + pageSize +
+            " OFFSET " + offset;
+		return findByQuery(clazz, queryString);
+	}
+
 	public List<T> findMTInstancesByManagerEmailWithPages(Class clazz, String className, String managerEmail, int pageSize, int offset) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
 		queryString += " SELECT ?uri WHERE { " +
-				//" ?model rdfs:subClassOf* " + className + " . " +
-				//" ?uri a ?model ." +
 				" ?uri hasco:hascoType " + className + " . " +
 				" OPTIONAL { ?uri rdfs:label ?label . } " +
                 " ?uri hasco:hasDataFile ?dataFile . " +   // a MT concept requires an associated DataFile
@@ -737,6 +775,22 @@ public class GenericFind<T> {
 				" ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
 				"   FILTER (?managerEmail = \"" + managerEmail + "\") " +
 				"}";
+        return findTotalByQuery(queryString);
+	}
+
+	public static int findTotalByManagerEmailByStudy(Class clazz, String studyuri, String manageremail) {
+		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+		queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
+			" ?uri hasco:hascoType " + classNameWithNamespace(clazz) + " . ";
+        if (clazz.equals(StudyObject.class)) {
+            queryString += "   ?uri hasco:isMemberOf ?socuri . " +
+                "   ?socuri hasco:isMemberOf <" + studyuri + "> . "; 
+        } else {
+            queryString += "   ?uri hasco:isMemberOf <" + studyuri + "> . "; 
+        }
+        queryString += " ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
+			"   FILTER (?managerEmail = \"" + manageremail + "\") " +
+			"}";
         return findTotalByQuery(queryString);
 	}
 
@@ -825,6 +879,12 @@ public class GenericFind<T> {
             return (T)Annotation.find(uri);
         } else if (clazz == SemanticVariable.class) {
             return (T)SemanticVariable.find(uri);
+        } else if (clazz == INS.class) {
+            return (T)INS.find(uri);
+        } else if (clazz == DA.class) {
+            return (T)DA.find(uri);
+        } else if (clazz == DD.class) {
+            return (T)DD.find(uri);
         } else if (clazz == SDD.class) {
             return (T)SDD.find(uri);
         } else if (clazz == DataFile.class) {

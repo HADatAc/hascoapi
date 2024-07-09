@@ -189,7 +189,7 @@ public class IngestKGR {
                 postalAddressFile = (DataFile)dataFile.clone();
                 postalAddressFile.setRecordFile(postalAddressRecordFile);
                 PostalAddressGenerator postalAddressGen = new PostalAddressGenerator(postalAddressFile, templateFile, kgr.getHasSIRManagerEmail());
-                postalAddressGen.setNamedGraphUri(kgr.getHasDataFile());
+                postalAddressGen.setNamedGraphUri(kgr.getHasDataFileUri());
                 chain.addGenerator(postalAddressGen);
                 System.out.println("Adding PostalAddressGenerator into generation chain...");
             } catch (CloneNotSupportedException e) {
@@ -207,7 +207,7 @@ public class IngestKGR {
                 placeFile = (DataFile)dataFile.clone();
                 placeFile.setRecordFile(placeRecordFile);
                 PlaceGenerator placeGen = new PlaceGenerator(placeFile, templateFile, kgr.getHasSIRManagerEmail());
-                placeGen.setNamedGraphUri(kgr.getHasDataFile());
+                placeGen.setNamedGraphUri(kgr.getHasDataFileUri());
                 chain.addGenerator(placeGen);
                 System.out.println("Adding PlaceGenerator into generation chain...");
             } catch (CloneNotSupportedException e) {
@@ -225,7 +225,7 @@ public class IngestKGR {
                 organizationFile = (DataFile)dataFile.clone();
                 organizationFile.setRecordFile(organizationRecordFile);
                 OrganizationGenerator orgGen = new OrganizationGenerator(organizationFile, templateFile, kgr.getHasSIRManagerEmail());
-                orgGen.setNamedGraphUri(kgr.getHasDataFile());
+                orgGen.setNamedGraphUri(kgr.getHasDataFileUri());
                 chain.addGenerator(orgGen);
                 System.out.println("Adding OrganizationGenerator into generation chain...");
             } catch (CloneNotSupportedException e) {
@@ -246,7 +246,7 @@ public class IngestKGR {
                 personFile = (DataFile)dataFile.clone();
                 personFile.setRecordFile(personRecordFile);
                 PersonGenerator perGen = new PersonGenerator(personFile, templateFile, kgr.getHasSIRManagerEmail());
-                perGen.setNamedGraphUri(kgr.getHasDataFile());
+                perGen.setNamedGraphUri(kgr.getHasDataFileUri());
                 chain.addGenerator(perGen);
                 System.out.println("Adding PersonGenerator into generation chain...");
             } catch (CloneNotSupportedException e) {

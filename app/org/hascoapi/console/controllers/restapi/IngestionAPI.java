@@ -81,7 +81,7 @@ public class IngestionAPI extends Controller {
                 return ok(ApiUtil.createResponse("File FAILED to be ingested: could not retrieve " + elementType + ". ",false));
             }
             System.out.println("IngestionAPI.ingest(): API has read draft " + elementType + " from triplestore");
-            DataFile dataFile = DataFile.find(sdd.getHasDataFile());
+            DataFile dataFile = DataFile.find(sdd.getHasDataFileUri());
             if (dataFile != null) {
                 dataFile.setLastProcessTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
                 dataFile.setFileStatus(DataFile.WORKING);
@@ -134,7 +134,7 @@ public class IngestionAPI extends Controller {
             if (kgr == null) {
                 return ok(ApiUtil.createResponse("IngestionAPI.ingest(): File FAILED to be ingested: could not retrieve " + elementType + "from the triple store. ",false));
             }
-            DataFile dataFile = DataFile.find(kgr.getHasDataFile());
+            DataFile dataFile = DataFile.find(kgr.getHasDataFileUri());
             if (dataFile != null) {
                 dataFile.setLastProcessTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
                 dataFile.setFileStatus(DataFile.WORKING);
@@ -286,7 +286,7 @@ public class IngestionAPI extends Controller {
                 System.out.println(errorMsg);
                 return ok(ApiUtil.createResponse(errorMsg,false));
             }
-            DataFile dataFile = DataFile.find(kgr.getHasDataFile());
+            DataFile dataFile = DataFile.find(kgr.getHasDataFileUri());
             if (dataFile == null) {
                 String errorMsg = "[ERROR] IngestionAPI.uningestMetadataTemplate() unable to retrieve KGR's dataFile = " + kgr.getHasDataFile();
                 System.out.println(errorMsg);

@@ -258,6 +258,7 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         return typeUri.equals(HASCO.TIME_COLLECTION);
     }
 
+    @JsonIgnore
     public List<String> getObjectUris() {
         return objectUris;
     }
@@ -274,6 +275,7 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         return "";
     }
 
+    @JsonIgnore
     public List<StudyObject> getObjects() {
         List<StudyObject> resp = new ArrayList<StudyObject>();
         if (objectUris == null || objectUris.size() <=0) {
@@ -288,6 +290,7 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         return resp;
     }
 
+    @JsonIgnore
     public Map<String, StudyObject> getObjectsMap() {
         Map<String, StudyObject> resp = new HashMap<String, StudyObject>();
         if (objectUris == null || objectUris.size() <=0) {

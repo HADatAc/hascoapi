@@ -54,11 +54,14 @@ public class Constants {
     public static final String PREFIX_ANNOTATION                 = "AN";
     public static final String PREFIX_ANNOTATION_STEM            = "AS";
     public static final String PREFIX_CODEBOOK                   = "CB";
+    public static final String PREFIX_DATA_ACQUISITION           = "DA";
     public static final String PREFIX_DATAFILE                   = "DF";
+    public static final String PREFIX_DD                         = "DD";
     public static final String PREFIX_DESIGN                     = "DG";
     public static final String PREFIX_DETECTOR_STEM              = "DS";
     public static final String PREFIX_DETECTOR                   = "DT";
     public static final String PREFIX_DSG                        = "DG";
+    public static final String PREFIX_INS                        = "IS";
     public static final String PREFIX_INSTRUMENT                 = "IN";
     public static final String PREFIX_ORGANIZATION               = "OR";
     public static final String PREFIX_PERSON                     = "PS";

@@ -27,6 +27,8 @@ GET     /hascoapi/api/:elementType/keyword/:keyword/:pageSize/:offset           
 GET     /hascoapi/api/:elementType/keyword/total/:keyword                                 org.hascoapi.console.controllers.restapi.SIRElementAPI.getTotalElementsByKeyword(elementType : String, keyword : String)
 GET     /hascoapi/api/:elementType/manageremail/:managerEmail/:pageSize/:offset           org.hascoapi.console.controllers.restapi.SIRElementAPI.getElementsByManagerEmail(elementType: String, managerEmail : String, pageSize : Integer, offset : Integer)
 GET     /hascoapi/api/:elementType/manageremail/total/:managerEmail                       org.hascoapi.console.controllers.restapi.SIRElementAPI.getTotalElementsByManagerEmail(elementType : String, managerEmail : String)
+GET     /hascoapi/api/:elementtype/manageremailbystudy/:studyuri/:manageremail/:pageSize/:offset   org.hascoapi.console.controllers.restapi.StudyAPI.getElementsByManagerEmailByStudy(studyuri : String, elementtype: String, manageremail : String, pageSize : Integer, offset : Integer)
+GET     /hascoapi/api/:elementtype/manageremailbystudy/total/:studyuri/:manageremail               org.hascoapi.console.controllers.restapi.StudyAPI.getTotalElementsByManagerEmailByStudy(studyuri : String, elementtype : String, manageremail : String)
 
 # RETRIEVAL REVERSE
 GET     /hascoapi/api/place/contains/place/:uri/:pageSize/:offset                         org.hascoapi.console.controllers.restapi.PlaceAPI.findContainsPlace(uri: String, pageSize : Integer, offset : Integer)

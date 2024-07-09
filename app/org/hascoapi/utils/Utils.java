@@ -75,8 +75,17 @@ public class Utils {
             case "semanticvariable":
                 shortPrefix = Constants.PREFIX_SEMANTIC_VARIABLE;
                 break;
+            case "da":
+                shortPrefix = Constants.PREFIX_DATA_ACQUISITION;
+                break;
+            case "dd":
+                shortPrefix = Constants.PREFIX_DD;
+                break;
             case "sdd":
                 shortPrefix = Constants.PREFIX_SDD;
+                break;
+            case "ins":
+                shortPrefix = Constants.PREFIX_INS;
                 break;
             case "datafile":
                 shortPrefix = Constants.PREFIX_DATAFILE;

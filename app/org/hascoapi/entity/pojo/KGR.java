@@ -37,17 +37,18 @@ import org.hascoapi.vocabularies.RDFS;
 import org.hascoapi.vocabularies.VSTOI;
 
 @JsonFilter("kgrFilter")
-public class KGR extends HADatAcThing {
+public class KGR extends MetadataTemplate {
 
     public String className = "hasco:KnowledgeGraph";
 
-    private Map<String, String> mapCatalog = new HashMap<String, String>();
+    //private Map<String, String> mapCatalog = new HashMap<String, String>();
     private Map<String, Map<String, String>> postalAddresses = new HashMap<String, Map<String, String>>();
     private Map<String, Map<String, String>> places = new HashMap<String, Map<String, String>>();
     private Map<String, Map<String, String>> organizations = new HashMap<String, Map<String, String>>();
     private Map<String, Map<String, String>> persons = new HashMap<String, Map<String, String>>();
-    private Templates templates = null;
+    //private Templates templates = null;
 
+    /* 
     @PropertyField(uri = "vstoi:hasStatus")
     private String hasStatus;
 
@@ -92,6 +93,7 @@ public class KGR extends HADatAcThing {
     public void setTemplates(String templateFile) {
         this.templates = new Templates(templateFile);
     }
+    */
 
     public static KGR find(String uri) {
             
@@ -130,8 +132,10 @@ public class KGR extends HADatAcThing {
                     kgr.setHascoTypeUri(str);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
                     kgr.setHasStatus(str);
+                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
+                    kgr.setHasVersion(str);
                 } else if (statement.getPredicate().getURI().equals(HASCO.HAS_DATAFILE)) {
-                    kgr.setHasDataFile(str);
+                    kgr.setHasDataFileUri(str);
                 } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
                     kgr.setComment(str);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
@@ -153,12 +157,12 @@ public class KGR extends HADatAcThing {
 
         try {
             for (Record record : file.getRecords()) {
-                if (!record.getValueByColumnName(templates.getPostalAddressStreet()).isEmpty() &&
-                    !record.getValueByColumnName(templates.getPostalAddressPostalCode()).isEmpty() ) {
-                    //System.out.println(record.getValueByColumnName(templates.getPostalAddressStreet()));    
-                    //System.out.println(record.getValueByColumnName(templates.getPostalAddressPostalCode()));    
-                    String postalAddressStreet = record.getValueByColumnName(templates.getPostalAddressStreet());
-                    String postalAddressPostalCode = record.getValueByColumnName(templates.getPostalAddressPostalCode());
+                if (!record.getValueByColumnName(this.getTemplates().getPostalAddressStreet()).isEmpty() &&
+                    !record.getValueByColumnName(this.getTemplates().getPostalAddressPostalCode()).isEmpty() ) {
+                    //System.out.println(record.getValueByColumnName(this.getTemplates().getPostalAddressStreet()));    
+                    //System.out.println(record.getValueByColumnName(this.getTemplates().getPostalAddressPostalCode()));    
+                    String postalAddressStreet = record.getValueByColumnName(this.getTemplates().getPostalAddressStreet());
+                    String postalAddressPostalCode = record.getValueByColumnName(this.getTemplates().getPostalAddressPostalCode());
                     String postalAddressKey = postalAddressStreet + "|" + postalAddressPostalCode;
                     PostalAddress postalAddressTest = PostalAddress.findByAddress(postalAddressStreet, postalAddressPostalCode);
                     if (postalAddressTest != null) {
@@ -173,7 +177,7 @@ public class KGR extends HADatAcThing {
                         } else {
                             mapPostalAddressProperties = postalAddresses.get(postalAddressKey);
                         }
-                        mapPostalAddressProperties.put(templates.getManagerEmail(), getHasSIRManagerEmail());
+                        mapPostalAddressProperties.put(this.getTemplates().getManagerEmail(), getHasSIRManagerEmail());
                     }
                 }
             }
@@ -195,8 +199,8 @@ public class KGR extends HADatAcThing {
         }
 
         for (Record record : file.getRecords()) {
-            if (!record.getValueByColumnName(templates.getPlaceName()).isEmpty()) {
-                String placeName = record.getValueByColumnName(templates.getPlaceName());
+            if (!record.getValueByColumnName(this.getTemplates().getPlaceName()).isEmpty()) {
+                String placeName = record.getValueByColumnName(this.getTemplates().getPlaceName());
                 Place placeTest = null;
                 if (placeName != null && !placeName.isEmpty()) {
                     placeTest = Place.findByName(placeName);
@@ -211,7 +215,7 @@ public class KGR extends HADatAcThing {
                     } else {
                         mapPlaceProperties = places.get(placeName);
                     }
-                    mapPlaceProperties.put(templates.getManagerEmail(), getHasSIRManagerEmail());
+                    mapPlaceProperties.put(this.getTemplates().getManagerEmail(), getHasSIRManagerEmail());
                 }
             }
         }
@@ -230,11 +234,11 @@ public class KGR extends HADatAcThing {
         }
 
         for (Record record : file.getRecords()) {
-            if (!record.getValueByColumnName(templates.getAgentOriginalID()).isEmpty()) {
-                String orgID = record.getValueByColumnName(templates.getAgentOriginalID());
+            if (!record.getValueByColumnName(this.getTemplates().getAgentOriginalID()).isEmpty()) {
+                String orgID = record.getValueByColumnName(this.getTemplates().getAgentOriginalID());
                 String email = "";
-                if (!record.getValueByColumnName(templates.getAgentEmail()).isEmpty()) {
-                    email = record.getValueByColumnName(templates.getAgentEmail());
+                if (!record.getValueByColumnName(this.getTemplates().getAgentEmail()).isEmpty()) {
+                    email = record.getValueByColumnName(this.getTemplates().getAgentEmail());
                 }
                 Organization organizationTest = null;
                 if (email != null && !email.isEmpty()) {
@@ -250,13 +254,13 @@ public class KGR extends HADatAcThing {
                     } else {
                         mapOrgProperties = organizations.get(orgID);
                     }
-                    mapOrgProperties.put(templates.getAgentEmail(), email);
+                    mapOrgProperties.put(this.getTemplates().getAgentEmail(), email);
                     String name = "";
-                    if (!record.getValueByColumnName(templates.getAgentName()).isEmpty()) {
-                        name = record.getValueByColumnName(templates.getAgentName());
+                    if (!record.getValueByColumnName(this.getTemplates().getAgentName()).isEmpty()) {
+                        name = record.getValueByColumnName(this.getTemplates().getAgentName());
                     }
-                    mapOrgProperties.put(templates.getAgentName(), name);
-                    mapOrgProperties.put(templates.getManagerEmail(), getHasSIRManagerEmail());
+                    mapOrgProperties.put(this.getTemplates().getAgentName(), name);
+                    mapOrgProperties.put(this.getTemplates().getManagerEmail(), getHasSIRManagerEmail());
                 }
             }
         }
@@ -275,11 +279,11 @@ public class KGR extends HADatAcThing {
         }
 
         for (Record record : file.getRecords()) {
-            if (!record.getValueByColumnName(templates.getAgentOriginalID()).isEmpty()) {
-                String personID = record.getValueByColumnName(templates.getAgentOriginalID());
+            if (!record.getValueByColumnName(this.getTemplates().getAgentOriginalID()).isEmpty()) {
+                String personID = record.getValueByColumnName(this.getTemplates().getAgentOriginalID());
                 String email = "";
-                if (!record.getValueByColumnName(templates.getAgentEmail()).isEmpty()) {
-                    email = record.getValueByColumnName(templates.getAgentEmail());
+                if (!record.getValueByColumnName(this.getTemplates().getAgentEmail()).isEmpty()) {
+                    email = record.getValueByColumnName(this.getTemplates().getAgentEmail());
                 }
                 Person personTest = null;
                 if (email != null && !email.isEmpty()) {
@@ -296,30 +300,30 @@ public class KGR extends HADatAcThing {
                     } else {
                         mapPersonProperties = persons.get(personID);
                     }
-                    mapPersonProperties.put(templates.getAgentEmail(), email);
+                    mapPersonProperties.put(this.getTemplates().getAgentEmail(), email);
                     String givenName = "";
-                    if (!record.getValueByColumnName(templates.getAgentGivenName()).isEmpty()) {
-                        givenName = record.getValueByColumnName(templates.getAgentGivenName());
+                    if (!record.getValueByColumnName(this.getTemplates().getAgentGivenName()).isEmpty()) {
+                        givenName = record.getValueByColumnName(this.getTemplates().getAgentGivenName());
                     }
-                    mapPersonProperties.put(templates.getAgentGivenName(), givenName);
+                    mapPersonProperties.put(this.getTemplates().getAgentGivenName(), givenName);
                     String familyName = "";
-                    if (!record.getValueByColumnName(templates.getAgentFamilyName()).isEmpty()) {
-                        familyName = record.getValueByColumnName(templates.getAgentFamilyName());
+                    if (!record.getValueByColumnName(this.getTemplates().getAgentFamilyName()).isEmpty()) {
+                        familyName = record.getValueByColumnName(this.getTemplates().getAgentFamilyName());
                     }
-                    mapPersonProperties.put(templates.getAgentFamilyName(), familyName);
+                    mapPersonProperties.put(this.getTemplates().getAgentFamilyName(), familyName);
                     String hasAffiliationUri = "";
-                    if (!record.getValueByColumnName(templates.getAgentHasAffiliationUri()).isEmpty()) {
-                        hasAffiliationUri = record.getValueByColumnName(templates.getAgentHasAffiliationUri());
+                    if (!record.getValueByColumnName(this.getTemplates().getAgentHasAffiliationUri()).isEmpty()) {
+                        hasAffiliationUri = record.getValueByColumnName(this.getTemplates().getAgentHasAffiliationUri());
                     }
                     if (hasAffiliationUri != null && !hasAffiliationUri.isEmpty()) {
                         Organization affiliation = Organization.findByName(hasAffiliationUri);
                         if (affiliation != null && affiliation.getUri() != null && !affiliation.getUri().isEmpty()) {
-                            mapPersonProperties.put(templates.getAgentHasAffiliationUri(), affiliation.getUri());
+                            mapPersonProperties.put(this.getTemplates().getAgentHasAffiliationUri(), affiliation.getUri());
                         } else {
                             System.out.println("[WARNING] KGR.java: Not found isMemberOf [" + hasAffiliationUri + "] for PersonID [" + personID + "]");
                         }
                     }
-                    mapPersonProperties.put(templates.getManagerEmail(), getHasSIRManagerEmail());
+                    mapPersonProperties.put(this.getTemplates().getManagerEmail(), getHasSIRManagerEmail());
                 }
             }
         }
@@ -329,16 +333,6 @@ public class KGR extends HADatAcThing {
         } else {
             return true;
         }
-    }
-
-    @Override
-    public void save() {
-        saveToTripleStore();
-    }
-
-    @Override
-    public void delete() {
-        deleteFromTripleStore();
     }
 
 }

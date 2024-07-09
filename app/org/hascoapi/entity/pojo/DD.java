@@ -18,20 +18,20 @@ import org.hascoapi.vocabularies.RDF;
 import org.hascoapi.vocabularies.RDFS;
 import org.hascoapi.vocabularies.VSTOI;
 
-@JsonFilter("dsgFilter")
-public class DSG extends MetadataTemplate {
+@JsonFilter("ddFilter")
+public class DD extends MetadataTemplate {
 
-    public String className = "hasco:DSG";
+    public String className = "hasco:DD";
 
-    public static DSG find(String uri) {
+    public static DD find(String uri) {
             
         if (uri == null || uri.isEmpty()) {
-            System.out.println("[ERROR] No valid URI provided to retrieve DSG object: " + uri);
+            System.out.println("[ERROR] No valid URI provided to retrieve DD object: " + uri);
             return null;
         }
 
         //System.out.println("DSG.java : in find(): uri = [" + uri + "]");
-        DSG dsg = null;
+        DD dd = null;
         Statement statement;
         RDFNode object;
         
@@ -44,7 +44,7 @@ public class DSG extends MetadataTemplate {
         if (!stmtIterator.hasNext()) {
             return null;
         } else {
-            dsg = new DSG();
+            dd = new DD();
         }
         
         while (stmtIterator.hasNext()) {
@@ -53,28 +53,28 @@ public class DSG extends MetadataTemplate {
             String str = URIUtils.objectRDFToString(object);
             if (uri != null && !uri.isEmpty()) {
                 if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-                    dsg.setLabel(str);
+                    dd.setLabel(str);
                 } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
-                    dsg.setTypeUri(str); 
+                    dd.setTypeUri(str); 
                 } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
-                    dsg.setHascoTypeUri(str);
+                    dd.setHascoTypeUri(str);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
-                    dsg.setHasStatus(str);
+                    dd.setHasStatus(str);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
-                    dsg.setHasVersion(str);
+                    dd.setHasVersion(str);
                 } else if (statement.getPredicate().getURI().equals(HASCO.HAS_DATAFILE)) {
-                    dsg.setHasDataFileUri(str);
+                    dd.setHasDataFileUri(str);
                 } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
-                    dsg.setComment(str);
+                    dd.setComment(str);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
-                    dsg.setHasSIRManagerEmail(str);
+                    dd.setHasSIRManagerEmail(str);
                 }
             }
         }
 
-        dsg.setUri(uri);
+        dd.setUri(uri);
         
-        return dsg;
+        return dd;
     }
 
 }
