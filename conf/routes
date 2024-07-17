@@ -41,6 +41,8 @@ GET     /hascoapi/api/organization/suborganizations/:uri/:pageSize/:offset      
 GET     /hascoapi/api/organization/suborganizations/total/:uri                            org.hascoapi.console.controllers.restapi.OrganizationAPI.findTotalSubOrganizations(uri: String)
 GET     /hascoapi/api/organization/affiliations/:uri/:pageSize/:offset                    org.hascoapi.console.controllers.restapi.OrganizationAPI.findAffiliations(uri: String, pageSize : Integer, offset : Integer)
 GET     /hascoapi/api/organization/affiliations/total/:uri                                org.hascoapi.console.controllers.restapi.OrganizationAPI.findTotalAffiliations(uri: String)
+GET     /hascoapi/api/study/dataacquisitions/total/:uri                                   org.hascoapi.console.controllers.restapi.StudyAPI.findTotalDAs(uri: String)
+GET     /hascoapi/api/study/studyroles/total/:uri                                         org.hascoapi.console.controllers.restapi.StudyAPI.findTotalRoles(uri: String)
 GET     /hascoapi/api/study/socs/:uri/:pageSize/:offset                                   org.hascoapi.console.controllers.restapi.StudyAPI.findSOCs(uri: String, pageSize : Integer, offset : Integer)
 GET     /hascoapi/api/study/socs/total/:uri                                               org.hascoapi.console.controllers.restapi.StudyAPI.findTotalSOCs(uri: String)
 GET     /hascoapi/api/study/virtualcolumns/:uri                                           org.hascoapi.console.controllers.restapi.StudyAPI.findVCs(uri: String)

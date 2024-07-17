@@ -131,11 +131,27 @@ public class StudyAPI extends Controller {
 
     }
 
+    public Result findTotalDAs(String uri) {
+        int totalElements = Study.findTotalStudyDAs(uri);
+        if (totalElements >= 0) {
+            String totalElementsJSON = "{\"total\":" + totalElements + "}";
+            return ok(ApiUtil.createResponse(totalElementsJSON, true));
+        }     
+        return ok(ApiUtil.createResponse("Query method findTotalStudyDAs() failed to retrieve total number of element", false));   
+    }
+
+    public Result findTotalRoles(String uri) {
+        int totalElements = Study.findTotalStudyRoles(uri);
+        if (totalElements >= 0) {
+            String totalElementsJSON = "{\"total\":" + totalElements + "}";
+            return ok(ApiUtil.createResponse(totalElementsJSON, true));
+        }     
+        return ok(ApiUtil.createResponse("Query method findTotalStudyRoles() failed to retrieve total number of element", false));   
+    }
 
     public Result findSOCs(String uri, int pagesize, int offset) {
         List<StudyObjectCollection> results = Study.findStudyObjectCollections(uri, pagesize, offset);
-        return StudyObjectCollectionAPI.getStudyObjectCollections(results);
-       
+        return StudyObjectCollectionAPI.getStudyObjectCollections(results);       
     }
 
     public Result findTotalSOCs(String uri) {

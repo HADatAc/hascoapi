@@ -542,10 +542,35 @@ public class Study extends HADatAcThing {
         String query = NameSpaces.getInstance().printSparqlNameSpaceList() + 
                 " SELECT (count(?uri) as ?tot)  " +
                 " WHERE {  ?uri hasco:isMemberOf <" + uri + "> .  " +
+				"          ?uri hasco:hascoType <" + HASCO.STUDY_OBJECT_COLLECTION + "> . " +
                 " }";
         return GenericFind.findTotalByQuery(query);
     }        
-
+    
+    public static int findTotalStudyDAs(String uri) {
+        if (uri == null || uri.isEmpty()) {
+            return 0;
+        }
+        String query = NameSpaces.getInstance().printSparqlNameSpaceList() + 
+                " SELECT (count(?uri) as ?tot)  " +
+                " WHERE {  ?uri hasco:isMemberOf <" + uri + "> .  " +
+				"          ?uri hasco:hascoType <" + HASCO.DATA_ACQUISITION + "> . " +
+                " }";
+        return GenericFind.findTotalByQuery(query);
+    }        
+    
+    public static int findTotalStudyRoles(String uri) {
+        if (uri == null || uri.isEmpty()) {
+            return 0;
+        }
+        String query = NameSpaces.getInstance().printSparqlNameSpaceList() + 
+                " SELECT (count(?uri) as ?tot)  " +
+                " WHERE {  ?uri hasco:isMemberOf <" + uri + "> .  " +
+				"          ?uri hasco:hascoType <" + HASCO.STUDY_ROLE + "> . " +
+                " }";
+        return GenericFind.findTotalByQuery(query);
+    }        
+    
     private static List<String> findStudyObjectCollectionUris(String study_uri) {
         //System.out.println("findStudyObjectCollectionUris() is called");
         //System.out.println("study_uri: " + study_uri);
@@ -657,6 +682,10 @@ public class Study extends HADatAcThing {
         }
 
         return studies;
+    }
+
+    public int getTotalStudyDAs() {
+        return findTotal(HASCO.DATA_ACQUISITION);
     }
 
     public int getTotalStudyRoles() {

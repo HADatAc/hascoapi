@@ -43,9 +43,6 @@ public class HASCO {
      *    PROPERTIES
      */
 
-
-
-
     public static final String DETECTS                                = "http://hadatac.org/ont/hasco/detects";
     public static final String HAS_ACRONYM                            = "http://hadatac.org/ont/hasco/hasAcronym";
     public static final String HAS_ATTRIBUTE                          = "http://hadatac.org/ont/hasco/hasAttribute";
@@ -79,6 +76,7 @@ public class HASCO {
     public static final String HAS_IN_RELATION_TO                     = "http://hadatac.org/ont/hasco/hasInRelationTo";
     public static final String HAS_INSTITUTION                        = "http://hadatac.org/ont/hasco/hasInstitution";
     public static final String HAS_INSTRUMENT                         = "http://hadatac.org/ont/hasco/hasInstrument";
+    public static final String HAS_LAST_COUNTER                       = "http://hadatac.org/ont/hasco/hasLastCounter";
     public static final String HAS_LAST_ID                            = "http://hadatac.org/ont/hasco/hasLastId";
     public static final String HAS_LAST_PROCESS_TIME                  = "http://hadatac.org/ont/hasco/hasLastProcessTime";
     public static final String HAS_LAYOUT                             = "http://hadatac.org/ont/hasco/hasLayout";
@@ -98,6 +96,7 @@ public class HASCO {
     public static final String HAS_REFERENCE_LAYOUT                   = "http://hadatac.org/ont/hasco/hasReferenceLayout";
     public static final String HAS_RESOURCE                           = "http://hadatac.org/ont/hasco/hasResource";
     public static final String HAS_ROLE                               = "http://hadatac.org/ont/hasco/hasRole";
+    public static final String HAS_SCOPE                              = "http://hadatac.org/ont/hasco/hasScope";
     public static final String HAS_SDD                                = "http://hadatac.org/ont/hasco/hasSDD";
     public static final String HAS_SECOND_COORDINATE                  = "http://hadatac.org/ont/hasco/hasSecondCoordinate";
     public static final String HAS_SECOND_COORDINATE_UNIT             = "http://hadatac.org/ont/hasco/hasSecondCoordinateUnit";
