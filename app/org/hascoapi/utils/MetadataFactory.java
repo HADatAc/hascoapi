@@ -33,7 +33,7 @@ public class MetadataFactory {
             namedGraph = factory.createIRI(namedGraphUri);
         }
 
-        System.out.println("Number of rows: " + rows.size());
+        //System.out.println("Number of rows: " + rows.size());
         for (Map<String, Object> row : rows) {
             if (row == null || row.get("hasURI") == null) {
                 System.out.println("[ERROR] MetadataFactory.createModel() failed because the 'hasURI' row is missing");
@@ -69,7 +69,7 @@ public class MetadataFactory {
                             System.out.println("[WARNING] Triple (" + sub + "," + pred + "," + obj + ") is default named graph.");
                         } else {
                             model.add(sub, pred, obj, (Resource)namedGraph);
-                            System.out.println("Triple (" + sub + "," + pred + "," + obj + ")");
+                            //System.out.println("Triple (" + sub + "," + pred + "," + obj + ")");
                         }
                     } else {
                         if (cellValue == null) {
@@ -137,9 +137,9 @@ public class MetadataFactory {
         }
         try {
             GSPClient gspClient = new GSPClient(endpointUrl);
-            System.out.println("Calling GSPClient.");
+            //System.out.println("Calling GSPClient.");
             gspClient.postModel(model);
-            System.out.println("Completed GSPClient.");
+            //System.out.println("Completed GSPClient.");
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }

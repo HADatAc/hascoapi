@@ -30,7 +30,6 @@ import org.hascoapi.entity.pojo.DPL;
 import org.hascoapi.entity.pojo.SDD;
 import org.hascoapi.entity.pojo.SDDAttribute;
 import org.hascoapi.entity.pojo.SDDObject;
-import org.hascoapi.entity.pojo.SDD;
 import org.hascoapi.entity.pojo.SSDSheet;
 import org.hascoapi.entity.pojo.Study;
 import org.hascoapi.entity.pojo.StudyObjectCollection;
@@ -63,15 +62,10 @@ public class IngestionWorker {
 
         // file is rejected if it has an invalid extension
         RecordFile recordFile = null;
-        //File file = new File(dataFile.getAbsolutePath());
         if (fileName.endsWith(".csv")) {
             recordFile = new CSVRecordFile(file);
         } else if (fileName.endsWith(".xlsx")) {
             recordFile = new SpreadsheetRecordFile(file,dataFile.getFilename(),"InfoSheet");
-        //} else if (dataFile.isMediaFile()) {
-        //    //System.out.println("Processing Media File " + dataFile.getFileName());
-        //    processMediaFile(dataFile);
-        //    return;
         } else {
             dataFile.getLogger().printExceptionByIdWithArgs("GBL_00003", fileName);
             System.out.println("[ERROR] IngestionWorker: invalid file extension.");
@@ -107,25 +101,6 @@ public class IngestionWorker {
                 PVGenerator.generateOthers(chain.getCodebookFile(), chain.getSddName(), ConfigProp.getKbPrefix());
             }
             
-            /* 
-            //Move the file to the folder for processed files
-            String study = URIUtils.getBaseName(chain.getStudyUri());
-            String new_path = "";
-            if (study.isEmpty()) {
-                new_path = pathProc;
-            } else {
-                study = !study.contains("SSD") ? study : study.replace("SSD","STD");
-                new_path = Paths.get(pathProc, study).toString();
-            }
-
-            File destFolder = new File(new_path);
-            if (!destFolder.exists()) {
-                destFolder.mkdirs();
-            }
-
-            dataFile.delete();
-            */
-
             if (dataFile.getFileStatus().equals(DataFile.WORKING_STD)) {
                 dataFile.setFileStatus(DataFile.PROCESSED_STD);
             } else {
@@ -135,10 +110,6 @@ public class IngestionWorker {
             dataFile.setStudyUri(chain.getStudyUri());
             dataFile.save();
 
-            /* 
-            file.renameTo(new File(destFolder + "/" + dataFile.getStorageFileName()));
-            file.delete();
-            */
         }
         
         if (dataFile.getFileStatus().equals(DataFile.PROCESSED_STD)) {

@@ -727,6 +727,22 @@ public class GenericFind<T> {
 		return findByQuery(clazz, queryString);
 	}
 
+	public List<T> findByManagerEmailWithPagesBySOC(Class clazz, String studyobjectcollectionuri, String managerEmail, int pageSize, int offset) {
+        String className = classNameWithNamespace(clazz);
+		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+		queryString += " SELECT ?uri WHERE { " +
+            "  ?uri hasco:hascoType " + classNameWithNamespace(clazz) + " . " +
+            "  OPTIONAL { ?uri rdfs:label ?label . } " +
+            "  ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
+            "  ?uri hasco:isMemberOf <" + studyobjectcollectionuri + "> . " + 
+            "  FILTER (?managerEmail = \"" + managerEmail + "\") " +
+            "}" +
+            "  ORDER BY ASC(?label) " +
+            "  LIMIT " + pageSize +
+            "  OFFSET " + offset;
+		return findByQuery(clazz, queryString);
+	}
+
 	public List<T> findMTInstancesByManagerEmailWithPages(Class clazz, String className, String managerEmail, int pageSize, int offset) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
 		queryString += " SELECT ?uri WHERE { " +
@@ -789,6 +805,17 @@ public class GenericFind<T> {
             queryString += "   ?uri hasco:isMemberOf <" + studyuri + "> . "; 
         }
         queryString += " ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
+			"   FILTER (?managerEmail = \"" + manageremail + "\") " +
+			"}";
+        return findTotalByQuery(queryString);
+	}
+
+	public static int findTotalByManagerEmailBySOC(Class clazz, String studyobjectcollectionuri, String manageremail) {
+		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+		queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
+			" ?uri hasco:hascoType " + classNameWithNamespace(clazz) + " . " +
+            " ?uri hasco:isMemberOf <" + studyobjectcollectionuri + "> . " +
+            " ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
 			"   FILTER (?managerEmail = \"" + manageremail + "\") " +
 			"}";
         return findTotalByQuery(queryString);

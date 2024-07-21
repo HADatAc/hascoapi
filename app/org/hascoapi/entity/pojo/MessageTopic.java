@@ -112,7 +112,7 @@ public class MessageTopic extends HADatAcThing implements Comparable<MessageTopi
     		return;
     	} 
     	this.objUri = objUri;
-    	setSOC(obj.getIsMemberOf());
+    	setSOC(obj.getIsMemberOfUri());
     }
 
     public StudyObjectCollection getSOC() {

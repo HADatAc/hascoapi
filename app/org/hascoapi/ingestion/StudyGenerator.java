@@ -103,16 +103,28 @@ public class StudyGenerator extends BaseGenerator {
 
     @Override
     public Map<String, Object> createRow(Record rec, int rowNumber) throws Exception {
-        System.out.println("Inside of StudyGenerator.createRow()");
+        String uri = getUri();
+        String id = getId(rec);
+        String title = getTitle(rec);
+        if (uri == null || uri.isEmpty()) {
+            throw new Exception("[ERROR] StudyGenerator: No URI value has been found");
+        }
+        if (id == null || id.isEmpty()) {
+            throw new Exception("[ERROR] StudyGenerator: No ID value has been found");
+        }
+        if (title == null || title.isEmpty()) {
+            throw new Exception("[ERROR] StudyGenerator: No TITLE value has been found");
+        }
+        //System.out.println("Inside of StudyGenerator.createRow()");
         Map<String, Object> row = new HashMap<String, Object>();
         if (getUri().length() > 0) {
-            System.out.println("getUri()=[" + getUri() + "] getID()=[" + getId(rec) + "] getTitle()=[" + getTitle(rec) + "]");
-            row.put("hasco:hasId", getId(rec));
-            row.put("hasURI", getUri());
+            System.out.println("getUri()=[" + uri + "] getID()=[" + id + "] getTitle()=[" + title + "]");
+            row.put("hasco:hasId", id);
+            row.put("hasURI", uri);
             row.put("a", getType());
             row.put("hasco:hascoType", HASCO.STUDY);
             row.put("rdfs:label", getId(rec));
-            row.put("hasco:hasTitle", getTitle(rec));
+            row.put("hasco:hasTitle", title);
             row.put("skos:definition", getAims(rec));
             row.put("rdfs:comment", getSignificance(rec));
             row.put("hasco:hasDataFile", dataFile.getUri());

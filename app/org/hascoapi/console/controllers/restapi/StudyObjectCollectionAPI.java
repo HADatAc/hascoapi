@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 import org.hascoapi.Constants;
+import org.hascoapi.entity.pojo.GenericFind;
+import org.hascoapi.entity.pojo.StudyObject;
 import org.hascoapi.entity.pojo.StudyObjectCollection;
 import org.hascoapi.entity.pojo.VirtualColumn;
 import org.hascoapi.utils.ApiUtil;
@@ -27,6 +29,38 @@ public class StudyObjectCollectionAPI extends Controller {
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));
         }
+    }
+
+    /**
+     *   GET ELEMENTS BY MANAGER EMAIL AND SOC WITH PAGE
+     */
+    public Result getElementsByManagerEmailBySOC(String studyobjectcollectionuri, String elementtype, String manageremail, int pagesize, int offset) {
+        if (manageremail == null || manageremail.isEmpty()) {
+            return ok(ApiUtil.createResponse("No Manager Email has been provided", false));
+        }
+        if (elementtype.equals("studyobject")) {
+            GenericFind<StudyObject> query = new GenericFind<StudyObject>();
+            List<StudyObject> results = query.findByManagerEmailWithPagesBySOC(StudyObject.class, studyobjectcollectionuri, manageremail, pagesize, offset);
+            return StudyObjectAPI.getStudyObjects(results);
+        }  
+        return ok("[getElementsByManagerEmailByStudy] No valid element type.");
+    }
+
+    public Result getTotalElementsByManagerEmailBySOC(String studyobjectcollectionuri, String elementtype, String manageremail){
+        //System.out.println("SIRElementAPI: getTotalElementsByManagerEmailByStudy");
+        if (elementtype == null || elementtype.isEmpty()) {
+            return ok(ApiUtil.createResponse("No elementtype has been provided", false));
+        }
+        Class clazz = GenericFind.getElementClass(elementtype);
+        if (clazz == null) {        
+            return ok(ApiUtil.createResponse("[" + elementtype + "] is not a valid elementtype", false));
+        }
+        int totalElements = totalElements = GenericFind.findTotalByManagerEmailBySOC(clazz, studyobjectcollectionuri, manageremail);
+        if (totalElements >= 0) {
+            String totalElementsJSON = "{\"total\":" + totalElements + "}";
+            return ok(ApiUtil.createResponse(totalElementsJSON, true));
+        }
+        return ok(ApiUtil.createResponse("query method getTotalElementsByManagerEmailBySOC() failed to retrieve total number of element", false));
     }
 
     public Result getSOCsByStudy(String studyUri){

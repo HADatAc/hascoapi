@@ -160,6 +160,7 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         return this.getUri().compareTo(another.getUri());
     }
 
+    @JsonIgnore
     public StudyObjectCollectionType getStudyObjectCollectionType() {
         if (typeUri == null || typeUri.equals("")) {
             return null;

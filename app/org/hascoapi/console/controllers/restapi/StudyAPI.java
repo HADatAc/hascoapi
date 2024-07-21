@@ -49,7 +49,7 @@ public class StudyAPI extends Controller {
     }
 
     /**
-     *   GET ELEMENTS BY MANAGER EMAIL WITH PAGE
+     *   GET ELEMENTS BY MANAGER EMAIL AND STUDY WITH PAGE
      */
 
     public Result getElementsByManagerEmailByStudy(String studyuri, String elementtype, String manageremail, int pagesize, int offset) {
