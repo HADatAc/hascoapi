@@ -53,6 +53,7 @@ public class DDAPI extends Controller {
             //}
             ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL,HASCO.DD);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
+            //System.out.println(org.hascoapi.console.controllers.restapi.URIPage.prettyPrintJsonString(jsonObject));
             return ok(ApiUtil.createResponse(jsonObject, true));
         }
     }

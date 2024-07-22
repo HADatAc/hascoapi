@@ -133,7 +133,7 @@ public class VirtualColumn extends HADatAcThing implements Comparable<VirtualCol
         if (studyUri == null) {
             return null;
         }
-        System.out.println("findVCsByStudy: studyUri = [" + studyUri + "]");
+        //System.out.println("findVCsByStudy: studyUri = [" + studyUri + "]");
         List<VirtualColumn> vcList = new ArrayList<VirtualColumn>();
 
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + 
@@ -155,7 +155,7 @@ public class VirtualColumn extends HADatAcThing implements Comparable<VirtualCol
                 vcList.add(vc);
             }
         }
-        System.out.println("findVCsByStudy: total results is " + vcList.size());
+        //System.out.println("findVCsByStudy: total results is " + vcList.size());
         return vcList;
     }
 

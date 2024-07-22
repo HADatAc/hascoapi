@@ -218,7 +218,7 @@ public class URIPage extends Controller {
         try {
             ObjectNode obj = mapper.convertValue(result, ObjectNode.class);
             jsonObject = mapper.convertValue(obj, JsonNode.class);
-            //System.out.println(prettyPrintJsonString(jsonObject));
+            //System.out.println(org.hascoapi.console.controllers.restapiURIPage.prettyPrintJsonString(jsonObject));
         } catch (Exception e) {
             e.printStackTrace();
             return ok(ApiUtil.createResponse("Error processing the json object for URI [" + uri + "]", false));

@@ -243,7 +243,7 @@ public class IngestionAPI extends Controller {
     }
 
     public Result uningestMetadataTemplate(String metadataTemplateUri) {
-        System.out.println("IngestionAPI.uningestMetadataTemplate() with metadataTemplateUri = " + metadataTemplateUri);
+       // System.out.println("IngestionAPI.uningestMetadataTemplate() with metadataTemplateUri = " + metadataTemplateUri);
 
         if (metadataTemplateUri == null || metadataTemplateUri.isEmpty()) {
             String errorMsg = "[ERROR] IngestionAPI.uningestMetadataTemplate(): No metadataTemplateUri has been provided. ";
@@ -253,8 +253,8 @@ public class IngestionAPI extends Controller {
 
         String mtType = null;
         GenericInstance mtRaw = GenericInstance.find(metadataTemplateUri);
-        System.out.println("metadataTemplate URI: [" + metadataTemplateUri + "]");
-        System.out.println("metadataTemplate hasco type: [" + mtRaw.getHascoTypeUri() + "]");
+        //System.out.println("metadataTemplate URI: [" + metadataTemplateUri + "]");
+        //System.out.println("metadataTemplate hasco type: [" + mtRaw.getHascoTypeUri() + "]");
         if (mtRaw == null) {
             String errorMsg = "[ERROR] IngestionAPI.uningestMetadataTemplate() unable to retrieve document with metadataTemplateUri = " + metadataTemplateUri;
             System.out.println(errorMsg);

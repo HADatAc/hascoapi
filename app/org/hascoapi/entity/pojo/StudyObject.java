@@ -844,7 +844,7 @@ public class StudyObject extends HADatAcThing {
     public static int getNumberStudyObjectsByStudy(String studyuri) {
         String query = "";
         query += NameSpaces.getInstance().printSparqlNameSpaceList();
-        query += " select (count(?obj) as ?tot) where { " + 
+        query += " select (count(?uri) as ?tot) where { " + 
             //"   ?subtype rdfs:subClassOf* hasco:StudyObject .  " + 
             //"   ?uri a ?subtype .  " + 
             "   ?uri hasco:isMemberOf ?socuri . " +

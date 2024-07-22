@@ -21,7 +21,7 @@ public class SIRElementAPI extends Controller {
      */
 
     public Result createElement(String elementType, String json) {
-        System.out.println("Type: [" + elementType + "]  JSON [" + json + "]");
+        //System.out.println("Type: [" + elementType + "]  JSON [" + json + "]");
         if (json == null || json.equals("")) {
             return ok(ApiUtil.createResponse("No json content has been provided.", false));
         }
@@ -656,6 +656,7 @@ public class SIRElementAPI extends Controller {
         }  else if (elementType.equals("dd")) {
             GenericFind<DD> query = new GenericFind<DD>();
             List<DD> results = query.findByKeywordWithPages(DD.class,keyword, pageSize, offset);
+            //System.out.println("Size results: " + results.size());
             return DDAPI.getDDs(results);
         }  else if (elementType.equals("sdd")) {
             GenericFind<SDD> query = new GenericFind<SDD>();
