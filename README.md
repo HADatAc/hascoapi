@@ -12,7 +12,7 @@ It is an API for handling HASCO-based knowledge graphs. The canonical representa
 
 1. HASCOAPI's host machine requires the installation of `git` and `docker`
 2. Using `git clone`, clone HASCOAPI from github
-3. Edit `/hascoapi/conf/application.conf` and replace the variable `pac4.jwt.secret` value with another random string of around 40 characters. This is the JWT API token that needs to be shared with the SIR application (https://github.com/HADatAc/sir)
+3. Edit `/hascoapi/conf/application.conf` and replace the variable `pac4.jwt.secret` value with another random string of around 40 characters. This is the JWT API token that needs to be shared with the REP application (https://github.com/HADatAc/rep)
 4. Using `docker build .`, build HASCOAPI images
 5. Using `docker-compose up -d`, run HASCOAPI
 
