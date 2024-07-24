@@ -20,18 +20,18 @@ It is an API for handling HASCO-based knowledge graphs. The canonical representa
 
 1. log into HASCOAPI hosting machine
 2. Go to hascoapi folder: `cd /hascoapi`
-3. Bring down hascoapi containers: `docker compose down`
-4. Delete current images and old containers: `docker compose system prune -a`
+3. Bring down hascoapi containers: `docker-compose down`
+4. Delete current images and old containers: `docker-compose system prune -a`
 5. Update current code: `git pull`
-6. Restart haacoapi: `docker compose up -d`
+6. Restart hascoapi: `docker-compose up -d`
 
 ## How to erase HASCOAPI's triplestore content?
 
 1. log into HASCOAPI hosting machine
 2. Go to hascoapi folder: `cd /hascoapi`
-3. Bring down hascoapi containers: `docker compose down`
+3. Bring down hascoapi containers: `docker-compose down`
 4. Delete triplestore volume: `docker volume rm hascoapi_hascoapi-fuseki-data`
-5. Restart hascoapi: `docker compose up -d`
+5. Restart hascoapi: `docker-compose up -d`
 
 ## How to create HASCORAPI backup file?
 
@@ -39,7 +39,7 @@ In the example below, we named the backup file with the backup date. This can be
 
 1. log into HASCOAPI hosting machine
 2. Go to hascoapi folder: `cd /hascoapi`
-3. Bring down hascoapi containers: `docker compose down`
+3. Bring down hascoapi containers: `docker-compose down`
 4. Go to home folder: `cd ~`
 5. Generate the backup file: `docker run --rm --volumes-from hascoapi_fuseki -v $PWD:/bkp ubuntu bash -c "tar -zcvf /bkp/fuseki-data_17Aug2023.tar.gz"`
 6. Use sftp to copy the backup file `/bkp/fuseki-data_17Aug2023.tar.gz` out of the host machine
@@ -49,7 +49,7 @@ In the example below, we named the backup file with the backup date. This can be
 1. Use sftp to copy a backup file, e.g., `/bkp/fuseki-data_17Aug2023.tar.gz` into the HASCOAPI host machine
 2. log into HASCOAPI hosting machine
 3. Go to hascoapi folder: `cd /hascoapi`
-4. Bring down hascoapi containers: `docker compose down`
+4. Bring down hascoapi containers: `docker-compose down`
 5. Go to home folder: `cd ~`
 6. Restore the backup file: `docker run --rm --volumes-from hascoapi_fuseki -v $PWD:/bkp ubuntu bash -c "tar -zxvf /bkp/fuseki-data_17Aug2023.tar.gz"`
 
