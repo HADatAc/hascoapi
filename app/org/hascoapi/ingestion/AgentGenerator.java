@@ -506,14 +506,14 @@ public class AgentGenerator extends BaseGenerator {
 
 	@Override
     public void postprocess() throws Exception {
-		System.out.println("Values at AgentGenerator.postprocess():");
-		System.out.println("   - piUri = [" + piUri + "]");
-		System.out.println("   - piInstitutionUri = [" + piInstitutionUri + "]");
-		System.out.println("   - cpi1Uri = [" + cpi1Uri + "]");
-		System.out.println("   - cpi1InstitutionUri = [" + cpi1InstitutionUri + "]");
-		System.out.println("   - cpi2Uri = [" + cpi2Uri + "]");
-		System.out.println("   - cpi2InstitutionUri = [" + cpi2InstitutionUri + "]");
-		System.out.println("   - contactUri = [" + contactUri + "]");
+		//System.out.println("Values at AgentGenerator.postprocess():");
+		//System.out.println("   - piUri = [" + piUri + "]");
+		//System.out.println("   - piInstitutionUri = [" + piInstitutionUri + "]");
+		//System.out.println("   - cpi1Uri = [" + cpi1Uri + "]");
+		//System.out.println("   - cpi1InstitutionUri = [" + cpi1InstitutionUri + "]");
+		//System.out.println("   - cpi2Uri = [" + cpi2Uri + "]");
+		//System.out.println("   - cpi2InstitutionUri = [" + cpi2InstitutionUri + "]");
+		//System.out.println("   - contactUri = [" + contactUri + "]");
 	}
 	
 	@Override

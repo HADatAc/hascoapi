@@ -101,6 +101,14 @@ public class Templates {
         return iniConfig.getSection("STD").getString("DCAccessBool"); }
     public String getEXTSRC() { 
         return iniConfig.getSection("STD").getString("externalSource"); }
+    public String getNSNAME() { 
+        return iniConfig.getSection("STD").getString("nsName"); }
+    public String getNSABBREV() { 
+        return iniConfig.getSection("STD").getString("nsAbbrev"); }
+    public String getNSFORMAT() { 
+        return iniConfig.getSection("STD").getString("nsFormat"); } 
+    public String getNSSOURCE() { 
+        return iniConfig.getSection("STD").getString("nsSource"); }
 
     // ACQ Template
     public String getACQ_DATAACQUISITIONNAME() { 

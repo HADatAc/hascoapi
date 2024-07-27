@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.hascoapi.RepositoryInstance;
 import org.hascoapi.console.controllers.ontologies.LoadOnt;
-import org.hascoapi.entity.pojo.Instrument;
+import org.hascoapi.entity.pojo.NameSpace;
 import org.hascoapi.entity.pojo.Repository;
 import org.hascoapi.entity.pojo.Table;
 import org.hascoapi.utils.ApiUtil;
@@ -88,6 +88,18 @@ public class RepoPage extends Controller {
         RepositoryInstance.getInstance().save();
         NameSpaces.getInstance().updateLocalNamespace();
         return ok(ApiUtil.createResponse("Repository's local namespace has been UPDATED.", true));
+    }
+
+    public Result deleteSelectedNamespace(String abbreviation){
+        if (abbreviation == null || abbreviation.equals("")) {
+            return ok(ApiUtil.createResponse("No Namespace's ABBREVIATION has been provided.", false));
+        }
+        String response = NameSpace.deleteNamespace(abbreviation);
+        if (response.isEmpty()) {
+            return ok(ApiUtil.createResponse("Namespace [" + abbreviation + "] has been DELETED.", true));
+        } else {
+            return ok(ApiUtil.createResponse("Namespace [" + abbreviation + "] has NOT been DELETED. Reason: " + response, false));
+        }
     }
 
     public Result deleteNamespace(){

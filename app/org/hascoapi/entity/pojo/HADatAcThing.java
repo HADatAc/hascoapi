@@ -411,6 +411,9 @@ public abstract class HADatAcThing {
                 }
             }
         }
+
+        //System.out.println("HADatAcThing.generateDRFModel: URI=[" + objUri + "]   NamedGraph=[" + getNamedGraph() + "]");
+
         reversed_rows.add(row);
         if (getNamedGraph() == null || getNamedGraph().isEmpty()) {
             //System.out.println("Default URL: [" + RepositoryInstance.getInstance().getHasDefaultNamespaceURL() + "]");

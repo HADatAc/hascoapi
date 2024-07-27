@@ -25,6 +25,7 @@ import org.apache.jena.update.UpdateProcessor;
 import org.apache.jena.update.UpdateRequest;
 import org.hascoapi.entity.pojo.STR;
 import org.hascoapi.entity.pojo.DataFile;
+import org.hascoapi.Constants;
 import org.hascoapi.entity.pojo.DOI;
 import org.hascoapi.entity.pojo.DPL;
 import org.hascoapi.entity.pojo.SDD;
@@ -200,27 +201,31 @@ public class IngestionWorker {
             System.out.println(record.getValueByColumnIndex(0) + ":" + record.getValueByColumnIndex(1));
         }
 
-        RecordFile studyRecordFile = null;
+        RecordFile nameSpaceRecordFile = null;
 
         if (dataFile.getFilename().endsWith(".xlsx")) {
 
-            if (mapCatalog.get("hasStudyDescription") != null) {
-                System.out.print("Extracting STD sheet from spreadsheet... ");
-                studyRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), mapCatalog.get("hasStudyDescription"));
-                if (studyRecordFile == null) {
-                    System.out.println("[ERROR] StudyGenerator: studyRecordFile is NULL.");
-                    return null;
-                } else if (studyRecordFile.getRecords() == null) {
-                    System.out.println("[ERROR] StudyGenerator: studyRecordFile.getRecords() is NULL.");
-                    return null;
+            if (mapCatalog.get("hasDependencies") != null) {
+                System.out.print("Extracting NameSpace sheet from spreadsheet... ");
+                nameSpaceRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), mapCatalog.get("hasDependencies"));
+                if (nameSpaceRecordFile == null) {
+                    System.out.println("[WARNING] NameSpaceGenerator: nameSpaceRecordFile is NULL.");
+                    //return null;
+                } else if (nameSpaceRecordFile.getRecords() == null) {
+                    System.out.println("[WARNING] NameSpaceGenerator: nameSpaceRecordFile.getRecords() is NULL.");
+                    //return null;
                 } else{
-                    System.out.println("studyRecordFile has [" + studyRecordFile.getRecords().size() + "]");
+                    System.out.println("nameSpaceRecordFile has [" + nameSpaceRecordFile.getRecords().size() + "] rows");
+                    //List<String> headers = nameSpaceRecordFile.getHeaders();
+                    //for (String header : headers) {
+                    //    System.out.println("Header: [" + header + "]");
+                    //}
                 }
-                dataFile.setRecordFile(studyRecordFile);
-                System.out.print("Done extracting STD sheet. ");
+                dataFile.setRecordFile(nameSpaceRecordFile);
+                System.out.print("Done extracting NameSpace sheet. ");
             } else {
-                System.out.println("[ERROR] StudyGenerator: could not find any sheet inside of DSG called [hasStudyDescription].");
-                return null;
+                System.out.println("[WARNING] NameSpaceGenerator: could not find any sheet inside of DSG called [hasDependencies].");
+                //return null;
             }
         } else {
             System.out.println("[ERROR] StudyGenerator: DSG file needs to have suffix [.xlsx].");
@@ -229,6 +234,29 @@ public class IngestionWorker {
 
         GeneratorChain chain = new GeneratorChain();
         chain.setNamedGraphUri(dataFile.getUri());
+        chain.addGenerator(new NameSpaceGenerator(dataFile,templateFile));
+
+        RecordFile studyRecordFile = null;
+
+        if (mapCatalog.get("hasStudyDescription") != null) {
+            System.out.print("Extracting STD sheet from spreadsheet... ");
+            studyRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), mapCatalog.get("hasStudyDescription"));
+            if (studyRecordFile == null) {
+                System.out.println("[ERROR] StudyGenerator: studyRecordFile is NULL.");
+                return null;
+            } else if (studyRecordFile.getRecords() == null) {
+                System.out.println("[ERROR] StudyGenerator: studyRecordFile.getRecords() is NULL.");
+                return null;
+            } else{
+                System.out.println("studyRecordFile has [" + studyRecordFile.getRecords().size() + "] rows");
+            }
+            dataFile.setRecordFile(studyRecordFile);
+            System.out.print("Done extracting STD sheet. ");
+        } else {
+            System.out.println("[ERROR] StudyGenerator: could not find any sheet inside of DSG called [hasStudyDescription].");
+            return null;
+        }
+
         chain.addGenerator(new AgentGenerator(dataFile,null,templateFile));
         chain.addGenerator(new StudyGenerator(dataFile,null,templateFile));
 
@@ -263,7 +291,7 @@ public class IngestionWorker {
                     System.out.println("[ERROR] IngestionWorker: ssdRecordFile.getRecords() is NULL.");
                     return null;
                 } else{
-                    System.out.println("ssdRecordFile has [" + ssdRecordFile.getRecords().size() + "]");
+                    System.out.println("ssdRecordFile has [" + ssdRecordFile.getRecords().size() + "] rows");
                 }
                 dataFile.setRecordFile(ssdRecordFile);
                 System.out.print("Done extracting SSD sheet. ");
@@ -274,6 +302,13 @@ public class IngestionWorker {
         } else {
             System.out.println("[ERROR] IngestionWorker: DSG file needs to have suffix [.xlsx].");
             return null;
+        }
+
+        // THERE IS AN SSD SHEET, BUT IT IS EMPTY. STOP EXECUTION OF THE CHAIN WITH A WARNING
+        if (ssdRecordFile.getRecords().size() < 1) {
+            System.out.println("[WARNING] IngestionWorker: SSD sheet is empty.");
+            dataFile.getLogger().println("[WARNING] IngestionWorker: SSD sheet is empty.");
+            return new SSDGeneratorChain();    
         }
 
         SSDSheet ssd = new SSDSheet(dataFile);

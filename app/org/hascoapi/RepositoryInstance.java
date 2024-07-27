@@ -12,9 +12,9 @@ public class RepositoryInstance {
             if (instance == null) {
                 instance = new Repository();
                 instance.save();
-                System.out.println("Brand new repository metadata has been created.");
+                System.out.println("RepositoryInstance: Brand new repository metadata has been created.");
             } else {
-                System.out.println("Existing repository metadata has been retrieved. Namespace URL is [" + instance.getHasDefaultNamespaceURL() + "]");
+                System.out.println("RepositoryInstance: Existing repository metadata has been retrieved. Namespace URL is [" + instance.getHasDefaultNamespaceURL() + "]");
             }
         }
         return instance;

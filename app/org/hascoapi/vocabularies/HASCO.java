@@ -45,6 +45,7 @@ public class HASCO {
 
     public static final String DETECTS                                = "http://hadatac.org/ont/hasco/detects";
     public static final String HAS_ACRONYM                            = "http://hadatac.org/ont/hasco/hasAcronym";
+    public static final String HAS_ABBREVIATION                       = "http://hadatac.org/ont/hasco/hasAbbreviation";
     public static final String HAS_ATTRIBUTE                          = "http://hadatac.org/ont/hasco/hasAttribute";
     public static final String HAS_BASE_ONTOLOGY                      = "http://hadatac.org/ont/hasco/hasBaseOntology";
     public static final String HAS_BASE_URL                           = "http://hadatac.org/ont/hasco/hasBaseURL";
@@ -90,6 +91,7 @@ public class HASCO {
     public static final String HAS_MANAGER_EMAIL                      = "http://hadatac.org/ont/hasco/hasManagerEmail";
     public static final String HAS_NAMESPACE_ABBREVIATION             = "http://hadatac.org/ont/hasco/hasNamespaceAbbreviation";
     public static final String HAS_NAMESPACE_URL                      = "http://hadatac.org/ont/hasco/hasNamespaceURL";
+    public static final String HAS_NUMBER_LOADED_TRIPLES              = "http://hadatac.org/ont/hasco/hasNumberLoadedTriples";
     public static final String HAS_OBJECT_SCOPE                       = "http://hadatac.org/ont/hasco/hasObjectScope";
     public static final String HAS_OTHER_FOR                          = "http://hadatac.org/ont/hasco/otherFor";
     public static final String HAS_PI                                 = "http://hadatac.org/ont/hasco/hasPI";
@@ -98,6 +100,8 @@ public class HASCO {
     public static final String HAS_RESOURCE                           = "http://hadatac.org/ont/hasco/hasResource";
     public static final String HAS_ROLE                               = "http://hadatac.org/ont/hasco/hasRole";
     public static final String HAS_SCOPE                              = "http://hadatac.org/ont/hasco/hasScope";
+    public static final String HAS_SOURCE                             = "http://hadatac.org/ont/hasco/hasSource";
+    public static final String HAS_SOURCE_MIME                        = "http://hadatac.org/ont/hasco/hasSourceMime";
     public static final String HAS_SDD                                = "http://hadatac.org/ont/hasco/hasSDD";
     public static final String HAS_SECOND_COORDINATE                  = "http://hadatac.org/ont/hasco/hasSecondCoordinate";
     public static final String HAS_SECOND_COORDINATE_UNIT             = "http://hadatac.org/ont/hasco/hasSecondCoordinateUnit";

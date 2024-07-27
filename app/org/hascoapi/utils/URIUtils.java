@@ -46,6 +46,9 @@ public class URIUtils {
             return true;
         }
 
+        //System.out.println("[ERROR] URIUtils.isValidURI: URI=[" + str + "]");
+        //System.out.println("        URIUtils.isValidURI: replaceNameSpaceEx=[" + replaceNameSpaceEx(str) + "]");
+        //System.out.println("        URIUtils.isValidURI: replacePrefixEx=[" + replacePrefixEx(str) + "]");
         return false;
     }
 
@@ -97,7 +100,7 @@ public class URIUtils {
         String resp = str;
         for (Map.Entry<String, NameSpace> entry : NameSpaces.getInstance().getNamespaces().entrySet()) {
             String abbrev = entry.getKey().toString();
-            String nsString = entry.getValue().getName();
+            String nsString = entry.getValue().getUri();
             if (str.startsWith(nsString)) {
                 resp = str.replace(nsString, abbrev + ":");
                 return resp;
@@ -113,7 +116,7 @@ public class URIUtils {
         String resp = str;
         for (Map.Entry<String, NameSpace> entry : NameSpaces.getInstance().getNamespaces().entrySet()) {
             String abbrev = entry.getKey().toString();
-            String nsString = entry.getValue().getName();
+            String nsString = entry.getValue().getUri();
             if (str.startsWith(nsString)) {
                 resp = str.replace(nsString, abbrev + ":");
 
@@ -132,7 +135,7 @@ public class URIUtils {
         String resp = str;
         for (Map.Entry<String, NameSpace> entry : NameSpaces.getInstance().getNamespaces().entrySet()) {
             String abbrev = entry.getKey().toString();
-            String nsString = entry.getValue().getName();
+            String nsString = entry.getValue().getUri();
             if (str.startsWith(abbrev + ":")) {
                 resp = str.replace(abbrev + ":", nsString);
                 return resp;
@@ -150,7 +153,7 @@ public class URIUtils {
         String resp = str;
         for (Map.Entry<String, NameSpace> entry : NameSpaces.getInstance().getNamespaces().entrySet()) {
             String abbrev = entry.getKey().toString();
-            String nsString = entry.getValue().getName();
+            String nsString = entry.getValue().getUri();
             if (str.startsWith(abbrev + ":")) {
                 resp = str.replace(abbrev + ":", nsString);
                 return resp;
@@ -226,7 +229,7 @@ public class URIUtils {
             String resp = object;
             for (Map.Entry<String, NameSpace> entry : NameSpaces.getInstance().getNamespaces().entrySet()) {
                 String abbrev = entry.getKey().toString();
-                String nsString = entry.getValue().getName();
+                String nsString = entry.getValue().getUri();
                 if (object.startsWith(abbrev + ":")) {
                     resp = object.replace(abbrev + ":", nsString);
                     return resp;

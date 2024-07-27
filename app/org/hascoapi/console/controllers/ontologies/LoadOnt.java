@@ -26,8 +26,8 @@ public class LoadOnt extends Controller {
         } else {
             for (NameSpace ns : NameSpaces.getInstance().getNamespaces().values()) {
                 ns.deleteTriples();
-                ns.updateNumberOfLoadedTriples();
-                ns.updateFromTripleStore();
+                ns.setNumberOfLoadedTriples();
+                //ns.updateFromTripleStore();
             }
             resp = "Content of ontologies deleted from the knowledge graph";
         }
@@ -41,14 +41,14 @@ public class LoadOnt extends Controller {
             Triplestore ts = new Triplestore("user", "password", ConfigFactory.load().getString("hascoapi.repository.triplestore"), false);
             resp = ts.loadOntologies(Feedback.WEB);
             for (NameSpace ns : NameSpaces.getInstance().getNamespaces().values()) {
-                ns.updateNumberOfLoadedTriples();
-                ns.updateFromTripleStore();
+                ns.setNumberOfLoadedTriples();
+                //ns.updateFromTripleStore();
             }
         } else {
             for (NameSpace ns : NameSpaces.getInstance().getNamespaces().values()) {
                 ns.deleteTriples();
-                ns.updateNumberOfLoadedTriples();
-                ns.updateFromTripleStore();
+                ns.setNumberOfLoadedTriples();
+                //ns.updateFromTripleStore();
             }
             resp = "Content of ontologies deleted from the knowledge graph";
         }
@@ -59,12 +59,12 @@ public class LoadOnt extends Controller {
         NameSpace ns = NameSpaces.getInstance().getNamespaces().get(abbreviation);
         ns.deleteTriples();
 
-        String url = ns.getURL();
+        String url = ns.getSource();
         if (!url.isEmpty()) {
             ns.loadTriples(url, true);
         }
-        ns.updateNumberOfLoadedTriples();
-        ns.updateFromTripleStore();
+        ns.setNumberOfLoadedTriples();
+        //ns.updateFromTripleStore();
 
         return redirect(routes.Maintenance.index());
     }
@@ -72,8 +72,8 @@ public class LoadOnt extends Controller {
     public Result deleteNamedGraph(String abbreviation) {
         NameSpace ns = NameSpaces.getInstance().getNamespaces().get(abbreviation);
         ns.deleteTriples();
-        ns.updateNumberOfLoadedTriples();
-        ns.updateFromTripleStore();
+        ns.setNumberOfLoadedTriples();
+        //ns.updateFromTripleStore();
 
         return redirect(routes.Maintenance.index());
     }
@@ -81,8 +81,8 @@ public class LoadOnt extends Controller {
     public Result deleteAllNamedGraphs() {
         for (NameSpace ns : NameSpaces.getInstance().getNamespaces().values()) {
             ns.deleteTriples();
-            ns.updateNumberOfLoadedTriples();
-            ns.updateFromTripleStore();
+            ns.setNumberOfLoadedTriples();
+            //ns.updateFromTripleStore();
         }
 
         return redirect(routes.Maintenance.index());
