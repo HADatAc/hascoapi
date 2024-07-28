@@ -1,6 +1,7 @@
 package org.hascoapi.utils;
 
 import org.apache.commons.configuration2.INIConfiguration;
+import java.util.Set;
 
 public class Templates {
 
@@ -10,6 +11,13 @@ public class Templates {
     public Templates(String templateFile) {
         this.templateFile = templateFile;
         this.iniConfig = new HASCOConfig(templateFile); 
+
+        // Print all section names
+        //Set<String> sections = this.iniConfig.getSections();
+        //System.out.println("Sections:");
+        //for (String section: sections) {
+        //    System.out.println(section);
+        //}
     }
 
     // STD Template (Study)
@@ -53,12 +61,32 @@ public class Templates {
         return iniConfig.getSection("STD").getString("CPI1LName"); }
     public String getCPI1EMAIL() { 
         return iniConfig.getSection("STD").getString("CPI1Email"); }
+    public String getCPI1INSTITUTION() { 
+        return iniConfig.getSection("STD").getString("CPI1institution"); }
+    public String getCPI1ADDRESS() { 
+        return iniConfig.getSection("STD").getString("CPI1Address"); }
+    public String getCPI1CITY() { 
+        return iniConfig.getSection("STD").getString("CPI1City"); }
+    public String getCPI1STATE() { 
+        return iniConfig.getSection("STD").getString("CPI1State"); }
+    public String getCPI1ZIPCODE() { 
+        return iniConfig.getSection("STD").getString("CPI1ZipCode"); }
     public String getCPI2FNAME() { 
         return iniConfig.getSection("STD").getString("CPI2FName"); }
     public String getCPI2LNAME() { 
         return iniConfig.getSection("STD").getString("CPI2LName"); }
     public String getCPI2EMAIL() { 
         return iniConfig.getSection("STD").getString("CPI2Email"); }
+    public String getCPI2INSTITUTION() { 
+        return iniConfig.getSection("STD").getString("CPI2institution"); }
+    public String getCPI2ADDRESS() { 
+        return iniConfig.getSection("STD").getString("CPI2Address"); }
+    public String getCPI2CITY() { 
+        return iniConfig.getSection("STD").getString("CPI2City"); }
+    public String getCPI2STATE() { 
+        return iniConfig.getSection("STD").getString("CPI2State"); }
+    public String getCPI2ZIPCODE() { 
+        return iniConfig.getSection("STD").getString("CPI2ZipCode"); }
     public String getCONTACTFNAME() { 
         return iniConfig.getSection("STD").getString("contactFName"); }
     public String getCONTACTLNAME() { 
@@ -73,6 +101,14 @@ public class Templates {
         return iniConfig.getSection("STD").getString("DCAccessBool"); }
     public String getEXTSRC() { 
         return iniConfig.getSection("STD").getString("externalSource"); }
+    public String getNSNAME() { 
+        return iniConfig.getSection("STD").getString("nsName"); }
+    public String getNSABBREV() { 
+        return iniConfig.getSection("STD").getString("nsAbbrev"); }
+    public String getNSFORMAT() { 
+        return iniConfig.getSection("STD").getString("nsFormat"); } 
+    public String getNSSOURCE() { 
+        return iniConfig.getSection("STD").getString("nsSource"); }
 
     // ACQ Template
     public String getACQ_DATAACQUISITIONNAME() { 
@@ -148,4 +184,36 @@ public class Templates {
     public String getOBJECTTYPE() { return iniConfig.getSection("MAP").getString("objecttype"); }
     public String getMAPSTUDYID() { return iniConfig.getSection("MAP").getString("studyId"); }
     public String getTIMESCOPEID() { return iniConfig.getSection("MAP").getString("timeScope"); }
-}
+
+    // KGR Template
+    public String getAgentOriginalID() { return iniConfig.getSection("KGR").getString("agentOriginalID"); }
+    public String getAgentType() { return iniConfig.getSection("KGR").getString("agentType"); }
+    public String getAgentShortName() { return iniConfig.getSection("KGR").getString("agentShortName"); }
+    public String getAgentName() { return iniConfig.getSection("KGR").getString("agentName"); }
+    public String getAgentGivenName() { return iniConfig.getSection("KGR").getString("agentGivenName"); }
+    public String getAgentFamilyName() { return iniConfig.getSection("KGR").getString("agentFamilyName"); }
+    public String getAgentEmail() { return iniConfig.getSection("KGR").getString("agentEmail"); }
+    public String getAgentHasAffiliationUri() { return iniConfig.getSection("KGR").getString("agentHasAffiliationUri"); }
+    public String getManagerEmail() { return iniConfig.getSection("KGR").getString("managerEmail"); }
+    public String getAgentTelephone() { return iniConfig.getSection("KGR").getString("agentTelephone"); }
+    public String getAgentUrl() { return iniConfig.getSection("KGR").getString("agentUrl"); }
+    public String getAgentJobTitle() { return iniConfig.getSection("KGR").getString("agentJobTitle"); }
+    public String getAgentParentOrganization() { return iniConfig.getSection("KGR").getString("agentParentOrganization"); }
+    public String getAgentAddress() { return iniConfig.getSection("KGR").getString("agentAddress"); }
+    public String getPlaceOriginalID() { return iniConfig.getSection("KGR").getString("agentOriginalID"); }
+    public String getPlaceType() { return iniConfig.getSection("KGR").getString("placeType"); }
+    public String getPlaceName() { return iniConfig.getSection("KGR").getString("placeName"); }
+    public String getPlaceImage() { return iniConfig.getSection("KGR").getString("placeImage"); }
+    public String getPlaceContainedIn() { return iniConfig.getSection("KGR").getString("placeContainedIn"); }
+    public String getPlaceIdentifier() { return iniConfig.getSection("KGR").getString("placeIdentifier"); }
+    public String getPlaceGeo() { return iniConfig.getSection("KGR").getString("placeGeo"); }
+    public String getPlaceLatitude() { return iniConfig.getSection("KGR").getString("placeLatitude"); }
+    public String getPlaceLongitude() { return iniConfig.getSection("KGR").getString("placeLongitude"); }
+    public String getPlaceUrl() { return iniConfig.getSection("KGR").getString("placeUrl"); }
+    public String getPostalAddressType() { return iniConfig.getSection("KGR").getString("postalAddressType"); }
+    public String getPostalAddressStreet() { return iniConfig.getSection("KGR").getString("postalAddressStreet"); }
+    public String getPostalAddressPostalCode() { return iniConfig.getSection("KGR").getString("postalAddressPostalCode"); }
+    public String getPostalAddressCountry() { return iniConfig.getSection("KGR").getString("postalAddressCountry"); }
+    public String getPostalAddressLocality() { return iniConfig.getSection("KGR").getString("postalAddressLocality"); }
+    public String getPostalAddressRegion() { return iniConfig.getSection("KGR").getString("postalAddressRegion"); }
+}    

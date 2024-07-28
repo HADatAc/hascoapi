@@ -63,13 +63,20 @@ public class ConfigProp {
         return ConfigFactory.load("application.conf").getString("pac4j.jwt.secret");
     }
     public static String getKbPrefix() {
-        return RepositoryInstance.getInstance().getHasDefaultNamespaceAbbreviation() + "-kb:";
+        //return RepositoryInstance.getInstance().getHasDefaultNamespaceAbbreviation() + "-kb:";
+        return RepositoryInstance.getInstance().getHasDefaultNamespaceAbbreviation() + ":";
     }
 
 	public static String getTemplateFileName() {
         System.out.println("ConfigProp: getTemplateFileName()=" + ConfigFactory.load().getString("hascoapi.templates.template_filename"));
 		return ConfigFactory.load().getString("hascoapi.templates.template_filename");
 	}
+    
+	public static String getPathIngestion() {
+	    return ConfigFactory.load().getString("hascoapi.paths.ingestion");
+	}
+
+
 
     /**
     public static String getBasePrefix() {

@@ -101,9 +101,9 @@ public class SDDAPI extends Controller {
         if (results == null) {
             return ok(ApiUtil.createResponse("No SDD has been found", false));
         } else {
-            for (SDD sdd: results) {
-                System.out.println(sdd.getLabel() + "  [" + sdd.getHasDataFile() + "]");
-            }
+            //for (SDD sdd: results) {
+            //    System.out.println(sdd.getLabel() + "  [" + sdd.getHasDataFile() + "]");
+            //}
             ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL,HASCO.SDD);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));

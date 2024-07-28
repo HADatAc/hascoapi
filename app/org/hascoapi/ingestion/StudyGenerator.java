@@ -5,33 +5,34 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.hascoapi.entity.pojo.DataFile;
-import org.hascoapi.entity.pojo.Study;
 import org.hascoapi.utils.URIUtils;
-import org.hascoapi.utils.ConfigProp;
-import org.hascoapi.utils.Templates;
 import org.hascoapi.vocabularies.HASCO;
 
 public class StudyGenerator extends BaseGenerator {
 
-    final String kbPrefix = ConfigProp.getKbPrefix();
-    String fileName;
-    Study study;
+    private String fileName;
 
-    public StudyGenerator(Study study, DataFile dataFile, String templateFile) {
-        super(dataFile,null,templateFile);
-        this.fileName = dataFile.getFilename();
-        this.study = study;
+    private String piUri;
+
+    private String institutionUri;
+
+    private String cpi1Uri;
+
+    private String cpi2Uri;
+
+    private String contactUri;
+
+    public StudyGenerator(DataFile dataFile, String studyUri, String templateFile) {
+        super(dataFile, studyUri, templateFile);
+        this.fileName = dataFile.getFilename(); 
     }
 
     @Override
     public void initMapping() {
-        System.out.println("start initMapping");
-        System.out.println("STUDYID: " + templates.getSTUDYID());
+        //System.out.println("initMapping of StudyGenerator");
         try {
         mapCol.clear();
-        System.out.println("initMapping (1) ");
         mapCol.put("studyID", templates.getSTUDYID());
-        System.out.println("initMapping (2)");
         mapCol.put("studyTitle", templates.getSTUDYTITLE());
         mapCol.put("studyAims", templates.getSTUDYAIMS());
         mapCol.put("studySignificance", templates.getSTUDYSIGNIFICANCE());
@@ -43,7 +44,6 @@ public class StudyGenerator extends BaseGenerator {
         mapCol.put("PICity", templates.getPICITY());
         mapCol.put("PIState", templates.getPISTATE());
         mapCol.put("PIZipCode", templates.getPIZIPCODE());
-        System.out.println("initMapping (3)");
         mapCol.put("PIEmail", templates.getPIEMAIL());
         mapCol.put("PIPhone", templates.getPIPHONE());
         mapCol.put("CPI1FName", templates.getCPI1FNAME());
@@ -62,17 +62,15 @@ public class StudyGenerator extends BaseGenerator {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("end initMapping");
+        //System.out.println("end initMapping");
     }
 
     private String getId(Record rec) {
         return rec.getValueByColumnName(mapCol.get("studyID"));
     }
 
-    private String getUri(Record rec) {
-        //System.out.println("Study Generator: template for STUDYID: [" +  templates.getSTUDYID + "]");
-        String str = rec.getValueByColumnName(mapCol.get("studyID"));
-        return kbPrefix + "STD-" + str;
+    private String getUri() {
+        return this.getDataFile().getUri().replace("DF","ST");
     }
 
     private String getType() {
@@ -91,13 +89,13 @@ public class StudyGenerator extends BaseGenerator {
         return rec.getValueByColumnName(mapCol.get("studySignificance"));
     }
 
-    private String getInstitutionUri(Record rec) {
-        return kbPrefix + "ORG-" + rec.getValueByColumnName(mapCol.get("institution")).replaceAll(" ", "-").replaceAll(",", "").replaceAll("'", ""); 
-    }
+    //private String getInstitutionUri(Record rec) {
+    //    return kbPrefix + "/OR" + rec.getValueByColumnName(mapCol.get("institution")).replaceAll(" ", "-").replaceAll(",", "").replaceAll("'", ""); 
+    //}
 
-    private String getAgentUri(Record rec) {
-        return kbPrefix + "PER-" + rec.getValueByColumnName(mapCol.get("PI")).replaceAll(" ", "-"); 
-    }
+    //private String getAgentUri(Record rec) {
+    //    return kbPrefix + "/PS" + rec.getValueByColumnName(mapCol.get("PI")).replaceAll(" ", "-"); 
+    //}
 
     private String getExtSource(Record rec) {
         return rec.getValueByColumnName(mapCol.get("externalSource")); 
@@ -105,29 +103,43 @@ public class StudyGenerator extends BaseGenerator {
 
     @Override
     public Map<String, Object> createRow(Record rec, int rowNumber) throws Exception {
+        String uri = getUri();
+        String id = getId(rec);
+        String title = getTitle(rec);
+        if (uri == null || uri.isEmpty()) {
+            throw new Exception("[ERROR] StudyGenerator: No URI value has been found");
+        }
+        if (id == null || id.isEmpty()) {
+            throw new Exception("[ERROR] StudyGenerator: No ID value has been found");
+        }
+        if (title == null || title.isEmpty()) {
+            throw new Exception("[ERROR] StudyGenerator: No TITLE value has been found");
+        }
+        //System.out.println("Inside of StudyGenerator.createRow()");
         Map<String, Object> row = new HashMap<String, Object>();
-        if (getUri(rec).length() > 0) {
-            row.put("hasco:hasId", getId(rec));
-            row.put("hasURI", getUri(rec));
+        if (getUri().length() > 0) {
+            System.out.println("getUri()=[" + uri + "] getID()=[" + id + "] getTitle()=[" + title + "]");
+            row.put("hasco:hasId", id);
+            row.put("hasURI", uri);
             row.put("a", getType());
             row.put("hasco:hascoType", HASCO.STUDY);
-            row.put("rdfs:label", getTitle(rec));
+            row.put("rdfs:label", getId(rec));
+            row.put("hasco:hasTitle", title);
             row.put("skos:definition", getAims(rec));
             row.put("rdfs:comment", getSignificance(rec));
-            row.put("vstoi:hasSIRManagerEmail", study.getHasSIRManagerEmail());
-            if(mapCol.get("PI") != null && rec.getValueByColumnName(mapCol.get("PI")) != null && 
-                    rec.getValueByColumnName(mapCol.get("PI")).length() > 0) {
-                row.put("hasco:hasAgent", getAgentUri(rec));
+            row.put("hasco:hasDataFile", dataFile.getUri());
+            row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
+            if (piUri != null && !piUri.isEmpty()) {
+                row.put("hasco:hasPI", piUri);
             }
-            if(mapCol.get("institution") != null && rec.getValueByColumnName(mapCol.get("institution")) != null && 
-                    rec.getValueByColumnName(mapCol.get("institution")).length() > 0) {
-                row.put("hasco:hasInstitution", getInstitutionUri(rec));
+            if (institutionUri != null && !institutionUri.isEmpty()) {
+                row.put("hasco:hasInstitution", institutionUri);
             }
             if(mapCol.get("externalSource") != null && rec.getValueByColumnName(mapCol.get("externalSource")) != null && 
                     rec.getValueByColumnName(mapCol.get("externalSource")).length() > 0) {
                 row.put("hasco:hasExternalSource", getExtSource(rec));
             }
-            setStudyUri(URIUtils.replacePrefixEx(getUri(rec)));
+            setStudyUri(URIUtils.replacePrefixEx(getUri()));
         }
 
         return row;
@@ -138,6 +150,15 @@ public class StudyGenerator extends BaseGenerator {
         return "Study";
     }
 
+    @Override
+    public void preprocessuris(Map<String,String> uris) throws Exception {
+        this.piUri = uris.get("piUri");
+		this.institutionUri = uris.get("piInstitutionUri");
+		this.cpi1Uri = uris.get("cpi1Uri");
+		this.cpi2Uri = uris.get("cpi2Uri");
+		this.contactUri = uris.get("contactUri");
+	}
+	
     @Override
     public String getErrorMsg(Exception e) {
         return "Error in StudyGenerator: " + e.getMessage();

@@ -64,7 +64,7 @@
         <div style=" padding: 10px; background-color: lightgray;">
             <div class="row dash-text">
                 <div class="col-md-1 text-center">
-                    <div class="dashNumber">0</div>
+                    <div class="dashNumber">@GenericFind.getNumberElements("ins")</div>
                     <a href="" id="INS" class="btn btn-dark w-100 disabled" role="button">INS</a>
                     <br>
                 </div>
@@ -188,7 +188,7 @@
         <div style=" padding: 10px; background-color: lightgray;">
             <div class="row dash-text">
                 <div class="col-md-1 text-center">
-                    <div class="dashNumber">0</div>
+                    <div class="dashNumber">@GenericFind.getNumberElements("dd")</div>
                     <a href="" id="DD" class="btn btn-dark w-100 disabled" role="button">DD</a>
                     <br>
                 </div>
@@ -205,8 +205,8 @@
             </div>
             <div class="row dash-text">
                 <div class="col-md-1 text-center">
-                    <div class="dashNumber">0</div>
-                    <a href="" id="STD" class="btn btn-dark w-100 disabled" role="button">STD</a>
+                    <div class="dashNumber">@GenericFind.getNumberElements("dsg")</div>
+                    <a href="" id="DSG" class="btn btn-dark w-100 disabled" role="button">DSG</a>
                     <br>
                 </div>
                 <div class="col-md-1 text-center">
@@ -234,6 +234,11 @@
                     <a href="" id="object" class="btn btn-primary w-100 disabled" role="button">Study Objects</a>
                     <br>
                 </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">0</div>
+                    <a href="" id="publications" class="btn btn-primary w-100 disabled" role="button">Publications</a>
+                    <br>
+                </div>
             </div>
         </div>
         <br>
@@ -241,18 +246,25 @@
         <div style=" padding: 10px; background-color: lightgray;">
             <div class="row dash-text">
                 <div class="col-md-1 text-center">
-                    <div class="dashNumber">0</div>
+                    <div class="dashNumber">@GenericFind.getNumberElements("da")</div>
                     <a href="" id="DA" class="btn btn-dark w-100 disabled" role="button">DA</a>
-                    <br>
-                </div>
-                <div class="col-md-1 text-center">
-                    <div class="dashNumber">0</div>
-                    <a href="" id="stream" class="btn btn-primary w-100 disabled" role="button">Streams</a>
                     <br>
                 </div>
                 <div class="col-md-1 text-center">
                     <div class="dashNumber">0</div> 
                     <a href="" id="deployment" class="btn btn-primary w-100 disabled" role="button">Values</a>
+                    <br>
+                </div>
+            </div>
+            <div class="row dash-text">
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">0</div>
+                    <a href="" id="STR" class="btn btn-dark w-100 disabled" role="button">STR</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">0</div>
+                    <a href="" id="stream" class="btn btn-primary w-100 disabled" role="button">Streams</a>
                     <br>
                 </div>
             </div>
@@ -303,6 +315,23 @@
                     <a href="" id="datafiles" class="btn btn-primary w-100 disabled" role="button">Data Files</a>
                     <br>
                 </div>
+            </div>
+            <div class="row dash-text">
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@GenericFind.getNumberElements("kgr")</div>
+                    <a href="" id="KGR" class="btn btn-dark w-100 disabled" role="button">KGR</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@GenericFind.getNumberElements("place")</div>
+                    <a href="" id="places" class="btn btn-primary w-100 disabled" role="button">Places</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@GenericFind.getNumberElements("postaladdress")</div>
+                    <a href="" id="places" class="btn btn-primary w-100 disabled" role="button">PostalAddresses</a>
+                    <br>
+                </div>
                 <div class="col-md-1 text-center">
                     <div class="dashNumber">@GenericFind.getNumberElements("organization")</div>
                     <a href="" id="organizations" class="btn btn-primary w-100 disabled" role="button">Organizations</a>
@@ -315,7 +344,7 @@
                 </div>
                 <div class="col-md-1 text-center">
                     <div class="dashNumber">0</div>
-                    <a href="" id="publications" class="btn btn-primary w-100 disabled" role="button">Publications</a>
+                    <a href="" id="projects" class="btn btn-primary w-100 disabled" role="button">Projects</a>
                     <br>
                 </div>
             </div>

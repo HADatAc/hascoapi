@@ -44,7 +44,7 @@ import org.hascoapi.vocabularies.RDFS;
 import org.hascoapi.vocabularies.VSTOI;
 
 @JsonFilter("sddFilter")
-public class SDD extends HADatAcThing {
+public class SDD extends MetadataTemplate {
 
     /********************************* 
      * 
@@ -52,7 +52,7 @@ public class SDD extends HADatAcThing {
      * 
      *********************************/
 
-    private Map<String, String> mapCatalog = new HashMap<String, String>();
+    //private Map<String, String> mapCatalog = new HashMap<String, String>();
     private Map<String, String> codeMappings = new HashMap<String, String>();
     private Map<String, String> mapAttrObj = new HashMap<String, String>();
     private Map<String, Map<String, String>> codebook = new HashMap<String, Map<String, String>>();
@@ -63,19 +63,19 @@ public class SDD extends HADatAcThing {
     private Map<String, Map<String, String>> possibleValuesCache = new HashMap<String, Map<String, String>>();
     private DataFile sddfile = null;
     private IngestionLogger logger = null;
-    private Templates templates = null;
+    //private Templates templates = null;
 
-    @PropertyField(uri = "vstoi:hasStatus")    
-    private String hasStatus;
+    //@PropertyField(uri = "vstoi:hasStatus")    
+    //private String hasStatus;
 
-    @PropertyField(uri = "vstoi:hasVersion")
-    private String hasVersion;
+    //@PropertyField(uri = "vstoi:hasVersion")
+    //private String hasVersion;
 
-    @PropertyField(uri = "hasco:hasDataFile")
-    private String hasDataFileUri;
+    //@PropertyField(uri = "hasco:hasDataFile")
+    //private String hasDataFileUri;
 
-    @PropertyField(uri = "vstoi:hasSIRManagerEmail")
-    private String hasSIRManagerEmail;
+    //@PropertyField(uri = "vstoi:hasSIRManagerEmail")
+    //private String hasSIRManagerEmail;
 
     @PropertyField(uri = "hasco:TimeStamp")
     private String timestampLabel = "";
@@ -179,6 +179,15 @@ public class SDD extends HADatAcThing {
         SDD.getCache();
     }
 
+    public SDD(DataFile dataFile) {
+        this.uri = dataFile.getUri().replace("DF","SD");
+        this.label = "";
+        isRefreshed = false;
+        SDD.getCache();
+        getAttributes();
+        getObjects();
+    }
+
     public SDD(String uri, String label) {
         this.uri = uri;
         this.label = label;
@@ -201,9 +210,9 @@ public class SDD extends HADatAcThing {
         return SDDCache;
     }
 
-    public Map<String, String> getCatalog() {
-        return mapCatalog;
-    }
+    //public Map<String, String> getCatalog() {
+    //    return mapCatalog;
+    //}
 
     public Map<String, String> getCodeMapping() {
         return codeMappings;
@@ -221,48 +230,48 @@ public class SDD extends HADatAcThing {
         return timeline;
     }
 
-    public String getUri() {
-        return uri;
-    }
+    //public String getUri() {
+    //    return uri;
+    //}
     public String getUriNamespace() {
         return URIUtils.replaceNameSpaceEx(uri);
     }
-    public void setUri(String uri) {
-        this.uri = uri;
-    }
+    //public void setUri(String uri) {
+    //    this.uri = uri;
+    //}
 
-    public String getLabel() {
-        return label;
-    }
-    public void setLabel(String label) {
-        this.label = label;
-    }
+    //public String getLabel() {
+    //    return label;
+    //}
+    //public void setLabel(String label) {
+    //    this.label = label;
+    //}
 
-    public String getHasVersion() {
-        return hasVersion;
-    }
-    public void setHasVersion(String hasVersion) {
-        this.hasVersion = hasVersion;
-    }
+    //public String getHasVersion() {
+    //    return hasVersion;
+    //}
+    //public void setHasVersion(String hasVersion) {
+    //    this.hasVersion = hasVersion;
+    //}
 
-    public String getHasDataFile() {
-        return hasDataFileUri;
-    }
-    public void setHasDataFile(String hasDataFileUri) {
-        this.hasDataFileUri = hasDataFileUri;
-    }
-    public DataFile getDataFile() {
+    //public String getHasDataFile() {
+    //    return hasDataFileUri;
+    //}
+    //public void setHasDataFile(String hasDataFileUri) {
+    //    this.hasDataFileUri = hasDataFileUri;
+    //}
+    //public DataFile getDataFile() {
         //System.out.println("Inside SDD.getDataFile(). hasDataFileuri is " + this.hasDataFileUri);
-        DataFile dataFile = DataFile.find(this.hasDataFileUri);
-        return dataFile;
-    }
+    //    DataFile dataFile = DataFile.find(this.hasDataFileUri);
+    //    return dataFile;
+    //}
 
-    public String getHasStatus() {
-        return hasStatus;
-    }
-    public void setHasStatus(String hasStatus) {
-        this.hasStatus = hasStatus;
-    }
+    //public String getHasStatus() {
+    //    return hasStatus;
+    //}
+    //public void setHasStatus(String hasStatus) {
+    //    this.hasStatus = hasStatus;
+    //}
 
     public String getTimestampLabel() {
         return timestampLabel;
@@ -320,12 +329,12 @@ public class SDD extends HADatAcThing {
         this.matchingLabel = matchingLabel;
     }
 
-    public String getHasSIRManagerEmail() {
-        return hasSIRManagerEmail;
-    }
-    public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
-        this.hasSIRManagerEmail = hasSIRManagerEmail;
-    }
+    //public String getHasSIRManagerEmail() {
+    //    return hasSIRManagerEmail;
+    //}
+    //public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
+    //    this.hasSIRManagerEmail = hasSIRManagerEmail;
+    //}
 
     public String getElevationLabel() {
         return elevationLabel;
@@ -355,9 +364,9 @@ public class SDD extends HADatAcThing {
         this.inRelationToLabel = inRelationToLabel;
     }
 
-    public void setTemplates(String templateFile) {
-        this.templates = new Templates(templateFile);
-    }
+    //public void setTemplates(String templateFile) {
+    //    this.templates = new Templates(templateFile);
+    //}
 
     public int getTotalSDDA() {
         if (attributes == null) {
@@ -634,7 +643,7 @@ public class SDD extends HADatAcThing {
             } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
                 sdd.setHascoTypeUri(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_DATAFILE)) {
-                sdd.setHasDataFile(str);
+                sdd.setHasDataFileUri(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
                 sdd.setHasStatus(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
@@ -965,8 +974,8 @@ public class SDD extends HADatAcThing {
                 return false;
             }
 
-            mapAttrObj.put(record.getValueByColumnName(templates.getLABEL()),
-                    record.getValueByColumnName(templates.getATTTRIBUTEOF()));
+            mapAttrObj.put(record.getValueByColumnName(getTemplates().getLABEL()),
+                    record.getValueByColumnName(getTemplates().getATTTRIBUTEOF()));
         }
 
         System.out.println("SDD: read Data Dictionary 3");
@@ -1034,8 +1043,8 @@ public class SDD extends HADatAcThing {
         }
 
         for (Record record : file.getRecords()) {
-            if (!record.getValueByColumnName(templates.getLABEL()).isEmpty()) {
-                String colName = record.getValueByColumnName(templates.getLABEL());
+            if (!record.getValueByColumnName(getTemplates().getLABEL()).isEmpty()) {
+                String colName = record.getValueByColumnName(getTemplates().getLABEL());
                 Map<String, String> mapCodeClass = null;
                 if (!codebook.containsKey(colName)) {
                     mapCodeClass = new HashMap<String, String>();
@@ -1044,10 +1053,10 @@ public class SDD extends HADatAcThing {
                     mapCodeClass = codebook.get(colName);
                 }
                 String classUri = "";
-                if (!record.getValueByColumnName(templates.getCLASS()).isEmpty()) {
-                    classUri = URIUtils.replacePrefixEx(record.getValueByColumnName(templates.getCLASS()));
+                if (!record.getValueByColumnName(getTemplates().getCLASS()).isEmpty()) {
+                    classUri = URIUtils.replacePrefixEx(record.getValueByColumnName(getTemplates().getCLASS()));
                 }
-                mapCodeClass.put(record.getValueByColumnName(templates.getCODE()), classUri);
+                mapCodeClass.put(record.getValueByColumnName(getTemplates().getCODE()), classUri);
             }
         }
 

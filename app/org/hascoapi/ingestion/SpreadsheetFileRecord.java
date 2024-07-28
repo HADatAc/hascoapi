@@ -11,6 +11,8 @@ public class SpreadsheetFileRecord implements Record {
 
     public SpreadsheetFileRecord(Row row) {
         this.row = row;
+        //System.out.println(getColumnNameByIndex(0) + "  [" + getValueByColumnIndex(0) + "]");
+        //System.out.println(getColumnNameByIndex(1) + "  [" + getValueByColumnIndex(1) + "]");
     }
 
     @Override
@@ -54,6 +56,13 @@ public class SpreadsheetFileRecord implements Record {
         }
 
         return -1;
+    }
+
+    private String getColumnNameByIndex(int columnIndex) {
+        Sheet sheet = row.getSheet();
+        Row firstRow = sheet.getRow(sheet.getFirstRowNum());
+
+        return firstRow.getCell(columnIndex).toString();
     }
 
     public static String getCellValueAsString(Cell cell) {

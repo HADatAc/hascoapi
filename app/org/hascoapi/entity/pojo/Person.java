@@ -10,24 +10,99 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
+import org.hascoapi.annotations.PropertyField;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.SPARQLUtils;
 import org.hascoapi.utils.URIUtils;
+import org.hascoapi.vocabularies.FOAF;
+import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.RDF;
 import org.hascoapi.vocabularies.RDFS;
-import org.hascoapi.vocabularies.HASCO;
+import org.hascoapi.vocabularies.SCHEMA;
 import org.hascoapi.vocabularies.VSTOI;
-import org.hascoapi.vocabularies.FOAF;
 
 @JsonFilter("personFilter")
 public class Person extends Agent {
 
-    public Organization getAffiliation() {
-        if (this.getMember() == null) {
+    @PropertyField(uri="foaf:familyName")
+    protected String familyName;
+
+    @PropertyField(uri="foaf:givenName")
+    protected String givenName;
+
+    @PropertyField(uri="schema:jobTitle")
+    protected String jobTitle;
+
+    @PropertyField(uri="foaf:member")
+    protected String hasAffiliationUri;
+
+    public String getFamilyName() {
+        return familyName;
+    }
+    public void setFamilyName(String familyName) {
+        this.familyName = familyName;
+    }
+
+    public String getGivenName() {
+        return givenName;
+    }
+    public void setGivenName(String givenName) {
+        this.givenName = givenName;
+    }
+
+    public String getJobTitle() {
+        return jobTitle;
+    }
+    public void setJobTitle(String jobTitle) {
+        this.jobTitle = jobTitle;
+    }
+
+    public String getHasAffiliationUri() {
+        return hasAffiliationUri;
+    }
+    public void setHasAffiliationUri(String hasAffiliationUri) {
+        this.hasAffiliationUri = hasAffiliationUri;
+    }
+
+    public Organization getHasAffiliation() {
+        if (this.getHasAddressUri() == null || this.getHasAffiliationUri().isEmpty()) {
             return null;
         }
-        return Organization.find(this.getMember());
+        return Organization.find(this.getHasAffiliationUri());
+    }
+
+    public static Person findByEmail(String email) {
+        if (email == null || email.isEmpty()) {
+            return null;
+        }
+        String query = 
+                "SELECT ?uri " +
+                " WHERE {  ?subUri rdfs:subClassOf* foaf:Person . " +
+                "          ?uri a ?subUri . " +
+                "          ?uri foaf:mbox ?email .  " +
+                "        FILTER (?email=\"" + email + "\"^^xsd:string)  . " +
+                " }";
+        return findOneByQuery(query);
+    }        
+
+    private static Person findOneByQuery(String requestedQuery) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + requestedQuery;
+        
+        ResultSetRewindable resultsrw = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+        String uri = null;
+        Person person = null;
+        if (resultsrw.hasNext()) {
+            QuerySolution soln = resultsrw.next();
+            if (soln != null && soln.get("uri") != null) {
+                uri = soln.get("uri").toString();
+                person = Person.find(uri);
+            }
+        }
+
+        return person;
     }
 
     public static List<Person> find() {
@@ -35,10 +110,10 @@ public class Person extends Agent {
             " SELECT ?uri WHERE { " +
             " ?uri a foaf:Person ." +
             "} ";
-        return findByQuery(query);
+        return findManyByQuery(query);
     }
 
-    private static List<Person> findByQuery(String requestedQuery) {
+    public static List<Person> findManyByQuery(String requestedQuery) {
         List<Person> people = new ArrayList<Person>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + requestedQuery;
 
@@ -94,8 +169,16 @@ public class Person extends Agent {
                 person.setGivenName(str);
             } else if (statement.getPredicate().getURI().equals(FOAF.MBOX)) {
                 person.setMbox(str);
+            } else if (statement.getPredicate().getURI().equals(SCHEMA.TELEPHONE)) {
+                person.setTelephone(str);
             } else if (statement.getPredicate().getURI().equals(FOAF.MEMBER)) {
-                person.setMember(str);
+                person.setHasAffiliationUri(str);
+            } else if (statement.getPredicate().getURI().equals(SCHEMA.ADDRESS)) {
+                person.setHasAddressUri(str);
+            } else if (statement.getPredicate().getURI().equals(SCHEMA.URL)) {
+                person.setHasUrl(str);
+            } else if (statement.getPredicate().getURI().equals(SCHEMA.JOB_TITLE)) {
+                person.setJobTitle(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
                 person.setHasSIRManagerEmail(str);
             }

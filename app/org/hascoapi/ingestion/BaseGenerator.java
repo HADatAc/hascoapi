@@ -56,23 +56,23 @@ public abstract class BaseGenerator {
     }
 
     public BaseGenerator(DataFile dataFile, String studyUri, String templateFile) {
-    	if (studyUri != null) {
+    	if (studyUri != null && !studyUri.equals("")) {
     		this.studyUri = studyUri;
     	}
         if (templateFile != null) {
             templates = new Templates(templateFile);
         }
 
-        System.out.println("BaseGenerator: (Constructor) process dataFile");
+        //System.out.println("BaseGenerator: (Constructor) process dataFile");
     	if (dataFile != null) {
     		this.dataFile = dataFile;
-            System.out.println("BaseGenerator: (Constructor) process dataFile: file");
+            //System.out.println("BaseGenerator: (Constructor) process dataFile: file");
     		file = dataFile.getRecordFile();
-            System.out.println("BaseGenerator: (Constructor) process dataFile: records");
+            //System.out.println("BaseGenerator: (Constructor) process dataFile: records");
     		records = file.getRecords();
-            System.out.println("BaseGenerator: (Constructor) process dataFile: filename");
+            //System.out.println("BaseGenerator: Number of records is [" + records.size() + "]");
     		fileName = dataFile.getFilename();
-            System.out.println("BaseGenerator: (Constructor) process dataFile: logger");
+            //System.out.println("BaseGenerator: (Constructor) process dataFile: logger");
     		logger = dataFile.getLogger();
     	}
     	
@@ -163,7 +163,10 @@ public abstract class BaseGenerator {
     }
 
     public void preprocess() throws Exception {}
+    public void preprocessuris(Map<String,String> uris) throws Exception {}
+
     public void postprocess() throws Exception {}
+    public Map<String,String> postprocessuris() throws Exception { return new HashMap<String,String>(); }
 
     public void createRows() throws Exception {        
         if (records == null) {
@@ -262,6 +265,12 @@ public abstract class BaseGenerator {
     }
 
     public boolean commitRowsToTripleStore(List<Map<String, Object>> rows) {
+        //System.out.println("BaseGenerator: commitRowsToTripleStore(): received values");
+        //for (Map<String, Object> row : rows) {
+        //    for (Map.Entry<String, Object> entry : row.entrySet()) {
+        //        System.out.println("Row: " + entry.getKey() + ": " + entry.getValue());
+        //    }
+        //}
         System.out.println("BaseGenerator: commitRowsToTripleStore(): getNamedGraphUri() is " + getNamedGraphUri());
         Model model = MetadataFactory.createModel(rows, getNamedGraphUri());
         int numCommitted = MetadataFactory.commitModelToTripleStore(
@@ -280,7 +289,7 @@ public abstract class BaseGenerator {
         for (HADatAcThing obj : objects) {
             obj.setNamedGraph(getNamedGraphUri());
 
-            System.out.println("BaseGenerator.commitObjectsToTriplestore() [1]");
+            //System.out.println("BaseGenerator.commitObjectsToTriplestore() [1]");
             if (obj.saveToTripleStore()) {
                 count++;
             }
@@ -293,7 +302,7 @@ public abstract class BaseGenerator {
                 System.out.println("cache " + name + " size: Total " + caches.get(name).getMapCache().values().size());
                 for (Object obj : caches.get(name).getNewCache().values()) {
                     if (obj instanceof HADatAcThing) {
-                        System.out.println("BaseGenerator.commitObjectsToTriplestore() [2]");
+                        //System.out.println("BaseGenerator.commitObjectsToTriplestore() [2]");
                         ((HADatAcThing) obj).saveToTripleStore();
                         count++;
                     }

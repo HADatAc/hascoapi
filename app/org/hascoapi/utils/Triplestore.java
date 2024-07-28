@@ -141,9 +141,9 @@ public class Triplestore {
         ConcurrentHashMap<String, NameSpace> namespaces = NameSpaces.getInstance().getNamespaces();
         for (String abbrev : namespaces.keySet()) {
             NameSpace ns = namespaces.get(abbrev);
-            String nsURL = ns.getURL();
+            String nsURL = ns.getSource();
             System.out.println("  - loading [" + nsURL + "]");
-            if (abbrev != null && nsURL != null && !nsURL.equals("") && ns.getMimeType() != null) {
+            if (abbrev != null && nsURL != null && !nsURL.equals("") && ns.getSourceMime() != null) {
                 String path = "";
                 ns.loadTriples(nsURL, true);
                 path = nsURL;
@@ -151,8 +151,8 @@ public class Triplestore {
                 message += Feedback.println(mode, "   Added " + (newTotal - total) + " triples from " + path + " .");
                 System.out.println("  - added " + (newTotal - total) + " triples from " + path + " .");
                 total = newTotal;
-                ns.updateNumberOfLoadedTriples();
-                ns.updateFromTripleStore();
+                ns.setNumberOfLoadedTriples();
+                //ns.updateFromTripleStore();
             }
         }
         message += Feedback.println(mode," ");

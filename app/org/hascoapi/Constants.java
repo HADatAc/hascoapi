@@ -51,6 +51,32 @@ public class Constants {
     public static final String TEST_ATTRIBUTE2_URI = TEST_KB + "TestAttribute2";
     public static final String TEST_UNIT_URI = TEST_KB + "TestUnit";
 
+    public static final String PREFIX_ANNOTATION                 = "AN";
+    public static final String PREFIX_ANNOTATION_STEM            = "AS";
+    public static final String PREFIX_CODEBOOK                   = "CB";
+    public static final String PREFIX_DATA_ACQUISITION           = "DA";
+    public static final String PREFIX_DATAFILE                   = "DF";
+    public static final String PREFIX_DD                         = "DD";
+    public static final String PREFIX_DESIGN                     = "DG";
+    public static final String PREFIX_DETECTOR_STEM              = "DS";
+    public static final String PREFIX_DETECTOR                   = "DT";
+    public static final String PREFIX_DSG                        = "DG";
+    public static final String PREFIX_INS                        = "IS";
+    public static final String PREFIX_INSTRUMENT                 = "IN";
+    public static final String PREFIX_ORGANIZATION               = "OR";
+    public static final String PREFIX_PERSON                     = "PS";
+    public static final String PREFIX_PLACE                      = "PL";
+    public static final String PREFIX_POSTAL_ADDRESS             = "PA";
+    public static final String PREFIX_RESPONSE_OPTION            = "RO";
+    public static final String PREFIX_SEMANTIC_VARIABLE          = "SV";
+    public static final String PREFIX_SDD                        = "SD";
+    public static final String PREFIX_STUDY                      = "ST";
+    public static final String PREFIX_STUDY_OBJECT_COLLECTION    = "OC";
+    public static final String PREFIX_STUDY_OBJECT               = "OB";
+    public static final String PREFIX_STUDY_ROLE                 = "SR";
+    public static final String PREFIX_SUBCONTAINER               = "SC";
+    public static final String PREFIX_VIRTUAL_COLUMN             = "VC";
+  
     public static final String DEFAULT_KB = "http://hadatac.org/kb/default/";
     public static final String DEFAULT_REPOSITORY = DEFAULT_KB + "repository";
     /**
@@ -63,8 +89,5 @@ public class Constants {
 
     public static final String META_VARIABLE_CONTENT = "%%CONTENT%%";
     public static final String META_VARIABLE_PAGE = "%%PAGE%%";
-
-    public static final String PREFIX_INSTRUMENT = "IN";
-    public static final String PREFIX_SUBCONTAINER = "SC";
 
 }

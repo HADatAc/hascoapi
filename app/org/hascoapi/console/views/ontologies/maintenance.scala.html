@@ -37,10 +37,10 @@
                     @for((ns, i) <- namespaces.zipWithIndex) {
                     <tr>
                         <td style="word-break: break-all;">@(i+1)</td>
-                        <td style="word-break: break-all;" axis="nsAbbrev@(i+1)">@ns.getAbbreviation()</td>
-                        <td style="word-break: break-all;" axis="nsName@(i+1)">@ns.getName()</td>
-                        <td style="word-break: break-all;" axis="nsMimeType@(i+1)">@ns.getMimeType()</td>
-                        <td style="word-break: break-all;" axis="nsURL@(i+1)">@ns.getURL()</td>
+                        <td style="word-break: break-all;" axis="nsAbbrev@(i+1)">@ns.getLabel()</td>
+                        <td style="word-break: break-all;" axis="nsName@(i+1)">@ns.getUri()</td>
+                        <td style="word-break: break-all;" axis="nsMimeType@(i+1)">@ns.getSourceMime()</td>
+                        <td style="word-break: break-all;" axis="nsURL@(i+1)">@ns.getSource()</td>
                         <td style="word-break: break-all;" axis="nsTripleSize@(i+1)">@ns.getNumberOfLoadedTriples()</td>
                     </tr>
                     }

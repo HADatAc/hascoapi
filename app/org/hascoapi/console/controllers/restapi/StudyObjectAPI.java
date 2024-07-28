@@ -6,7 +6,12 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 import org.hascoapi.Constants;
+import org.hascoapi.entity.pojo.DA;
+import org.hascoapi.entity.pojo.GenericFind;
 import org.hascoapi.entity.pojo.StudyObject;
+import org.hascoapi.entity.pojo.StudyObjectCollection;
+import org.hascoapi.entity.pojo.StudyRole;
+import org.hascoapi.entity.pojo.VirtualColumn;
 import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.HAScOMapper;
 import org.hascoapi.vocabularies.HASCO;
@@ -32,6 +37,8 @@ public class StudyObjectAPI extends Controller {
         List<StudyObject> results = StudyObject.findByCollectionWithPage(socUri, pageSize, offset);
         return getStudyObjects(results);
     }
+
+
 
     public Result getTotalStudyObjectsBySOC(String socUri){
         int totalElements = StudyObject.getNumberStudyObjectsByCollection(socUri) ;

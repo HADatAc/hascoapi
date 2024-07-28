@@ -50,7 +50,7 @@ public class Study extends HADatAcThing {
     public static String DELETE_LINE1 = "DELETE WHERE {  ";
     public static String DELETE_LINE3 = " ?p ?o . ";
     public static String LINE_LAST = "}  ";
-    public static String PREFIX = "STD-";
+    public static String PREFIX = "DSG-";
 
     @PropertyField(uri="hasco:hasId")
     private String id;
@@ -93,9 +93,9 @@ public class Study extends HADatAcThing {
 
     private List<String> objectCollectionUris;
 
-    private Person pi;
+    //private Person pi;
 
-    private Organization institution;
+    //private Organization institution;
 
     public Study(String id,
                  String uri,
@@ -157,17 +157,16 @@ public class Study extends HADatAcThing {
         this.hasStatus = hasStatus;
     }
 
-    public String getHasDataFile() {
+    public String getHasDataFileUri() {
         return hasDataFileUri;
     }
-    public void setHasDataFile(String hasDataFileUri) {
+    public void setHasDataFileUri(String hasDataFileUri) {
         this.hasDataFileUri = hasDataFileUri;
     }
-    public DataFile getDataFile() {
+    public DataFile getHasDataFile() {
         if (this.hasDataFileUri == null) {
             return null;
         }
-        //System.out.println("Inside STD.getDataFile(). hasDataFileUri is " + this.hasDataFileUri);
         return DataFile.find(this.hasDataFileUri);
     }
 
@@ -220,28 +219,28 @@ public class Study extends HADatAcThing {
         if (institutionUri == null || institutionUri.equals("")) {
             return null;
         }
-        if (institution != null && institution.getUri().equals(institutionUri)) {
-            return institution;
-        }
+        //if (institution != null && institution.getUri().equals(institutionUri)) {
+        //    return institution;
+        //}
         return Organization.find(institutionUri);
     }
     public void setInstitutionUri(String institutionUri) {
         this.institutionUri = institutionUri;
     }
 
-    public String getPIUri() {
+    public String getPiUri() {
         return piUri;
     }
-    public Person getPI() {
+    public Person getPi() {
         if (piUri == null || piUri.equals("")) {
             return null;
         }
-        if (pi != null && pi.getUri().equals(piUri)) {
-            return pi;
-        }
+        //if (pi != null && pi.getUri().equals(piUri)) {
+        //    return pi;
+        //}
         return Person.find(piUri);
     }
-    public void setPIUri(String piUri) {
+    public void setPiUri(String piUri) {
         this.piUri = piUri;
     }
 
@@ -258,16 +257,6 @@ public class Study extends HADatAcThing {
     public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
         this.hasSIRManagerEmail = hasSIRManagerEmail;
     }
-
-    //public long getLastId() {
-    //    if (this.lastId == null) {
-    //        return 0;
-    //    }
-    //    return Long.parseLong(this.lastId);
-    //}
-    //public void setLastId(String lastId) {
-    //    this.lastId = lastId;
-    //}
 
     public static int getNumberStudies() {
         String query = "";
@@ -313,15 +302,6 @@ public class Study extends HADatAcThing {
         DateTimeFormatter formatter = ISODateTimeFormat.dateTimeNoMillis();
         return formatter.withZone(DateTimeZone.UTC).print(endedAt);
     }
-
-    //public void increaseLastId(long quantity) {
-    //    if (quantity > 0) {
-    //        long l = Long.parseLong(this.lastId);
-    //        long newL = l + quantity;
-    //        this.lastId = Long.toString(newL);
-    //        save();
-    //    }
-    //}
 
     // set Start Time Methods
     public void setStartedAt(String startedAt) {
@@ -441,7 +421,7 @@ public class Study extends HADatAcThing {
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
 					study.setHasStatus(str);
                 } else if (statement.getPredicate().getURI().equals(HASCO.HAS_DATAFILE)) {
-                    study.setHasDataFile(str);
+                    study.setHasDataFileUri(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
 					study.setImage(str);
 				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
@@ -451,7 +431,7 @@ public class Study extends HADatAcThing {
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_EXTERNAL_SOURCE)) {
 					study.setExternalSource(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_PI)) {
-					study.setPIUri(str);
+					study.setPiUri(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_INSTITUTION)) {
 					study.setInstitutionUri(str);
 //				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_LAST_ID)) {
@@ -467,6 +447,7 @@ public class Study extends HADatAcThing {
 		return study;
 	}
 
+    /* 
     public Map<String, StudyObject> getObjectsMap() {
         Map<String, StudyObject> resp = new HashMap<String, StudyObject>();
         String queryString = "";
@@ -493,7 +474,9 @@ public class Study extends HADatAcThing {
 
         return resp;
     }
+    */
 
+    /* 
     public Map<String, StudyObject> getObjectsMapInBatch() {
         Map<String, StudyObject> results = new HashMap<String, StudyObject>();
 
@@ -529,15 +512,65 @@ public class Study extends HADatAcThing {
             }
         }
 
-        /*
-        for (Map.Entry<String, StudyObject> entry : results.entrySet()) {
-             System.out.println("getObjectsMapInBatch(): Key = " + entry.getKey() + ", Value = " + ((StudyObject)entry.getValue()).getUri());
-        }
-        */
+        //for (Map.Entry<String, StudyObject> entry : results.entrySet()) {
+        //     System.out.println("getObjectsMapInBatch(): Key = " + entry.getKey() + ", Value = " + ((StudyObject)entry.getValue()).getUri());
+        //}
 
         return results;
     }
+    */
 
+    public static List<StudyObjectCollection> findStudyObjectCollections(String uri, int pageSize, int offset) {
+        if (uri == null || uri.isEmpty()) {
+            return new ArrayList<StudyObjectCollection>();
+        }
+        String query = 
+                "SELECT ?uri " +
+                " WHERE {  ?uri hasco:isMemberOf  <" + uri + "> .  " +
+				"          ?uri rdfs:label ?label . " +
+                " } " +
+                " ORDER BY ASC(?label) " +
+                " LIMIT " + pageSize +
+                " OFFSET " + offset;
+        return StudyObjectCollection.findManyByQuery(query);
+    }        
+
+    public static int findTotalStudyObjectCollections(String uri) {
+        if (uri == null || uri.isEmpty()) {
+            return 0;
+        }
+        String query = NameSpaces.getInstance().printSparqlNameSpaceList() + 
+                " SELECT (count(?uri) as ?tot)  " +
+                " WHERE {  ?uri hasco:isMemberOf <" + uri + "> .  " +
+				"          ?uri hasco:hascoType <" + HASCO.STUDY_OBJECT_COLLECTION + "> . " +
+                " }";
+        return GenericFind.findTotalByQuery(query);
+    }        
+    
+    public static int findTotalStudyDAs(String uri) {
+        if (uri == null || uri.isEmpty()) {
+            return 0;
+        }
+        String query = NameSpaces.getInstance().printSparqlNameSpaceList() + 
+                " SELECT (count(?uri) as ?tot)  " +
+                " WHERE {  ?uri hasco:isMemberOf <" + uri + "> .  " +
+				"          ?uri hasco:hascoType <" + HASCO.DATA_ACQUISITION + "> . " +
+                " }";
+        return GenericFind.findTotalByQuery(query);
+    }        
+    
+    public static int findTotalStudyRoles(String uri) {
+        if (uri == null || uri.isEmpty()) {
+            return 0;
+        }
+        String query = NameSpaces.getInstance().printSparqlNameSpaceList() + 
+                " SELECT (count(?uri) as ?tot)  " +
+                " WHERE {  ?uri hasco:isMemberOf <" + uri + "> .  " +
+				"          ?uri hasco:hascoType <" + HASCO.STUDY_ROLE + "> . " +
+                " }";
+        return GenericFind.findTotalByQuery(query);
+    }        
+    
     private static List<String> findStudyObjectCollectionUris(String study_uri) {
         //System.out.println("findStudyObjectCollectionUris() is called");
         //System.out.println("study_uri: " + study_uri);
@@ -620,7 +653,7 @@ public class Study extends HADatAcThing {
             return null;
         }
         Study returnStudy = new Study();
-        String queryUri = URIUtils.replacePrefixEx(kbPrefix + "STD-" + studyName);
+        String queryUri = URIUtils.replacePrefixEx(kbPrefix + "DSG-" + studyName);
 
         return find(queryUri);
     }
@@ -649,6 +682,10 @@ public class Study extends HADatAcThing {
         }
 
         return studies;
+    }
+
+    public int getTotalStudyDAs() {
+        return findTotal(HASCO.DATA_ACQUISITION);
     }
 
     public int getTotalStudyRoles() {

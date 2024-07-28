@@ -27,7 +27,7 @@ public class StudyRole extends HADatAcThing implements Comparable<StudyRole>  {
     private String hasStatus;
 
     @PropertyField(uri="hasco:isMemberOf", valueType=PropertyValueType.URI)
-    private String isMemberOf;
+    private String isMemberOfUri;
     
     @PropertyField(uri="vstoi:hasSIRManagerEmail")
     private String hasSIRManagerEmail;
@@ -40,19 +40,19 @@ public class StudyRole extends HADatAcThing implements Comparable<StudyRole>  {
         this.hasStatus = hasStatus;
     }
 
-    public String getIsMemberOf() {
-        return isMemberOf;
+    public String getIsMemberOfUri() {
+        return isMemberOfUri;
     }
 
-    public void setIsMemberOf(String isMemberOf) {
-        this.isMemberOf = isMemberOf;
+    public void setIsMemberOfUri(String isMemberOfUri) {
+        this.isMemberOfUri = isMemberOfUri;
     }
 
-    public Study getStudy() {
-        if (isMemberOf == null || isMemberOf.isEmpty()) {
+    public Study getIsMemberOf() {
+        if (isMemberOfUri == null || isMemberOfUri.isEmpty()) {
             return null;
         }
-        return Study.find(isMemberOf);
+        return Study.find(isMemberOfUri);
     }
     
     public String getHasSIRManagerEmail() {
@@ -95,7 +95,7 @@ public class StudyRole extends HADatAcThing implements Comparable<StudyRole>  {
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
                 studyRole.setHasStatus(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.IS_MEMBER_OF)) {
-                studyRole.setIsMemberOf(str);
+                studyRole.setIsMemberOfUri(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
                 studyRole.setHasSIRManagerEmail(str);
             } 

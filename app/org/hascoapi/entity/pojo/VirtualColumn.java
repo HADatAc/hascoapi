@@ -29,17 +29,15 @@ import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.NameSpaces;
 
 @JsonFilter("virtualColumnFilter")
-public class VirtualColumn extends HADatAcClass implements Comparable<VirtualColumn> {
+public class VirtualColumn extends HADatAcThing implements Comparable<VirtualColumn> {
 
     static String className = "hasco:VirtualColumn";
-
-    public List<VirtualColumn> virtualColumns;
 
     //@ReversedPropertyField(uri="hasco:hasVirtualColumn")
     //private String studyUri = "";
     
     @PropertyField(uri="hasco:isMemberOf")
-    private String isMemberOf = "";
+    private String isMemberOfUri = "";
     
     @PropertyField(uri="hasco:hasGroundingLabel")
     private String hasGroundingLabel = "";
@@ -50,31 +48,28 @@ public class VirtualColumn extends HADatAcClass implements Comparable<VirtualCol
     @PropertyField(uri="vstoi:hasSIRManagerEmail")
     private String hasSIRManagerEmail = "";
 
-    private VirtualColumn() {
-        super(className);
-        virtualColumns = new ArrayList<VirtualColumn>();
-    }
+    public VirtualColumn() {}
 
     public VirtualColumn(
             String studyUri,
             String hasGroundingLabel,
-            String hasSOCReference) {
-        super(className);
-        String vcUri="";
-        if(studyUri.contains("SSD")){
-            vcUri = studyUri.replace("SSD", "VC") + "-" + hasSOCReference.replace("??", "");
+            String hasSOCReference,
+            String hasSIRManagerEmail) {
+        String label = hasSOCReference;
+        if (hasGroundingLabel != null && !hasGroundingLabel.isEmpty()) {
+            label = label + " (" + hasGroundingLabel.trim() + ")";
         }
-        if (studyUri.contains("STD")){
-            vcUri = studyUri.replace("STD", "VC") + "-" + hasSOCReference.replace("??", "");
-        }
-        if (studyUri.contains("ST")){
-            vcUri = studyUri.replace("ST", "VC") + "-" + hasSOCReference.replace("??", "");
-        }
+        String vcUri= studyUri.replace("ST", "VC") + "-" + hasSOCReference.replace("??", "");
         this.setUri(vcUri);
-        this.setIsMemberOf(studyUri);
+        this.setTypeUri(URIUtils.replacePrefixEx(HASCO.VIRTUAL_COLUMN));
+        this.setHascoTypeUri(URIUtils.replacePrefixEx(HASCO.VIRTUAL_COLUMN));
+        this.setLabel(label);
+        this.setComment("Virtual column for " + hasSOCReference);
+        this.setIsMemberOfUri(studyUri);
         this.setGroundingLabel(hasGroundingLabel);
         this.setSOCReference(hasSOCReference);
-        virtualColumns = new ArrayList<VirtualColumn>();
+        this.setHasSIRManagerEmail(hasSIRManagerEmail);
+        System.out.println("creating VC with URI=[" + vcUri + "]");
     }
 
     @Override
@@ -87,11 +82,11 @@ public class VirtualColumn extends HADatAcClass implements Comparable<VirtualCol
         this.uri = uri;
     }
     
-    public Study getStudy() {
-        if (isMemberOf == null || isMemberOf.isEmpty()) {
+    public Study getIsMemberOf() {
+        if (isMemberOfUri == null || isMemberOfUri.isEmpty()) {
             return null;
         }
-        return Study.find(isMemberOf);
+        return Study.find(isMemberOfUri);
     }
     
     //public String getStudyUri() {
@@ -102,12 +97,12 @@ public class VirtualColumn extends HADatAcClass implements Comparable<VirtualCol
     //    this.studyUri = studyUri;
     //}
     
-    public String getIsMemberOf() {
-        return isMemberOf;
+    public String getIsMemberOfUri() {
+        return isMemberOfUri;
     }
 
-    public void setIsMemberOf(String isMemberOf) {
-        this.isMemberOf = isMemberOf;
+    public void setIsMemberOfUri(String isMemberOfUri) {
+        this.isMemberOfUri = isMemberOfUri;
     }
     
     public String getGroundingLabel() {
@@ -138,7 +133,7 @@ public class VirtualColumn extends HADatAcClass implements Comparable<VirtualCol
         if (studyUri == null) {
             return null;
         }
-        System.out.println("findVCsByStudy: studyUri = [" + studyUri + "]");
+        //System.out.println("findVCsByStudy: studyUri = [" + studyUri + "]");
         List<VirtualColumn> vcList = new ArrayList<VirtualColumn>();
 
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + 
@@ -160,9 +155,18 @@ public class VirtualColumn extends HADatAcClass implements Comparable<VirtualCol
                 vcList.add(vc);
             }
         }
-        System.out.println("findVCsByStudy: total results is " + vcList.size());
+        //System.out.println("findVCsByStudy: total results is " + vcList.size());
         return vcList;
     }
+
+    public static int findTotalVCsByStudy(String studyUri) {
+		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+		queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
+            "   ?uri hasco:isMemberOf <" + studyUri + "> . \n" +
+            "   ?uri hasco:hascoType hasco:VirtualColumn . \n" +
+            " } ";
+        return GenericFind.findTotalByQuery(queryString);
+	}
 
     /*
     public static Map<String,String> getMap() {
@@ -196,18 +200,12 @@ public class VirtualColumn extends HADatAcClass implements Comparable<VirtualCol
     }
 
     public static VirtualColumn find(String studyUri, String SOCReference) {
-        String vcUri="";
-        if(studyUri.contains("SSD")){
-            vcUri = studyUri.replace("SSD", "VC") + "-" + SOCReference.replace("??", "");
-        }
-        if (studyUri.contains("STD")){
-            vcUri = studyUri.replace("STD", "VC") + "-" + SOCReference.replace("??", "");
-        }
+        String vcUri= studyUri.replace("ST", "VC") + "-" + SOCReference.replace("??", "");
         return VirtualColumn.find(vcUri);
     }
     
     public static VirtualColumn find(String uri) {
-        if ("".equals(uri.trim())) {
+        if (uri == null || uri.isEmpty()) {
             return null;
         }
         
@@ -240,15 +238,13 @@ public class VirtualColumn extends HADatAcClass implements Comparable<VirtualCol
 				} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
 					vc.setHascoTypeUri(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.IS_MEMBER_OF)) {
-					vc.setIsMemberOf(str);
+					vc.setIsMemberOfUri(str);
 				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
 					vc.setComment(str);
                 } else if (statement.getPredicate().getURI().equals(HASCO.HAS_GROUNDING_LABEL)) {
                     vc.setGroundingLabel(str);
                 } else if (statement.getPredicate().getURI().equals(HASCO.HAS_SOC_REFERENCE)) {
                     vc.setSOCReference(str);
-                //} else if (statement.getPredicate().getURI().equals(HASCO.HAS_VIRTUAL_COLUMN)) {
-                //    vc.setStudyUri(str);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
                     vc.setHasSIRManagerEmail(str);
                 }
@@ -257,17 +253,13 @@ public class VirtualColumn extends HADatAcClass implements Comparable<VirtualCol
         }
         
         vc.setUri(uri);
-        vc.setLocalName(uri.substring(uri.indexOf('#') + 1));
 
         return vc;
     }
 
     @Override
     public int compareTo(VirtualColumn another) {
-        if (this.getLabel() != null && another.getLabel() != null) {
-            return this.getLabel().compareTo(another.getLabel());
-        }
-        return this.getLocalName().compareTo(another.getLocalName());
+        return this.getLabel().compareTo(another.getLabel());
     }
 
     @Override

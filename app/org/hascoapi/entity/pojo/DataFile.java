@@ -9,6 +9,10 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
+import org.apache.jena.update.UpdateExecutionFactory;
+import org.apache.jena.update.UpdateFactory;
+import org.apache.jena.update.UpdateProcessor;
+import org.apache.jena.update.UpdateRequest;
 import org.hascoapi.annotations.PropertyField;
 import org.hascoapi.ingestion.CSVRecordFile;
 import org.hascoapi.ingestion.RecordFile;
@@ -40,7 +44,9 @@ public class DataFile extends HADatAcThing implements Cloneable {
     // Process status for auto-annotator
     public static final String UNPROCESSED = "UNPROCESSED";
     public static final String PROCESSED = "PROCESSED";
+    public static final String PROCESSED_STD = "PROCESSED_STD";
     public static final String WORKING = "WORKING";
+    public static final String WORKING_STD = "WORKING_STD";
 
     // Process status for downloader
     public static final String CREATING = "CREATING";
@@ -436,7 +442,25 @@ public class DataFile extends HADatAcThing implements Cloneable {
     @Override
     public void delete() {
         getLogger().resetLog();
-        deleteFromTripleStore();
+        //deleteFromTripleStore();
+
+        // In HASCOAPI, the DataFile is a graph named with the DataFile's URI. 
+        // The entire named graph should be deleted when the DataFile is removed  
+        String query = "DELETE WHERE { \n" +
+            "    GRAPH "; 
+        if (getUri().startsWith("http")) {
+            query += "<" + this.getUri() + ">";
+        } else {
+            query += this.getUri();
+        }
+        query += " { ?s ?p ?o . } \n";
+        query += " } ";
+
+        //System.out.println("Delete named graph query: [" + query + "]");
+        UpdateRequest request = UpdateFactory.create(query);
+        UpdateProcessor processor = UpdateExecutionFactory.createRemote(
+            request, CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
+        processor.execute();
     }
 
     public void resetForUnprocessed() {
