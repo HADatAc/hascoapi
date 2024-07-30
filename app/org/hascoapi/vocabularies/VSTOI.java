@@ -121,6 +121,7 @@ public class VSTOI {
         informant.put("http://hadatac.org/ont/vstoi#Youth", "Youth");
         informant.put("http://hadatac.org/ont/vstoi#Caregiver", "Caregiver");
         informant.put("http://hadatac.org/ont/vstoi#HouseholdReferencePerson", "HouseholdReferencePerson");
+        informant.put("http://hadatac.org/ont/vstoi#PhysicalWorld", "PhysicalWorld");
     }
 
     public static final String DEFAULT_CONTAINER_POSITION = TOP_CENTER;

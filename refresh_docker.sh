@@ -1,6 +1,6 @@
 #!/bin/bash
 clear
-echo "=== Semantic Instrument Repository - Refresh Docker Containers Script ==="
+echo "=== HASCOAPI - Refresh Docker Containers Script ==="
 echo ""
 
 # Make sure only root can run this script

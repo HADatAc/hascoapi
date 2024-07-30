@@ -31,6 +31,8 @@ GET     /hascoapi/api/:elementtype/manageremailbystudy/:studyuri/:manageremail/:
 GET     /hascoapi/api/:elementtype/manageremailbystudy/total/:studyuri/:manageremail                org.hascoapi.console.controllers.restapi.StudyAPI.getTotalElementsByManagerEmailByStudy(studyuri : String, elementtype : String, manageremail : String)
 GET     /hascoapi/api/:elementtype/manageremailbysoc/:socuri/:manageremail/:pageSize/:offset        org.hascoapi.console.controllers.restapi.StudyObjectCollectionAPI.getElementsByManagerEmailBySOC(socuri : String, elementtype: String, manageremail : String, pageSize : Integer, offset : Integer)
 GET     /hascoapi/api/:elementtype/manageremailbysoc/total/:socuri/:manageremail                    org.hascoapi.console.controllers.restapi.StudyObjectCollectionAPI.getTotalElementsByManagerEmailBySOC(socuri : String, elementtype : String, manageremail : String)
+GET     /hascoapi/api/:elementtype/manageremailbycontainer/:containeruri/:manageremail/:pageSize/:offset        org.hascoapi.console.controllers.restapi.ContainerAPI.getElementsByManagerEmailByContainer(containeruri : String, elementtype: String, manageremail : String, pageSize : Integer, offset : Integer)
+GET     /hascoapi/api/:elementtype/manageremailbycontainer/total/:containeruri/:manageremail                    org.hascoapi.console.controllers.restapi.ContainerAPI.getTotalElementsByManagerEmailByContainer(containeruri : String, elementtype : String, manageremail : String)
 
 # RETRIEVAL REVERSE
 GET     /hascoapi/api/place/contains/place/:uri/:pageSize/:offset                         org.hascoapi.console.controllers.restapi.PlaceAPI.findContainsPlace(uri: String, pageSize : Integer, offset : Integer)

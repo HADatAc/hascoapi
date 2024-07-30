@@ -10,12 +10,15 @@ import ca.uhn.fhir.parser.IParser;
 
 import org.hascoapi.Constants;
 import org.hascoapi.entity.fhir.Questionnaire;
+import org.hascoapi.entity.pojo.Annotation;
 import org.hascoapi.entity.pojo.Container;
 import org.hascoapi.entity.pojo.ContainerSlot;
 import org.hascoapi.entity.pojo.SlotElement;
+import org.hascoapi.entity.pojo.StudyObject;
 import org.hascoapi.entity.pojo.Instrument;
 import org.hascoapi.entity.pojo.Subcontainer;
 import org.hascoapi.entity.pojo.Detector;
+import org.hascoapi.entity.pojo.GenericFind;
 import org.hascoapi.transform.Renderings;
 import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.HAScOMapper;
@@ -223,6 +226,38 @@ public class ContainerAPI extends Controller {
             return ok(ApiUtil.createResponse("Existing Test Detectors have been DETACHED from Test Instrument and Test Subcontainer.", true));
         }        
         return ok(ApiUtil.createResponse("The detachment of existing Test Detectors from Test Instrument and Test Subcontainer HAS FAILED.", false));
+    }
+
+    /**
+     *   GET ELEMENTS BY MANAGER EMAIL AND CONTAINER WITH PAGE
+     */
+    public Result getElementsByManagerEmailByContainer(String containeruri, String elementtype, String manageremail, int pagesize, int offset) {
+        if (manageremail == null || manageremail.isEmpty()) {
+            return ok(ApiUtil.createResponse("No Manager Email has been provided", false));
+        }
+        if (elementtype.equals("annotation")) {
+            GenericFind<Annotation> query = new GenericFind<Annotation>();
+            List<Annotation> results = query.findByManagerEmailWithPagesByContainer(Annotation.class, containeruri, manageremail, pagesize, offset);
+            return AnnotationAPI.getAnnotations(results);
+        }  
+        return ok("[getElementsByManagerEmailByContainer] No valid element type.");
+    }
+
+    public Result getTotalElementsByManagerEmailByContainer(String containeruri, String elementtype, String manageremail){
+        //System.out.println("SIRElementAPI: getTotalElementsByManagerEmailByStudy");
+        if (elementtype == null || elementtype.isEmpty()) {
+            return ok(ApiUtil.createResponse("No elementtype has been provided", false));
+        }
+        Class clazz = GenericFind.getElementClass(elementtype);
+        if (clazz == null) {        
+            return ok(ApiUtil.createResponse("[" + elementtype + "] is not a valid elementtype", false));
+        }
+        int totalElements = totalElements = GenericFind.findTotalByManagerEmailByContainer(clazz, containeruri, manageremail);
+        if (totalElements >= 0) {
+            String totalElementsJSON = "{\"total\":" + totalElements + "}";
+            return ok(ApiUtil.createResponse(totalElementsJSON, true));
+        }
+        return ok(ApiUtil.createResponse("query method getTotalElementsByManagerEmailByContainer() failed to retrieve total number of element", false));
     }
 
     /** 
