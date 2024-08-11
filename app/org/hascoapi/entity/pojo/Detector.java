@@ -19,22 +19,23 @@ import org.hascoapi.vocabularies.*;
 @JsonFilter("detectorFilter")
 public class Detector extends DetectorStem {
 
-    @PropertyField(uri="vstoi:hasSerialNumber")
-    private String hasSerialNumber;
-    
     @PropertyField(uri="vstoi:hasDetectorStem")
     private String hasDetectorStem;
 
     @PropertyField(uri="vstoi:hasCodebook")
     private String hasCodebook;
 
+    /* 
     public String getHasSerialNumber() {
         return hasSerialNumber;
     }
+    */
 
+    /* 
     public void setHasSerialNumber(String hasSerialNumber) {
         this.hasSerialNumber = hasSerialNumber;
     }
+    */
 
     public String getHasDetectorStem() {
         return hasDetectorStem;
@@ -68,20 +69,29 @@ public class Detector extends DetectorStem {
         return codebook;
     }
 
-    public String getTypeLabel() {
-        DetectorStemType detStemType = DetectorStemType.find(getTypeUri());
+    /* 
+    public String getSuperLabel() {
+        DetectorStem detStem = DetectorStem.find(getSuperUri());
         if (detStemType == null || detStemType.getLabel() == null) {
             return "";
         }
         return detStemType.getLabel();
     }
 
-    public String getTypeURL() {
+    public String getSuperUri() {
         DetectorStemType detStemType = DetectorStemType.find(getTypeUri());
         if (detStemType == null || detStemType.getLabel() == null) {
             return "";
         }
         return detStemType.getURL();
+    }
+    */
+
+    public Detector() {
+    }
+
+    public Detector(String className) {
+		super(className);
     }
 
     /** 
@@ -305,7 +315,7 @@ public class Detector extends DetectorStem {
             return null;
         }
 
-        detector = new Detector();
+        detector = new Detector(VSTOI.DETECTOR);
 
         while (stmtIterator.hasNext()) {
             statement = stmtIterator.next();
@@ -320,8 +330,8 @@ public class Detector extends DetectorStem {
                 detector.setHascoTypeUri(object.asResource().getURI());
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
                 detector.setHasStatus(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
-                detector.setHasSerialNumber(object.asLiteral().getString());
+            //} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
+            //    detector.setHasSerialNumber(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
                 detector.setImage(object.asLiteral().getString());
 //            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_CONTENT)) {

@@ -47,11 +47,11 @@ public class MessageTopic extends HADatAcThing implements Comparable<MessageTopi
 		return streamUri;
 	}
 
-	public STR getStream() {
+	public Stream getStream() {
 		if (streamUri == null || streamUri.equals("")) {
 			return null;
 		}
-		STR stream = STR.findByUri(streamUri);
+		Stream stream = Stream.findByUri(streamUri);
 		return stream;
 	}
 

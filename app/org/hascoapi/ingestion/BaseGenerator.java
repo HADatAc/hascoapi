@@ -44,6 +44,7 @@ public abstract class BaseGenerator {
     protected String studyUri = "";
     protected String namedGraphUri = "";
     protected Templates templates = null;
+    protected String elementType = "";
 
     protected IngestionLogger logger = null;
 
@@ -141,6 +142,15 @@ public abstract class BaseGenerator {
     public void setNamedGraphUri(String namedGraphUri) {
         this.namedGraphUri = namedGraphUri;
     }
+
+	public String getElementType() {
+		return this.elementType;
+	}
+    
+	public void setElementType(String elementType) {
+		this.elementType = elementType;
+	}
+
 
     public Map<String, Object> createRow(Record rec, int rowNumber) throws Exception { return null; }
 

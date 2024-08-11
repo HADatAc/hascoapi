@@ -67,7 +67,7 @@ public class SubcontainerAPI extends Controller {
 
             // Insert list of subcontainers in the reverse order
 
-            testSubcontainer2 = new Subcontainer();
+            testSubcontainer2 = new Subcontainer(VSTOI.SUBCONTAINER);
             testSubcontainer2.setUri(TEST_SUBCONTAINER2_URI);
             testSubcontainer2.setBelongsTo(TEST_INSTRUMENT_URI);
             testSubcontainer2.setLabel("Test Subcontainer 2");
@@ -82,7 +82,7 @@ public class SubcontainerAPI extends Controller {
                 return ok(ApiUtil.createResponse("Failed to create Subcontainers 2.", false));
             }
 
-            testSubcontainer1 = new Subcontainer();
+            testSubcontainer1 = new Subcontainer(VSTOI.SUBCONTAINER);
             testSubcontainer1.setUri(TEST_SUBCONTAINER1_URI);
             testSubcontainer1.setBelongsTo(TEST_INSTRUMENT_URI);
             testSubcontainer1.setLabel("Test Subcontainer 1");

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import org.apache.commons.text.WordUtils;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSetRewindable;
@@ -13,49 +14,96 @@ import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.sparql.engine.http.QueryExceptionHTTP;
+import org.hascoapi.annotations.PropertyField;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.FirstLabel;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.SPARQLUtils;
 import org.hascoapi.utils.URIUtils;
+import org.hascoapi.vocabularies.HASCO;
+import org.hascoapi.vocabularies.RDF;
+import org.hascoapi.vocabularies.RDFS;
+import org.hascoapi.vocabularies.SIO;
+import org.hascoapi.vocabularies.VSTOI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Platform extends HADatAcThing implements Comparable<Platform> {
+@JsonFilter("platformFilter")
+public class Platform extends HADatAcClass implements Comparable<Platform> {
 
     private static final Logger log = LoggerFactory.getLogger(Platform.class);
-    public static String LAT = "http://semanticscience.org/resource/Latitude";
-	public static String LONG = "http://semanticscience.org/resource/Longitude";
+    public static String LAT = SIO.LATITUDE;
+	public static String LONG = SIO.LONGITUDE;
 	
-	public static String INSERT_LINE1 = "INSERT DATA {  ";
-    public static String DELETE_LINE1 = "DELETE WHERE {  ";
-    public static String DELETE_LINE3 = " ?p ?o . ";
-    public static String LINE_LAST = "}  ";
-    public static String PREFIX = "PLT-";
-
     private String location;
-    private Float firstCoordinate;
+    
+    @PropertyField(uri="hasco:hasFirstCoordinate")
+    private Float  firstCoordinate;
+    
+    @PropertyField(uri="hasco:hasFirstCoordinateUnit")
     private String firstCoordinateUnit;
+
+    @PropertyField(uri="hasco:hasFirstCoordinateCharacteristic")
     private String firstCoordinateCharacteristic;
-    private Float secondCoordinate;
+
+    @PropertyField(uri="hasco:hasSecondCoordinate")
+    private Float  secondCoordinate;
+
+    @PropertyField(uri="hasco:hasSecondCoordinateUnit")
     private String secondCoordinateUnit;
+
+    @PropertyField(uri="hasco:hasSecondCoordinateCharacteristic")
     private String secondCoordinateCharacteristic;
-    private Float thirdCoordinate;
+
+    @PropertyField(uri="hasco:hasThirdCoordinate")
+    private Float  thirdCoordinate;
+
+    @PropertyField(uri="hasco:hasThirdCoordinateUnit")
     private String thirdCoordinateUnit;
+
+    @PropertyField(uri="hasco:hasThirdCoordinateCharecteritic")
     private String thirdCoordinateCharacteristic;
+
     private String elevation;
+
+    @PropertyField(uri="hasco:partOf")
     private String partOf;
-    private String serialNumber;
+
+    @PropertyField(uri="hasco:hasImage")
     private String image;
+
+    @PropertyField(uri="hasco:hasLayout")
     private String layout;
+
+    @PropertyField(uri="hasco:hasReferenceLayout")
     private String referenceLayout;
+
+    @PropertyField(uri="hasco:hasUrl")
     private String url;
-    private Float width;
+
+    @PropertyField(uri="hasco:hasLayoutWidth")
+    private Float  width;
+
+    @PropertyField(uri="hasco:hasLayoutWidthUnit")
     private String widthUnit;
-    private Float depth;
+
+    @PropertyField(uri="hasco:hasLayoutDepth")
+    private Float  depth;
+
+    @PropertyField(uri="hasco:hasLayoutDepthUnit")
     private String depthUnit;
-    private Float height;
+
+    @PropertyField(uri="hasco:hasLayoutHeight")
+    private Float  height;
+
+    @PropertyField(uri="hasco:hasLayoutHeightUnit")
     private String heightUnit;
+
+    @PropertyField(uri="hasco:hasVersion")
+    private String hasVersion;
+
+    @PropertyField(uri="vstoi:hasSIRManagerEmail")
+    private String hasSIRManagerEmail;
 
     public Platform(String uri,
             String typeUri,
@@ -75,7 +123,6 @@ public class Platform extends HADatAcThing implements Comparable<Platform> {
         this.location = "";
         this.elevation = "";
         this.partOf = "";
-        this.serialNumber = "";
     }
 
     public String getLocation() {
@@ -84,12 +131,14 @@ public class Platform extends HADatAcThing implements Comparable<Platform> {
     public void setLocation(String location) {
         this.location = location;
     }
+
     public String getElevation() {
         return elevation;
     }
     public void setElevation(String elevation) {
         this.elevation = elevation;
     }
+
     public Float getFirstCoordinate() {
         return firstCoordinate;
     }
@@ -275,15 +324,22 @@ public class Platform extends HADatAcThing implements Comparable<Platform> {
         this.url = url;
     }
 
-    public String getSerialNumber() {
-        return serialNumber;
-    }
-    public void setSerialNumber(String serialNumber) {
-        this.serialNumber = serialNumber;
-    }
-
     public String getPartOf() {
         return partOf;
+    }
+
+    public String getHasVersion() {
+        return this.hasVersion;
+    }
+    public void setHasVersion(String hasVersion) {
+        this.hasVersion = hasVersion;
+    }
+
+    public String getHasSIRManagerEmail() {
+        return this.hasSIRManagerEmail;
+    }
+    public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
+        this.hasSIRManagerEmail = hasSIRManagerEmail;
     }
 
     public List<Platform> getImmediateSubPlatforms() {
@@ -391,54 +447,59 @@ public class Platform extends HADatAcThing implements Comparable<Platform> {
         while (stmtIterator.hasNext()) {
             statement = stmtIterator.next();
             object = statement.getObject();
-            if (statement.getPredicate().getURI().equals("http://www.w3.org/2000/01/rdf-schema#label")) {
-                platform.setLabel(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")) {
-                platform.setTypeUri(object.asResource().getURI());
-            } else if (statement.getPredicate().getURI().equals("http://www.w3.org/2000/01/rdf-schema#comment")) {
-                platform.setComment(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals("http://hadatac.org/ont/vstoi#hasSerialNumber")) {
-                platform.setSerialNumber(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals("http://hadatac.org/ont/hasco/hasFirstCoordinate")) {
-                platform.setFirstCoordinate(object.asLiteral().getFloat());
-            } else if (statement.getPredicate().getURI().equals("http://hadatac.org/ont/hasco/hasFirstCoordinateUnit")) {
-                platform.setFirstCoordinateUnit(object.asResource().getURI());
-            } else if (statement.getPredicate().getURI().equals("http://hadatac.org/ont/hasco/hasFirstCoordinateCharacteristic")) {
-                platform.setFirstCoordinateCharacteristic(object.asResource().getURI());
-            } else if (statement.getPredicate().getURI().equals("http://hadatac.org/ont/hasco/hasSecondCoordinate")) {
-                platform.setSecondCoordinate(object.asLiteral().getFloat());
-            } else if (statement.getPredicate().getURI().equals("http://hadatac.org/ont/hasco/hasSecondCoordinateUnit")) {
-                platform.setSecondCoordinateUnit(object.asResource().getURI());
-            } else if (statement.getPredicate().getURI().equals("http://hadatac.org/ont/hasco/hasSecondCoordinateCharacteristic")) {
-                platform.setSecondCoordinateCharacteristic(object.asResource().getURI());
-            } else if (statement.getPredicate().getURI().equals("http://hadatac.org/ont/hasco/hasThirdCoordinate")) {
-                platform.setThirdCoordinate(object.asLiteral().getFloat());
-            } else if (statement.getPredicate().getURI().equals("http://hadatac.org/ont/hasco/hasThirdCoordinateUnit")) {
-            	platform.setThirdCoordinateUnit(object.asResource().getURI());
-            } else if (statement.getPredicate().getURI().equals("http://hadatac.org/ont/hasco/hasThirdCoordinateCharacteristic")) {
-            	platform.setThirdCoordinateCharacteristic(object.asResource().getURI());
-            } else if (statement.getSubject().getURI().equals(uri) && statement.getPredicate().getURI().equals("http://hadatac.org/ont/hasco/partOf")) {
-            	platform.setPartOf(object.asResource().getURI());
-            } else if (statement.getPredicate().getURI().equals("http://hadatac.org/ont/hasco/hasImage")) {
-                platform.setImage(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals("http://hadatac.org/ont/hasco/hasLayout")) {
-                platform.setLayout(object.asLiteral().getString());
-            } else if (statement.getSubject().getURI().equals(uri) && statement.getPredicate().getURI().equals("http://hadatac.org/ont/hasco/hasReferenceLayout")) {
-                platform.setReferenceLayout(object.asResource().getURI());
-            } else if (statement.getPredicate().getURI().equals("http://hadatac.org/ont/hasco/hasLayoutWidth")) {
-                platform.setWidth(object.asLiteral().getFloat());
-            } else if (statement.getPredicate().getURI().equals("http://hadatac.org/ont/hasco/hasLayoutWidthUnit")) {
-                platform.setWidthUnit(object.asResource().getURI());
-            } else if (statement.getPredicate().getURI().equals("http://hadatac.org/ont/hasco/hasLayoutDepth")) {
-                platform.setDepth(object.asLiteral().getFloat());
-            } else if (statement.getPredicate().getURI().equals("http://hadatac.org/ont/hasco/hasLayoutDepthUnit")) {
-                platform.setDepthUnit(object.asResource().getURI());
-            } else if (statement.getPredicate().getURI().equals("http://hadatac.org/ont/hasco/hasLayoutHeight")) {
-                platform.setHeight(object.asLiteral().getFloat());
-            } else if (statement.getPredicate().getURI().equals("http://hadatac.org/ont/hasco/hasLayoutHeightUnit")) {
-                platform.setHeightUnit(object.asResource().getURI());
-            } else if (statement.getPredicate().getURI().equals("http://hadatac.org/ont/hasco/hasURL")) {
-                platform.setURL(object.asLiteral().getString());
+            String str = URIUtils.objectRDFToString(object);
+            if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
+                platform.setLabel(str);
+            } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
+                platform.setTypeUri(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
+                platform.setHascoTypeUri(str);
+            } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
+                platform.setComment(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_FIRST_COORDINATE)) {
+                platform.setFirstCoordinate(Float.parseFloat(str));
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_FIRST_COORDINATE_UNIT)) {
+                platform.setFirstCoordinateUnit(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_FIRST_COORDINATE_CHARACTERISTIC)) {
+                platform.setFirstCoordinateCharacteristic(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_SECOND_COORDINATE)) {
+                platform.setSecondCoordinate(Float.parseFloat(str));
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_SECOND_COORDINATE_UNIT)) {
+                platform.setSecondCoordinateUnit(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_SECOND_COORDINATE_CHARACTERISTIC)) {
+                platform.setSecondCoordinateCharacteristic(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_THIRD_COORDINATE)) {
+                platform.setThirdCoordinate(Float.parseFloat(str));
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_THIRD_COORDINATE_UNIT)) {
+            	platform.setThirdCoordinateUnit(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_THIRD_COORDINATE_CHARACTERISTIC)) {
+            	platform.setThirdCoordinateCharacteristic(str);
+            } else if (statement.getSubject().getURI().equals(uri) && statement.getPredicate().getURI().equals(HASCO.PART_OF)) {
+            	platform.setPartOf(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+                platform.setImage(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_LAYOUT)) {
+                platform.setLayout(str);
+            } else if (statement.getSubject().getURI().equals(uri) && statement.getPredicate().getURI().equals(HASCO.HAS_REFERENCE_LAYOUT)) {
+                platform.setReferenceLayout(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_LAYOUT_WIDTH)) {
+                platform.setWidth(Float.parseFloat(str));
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_LAYOUT_WIDTH_UNIT)) {
+                platform.setWidthUnit(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_LAYOUT_DEPTH)) {
+                platform.setDepth(Float.parseFloat(str));
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_LAYOUT_DEPTH_UNIT)) {
+                platform.setDepthUnit(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_LAYOUT_HEIGHT)) {
+                platform.setHeight(Float.parseFloat(str));
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_LAYOUT_HEIGHT_UNIT)) {
+                platform.setHeightUnit(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_URL)) {
+                platform.setURL(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_VERSION)) {
+                platform.setHasVersion(str);
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
+                platform.setHasSIRManagerEmail(str);
             }
         }
 
@@ -453,8 +514,9 @@ public class Platform extends HADatAcThing implements Comparable<Platform> {
         String query = "";
         query += NameSpaces.getInstance().printSparqlNameSpaceList();
         query += " select (count(?uri) as ?tot) where { " + 
-                " ?platModel rdfs:subClassOf* vstoi:Platform . " + 
-                " ?uri a ?platModel ." + 
+                " ?uri hasco:hascoType <" + VSTOI.PLATFORM + "> . " +
+                //" ?platModel rdfs:subClassOf* vstoi:Platform . " + 
+                //" ?uri a ?platModel ." + 
                 "}";
 
         try {
@@ -475,8 +537,9 @@ public class Platform extends HADatAcThing implements Comparable<Platform> {
         List<Platform> platforms = new ArrayList<Platform>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + 
         		"SELECT ?uri WHERE { " + 
-                " ?platModel rdfs:subClassOf* vstoi:Platform . " + 
-                " ?uri a ?platModel . } " + 
+                " ?uri hasco:hascoType <" + VSTOI.PLATFORM + "> . " +
+                //" ?platModel rdfs:subClassOf* vstoi:Platform . " + 
+                //" ?uri a ?platModel . } " + 
                 " LIMIT " + pageSize + 
                 " OFFSET " + offset;
 
@@ -497,8 +560,9 @@ public class Platform extends HADatAcThing implements Comparable<Platform> {
         List<Platform> platforms = new ArrayList<Platform>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?platModel rdfs:subClassOf* vstoi:Platform . " + 
-                " ?uri a ?platModel ." + 
+                " ?uri hasco:hascoType <" + VSTOI.PLATFORM + "> . " +
+                //" ?platModel rdfs:subClassOf* vstoi:Platform . " + 
+                //" ?uri a ?platModel ." + 
                 "} ";
 
         ResultSetRewindable resultsrw = SPARQLUtils.select(
@@ -519,8 +583,9 @@ public class Platform extends HADatAcThing implements Comparable<Platform> {
         List<Platform> platforms = new ArrayList<Platform>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?platModel rdfs:subClassOf* vstoi:Platform . " + 
-                " ?uri a ?platModel ." +
+                //" ?platModel rdfs:subClassOf* vstoi:Platform . " + 
+                //" ?uri a ?platModel ." +
+                " ?uri hasco:hascoType <" + VSTOI.PLATFORM + "> . " +
                 " ?uri hasco:hasFirstCoordinate ?lat . " +
                 " ?uri hasco:hasSecondCoordinate ?lon . " +
                 " ?uri hasco:hasFirstCoordinateCharacteristic <" + LAT + "> . " +
@@ -545,5 +610,17 @@ public class Platform extends HADatAcThing implements Comparable<Platform> {
     public int compareTo(Platform another) {
         return this.getLabel().compareTo(another.getLabel());
     }
+
+    @Override
+    public void save() {
+        System.out.println("Saving platform [" + uri + "]");
+        saveToTripleStore();
+    }
+
+    @Override
+    public void delete() {
+        deleteFromTripleStore();
+    }
+
 
 }

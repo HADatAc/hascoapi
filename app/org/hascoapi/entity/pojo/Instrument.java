@@ -31,6 +31,13 @@ public class Instrument extends Container {
 
 	private static final Logger log = LoggerFactory.getLogger(Instrument.class);
 
+	public Instrument() {
+		super();
+    }
+    
+	public Instrument(String className) {
+		super(className);
+    }
     
 	@Override
 	public boolean equals(Object o) {
@@ -61,7 +68,7 @@ public class Instrument extends Container {
 		if (!stmtIterator.hasNext()) {
 			return null;
 		} else {
-			instrument = new Instrument();
+			instrument = new Instrument(VSTOI.INSTRUMENT);
 		}
 		
 		while (stmtIterator.hasNext()) {
@@ -71,16 +78,14 @@ public class Instrument extends Container {
 			if (uri != null && !uri.isEmpty()) {
 				if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
 					instrument.setLabel(str);
-				} else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
-					instrument.setTypeUri(str); 
+				} else if (statement.getPredicate().getURI().equals(RDFS.SUBCLASS_OF)) {
+					instrument.setSuperUri(str); 
 				} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
 					instrument.setHascoTypeUri(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
 					instrument.setHasStatus(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_FIRST)) {
 					instrument.setHasFirst(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
-					instrument.setSerialNumber(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_INFORMANT)) {
 					instrument.setHasInformant(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
@@ -157,6 +162,7 @@ public class Instrument extends Container {
 	}
 	
     @Override public void save() {
+		//System.out.println("Instrument.java: Saving " + getUri() + " into triple store.");
 		saveToTripleStore();
 	}
 

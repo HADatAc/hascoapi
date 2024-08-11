@@ -47,6 +47,10 @@ public class HADatAcClass extends HADatAcThing {
     public  List<String> isRangeOf = null;
     public  List<String> isDisjointWith = null;
 
+    public HADatAcClass () {
+        this.className = "";
+    }
+
     public HADatAcClass (String currentClassName) {
         if (currentClassName == null) {
             currentClassName = "";
@@ -333,7 +337,8 @@ public class HADatAcClass extends HADatAcThing {
     public TreeNode getSuperClasses() {
         ArrayList<TreeNode> branchCollection = new ArrayList<TreeNode>();
         if (this.uri == null) {
-            return null;
+            // return null;
+            return new TreeNode("");
         }
         HADatAcClass current = find(this.uri);
         while (current != null) {
@@ -353,11 +358,13 @@ public class HADatAcClass extends HADatAcThing {
         }
         TreeNode result = buildTree(branchCollection);
         if (result.getChildren() == null || result.getChildren().size() <= 0) {
-            return null;
+            return new TreeNode("");
+            //return null;
         }
         return result.getChildren().get(0);
     }
 
+    @JsonIgnore
     public TreeNode getSubClasses() {
         String node = null;
         String nodeLabel = null;
@@ -407,13 +414,15 @@ public class HADatAcClass extends HADatAcThing {
             if (result.getChildren() == null || result.getChildren().size() <= 0) {
                 return new TreeNode("");
             }
+            if (result.getChildren().get(0) == null) {
+                return new TreeNode("");
+            }
             return result.getChildren().get(0);
 
         } catch (Exception e) {
             e.printStackTrace();
+            return new TreeNode("");
         }
-
-        return new TreeNode("");
     }
 
     @JsonIgnore

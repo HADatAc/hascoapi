@@ -16,7 +16,10 @@ public class VSTOI {
     public static final String CONTAINER = "http://hadatac.org/ont/vstoi#Container";
     public static final String DETECTOR = "http://hadatac.org/ont/vstoi#Detector";
     public static final String INSTRUMENT = "http://hadatac.org/ont/vstoi#Instrument";
+    public static final String PHYSICAL_INSTRUMENT = "http://hadatac.org/ont/vstoi#PhysicalInstrument";
+    public static final String PLATFORM = "http://hadatac.org/ont/vstoi#Platform";
     public static final String QUESTIONNAIRE = "http://hadatac.org/ont/vstoi#Questionnaire";
+    public static final String SIMULATION_MODEL = "http://hadatac.org/ont/vstoi#SimulationModel";
     public static final String SUBCONTAINER = "http://hadatac.org/ont/vstoi#Subcontainer";
 
     /*
@@ -40,24 +43,30 @@ public class VSTOI {
     public static final String ANNOTATION = "http://hadatac.org/ont/vstoi#Annotation";
     public static final String CODEBOOK = "http://hadatac.org/ont/vstoi#Codebook";
     public static final String DETECTOR_STEM = "http://hadatac.org/ont/vstoi#DetectorStem";
+    public static final String DETECTOR_INSTANCE = "http://hadatac.org/ont/vstoi#DetectorInstance";
     public static final String CONTAINER_SLOT = "http://hadatac.org/ont/vstoi#ContainerSlot";
     public static final String INFORMANT = "http://hadatac.org/ont/vstoi#Informant";
     public static final String ITEM = "http://hadatac.org/ont/vstoi#Item";
+    public static final String INSTRUMENT_INSTANCE = "http://hadatac.org/ont/vstoi#InstrumentInstance";
+    public static final String PLATFORM_INSTANCE = "http://hadatac.org/ont/vstoi#PlatformInstance";
     public static final String PSYCHOMETRIC_QUESTIONNAIRE = "http://hadatac.org/ont/vstoi#PsychometricQuestionnaire";
     public static final String RESPONSE_OPTION = "http://hadatac.org/ont/vstoi#ResponseOption";
     public static final String CODEBOOK_SLOT = "http://hadatac.org/ont/vstoi#CodebookSlot";
     public static final String TABLE = "http://hadatac.org/ont/vstoi#Table";
+    public static final String VSTOI_INSTANCE = "http://hadatac.org/ont/vstoi#VSTOIInstance";
 
     /*
      * PROPERTIES
      */
 
+    public static final String HAS_ACQUISITION_DATE = "http://hadatac.org/ont/vstoi#hasAcquisitionDate";    
     public static final String BELONGS_TO = "http://hadatac.org/ont/vstoi#belongsTo";
     public static final String HAS_ANNOTATION_STEM = "http://hadatac.org/ont/vstoi#hasAnnotationStem";
     public static final String HAS_CODEBOOK = "http://hadatac.org/ont/vstoi#hasCodebook";
     public static final String HAS_CONTENT = "http://hadatac.org/ont/vstoi#hasContent";
     public static final String HAS_CONTENT_WITH_STYLE = "http://hadatac.org/ont/vstoi#hasContentWithStyle";
     public static final String HAS_DETECTOR = "http://hadatac.org/ont/vstoi#hasDetector";
+    public static final String HAS_DAMAGE_DATE = "http://hadatac.org/ont/vstoi#hasDamageDate";
     public static final String HAS_DETECTOR_STEM = "http://hadatac.org/ont/vstoi#hasDetectorStem";
     public static final String HAS_FIRST = "http://hadatac.org/ont/vstoi#hasFirst";
     public static final String HAS_INFORMANT = "http://hadatac.org/ont/vstoi#hasInformant";
@@ -73,6 +82,7 @@ public class VSTOI {
     public static final String HAS_SUBCONTAINER = "http://hadatac.org/ont/vstoi#hasSubcontainer";
     public static final String HAS_VERSION = "http://hadatac.org/ont/vstoi#hasVersion";
     public static final String HOST_TYPE = "http://hadatac.org/ont/vstoi#hostType";
+    public static final String IS_DAMAGED = "http://hadatac.org/ont/vstoi#isDamaged";
     public static final String OF_CODEBOOK = "http://hadatac.org/ont/vstoi#ofCodebook";
 
     /*
@@ -137,6 +147,15 @@ public class VSTOI {
         containerPosition.put(BOTTOM_RIGHT, "BottomRight");
         containerPosition.put(LINE_ABOVE_BOTTOM, "LineAboveBottom");
         containerPosition.put(NOT_VISIBLE, "NotVisible");
+    }
+
+    public static final String DEFAULT_INSTRUMENT_TYPE = INSTRUMENT;
+    public static Map<String, String> instrumentType;
+    static {
+        instrumentType = new HashMap<>();
+        instrumentType.put(QUESTIONNAIRE, "Questionnaire");
+        instrumentType.put(PHYSICAL_INSTRUMENT, "PhysicalInstrument");
+        instrumentType.put(SIMULATION_MODEL, "SimulationModel");
     }
 
     public static final String DEFAULT_PAGE_POSITION = "http://hadatac.org/ont/vstoi#PageTopCenter";

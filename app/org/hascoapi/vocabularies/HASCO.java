@@ -1,5 +1,7 @@
 package org.hascoapi.vocabularies;
 
+import org.hascoapi.annotations.PropertyField;
+
 public class HASCO {
 
     public static final String HASCO                                  = "http://hadatac.org/ont/hasco/";
@@ -13,6 +15,7 @@ public class HASCO {
     public static final String DATAFILE                               = "http://hadatac.org/ont/hasco/DataFile";
     public static final String DD                                     = "http://hadatac.org/ont/hasco/DD";
     public static final String DEPLOYMENT                             = "http://hadatac.org/ont/hasco/Deployment";
+    public static final String DP2                                    = "http://hadatac.org/ont/hasco/DP2";
     public static final String DSG                                    = "http://hadatac.org/ont/hasco/DSG";
     public static final String INS                                    = "http://hadatac.org/ont/hasco/INS";
     public static final String KNOWLEDGE_GRAPH                        = "http://hadatac.org/ont/hasco/KnowledgeGraph";
@@ -29,6 +32,7 @@ public class HASCO {
     public static final String SDD_OBJECT                             = "http://hadatac.org/ont/hasco/SDDObject";
     public static final String SEMANTIC_VARIABLE                      = "http://hadatac.org/ont/hasco/SemanticVariable";
     public static final String STR                                    = "http://hadatac.org/ont/hasco/STR";
+    public static final String STREAM                                 = "http://hadatac.org/ont/hasco/Stream";
     public static final String STUDY                                  = "http://hadatac.org/ont/hasco/Study";
     public static final String STUDY_OBJECT                           = "http://hadatac.org/ont/hasco/StudyObject";
     public static final String STUDY_OBJECT_COLLECTION                = "http://hadatac.org/ont/hasco/StudyObjectCollection";
@@ -115,6 +119,7 @@ public class HASCO {
     public static final String HAS_TIME_OBJECT_SCOPE                  = "http://hadatac.org/ont/hasco/hasTimeObjectScope";
     public static final String HAS_THIRD_COORDINATE                   = "http://hadatac.org/ont/hasco/hasThirdCoordinate";
     public static final String HAS_THIRD_COORDINATE_UNIT              = "http://hadatac.org/ont/hasco/hasThirdCoordinateUnit";
+    public static final String HAS_THIRD_COORDINATE_CHARACTERISTIC    = "http://hadatac.org/ont/hasco/hasThirdCoordinateCharacteristic";
     public static final String HAS_TITLE                              = "http://hadatac.org/ont/hasco/hasTitle";
     public static final String HAS_UNIT                               = "http://hadatac.org/ont/hasco/hasUnit";
     public static final String HAS_URL                                = "http://hadatac.org/ont/hasco/hasURL";
@@ -126,6 +131,7 @@ public class HASCO {
     public static final String IS_POSSIBLE_VALUE_OF                   = "http://hadatac.org/ont/hasco/isPossibleValueOf";
     public static final String HASCO_TYPE                             = "http://hadatac.org/ont/hasco/hascoType";
     public static final String ORIGINAL_ID                            = "http://hadatac.org/ont/hasco/originalID";
+    public static final String PART_OF                                = "http://hadatac.org/ont/hasco/partOf";
     public static final String PART_OF_SCHEMA                         = "http://hadatac.org/ont/hasco/partOfSchema";
 
 }

@@ -16,7 +16,7 @@ import org.apache.jena.update.UpdateFactory;
 import org.apache.jena.update.UpdateProcessor;
 import org.apache.jena.update.UpdateRequest;
 //import org.hascoapi.console.models.SysUser;
-import org.hascoapi.entity.pojo.STR;
+import org.hascoapi.entity.pojo.Stream;
 import org.hascoapi.entity.pojo.Study;
 import org.hascoapi.entity.pojo.SDD;
 import org.hascoapi.entity.pojo.SDDAttribute;
@@ -119,7 +119,7 @@ public class STRFileGenerator extends BaseGenerator {
     		return null;
     	}
     	
-        STR str = new STR();
+        Stream str = new Stream();
 
         str.setUri(URIUtils.replacePrefixEx((String)row.get("hasURI")));
         str.setStudyUri(URIUtils.replacePrefixEx((String)row.get("hasco:isDataAcquisitionOf")));
@@ -275,7 +275,7 @@ public class STRFileGenerator extends BaseGenerator {
         return str;
     }
 
-    public boolean isFileStreamValid(STR str) {
+    public boolean isFileStreamValid(Stream str) {
     	boolean resp = true;
         //Record record = dataFile.getRecordFile().getRecords().get(0);
         //String studyName = record.getValueByColumnName("Study ID");

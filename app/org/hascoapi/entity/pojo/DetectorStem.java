@@ -17,7 +17,7 @@ import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.vocabularies.*;
 
 @JsonFilter("detectorStemFilter")
-public class DetectorStem extends HADatAcThing implements SIRElement, Comparable<DetectorStem>  {
+public class DetectorStem extends HADatAcClass implements SIRElement, Comparable<DetectorStem>  {
 
     @PropertyField(uri="vstoi:hasStatus")
     private String hasStatus;
@@ -125,6 +125,7 @@ public class DetectorStem extends HADatAcThing implements SIRElement, Comparable
         this.hasSIRManagerEmail = hasSIRManagerEmail;
     }
 
+    /* 
     public String getTypeLabel() {
         DetectorStemType detType = DetectorStemType.find(getTypeUri());
         if (detType == null || detType.getLabel() == null) {
@@ -139,6 +140,14 @@ public class DetectorStem extends HADatAcThing implements SIRElement, Comparable
             return "";
         }
         return detType.getURL();
+    }
+    */
+
+    public DetectorStem () {
+    }
+
+    public DetectorStem (String className) {
+		super(className);
     }
 
     public static List<DetectorStem> findByInstrument(String instrumentUri) {
@@ -219,15 +228,15 @@ public class DetectorStem extends HADatAcThing implements SIRElement, Comparable
             return null;
         }
 
-        detectorStem = new DetectorStem();
+        detectorStem = new DetectorStem(VSTOI.DETECTOR_STEM);
 
         while (stmtIterator.hasNext()) {
             statement = stmtIterator.next();
             object = statement.getObject();
             if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
                 detectorStem.setLabel(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
-                detectorStem.setTypeUri(object.asResource().getURI());
+            } else if (statement.getPredicate().getURI().equals(RDFS.SUBCLASS_OF)) {
+                detectorStem.setSuperUri(object.asResource().getURI());
             } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
                 detectorStem.setComment(object.asLiteral().getString());
             } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {

@@ -39,7 +39,7 @@ public class DetectorStemAPI extends Controller {
         } else if (testSemanticVariable1 == null || testSemanticVariable2 == null) {
             return ok(ApiUtil.createResponse("Create TestSemanticVariables 1 and 2 before creating TestDetectorStems.", false));
         } else {
-            testDetectorStem1 = new DetectorStem();
+            testDetectorStem1 = new DetectorStem(VSTOI.DETECTOR_STEM);
             testDetectorStem1.setUri(TEST_DETECTOR_STEM1_URI);
             testDetectorStem1.setLabel("Test Detector Stem 1");
             testDetectorStem1.setTypeUri(VSTOI.DETECTOR_STEM);
@@ -53,7 +53,7 @@ public class DetectorStemAPI extends Controller {
             testDetectorStem1.setNamedGraph(Constants.TEST_KB);
             testDetectorStem1.save();
 
-            testDetectorStem2 = new DetectorStem();
+            testDetectorStem2 = new DetectorStem(VSTOI.DETECTOR_STEM);
             testDetectorStem2.setUri(TEST_DETECTOR_STEM2_URI);
             testDetectorStem2.setLabel("Test Detector Stem 2");
             testDetectorStem2.setTypeUri(VSTOI.DETECTOR_STEM);

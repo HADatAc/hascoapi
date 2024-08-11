@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import static org.hascoapi.Constants.*;
 
 @JsonFilter("containerFilter")
-public abstract class Container extends HADatAcThing implements SIRElement, Comparable<Container> {
+public abstract class Container extends HADatAcClass implements SIRElement, Comparable<Container> {
 
 	private static final Logger log = LoggerFactory.getLogger(Container.class);
 
@@ -36,9 +36,6 @@ public abstract class Container extends HADatAcThing implements SIRElement, Comp
 
 	@PropertyField(uri="vstoi:hasFirst")
 	private String hasFirst;
-
-	@PropertyField(uri="vstoi:hasSerialNumber")
-	private String serialNumber;
 
 	@PropertyField(uri="vstoi:hasInformant")
 	private String hasInformant;
@@ -84,14 +81,6 @@ public abstract class Container extends HADatAcThing implements SIRElement, Comp
 
 	public void setHasFirst(String hasFirst) {
 		this.hasFirst = hasFirst;
-	}
-
-	public String getSerialNumber() {
-		return serialNumber;
-	}
-
-	public void setSerialNumber(String serialNumber) {
-		this.serialNumber = serialNumber;
 	}
 
 	public String getHasInformant() {
@@ -193,6 +182,12 @@ public abstract class Container extends HADatAcThing implements SIRElement, Comp
     public List<SlotElement> getSlotElements() {
     	List<SlotElement> slotElements = Container.getSlotElements(this);
     	return slotElements;
+    }
+
+	public Container () {}
+
+	public Container (String className) {
+		super(className);
     }
 
 	@JsonIgnore
@@ -313,9 +308,9 @@ public abstract class Container extends HADatAcThing implements SIRElement, Comp
 		String typeUri = retrieveTypeUri(uri);
 		//System.out.println("Container.find(): typeUri = [" + typeUri + "]");
 		if (typeUri.equals(VSTOI.INSTRUMENT)) {
-			container = new Instrument();
+			container = new Instrument(VSTOI.INSTRUMENT);
 		} else if (typeUri.equals(VSTOI.SUBCONTAINER)) {
-			container = new Subcontainer();
+			container = new Subcontainer(VSTOI.SUBCONTAINER);
 		} else {
 			return null;
 		}
@@ -340,8 +335,8 @@ public abstract class Container extends HADatAcThing implements SIRElement, Comp
 			if (uri != null && !uri.isEmpty()) {
 				if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
 					container.setLabel(str);
-				} else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
-					container.setTypeUri(str); 
+				} else if (statement.getPredicate().getURI().equals(RDFS.SUBCLASS_OF)) {
+					container.setSuperUri(str); 
 				} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
 					container.setHascoTypeUri(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
@@ -354,8 +349,6 @@ public abstract class Container extends HADatAcThing implements SIRElement, Comp
 					container.setHasNext(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PREVIOUS)) {
 					container.setHasPrevious(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
-					container.setSerialNumber(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_INFORMANT)) {
 					container.setHasInformant(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {

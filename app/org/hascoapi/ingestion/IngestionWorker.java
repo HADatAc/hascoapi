@@ -23,7 +23,7 @@ import org.apache.jena.update.UpdateExecutionFactory;
 import org.apache.jena.update.UpdateFactory;
 import org.apache.jena.update.UpdateProcessor;
 import org.apache.jena.update.UpdateRequest;
-import org.hascoapi.entity.pojo.STR;
+import org.hascoapi.entity.pojo.Stream;
 import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.Constants;
 import org.hascoapi.entity.pojo.DOI;
@@ -139,6 +139,9 @@ public class IngestionWorker {
             
         } else if (fileName.startsWith("DPL-")) {
             chain = annotateDPLFile(dataFile);
+            
+        } else if (fileName.startsWith("INS-")) {
+            chain = annotateINSFile(dataFile);
             
         } else if (fileName.startsWith("STR-")) {
             //checkSTRFile(dataFile);
@@ -504,6 +507,160 @@ public class IngestionWorker {
                     e.printStackTrace();
                 }
             }
+        }
+        return chain;
+    }
+
+    /****************************
+     *    INS                   *
+     ****************************/    
+    
+     public static GeneratorChain annotateINSFile(DataFile dataFile) {
+        RecordFile recordFile = new SpreadsheetRecordFile(dataFile.getFile(), "InfoSheet");
+        if (!recordFile.isValid()) {
+            dataFile.getLogger().printExceptionById("DPL_00001");
+            return null;
+        } else {
+            dataFile.setRecordFile(recordFile);
+        }
+        
+        Map<String, String> mapCatalog = new HashMap<String, String>();
+        for (Record record : dataFile.getRecordFile().getRecords()) {
+            mapCatalog.put(record.getValueByColumnIndex(0), record.getValueByColumnIndex(1));
+            System.out.println(record.getValueByColumnIndex(0) + ":" + record.getValueByColumnIndex(1));
+        }
+
+        GeneratorChain chain = new GeneratorChain();
+        RecordFile sheet = null;
+
+        try {
+            String responseOptionSheet = mapCatalog.get("ResponseOptions");
+            if (responseOptionSheet == null) {
+                System.out.println("[WARNING] 'ResponseOptions' sheet is missing.");
+                dataFile.getLogger().println("[WARNING] 'ResponseOptions' sheet is missing.");
+            } else {
+                responseOptionSheet.replace("#", "");
+                sheet = new SpreadsheetRecordFile(dataFile.getFile(), responseOptionSheet);
+                try {
+                    DataFile dataFileForSheet = (DataFile)dataFile.clone();
+                    dataFileForSheet.setRecordFile(sheet);
+                    INSGenerator respOptionGen = new INSGenerator("responseoption",dataFileForSheet);
+                    respOptionGen.setNamedGraphUri(dataFileForSheet.getUri());
+                    chain.addGenerator(respOptionGen);
+                } catch (CloneNotSupportedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            String codeBookSheet = mapCatalog.get("CodeBooks");
+            if (codeBookSheet == null) {
+                System.out.println("[WARNING] 'CodeBooks' sheet is missing.");
+                dataFile.getLogger().println("[WARNING] 'CodeBooks' sheet is missing.");
+            } else {
+                codeBookSheet.replace("#", "");
+                sheet = new SpreadsheetRecordFile(dataFile.getFile(), codeBookSheet);
+                try {
+                    DataFile dataFileForSheet = (DataFile)dataFile.clone();
+                    dataFileForSheet.setRecordFile(sheet);
+                    INSGenerator codeBookGen = new INSGenerator("codebook",dataFileForSheet);
+                    codeBookGen.setNamedGraphUri(dataFileForSheet.getUri());
+                    chain.addGenerator(codeBookGen);
+                } catch (CloneNotSupportedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            String codeBookSlotSheet = mapCatalog.get("CodeBookSlots");
+            if (codeBookSlotSheet == null) {
+                System.out.println("[WARNING] 'CodeBookSlots' sheet is missing.");
+                dataFile.getLogger().println("[WARNING] 'CodeBookSlots' sheet is missing.");
+            } else {
+                codeBookSlotSheet.replace("#", "");
+                sheet = new SpreadsheetRecordFile(dataFile.getFile(), codeBookSlotSheet);
+                try {
+                    DataFile dataFileForSheet = (DataFile)dataFile.clone();
+                    dataFileForSheet.setRecordFile(sheet);
+                    CodeBookSlotGenerator cbSlotGen = new CodeBookSlotGenerator(dataFileForSheet);
+                    cbSlotGen.setNamedGraphUri(dataFileForSheet.getUri());
+                    chain.addGenerator(cbSlotGen);
+                } catch (CloneNotSupportedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            String detectorStemSheet = mapCatalog.get("DetectorStems");
+            if (detectorStemSheet == null) {
+                System.out.println("[WARNING] 'DetectorStems' sheet is missing.");
+                dataFile.getLogger().println("[WARNING] 'DetectorStems' sheet is missing.");
+            } else {
+                detectorStemSheet.replace("#", "");
+                sheet = new SpreadsheetRecordFile(dataFile.getFile(), detectorStemSheet);
+                try {
+                    DataFile dataFileForSheet = (DataFile)dataFile.clone();
+                    dataFileForSheet.setRecordFile(sheet);
+                    INSGenerator detStemGen = new INSGenerator("detectorstem",dataFileForSheet);
+                    detStemGen.setNamedGraphUri(dataFileForSheet.getUri());
+                    chain.addGenerator(detStemGen);
+                } catch (CloneNotSupportedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            String detectorSheet = mapCatalog.get("Detectors");
+            if (detectorSheet == null) {
+                System.out.println("[WARNING] 'Detectors' sheet is missing.");
+                dataFile.getLogger().println("[WARNING] 'Detectors' sheet is missing.");
+            } else {
+                detectorSheet.replace("#", "");
+                sheet = new SpreadsheetRecordFile(dataFile.getFile(), detectorSheet);
+                try {
+                    DataFile dataFileForSheet = (DataFile)dataFile.clone();
+                    dataFileForSheet.setRecordFile(sheet);
+                    DetectorGenerator detGen = new DetectorGenerator(dataFileForSheet);
+                    detGen.setNamedGraphUri(dataFileForSheet.getUri());
+                    chain.addGenerator(detGen);
+                } catch (CloneNotSupportedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            String containerSlotSheet = mapCatalog.get("ContainerSlots");
+            if (containerSlotSheet == null) {
+                System.out.println("[WARNING] 'ContainerSlots' sheet is missing.");
+                dataFile.getLogger().println("[WARNING] 'ContainerSlots' sheet is missing.");
+            } else {
+                containerSlotSheet.replace("#", "");
+                sheet = new SpreadsheetRecordFile(dataFile.getFile(), containerSlotSheet);
+                try {
+                    DataFile dataFileForSheet = (DataFile)dataFile.clone();
+                    dataFileForSheet.setRecordFile(sheet);
+                    ContainerSlotGenerator slotGen = new ContainerSlotGenerator(dataFileForSheet);
+                    slotGen.setNamedGraphUri(dataFileForSheet.getUri());
+                    chain.addGenerator(slotGen);
+                } catch (CloneNotSupportedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            String instrumentSheet = mapCatalog.get("Instruments");
+            if (containerSlotSheet == null) {
+                System.out.println("[WARNING] 'Instruments' sheet is missing.");
+                dataFile.getLogger().println("[WARNING] 'Instruments' sheet is missing.");
+            } else {
+                instrumentSheet.replace("#", "");
+                sheet = new SpreadsheetRecordFile(dataFile.getFile(), instrumentSheet);
+                try {
+                    DataFile dataFileForSheet = (DataFile)dataFile.clone();
+                    dataFileForSheet.setRecordFile(sheet);
+                    INSGenerator ins = new INSGenerator("instrument",dataFileForSheet);
+                    ins.setNamedGraphUri(dataFileForSheet.getUri());
+                    chain.addGenerator(ins);
+                } catch (CloneNotSupportedException e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         return chain;
