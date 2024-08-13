@@ -282,6 +282,60 @@ public class HADatAcClass extends HADatAcThing {
         return typeClass;
     }
 
+    public static HADatAcClass lightWeightedFind(String classUri) {
+        HADatAcClass typeClass = null;
+        Statement statement;
+        RDFNode subject;
+        RDFNode object;
+
+        String queryString = "DESCRIBE <" + classUri + ">";
+        Model model = SPARQLUtils.describe(CollectionUtil.getCollectionPath(
+                CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+        StmtIterator stmtIterator = model.listStatements();
+
+        // returns null if not statement is found
+        if (!stmtIterator.hasNext()) {
+            return typeClass;
+        }
+
+        typeClass = new HADatAcClass("");
+
+        while (stmtIterator.hasNext()) {
+            statement = stmtIterator.next();
+            subject = statement.getSubject();
+            object = statement.getObject();
+            //System.out.println("pred: " + statement.getPredicate().getURI());
+            String predUri = statement.getPredicate().getURI();
+            if (predUri.equals(RDFS.LABEL)) {
+                typeClass.setLabel(object.asLiteral().getString());
+            } else if (predUri.equals(RDF.TYPE)) {
+                String objUri = object.asResource().getURI();
+                //System.out.println("obj: " + objUri);
+                if (objUri != null && !objUri.equals(classUri)) {
+                    typeClass.setTypeUri(objUri);
+                }
+            } else if (predUri.equals(RDFS.SUBCLASS_OF)) {
+                String objUri = object.asResource().getURI();
+                //System.out.println("is subClass of [" + objUri + "]");
+                if (objUri != null && !objUri.equals(classUri)) {
+                    typeClass.setSuperUri(objUri);
+                }
+            } else if (predUri.equals(RDFS.COMMENT) ||
+                       predUri.equals(PROV.DEFINITION)) {
+                String textStr = object.asLiteral().getString();
+                if (textStr != null) {
+                    typeClass.setComment(textStr);
+                }
+            }
+        }
+
+        typeClass.setUri(classUri);
+        typeClass.setLocalName(classUri.substring(classUri.indexOf('#') + 1));
+
+        return typeClass;
+    }
+
     @JsonIgnore
     public String getHierarchyJson() {
         //System.out.println("Inside HADatAcClass's getHierarchyJson: [" + className + "]");
@@ -334,6 +388,7 @@ public class HADatAcClass extends HADatAcThing {
         return "";
     }
 
+    @JsonIgnore
     public TreeNode getSuperClasses() {
         ArrayList<TreeNode> branchCollection = new ArrayList<TreeNode>();
         if (this.uri == null) {

@@ -127,6 +127,8 @@ public class URIPage extends Controller {
                 return null;
             }
 
+            System.out.println("URIPage.objectFromUri(): HASCO TYPE [" + result.getHascoTypeUri() + "]");
+
             /*
              * if (result.getHascoTypeUri() == null || result.getHascoTypeUri().isEmpty()) {
              * System.out.println("inside getUri(): typeUri [" + result.getTypeUri() + "]");
@@ -232,7 +234,7 @@ public class URIPage extends Controller {
         try {
             ObjectNode obj = mapper.convertValue(result, ObjectNode.class);
             jsonObject = mapper.convertValue(obj, JsonNode.class);
-            //System.out.println(org.hascoapi.console.controllers.restapiURIPage.prettyPrintJsonString(jsonObject));
+            //System.out.println(org.hascoapi.console.controllers.restapi.URIPage.prettyPrintJsonString(jsonObject));
         } catch (Exception e) {
             e.printStackTrace();
             return ok(ApiUtil.createResponse("Error processing the json object for URI [" + uri + "]", false));

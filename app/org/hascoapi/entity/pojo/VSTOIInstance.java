@@ -83,6 +83,13 @@ public abstract class VSTOIInstance extends HADatAcThing implements Comparable<V
 		this.hasSIRManagerEmail = hasSIRManagerEmail;
 	}
 
+	public HADatAcClass getType() {
+		if (this.getTypeUri() == null || this.getTypeUri().isEmpty()) {
+			return null;
+		}
+		return HADatAcClass.lightWeightedFind(this.getTypeUri()); 
+	}
+
 	/* 
 	private static List<VSTOIInstance> findManyByQuery(String queryString) {
         String query = NameSpaces.getInstance().printSparqlNameSpaceList() + queryString;
@@ -138,8 +145,8 @@ public abstract class VSTOIInstance extends HADatAcThing implements Comparable<V
 			if (uri != null && !uri.isEmpty()) {
 				if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
 					instance.setLabel(str);
-				//} else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
-				//	instance.setTypeUri(str); 
+				} else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
+					instance.setTypeUri(str); 
 				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
 					instance.setComment(str);
 				//} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
