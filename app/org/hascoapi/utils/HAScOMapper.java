@@ -134,6 +134,25 @@ public class HAScOMapper {
                             "hascoTypeLabel", "hasVersion",  "comment", "hasDataFileUri", "hasDataFile"));
         }
 
+        // DEPLOYMENT
+        if (mode.equals(FULL) && typeResult.equals(VSTOI.DEPLOYMENT)) {
+            filterProvider.addFilter("deploymentFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("deploymentFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
+                            "hascoTypeLabel", "comment", "hasVersion", "hasPlatformUri", "hasInstrumentUri", "hasDetectorUri",
+                            "designedAt", "startedAt", "endedAt"));
+        }
+
+        // DP2
+        if (mode.equals(FULL) && typeResult.equals(HASCO.DP2)) {
+            filterProvider.addFilter("dp2Filter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("dp2Filter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
+                            "hascoTypeLabel", "hasVersion",  "comment", "hasDataFileUri", "hasDataFile"));
+        }
+
         // DETECTOR
         if (mode.equals(FULL) && typeResult.equals(VSTOI.DETECTOR)) {
             filterProvider.addFilter("detectorFilter", SimpleBeanPropertyFilter.serializeAll());
@@ -167,24 +186,6 @@ public class HAScOMapper {
         // DETECTOR_STEM_TYPE
         filterProvider.addFilter("detectorStemTypeFilter", 
             SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "className", "superUri", "superLabel", "comment"));
-
-        // DEPLOYMENT
-        if (mode.equals(FULL) && typeResult.equals(HASCO.DEPLOYMENT)) {
-            filterProvider.addFilter("deploymentFilter", SimpleBeanPropertyFilter.serializeAll());
-        } else {
-            filterProvider.addFilter("deploymentFilter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment"));
-        }
-
-        // DP2
-        if (mode.equals(FULL) && typeResult.equals(HASCO.DP2)) {
-            filterProvider.addFilter("dp2Filter", SimpleBeanPropertyFilter.serializeAll());
-        } else {
-            filterProvider.addFilter("dp2Filter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "hasVersion",  "comment", "hasDataFileUri", "hasDataFile"));
-        }
 
         // DSG
         if (mode.equals(FULL) && typeResult.equals(HASCO.DSG)) {
@@ -470,7 +471,7 @@ public class HAScOMapper {
         } else if (clazz == DetectorStemType.class) {
             return getFiltered(mode, VSTOI.DETECTOR_STEM);  // DETECTOR_STEM_TYPE == DETECTOR_STEM
         } else if (clazz == Deployment.class) {
-            return getFiltered(mode, HASCO.DEPLOYMENT);
+            return getFiltered(mode, VSTOI.DEPLOYMENT);
         } else if (clazz == DP2.class) {
             return getFiltered(mode, HASCO.DP2);
         } else if (clazz == Entity.class) {

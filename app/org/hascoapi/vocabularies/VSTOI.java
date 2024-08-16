@@ -14,6 +14,7 @@ public class VSTOI {
      */
 
     public static final String CONTAINER = "http://hadatac.org/ont/vstoi#Container";
+    public static final String DEPLOYMENT = "http://hadatac.org/ont/vstoi#Deployment";
     public static final String DETECTOR = "http://hadatac.org/ont/vstoi#Detector";
     public static final String INSTRUMENT = "http://hadatac.org/ont/vstoi#Instrument";
     public static final String PHYSICAL_INSTRUMENT = "http://hadatac.org/ont/vstoi#PhysicalInstrument";
@@ -59,8 +60,9 @@ public class VSTOI {
      * PROPERTIES
      */
 
-    public static final String HAS_ACQUISITION_DATE = "http://hadatac.org/ont/vstoi#hasAcquisitionDate";    
     public static final String BELONGS_TO = "http://hadatac.org/ont/vstoi#belongsTo";
+    public static final String DESIGNED_AT_TIME = "http://hadatac.org/ont/vstoi#designedAtTime";
+    public static final String HAS_ACQUISITION_DATE = "http://hadatac.org/ont/vstoi#hasAcquisitionDate";    
     public static final String HAS_ANNOTATION_STEM = "http://hadatac.org/ont/vstoi#hasAnnotationStem";
     public static final String HAS_CODEBOOK = "http://hadatac.org/ont/vstoi#hasCodebook";
     public static final String HAS_CONTENT = "http://hadatac.org/ont/vstoi#hasContent";
@@ -70,6 +72,7 @@ public class VSTOI {
     public static final String HAS_DETECTOR_STEM = "http://hadatac.org/ont/vstoi#hasDetectorStem";
     public static final String HAS_FIRST = "http://hadatac.org/ont/vstoi#hasFirst";
     public static final String HAS_INFORMANT = "http://hadatac.org/ont/vstoi#hasInformant";
+    public static final String HAS_INSTRUMENT = "http://hadatac.org/ont/vstoi#hasInstrument";
     public static final String HAS_LANGUAGE = "http://hadatac.org/ont/vstoi#hasLanguage";
     public static final String HAS_NEXT = "http://hadatac.org/ont/vstoi#hasNext";
     public static final String HAS_PREVIOUS = "http://hadatac.org/ont/vstoi#hasPrevious";

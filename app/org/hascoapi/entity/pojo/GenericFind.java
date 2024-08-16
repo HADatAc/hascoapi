@@ -172,7 +172,7 @@ public class GenericFind<T> {
         } else if (clazz == Stream.class) {
             return URIUtils.replaceNameSpace(HASCO.STREAM);
         } else if (clazz == Deployment.class) {
-            return URIUtils.replaceNameSpace(HASCO.DEPLOYMENT);
+            return URIUtils.replaceNameSpace(VSTOI.DEPLOYMENT);
         } else if (clazz == Person.class) {
             return URIUtils.replaceNameSpace(FOAF.PERSON);
         } else if (clazz == Organization.class) {
@@ -383,51 +383,34 @@ public class GenericFind<T> {
         if (clazz == null) {
             return null;
         }
-        String hascoType = classNameWithNamespace(clazz);
-        if (hascoType == null) {
-            hascoType = superclassNameWithNamespace(clazz);
-        }
-        if (hascoType == null) {
-            return null;
-        }
-        if (clazz == Detector.class) {
-            return findDetectorInstancesByKeywordWithPages(clazz, hascoType, keyword, pageSize, offset);
-        } else if (isSIR(clazz)) {
-            return findSIRElementsByKeywordWithPages(clazz, hascoType, keyword, pageSize, offset);
-        } else {
-            return findElementsByKeywordWithPages(clazz, hascoType, keyword, pageSize, offset);
-        }
-
-        /* 
-        if (clazz == null) {
-            return null;
-        }
+        String superclassName = null;
         String className = classNameWithNamespace(clazz);
-        if (className != null) {
-            if (clazz == Detector.class) {
-              return findDetectorInstancesByKeywordWithPages(clazz, className, keyword, pageSize, offset);
-            } else if (isSIR(clazz)) {
-              return findSIRInstancesByKeywordWithPages(clazz, className, keyword, pageSize, offset);
-            } else {
-              return findInstancesByKeywordWithPages(clazz, className, keyword, pageSize, offset);
-            }
+        if (className == null) {
+            superclassName = superclassNameWithNamespace(clazz);
         }
-        String subClassName = superclassNameWithNamespace(clazz);
-        if (subClassName != null) {
-            return findSubclassesByKeywordWithPages(clazz, subClassName, keyword, pageSize, offset);
+        if (className == null && superclassName == null) {
+            return null;
         }
-        return null;
-        */
+        //System.out.println("findByKeywordWithPages: hascoType=[" + hascoType+ "]");
+        if (clazz == Detector.class) {
+            return findDetectorClassesByKeywordWithPages(clazz, superclassName, keyword, pageSize, offset);
+        } else if (isSIR(clazz) && superclassName != null) {
+            return findSIRClassesByKeywordWithPages(clazz, superclassName, keyword, pageSize, offset);
+        } else if (isSIR(clazz) && className != null) {
+            return findSIRInstancesByKeywordWithPages(clazz, className, keyword, pageSize, offset);
+        } else if (superclassName != null) {
+            return findClassesByKeywordWithPages(clazz, superclassName, keyword, pageSize, offset);
+        }             
+        return findInstancesByKeywordWithPages(clazz, className, keyword, pageSize, offset);
     }
 
-    public static <T> List<T> findDetectorInstancesByKeywordWithPages(Class clazz, String hascoType, String keyword, int pageSize, int offset) {
-        //System.out.println("GenericFind.findDetectorInstancesByKeywordWithPages: " + className + "  " + pageSize + "  " + offset);
+    public static <T> List<T> findDetectorClassesByKeywordWithPages(Class clazz, String superclassName, String keyword, int pageSize, int offset) {
+        System.out.println("GenericFind.findDetectorClassesByKeywordWithPages: " + superclassName + "  " + keyword + "  " + pageSize + "  " + offset);
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                //" ?type rdfs:subClassOf* " + className + " . " +
-                //" ?uri a ?type ." +
-                " ?uri hasco:hascoType " + hascoType + " . " +
-                " ?uri vstoi:hasDetectorStem ?stem . " +
+                " ?uri rdfs:subClassOf* " + superclassName + " . " +
+                //" ?uri hasco:hascoType " + hascoType + " . " +
+                //" ?uri vstoi:hasDetectorStem ?stem . " +
                 " ?stem vstoi:hasContent ?content . " +
                 "   FILTER regex(?content, \"" + keyword + "\", \"i\") " +
                 "} " +
@@ -439,13 +422,12 @@ public class GenericFind<T> {
         return findByQuery(clazz, queryString);
     }
 
-    public static <T> List<T> findSIRElementsByKeywordWithPages(Class clazz, String hascoType, String keyword, int pageSize, int offset) {
-        //System.out.println("GenericFind.findSIRInstancesByKeywordWithPages: " + className + " " + keyword + "  " + pageSize + "  " + offset);
+    public static <T> List<T> findSIRClassesByKeywordWithPages(Class clazz, String superclassName, String keyword, int pageSize, int offset) {
+        //System.out.println("GenericFind.findSIRInstancesByKeywordWithPages: " + superclassName + " " + keyword + "  " + pageSize + "  " + offset);
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                //" ?type rdfs:subClassOf* " + className + " . " +
-                //" ?uri a ?type ." +
-                " ?uri hasco:hascoType " + hascoType + " . " +
+                " ?uri rdfs:subClassOf* " + superclassName + " . " +
+                //" ?uri hasco:hascoType " + hascoType + " . " +
                 " ?uri vstoi:hasContent ?content . " +
                 "   FILTER regex(?content, \"" + keyword + "\", \"i\") " +
                 "} " +
@@ -457,13 +439,30 @@ public class GenericFind<T> {
         return findByQuery(clazz, queryString);
     }
 
-    public static <T> List<T> findElementsByKeywordWithPages(Class clazz, String hascoType, String keyword, int pageSize, int offset) {
-        //System.out.println("GenericFind.findInstancesByKeywordWithPages: " + className + "  " + keyword + " " + pageSize + "  " + offset);
+    public static <T> List<T> findSIRInstancesByKeywordWithPages(Class clazz, String className, String keyword, int pageSize, int offset) {
+        //System.out.println("GenericFind.findSIRInstancesByKeywordWithPages: " + className + " " + keyword + "  " + pageSize + "  " + offset);
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
                 //" ?type rdfs:subClassOf* " + className + " . " +
                 //" ?uri a ?type ." +
-                " ?uri hasco:hascoType " + hascoType + " . " +
+                " ?uri hasco:hascoType " + className + " . " +
+                " ?uri vstoi:hasContent ?content . " +
+                "   FILTER regex(?content, \"" + keyword + "\", \"i\") " +
+                "} " +
+                " ORDER BY ASC(?content) " +
+                " LIMIT " + pageSize +
+                " OFFSET " + offset;
+
+        //System.out.println("GenericFind.findSIRInstancesByKeywordWithPages: [" + queryString + "]");
+        return findByQuery(clazz, queryString);
+    }
+
+    public static <T> List<T> findClassesByKeywordWithPages(Class clazz, String superclassName, String keyword, int pageSize, int offset) {
+        //System.out.println("GenericFind.findClassesByKeywordWithPages: " + superclassName + "  " + keyword + " " + pageSize + "  " + offset);
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT ?uri WHERE { " +
+                " ?uri rdfs:subClassOf* " + superclassName + " . " +
+                //" ?uri hasco:hascoType " + hascoType + " . " +
                 " ?uri rdfs:label ?label . " +
                 "   FILTER regex(?label, \"" + keyword + "\", \"i\") " +
                 "} " +
@@ -475,21 +474,22 @@ public class GenericFind<T> {
         return findByQuery(clazz, queryString);
     }
 
-    /* 
-    public static <T> List<T> findSubclassesByKeywordWithPages(Class clazz, String superClassName, String keyword, int pageSize, int offset) {
+    public static <T> List<T> findInstancesByKeywordWithPages(Class clazz, String className, String keyword, int pageSize, int offset) {
+        //System.out.println("GenericFind.findInstancesByKeywordWithPages: " + superclassName + "  " + keyword + " " + pageSize + "  " + offset);
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?uri rdfs:subClassOf* " + superClassName + " . " +
+                //" ?type rdfs:subClassOf* " + className + " . " +
+                //" ?uri a ?type ." +
+                " ?uri hasco:hascoType " + className + " . " +
                 " ?uri rdfs:label ?label . " +
                 "   FILTER regex(?label, \"" + keyword + "\", \"i\") " +
                 "} " +
                 " ORDER BY ASC(?label) " +
                 " LIMIT " + pageSize +
                 " OFFSET " + offset;
-
+        //System.out.println("GenericFind.findInstancesByKeywordWithPages: [" + queryString + "]");
         return findByQuery(clazz, queryString);
     }
-    */
 
     public static int findTotalByKeyword(Class clazz, String keyword) {
         String hascoType = classNameWithNamespace(clazz);

@@ -127,7 +127,7 @@ public class URIPage extends Controller {
                 return null;
             }
 
-            System.out.println("URIPage.objectFromUri(): HASCO TYPE [" + result.getHascoTypeUri() + "]");
+            //System.out.println("URIPage.objectFromUri(): HASCO TYPE [" + result.getHascoTypeUri() + "]");
 
             /*
              * if (result.getHascoTypeUri() == null || result.getHascoTypeUri().isEmpty()) {
@@ -157,7 +157,7 @@ public class URIPage extends Controller {
                 finalResult = DataFile.find(uri);
             } else if (result.getHascoTypeUri().equals(HASCO.DD)) {
                 finalResult = DD.find(uri);
-            } else if (result.getHascoTypeUri().equals(HASCO.DEPLOYMENT)) {
+            } else if (result.getHascoTypeUri().equals(VSTOI.DEPLOYMENT)) {
                 finalResult = Deployment.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.DETECTOR)) {
                 finalResult = Detector.findDetector(uri);

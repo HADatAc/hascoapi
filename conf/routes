@@ -109,6 +109,9 @@ GET     /hascoapi/api/virtualcolumn/bystudy/:studyUri                 org.hascoa
 GET     /hascoapi/api/studyobject/bysoc/:socUri/:pageSize/:offset     org.hascoapi.console.controllers.restapi.StudyObjectAPI.getStudyObjectsBySOCWithPage(socUri: String, pageSize: Integer, offset: Integer)
 GET     /hascoapi/api/studyobject/bysoc/total/:socUri                 org.hascoapi.console.controllers.restapi.StudyObjectAPI.getTotalStudyObjectsBySOC(socUri: String)
 
+GET     /hascoapi/api/deployment/:state/:email/:pageSize/:offset      org.hascoapi.console.controllers.restapi.DeploymentAPI.findCanUpdateWithPages(state: String, email: String, pageSize: Integer, offset: Integer)
+GET     /hascoapi/api/deployment/total/:state/:email                  org.hascoapi.console.controllers.restapi.DeploymentAPI.findTotalCanUpdateWithPages(state: String, email: String)
+
 # INGESTION METHODS
 
 POST    /hascoapi/api/ingest/:elementType/:elementUri    org.hascoapi.console.controllers.restapi.IngestionAPI.ingest(elementType: String, elementUri: String, request: play.mvc.Http.Request)

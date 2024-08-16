@@ -1,7 +1,5 @@
 package org.hascoapi.vocabularies;
 
-import org.hascoapi.annotations.PropertyField;
-
 public class HASCO {
 
     public static final String HASCO                                  = "http://hadatac.org/ont/hasco/";
@@ -14,7 +12,6 @@ public class HASCO {
     public static final String DATA_ACQUISITION                       = "http://hadatac.org/ont/hasco/DataAcquisition";
     public static final String DATAFILE                               = "http://hadatac.org/ont/hasco/DataFile";
     public static final String DD                                     = "http://hadatac.org/ont/hasco/DD";
-    public static final String DEPLOYMENT                             = "http://hadatac.org/ont/hasco/Deployment";
     public static final String DP2                                    = "http://hadatac.org/ont/hasco/DP2";
     public static final String DSG                                    = "http://hadatac.org/ont/hasco/DSG";
     public static final String INS                                    = "http://hadatac.org/ont/hasco/INS";
@@ -47,6 +44,8 @@ public class HASCO {
      *    PROPERTIES
      */
 
+    public static final String CAN_UPDATE                             = "http://hadatac.org/ont/hasco/canUpdate";
+    public static final String CAN_VIEW                               = "http://hadatac.org/ont/hasco/canView";
     public static final String DETECTS                                = "http://hadatac.org/ont/hasco/detects";
     public static final String HAS_ACRONYM                            = "http://hadatac.org/ont/hasco/hasAcronym";
     public static final String HAS_ABBREVIATION                       = "http://hadatac.org/ont/hasco/hasAbbreviation";
@@ -80,7 +79,6 @@ public class HASCO {
     public static final String HAS_IMAGE                              = "http://hadatac.org/ont/hasco/hasImage";
     public static final String HAS_IN_RELATION_TO                     = "http://hadatac.org/ont/hasco/hasInRelationTo";
     public static final String HAS_INSTITUTION                        = "http://hadatac.org/ont/hasco/hasInstitution";
-    public static final String HAS_INSTRUMENT                         = "http://hadatac.org/ont/hasco/hasInstrument";
     public static final String HAS_LAST_COUNTER                       = "http://hadatac.org/ont/hasco/hasLastCounter";
     public static final String HAS_LAST_ID                            = "http://hadatac.org/ont/hasco/hasLastId";
     public static final String HAS_LAST_PROCESS_TIME                  = "http://hadatac.org/ont/hasco/hasLastProcessTime";
