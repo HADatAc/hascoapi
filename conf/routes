@@ -19,6 +19,8 @@ GET     /hascoapi/api/uri/:uri                              org.hascoapi.console
 GET     /hascoapi/api/urigen/:elementtype                   org.hascoapi.console.controllers.restapi.URIPage.uriGen(elementtype: String)
 GET     /hascoapi/api/usage/:uri                            org.hascoapi.console.controllers.restapi.SIRElementAPI.usage(uri: String)
 GET     /hascoapi/api/derivation/:uri                       org.hascoapi.console.controllers.restapi.SIRElementAPI.derivation(uri: String)
+GET     /hascoapi/api/hascotype/:uri                        org.hascoapi.console.controllers.restapi.SIRElementAPI.hascoType(uri: String)
+GET     /hascoapi/api/children/:superuri                    org.hascoapi.console.controllers.restapi.HAScOClassAPI.getChildren(superuri: String)
 GET     /hascoapi/api/:elementType/elements/:pageSize/:offset                                       org.hascoapi.console.controllers.restapi.SIRElementAPI.getElementsWithPage(elementType: String, pageSize : Integer, offset : Integer)
 GET     /hascoapi/api/:elementType/elements/total                                                   org.hascoapi.console.controllers.restapi.SIRElementAPI.getTotalElements(elementType: String)
 GET     /hascoapi/api/:elementType/keywordlanguage/:keyword/:language/:pageSize/:offset             org.hascoapi.console.controllers.restapi.SIRElementAPI.getElementsByKeywordAndLanguageWithPage(elementType: String, keyword : String, language : String, pageSize : Integer, offset : Integer)
@@ -111,6 +113,14 @@ GET     /hascoapi/api/studyobject/bysoc/total/:socUri                 org.hascoa
 
 GET     /hascoapi/api/deployment/:state/:email/:pageSize/:offset      org.hascoapi.console.controllers.restapi.DeploymentAPI.findCanUpdateWithPages(state: String, email: String, pageSize: Integer, offset: Integer)
 GET     /hascoapi/api/deployment/total/:state/:email                  org.hascoapi.console.controllers.restapi.DeploymentAPI.findTotalCanUpdateWithPages(state: String, email: String)
+GET     /hascoapi/api/deploymentbyplatforminstance/:platforminstanceUri/:pageSize/:offset  org.hascoapi.console.controllers.restapi.DeploymentAPI.findDeploymentsByPlatformInstanceWithPage(platforminstanceUri: String, pageSize: Integer, offset: Integer)
+GET     /hascoapi/api/deploymentbyplatforminstance/total/:platforminstanceUri              org.hascoapi.console.controllers.restapi.DeploymentAPI.findTotalDeploymentsByPlatformInstance(platforminstanceUri: String)
+
+GET     /hascoapi/api/stream/:state/:email/:deploymentUri/:pageSize/:offset       org.hascoapi.console.controllers.restapi.StreamAPI.findCanUpdateByDeploymentWithPages(state: String, email: String, deploymentUri: String, pageSize: Integer, offset: Integer)
+GET     /hascoapi/api/stream/total/:state/:email/:deploymentUri                   org.hascoapi.console.controllers.restapi.StreamAPI.findTotalCanUpdateByDeploymentWithPages(state: String, email: String, deploymentUri: String)
+
+GET     /hascoapi/api/platforminstance/byplatform/:platformUri/:pageSize/:offset  org.hascoapi.console.controllers.restapi.VSTOIInstanceAPI.findPlatformInstancesByPlatformWithPage(platformUri: String, pageSize: Integer, offset: Integer)
+GET     /hascoapi/api/platforminstance/byplatform/total/:platformUri              org.hascoapi.console.controllers.restapi.VSTOIInstanceAPI.findTotalPlatformInstancesByPlatform(platformUri: String)
 
 # INGESTION METHODS
 

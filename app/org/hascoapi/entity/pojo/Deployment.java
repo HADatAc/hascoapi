@@ -50,14 +50,14 @@ public class Deployment extends HADatAcThing {
     @PropertyField(uri="vstoi:isLegacy")
     private String isLegacy;
 
-    @PropertyField(uri="vstoi:hasInstrument")
-    private String instrumentUri;
+    @PropertyField(uri="vstoi:hasInstrumentInstance")
+    private String instrumentInstanceUri;
 
-    @PropertyField(uri="vstoi:hasPlatform")
-    private String platformUri;
+    @PropertyField(uri="vstoi:hasPlatformInstance")
+    private String platformInstanceUri;
 
-    @PropertyField(uri="vstoi:hasDetector")
-    private List<String> detectorUri;
+    @PropertyField(uri="vstoi:hasDetectorInstance")
+    private List<String> detectorInstanceUri;
 
     @PropertyField(uri = "vstoi:hasVersion")
     private String hasVersion;
@@ -96,10 +96,10 @@ public class Deployment extends HADatAcThing {
         designedAt = null;
         startedAt = null;
         endedAt = null;
-        instrumentUri = null;
-        platformUri = null;
+        instrumentInstanceUri = null;
+        platformInstanceUri = null;
         isLegacy = "F";
-        detectorUri = new ArrayList<String>();
+        detectorInstanceUri = new ArrayList<String>();
         canUpdate = new ArrayList<String>();
         canView = new ArrayList<String>();
         Deployment.getCache();
@@ -193,53 +193,53 @@ public class Deployment extends HADatAcThing {
         this.endedAt = endedAtRaw.toString(formatterNoMillis);
     }
 
-    public String getInstrumentUri() {
-        return instrumentUri;
+    public String getInstrumentInstanceUri() {
+        return instrumentInstanceUri;
     }
-    public Instrument getInstrument() {
-        if (instrumentUri == null || instrumentUri.isEmpty()) {
+    public InstrumentInstance getInstrumentInstance() {
+        if (instrumentInstanceUri == null || instrumentInstanceUri.isEmpty()) {
             return null;
         }
-        return Instrument.find(instrumentUri);
+        return InstrumentInstance.find(instrumentInstanceUri);
     }
-    public void setInstrumentUri(String instrumentUri) {
-        this.instrumentUri = instrumentUri;
+    public void setInstrumentInstanceUri(String instrumentInstanceUri) {
+        this.instrumentInstanceUri = instrumentInstanceUri;
     }
 
-    public String getPlatformUri() {
-        return platformUri;
+    public String getPlatformInstanceUri() {
+        return platformInstanceUri;
     }
-    public Platform getPlatform() {
-        if (platformUri == null || platformUri.isEmpty()) {
+    public PlatformInstance getPlatformInstance() {
+        if (platformInstanceUri == null || platformInstanceUri.isEmpty()) {
             return null;
         }
-        return Platform.find(platformUri);
+        return PlatformInstance.find(platformInstanceUri);
     }
-    public void setPlatformUri(String platformUri) {
-        this.platformUri = platformUri;
+    public void setPlatformInstanceUri(String platformInstanceUri) {
+        this.platformInstanceUri = platformInstanceUri;
     }
 
-    public List<String> getDetectorUri() {
-        return detectorUri;
+    public List<String> getDetectorInstanceUri() {
+        return detectorInstanceUri;
     }
-    public List<Detector> getDetector() {
-        List<Detector> detectors = new ArrayList<Detector>();
-        if (detectorUri != null && detectorUri.size() > 0) {
-            for (String detUri : detectorUri) {
-                if (detUri != null) {
-                    Detector det = Detector.findDetector(detUri);
-                    if (det != null) {
-                        detectors.add(det);
+    public List<DetectorInstance> getDetectorInstance() {
+        List<DetectorInstance> detectorInstances = new ArrayList<DetectorInstance>();
+        if (detectorInstanceUri != null && detectorInstanceUri.size() > 0) {
+            for (String detInstanceUri : detectorInstanceUri) {
+                if (detInstanceUri != null) {
+                    DetectorInstance detInstance = DetectorInstance.find(detInstanceUri);
+                    if (detInstance != null) {
+                        detectorInstances.add(detInstance);
                     }
                 }
             }
         }
-        return detectors;
+        return detectorInstances;
     }
-    public void addDetectorUri(String detectorUri) {
-        if (detectorUri != null) {
-            if (!detectorUri.contains(detectorUri)) {
-                this.detectorUri.add(detectorUri);
+    public void addDetectorInstanceUri(String detectorInstanceUri) {
+        if (detectorInstanceUri != null) {
+            if (!detectorInstanceUri.contains(detectorInstanceUri)) {
+                this.detectorInstanceUri.add(detectorInstanceUri);
             }
         }
     }
@@ -288,10 +288,12 @@ public class Deployment extends HADatAcThing {
 
     public void close(String endedAt) {
         setEndedAt(endedAt);
-        List<Stream> list = Stream.find(this, true);
+        State activeState = new State(State.ACTIVE);
+        List<Stream> list = Stream.findByStateDeployment(activeState,this.getUri());
         if (!list.isEmpty()) {
-            Stream dc = list.get(0);
-            dc.close(endedAt);
+            for (Stream stream: list) {
+                stream.close(endedAt);
+            }
         }
         //saveEndedAtTime();
         save();
@@ -350,12 +352,12 @@ public class Deployment extends HADatAcThing {
                 deployment.setHascoTypeUri(str);
             } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
                 deployment.setComment(str);
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_INSTRUMENT)) {
-                deployment.setInstrumentUri(str);
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PLATFORM)) {
-                deployment.setPlatformUri(str);;
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_DETECTOR)) {
-                deployment.addDetectorUri(str);
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_INSTRUMENT_INSTANCE)) {
+                deployment.setInstrumentInstanceUri(str);
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PLATFORM_INSTANCE)) {
+                deployment.setPlatformInstanceUri(str);;
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_DETECTOR_INSTANCE)) {
+                deployment.addDetectorInstanceUri(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.DESIGNED_AT_TIME)) {
                 deployment.setDesignedAt(str);
             } else if (statement.getPredicate().getURI().equals(PROV.STARTED_AT_TIME)) {
@@ -558,7 +560,7 @@ public class Deployment extends HADatAcThing {
             System.out.println("[ERROR] Deployment.java: no valid state specified.");
             return -1;
         }
-        return findTotalByQuery(queryString);                
+        return GenericFind.findTotalByQuery(queryString);                
     }
 
     public static int getNumberDeployments(State state) {
@@ -593,25 +595,25 @@ public class Deployment extends HADatAcThing {
             System.out.println("[ERROR] Deployment.java: no valid state specified.");
             return -1;
         }
-        return findTotalByQuery(query);                
+        return GenericFind.findTotalByQuery(query);
     }
 
     public static List<Deployment> findWithGeoReference() {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
                 " ?platModel rdfs:subClassOf* vstoi:Platform . " + 
-                " ?plat a ?platModel ." +
-                " ?plat hasco:hasFirstCoordinate ?lat . " +
-                " ?plat hasco:hasSecondCoordinate ?lon . " +
-                " ?plat hasco:hasFirstCoordinateCharacteristic <" + Platform.LAT + "> . " +
-                " ?plat hasco:hasSecondCoordinateCharacteristic <" + Platform.LONG + "> . " +
-                " ?uri vstoi:hasPlatform ?plat . " +
+                " ?platInstance a ?platModel ." +
+                " ?platInstance hasco:hasFirstCoordinate ?lat . " +
+                " ?platInstance hasco:hasSecondCoordinate ?lon . " +
+                " ?platInstance hasco:hasFirstCoordinateCharacteristic <" + Platform.LAT + "> . " +
+                " ?platInstance hasco:hasSecondCoordinateCharacteristic <" + Platform.LONG + "> . " +
+                " ?uri vstoi:hasPlatformInstance ?platInstance . " +
                 "} ";
 
         return findManyByQuery(queryString);
     }
     
-    public static List<Deployment> findByPlatformAndStatus(String plat_uri, State state) {
+    public static List<Deployment> findByPlatformInstanceAndStatus(String plat_uri, State state) {
     	if (plat_uri == null) {
     		return null;
     	}
@@ -624,7 +626,7 @@ public class Deployment extends HADatAcThing {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
             		"SELECT ?uri WHERE { " + 
                     "   ?uri a vstoi:Deployment . " + 
-                    "   ?uri vstoi:hasPlatform " + p_uri + " . " + 
+                    "   ?uri vstoi:hasPlatformInstance " + p_uri + " . " + 
                     "   FILTER NOT EXISTS { ?uri prov:startedAtTime ?startdatetime . } " + 
                     "   FILTER NOT EXISTS { ?uri prov:endedAtTime ?enddatetime . } " + 
                     "} " + 
@@ -633,7 +635,7 @@ public class Deployment extends HADatAcThing {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                     "SELECT ?uri WHERE { " + 
                     "   ?uri a vstoi:Deployment . " + 
-                    "   ?uri vstoi:hasPlatform " + p_uri + " . " + 
+                    "   ?uri vstoi:hasPlatforminstance " + p_uri + " . " + 
                     "   ?uri prov:startedAtTime ?startdatetime . " + 
                     "   FILTER NOT EXISTS { ?uri prov:endedAtTime ?enddatetime . } " + 
                     "} " + 
@@ -642,7 +644,7 @@ public class Deployment extends HADatAcThing {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                     "SELECT ?uri WHERE { " + 
                     "   ?uri a vstoi:Deployment . " + 
-                    "   ?uri vstoi:hasPlatform " + p_uri + " . " + 
+                    "   ?uri vstoi:hasPlatforminstance " + p_uri + " . " + 
                     "   ?uri prov:startedAtTime ?startdatetime .  " + 
                     "   ?uri prov:endedAtTime ?enddatetime .  " + 
                     "} " +
@@ -651,7 +653,7 @@ public class Deployment extends HADatAcThing {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                     "SELECT ?uri WHERE { " + 
                     "   ?uri a vstoi:Deployment . " + 
-                    "   ?uri vstoi:hasPlatform " + p_uri + " . " + 
+                    "   ?uri vstoi:hasPlatforminstance " + p_uri + " . " + 
                     "} " +
                     "ORDER BY DESC(?datetime) ";
         } else {
@@ -674,8 +676,8 @@ public class Deployment extends HADatAcThing {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
             		"SELECT ?uri WHERE { " + 
                     "   ?uri a vstoi:Deployment . " + 
-                    "   ?uri vstoi:hasPlatform ?plt . " + 
-                    "   ?plt hasco:hasReferenceLayout " + p_uri + "  . " + 
+                    "   ?uri vstoi:hasPlatformInstance ?pltInstance . " + 
+                    "   ?pltInstance hasco:hasReferenceLayout " + p_uri + "  . " + 
                     "   FILTER NOT EXISTS { ?uri prov:startedAtTime ?startdatetime . } " + 
                     "   FILTER NOT EXISTS { ?uri prov:endedAtTime ?enddatetime . } " + 
                     "} " + 
@@ -684,7 +686,7 @@ public class Deployment extends HADatAcThing {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
             		"SELECT ?uri WHERE { " + 
                     "   ?uri a vstoi:Deployment . " + 
-                    "   ?uri vstoi:hasPlatform ?plt . " + 
+                    "   ?uri vstoi:hasPlatformInstance ?pltInstance . " + 
                     "   ?plt hasco:hasReferenceLayout " + p_uri + "  . " + 
                     "   ?uri prov:startedAtTime ?startdatetime . " + 
                     "   FILTER NOT EXISTS { ?uri prov:endedAtTime ?enddatetime . } " + 
@@ -694,7 +696,7 @@ public class Deployment extends HADatAcThing {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                     "SELECT ?uri WHERE { " + 
                     "   ?uri a vstoi:Deployment . " + 
-                    "   ?uri vstoi:hasPlatform ?plt . " + 
+                    "   ?uri vstoi:hasPlatformInstance ?pltInstance . " + 
                     "   ?plt hasco:hasReferenceLayout " + p_uri + "  . " + 
                     "   ?uri prov:startedAtTime ?startdatetime .  " + 
                     "   ?uri prov:endedAtTime ?enddatetime .  " + 
@@ -704,7 +706,7 @@ public class Deployment extends HADatAcThing {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                     "SELECT ?uri WHERE { " + 
                     "   ?uri a vstoi:Deployment . " + 
-                    "   ?uri vstoi:hasPlatform ?plt . " + 
+                    "   ?uri vstoi:hasPlatformInstance ?pltInstance . " + 
                     "   ?plt hasco:hasReferenceLayout " + p_uri + "  . " + 
                     "} " +
                     "ORDER BY DESC(?datetime) ";
@@ -714,6 +716,33 @@ public class Deployment extends HADatAcThing {
         }
         return findManyByQuery(queryString);
     }
+
+    public static List<Deployment> findByPlaformInstanceWithPage(String platforminstanceUri, int pageSize, int offset) {
+        System.out.println("Deployment.findByPlatformInstanceWithPage: instanceUri=[" + platforminstanceUri + "]");
+        if (platforminstanceUri == null || platforminstanceUri.isEmpty()) {
+            return new ArrayList<Deployment>();
+        }
+        String query = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                "SELECT ?uri " +
+                " WHERE {  ?uri vstoi:hasPlatformInstance <" + platforminstanceUri + "> .  " +
+				"          ?uri hasco:hascoType vstoi:Deployment . " +
+                " } " +
+                " LIMIT " + pageSize +
+                " OFFSET " + offset;
+        return findManyByQuery(query);
+    }        
+
+    public static int findTotalByPlatformInstance(String platforminstanceUri) {
+        if (platforminstanceUri == null || platforminstanceUri.isEmpty()) {
+            return 0;
+        }
+        String query = NameSpaces.getInstance().printSparqlNameSpaceList() + 
+                " SELECT (count(?uri) as ?tot)  " +
+                " WHERE {  ?uri vstoi:hasPlatformInstance <" + platforminstanceUri + "> .  " +
+				"          ?uri hasco:hascoType vstoi:Deployment . " +
+                " }";
+        return GenericFind.findTotalByQuery(query);
+    }     
 
     public static Deployment findOneByQuery(String query) {
         ResultSetRewindable resultsrw = SPARQLUtils.select(
@@ -735,20 +764,6 @@ public class Deployment extends HADatAcThing {
         }
         //java.util.Collections.sort((List<Deployment>) deployments);
         return deployments;
-    }
-
-    public static int findTotalByQuery(String query) {
-        try {
-            ResultSetRewindable resultsrw = SPARQLUtils.select(
-                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), query);
-            if (resultsrw.hasNext()) {
-                QuerySolution soln = resultsrw.next();
-                return Integer.parseInt(soln.getLiteral("tot").getString());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return -1;
     }
 
     //@Override

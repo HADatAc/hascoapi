@@ -236,7 +236,7 @@ public class STRMessageGenerator extends BaseGenerator {
         //logger.println(message);
         str.setLabel(URIUtils.replacePrefixEx((String)row.get("rdfs:label")));
         str.setStudyUri(URIUtils.replacePrefixEx((String)row.get("hasco:isDataAcquisitionOf")));
-        str.setSchemaUri(URIUtils.replacePrefixEx((String)row.get("hasco:hasSchemaSpec")));
+        str.setSDDUri(URIUtils.replacePrefixEx((String)row.get("hasco:hasSchemaSpec")));
         str.setTriggeringEvent(TriggeringEvent.INITIAL_DEPLOYMENT);
         // TODO
         //str.setNumberDataPoints(Measurement.getNumByDataAcquisition(str));
@@ -252,9 +252,9 @@ public class STRMessageGenerator extends BaseGenerator {
         str.addCellScopeUri("STREAM");
         String pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
         if (startTime.isEmpty()) {
-            str.setStartedAt(new DateTime(new Date()));
+            //str.setStartedAt(new DateTime(new Date()));
         } else {
-            str.setStartedAt(DateTimeFormat.forPattern(pattern).parseDateTime(startTime));
+            //str.setStartedAt(DateTimeFormat.forPattern(pattern).parseDateTime(startTime));
         }
 
         //message = "createStr [3/5] - Specified owner email: [" + ownerEmail + "]";
@@ -269,11 +269,6 @@ public class STRMessageGenerator extends BaseGenerator {
         }
         */
 
-        str.setPlatformUri("");
-        str.setPlatformName("");
-        str.setInstrumentUri("");
-        str.setInstrumentModel("");
-        
         str.setStatus(9999);
 
         return str;

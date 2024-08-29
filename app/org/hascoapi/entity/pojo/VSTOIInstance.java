@@ -149,8 +149,6 @@ public abstract class VSTOIInstance extends HADatAcThing implements Comparable<V
 					instance.setTypeUri(str); 
 				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
 					instance.setComment(str);
-				//} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
-				//	instance.setHascoTypeUri(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_ACQUISITION_DATE)) {
 					instance.setHasAcquisitionDate(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {

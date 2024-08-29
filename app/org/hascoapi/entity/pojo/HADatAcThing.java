@@ -2,8 +2,10 @@ package org.hascoapi.entity.pojo;
 
 import java.io.*;
 import java.lang.reflect.Field;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -52,6 +54,8 @@ public abstract class HADatAcThing {
 
     @PropertyField(uri="rdfs:comment")
     String comment = "";
+
+    String nodeId = "";
 
     String field = "";
     String query = "";
@@ -151,6 +155,14 @@ public abstract class HADatAcThing {
 
     public void setLabel(String label) {
         this.label = label;
+    }
+
+    public String getNodeId() {
+        return nodeId;
+    }
+
+    public void setNodeId(String nodeId) {
+        this.nodeId = nodeId;
     }
 
     public String getField() {
@@ -454,6 +466,25 @@ public abstract class HADatAcThing {
 
  */
         return null;
+    }
+
+    // Create an 5-character string hash ID from an URL
+    public static String createUrlHash(String url) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hashBytes = digest.digest(url.getBytes());
+            String base64Hash = Base64.getEncoder().encodeToString(hashBytes);
+
+            // Make Base64 URL-safe by replacing '+' and '/' with '-' and '_', and removing '=' padding
+            String urlSafeHash = base64Hash.replace("+", "-").replace("/", "_").replace("=", "");
+
+            // Return only the first 5 characters of the URL-safe hash
+            return urlSafeHash.substring(0, Math.min(5, urlSafeHash.length()));
+        } catch (Exception e) {
+            System.err.println("Error occurred while creating URL-safe hash.");
+            e.printStackTrace();
+            return "";
+        }
     }
 
     @SuppressWarnings("unchecked")

@@ -1,5 +1,7 @@
 package org.hascoapi.vocabularies;
 
+import org.hascoapi.annotations.PropertyField;
+
 public class HASCO {
 
     public static final String HASCO                                  = "http://hadatac.org/ont/hasco/";
@@ -14,6 +16,7 @@ public class HASCO {
     public static final String DD                                     = "http://hadatac.org/ont/hasco/DD";
     public static final String DP2                                    = "http://hadatac.org/ont/hasco/DP2";
     public static final String DSG                                    = "http://hadatac.org/ont/hasco/DSG";
+    public static final String HASCO_CLASS                            = "http://hadatac.org/ont/hasco/HascoClass";
     public static final String INS                                    = "http://hadatac.org/ont/hasco/INS";
     public static final String KNOWLEDGE_GRAPH                        = "http://hadatac.org/ont/hasco/KnowledgeGraph";
     public static final String LOCATION_COLLECTION                    = "http://hadatac.org/ont/hasco/LocationCollection";
@@ -62,6 +65,7 @@ public class HASCO {
     public static final String HAS_DD                                 = "http://hadatac.org/ont/hasco/hasDD";
     public static final String HAS_DEFAULT_NAMESPACE_ABBREVIATION     = "http://hadatac.org/ont/hasco/hasDefaultNamespaceAbbreviation";
     public static final String HAS_DEFAULT_NAMESPACE_URL              = "http://hadatac.org/ont/hasco/hasDefaultNamespaceURL";
+    public static final String HAS_DEPLOYMENT                         = "http://hadatac.org/ont/hasco/hasDeployment";
     public static final String HAS_DETECTOR                           = "http://hadatac.org/ont/hasco/hasDetector";
     public static final String HAS_EDITOR_EMAIL                       = "http://hadatac.org/ont/hasco/hasEditorEmail";
     public static final String HAS_ENTITY                             = "http://hadatac.org/ont/hasco/hasEntity";
@@ -91,6 +95,12 @@ public class HASCO {
     public static final String HAS_LAYOUT_HEIGHT_UNIT                 = "http://hadatac.org/ont/hasco/hasLayoutHeightUnit";
     public static final String HAS_LOG                                = "http://hadatac.org/ont/hasco/hasLog";
     public static final String HAS_MANAGER_EMAIL                      = "http://hadatac.org/ont/hasco/hasManagerEmail";
+    public static final String HAS_MESSSAGE_ARCHIVE_ID                = "http://hadatac.org/ont/hasco/hasMessageArchiveID";
+    public static final String HAS_MESSSAGE_HEADER                    = "http://hadatac.org/ont/hasco/hasMessageHeader";
+    public static final String HAS_MESSSAGE_IP                        = "http://hadatac.org/ont/hasco/hasMessageIP";
+    public static final String HAS_MESSSAGE_PORT                      = "http://hadatac.org/ont/hasco/hasMessagePort";
+    public static final String HAS_MESSSAGE_PROTOCOL                  = "http://hadatac.org/ont/hasco/hasMessageProtocol";
+    public static final String HAS_METHOD                             = "http://hadatac.org/ont/hasco/hasMethod";
     public static final String HAS_NAMESPACE_ABBREVIATION             = "http://hadatac.org/ont/hasco/hasNamespaceAbbreviation";
     public static final String HAS_NAMESPACE_URL                      = "http://hadatac.org/ont/hasco/hasNamespaceURL";
     public static final String HAS_NUMBER_LOADED_TRIPLES              = "http://hadatac.org/ont/hasco/hasNumberLoadedTriples";

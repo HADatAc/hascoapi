@@ -28,7 +28,7 @@ public class VSTOI {
      */
 
     public static final String IS_INSTRUMENT_ATTACHMENT = "http://hadatac.org/ont/vstoi#isInstrumentContainerSlot";
-    public static final String HAS_PLATFORM = "http://hadatac.org/ont/vstoi#hasPlatform";
+    public static final String HAS_PLATFORM_INSTANCE = "http://hadatac.org/ont/vstoi#hasPlatformInstance";
     public static final String HAS_SERIAL_NUMBER = "http://hadatac.org/ont/vstoi#hasSerialNumber";
     public static final String HAS_WEB_DOCUMENTATION = "http://hadatac.org/ont/vstoi#hasWebDocumentation";
 
@@ -67,12 +67,13 @@ public class VSTOI {
     public static final String HAS_CODEBOOK = "http://hadatac.org/ont/vstoi#hasCodebook";
     public static final String HAS_CONTENT = "http://hadatac.org/ont/vstoi#hasContent";
     public static final String HAS_CONTENT_WITH_STYLE = "http://hadatac.org/ont/vstoi#hasContentWithStyle";
-    public static final String HAS_DETECTOR = "http://hadatac.org/ont/vstoi#hasDetector";
     public static final String HAS_DAMAGE_DATE = "http://hadatac.org/ont/vstoi#hasDamageDate";
+    public static final String HAS_DETECTOR = "http://hadatac.org/ont/vstoi#hasDetector";
+    public static final String HAS_DETECTOR_INSTANCE = "http://hadatac.org/ont/vstoi#hasDetectorInstance";
     public static final String HAS_DETECTOR_STEM = "http://hadatac.org/ont/vstoi#hasDetectorStem";
     public static final String HAS_FIRST = "http://hadatac.org/ont/vstoi#hasFirst";
     public static final String HAS_INFORMANT = "http://hadatac.org/ont/vstoi#hasInformant";
-    public static final String HAS_INSTRUMENT = "http://hadatac.org/ont/vstoi#hasInstrument";
+    public static final String HAS_INSTRUMENT_INSTANCE = "http://hadatac.org/ont/vstoi#hasInstrumentInstance";
     public static final String HAS_LANGUAGE = "http://hadatac.org/ont/vstoi#hasLanguage";
     public static final String HAS_NEXT = "http://hadatac.org/ont/vstoi#hasNext";
     public static final String HAS_PREVIOUS = "http://hadatac.org/ont/vstoi#hasPrevious";

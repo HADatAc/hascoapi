@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
+import java.util.List;
+
 import org.hascoapi.annotations.PropertyField;
 import org.hascoapi.entity.pojo.*;
 import org.hascoapi.vocabularies.FOAF;
@@ -140,7 +142,7 @@ public class HAScOMapper {
         } else {
             filterProvider.addFilter("deploymentFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "hasVersion", "hasPlatformUri", "hasInstrumentUri", "hasDetectorUri",
+                            "hascoTypeLabel", "comment", "hasVersion", "platformInstanceUri", "instrumentInstanceUri", "detectorinstanceUri",
                             "designedAt", "startedAt", "endedAt"));
         }
 
@@ -203,6 +205,15 @@ public class HAScOMapper {
             filterProvider.addFilter("entityFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
                             "hascoTypeLabel", "comment"));
+        }
+
+        // HASCO_CLASS
+        if (mode.equals(FULL) && typeResult.equals(HASCO.HASCO_CLASS)) {
+            filterProvider.addFilter("hascoClassFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("hascoClassFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "superUri", "typeLabel", "hascoTypeUri",
+                            "hascoTypeLabel", "nodeId", "comment", "isDomainOf", "isRangeOf", "isDisjointWith", "subClasses"));
         }
 
         // INS
@@ -357,7 +368,8 @@ public class HAScOMapper {
         } else {
             filterProvider.addFilter("streamFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "hasVersion",  "comment"));
+                            "hascoTypeLabel", "hasVersion",  "comment", "hasDeployment", "hasStudy", "hasSDD",
+                            "designedAt", "startedAt", "endedAt", "method", "messageProtocol", "messageIP", "messagePort"));
         }
 
         // STUDY

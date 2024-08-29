@@ -51,7 +51,7 @@ public class MessageTopic extends HADatAcThing implements Comparable<MessageTopi
 		if (streamUri == null || streamUri.equals("")) {
 			return null;
 		}
-		Stream stream = Stream.findByUri(streamUri);
+		Stream stream = Stream.find(streamUri);
 		return stream;
 	}
 

@@ -9,6 +9,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Base64;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSetRewindable;
@@ -19,6 +23,7 @@ import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.query.ResultSetFormatter;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.hascoapi.utils.CollectionUtil;
@@ -33,7 +38,7 @@ import org.hascoapi.annotations.PropertyField;
 import org.hascoapi.annotations.ReversedPropertyField;
 import org.hascoapi.annotations.Subject;
 
-
+@JsonFilter("hascoClassFilter")
 public class HADatAcClass extends HADatAcThing {
 
     String className = "";
@@ -87,17 +92,6 @@ public class HADatAcClass extends HADatAcThing {
         this.superUri = superUri;
     }
 
-    //public String getLabel() {
-    //    return label;
-    //}
-
-    //public void setLabel(String label) {
-    //    if (label == null) {
-    //        label = "";
-    //    }
-    //    this.label = label;
-    //}
-
     public String getLocalName() {
         return localName;
     }
@@ -108,17 +102,6 @@ public class HADatAcClass extends HADatAcThing {
         }
         this.localName = localName;
     }
-
-    //public String getComment() {
-    //    return comment;
-    //}
-
-    //public void setComment(String comment) {
-    //    if (comment == null) {
-    //        comment = "";
-    //    }
-    //    this.comment = comment;
-    //}
 
     public List<String> getIsDomainOf() {
         return isDomainOf;
@@ -179,7 +162,6 @@ public class HADatAcClass extends HADatAcThing {
         }
         return superType.getLabel();
     }
-
 
     public List<HADatAcClass> findGeneric() {
         List<HADatAcClass> typeClasses = new ArrayList<HADatAcClass>();
@@ -480,6 +462,28 @@ public class HADatAcClass extends HADatAcThing {
         }
     }
 
+    public static List<HADatAcClass> getImmediateSubclasses(String superUri) {
+        //System.out.println("HADatAcClass.ImmediateSubClasses of [" + superUri + "]");
+        List<HADatAcClass> subclasses = new ArrayList<HADatAcClass>();
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                "SELECT ?uri WHERE { " +
+                "   ?uri rdfs:subClassOf <" + superUri + "> .  " +
+                "} " + 
+                " ORDER BY ASC(?uri) ";
+
+        ResultSetRewindable resultsrw = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+        while (resultsrw.hasNext()) {
+            QuerySolution soln = resultsrw.next();
+            HADatAcClass subclass = HADatAcClass.find(soln.getResource("uri").getURI());
+            subclass.setNodeId(HADatAcThing.createUrlHash(subclass.getUri()));
+            subclasses.add(subclass);
+        }
+
+        return subclasses;
+    }
+    
     @JsonIgnore
     public List<GenericInstance> getInstances() {
         List<GenericInstance> instances = new ArrayList<GenericInstance>();

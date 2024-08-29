@@ -7,9 +7,11 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 import org.hascoapi.Constants;
 import org.hascoapi.entity.pojo.DetectorInstance;
+import org.hascoapi.entity.pojo.GenericFind;
 import org.hascoapi.entity.pojo.INS;
 import org.hascoapi.entity.pojo.InstrumentInstance;
 import org.hascoapi.entity.pojo.PlatformInstance;
+import org.hascoapi.entity.pojo.StudyObject;
 import org.hascoapi.transform.Renderings;
 import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.HAScOMapper;
@@ -51,6 +53,27 @@ public class VSTOIInstanceAPI extends Controller {
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));
         }
+    }
+
+    public Result findPlatformInstancesByPlatformWithPage(String platformUri, int pagesize, int offset) {
+        if (platformUri == null || platformUri.isEmpty()) {
+            return ok(ApiUtil.createResponse("No platform uri has been provided", false));
+        }
+        System.out.println(platformUri);
+        List<PlatformInstance> results = PlatformInstance.findByPlaformWithPage(platformUri, pagesize, offset);
+        return this.getPlatformInstances(results);
+    }
+
+    public Result findTotalPlatformInstancesByPlatform(String platformUri){
+        if (platformUri == null || platformUri.isEmpty()) {
+            return ok(ApiUtil.createResponse("No platform uri has been provided", false));
+        }
+        int totalElements = totalElements = PlatformInstance.findTotalByPlatform(platformUri);
+        if (totalElements >= 0) {
+            String totalElementsJSON = "{\"total\":" + totalElements + "}";
+            return ok(ApiUtil.createResponse(totalElementsJSON, true));
+        }
+        return ok(ApiUtil.createResponse("query method findTotalPlatformInstancesByPlatform() failed to retrieve total number of element", false));
     }
 
 }

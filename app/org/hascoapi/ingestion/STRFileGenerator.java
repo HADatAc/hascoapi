@@ -130,9 +130,9 @@ public class STRFileGenerator extends BaseGenerator {
         str.setNumberDataPoints(0);
         String pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
         if (startTime.isEmpty()) {
-            str.setStartedAt(new DateTime(new Date()));
+            //str.setStartedAt(new DateTime(new Date()));
         } else {
-            str.setStartedAt(DateTimeFormat.forPattern(pattern).parseDateTime(startTime));
+            //str.setStartedAt(DateTimeFormat.forPattern(pattern).parseDateTime(startTime));
         }
 
         // process STREAM NAME (i.e., the DA NAME)
@@ -232,23 +232,7 @@ public class STRFileGenerator extends BaseGenerator {
         }
         str.setDeploymentUri(URIUtils.replacePrefixEx((String)row.get("hasco:hasDeployment")));
         Deployment deployment = Deployment.find(str.getDeploymentUri());
-        if (deployment != null) {
-            if (deployment.getPlatform() != null) {
-                str.setPlatformUri(deployment.getPlatform().getUri());
-                str.setPlatformName(deployment.getPlatform().getLabel());
-            } else {
-	            dataFile.getLogger().printExceptionByIdWithArgs("STR_00033", str.getDeploymentUri());
-	            throw new Exception();
-            }
-            if (deployment.getInstrument() != null) {
-                str.setInstrumentUri(deployment.getInstrument().getUri());
-                str.setInstrumentModel(deployment.getInstrument().getLabel());
-            } else {
-	            dataFile.getLogger().printExceptionByIdWithArgs("STR_00034", str.getDeploymentUri());
-	            throw new Exception();
-            }
-            str.setStartedAtXsdWithMillis(deployment.getStartedAt());
-        } else {
+        if (deployment == null) {
             dataFile.getLogger().printExceptionByIdWithArgs("STR_00022");
             throw new Exception();
         }
@@ -259,15 +243,15 @@ public class STRFileGenerator extends BaseGenerator {
             dataFile.getLogger().printExceptionById("STR_00021");
             throw new Exception();
 	    }
-        str.setSchemaUri(URIUtils.replacePrefixEx((String)row.get("hasco:hasSchema")));
-        SDD schema = SDD.find(str.getSchemaUri());
+        str.setSDDUri(URIUtils.replacePrefixEx((String)row.get("hasco:hasSchema")));
+        SDD schema = SDD.find(str.getSDDUri());
         if (schema != null) {
             str.setStatus(9999);
         } else {
-            dataFile.getLogger().printExceptionByIdWithArgs("STR_00035", str.getSchemaUri());
+            dataFile.getLogger().printExceptionByIdWithArgs("STR_00035", str.getSDDUri());
             throw new Exception();
         }
-        dataFile.getLogger().println("createStr [6/6] - Specified SDD: [" + str.getSchemaUri() + "]");
+        dataFile.getLogger().println("createStr [6/6] - Specified SDD: [" + str.getSDDUri() + "]");
         
 	    if (!isFileStreamValid(str)) {
             throw new Exception();
@@ -312,7 +296,7 @@ public class STRFileGenerator extends BaseGenerator {
         Map<String, String> dasoPL = new HashMap<String, String>();
         List<SDDObject> dasos = new ArrayList<SDDObject>();
         List<String> roles = new ArrayList<String>();
-        for (SDDAttribute attr : str.getSchema().getAttributes()) {
+        for (SDDAttribute attr : str.getSDD().getAttributes()) {
             if (attr.getObjectViewLabel().length() > 0) {
                 if (!roles.contains(attr.getObjectViewLabel())) {
                     roles.add(attr.getObjectViewLabel());
@@ -420,7 +404,7 @@ public class STRFileGenerator extends BaseGenerator {
                                                         if (soln.get("o").isResource()){
                                                             if (soln.getResource("o") != null) {
                                                                 if (tarList.containsValue(soln.getResource("o").toString())) {
-                                                                    answer.add(str.getSchema().getObject(soln.getResource("o").toString()).getEntityLabel());
+                                                                    answer.add(str.getSDD().getObject(soln.getResource("o").toString()).getEntityLabel());
                                                                     dasoPL.put(daso.getUri(), answer.get(1) + " " + answer.get(0));
                                                                     found = true;
                                                                     break;

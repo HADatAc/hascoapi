@@ -1242,4 +1242,17 @@ public class SIRElementAPI extends Controller {
         return ok("[derivation] No valid element type.");
     }
 
+    public Result hascoType(String classUri){
+        if (classUri == null || classUri.isEmpty()) {
+            return ok("[hascoType] No valid classUri has been provided.");
+        }
+        GenericInstance instance = new GenericInstance();
+        String response = instance.getHascoType(classUri);
+        if (response != null) {
+            String respJSON = "{\"hascoType\":\"" + response + "\"}";
+            return ok(ApiUtil.createResponse(respJSON, true));
+        }     
+        return ok("No recognizable HASCO type.");
+    }
+
 }
