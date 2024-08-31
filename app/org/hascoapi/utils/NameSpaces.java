@@ -148,7 +148,7 @@ public class NameSpaces {
         HASCO_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
         HASCO_NAMESPACE.setHascoTypeUri(HASCO.ONTOLOGY);
         HASCO_NAMESPACE.setSourceMime("text/turtle");
-        HASCO_NAMESPACE.setSource("https://hadatac.org/ont/hasco/");
+        HASCO_NAMESPACE.setSource("https://hadatac.org/ont/hasco/1.2");
         HASCO_NAMESPACE.setComment("Human-Aware Science Ontology");
         HASCO_NAMESPACE.setVersion("1.0");
         HASCO_NAMESPACE.setPermanent(true);
@@ -162,7 +162,7 @@ public class NameSpaces {
         VSTOI_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
         VSTOI_NAMESPACE.setHascoTypeUri(HASCO.ONTOLOGY);
         VSTOI_NAMESPACE.setSourceMime("text/turtle");
-        VSTOI_NAMESPACE.setSource("https://hadatac.org/ont/vstoi#");
+        VSTOI_NAMESPACE.setSource("https://hadatac.org/ont/vstoi/0.5");
         VSTOI_NAMESPACE.setComment("Virtual Terrestrial Solar Observatory - Instruments");
         VSTOI_NAMESPACE.setVersion("1.0");
         VSTOI_NAMESPACE.setPermanent(true);
