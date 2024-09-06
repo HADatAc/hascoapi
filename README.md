@@ -33,7 +33,7 @@ It is an API for handling HASCO-based knowledge graphs. The canonical representa
 4. Delete triplestore volume: `docker volume rm hascoapi_hascoapi-fuseki-data`
 5. Restart hascoapi: `docker-compose up -d`
 
-## How to create HASCORAPI backup file?
+## How to create HASCOAPI backup file?
 
 In the example below, we named the backup file with the backup date. This can be any date and it may also include the time of the backup. 
 
