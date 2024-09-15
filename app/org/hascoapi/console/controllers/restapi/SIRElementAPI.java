@@ -21,7 +21,7 @@ public class SIRElementAPI extends Controller {
      */
 
     public Result createElement(String elementType, String json) {
-        //System.out.println("Type: [" + elementType + "]  JSON [" + json + "]");
+        System.out.println("Type: [" + elementType + "]  JSON [" + json + "]");
         if (json == null || json.equals("")) {
             return ok(ApiUtil.createResponse("No json content has been provided.", false));
         }
@@ -235,6 +235,41 @@ public class SIRElementAPI extends Controller {
             try {
                 SDD object;
                 object = (SDD)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == SemanticDataDictionary.class) {
+            try {
+                SemanticDataDictionary object;
+                object = (SemanticDataDictionary)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == SDDAttribute.class) {
+            try {
+                SDDAttribute object;
+                object = (SDDAttribute)objectMapper.readValue(json, clazz);
+                System.out.println("SIRElementAPI: SDDAttribute's uri is [" + object.getUri() + "] and hasco type is [" + object.getHascoTypeUri() + "]");
+                System.out.println(json);
+                System.out.println(object.getObjectUri());
+                System.out.println(object.getEventUri());
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                e.printStackTrace();
+                return ok(ApiUtil.createResponse("Following JSON Exception while parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            } catch (Exception e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == SDDObject.class) {
+            try {
+                SDDObject object;
+                object = (SDDObject)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
                 message = e.getMessage();
@@ -568,6 +603,24 @@ public class SIRElementAPI extends Controller {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
+        } else if (clazz == SemanticDataDictionary.class) {
+            SemanticDataDictionary object = SemanticDataDictionary.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == SDDAttribute.class) {
+            SDDAttribute object = SDDAttribute.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == SDDObject.class) {
+            SDDObject object = SDDObject.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
         } else if (clazz == DP2.class) {
             DP2 object = DP2.find(uri);
             if (object == null) {
@@ -797,6 +850,18 @@ public class SIRElementAPI extends Controller {
             GenericFind<SDD> query = new GenericFind<SDD>();
             List<SDD> results = query.findByKeywordWithPages(SDD.class,keyword, pageSize, offset);
             return SDDAPI.getSDDs(results);
+        }  else if (elementType.equals("semanticdatadictionary")) {
+            GenericFind<SemanticDataDictionary> query = new GenericFind<SemanticDataDictionary>();
+            List<SemanticDataDictionary> results = query.findByKeywordWithPages(SemanticDataDictionary.class,keyword, pageSize, offset);
+            return SemanticDataDictionaryAPI.getSemanticDataDictionaries(results);
+        }  else if (elementType.equals("sddattribute")) {
+            GenericFind<SDDAttribute> query = new GenericFind<SDDAttribute>();
+            List<SDDAttribute> results = query.findByKeywordWithPages(SDDAttribute.class,keyword, pageSize, offset);
+            return SemanticDataDictionaryAPI.getSDDAttributes(results);
+        }  else if (elementType.equals("sddobject")) {
+            GenericFind<SDDObject> query = new GenericFind<SDDObject>();
+            List<SDDObject> results = query.findByKeywordWithPages(SDDObject.class,keyword, pageSize, offset);
+            return SemanticDataDictionaryAPI.getSDDObjects(results);
         }  else if (elementType.equals("dp2")) {
             GenericFind<DP2> query = new GenericFind<DP2>();
             List<DP2> results = query.findByKeywordWithPages(DP2.class,keyword, pageSize, offset);
@@ -1112,6 +1177,10 @@ public class SIRElementAPI extends Controller {
             GenericFind<SDD> query = new GenericFind<SDD>();
             List<SDD> results = query.findByManagerEmailWithPages(SDD.class, managerEmail, pageSize, offset);
             return SDDAPI.getSDDs(results);
+        }  else if (elementType.equals("semanticdatadictionary")) {
+            GenericFind<SemanticDataDictionary> query = new GenericFind<SemanticDataDictionary>();
+            List<SemanticDataDictionary> results = query.findByManagerEmailWithPages(SemanticDataDictionary.class, managerEmail, pageSize, offset);
+            return SemanticDataDictionaryAPI.getSemanticDataDictionaries(results);
         }  else if (elementType.equals("dp2")) {
             GenericFind<DP2> query = new GenericFind<DP2>();
             List<DP2> results = query.findByManagerEmailWithPages(DP2.class, managerEmail, pageSize, offset);

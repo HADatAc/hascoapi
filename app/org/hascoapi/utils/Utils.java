@@ -93,6 +93,9 @@ public class Utils {
             case "sdd":
                 shortPrefix = Constants.PREFIX_SDD;
                 break;
+            case "semanticdatadictionary":
+                shortPrefix = Constants.PREFIX_SEMANTIC_DATA_DICTIONARY;
+                break;
             case "dp2":
                 shortPrefix = Constants.PREFIX_DP2;
                 break;

@@ -8,7 +8,6 @@ import java.util.Map;
 import java.io.File;
 import java.net.URL;
 
-
 import com.fasterxml.jackson.annotation.JsonFilter;
 import org.apache.commons.io.FileUtils;
 import org.apache.jena.query.Query;
@@ -183,18 +182,18 @@ public class SDD extends MetadataTemplate {
         this.uri = dataFile.getUri().replace("DF","SD");
         this.label = "";
         isRefreshed = false;
-        SDD.getCache();
-        getAttributes();
-        getObjects();
+        //SDD.getCache();
+        //getAttributes();
+        //getObjects();
     }
 
     public SDD(String uri, String label) {
         this.uri = uri;
         this.label = label;
         isRefreshed = false;
-        SDD.getCache();
-        getAttributes();
-        getObjects();
+        //SDD.getCache();
+        //getAttributes();
+        //getObjects();
     }
 
     /*************************************** 
@@ -389,52 +388,6 @@ public class SDD extends MetadataTemplate {
         return objects.size();
     }
 
-    public List<SDDAttribute> getAttributes() {
-        if (attributesCache == null || attributesCache.isEmpty()) {
-            attributesCache = SDDAttribute.findBySchema(getUri());
-        }
-        return attributesCache;
-    }
-
-    public void setAttributes(List<String> attributes) {
-        if (attributes == null) {
-            //System.out.println("[WARNING] No SDDObject for " + uri + " is defined in the knowledge base. ");
-        } else {
-            this.attributes = attributes;
-            if (!isRefreshed) {
-                refreshAttributes();
-            }
-        }
-    }
-
-    public List<SDDObject> getObjects() {
-        if (objectsCache == null || objectsCache.isEmpty()) {
-            objectsCache = SDDObject.findBySchema(getUri());
-        }
-        return objectsCache;
-    }
-
-    public void setObjects(List<String> objects) {
-        if (objects == null) {
-            //System.out.println("[WARNING] No SDDObject for " + uri + " is defined in the knowledge base. ");
-        } else {
-            this.objects = objects;
-        }
-    }
-
-    public SDDObject getObject(String sddoUri) {
-        for (String sddo : objects) {
-            if (sddo.equals(sddoUri)) {
-                return SDDObject.find(sddo);
-            }
-        }
-        return null;
-    }
-
-    public SDDObject getEvent(String sddeUri) {
-        return SDDObject.find(sddeUri);
-    }
-
     /*************************************** 
      * 
      *        METHODS  DIVERSE
@@ -455,71 +408,6 @@ public class SDD extends MetadataTemplate {
         objectsCache = null;
     }
 
-    public void refreshAttributes() {
-        List<SDDAttribute> attributeList = SDDAttribute.findBySchema(this.getUri());
-        if (attributes == null) {
-            System.out.println("[ERROR] No SDDAttribute for " + uri + " is defined in the knowledge base. ");
-        } else {
-            for (SDDAttribute sdda : attributeList) {
-                sdda.setSDD(this);
-
-                if (sdda.getAttributes().contains(URIUtils.replacePrefixEx("hasco:TimeStamp"))) {
-                    setTimestampLabel(sdda.getLabel());
-                    //System.out.println("[OK] SDD TimeStampLabel: " + sdda.getLabel());
-                }
-                if (sdda.getAttributes().contains(URIUtils.replacePrefixEx("sio:SIO_000418"))) {
-                    setTimeInstantLabel(sdda.getLabel());
-                    //System.out.println("[OK] SDD TimeInstantLabel: " + sdda.getLabel());
-                }
-                if (sdda.getAttributes().contains(URIUtils.replacePrefixEx("hasco:namedTime"))) {
-                    setNamedTimeLabel(sdda.getLabel());
-                    //System.out.println("[OK] SDD NamedTimeLabel: " + sdda.getLabel());
-                }
-                if (sdda.getAttributes().contains(URIUtils.replacePrefixEx("hasco:uriId"))) {
-                    setIdLabel(sdda.getLabel());
-                    //System.out.println("[OK] SDD IdLabel: " + sdda.getLabel());
-                }
-                if (sdda.getAttributes().contains(URIUtils.replacePrefixEx("hasco:LevelOfDetection"))) {
-                    setLODLabel(sdda.getLabel());
-                    //System.out.println("[OK] SDD LODLabel: " + sdda.getLabel());
-                }
-                if (sdda.getAttributes().contains(URIUtils.replacePrefixEx("hasco:isGroupMember"))) {
-                    setGroupLabel(sdda.getLabel());
-                    //System.out.println("[OK] SDD GroupLabel: " + sdda.getLabel());
-                }
-                if (sdda.getAttributes().contains(URIUtils.replacePrefixEx("hasco:matchesWith"))) {
-                    setMatchingLabel(sdda.getLabel());
-                    //System.out.println("[OK] SDD MatchingLabel: " + sdda.getLabel());
-                }
-                if (sdda.getAttributes().contains(URIUtils.replacePrefixEx("hasco:originalID")) 
-                        || sdda.getAttributes().equals(URIUtils.replacePrefixEx("sio:SIO_000115")) 
-                        || Entity.getSubclasses(URIUtils.replacePrefixEx("hasco:originalID")).contains(sdda.getAttributes())) { 
-                    setOriginalIdLabel(sdda.getLabel());
-                    //System.out.println("[OK] SDD IdLabel: " + sdda.getLabel());
-                }
-                if (sdda.getAttributes().contains(URIUtils.replacePrefixEx("hasco:hasEntity"))) {
-                    setEntityLabel(sdda.getLabel());
-                    //System.out.println("[OK] SDD EntityLabel: " + sdda.getLabel());
-                }
-                if (!sdda.getInRelationToUri(URIUtils.replacePrefixEx("sio:SIO_000221")).isEmpty()) {
-                    String uri = sdda.getInRelationToUri(URIUtils.replacePrefixEx("sio:SIO_000221"));
-                    SDDObject sddoUnit = SDDObject.find(uri);
-                    if (sddoUnit != null) {
-                        setUnitLabel(sddoUnit.getLabel());
-                    } else {
-                        SDDAttribute sddaUnit = SDDAttribute.find(uri);
-                        if (sddaUnit != null) {
-                            setUnitLabel(sddaUnit.getLabel());
-                        }
-                    }
-                }
-                if (sdda.getAttributes().contains(URIUtils.replacePrefixEx("sio:SIO_000668"))) {
-                    setInRelationToLabel(sdda.getLabel());
-                }
-            }
-        }
-    }
-
     public File downloadFile(String fileURL, String filename) {
         //System.out.println("fileURL: " + fileURL);
         
@@ -537,6 +425,8 @@ public class SDD extends MetadataTemplate {
             }
         }
     }
+
+    /* 
 
     public List<String> defineTemporaryPositions(List<String> csvHeaders) {
         List<String> unknownHeaders = new ArrayList<String>(csvHeaders);
@@ -579,7 +469,9 @@ public class SDD extends MetadataTemplate {
 
         return unknownHeaders;
     }
+    */
 
+    /* 
     public int tempPositionOfLabel(String label) {
         if (label == null || label.equals("")) {
             return -1;
@@ -606,6 +498,7 @@ public class SDD extends MetadataTemplate {
 
         return position;
     }
+    */
 
     /************************************************ 
      * 
@@ -613,6 +506,7 @@ public class SDD extends MetadataTemplate {
      * 
      ************************************************/
 
+    
     private static SDD findCoreProperties(String uri) {
         Statement statement;
         RDFNode object;
@@ -657,16 +551,19 @@ public class SDD extends MetadataTemplate {
 
         return sdd;
     }
+    
 
     public static SDD find(String sddUri) {
         //System.out.println("SDD.find() with URI: " + sddUri);
 
+        /* 
         if (SDD.getCache().get(sddUri) != null) {
         	
             SDD sdd = SDD.getCache().get(sddUri);
             sdd.getAttributes();
             return sdd;
         }
+        */
 
         //System.out.println("Looking for data acquisition sdd " + sddUri);
 
@@ -682,15 +579,19 @@ public class SDD extends MetadataTemplate {
         	return null;
         }
 
+        /* 
         sdd.setAttributes(SDDAttribute.findUriBySchema(sddUri));
         sdd.setObjects(SDDObject.findUriBySchema(sddUri));
 
         sdd.getAttributes();
         sdd.getObjects();
         SDD.getCache().put(sddUri,sdd);
+        */
         return sdd;
     }
+    
 
+        /* 
     public static Map<String, String> findAllUrisByLabel(String sddUri) {
         Map<String, String> resp = new HashMap<String, String>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList()
@@ -720,6 +621,9 @@ public class SDD extends MetadataTemplate {
         return resp;
     }
 
+    */
+
+    /* 
     public static String findByLabel(String sddUri, String label) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList()
                 + " SELECT ?sddo_or_sdda ?label WHERE { "
@@ -738,6 +642,7 @@ public class SDD extends MetadataTemplate {
 
         return "";
     }
+    */
 
     /*************************************** 
      * 

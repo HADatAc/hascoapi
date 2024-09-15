@@ -238,11 +238,11 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
     public String getSDDUri() {
         return sddUri;
     }
-    public SDD getSDD() {
+    public SemanticDataDictionary getSDD() {
         if (sddUri == null || sddUri.equals("")) {
             return null;
         }
-        SDD sdd = SDD.find(sddUri);
+        SemanticDataDictionary sdd = SemanticDataDictionary.find(sddUri);
         headers = new ArrayList<String>();
         if (sdd != null && sdd.getAttributes() != null) {
             for (SDDAttribute attr : sdd.getAttributes()) {

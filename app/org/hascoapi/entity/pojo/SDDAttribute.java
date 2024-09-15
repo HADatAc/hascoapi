@@ -7,6 +7,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.jena.query.QueryParseException;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSetRewindable;
@@ -14,91 +16,136 @@ import org.apache.jena.update.UpdateExecutionFactory;
 import org.apache.jena.update.UpdateFactory;
 import org.apache.jena.update.UpdateProcessor;
 import org.apache.jena.update.UpdateRequest;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.rdf.model.Statement;
+import org.apache.jena.rdf.model.StmtIterator;
+import org.hascoapi.annotations.PropertyField;
+import org.hascoapi.annotations.PropertyValueType;
 import org.hascoapi.Constants;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.FirstLabel;
 import org.hascoapi.utils.URIUtils;
+import org.hascoapi.vocabularies.HASCO;
+import org.hascoapi.vocabularies.PROV;
+import org.hascoapi.vocabularies.RDF;
+import org.hascoapi.vocabularies.RDFS;
+import org.hascoapi.vocabularies.VSTOI;
 import org.hascoapi.utils.SPARQLUtils;
 
+@JsonFilter("sddAttributeFilter")
 public class SDDAttribute extends HADatAcThing {
 
-    public static String INDENT1 = "     ";
-    public static String INSERT_LINE1 = "INSERT DATA {  ";
-    public static String DELETE_LINE1 = "DELETE WHERE {  ";
-    public static String LINE3 = INDENT1 + "a         hasco:SDDAttribute;  ";
-    public static String DELETE_LINE3 = " ?p ?o . ";
-    public static String LINE_LAST = "}  ";
-    public static String PREFIX = "SDDA-";
-
-    private static Map<String, SDDAttribute> SDDACache;
-
-    private String uri;
-    private String localName;
-    private String label;
+    @PropertyField(uri="hasco:partOfSchema")
     private String partOfSchema;
+
+    @PropertyField(uri="hasco:schemaPosition")
     private String position;
-    private int    positionInt;
+
+    @PropertyField(uri="hasco:isVariableOf")
+    private String sddoUri;
+
+    private int positionInt;
 
     /* 
-       tempPositionInt is set every time a new csv file is loaded. tempPositionIn = -1 indicates that the attribute is not valid for the given cvs
-         - because an original position is out of range for the csv
-         - because there is no original position and the given localName does not match any of the labels in the CSV
-     */
+    tempPositionInt is set every time a new csv file is loaded. tempPositionIn = -1 indicates that the attribute is not valid for the given cvs
+        - because an original position is out of range for the csv
+        - because there is no original position and the given column does not match any of the labels in the CSV
+    */
+    private int tempPositionInt;
 
-    private int    tempPositionInt;
+    @PropertyField(uri="hasco:hasEntity")
     private String entity;
-    private String entityLabel;
-    private List<String> attributes;
-    private List<String> attributeLabels;
-    private String unit;
-    private String unitLabel;
-    private String sddeUri;
-    private String sddoUri;
-    private Map<String, String> relations = new HashMap<String, String>();
-    private boolean isMeta;
-    private SDD sdd;
-    private String socUri;
 
-    private static Map<String, SDDAttribute> getCache() {
-	if (SDDACache == null) {
-	    SDDACache = new HashMap<String, SDDAttribute>(); 
-	}
-	return SDDACache;
+    private String entityLabel;
+
+    @PropertyField(uri="hasco:hasAttribute")
+    private String attribute;
+
+    private String attributeLabel;
+
+    @PropertyField(uri="hasco:hasUnit")
+    private String unit;
+
+    private String unitLabel;
+
+    @PropertyField(uri="hasco:hasEvent")
+    private String sddeUri;
+
+    @PropertyField(uri="hasco:inRelationTo")
+    private String inRelationTo;
+
+    @PropertyField(uri="hasco:relation")
+    private String relation;
+
+    private Map<String, String> relations = new HashMap<String, String>();
+
+    @PropertyField(uri="prov:wasDerivedFrom")
+    private String wasDerivedFrom;
+
+    @PropertyField(uri = "vstoi:hasSIRManagerEmail")
+    private String hasSIRManagerEmail;
+
+    private boolean isMeta;
+
+    /*************** 
+     * 
+     *    CACHE
+     * 
+     ***************/
+     
+     private static Map<String, SDDAttribute> SDDACache;
+
+     private SemanticDataDictionary sdd;
+
+     private static Map<String, SDDAttribute> getCache() {
+        if (SDDACache == null) {
+            SDDACache = new HashMap<String, SDDAttribute>(); 
+        }
+	    return SDDACache;
     }
 
     public static void resetCache() {
-	SDDACache = null;
+	    SDDACache = null;
     }
 
+    /********************** 
+     * 
+     *    CONSTRUCTORS 
+     * 
+     **********************/
+
+    public SDDAttribute() {
+	    SDDAttribute.getCache();
+    }
+
+    /*
     public SDDAttribute(String uri, String partOfSchema) {
         this.uri = uri;
         this.partOfSchema = partOfSchema;
-        this.localName = "";
         this.label = "";
         this.position = "";
         this.positionInt = -1;
         this.setEntity("");
-        this.setAttributes(Arrays.asList(""));
+        this.setAttribute("");
         this.setUnit("");
         this.sddeUri = "";
         this.sddoUri = "";
         this.isMeta = false;
-	SDDAttribute.getCache();
+	    SDDAttribute.getCache();
     }
 
     public SDDAttribute(String uri, 
-            String localName, 
             String label,
             String partOfSchema,
             String position, 
             String entity, 
-            List<String> attributes, 
+            String attribute, 
             String unit, 
             String sddeUri, 
             String sddoUri) {
         this.uri = uri;
-        this.localName = localName;
         this.label = label;
         this.partOfSchema = partOfSchema;
         this.position = position;
@@ -112,51 +159,28 @@ public class SDDAttribute extends HADatAcThing {
             positionInt = -1;
         }
         this.setEntity(entity);
-        this.setAttributes(attributes);
+        this.setAttribute(attribute);
         this.setUnit(unit);
         this.sddeUri = sddeUri;
         this.sddoUri = sddoUri;
-	SDDAttribute.getCache();
+	    SDDAttribute.getCache();
     }
+    */
 
-    public String getUri() {
-        if (uri == null) {
-            return "";
-        } else {
-            return uri;
-        }
-    }
+    /***************************** 
+     * 
+     *    SETTERS AND GETTERS
+     * 
+     *****************************/
 
+    @JsonIgnore
     public String getUriNamespace() {
         return URIUtils.replaceNameSpaceEx(uri.replace("<","").replace(">",""));
     }
 
-    public void setUri(String uri) {
-        this.uri = uri;
-    }
-
-    public String getLocalName() {
-        return localName;
-    }
-
-    public void setLocalName(String localName) {
-        this.localName = localName;
-    }
-
-    public void setSDD(SDD sdd) {
+    @JsonIgnore
+    public void setSemanticDataDictionary(SemanticDataDictionary sdd) {
         this.sdd = sdd;
-    }
-
-    public String getLabel() {
-        if (label == null) {
-            return "";
-        } else {
-            return label;
-        }
-    }
-
-    public void setLabel(String label) {
-        this.label = label;
     }
 
     public String getPartOfSchema() {
@@ -166,7 +190,6 @@ public class SDDAttribute extends HADatAcThing {
             return partOfSchema;
         }
     }
-
     public void setPartOfSchema(String partOfSchema) {
         this.partOfSchema = partOfSchema;
     }
@@ -174,19 +197,19 @@ public class SDDAttribute extends HADatAcThing {
     public String getPosition() {
         return position;
     }
-
     public void setPosition(String position) {
         this.position = position;
     }
-
+    @JsonIgnore
     public int getPositionInt() {
         return positionInt;
     }
 
+    @JsonIgnore
     public int getTempPositionInt() {
         return tempPositionInt;
     }
-
+    @JsonIgnore
     public void setTempPositionInt(int tempPositionInt) {
         this.tempPositionInt = tempPositionInt;
     }
@@ -198,14 +221,13 @@ public class SDDAttribute extends HADatAcThing {
             return entity;
         }
     }
-
+    @JsonIgnore
     public String getEntityNamespace() {
         if (entity == "") {
             return "";
         }
         return URIUtils.replaceNameSpaceEx(entity.replace("<","").replace(">",""));
     }
-
     public void setEntity(String entity) {
         this.entity = entity;
         if (entity == null || entity.equals("")) {
@@ -214,14 +236,14 @@ public class SDDAttribute extends HADatAcThing {
             this.entityLabel = FirstLabel.getPrettyLabel(entity);
         }
     }
-
+    @JsonIgnore
     public String getEntityLabel() {
         if (entityLabel.equals("")) {
             return URIUtils.replaceNameSpaceEx(entity);
         }
         return entityLabel;
     }
-
+    @JsonIgnore
     public String getEntityViewLabel() {
         if (isMeta) {
             return "";
@@ -230,15 +252,17 @@ public class SDDAttribute extends HADatAcThing {
             return "[" + getObject().getEntityLabel() + "]";
         }
         if (sddoUri == null || sddoUri.equals("")) {
+            /* 
             if (sdd != null && (!sdd.getIdLabel().equals("") || !sdd.getOriginalIdLabel().equals(""))) {
                 return "[inferred from DefaultObject]";
             }
+            */
             return "";
         } else {
             return getEntityLabel();
         }
     }
-
+    @JsonIgnore
     public String getAnnotatedEntity() {
         String annotation;
         if (entityLabel.equals("")) {
@@ -255,106 +279,30 @@ public class SDDAttribute extends HADatAcThing {
         return annotation;
     }
 
-    public List<String> getAttributes() {
-        if (attributes == null) {
-            return new ArrayList<String>();
-        } else {
-            return attributes;
-        }
+    public String getAttribute() {
+        return attribute;
     }
-    
-    public String getAttributeString() {
-        if (attributes == null) {
-            return "";
-        }
-        
-        return String.join("; ", attributes);
+    @JsonIgnore
+    public String getAttributeNamespace() {
+        return URIUtils.replaceNameSpaceEx(attribute.replace("<","").replace(">",""));
     }
-    
-    public String getReversedAttributeString() {
-        if (attributes == null) {
-            return "";
-        }
-        
-        // Remove duplicates
-        List<String> uniqueAttributes = new ArrayList<String>();
-        for (String attrib : attributes) {
-            if (!uniqueAttributes.contains(attrib)) {
-                uniqueAttributes.add(attrib);
-            }
-        }
-
-        String result = "";
-        for (String attrib : uniqueAttributes) {
-            if (result.equals("")) {
-                result = attrib;
-            } else {
-                result = attrib + "; " + result;
-            }
-        }
-        
-        return result;
-    }
-
-    public List<String> getAttributeNamespace() {
-        if (attributes == Arrays.asList("")) {
-            return attributes;
-        }
-        List<String> answer = new ArrayList<String>();
-        for (String attr : attributes) {
-            answer.add(URIUtils.replaceNameSpaceEx(attr.replace("<","").replace(">","")));
-        }
-        return answer;
-    }
-
-    public void setAttributes(List<String> attributes) {
-        this.attributes = attributes;
-        if (attributes == null || attributes.size() < 1 ) {
-            this.attributeLabels = Arrays.asList("");
-        } else {
-            List<String> answer = new ArrayList<String>();
-            for (String attr : attributes) {
-                if (FirstLabel.getPrettyLabel(attr).equals("")) {
-                    answer.add(attr);
-                } else {
-                    answer.add(FirstLabel.getPrettyLabel(attr));
-                }
-            }
-            this.attributeLabels = answer;
-        }
-
+    public void setAttribute(String attribute) {
+        this.attribute = attribute;
         this.isMeta = true;
-
-        for (String attr : attributes) {
-            if (!SDD.METASDDA.contains(URIUtils.replaceNameSpaceEx(attr))) {
-                this.isMeta = false;
-            }
-        }      
-    }
-
-    public List<String> getAttributeLabels() {
-        return attributeLabels;
-    }
-
-    public String getConcatAttributeLabel() {
-        return String.join(" ", attributeLabels);
-    }
-
-    public List<String> getAnnotatedAttribute() {
-        List<String> annotation;
-        if (attributeLabels.equals(Arrays.asList(""))) {
-            if (attributes == null || attributes.equals(Arrays.asList(""))) {
-                return Arrays.asList("");
-            }
-            annotation = Arrays.asList("");
-        } else {
-            annotation = attributeLabels;
+        /* 
+        if (!SemanticDataDictionary.METASDDA.contains(URIUtils.replaceNameSpaceEx(attr))) {
+            this.isMeta = false;
         }
-        if (!getAttributeNamespace().equals(Arrays.asList(""))) {
-            for (String anno : annotation) {
-                anno += " [" + URIUtils.replaceNameSpaceEx(anno.replace("<","").replace(">","")) + "]";	
-            }
-        }
+        */    
+    }
+    @JsonIgnore
+    public String getAttributeLabel() {
+        return attributeLabel;
+    }
+    @JsonIgnore
+    public String getAnnotatedAttribute() {
+        String annotation;
+        annotation = attributeLabel + " [" + URIUtils.replaceNameSpaceEx(attribute.replace("<","").replace(">","")) + "]";	
         return annotation;
     }
 
@@ -366,7 +314,7 @@ public class SDDAttribute extends HADatAcThing {
         }
         return inRelationToUri;
     }
-
+    @JsonIgnore
     public String getInRelationToLabel() {
         String inRelationTo = getInRelationToUri();
         if (inRelationTo == null || inRelationTo.equals("")) {
@@ -375,16 +323,13 @@ public class SDDAttribute extends HADatAcThing {
             return FirstLabel.getPrettyLabel(inRelationTo);
         }
     }
-
     public String getInRelationToUri(String relationUri) {
         //System.out.println("[SDDA] relations: " + relations);
         if (relations.containsKey(relationUri)) {
             return relations.get(relationUri);
         }
-
         return "";
     }
-
     public void addRelation(String relationUri, String inRelationToUri) {
         relations.put(relationUri, inRelationToUri);
     }
@@ -396,14 +341,13 @@ public class SDDAttribute extends HADatAcThing {
             return unit;
         }
     }
-
+    @JsonIgnore
     public String getUnitNamespace() {
         if (unit == "") {
             return "";
         }
         return URIUtils.replaceNameSpaceEx(unit.replace("<","").replace(">",""));
     }
-
     public void setUnit(String unit) {
         this.unit = unit;
         if (unit == null || unit.equals("")) {
@@ -412,14 +356,14 @@ public class SDDAttribute extends HADatAcThing {
             this.unitLabel = FirstLabel.getPrettyLabel(unit);
         }
     }
-
+    @JsonIgnore
     public String getUnitLabel() {
         if (unitLabel.equals("")) {
             return URIUtils.replaceNameSpaceEx(unit);
         }
         return unitLabel;
     }
-
+    @JsonIgnore
     public String getAnnotatedUnit() {
         String annotation;
         if (unitLabel.equals("")) {
@@ -439,30 +383,30 @@ public class SDDAttribute extends HADatAcThing {
     public String getObjectUri() {
         return sddoUri;
     }
-
     public void setObjectUri(String sddoUri) {
         this.sddoUri = sddoUri;
     }
-
     public SDDObject getObject() {
         if (sddoUri == null || sddoUri.equals("")) {
             return null;
         }
         return SDDObject.find(sddoUri);
     }
-
+    @JsonIgnore
     public String getObjectNamespace() {
         if (sddoUri == null || sddoUri.equals("")) {
             return "";
         }
         return URIUtils.replaceNameSpaceEx(sddoUri.replace("<","").replace(">",""));
     }
-
+    @JsonIgnore
     public String getObjectViewLabel() {
         if (sddoUri == null || sddoUri.equals("")) {
+            /* 
             if (sdd != null && (!sdd.getIdLabel().equals("") || !sdd.getOriginalIdLabel().equals(""))) {
                 return "[DefaultObject]";
             }
+            */
             return "";
         } else {
             SDDObject sddo = SDDObject.find(sddoUri);
@@ -476,11 +420,9 @@ public class SDDAttribute extends HADatAcThing {
     public String getEventUri() {
         return sddeUri;
     }
-
     public void setEventUri(String sddeUri) {
         this.sddeUri = sddeUri;
     }
-    
     public SDDObject getEvent() {
         if (sddeUri == null || sddeUri.equals("")) {
             return null;
@@ -488,6 +430,20 @@ public class SDDAttribute extends HADatAcThing {
         return SDDObject.find(sddeUri);
     }
     
+    public String getInRelationTo() {
+        return inRelationTo;
+    }
+    public void setInRelationTo(String inRelationTo) {
+        this.inRelationTo = inRelationTo;
+    }
+
+    public String getRelation() {
+        return this.relation;
+    }
+    public void setRelation(String relation) {
+        this.relation = relation;
+    }
+
     public String getEventNamespace() {
         if (sddeUri == null || sddeUri.equals("")) {
             return "";
@@ -495,14 +451,17 @@ public class SDDAttribute extends HADatAcThing {
         return URIUtils.replaceNameSpaceEx(sddeUri.replace("<","").replace(">",""));
     }
 
+    @JsonIgnore
     public String getEventViewLabel() {
         if (isMeta) {
             return "";
         }
         if (sddeUri == null || sddeUri.equals("")) {
+            /* 
             if (sdd != null && !sdd.getTimestampLabel().equals("")) {
                 return "[value at label " + sdd.getTimestampLabel() + "]";
             }
+            */
             return "";
         } else {
             //SDDEvent sdde = SDDEvent.find(sddeUri);
@@ -514,11 +473,25 @@ public class SDDAttribute extends HADatAcThing {
         }
     }
 
+    public String getWasDerivedFrom() {
+        return this.wasDerivedFrom;
+    }
+    public void setWasDerivedFrom(String wasDerivedFrom) {
+        this.wasDerivedFrom = wasDerivedFrom;
+    }
+
+    public String getHasSIRManagerEmail() {
+        return this.hasSIRManagerEmail;
+    }
+    public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
+        this.hasSIRManagerEmail = hasSIRManagerEmail;
+    }
+
     public static int getNumberSDDAs() {
         String query = "";
         query += NameSpaces.getInstance().printSparqlNameSpaceList();
         query += "select distinct (COUNT(?x) AS ?tot) where {" + 
-                " ?x a <http://hascoapi.org/ont/hasco/SDDAttribute> } ";
+                " ?x a <" + HASCO.SDD_ATTRIBUTE + "> } ";
 
         //System.out.println("Study query: " + query);
 
@@ -536,116 +509,77 @@ public class SDDAttribute extends HADatAcThing {
         return -1;
     }
 
-    public static SDDAttribute find(String sdda_uri) {
-
-        if (SDDAttribute.getCache().get(sdda_uri) != null) {
-            return SDDAttribute.getCache().get(sdda_uri);
-        }
-        SDDAttribute sdda = null;
-        //System.out.println("Looking for data acquisition schema attribute with URI <" + sdda_uri + ">");
-
-        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + 
-                "SELECT ?partOfSchema ?hasEntity ?hasAttribute " + 
-                " ?hasUnit ?hasSDDO ?hasSDDE ?hasSource ?isPIConfirmed ?relation ?inRelationTo ?label WHERE { \n" + 
-                "    <" + sdda_uri + "> a hasco:SDDAttribute . \n" + 
-                "    <" + sdda_uri + "> hasco:partOfSchema ?partOfSchema . \n" + 
-                "    OPTIONAL { <" + sdda_uri + "> hasco:hasEntity ?hasEntity } . \n" + 
-                "    OPTIONAL { <" + sdda_uri + "> hasco:hasAttribute/rdf:rest*/rdf:first ?hasAttribute } . \n" +
-                "    OPTIONAL { <" + sdda_uri + "> hasco:hasUnit ?hasUnit } . \n" + 
-                "    OPTIONAL { <" + sdda_uri + "> hasco:hasEvent ?hasSDDE } . \n" + 
-                "    OPTIONAL { <" + sdda_uri + "> hasco:isAttributeOf ?hasSDDO } . \n" + 
-                "    OPTIONAL { <" + sdda_uri + "> hasco:hasSource ?hasSource } . \n" + 
-                "    OPTIONAL { <" + sdda_uri + "> hasco:isPIConfirmed ?isPIConfirmed } . \n" + 
-                "    OPTIONAL { <" + sdda_uri + "> hasco:Relation ?relation . <" + sdda_uri + "> ?relation ?inRelationTo . } . \n" + 
-                "    OPTIONAL { <" + sdda_uri + "> rdfs:label ?label } . \n" +
-                "}";
-
-        //System.out.println("SDDAttribute find() queryString: \n" + queryString);
-
-        ResultSetRewindable resultsrw = SPARQLUtils.select(
-                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
-
-        if (!resultsrw.hasNext()) {
-            //System.out.println("[WARNING] SDDAttribute. Could not find SDDA with URI: <" + sdda_uri + ">");
-            return sdda;
+    public static SDDAttribute find(String uri) {
+        if (uri == null || uri.isEmpty()) {
+            System.out.println("[ERROR] No valid URI provided to retrieve SDDAttribute: " + uri);
+            return null;
         }
 
-        String localNameStr = "";
-        String labelStr = "";
-        String partOfSchemaStr = "";
-        String positionStr = "";
-        String entityStr = "";
-        String attributeStr = "";
-        List<String> attributeList = new ArrayList<String>();
-        String unitStr = "";
-        String sddoUriStr = "";
-        String sddeUriStr = "";
-        String inRelationToUri = "";
-        String relationUri = "";
-
+		//System.out.println("Study.java : in find(): uri = [" + uri + "]");
+	    SDDAttribute sdda = new SDDAttribute();
         Map<String,String> relationMap = new HashMap<>();
-        while (resultsrw.hasNext()) {        	
-            QuerySolution soln = resultsrw.next();
 
-            /*
-             *  The label should be the exact value in the SDD, e.g., cannot be altered be something like
-             *  FirstLabel.getPrettyLabel(sdda_uri) since that would prevent the matching of the label with 
-             *  the column header of the data acquisition file/message
-             */
-            labelStr = soln.get("label").toString();
+	    Statement statement;
+	    RDFNode object;
+	    
+	    String queryString = "DESCRIBE <" + uri + ">";
+	    Model model = SPARQLUtils.describe(CollectionUtil.getCollectionPath(
+                CollectionUtil.Collection.SPARQL_QUERY), queryString);
+		
+		StmtIterator stmtIterator = model.listStatements();
 
-            if (soln.get("partOfSchema") != null) {
-                partOfSchemaStr = soln.get("partOfSchema").toString();
-            }
-            if (soln.get("hasEntity") != null) {
-                entityStr = soln.get("hasEntity").toString();
-            }
-            if (soln.get("hasAttribute") != null) {
-                attributeList.add(soln.get("hasAttribute").toString());
-            }
-            if (soln.get("hasUnit") != null) {
-                unitStr = soln.get("hasUnit").toString();
-            }
-            if (soln.get("hasSDDO") != null) {
-                sddoUriStr = soln.get("hasSDDO").toString();
-            }
-            if (soln.get("hasSDDE") != null) {
-                sddeUriStr = soln.get("hasSDDE").toString();
-            }
-            if (soln.get("inRelationTo") != null) {
-                inRelationToUri = soln.get("inRelationTo").toString();
-            }
-            if (soln.get("relation") != null) {
-                relationUri = soln.get("relation").toString();
-            }
+		if (!stmtIterator.hasNext()) {
+			return null;
+		} 
 
-            if ( relationUri != null && relationUri.length() > 0 && inRelationToUri != null && inRelationToUri.length() > 0 ) {
-                relationMap.put(relationUri, inRelationToUri);
-                relationUri = "";
-                inRelationToUri = "";
-            }
+		while (stmtIterator.hasNext()) {
+		    statement = stmtIterator.next();
+		    object = statement.getObject();
+			String string = URIUtils.objectRDFToString(object);
+            //System.out.println("Property value: [" + string + "]");
+			if (uri != null && !uri.isEmpty()) {
+				if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
+					sdda.setLabel(string);
+				} else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
+					sdda.setTypeUri(string); 
+				} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
+					sdda.setHascoTypeUri(string); 
+				} else if (statement.getPredicate().getURI().equals(HASCO.PART_OF_SCHEMA)) {
+					sdda.setPartOfSchema(string);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_SCHEMA_POSITION)) {
+					sdda.setPosition(string);
+				} else if (statement.getPredicate().getURI().equals(HASCO.IS_VARIABLE_OF)) {
+					sdda.setObjectUri(string);
+                } else if (statement.getPredicate().getURI().equals(HASCO.HAS_ENTITY)) {
+                    sdda.setEntity(string);
+                } else if (statement.getPredicate().getURI().equals(HASCO.HAS_ATTRIBUTE)) {
+                    sdda.setAttribute(string);
+                } else if (statement.getPredicate().getURI().equals(HASCO.HAS_UNIT)) {
+                    sdda.setUnit(string);
+                } else if (statement.getPredicate().getURI().equals(HASCO.HAS_EVENT)) {
+                    sdda.setEventUri(string);
+				} else if (statement.getPredicate().getURI().equals(HASCO.IN_RELATION_TO)) {
+					sdda.setInRelationTo(string);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_RELATION)) {
+					sdda.setRelation(string);
+				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
+					sdda.setComment(string);
+                } else if (statement.getPredicate().getURI().equals(PROV.WAS_DERIVED_FROM)) {
+					sdda.setWasDerivedFrom(string);
+                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
+					sdda.setHasSIRManagerEmail(string);
+				}
+			}
+		}
 
-        }
-
-        sdda = new SDDAttribute(
-                sdda_uri,
-                localNameStr,
-                labelStr,
-                partOfSchemaStr,
-                positionStr,
-                entityStr,
-                attributeList,
-                unitStr,
-                sddeUriStr,
-                sddoUriStr);
-
-        for ( Map.Entry<String, String> entry : relationMap.entrySet() ) {
+        for (Map.Entry<String, String> entry : relationMap.entrySet() ) {
             sdda.addRelation(entry.getKey(), entry.getValue());
         }
-
-	    SDDAttribute.getCache().put(sdda_uri,sdda);
-        return sdda;
-    }
+	    SDDAttribute.getCache().put(uri,sdda);
+        sdda.setUri(uri);
+		
+		return sdda;
+	}
 
     // Given a study URI, 
     // returns a list of SDDA's
@@ -759,6 +693,7 @@ public class SDDAttribute extends HADatAcThing {
                     attributes.add(attr);
                 }
             } catch (Exception e1) {
+                e1.printStackTrace();
                 System.out.println("[ERROR] SDDAttribute.findBySchema() URI: <" + schemaUri + ">");
                 e1.printStackTrace();
             }
@@ -770,89 +705,13 @@ public class SDDAttribute extends HADatAcThing {
 
     @Override
     public void save() {
+        //System.out.println("Saving SDDAttribute [" + uri + "]");
         saveToTripleStore();
     }
 
     @Override
-    public boolean saveToTripleStore() {
+    public void delete() {
         deleteFromTripleStore();
-
-        if (uri == null || uri.equals("")) {
-            System.out.println("[ERROR] Trying to save SDDA without assigning an URI");
-            return false;
-        }
-        if (partOfSchema == null || partOfSchema.equals("")) {
-            System.out.println("[ERROR] Trying to save SDDA without assigning SDD's URI");
-            return false;
-        }
-
-        String insert = "";
-        insert += NameSpaces.getInstance().printSparqlNameSpaceList();
-        insert += INSERT_LINE1;
-
-        if (!getNamedGraph().isEmpty()) {
-            insert += " GRAPH <" + getNamedGraph() + "> { ";
-        } else {
-            insert += " GRAPH <" + Constants.DEFAULT_REPOSITORY + "> { ";
-        }
-
-        insert += this.getUri() + " a hasco:SDDAttribute . ";
-        insert += this.getUri() + " rdfs:label  \"" + label + "\" . ";
-
-        if (partOfSchema.startsWith("http")) {
-            insert += this.getUri() + " hasco:partOfSchema <" + partOfSchema + "> .  "; 
-        } else {
-            insert += this.getUri() + " hasco:partOfSchema " + partOfSchema + " .  "; 
-        }
-
-        if (entity.startsWith("http")) {
-            insert += this.getUri() + " hasco:hasEntity <" + entity + "> .  ";
-        } else {
-            insert += this.getUri() + " hasco:hasEntity " + entity + " .  ";
-        }
-
-        for (String attribute : attributes) {
-            if (attribute.startsWith("http")) {
-                insert += this.getUri() + " hasco:hasAttribute <" + attribute + "> .  ";
-            } else {
-                insert += this.getUri() + " hasco:hasAttribute " + attribute + " . ";
-            }
-        }
-
-        if (unit.startsWith("http")) {
-            insert += this.getUri() + " hasco:hasUnit <" + unit + "> .  ";
-        } else {
-            insert += this.getUri() + " hasco:hasUnit " + unit + " .  ";
-        }
-
-        if (sddeUri != null && !sddeUri.equals("")) {
-            if (sddeUri.startsWith("http")) {
-                insert += this.getUri() + " hasco:hasEvent <" + sddeUri + "> .  ";
-            } else {
-                insert += this.getUri() + " hasco:hasEvent " + sddeUri + " .  ";
-            }
-        }
-        if (sddoUri != null && !sddoUri.equals("")) {
-            if (sddoUri.startsWith("http")) {
-                insert += this.getUri() + " hasco:isAttributeOf <" + sddoUri + "> .  ";
-            } else {
-                insert += this.getUri() + " hasco:isAttributeOf " + sddoUri + " .  ";
-            }
-        }
-
-        insert += LINE_LAST;
-
-        try {
-            UpdateRequest request = UpdateFactory.create(insert);
-            UpdateProcessor processor = UpdateExecutionFactory.createRemote(
-                    request, CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
-            processor.execute();
-        } catch (QueryParseException e) {
-            System.out.println("[ERROR] QueryParseException due to update query: " + insert);
-            throw e;
-        }
-
-        return true;
     }
 
     @Override

@@ -48,7 +48,7 @@ public class SemanticVariable extends HADatAcThing {
 	@PropertyField(uri="hasco:hasRole")
 	private String role;
 
-	@PropertyField(uri="hasco:hasInRelationTo", valueType=PropertyValueType.URI)
+	@PropertyField(uri="hasco:inRelationTo", valueType=PropertyValueType.URI)
     private String inRelationToUri;
 	private String inRelationToLabel;
 
@@ -438,7 +438,7 @@ public class SemanticVariable extends HADatAcThing {
                 } catch (Exception e) {
                     sv.setAttributeUri(null);
                 }
-            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IN_RELATION_TO)) {
+            } else if (statement.getPredicate().getURI().equals(HASCO.IN_RELATION_TO)) {
                 try {
                     sv.setInRelationToUri(object.asResource().getURI());
                 } catch (Exception e) {

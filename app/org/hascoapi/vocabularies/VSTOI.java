@@ -13,24 +13,24 @@ public class VSTOI {
      * CLASSES
      */
 
-    public static final String CONTAINER = "http://hadatac.org/ont/vstoi#Container";
-    public static final String DEPLOYMENT = "http://hadatac.org/ont/vstoi#Deployment";
-    public static final String DETECTOR = "http://hadatac.org/ont/vstoi#Detector";
-    public static final String INSTRUMENT = "http://hadatac.org/ont/vstoi#Instrument";
-    public static final String PHYSICAL_INSTRUMENT = "http://hadatac.org/ont/vstoi#PhysicalInstrument";
-    public static final String PLATFORM = "http://hadatac.org/ont/vstoi#Platform";
-    public static final String QUESTIONNAIRE = "http://hadatac.org/ont/vstoi#Questionnaire";
-    public static final String SIMULATION_MODEL = "http://hadatac.org/ont/vstoi#SimulationModel";
-    public static final String SUBCONTAINER = "http://hadatac.org/ont/vstoi#Subcontainer";
+    public static final String CONTAINER = VSTOI + "Container";
+    public static final String DEPLOYMENT = VSTOI + "Deployment";
+    public static final String DETECTOR = VSTOI + "Detector";
+    public static final String INSTRUMENT = VSTOI + "Instrument";
+    public static final String PHYSICAL_INSTRUMENT = VSTOI + "PhysicalInstrument";
+    public static final String PLATFORM = VSTOI + "Platform";
+    public static final String QUESTIONNAIRE = VSTOI + "Questionnaire";
+    public static final String SIMULATION_MODEL = VSTOI + "SimulationModel";
+    public static final String SUBCONTAINER = VSTOI + "Subcontainer";
 
     /*
      * PROPERTIES
      */
 
-    public static final String IS_INSTRUMENT_ATTACHMENT = "http://hadatac.org/ont/vstoi#isInstrumentContainerSlot";
-    public static final String HAS_PLATFORM_INSTANCE = "http://hadatac.org/ont/vstoi#hasPlatformInstance";
-    public static final String HAS_SERIAL_NUMBER = "http://hadatac.org/ont/vstoi#hasSerialNumber";
-    public static final String HAS_WEB_DOCUMENTATION = "http://hadatac.org/ont/vstoi#hasWebDocumentation";
+    public static final String IS_INSTRUMENT_ATTACHMENT = VSTOI + "isInstrumentContainerSlot";
+    public static final String HAS_PLATFORM_INSTANCE = VSTOI + "hasPlatformInstance";
+    public static final String HAS_SERIAL_NUMBER = VSTOI + "hasSerialNumber";
+    public static final String HAS_WEB_DOCUMENTATION = VSTOI + "hasWebDocumentation";
 
     /**************************************************************************************************
      * NEW ADDITIONS TO VSTOI IN SUPPORT OF QUESTIONNAIRES

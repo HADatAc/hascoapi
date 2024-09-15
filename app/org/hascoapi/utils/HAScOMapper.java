@@ -335,13 +335,33 @@ public class HAScOMapper {
                             "hascoTypeLabel", "hasVersion",  "comment", "hasDataFileUri", "hasDataFile"));
         }
 
+        // SDD_ATTRIBUTE
+        if (mode.equals(FULL) && typeResult.equals(HASCO.SDD_ATTRIBUTE)) {
+            filterProvider.addFilter("sddAttributeFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("sddAttributeFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
+                            "hascoTypeLabel", "comment", "partOfSchema", "attribute", "objectUri", "unit", "eventUri", "inRelationTo",
+                            "wasDerivedFrom", "hasSIRManagerEmail"));
+        }
+
         // SDD_OBJECT
         if (mode.equals(FULL) && typeResult.equals(HASCO.SDD_OBJECT)) {
             filterProvider.addFilter("sddObjectFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("sddObjectFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment"));
+                            "hascoTypeLabel", "comment", "entity", "role", "relation", "inRelationTo", "wasDerivedFrom", 
+                            "hasSIRManagementEmail"));
+        }
+
+        // SEMANTIC_DATA_DICTIONARY
+        if (mode.equals(FULL) && typeResult.equals(HASCO.SEMANTIC_DATA_DICTIONARY)) {
+            filterProvider.addFilter("semanticDataDictionaryFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("semanticDataDictionaryFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
+                            "hascoTypeLabel", "hasVersion",  "comment"));
         }
 
         // SEMANTIC_VARIABLE

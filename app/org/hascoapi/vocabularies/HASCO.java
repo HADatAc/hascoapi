@@ -1,7 +1,5 @@
 package org.hascoapi.vocabularies;
 
-import org.hascoapi.annotations.PropertyField;
-
 public class HASCO {
 
     public static final String HASCO                                  = "http://hadatac.org/ont/hasco/";
@@ -30,6 +28,7 @@ public class HASCO {
     public static final String SDD                                    = "http://hadatac.org/ont/hasco/SDD";
     public static final String SDD_ATTRIBUTE                          = "http://hadatac.org/ont/hasco/SDDAttribute";
     public static final String SDD_OBJECT                             = "http://hadatac.org/ont/hasco/SDDObject";
+    public static final String SEMANTIC_DATA_DICTIONARY               = "http://hadatac.org/ont/hasco/SemanticDataDictionary";
     public static final String SEMANTIC_VARIABLE                      = "http://hadatac.org/ont/hasco/SemanticVariable";
     public static final String STR                                    = "http://hadatac.org/ont/hasco/STR";
     public static final String STREAM                                 = "http://hadatac.org/ont/hasco/Stream";
@@ -81,7 +80,6 @@ public class HASCO {
     public static final String HAS_FIRST_COORDINATE_CHARACTERISTIC    = "http://hadatac.org/ont/hasco/hasFirstCoordinateCharacteristic";
     public static final String HAS_GROUNDING_LABEL                    = "http://hadatac.org/ont/hasco/hasGroundingLabel";
     public static final String HAS_IMAGE                              = "http://hadatac.org/ont/hasco/hasImage";
-    public static final String HAS_IN_RELATION_TO                     = "http://hadatac.org/ont/hasco/hasInRelationTo";
     public static final String HAS_INSTITUTION                        = "http://hadatac.org/ont/hasco/hasInstitution";
     public static final String HAS_LAST_COUNTER                       = "http://hadatac.org/ont/hasco/hasLastCounter";
     public static final String HAS_LAST_ID                            = "http://hadatac.org/ont/hasco/hasLastId";
@@ -109,8 +107,10 @@ public class HASCO {
     public static final String HAS_PI                                 = "http://hadatac.org/ont/hasco/hasPI";
     public static final String HAS_PROJECT                            = "http://hadatac.org/ont/hasco/hasProject";
     public static final String HAS_REFERENCE_LAYOUT                   = "http://hadatac.org/ont/hasco/hasReferenceLayout";
+    public static final String HAS_RELATION                           = "http://hadatac.org/ont/hasco/relation";
     public static final String HAS_RESOURCE                           = "http://hadatac.org/ont/hasco/hasResource";
     public static final String HAS_ROLE                               = "http://hadatac.org/ont/hasco/hasRole";
+    public static final String HAS_SCHEMA_POSITION                    = "http://hadatac.org/ont/hasco/hasSchemaPosition";
     public static final String HAS_SCOPE                              = "http://hadatac.org/ont/hasco/hasScope";
     public static final String HAS_SOURCE                             = "http://hadatac.org/ont/hasco/hasSource";
     public static final String HAS_SOURCE_MIME                        = "http://hadatac.org/ont/hasco/hasSourceMime";
@@ -135,8 +135,10 @@ public class HASCO {
     public static final String HAS_VERSION                            = "http://hadatac.org/ont/hasco/hasVersion";
     public static final String HAS_VIEWER_EMAIL                       = "http://hadatac.org/ont/hasco/hasViewerEmail";
     public static final String HAS_VIRTUAL_COLUMN                     = "http://hadatac.org/ont/hasco/hasVirtualColumn";
+    public static final String IN_RELATION_TO                         = "http://hadatac.org/ont/hasco/inRelationTo";
     public static final String IS_MEMBER_OF                           = "http://hadatac.org/ont/hasco/isMemberOf";
     public static final String IS_POSSIBLE_VALUE_OF                   = "http://hadatac.org/ont/hasco/isPossibleValueOf";
+    public static final String IS_VARIABLE_OF                         = "http://hadatac.org/ont/hasco/isVariableOf";
     public static final String HASCO_TYPE                             = "http://hadatac.org/ont/hasco/hascoType";
     public static final String ORIGINAL_ID                            = "http://hadatac.org/ont/hasco/originalID";
     public static final String PART_OF                                = "http://hadatac.org/ont/hasco/partOf";

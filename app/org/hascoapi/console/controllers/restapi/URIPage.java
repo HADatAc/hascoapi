@@ -195,6 +195,12 @@ public class URIPage extends Controller {
                 finalResult = ResponseOption.find(uri);
             } else if (result.getHascoTypeUri().equals(HASCO.SDD)) {
                 finalResult = SDD.find(uri);
+            } else if (result.getHascoTypeUri().equals(HASCO.SDD_ATTRIBUTE)) {
+                finalResult = SDDAttribute.find(uri);
+            } else if (result.getHascoTypeUri().equals(HASCO.SDD_OBJECT)) {
+                finalResult = SDDObject.find(uri);
+            } else if (result.getHascoTypeUri().equals(HASCO.SEMANTIC_DATA_DICTIONARY)) {
+                finalResult = SemanticDataDictionary.find(uri);
             } else if (result.getHascoTypeUri().equals(HASCO.SEMANTIC_VARIABLE)) {
                 finalResult = SemanticVariable.find(uri);
             } else if (result.getHascoTypeUri().equals(HASCO.STR)) {

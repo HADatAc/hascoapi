@@ -74,6 +74,7 @@ public class Constants {
     public static final String PREFIX_PLATFORM_INSTANCE          = "PFI";
     public static final String PREFIX_POSTAL_ADDRESS             = "PA";
     public static final String PREFIX_RESPONSE_OPTION            = "RO";
+    public static final String PREFIX_SEMANTIC_DATA_DICTIONARY   = "SY";
     public static final String PREFIX_SEMANTIC_VARIABLE          = "SV";
     public static final String PREFIX_SDD                        = "SD";
     public static final String PREFIX_STR                        = "SR";

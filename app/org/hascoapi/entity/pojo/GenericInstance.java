@@ -125,7 +125,7 @@ public class GenericInstance extends HADatAcThing implements Comparable<GenericI
 
         instance.setNodeId(HADatAcThing.createUrlHash(uri));
 
-        System.out.println("GenericInstance.find() instance's URI is [" + instance.getUri() + "] and type is [" + instance.getTypeUri() + "]");
+        //System.out.println("GenericInstance.find() instance's URI is [" + instance.getUri() + "] and type is [" + instance.getTypeUri() + "]");
 
         return instance;
     }
