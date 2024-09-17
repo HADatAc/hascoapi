@@ -9,15 +9,20 @@ public class Templates {
     public INIConfiguration iniConfig = null;
     
     public Templates(String templateFile) {
-        this.templateFile = templateFile;
-        this.iniConfig = new HASCOConfig(templateFile); 
+        try {
+            this.templateFile = templateFile;
+            this.iniConfig = new HASCOConfig(templateFile); 
 
-        // Print all section names
-        //Set<String> sections = this.iniConfig.getSections();
-        //System.out.println("Sections:");
-        //for (String section: sections) {
-        //    System.out.println(section);
-        //}
+            // Print all section names
+            //Set<String> sections = this.iniConfig.getSections();
+            //System.out.println("Sections:");
+            //for (String section: sections) {
+            //    System.out.println(section);
+            //}
+        } catch (Exception e) {
+            System.out.println("[ERROR] Templates.java: could not process templateFile. This is often cause bu obsolete template files.");
+            e.printStackTrace();
+        }
     }
 
     // STD Template (Study)
