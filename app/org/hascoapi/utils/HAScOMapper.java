@@ -306,6 +306,16 @@ public class HAScOMapper {
                             "hasDamageDate", "hasSIRManagerEmail"));
         }
 
+        // POSSIBLE_VALUE
+        if (mode.equals(FULL) && typeResult.equals(HASCO.POSSIBLE_VALUE)) {
+            filterProvider.addFilter("possibleValueFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("possibleValueFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "superUri", "hascoTypeUri",
+                            "hascoTypeLabel", "comment", "isPossibleValueOf", "hasCode", "hasCodeLabel", "hasClass", 
+                            "hasSIRManagementEmail"));
+        }
+
         // POSTAL_ADDRESS
         if (mode.equals(FULL) && typeResult.equals(SCHEMA.POSTAL_ADDRESS)) {
             filterProvider.addFilter("postalAddressFilter", SimpleBeanPropertyFilter.serializeAll());

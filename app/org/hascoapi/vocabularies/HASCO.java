@@ -23,6 +23,7 @@ public class HASCO {
     public static final String OBJECT_COLLECTION                      = "http://hadatac.org/ont/hasco/StudyObjectCollection";
     public static final String ONTOLOGY                               = "http://hadatac.org/ont/hasco/Ontology";
     public static final String ORGANIZATION                           = "http://hadatac.org/ont/hasco/Organization";
+    public static final String POSSIBLE_VALUE                         = "http://hadatac.org/ont/hasco/PossibleValue";
     public static final String REPOSITORY                             = "http://hadatac.org/ont/hasco/Repository";
     public static final String SAMPLE_COLLECTION                      = "http://hadatac.org/ont/hasco/SampleCollection";
     public static final String SDD                                    = "http://hadatac.org/ont/hasco/SDD";

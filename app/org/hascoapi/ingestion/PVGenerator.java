@@ -209,8 +209,9 @@ public class PVGenerator extends BaseGenerator {
 			if (code.getHasOtherFor() != null && !code.getHasOtherFor().isEmpty()) {
 				String superDCTerm = generateDCTerms(code.getHasVariable(), code.getHasCode());
 				subs.clear();
-				logger.println("SuperClass: [" + code.getHasOtherFor() + "]   Variable: [" + code.getHasSDDAUri() + "]");
-				List<PossibleValue> variableCodes = PossibleValue.findByVariable(code.getHasSDDAUri());
+				//logger.println("SuperClass: [" + code.getHasOtherFor() + "]   Variable: [" + code.getHasSDDAUri() + "]");
+				//List<PossibleValue> variableCodes = PossibleValue.findByVariable(code.getHasSDDAUri());
+				List<PossibleValue> variableCodes = PossibleValue.findByVariable(code.getIsPossibleValueOf());
 				for (PossibleValue vc : variableCodes) {
 					if (vc.getHasClass() != null && !vc.getHasClass().isEmpty() && (vc.getHasOtherFor() == null || vc.getHasOtherFor().isEmpty() )) {
 						//System.out.println("      Variable: [" + code.getHasVariable() + "]    Class: [" + vc.getHasClass() + "]");

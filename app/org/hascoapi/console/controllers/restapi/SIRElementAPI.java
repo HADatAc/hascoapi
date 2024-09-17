@@ -253,10 +253,6 @@ public class SIRElementAPI extends Controller {
             try {
                 SDDAttribute object;
                 object = (SDDAttribute)objectMapper.readValue(json, clazz);
-                System.out.println("SIRElementAPI: SDDAttribute's uri is [" + object.getUri() + "] and hasco type is [" + object.getHascoTypeUri() + "]");
-                System.out.println(json);
-                System.out.println(object.getObjectUri());
-                System.out.println(object.getEventUri());
                 object.save();
             } catch (JsonProcessingException e) {
                 message = e.getMessage();
@@ -273,6 +269,16 @@ public class SIRElementAPI extends Controller {
                 object.save();
             } catch (JsonProcessingException e) {
                 message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == PossibleValue.class) {
+            try {
+                PossibleValue object;
+                object = (PossibleValue)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                e.printStackTrace();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
         } else if (clazz == DP2.class) {
@@ -617,6 +623,12 @@ public class SIRElementAPI extends Controller {
             object.delete();
         } else if (clazz == SDDObject.class) {
             SDDObject object = SDDObject.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == PossibleValue.class) {
+            PossibleValue object = PossibleValue.find(uri);
             if (object == null) {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSetRewindable;
 import org.apache.jena.rdf.model.Model;
@@ -23,13 +24,17 @@ import org.hascoapi.utils.URIUtils;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.RDFS;
+import org.hascoapi.vocabularies.VSTOI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@JsonFilter("possibleValueFilter")
 public class PossibleValue extends HADatAcClass implements Comparable<PossibleValue> {
 
     private static final Logger log = LoggerFactory.getLogger(PossibleValue.class);
     static String className = "hasco:PossibleValue";
+
+    private static Map<String, PossibleValue> possibleValueCache;
 
     public static String INSERT_LINE1 = "INSERT DATA {  ";
     public static String DELETE_LINE1 = "DELETE WHERE {  ";
@@ -37,12 +42,11 @@ public class PossibleValue extends HADatAcClass implements Comparable<PossibleVa
     public static String DELETE_LINE3 = " ?p ?o . ";
     public static String LINE_LAST = "}  ";
 
-    public PossibleValue () {
-        super(className);
-    }
+    @PropertyField(uri="hasco:partOfSchema")
+    private String partOfSchema;
 
     @PropertyField(uri="hasco:isPossibleValueOf")
-    private String hasSDDAUri;
+    private String isPossibleValueOf;
 
     @PropertyField(uri="hasco:hasVariable")
     private String hasVariable;
@@ -62,18 +66,59 @@ public class PossibleValue extends HADatAcClass implements Comparable<PossibleVa
     @PropertyField(uri="hasco:otherFor")
     private String hasOtherFor;
 
-    public String getHasSDDAUri() {
-        return hasSDDAUri;
+    @PropertyField(uri = "vstoi:hasSIRManagerEmail")
+    private String hasSIRManagerEmail;
+
+    /*********************
+     * 
+     *    CONSTRUCT(S)
+     * 
+     *********************/
+
+     public PossibleValue () {
+        super(className);
     }
 
-    public void setHasSDDAUri(String hasSDDAUri) {
-        this.hasSDDAUri = hasSDDAUri;
+    /**************
+     * 
+     *    CACHE
+     * 
+     **************/
+
+     private static Map<String, PossibleValue> getCache() {
+        if (possibleValueCache == null) {
+            possibleValueCache = new HashMap<String, PossibleValue>();
+        }
+        return possibleValueCache;
+    }
+
+    public static void resetCache() {
+        possibleValueCache = null;
+    }
+
+    /*****************************
+     * 
+     *    GETTERS AND SETTERS 
+     * 
+     *****************************/
+
+    public String getPartOfSchema() {
+        return partOfSchema;
+    }
+    public void setPartOfSchema(String partOfSchema) {
+        this.partOfSchema = partOfSchema;
+    }
+
+    public String getIsPossibleValueOf() {
+        return isPossibleValueOf;
+    }
+    public void setIsPossibleValueOf(String isPossibleValueOf) {
+        this.isPossibleValueOf = isPossibleValueOf;
     }
 
     public String getHasVariable() {
         return hasVariable;
     }
-
     public void setHasVariable(String hasVariable) {
         this.hasVariable = hasVariable;
     }
@@ -81,11 +126,9 @@ public class PossibleValue extends HADatAcClass implements Comparable<PossibleVa
     public String getHasCode() {
         return hasCode;
     }
-
     public void setHasCode(String hasCode) {
         this.hasCode = hasCode;
     }
-
     public String getHasCodeLabel() {
         if (hasClass == null || hasClass.isEmpty()) {
             return hasCodeLabel;
@@ -99,7 +142,6 @@ public class PossibleValue extends HADatAcClass implements Comparable<PossibleVa
         }
         return "";
     }
-
     public void setHasCodeLabel(String hasCodeLabel) {
         this.hasCodeLabel = hasCodeLabel;
     }
@@ -107,11 +149,9 @@ public class PossibleValue extends HADatAcClass implements Comparable<PossibleVa
     public String getHasClass() {
         return hasClass;
     }
-
     public String getPrettyHasClass() {
         return URIUtils.replaceNameSpaceEx(hasClass);
     }
-
     public void setHasClass(String hasClass) {
         this.hasClass = hasClass;
     }
@@ -119,7 +159,6 @@ public class PossibleValue extends HADatAcClass implements Comparable<PossibleVa
     public String getHasResource() {
         return hasResource;
     }
-
     public void setHasResource(String hasResource) {
         this.hasResource = hasResource;
     }
@@ -127,11 +166,9 @@ public class PossibleValue extends HADatAcClass implements Comparable<PossibleVa
     public String getHasOtherFor() {
         return hasOtherFor;
     }
-
     public String getPrettyHasOtherFor() {
         return URIUtils.replaceNameSpaceEx(hasOtherFor);
     }
-
     public void setHasOtherFor(String hasOtherFor) {
         this.hasOtherFor = hasOtherFor;
     }
@@ -141,6 +178,13 @@ public class PossibleValue extends HADatAcClass implements Comparable<PossibleVa
             return "";
         }
         return Attribute.findHarmonizedCode(this.hasClass);
+    }
+
+    public String getHasSIRManagerEmail() {
+        return this.hasSIRManagerEmail;
+    }
+    public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
+        this.hasSIRManagerEmail = hasSIRManagerEmail;
     }
 
     public static List<PossibleValue> find() {
@@ -167,9 +211,19 @@ public class PossibleValue extends HADatAcClass implements Comparable<PossibleVa
 
         //System.out.println("SchemaUri: " + schemaUri);
 
-        log.debug("PossibleValue.findBySchema: SchemaUri=" + schemaUri);
+        //log.debug("PossibleValue.findBySchema: SchemaUri=" + schemaUri);
 
         List<PossibleValue> possibleValues = new ArrayList<PossibleValue>();
+
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList()
+                + " SELECT ?uri WHERE { \n"
+                + " ?uri hasco:hascoType hasco:PossibleValue . \n"
+                + " ?uri hasco:partOfSchema <" + schemaUri + "> . \n"
+                + " OPTIONAL { ?uri rdfs:label ?label . } \n"
+                + " OPTIONAL { ?uri hasco:hasCode ?code . } \n"
+                + " } \n"
+                + " ORDER BY ?label ?code ";
+        /* 
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList()
                 + " SELECT ?uri WHERE { \n"
                 + " ?uri a hasco:PossibleValue . \n"
@@ -179,6 +233,7 @@ public class PossibleValue extends HADatAcClass implements Comparable<PossibleVa
                 + " OPTIONAL { ?uri hasco:hasCode ?code . } \n"
                 + " } \n"
                 + " ORDER BY ?variable ?code ";
+        */
 
         ResultSetRewindable resultsrw = SPARQLUtils.select(
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
@@ -199,7 +254,7 @@ public class PossibleValue extends HADatAcClass implements Comparable<PossibleVa
 
             }
         } catch (Exception e) {
-            log.error("[ERROR] PossibleValue.findBySchema(): " + e.getMessage());
+            //log.error("[ERROR] PossibleValue.findBySchema(): " + e.getMessage());
             e.printStackTrace();
         }
 
@@ -208,12 +263,12 @@ public class PossibleValue extends HADatAcClass implements Comparable<PossibleVa
 
     public static List<PossibleValue> findByVariable(String variableUri) {
 
-        log.debug("      VariableUri: " + variableUri);
+        //log.debug("      VariableUri: " + variableUri);
 
         List<PossibleValue> possibleValues = new ArrayList<PossibleValue>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList()
                 + " SELECT ?uri WHERE { \n"
-                + " ?uri a hasco:PossibleValue . \n"
+                + " ?uri hasco:hascoType hasco:PossibleValue . \n"
                 + " ?uri hasco:isPossibleValueOf <" + variableUri + "> .  \n"
                 + " } \n "
                 + " ORDER BY ?uri ";
@@ -274,6 +329,40 @@ public class PossibleValue extends HADatAcClass implements Comparable<PossibleVa
         return null;
     }
 
+    public static List<String> findUriBySchema(String schemaUri) {
+        //System.out.println("Looking for data acquisition schema objects for <" + schemaUri + ">");
+
+        List<String> possibleValueUris = new ArrayList<String>();
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                "SELECT ?uri WHERE { \n" +
+                "   ?uri hasco:hascoType hasco:PossibleValue . \n" +
+                "   ?uri hasco:partOfSchema <" + schemaUri + "> . \n" +
+                "}";
+
+        ResultSetRewindable resultsrw = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+        if (!resultsrw.hasNext()) {
+            //System.out.println("[WARNING] SDDObject. Could not find objects for schema: " + schemaUri);
+            return possibleValueUris;
+        }
+
+        while (resultsrw.hasNext()) {
+            QuerySolution soln = resultsrw.next();
+            try {
+                if (soln != null && soln.getResource("uri") != null && soln.getResource("uri").getURI() != null) {
+                    String uriStr = soln.getResource("uri").getURI();
+                    if (uriStr != null) {
+                        possibleValueUris.add(uriStr);
+                    }
+                }
+            }  catch (Exception e) {
+                System.out.println("[ERROR] PossibleValue.findBySchema() e.Message: " + e.getMessage());
+            }
+        }
+        return possibleValueUris;
+    }
+
     public static Map<String, Map<String, String>> findPossibleValues(String schemaUri) {
         Map<String, Map<String, String>> mapPossibleValues = new HashMap<String, Map<String, String>>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList()
@@ -287,7 +376,7 @@ public class PossibleValue extends HADatAcClass implements Comparable<PossibleVa
                 + " OPTIONAL { ?possibleValue hasco:hasCodeLabel ?codeLabel } . \n"
                 + " }";
 
-        log.debug("----> findPossibleValues query: \n" + queryString);
+        //log.debug("----> findPossibleValues query: \n" + queryString);
 
         ResultSetRewindable resultsrw = SPARQLUtils.select(
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
@@ -316,7 +405,7 @@ public class PossibleValue extends HADatAcClass implements Comparable<PossibleVa
                 }
             }
         } catch (Exception e) {
-            log.error("[ERROR] PossibleValue.findPossibleValues(): " + e.getMessage());
+            //log.error("[ERROR] PossibleValue.findPossibleValues(): " + e.getMessage());
             e.printStackTrace();
         }
 
@@ -338,30 +427,37 @@ public class PossibleValue extends HADatAcClass implements Comparable<PossibleVa
         while (stmtIterator.hasNext()) {
             statement = stmtIterator.next();
             object = statement.getObject();
+            String str = URIUtils.objectRDFToString(object);
             if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-                code.setLabel(object.asLiteral().getString());
+                code.setLabel(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
+                code.setHascoTypeUri(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.PART_OF_SCHEMA)) {
+                code.setPartOfSchema(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.IS_POSSIBLE_VALUE_OF)) {
-                code.setHasSDDAUri(object.asResource().getURI());
+                code.setIsPossibleValueOf(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_CODE)) {
-                code.setHasCode(object.asLiteral().getString());
+                code.setHasCode(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_VARIABLE)) {
-                code.setHasVariable(object.asLiteral().getString());
+                code.setHasVariable(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_CODE_LABEL)) {
-                code.setHasCodeLabel(object.asLiteral().getString());
+                code.setHasCodeLabel(str);
             } else if (statement.getPredicate().getURI().equals(RDFS.SUBCLASS_OF)) {
-                code.setSuperUri(object.asResource().getURI());
+                code.setSuperUri(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_CLASS)) {
                 try {
-                    code.setHasClass(object.asResource().getURI());
+                    code.setHasClass(str);
                 } catch (Exception e) {
                 }
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_OTHER_FOR)) {
                 try {
-                    code.setHasOtherFor(object.asResource().getURI());
+                    code.setHasOtherFor(str);
                 } catch (Exception e) {
                 }
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_RESOURCE)) {
-                code.setHasResource(object.asResource().getURI());
+                code.setHasResource(str);
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
+                code.setHasSIRManagerEmail(str);
             }
         }
 
@@ -399,11 +495,11 @@ public class PossibleValue extends HADatAcClass implements Comparable<PossibleVa
                     request, CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
             processor.execute();
         } catch (Exception e) {
-            log.error("[ERROR] Possiblevalue.java: QueryParseException due to update query: " + query);
+            //log.error("[ERROR] Possiblevalue.java: QueryParseException due to update query: " + query);
             return false;
         }
 
-        log.debug("Deleted hasco:hasClass property of <" + getUri() + "> from triple store");
+        //log.debug("Deleted hasco:hasClass property of <" + getUri() + "> from triple store");
         return true;
 
     }
@@ -441,11 +537,11 @@ public class PossibleValue extends HADatAcClass implements Comparable<PossibleVa
                     request, CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
             processor.execute();
         } catch (Exception e) {
-            log.error("[ERROR] PossibleValue.java: QueryParseException due to update query: " + insert);
+            //log.error("[ERROR] PossibleValue.java: QueryParseException due to update query: " + insert);
             return false;
         }
 
-        log.debug("Added hasco:hasClass property of <" + getUri() + "> from triple store");
+        //log.debug("Added hasco:hasClass property of <" + getUri() + "> from triple store");
         return true;
 
     }
@@ -454,6 +550,12 @@ public class PossibleValue extends HADatAcClass implements Comparable<PossibleVa
     public void save() {
         saveToTripleStore();
     }
+
+    @Override
+    public void delete() {
+        deleteFromTripleStore();
+    }
+
 
     @Override
     public int compareTo(PossibleValue another) {

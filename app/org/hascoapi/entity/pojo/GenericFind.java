@@ -85,6 +85,8 @@ public class GenericFind<T> {
             return SDDAttribute.class;
         } else if (elementType.equals("sddobject")) {
             return SDDObject.class;
+        } else if (elementType.equals("possiblevalue")) {
+            return PossibleValue.class;
         } else if (elementType.equals("semanticdatadictionary")) {
             return SemanticDataDictionary.class;
         } else if (elementType.equals("dp2")) {
@@ -163,6 +165,8 @@ public class GenericFind<T> {
             return URIUtils.replaceNameSpace(HASCO.SDD_ATTRIBUTE);
         } else if (clazz == SDDObject.class) {
             return URIUtils.replaceNameSpace(HASCO.SDD_OBJECT);
+        } else if (clazz == PossibleValue.class) {
+            return URIUtils.replaceNameSpace(HASCO.POSSIBLE_VALUE);
         } else if (clazz == DP2.class) {
             return URIUtils.replaceNameSpace(HASCO.DP2);
         } else if (clazz == STR.class) {
@@ -1020,6 +1024,12 @@ public class GenericFind<T> {
             return (T)DD.find(uri);
         } else if (clazz == SDD.class) {
             return (T)SDD.find(uri);
+        } else if (clazz == SDDAttribute.class) {
+            return (T)SDDAttribute.find(uri);
+        } else if (clazz == SDDObject.class) {
+            return (T)SDDObject.find(uri);
+        } else if (clazz == PossibleValue.class) {
+            return (T)PossibleValue.find(uri);
         } else if (clazz == SemanticDataDictionary.class) {
             return (T)SemanticDataDictionary.find(uri);
         } else if (clazz == DP2.class) {

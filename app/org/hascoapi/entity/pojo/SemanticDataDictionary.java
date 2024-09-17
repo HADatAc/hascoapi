@@ -60,7 +60,8 @@ public class SemanticDataDictionary extends HADatAcThing {
     private static Map<String, SemanticDataDictionary> SemanticDataDictionaryCache;
     private List<SDDAttribute> attributesCache = new ArrayList<SDDAttribute>();
     private List<SDDObject> objectsCache = new ArrayList<SDDObject>();
-    private Map<String, Map<String, String>> possibleValuesCache = new HashMap<String, Map<String, String>>();
+    private List<PossibleValue> possibleValuesCache = new ArrayList<PossibleValue>();
+    //private Map<String, Map<String, String>> possibleValuesCache = new HashMap<String, Map<String, String>>();
     //private DataFile sddfile = null;
     private IngestionLogger logger = null;
     //private Templates templates = null;
@@ -183,6 +184,7 @@ public class SemanticDataDictionary extends HADatAcThing {
     private List<String> attributes = new ArrayList<String>();
     private List<String> objects = new ArrayList<String>();
     private List<String> events = new ArrayList<String>();
+    private List<String> possibleValues = new ArrayList<String>();
     private boolean isRefreshed = false;
 
     /********************************* 
@@ -193,6 +195,9 @@ public class SemanticDataDictionary extends HADatAcThing {
 
     public SemanticDataDictionary() {
         SemanticDataDictionary.getCache();
+        getAttributes();
+        getObjects();
+        getPossibleValues();
     }
 
     public SemanticDataDictionary(DataFile dataFile) {
@@ -202,6 +207,7 @@ public class SemanticDataDictionary extends HADatAcThing {
         SemanticDataDictionary.getCache();
         getAttributes();
         getObjects();
+        getPossibleValues();
     }
 
     public SemanticDataDictionary(String uri, String label) {
@@ -211,6 +217,7 @@ public class SemanticDataDictionary extends HADatAcThing {
         SemanticDataDictionary.getCache();
         getAttributes();
         getObjects();
+        getPossibleValues();
     }
 
     /*************************************** 
@@ -388,25 +395,32 @@ public class SemanticDataDictionary extends HADatAcThing {
     //    this.templates = new Templates(templateFile);
     //}
 
-    public int getTotalSDDA() {
+    public int getTotalVariables() {
         if (attributes == null) {
             return -1;
         }
         return attributes.size();
     }
 
-    public int getTotalSDDE() {
+    public int getTotalEvents() {
         if (events == null) {
             return -1;
         }
         return events.size();
     }
 
-    public int getTotalSDDO() {
+    public int getTotalObjects() {
         if (objects == null) {
             return -1;
         }
         return objects.size();
+    }
+
+    public int getTotalCodes() {
+        if (possibleValues == null) {
+            return -1;
+        }
+        return possibleValues.size();
     }
 
     public List<SDDAttribute> getAttributes() {
@@ -415,7 +429,6 @@ public class SemanticDataDictionary extends HADatAcThing {
         }
         return attributesCache;
     }
-
     public void setAttributes(List<String> attributes) {
         if (attributes == null) {
             //System.out.println("[WARNING] No SDDObject for " + uri + " is defined in the knowledge base. ");
@@ -435,12 +448,30 @@ public class SemanticDataDictionary extends HADatAcThing {
         }
         return objectsCache;
     }
-
     public void setObjects(List<String> objects) {
         if (objects == null) {
             //System.out.println("[WARNING] No SDDObject for " + uri + " is defined in the knowledge base. ");
         } else {
             this.objects = objects;
+        }
+    }
+
+    public List<PossibleValue> getPossibleValues() {
+        if (possibleValuesCache == null || possibleValuesCache.isEmpty()) {
+            possibleValuesCache = PossibleValue.findBySchema(getUri());
+        }
+        return possibleValuesCache;
+    }
+    public void setPossibleValues(List<String> possibleValues) {
+        if (possibleValues == null) {
+            //System.out.println("[WARNING] No SDDObject for " + uri + " is defined in the knowledge base. ");
+        } else {
+            this.possibleValues = possibleValues;
+            /* 
+            if (!isRefreshed) {
+                refreshAttributes();
+            }
+            */
         }
     }
 
@@ -466,6 +497,7 @@ public class SemanticDataDictionary extends HADatAcThing {
     public static void resetCache() {
         SDDAttribute.resetCache();
         SDDObject.resetCache();
+        PossibleValue.resetCache();
         SemanticDataDictionaryCache = null;
     }
 
@@ -666,8 +698,6 @@ public class SemanticDataDictionary extends HADatAcThing {
                 sdd.setComment(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
                 sdd.setHascoTypeUri(str);
-            //} else if (statement.getPredicate().getURI().equals(HASCO.HAS_DATAFILE)) {
-            //    sdd.setHasDataFileUri(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
                 sdd.setHasStatus(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
@@ -708,9 +738,11 @@ public class SemanticDataDictionary extends HADatAcThing {
 
         sdd.setAttributes(SDDAttribute.findUriBySchema(sddUri));
         sdd.setObjects(SDDObject.findUriBySchema(sddUri));
+        sdd.setPossibleValues(PossibleValue.findUriBySchema(sddUri));
 
         sdd.getAttributes();
         sdd.getObjects();
+        sdd.getPossibleValues();
         SemanticDataDictionary.getCache().put(sddUri,sdd);
         return sdd;
     }
@@ -794,6 +826,10 @@ public class SemanticDataDictionary extends HADatAcThing {
         List<SDDObject> objects = SDDObject.findBySchema(uri);
         for (SDDObject sddo : objects) {
             sddo.delete();
+        }
+        List<PossibleValue> possibleValues = PossibleValue.findBySchema(uri);
+        for (PossibleValue possibleValue : possibleValues) {
+            possibleValue.delete();
         }
         super.deleteFromTripleStore();
         SemanticDataDictionary.resetCache();

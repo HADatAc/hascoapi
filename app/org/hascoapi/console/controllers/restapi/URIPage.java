@@ -189,6 +189,8 @@ public class URIPage extends Controller {
                 finalResult = Platform.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.PLATFORM_INSTANCE)) {
                 finalResult = PlatformInstance.find(uri);
+            } else if (result.getHascoTypeUri().equals(HASCO.POSSIBLE_VALUE)) {
+                finalResult = PossibleValue.find(uri);
             } else if (result.getHascoTypeUri().equals(SCHEMA.POSTAL_ADDRESS)) {
                 finalResult = PostalAddress.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.RESPONSE_OPTION)) {
