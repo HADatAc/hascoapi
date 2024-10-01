@@ -21,7 +21,7 @@ public class ContainerSlotGenerator extends BaseGenerator {
 		this.instrumentUri = instrumentUri;
 	}
 
-	public String getFisrtSlotUri() {
+	public String getFirstSlotUri() {
 		return this.firstSlotUri;
 	}
     
@@ -177,7 +177,7 @@ public class ContainerSlotGenerator extends BaseGenerator {
     public Map<String,String> postprocessuris() throws Exception {
 		Map<String,String> uris = new HashMap<String,String>();
 		uris.put("instrumentUri",this.getInstrumentUri());
-		uris.put("firstSlotUri",this.getFisrtSlotUri());
+		uris.put("firstSlotUri",this.getFirstSlotUri());
 		return uris;
 	}
 

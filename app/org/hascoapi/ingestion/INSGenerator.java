@@ -22,7 +22,7 @@ public class INSGenerator extends BaseGenerator {
 		this.instrumentUri = instrumentUri;
 	}
 
-	public String getFisrtSlotUri() {
+	public String getFirstSlotUri() {
 		return this.firstSlotUri;
 	}
     
@@ -49,23 +49,23 @@ public class INSGenerator extends BaseGenerator {
 		    }
 		}
 		if (this.getElementType().equals("instrument")) {
-			row.put("rdfs:subClassOf", VSTOI.INSTRUMENT);
+			//row.put("rdfs:subClassOf", VSTOI.INSTRUMENT);
 			row.put("hasco:hascoType", VSTOI.INSTRUMENT);
-			row.put("vstoi:hasFirst", this.getFisrtSlotUri());
+			row.put("vstoi:hasFirst", this.getFirstSlotUri());
 			row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
 		}
 		if (this.getElementType().equals("detectorstem")) {
-			row.put("rdfs:subClassOf", VSTOI.DETECTOR_STEM);
+			//row.put("rdfs:subClassOf", VSTOI.DETECTOR_STEM);
 			row.put("hasco:hascoType", VSTOI.DETECTOR_STEM);
 			row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
 		}
 		if (this.getElementType().equals("codebook")) {
-			row.put("rdfs:subClassOf", VSTOI.CODEBOOK);
+			//row.put("rdfs:subClassOf", VSTOI.CODEBOOK);
 			row.put("hasco:hascoType", VSTOI.CODEBOOK);
 			row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
 		}
 		if (this.getElementType().equals("responseoption")) {
-			row.put("rdfs:subClassOf", VSTOI.RESPONSE_OPTION);
+			//row.put("rdfs:subClassOf", VSTOI.RESPONSE_OPTION);
 			row.put("hasco:hascoType", VSTOI.RESPONSE_OPTION);
 			row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
 		}

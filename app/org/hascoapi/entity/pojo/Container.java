@@ -179,6 +179,7 @@ public abstract class Container extends HADatAcClass implements SIRElement, Comp
     	return insType.getURL();
     }
 
+	@JsonIgnore
     public List<SlotElement> getSlotElements() {
     	List<SlotElement> slotElements = Container.getSlotElements(this);
     	return slotElements;

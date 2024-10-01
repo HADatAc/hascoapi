@@ -141,7 +141,7 @@ public class IngestionWorker {
             chain = annotateDPLFile(dataFile);
             
         } else if (fileName.startsWith("INS-")) {
-            chain = annotateINSFile(dataFile);
+            chain = annotateINSFile(dataFile, templateFile);
             
         } else if (fileName.startsWith("STR-")) {
             //checkSTRFile(dataFile);
@@ -204,32 +204,8 @@ public class IngestionWorker {
             System.out.println(record.getValueByColumnIndex(0) + ":" + record.getValueByColumnIndex(1));
         }
 
-        RecordFile nameSpaceRecordFile = null;
-
         if (dataFile.getFilename().endsWith(".xlsx")) {
-
-            if (mapCatalog.get("hasDependencies") != null) {
-                System.out.print("Extracting NameSpace sheet from spreadsheet... ");
-                nameSpaceRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), mapCatalog.get("hasDependencies"));
-                if (nameSpaceRecordFile == null) {
-                    System.out.println("[WARNING] NameSpaceGenerator: nameSpaceRecordFile is NULL.");
-                    //return null;
-                } else if (nameSpaceRecordFile.getRecords() == null) {
-                    System.out.println("[WARNING] NameSpaceGenerator: nameSpaceRecordFile.getRecords() is NULL.");
-                    //return null;
-                } else{
-                    System.out.println("nameSpaceRecordFile has [" + nameSpaceRecordFile.getRecords().size() + "] rows");
-                    //List<String> headers = nameSpaceRecordFile.getHeaders();
-                    //for (String header : headers) {
-                    //    System.out.println("Header: [" + header + "]");
-                    //}
-                }
-                dataFile.setRecordFile(nameSpaceRecordFile);
-                System.out.print("Done extracting NameSpace sheet. ");
-            } else {
-                System.out.println("[WARNING] NameSpaceGenerator: could not find any sheet inside of DSG called [hasDependencies].");
-                //return null;
-            }
+            dataFile = nameSpaceGen(dataFile, mapCatalog);
         } else {
             System.out.println("[ERROR] StudyGenerator: DSG file needs to have suffix [.xlsx].");
             return null;
@@ -515,7 +491,7 @@ public class IngestionWorker {
      *    INS                   *
      ****************************/    
     
-     public static GeneratorChain annotateINSFile(DataFile dataFile) {
+     public static GeneratorChain annotateINSFile(DataFile dataFile, String templateFile) {
         RecordFile recordFile = new SpreadsheetRecordFile(dataFile.getFile(), "InfoSheet");
         if (!recordFile.isValid()) {
             dataFile.getLogger().printExceptionById("DPL_00001");
@@ -534,6 +510,11 @@ public class IngestionWorker {
         RecordFile sheet = null;
 
         try {
+
+            dataFile = nameSpaceGen(dataFile, mapCatalog);
+            chain.setNamedGraphUri(dataFile.getUri());
+            chain.addGenerator(new NameSpaceGenerator(dataFile,templateFile));
+    
             String responseOptionSheet = mapCatalog.get("ResponseOptions");
             if (responseOptionSheet == null) {
                 System.out.println("[WARNING] 'ResponseOptions' sheet is missing.");
@@ -1005,4 +986,30 @@ public class IngestionWorker {
         return chain;
     }
     */
+
+    public static DataFile nameSpaceGen(DataFile dataFile, Map<String, String> mapCatalog) {
+        RecordFile nameSpaceRecordFile = null;
+        if (mapCatalog.get("hasDependencies") != null) {
+            System.out.print("Extracting NameSpace sheet from spreadsheet... ");
+            nameSpaceRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), mapCatalog.get("hasDependencies"));
+            if (nameSpaceRecordFile == null) {
+                System.out.println("[WARNING] NameSpaceGenerator: nameSpaceRecordFile is NULL.");
+            } else if (nameSpaceRecordFile.getRecords() == null) {
+                System.out.println("[WARNING] NameSpaceGenerator: nameSpaceRecordFile.getRecords() is NULL.");
+            } else {
+                System.out.println("nameSpaceRecordFile has [" + nameSpaceRecordFile.getRecords().size() + "] rows");
+                //List<String> headers = nameSpaceRecordFile.getHeaders();
+                //for (String header : headers) {
+                //    System.out.println("Header: [" + header + "]");
+                //}        
+                dataFile.setRecordFile(nameSpaceRecordFile);
+                System.out.print("Done extracting NameSpace sheet. ");
+                return dataFile;
+            }
+        } else {
+            System.out.println("[WARNING] NameSpaceGenerator: could not find any sheet inside of DSG called [hasDependencies].");
+        }
+        return null;
+    }
+
 }
