@@ -182,6 +182,7 @@ public abstract class BaseGenerator {
         if (records == null) {
             return;
         }
+        //System.out.println("In BaseGenerator.createRows(): number of record is " + records.size());
 
         int rowNumber = 0;
         int skippedRows = 0;

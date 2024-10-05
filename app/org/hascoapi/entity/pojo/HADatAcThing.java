@@ -296,7 +296,7 @@ public abstract class HADatAcThing {
     @JsonIgnore
     public void delete() { throw new NotImplementedException("Used unimplemented HADatAcThing.delete() method"); }
 
-    private Model generateRDFModel() {
+    private Model generateRDFModel(boolean withValidation) {
         Map<String, Object> row = new HashMap<String, Object>();
         List<Map<String, Object>> reversed_rows = new ArrayList<Map<String, Object>>();
 
@@ -320,12 +320,16 @@ public abstract class HADatAcThing {
                     if (field.isAnnotationPresent(Subject.class)) {
                         String uri = (String)field.get(this);
                         //System.out.println("inside HADatAcThing.saveToTripleStore(): has Subject.class annotation present. hasUri=[" + uri + "]");
-                        if (URIUtils.isValidURI(uri)) {
-                            row.put("hasURI", uri);
-                            //System.out.println("inside HADatAcThing.saveToTripleStore(): hasUri=[" + uri + "]");
+                        if (withValidation) {
+                            if (URIUtils.isValidURI(uri)) {
+                                row.put("hasURI", uri);
+                                //System.out.println("inside HADatAcThing.saveToTripleStore(): hasUri=[" + uri + "]");
+                            } else {
+                                System.out.println("[ERROR] URI [" + uri + "] IS NOT VALID");
+                                return null;
+                            }
                         } else {
-                            System.out.println("[ERROR] URI [" + uri + "] IS NOT VALID");
-                            return null;
+                            row.put("hasURI", uri);
                         }
                     }
 
@@ -489,11 +493,16 @@ public abstract class HADatAcThing {
 
     @SuppressWarnings("unchecked")
     public boolean saveToTripleStore() {
+        return saveToTripleStore(true);
+    }
+
+    @SuppressWarnings("unchecked")
+    public boolean saveToTripleStore(boolean withValidation) {
         //System.out.println("inside HADatAcThing.saveToTripleStore(): calling deleteFromTripleStore().");
         deleteFromTripleStore();
 
         //Model model = MetadataFactory.createModel(reversed_rows, getNamedGraph());
-        Model model = generateRDFModel();
+        Model model = generateRDFModel(withValidation);
         if (model == null) {
             System.out.println("[ERROR] inside HADatAcThing.saveToTripleStore(): MetadataFactory.commitModelToTripleStore() received EMPTY model");
         }

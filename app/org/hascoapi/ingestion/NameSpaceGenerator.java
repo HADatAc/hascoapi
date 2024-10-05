@@ -43,7 +43,7 @@ public class NameSpaceGenerator extends BaseGenerator {
 	}
 	
 	private String getNSSource(Record rec) {
-		return rec.getValueByColumnName(mapCol.get("PI"));
+		return rec.getValueByColumnName(mapCol.get("nsSource"));
 	}
 		
 	@Override
@@ -66,7 +66,7 @@ public class NameSpaceGenerator extends BaseGenerator {
 		}
 
 		if (NameSpace.find(nsUri) != null) {
-			System.out.println("[WARNING] NameSpaceGenerator: NS with URI [" + nsUri + "] already exists.");
+			System.out.println("[WARNING] NameSpaceGenerator: NS with URI [" + nsUri + "] was not created - it already exists.");
 			return null;
 		}
 
@@ -83,6 +83,11 @@ public class NameSpaceGenerator extends BaseGenerator {
         ns.setPermanent(false);
 
 		ns.setNumberOfLoadedTriples();
+
+		if (NameSpace.findInMemoryByAbbreviation(nsAbbrev) != null) {
+			System.out.println("[WARNING] NameSpaceGenerator: NS with Abbreviation [" + nsAbbrev + "] was not created - it already exists.");
+			return null;
+		}
 
 		NameSpaces.getInstance().addNamespace(ns);
 

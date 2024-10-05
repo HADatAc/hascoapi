@@ -66,6 +66,8 @@ public class StudyGenerator extends BaseGenerator {
     }
 
     private String getId(Record rec) {
+        //System.out.println("Value of mapCol.get(\"studyID\"): " + mapCol.get("studyID"));
+        //System.out.println("Value of getValueByColumnName(): " + rec.getValueByColumnName(mapCol.get("studyID")));
         return rec.getValueByColumnName(mapCol.get("studyID"));
     }
 
@@ -107,18 +109,24 @@ public class StudyGenerator extends BaseGenerator {
         String id = getId(rec);
         String title = getTitle(rec);
         if (uri == null || uri.isEmpty()) {
-            throw new Exception("[ERROR] StudyGenerator: No URI value has been found");
+            //throw new Exception("[ERROR] StudyGenerator: No URI value has been found");
+            System.out.println("[ERROR] StudyGenerator: No URI value has been found");
+            return null;
         }
         if (id == null || id.isEmpty()) {
-            throw new Exception("[ERROR] StudyGenerator: No ID value has been found");
+            //throw new Exception("[ERROR] StudyGenerator: No ID value has been found");
+            System.out.println("[ERROR] StudyGenerator: No ID value has been found");
+            return null;
         }
         if (title == null || title.isEmpty()) {
-            throw new Exception("[ERROR] StudyGenerator: No TITLE value has been found");
+            //throw new Exception("[ERROR] StudyGenerator: No TITLE value has been found");
+            System.out.println("[ERROR] StudyGenerator: No TITLE value has been found");
+            return null;
         }
         //System.out.println("Inside of StudyGenerator.createRow()");
         Map<String, Object> row = new HashMap<String, Object>();
         if (getUri().length() > 0) {
-            System.out.println("getUri()=[" + uri + "] getID()=[" + id + "] getTitle()=[" + title + "]");
+            //System.out.println("getUri()=[" + uri + "] getID()=[" + id + "] getTitle()=[" + title + "]");
             row.put("hasco:hasId", id);
             row.put("hasURI", uri);
             row.put("a", getType());
