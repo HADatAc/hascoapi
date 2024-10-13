@@ -43,6 +43,9 @@ public class SDDAttribute extends HADatAcThing {
     @PropertyField(uri="hasco:schemaPosition")
     private String position;
 
+    @PropertyField(uri="hasco:listPosition")
+    private String listPosition;
+
     @PropertyField(uri="hasco:isVariableOf")
     private String sddoUri;
 
@@ -203,6 +206,13 @@ public class SDDAttribute extends HADatAcThing {
     @JsonIgnore
     public int getPositionInt() {
         return positionInt;
+    }
+
+    public String getListPosition() {
+        return listPosition;
+    }
+    public void setListPosition(String listPosition) {
+        this.listPosition = listPosition;
     }
 
     @JsonIgnore
@@ -548,6 +558,8 @@ public class SDDAttribute extends HADatAcThing {
 					sdda.setPartOfSchema(string);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_SCHEMA_POSITION)) {
 					sdda.setPosition(string);
+				} else if (statement.getPredicate().getURI().equals(HASCO.LIST_POSITION)) {
+					sdda.setListPosition(string);
 				} else if (statement.getPredicate().getURI().equals(HASCO.IS_VARIABLE_OF)) {
 					sdda.setObjectUri(string);
                 } else if (statement.getPredicate().getURI().equals(HASCO.HAS_ENTITY)) {

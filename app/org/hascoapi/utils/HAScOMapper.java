@@ -312,8 +312,8 @@ public class HAScOMapper {
         } else {
             filterProvider.addFilter("possibleValueFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "superUri", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "isPossibleValueOf", "hasCode", "hasCodeLabel", "hasClass", 
-                            "hasSIRManagementEmail"));
+                            "hascoTypeLabel", "comment", "partOfSchema", "listPosition", "isPossibleValueOf", 
+                            "hasCode", "hasCodeLabel", "hasClass", "hasSIRManagementEmail"));
         }
 
         // POSTAL_ADDRESS
@@ -351,8 +351,8 @@ public class HAScOMapper {
         } else {
             filterProvider.addFilter("sddAttributeFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "partOfSchema", "attribute", "objectUri", "unit", "eventUri", "inRelationTo",
-                            "wasDerivedFrom", "hasSIRManagerEmail"));
+                            "hascoTypeLabel", "comment", "partOfSchema", "listPosition", "attribute", "objectUri", "unit", 
+                            "eventUri", "inRelationTo", "wasDerivedFrom", "hasSIRManagerEmail"));
         }
 
         // SDD_OBJECT
@@ -361,8 +361,8 @@ public class HAScOMapper {
         } else {
             filterProvider.addFilter("sddObjectFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "entity", "role", "relation", "inRelationTo", "wasDerivedFrom", 
-                            "hasSIRManagementEmail"));
+                            "hascoTypeLabel", "comment", "partOfSchema", "listPosition", "entity", "role", "relation", 
+                            "inRelationTo", "wasDerivedFrom", "hasSIRManagementEmail"));
         }
 
         // SEMANTIC_DATA_DICTIONARY

@@ -140,6 +140,7 @@ public class HASCO {
     public static final String IS_MEMBER_OF                           = "http://hadatac.org/ont/hasco/isMemberOf";
     public static final String IS_POSSIBLE_VALUE_OF                   = "http://hadatac.org/ont/hasco/isPossibleValueOf";
     public static final String IS_VARIABLE_OF                         = "http://hadatac.org/ont/hasco/isVariableOf";
+    public static final String LIST_POSITION                          = "http://hadatac.org/ont/hasco/listPosition";
     public static final String HASCO_TYPE                             = "http://hadatac.org/ont/hasco/hascoType";
     public static final String ORIGINAL_ID                            = "http://hadatac.org/ont/hasco/originalID";
     public static final String PART_OF                                = "http://hadatac.org/ont/hasco/partOf";

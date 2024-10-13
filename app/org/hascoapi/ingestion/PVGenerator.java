@@ -245,7 +245,7 @@ public class PVGenerator extends BaseGenerator {
 		            // associate the new 'other' class to the codebook element for the class
 		            code.setHasClass(newUri);
 		            code.setNamedGraph(sddUri);
-		            code.saveHasClass();
+		            code.save();
 		        } 
 		        // For specifying wrong message digest algorithms  
 		        catch (Exception e) {  

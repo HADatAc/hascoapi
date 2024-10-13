@@ -52,6 +52,9 @@ public class SDDObject extends HADatAcThing {
     @PropertyField(uri="hasco:schemaPosition")
     private String position;
 
+    @PropertyField(uri="hasco:listPosition")
+    private String listPosition;
+
     private int positionInt;
 
     private int tempPositionInt;
@@ -161,6 +164,13 @@ public class SDDObject extends HADatAcThing {
     }
     public void setPosition(String position) {
         this.position = position;
+    }
+
+    public String getListPosition() {
+        return listPosition;
+    }
+    public void setListPosition(String listPosition) {
+        this.listPosition = listPosition;
     }
 
     public int getPositionInt() {
@@ -361,6 +371,8 @@ public class SDDObject extends HADatAcThing {
 					sddo.setPartOfSchema(string);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_SCHEMA_POSITION)) {
 					sddo.setPosition(string);
+				} else if (statement.getPredicate().getURI().equals(HASCO.LIST_POSITION)) {
+					sddo.setListPosition(string);
                 } else if (statement.getPredicate().getURI().equals(HASCO.HAS_ENTITY)) {
                     sddo.setEntity(string);
                 } else if (statement.getPredicate().getURI().equals(HASCO.HAS_ROLE)) {

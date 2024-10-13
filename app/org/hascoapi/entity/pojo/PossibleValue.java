@@ -29,21 +29,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @JsonFilter("possibleValueFilter")
-public class PossibleValue extends HADatAcClass implements Comparable<PossibleValue> {
+public class PossibleValue extends HADatAcClass implements Comparable<PossibleValue>, Cloneable {
 
     private static final Logger log = LoggerFactory.getLogger(PossibleValue.class);
     static String className = "hasco:PossibleValue";
 
     private static Map<String, PossibleValue> possibleValueCache;
 
-    public static String INSERT_LINE1 = "INSERT DATA {  ";
-    public static String DELETE_LINE1 = "DELETE WHERE {  ";
-    public static String LINE3 = " a    sio:SIO_000614;  ";
-    public static String DELETE_LINE3 = " ?p ?o . ";
-    public static String LINE_LAST = "}  ";
+    //public static String INSERT_LINE1 = "INSERT DATA {  ";
+    //public static String DELETE_LINE1 = "DELETE WHERE {  ";
+    //public static String LINE3 = " a    sio:SIO_000614;  ";
+    //public static String DELETE_LINE3 = " ?p ?o . ";
+    //public static String LINE_LAST = "}  ";
 
     @PropertyField(uri="hasco:partOfSchema")
     private String partOfSchema;
+
+    @PropertyField(uri="hasco:listPosition")
+    private String listPosition;
 
     @PropertyField(uri="hasco:isPossibleValueOf")
     private String isPossibleValueOf;
@@ -107,6 +110,13 @@ public class PossibleValue extends HADatAcClass implements Comparable<PossibleVa
     }
     public void setPartOfSchema(String partOfSchema) {
         this.partOfSchema = partOfSchema;
+    }
+
+    public String getListPosition() {
+        return listPosition;
+    }
+    public void setListPosition(String listPosition) {
+        this.listPosition = listPosition;
     }
 
     public String getIsPossibleValueOf() {
@@ -185,6 +195,11 @@ public class PossibleValue extends HADatAcClass implements Comparable<PossibleVa
     }
     public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
         this.hasSIRManagerEmail = hasSIRManagerEmail;
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return super.clone(); // Shallow copy
     }
 
     public static List<PossibleValue> find() {
@@ -434,6 +449,8 @@ public class PossibleValue extends HADatAcClass implements Comparable<PossibleVa
                 code.setHascoTypeUri(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.PART_OF_SCHEMA)) {
                 code.setPartOfSchema(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.LIST_POSITION)) {
+                code.setListPosition(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.IS_POSSIBLE_VALUE_OF)) {
                 code.setIsPossibleValueOf(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_CODE)) {
@@ -503,7 +520,8 @@ public class PossibleValue extends HADatAcClass implements Comparable<PossibleVa
         return true;
 
     }
-
+ 
+    /* 
     public boolean saveHasClass() {
         if (!deleteHasClass()) {
             return false;
@@ -545,6 +563,7 @@ public class PossibleValue extends HADatAcClass implements Comparable<PossibleVa
         return true;
 
     }
+    */
 
     @Override
     public void save() {
