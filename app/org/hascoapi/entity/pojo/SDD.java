@@ -62,7 +62,7 @@ public class SDD extends MetadataTemplate {
     private Map<String, Map<String, String>> possibleValuesCache = new HashMap<String, Map<String, String>>();
     private DataFile sddfile = null;
     private IngestionLogger logger = null;
-    //private Templates templates = null;
+    private Templates templates = null;
 
     //@PropertyField(uri = "vstoi:hasStatus")    
     //private String hasStatus;
@@ -178,9 +178,10 @@ public class SDD extends MetadataTemplate {
         SDD.getCache();
     }
 
-    public SDD(DataFile dataFile) {
+    public SDD(DataFile dataFile, String templateFile) {
         this.uri = dataFile.getUri().replace("DF","SD");
         this.label = "";
+        this.setTemplates(templateFile);
         isRefreshed = false;
         //SDD.getCache();
         //getAttributes();
@@ -363,9 +364,12 @@ public class SDD extends MetadataTemplate {
         this.inRelationToLabel = inRelationToLabel;
     }
 
-    //public void setTemplates(String templateFile) {
-    //    this.templates = new Templates(templateFile);
-    //}
+    public Templates getTemplates() {
+        return this.templates;
+    }
+    public void setTemplates(String templateFile) {
+        this.templates = new Templates(templateFile);
+    }
 
     public int getTotalSDDA() {
         if (attributes == null) {
@@ -879,8 +883,13 @@ public class SDD extends MetadataTemplate {
                 return false;
             }
 
-            mapAttrObj.put(record.getValueByColumnName(getTemplates().getLABEL()),
-                    record.getValueByColumnName(getTemplates().getATTTRIBUTEOF()));
+            try {
+                mapAttrObj.put(record.getValueByColumnName(getTemplates().getLABEL()),
+                        record.getValueByColumnName(getTemplates().getATTTRIBUTEOF()));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
         }
 
         System.out.println("SDD: read Data Dictionary 3");
@@ -947,7 +956,12 @@ public class SDD extends MetadataTemplate {
             return false;
         }
 
+        System.out.println("SDD.readCodebook: getTemplates().getLABEL() is " + getTemplates().getLABEL());
+
         for (Record record : file.getRecords()) {
+            System.out.println("SDD.readCodebook: record.getValueByColumnName(getTemplates().getLABEL() is " + 
+            record.getValueByColumnName(getTemplates().getLABEL()));
+
             if (!record.getValueByColumnName(getTemplates().getLABEL()).isEmpty()) {
                 String colName = record.getValueByColumnName(getTemplates().getLABEL());
                 Map<String, String> mapCodeClass = null;

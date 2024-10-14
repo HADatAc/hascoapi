@@ -148,7 +148,7 @@ public class IngestionWorker {
             chain = annotateSTRFile(dataFile);
             
         } else if (fileName.startsWith("SDD-")) {
-            chain = annotateSDDFile(dataFile);
+            chain = annotateSDDFile(dataFile, templateFile);
             
         } else if (fileName.startsWith("DOI-")) {
             chain = annotateDOIFile(dataFile);
@@ -754,7 +754,7 @@ public class IngestionWorker {
      *    SDD                   *
      ****************************/    
     
-    public static GeneratorChain annotateSDDFile(DataFile dataFile) {
+    public static GeneratorChain annotateSDDFile(DataFile dataFile, String templateFile) {
         System.out.println("Processing SDD file ...");
         
         RecordFile recordFile = new SpreadsheetRecordFile(dataFile.getFile(), "InfoSheet");
@@ -765,75 +765,73 @@ public class IngestionWorker {
             dataFile.setRecordFile(recordFile);
         }
 
-        SDD sdd = new SDD(dataFile);
-        String fileName = dataFile.getFilename();
-        String sddName = sdd.getLabel();
-        String sddVersion = sdd.getHasVersion();
-        if (sddName == "") {
-            dataFile.getLogger().printExceptionById("SDD_00003");
-            return null;
+        Map<String, String> mapCatalog = new HashMap<String, String>();
+        for (Record record : dataFile.getRecordFile().getRecords()) {
+            mapCatalog.put(record.getValueByColumnIndex(0), record.getValueByColumnIndex(1));
+            System.out.println(record.getValueByColumnIndex(0) + ":" + record.getValueByColumnIndex(1));
+            if (record.getValueByColumnIndex(0).isEmpty() && record.getValueByColumnIndex(1).isEmpty()) {
+                break;
+            }
         }
-        if (sddVersion == "") {
-            dataFile.getLogger().printExceptionById("SDD_00018");
-            return null;
-        }
-        Map<String, String> mapCatalog = sdd.getCatalog();
 
-        RecordFile codeMappingRecordFile = null;
+        SDD sdd = new SDD(dataFile, templateFile);
+        String fileName = dataFile.getFilename();
+        //if (sdd.getLabel() == "") {
+        //    dataFile.getLogger().printExceptionById("SDD_00003");
+        //    return null;
+        //}
+        //if (sdd.getHasVersion() == "") {
+        //    dataFile.getLogger().printExceptionById("SDD_00018");
+        //    return null;
+        //}
+        //Map<String, String> mapCatalog = sdd.getCatalog();
+
+        //RecordFile codeMappingRecordFile = null;
         RecordFile dictionaryRecordFile = null;
         RecordFile codeBookRecordFile = null;
-        RecordFile timelineRecordFile = null;
+        //RecordFile timelineRecordFile = null;
 
-        File codeMappingFile = null;
-
-        if (fileName.endsWith(".csv")) {
-            String prefix = "sddtmp/" + fileName.replace(".csv", "");
-            File dictionaryFile = sdd.downloadFile(mapCatalog.get("Data_Dictionary"), prefix + "-dd.csv");
-            File codeBookFile = sdd.downloadFile(mapCatalog.get("Codebook"), prefix + "-codebook.csv");
-            File timelineFile = sdd.downloadFile(mapCatalog.get("Timeline"), prefix + "-timeline.csv");
-            codeMappingFile = sdd.downloadFile(mapCatalog.get("Code_Mappings"), prefix + "-code-mappings.csv");
-
-            dictionaryRecordFile = new CSVRecordFile(dictionaryFile);
-            codeBookRecordFile = new CSVRecordFile(codeBookFile);
-            timelineRecordFile = new CSVRecordFile(timelineFile);
-        } else if (fileName.endsWith(".xlsx")) {
-            codeMappingFile = sdd.downloadFile(mapCatalog.get("Code_Mappings"), 
-                    "sddtmp/" + fileName.replace(".xlsx", "") + "-code-mappings.csv");
+        //File codeMappingFile = null;
+        if (fileName.endsWith(".xlsx")) {
+            //codeMappingFile = sdd.downloadFile(mapCatalog.get("Code_Mappings"), 
+            //        "sddtmp/" + fileName.replace(".xlsx", "") + "-code-mappings.csv");
 
             if (mapCatalog.get("Codebook") != null) { 
                 codeBookRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), mapCatalog.get("Codebook").replace("#", ""));
+                System.out.println("IngestionWorker: read codeBookRecordFile with " + codeBookRecordFile.getRecords().size() + " records.");
             }
             
             if (mapCatalog.get("Data_Dictionary") != null) {
                 dictionaryRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), mapCatalog.get("Data_Dictionary").replace("#", ""));
+                System.out.println("IngestionWorker: read dictionaryRecordFile with " + dictionaryRecordFile.getRecords().size() + " records.");
             }
             
-            if (mapCatalog.get("Timeline") != null) {
-                timelineRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), mapCatalog.get("Timeline").replace("#", ""));
-            }
+            //if (mapCatalog.get("Timeline") != null) {
+            //    timelineRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), mapCatalog.get("Timeline").replace("#", ""));
+            //}
         }
 
-        if (null != codeMappingFile) {
-            codeMappingRecordFile = new CSVRecordFile(codeMappingFile);
-            if (!sdd.readCodeMapping(codeMappingRecordFile)) {
-                dataFile.getLogger().printWarningById("SDD_00016");
-            } else {
-                dataFile.getLogger().println(String.format("Codemappings: " + sdd.getCodeMapping().get("U"), fileName));
-            }
-        } else {
-            dataFile.getLogger().printWarningById("SDD_00017");
-        }
-
-        //if (!sdd.readDataDictionary(dictionaryRecordFile)) {
-        //    dataFile.getLogger().printExceptionById("SDD_00004");
-        //    return null;
+        //if (null != codeMappingFile) {
+        //    codeMappingRecordFile = new CSVRecordFile(codeMappingFile);
+        //    if (!sdd.readCodeMapping(codeMappingRecordFile)) {
+        //        dataFile.getLogger().printWarningById("SDD_00016");
+        //    } else {
+        //        dataFile.getLogger().println(String.format("Codemappings: " + sdd.getCodeMapping().get("U"), fileName));
+        //    }
+        //} else {
+        //    dataFile.getLogger().printWarningById("SDD_00017");
         //}
+
+        if (!sdd.readDataDictionary(dictionaryRecordFile, dataFile)) {
+            dataFile.getLogger().printExceptionById("SDD_00004");
+            return null;
+        }
         if (codeBookRecordFile == null || !sdd.readCodebook(codeBookRecordFile)) {
             dataFile.getLogger().printWarningById("SDD_00005");
         }
-        if (timelineRecordFile == null || !sdd.readTimeline(timelineRecordFile)) {
-            dataFile.getLogger().printWarningById("SDD_00006");
-        }
+        //if (timelineRecordFile == null || !sdd.readTimeline(timelineRecordFile)) {
+        //    dataFile.getLogger().printWarningById("SDD_00006");
+        //}
 
         GeneratorChain chain = new GeneratorChain();
         chain.setPV(true);
@@ -843,9 +841,6 @@ public class IngestionWorker {
             try {
                 dictionaryFile = (DataFile)dataFile.clone();
                 dictionaryFile.setRecordFile(dictionaryRecordFile);
-                // TODO
-                //chain.addGenerator(new SDDAttributeGenerator(dictionaryFile, sddName, sdd.getCodeMapping(), sdd.readDDforEAmerge(dictionaryRecordFile)));
-                //chain.addGenerator(new SDDObjectGenerator(dictionaryFile, sddName, sdd.getCodeMapping()));
             } catch (CloneNotSupportedException e) {
                 e.printStackTrace();
             }
@@ -860,22 +855,22 @@ public class IngestionWorker {
                 codeBookFile = (DataFile)dataFile.clone();
                 codeBookFile.setRecordFile(codeBookRecordFile);
                 chain.setCodebookFile(codeBookFile);
-                chain.setSddName(URIUtils.replacePrefixEx(ConfigProp.getKbPrefix() + "DAS-" + sddName));
-                chain.addGenerator(new PVGenerator(codeBookFile, sddName, sdd.getMapAttrObj(), sdd.getCodeMapping()));
+                chain.setSddName(URIUtils.replacePrefixEx(ConfigProp.getKbPrefix() + "DAS-" + sdd.getLabel()));
+                chain.addGenerator(new PVGenerator(codeBookFile, sdd.getLabel(), sdd.getMapAttrObj(), sdd.getCodeMapping()));
             } catch (CloneNotSupportedException e) {
                 e.printStackTrace();
             }
         }
 
         GeneralGenerator generalGenerator = new GeneralGenerator(dataFile, "DASchema");
-        String sddUri = ConfigProp.getKbPrefix() + "DAS-" + sddName;
+        String sddUri = ConfigProp.getKbPrefix() + "DAS-" + sdd.getLabel();
         Map<String, Object> row = new HashMap<String, Object>();
         row.put("hasURI", sddUri);
         dataFile.getLogger().println("This SDD is assigned with uri: " + sddUri + " and is of type hasco:DASchema");
         row.put("a", "hasco:DASchema");
-        row.put("rdfs:label", "SDD-" + sddName);
+        row.put("rdfs:label", "SDD-" + sdd.getLabel());
         row.put("rdfs:comment", "");
-        row.put("hasco:hasVersion", sddVersion);
+        row.put("hasco:hasVersion", sdd.getHasVersion());
         generalGenerator.addRow(row);
         chain.addGenerator(generalGenerator);
         chain.setNamedGraphUri(URIUtils.replacePrefixEx(sddUri));
