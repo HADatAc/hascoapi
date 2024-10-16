@@ -12,11 +12,11 @@ services:
                 aliases:
                     - fuseki
         volumes:
-            -   hascoapi-fuseki-data:/fuseki/databases
+            - hascoapi-fuseki-data:/fuseki/databases
         restart: always
 
     fuseki-yasgui:
-        build: fuseki-yasgui
+        build: ./fuseki-yasgui
         container_name: hascoapi_fuseki_yasgui
         ports:
             - "8888:8888"
@@ -25,11 +25,27 @@ services:
                 aliases:
                     - fuseki-yasgui
         environment:
-            # This should be a url that points to this container
-            # Proxies to the /store/sparql endpoint for fuseki
-            DEFAULT_SPARQL_ENDPOINT: "http://localhost:8888/sparql"
+            DEFAULT_SPARQL_ENDPOINT: "http://fuseki:3030/dataset/sparql"  # Corrigido
         depends_on:
-            -   fuseki
+            - fuseki
+
+    hascoapi:
+        build: ./
+        restart: always
+        container_name: hascoapi
+        tty: true
+        ports:
+            - "9000:9000"
+        networks:
+            hascoapi:
+                aliases:
+                    - hascoapi
+        environment:
+            JAVA_OPTS: "-Xms128m -Xmx12g"
+        volumes:
+            - /var/log/hascoapi:/hascoapi/logs
+        depends_on:
+            - fuseki
 
 volumes:
     hascoapi-fuseki-data:
