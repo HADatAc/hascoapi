@@ -205,7 +205,7 @@ public class IngestionWorker {
         }
 
         if (dataFile.getFilename().endsWith(".xlsx")) {
-            dataFile = nameSpaceGen(dataFile, mapCatalog);
+            nameSpaceGen(dataFile, mapCatalog,templateFile);
         } else {
             System.out.println("[ERROR] StudyGenerator: DSG file needs to have suffix [.xlsx].");
             return null;
@@ -511,7 +511,7 @@ public class IngestionWorker {
 
         try {
 
-            dataFile = nameSpaceGen(dataFile, mapCatalog);
+            nameSpaceGen(dataFile, mapCatalog,templateFile);
             chain.setNamedGraphUri(dataFile.getUri());
             chain.addGenerator(new NameSpaceGenerator(dataFile,templateFile));
     
@@ -765,6 +765,8 @@ public class IngestionWorker {
             dataFile.setRecordFile(recordFile);
         }
 
+        String sddUri = dataFile.getUri().replace("DFL","SDDICT");
+
         Map<String, String> mapCatalog = new HashMap<String, String>();
         for (Record record : dataFile.getRecordFile().getRecords()) {
             mapCatalog.put(record.getValueByColumnIndex(0), record.getValueByColumnIndex(1));
@@ -774,27 +776,30 @@ public class IngestionWorker {
             }
         }
 
+        nameSpaceGen(dataFile, mapCatalog, templateFile);
+
         SDD sdd = new SDD(dataFile, templateFile);
         String fileName = dataFile.getFilename();
-        //if (sdd.getLabel() == "") {
-        //    dataFile.getLogger().printExceptionById("SDD_00003");
-        //    return null;
-        //}
-        //if (sdd.getHasVersion() == "") {
-        //    dataFile.getLogger().printExceptionById("SDD_00018");
-        //    return null;
-        //}
-        //Map<String, String> mapCatalog = sdd.getCatalog();
+        if (mapCatalog.get("SDD_ID") == "") {
+            dataFile.getLogger().printExceptionById("SDD_00003");
+            return null;
+        }
+        String sddId = mapCatalog.get("SDD_ID");
+        if (mapCatalog.get("Version") == "") {
+            dataFile.getLogger().printExceptionById("SDD_00018");
+            return null;
+        }
+        String sddVersion = mapCatalog.get("Version");
 
-        //RecordFile codeMappingRecordFile = null;
+        RecordFile codeMappingRecordFile = null;
         RecordFile dictionaryRecordFile = null;
         RecordFile codeBookRecordFile = null;
         //RecordFile timelineRecordFile = null;
 
-        //File codeMappingFile = null;
+        File codeMappingFile = null;
         if (fileName.endsWith(".xlsx")) {
-            //codeMappingFile = sdd.downloadFile(mapCatalog.get("Code_Mappings"), 
-            //        "sddtmp/" + fileName.replace(".xlsx", "") + "-code-mappings.csv");
+            codeMappingFile = sdd.downloadFile(mapCatalog.get("Code_Mappings"), 
+                    "sddtmp/" + fileName.replace(".xlsx", "") + "-code-mappings.csv");
 
             if (mapCatalog.get("Codebook") != null) { 
                 codeBookRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), mapCatalog.get("Codebook").replace("#", ""));
@@ -811,20 +816,20 @@ public class IngestionWorker {
             //}
         }
 
-        //if (null != codeMappingFile) {
-        //    codeMappingRecordFile = new CSVRecordFile(codeMappingFile);
-        //    if (!sdd.readCodeMapping(codeMappingRecordFile)) {
-        //        dataFile.getLogger().printWarningById("SDD_00016");
-        //    } else {
-        //        dataFile.getLogger().println(String.format("Codemappings: " + sdd.getCodeMapping().get("U"), fileName));
-        //    }
-        //} else {
-        //    dataFile.getLogger().printWarningById("SDD_00017");
-        //}
+        if (codeMappingFile != null) {
+            codeMappingRecordFile = new CSVRecordFile(codeMappingFile);
+            if (!sdd.readCodeMapping(codeMappingRecordFile)) {
+                dataFile.getLogger().printWarningById("SDD_00016");
+            } else {
+                dataFile.getLogger().println(String.format("Codemappings: " + sdd.getCodeMapping().get("U"), fileName));
+            }
+        } else {
+            dataFile.getLogger().printWarningById("SDD_00017");
+        }
 
         if (!sdd.readDataDictionary(dictionaryRecordFile, dataFile)) {
             dataFile.getLogger().printExceptionById("SDD_00004");
-            return null;
+            //return null;
         }
         if (codeBookRecordFile == null || !sdd.readCodebook(codeBookRecordFile)) {
             dataFile.getLogger().printWarningById("SDD_00005");
@@ -834,13 +839,17 @@ public class IngestionWorker {
         //}
 
         GeneratorChain chain = new GeneratorChain();
+        chain.setNamedGraphUri(dataFile.getUri());
         chain.setPV(true);
         
+        System.out.println("DictionaryRecordFile: " + dictionaryRecordFile.isValid());
         if (dictionaryRecordFile != null && dictionaryRecordFile.isValid()) {
             DataFile dictionaryFile;
             try {
                 dictionaryFile = (DataFile)dataFile.clone();
                 dictionaryFile.setRecordFile(dictionaryRecordFile);
+                chain.addGenerator(new SDDAttributeGenerator(dictionaryFile, sddUri, sddId, sdd.getCodeMapping(), sdd.readDDforEAmerge(dictionaryRecordFile), templateFile));
+                chain.addGenerator(new SDDObjectGenerator(dictionaryFile, sddUri, sddId, sdd.getCodeMapping()));
             } catch (CloneNotSupportedException e) {
                 e.printStackTrace();
             }
@@ -849,31 +858,33 @@ public class IngestionWorker {
         // codebook needs to be processed after data dictionary because codebook relies on 
         // data dictionary's attributes (DASAs) to group codes for categorical variables
         
+        System.out.println("CodeBookRecordFile: " + codeBookRecordFile.isValid());
         if (codeBookRecordFile != null && codeBookRecordFile.isValid()) {
             DataFile codeBookFile;
             try {
                 codeBookFile = (DataFile)dataFile.clone();
                 codeBookFile.setRecordFile(codeBookRecordFile);
                 chain.setCodebookFile(codeBookFile);
-                chain.setSddName(URIUtils.replacePrefixEx(ConfigProp.getKbPrefix() + "DAS-" + sdd.getLabel()));
-                chain.addGenerator(new PVGenerator(codeBookFile, sdd.getLabel(), sdd.getMapAttrObj(), sdd.getCodeMapping()));
+                chain.setSddName(URIUtils.replacePrefixEx(sddUri));
+                chain.addGenerator(new PVGenerator(codeBookFile, sddUri, sddId, sdd.getMapAttrObj(), sdd.getCodeMapping()));
             } catch (CloneNotSupportedException e) {
                 e.printStackTrace();
             }
         }
 
-        GeneralGenerator generalGenerator = new GeneralGenerator(dataFile, "DASchema");
-        String sddUri = ConfigProp.getKbPrefix() + "DAS-" + sdd.getLabel();
+        GeneralGenerator generalGenerator = new GeneralGenerator(dataFile, "SemanticDataDictionary");
         Map<String, Object> row = new HashMap<String, Object>();
         row.put("hasURI", sddUri);
-        dataFile.getLogger().println("This SDD is assigned with uri: " + sddUri + " and is of type hasco:DASchema");
-        row.put("a", "hasco:DASchema");
-        row.put("rdfs:label", "SDD-" + sdd.getLabel());
-        row.put("rdfs:comment", "");
-        row.put("hasco:hasVersion", sdd.getHasVersion());
+        row.put("a", "hasco:SemanticDataDictionary");
+        row.put("hasco:hascoType", "hasco:SemanticDataDictionary");
+        row.put("rdfs:label", sddId);
+        row.put("rdfs:comment", "Generated from SDD file [" + dataFile.getFilename() + "]");
+        row.put("vstoi:hasVersion", sddVersion);
+        row.put("vstoi:hasSIRManagerEmail", dataFile.getHasSIRManagerEmail());
         generalGenerator.addRow(row);
+        chain.setNamedGraphUri(URIUtils.replacePrefixEx(dataFile.getUri()));
         chain.addGenerator(generalGenerator);
-        chain.setNamedGraphUri(URIUtils.replacePrefixEx(sddUri));
+        dataFile.getLogger().println("This SDD is assigned with uri: " + sddUri + " and is of type hasco:SemanticDataDictionary");
 
         return chain;
     }
@@ -982,7 +993,7 @@ public class IngestionWorker {
     }
     */
 
-    public static DataFile nameSpaceGen(DataFile dataFile, Map<String, String> mapCatalog) {
+    public static boolean nameSpaceGen(DataFile dataFile, Map<String, String> mapCatalog, String templateFile) {
         RecordFile nameSpaceRecordFile = null;
         if (mapCatalog.get("hasDependencies") != null) {
             System.out.print("Extracting NameSpace sheet from spreadsheet... ");
@@ -993,18 +1004,26 @@ public class IngestionWorker {
                 System.out.println("[WARNING] NameSpaceGenerator: nameSpaceRecordFile.getRecords() is NULL.");
             } else {
                 System.out.println("nameSpaceRecordFile has [" + nameSpaceRecordFile.getRecords().size() + "] rows");
-                //List<String> headers = nameSpaceRecordFile.getHeaders();
-                //for (String header : headers) {
-                //    System.out.println("Header: [" + header + "]");
-                //}        
                 dataFile.setRecordFile(nameSpaceRecordFile);
-                System.out.print("Done extracting NameSpace sheet. ");
-                return dataFile;
+
+                GeneratorChain chain = new GeneratorChain();
+                chain.setNamedGraphUri(dataFile.getUri());
+                chain.addGenerator(new NameSpaceGenerator(dataFile,templateFile));
+                boolean isSuccess = false;
+                if (chain != null) {
+                    isSuccess = chain.generate();
+                }
+                if (isSuccess) {                                
+                    System.out.println("Done extracting NameSpace sheet. ");
+                } else {
+                    System.out.println("Failed to extract NameSpace sheet. ");
+                }
+                return isSuccess;
             }
         } else {
-            System.out.println("[WARNING] NameSpaceGenerator: could not find any sheet inside of DSG called [hasDependencies].");
+            System.out.println("[WARNING] NameSpaceGenerator: could not find any sheet inside of Metadata Template called [hasDependencies].");
         }
-        return null;
+        return false;
     }
 
 }

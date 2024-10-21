@@ -29,20 +29,24 @@ public class PVGenerator extends BaseGenerator {
 
 	final String kbPrefix = ConfigProp.getKbPrefix();
 	String startTime = "";
-	String SDDName = "";
+	String sddName = "";
+	String sddUri = "";
+	String managerEmail = "";
 	Map<String, String> codeMap;
 	Map<String, Map<String, String>> pvMap = new HashMap<String, Map<String, String>>();
 	Map<String, String> mapAttrObj;
 	Map<String, String> codeMappings;
     protected IngestionLogger logger = null;
 
-	public PVGenerator(DataFile dataFile, String SDDName,  
+	public PVGenerator(DataFile dataFile, String sddUri, String sddName,  
 			Map<String, String> mapAttrObj, Map<String, String> codeMappings) {
 		super(dataFile);
-		this.SDDName = SDDName;
+		this.sddUri = sddUri;
+		this.sddName = sddName;
 		this.mapAttrObj = mapAttrObj;
 		this.codeMappings = codeMappings;
 		this.logger = dataFile.getLogger();
+		this.managerEmail = dataFile.getHasSIRManagerEmail();
 	}
 	
 	//Column	Code	Label	Class	Resource
@@ -109,12 +113,12 @@ public class PVGenerator extends BaseGenerator {
 
 	private String getPVvalue(Record rec) {
 		if ((getLabel(rec)).length() > 0) {
-			String colNameInSDD = getLabel(rec).replace(" ", "");
-			if (mapAttrObj.containsKey(colNameInSDD) && mapAttrObj.get(colNameInSDD).length() > 0) {
-				return kbPrefix + "SDDA-" + SDDName + "-" + getLabel(rec).trim().replace(" ", "").replace("_","-").replace("??", "");
-			} else {
-				return kbPrefix + "SDDO-" + SDDName + "-" + getLabel(rec).trim().replace(" ", "").replace("_","-").replace("??", "");
-			}
+			return getLabel(rec).replace(" ", "");
+			//if (mapAttrObj.containsKey(colNameInSDD) && mapAttrObj.get(colNameInSDD).length() > 0) {
+			//	return kbPrefix + "SDDA-" + sddName + "-" + getLabel(rec).trim().replace(" ", "").replace("_","-").replace("??", "");
+			//} else {
+			//	return kbPrefix + "SDDO-" + sddName + "-" + getLabel(rec).trim().replace(" ", "").replace("_","-").replace("??", "");
+			//}
 		} else {
 			return "";
 		}
@@ -124,7 +128,7 @@ public class PVGenerator extends BaseGenerator {
 		int rowNumber = 0;
 		List<String> result = new ArrayList<String>();
 		for (Record record : records) {
-			result.add((kbPrefix + "PV-" + getLabel(record).replace("_","-").replace("??", "") + ("-" + SDDName + "-" + getCode(record)).replaceAll("--", "-")).replace(" ","") + "-" + rowNumber);
+			result.add((kbPrefix + "PV-" + getLabel(record).replace("_","-").replace("??", "") + ("-" + sddName + "-" + getCode(record)).replaceAll("--", "-")).replace(" ","") + "-" + rowNumber);
 			++rowNumber;
 		}
 		return result;
@@ -133,14 +137,19 @@ public class PVGenerator extends BaseGenerator {
 	@Override
 	public Map<String, Object> createRow(Record rec, int rowNumber) throws Exception {	
 		Map<String, Object> row = new HashMap<String, Object>();
-		row.put("hasURI", (kbPrefix + "PV-" + getLabel(rec).replaceAll("[^a-zA-Z0-9:-]", "-") + ("-" + SDDName + "-" + getCode(rec)).replaceAll("--", "-")).replace(" ","").replaceAll("[^A-Za-z0-9:-]", "") + "-" + rowNumber);
+		String sddPVUri = sddUri.replace("SDDICT","PSV") + "/" + String.valueOf(rowNumber);
+		row.put("hasURI", sddPVUri);
 		row.put("a", "hasco:PossibleValue");
+		row.put("hasco:hascoType", "hasco:PossibleValue");
+		row.put("hasco:partOfSchema", sddUri);
+		row.put("hasco:listPosition", String.valueOf(rowNumber));
 		row.put("hasco:hasVariable", getLabel(rec).replaceAll("[^a-zA-Z0-9:-]", "-"));
 		row.put("hasco:hasCode", getCode(rec));
 		row.put("hasco:hasCodeLabel", getCodeLabel(rec));
 		row.put("hasco:hasClass", getClass(rec));
 		row.put("hasco:isPossibleValueOf", getPVvalue(rec));
 		row.put("hasco:otherFor", getOtherFor(rec));
+		row.put("vstoi:hasSIRManagerEmail", managerEmail);
 		
 		return row;
 	}

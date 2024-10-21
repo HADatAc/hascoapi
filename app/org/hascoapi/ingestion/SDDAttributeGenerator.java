@@ -23,8 +23,10 @@ public class SDDAttributeGenerator extends BaseGenerator {
 
     final String kbPrefix = ConfigProp.getKbPrefix();
     String startTime = "";
-    String SDDName = "";
+    String sddName = "";
+    String sddUri = "";
     String filename = "";
+    String managerEmail = "";
     Templates templates;
     Map<String, String> codeMap;
     Map<String, List<String>> hasEntityMap = new HashMap<String, List<String>>();
@@ -33,10 +35,14 @@ public class SDDAttributeGenerator extends BaseGenerator {
     List<String> AttrList = new ArrayList<String>();
     Map<String, String> currentHasEntity = new HashMap<String, String>();
 
-    public SDDAttributeGenerator(DataFile dataFile, String SDDName, Map<String, String> codeMap, List<Map<String, List<String>>> merging, String templateFile) {
+    public SDDAttributeGenerator(DataFile dataFile, String sddUri, String sddName, Map<String, String> codeMap, List<Map<String, List<String>>> merging, String templateFile) {
         super(dataFile);
+        //System.out.println("SDDAttributeGenerator (START)");
+        System.out.println("SDDAttributeGenerator: SDDUri = [" + sddUri + "]");
         this.codeMap = codeMap;
-        this.SDDName = SDDName;
+        this.sddName = sddName;
+        this.sddUri = sddUri;
+        this.managerEmail = dataFile.getHasSIRManagerEmail();
         this.mergedEA = merging.get(0);
         this.mergedAA = merging.get(1);
         this.fileName = dataFile.getFilename();
@@ -44,11 +50,14 @@ public class SDDAttributeGenerator extends BaseGenerator {
         logger.println("[Merged Attributes] : " + mergedEA.keySet());
         logger.println("[Derived Attributes] : " + mergedAA.keySet());
 
+        //System.out.println("[Merged Attributes] : " + mergedEA.keySet());
+        //System.out.println("[Derived Attributes] : " + mergedAA.keySet());
+
         initMapping();
 
         for (Record rec : file.getRecords()) {
             List<String> tmp = new ArrayList<String>();
-            tmp.add(rec.getValueByColumnName(mapCol.get("AttributeOf")));
+            tmp.add(rec.getValueByColumnName(mapCol.get("VariableOf")));
             tmp.add(rec.getValueByColumnName(mapCol.get("Entity")));
             tmp.add(rec.getValueByColumnName(mapCol.get("InRelationTo")));
             hasEntityMap.put(rec.getValueByColumnName(mapCol.get("Label")), tmp);
@@ -61,18 +70,22 @@ public class SDDAttributeGenerator extends BaseGenerator {
     //Column	Attribute	attributeOf	Unit	Time	Entity	Role	Relation	inRelationTo	wasDerivedFrom	wasGeneratedBy	hasPosition	
     @Override
     public void initMapping() {
-        mapCol.clear();
-        mapCol.put("Label", templates.getLABEL());
-        mapCol.put("AttributeType", templates.getATTRIBUTETYPE());
-        mapCol.put("AttributeOf", templates.getATTTRIBUTEOF());
-        mapCol.put("Unit", templates.getUNIT());
-        mapCol.put("Time", templates.getTIME());
-        mapCol.put("Entity", templates.getENTITY());
-        mapCol.put("Role", templates.getROLE());
-        mapCol.put("Relation", templates.getRELATION());
-        mapCol.put("InRelationTo", templates.getINRELATIONTO());
-        mapCol.put("WasDerivedFrom", templates.getWASDERIVEDFROM());       
-        mapCol.put("WasGeneratedBy", templates.getWASGENERATEDBY());
+        try {
+            mapCol.clear();
+            mapCol.put("Label", templates.getLABEL());
+            mapCol.put("AttributeType", templates.getATTRIBUTETYPE());
+            mapCol.put("VariableOf", templates.getATTTRIBUTEOF());
+            mapCol.put("Unit", templates.getUNIT());
+            mapCol.put("Time", templates.getTIME());
+            mapCol.put("Entity", templates.getENTITY());
+            mapCol.put("Role", templates.getROLE());
+            mapCol.put("Relation", templates.getRELATION());
+            mapCol.put("InRelationTo", templates.getINRELATIONTO());
+            mapCol.put("WasDerivedFrom", templates.getWASDERIVEDFROM());       
+            mapCol.put("WasGeneratedBy", templates.getWASGENERATEDBY());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private String getLabel(Record rec) {
@@ -83,20 +96,15 @@ public class SDDAttributeGenerator extends BaseGenerator {
         return rec.getValueByColumnName(mapCol.get("AttributeType"));
     }
 
-    private String getAttributeOf(Record rec) {
-        if (rec.getValueByColumnName(mapCol.get("AttributeOf").trim()).equals("")) {
-            return "";
-        }
-
-        return kbPrefix + "SDDO-" + SDDName + "-" + rec.getValueByColumnName(mapCol.get("AttributeOf")).replace(" ", "").replace("_","-").replace("??", "");
+    private String getVariableOf(Record rec) {
+        return rec.getValueByColumnName(mapCol.get("VariableOf").trim());
     }
-
-    private String getAttributeOf(String str) {
+ 
+    private String getVariableOf(String str) {
         if (str == null || str.equals("")) {
             return "";
         }
-        String attr = str.trim();
-        return kbPrefix + "SDDO-" + SDDName + "-" + attr.replace(" ", "").replace("_","-").replace("??", "");
+        return str.trim();
     }
 
     private String getUnit(Record rec) {
@@ -111,15 +119,11 @@ public class SDDAttributeGenerator extends BaseGenerator {
     }
 
     private String getTime(Record rec) {
-        if (rec.getValueByColumnName(mapCol.get("Time").trim()).equals("")) {
-            return "";
-        }
-
-        return kbPrefix + "SDDO-" + SDDName + "-" + rec.getValueByColumnName(mapCol.get("Time")).trim().replace(" ","").replace("_","-").replace("??", "").replace(":", "-");
+        return rec.getValueByColumnName(mapCol.get("Time").trim());
     }
 
     private String getEntity(Record rec) {
-        String daso = rec.getValueByColumnName(mapCol.get("AttributeOf"));
+        String daso = rec.getValueByColumnName(mapCol.get("VariableOf"));
         if (daso.equals("")) {
             currentHasEntity.put(getLabel(rec), "hasco:unknownEntity");
             return "hasco:unknownEntity";
@@ -147,31 +151,38 @@ public class SDDAttributeGenerator extends BaseGenerator {
     }
 
     private String getInRelationTo(Record rec) {
-        String inRelationTo = rec.getValueByColumnName(mapCol.get("InRelationTo"));
+        return rec.getValueByColumnName(mapCol.get("InRelationTo"));
+        /* 
         if (inRelationTo.length() == 0) {
             return "";
         } else {
             List<String> items = new ArrayList<String>();
             for (String item : Arrays.asList(inRelationTo.split("\\s*,\\s*"))) {
-                items.add(kbPrefix + "SDDO-" + SDDName + "-" + item.replace(" ", "").replace("_","-").replace("??", ""));
+                items.add(kbPrefix + "SDDO-" + sddName + "-" + item.replace(" ", "").replace("_","-").replace("??", ""));
             }
             return items.get(0);
         }
+        */
     }
 
-    private List<String> getWasDerivedFrom(Record rec) {
+    private String getWasDerivedFrom(Record rec) {
+        return rec.getValueByColumnName(mapCol.get("WasDerivedFrom"));
+    }
+
+    private List<String> getListWasDerivedFrom(Record rec) {
         String derivedFrom = rec.getValueByColumnName(mapCol.get("WasDerivedFrom"));
-        List<String> tbd = new ArrayList<String>();
+        List<String> list = new ArrayList<String>();
         if (derivedFrom.length() == 0) {
-            return tbd;
+            return list;
         } else {
             List<String> items = Arrays.asList(derivedFrom.split("\\s*,\\s*"));
             for (String item : items) {
                 if (AttrList.contains(item)) {
-                    tbd.add(kbPrefix + "SDDA-" + SDDName + "-" + item.replace(" ", "").replace("_","-").replace("??", ""));
+                    list.add(item);
+                    //list.add(kbPrefix + "SDDA-" + sddName + "-" + item.replace(" ", "").replace("_","-").replace("??", ""));
                 }
             }
-            return tbd;
+            return list;
         }
     }
 
@@ -216,7 +227,7 @@ public class SDDAttributeGenerator extends BaseGenerator {
                 return str;
             }
         } else if (AttrList.contains(str)) {
-            return kbPrefix + "SDDA-" + SDDName + "-" + str.replace(" ", "").replace("_","-").replace("??", "");
+            return kbPrefix + "SDDA-" + sddName + "-" + str.replace(" ", "").replace("_","-").replace("??", "");
         } else {
             return "";
         }
@@ -250,9 +261,9 @@ public class SDDAttributeGenerator extends BaseGenerator {
                 continue;
             } else {
                 rows.add(createRow(record, ++rowNumber));
-                for (String item : getWasDerivedFrom(record)) {
-                    rows.add(createDerivedFromRow(item, record));
-                }
+                //for (String item : getWasDerivedFrom(record)) {
+                //    rows.add(createDerivedFromRow(item, record));
+                //}
                 column_name.add(getLabel(record));
             }
         }
@@ -273,24 +284,29 @@ public class SDDAttributeGenerator extends BaseGenerator {
         }*/
     }
 
+    /* 
     public List<String> createUris() throws Exception {
         List<String> result = new ArrayList<String>();
         for (Record record : records) {
             if (getAttribute(record)  == null || getAttribute(record).equals("")){
                 continue;
             } else {
-                result.add(kbPrefix + "SDDA-" + SDDName + "-" + getLabel(record).trim().replace(" ", "").replace("_","-").replace("??", ""));
+                result.add(kbPrefix + "SDDA-" + sddName + "-" + getLabel(record).trim().replace(" ", "").replace("_","-").replace("??", ""));
             }
         }
         return result;
     }
+    */
 
     //Column	Attribute	attributeOf	Unit	Time	Entity	Role	Relation	inRelationTo	wasDerivedFrom	wasGeneratedBy	hasPosition   
     @Override
     public Map<String, Object> createRow(Record rec, int rowNumber) throws Exception {
 
+        //System.out.println("SDDAttributeGenerator: createRow with label " + getLabel(rec));
+
         Map<String, Object> row = new HashMap<String, Object>();
         List<String> tmp = new ArrayList<String>();
+        String sddAttUri = sddUri.replace("SDDICT","SDDATT") + "/" + String.valueOf(rowNumber);
 
         /* this makes sure columns that are related to mergedEA will not be repeatedly processed.
            for example:
@@ -308,11 +324,13 @@ public class SDDAttributeGenerator extends BaseGenerator {
         String lineLabel = getLabel(rec);
         if (mergedEA.containsKey(getLabel(rec))) {
             logger.println("[Merged Attribute] : " + getLabel(rec) + " ---> " + mergedEA.get(getLabel(rec)));
-            row.put("hasURI", kbPrefix + "SDDA-" + SDDName + "-" + mergedEA.get(getLabel(rec)).get(0).trim().replace(" ", "").replace("_","-").replace("??", ""));
+            row.put("hasURI", sddAttUri);
             row.put("a", "hasco:SDDAttribute");
+            row.put("hasco:hascoType", "hasco:SDDAttribute");
             row.put("rdfs:label", mergedEA.get(getLabel(rec)).get(0));
             row.put("rdfs:comment", mergedEA.get(getLabel(rec)).get(1));
-            row.put("hasco:partOfSchema", kbPrefix + "SDD-" + SDDName);
+            row.put("hasco:partOfSchema", sddUri);
+            row.put("hasco:listPosition", String.valueOf(rowNumber));
             if (!currentHasEntity.containsKey(getLabel(rec))){
                 row.put("hasco:hasEntity", getEntity(rec));
             }
@@ -332,31 +350,35 @@ public class SDDAttributeGenerator extends BaseGenerator {
             row.put("hasco:hasUnit", mergedEA.get(getLabel(rec)).get(2));
             if (mergedEA.get(getLabel(rec)).get(3).length()>0){
                 //row.put("hasco:hasEvent", kbPrefix + "SDDE-" + SDDName + "-" + mergedEA.get(getLabel(rec)).get(3).trim().replace(" ","").replace("_","-").replace("??", "").replace(":", "-"));
-                row.put("hasco:hasEvent", kbPrefix + "SDDO-" + SDDName + "-" + mergedEA.get(getLabel(rec)).get(3).trim().replace(" ","").replace("_","-").replace("??", "").replace(":", "-"));
+                row.put("hasco:hasEvent", kbPrefix + "SDDO-" + sddName + "-" + mergedEA.get(getLabel(rec)).get(3).trim().replace(" ","").replace("_","-").replace("??", "").replace(":", "-"));
             }
             row.put("hasco:hasSource", "");
-            row.put("hasco:isAttributeOf", getAttributeOf(rec));
+            row.put("hasco:isVariableOf", getVariableOf(rec));
             row.put("hasco:isVirtual", checkVirtual(rec).toString());
             row.put("hasco:isPIConfirmed", "false");
+            row.put("prov:wasDerivedFrom", getWasDerivedFrom(rec));	
             if (getWasGeneratedBy(rec).length() > 0) {
                 row.put("prov:wasGeneratedBy", getWasGeneratedBy(rec));	
             }
+            row.put("vstoi:hasSIRManagerEmail", managerEmail);
         } else if (!tmp.contains(getLabel(rec))) {
             if (mergedAA.containsKey(getLabel(rec))) {
                 logger.println("[Derived Attribute] : " + getLabel(rec) + " ---> " + mergedAA.get(getLabel(rec)));
                 List<String> attributes = mergedAA.get(getLabel((rec)));
-                row.put("hasco:isAttributeOf", getAttributeOf(attributes.get(attributes.size()-1)));
+                row.put("hasco:isVariableOf", getVariableOf(attributes.get(attributes.size()-1)));
                 row.put("hasco:hasAttribute", attributes);
                 //row.put("hasco:hasAttribute", URIUtils.replacePrefixEx(mergedAA.get(getLabel(rec)).get(1)));
             } else {
-                row.put("hasco:isAttributeOf", getAttributeOf(rec));
+                row.put("hasco:isVariableOf", getVariableOf(rec));
                 row.put("hasco:hasAttribute", getAttribute(rec));
             }
-            row.put("hasURI", kbPrefix + "SDDA-" + SDDName + "-" + getLabel(rec).trim().replace(" ", "").replace("_","-").replace("??", ""));
+            row.put("hasURI", sddAttUri);
             row.put("a", "hasco:SDDAttribute");
+            row.put("hasco:hascoType", "hasco:SDDAttribute");
             row.put("rdfs:label", getLabel(rec));
             row.put("rdfs:comment", getLabel(rec));
-            row.put("hasco:partOfSchema", kbPrefix + "SDD-" + SDDName);
+            row.put("hasco:partOfSchema", sddUri);
+            row.put("hasco:listPosition", String.valueOf(rowNumber));
             if (!currentHasEntity.containsKey(getLabel(rec))){
                 row.put("hasco:hasEntity", getEntity(rec));
             }
@@ -377,11 +399,13 @@ public class SDDAttributeGenerator extends BaseGenerator {
             row.put("hasco:hasSource", "");
             row.put("hasco:isVirtual", checkVirtual(rec).toString());
             row.put("hasco:isPIConfirmed", "false");
+            row.put("prov:wasDerivedFrom", getWasDerivedFrom(rec));
             if (getWasGeneratedBy(rec).length() > 0) {
                 row.put("prov:wasGeneratedBy", getWasGeneratedBy(rec));	
             }
+            row.put("vstoi:hasSIRManagerEmail", managerEmail);
         } else {
-            row.put("hasURI", kbPrefix + "SDDA-merged-" + SDDName + "-" + getLabel(rec).trim().replace(" ", "").replace("_","-").replace("??", ""));
+            row.put("hasURI", sddAttUri);
         }
 
         return row;
@@ -405,7 +429,7 @@ public class SDDAttributeGenerator extends BaseGenerator {
 
     Map<String, Object> createRelationRow(Record rec, int rowNumber) throws Exception {
         Map<String, Object> row = new HashMap<String, Object>();
-        row.put("hasURI", kbPrefix + "SDDA-" + SDDName + "-" + getLabel(rec).trim().replace(" ", "").replace("_","-").replace("??", ""));
+        row.put("hasURI", kbPrefix + "SDDA-" + sddName + "-" + getLabel(rec).trim().replace(" ", "").replace("_","-").replace("??", ""));
         if (getRelation(rec).length() > 0) {
             row.put(getRelation(rec), getInRelationTo(rec));
         } else {
@@ -424,7 +448,7 @@ public class SDDAttributeGenerator extends BaseGenerator {
 
     Map<String, Object> createDerivedFromRow(String item, Record rec) throws Exception {
         Map<String, Object> row = new HashMap<String, Object>();
-        row.put("hasURI", kbPrefix + "SDDA-" + SDDName + "-" + getLabel(rec).trim().replace(" ", "").replace("_","-").replace("??", ""));
+        row.put("hasURI", kbPrefix + "SDDA-" + sddName + "-" + getLabel(rec).trim().replace(" ", "").replace("_","-").replace("??", ""));
         row.put("prov:wasDerivedFrom", item);
 
         return row;
@@ -432,14 +456,14 @@ public class SDDAttributeGenerator extends BaseGenerator {
 
     Map<String, Object> createMergeEAAttrRow(String attr, Map<String, List<String>> mergedEA) throws Exception {
         Map<String, Object> row = new HashMap<String, Object>();
-        row.put("hasURI", kbPrefix + "SDDA-" + SDDName + "-" + mergedEA.get(attr).get(0).trim().replace(" ", "").replace("_","-").replace("??", ""));
+        row.put("hasURI", kbPrefix + "SDDA-" + sddName + "-" + mergedEA.get(attr).get(0).trim().replace(" ", "").replace("_","-").replace("??", ""));
         row.put("hasco:hasAttribute", mergedEA.get(attr).get(4));
         return row;
     }
 
     Map<String, Object> createMergeAAAttrRow(String attr, Map<String, List<String>> mergedAA) throws Exception {
         Map<String, Object> row = new HashMap<String, Object>();
-        row.put("hasURI", kbPrefix + "SDDA-" + SDDName + "-" + attr.trim().replace(" ", "").replace("_","-").replace("??", ""));
+        row.put("hasURI", kbPrefix + "SDDA-" + sddName + "-" + attr.trim().replace(" ", "").replace("_","-").replace("??", ""));
         row.put("hasco:hasAttribute", mergedAA.get(attr).get(1));
         return row;
     }

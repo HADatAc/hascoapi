@@ -31,6 +31,7 @@ import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.PROV;
 import org.hascoapi.vocabularies.RDF;
 import org.hascoapi.vocabularies.RDFS;
+import org.hascoapi.vocabularies.SIO;
 import org.hascoapi.vocabularies.VSTOI;
 import org.hascoapi.utils.SPARQLUtils;
 
@@ -76,7 +77,7 @@ public class SDDAttribute extends HADatAcThing {
     @PropertyField(uri="hasco:hasEvent")
     private String sddeUri;
 
-    @PropertyField(uri="hasco:inRelationTo")
+    @PropertyField(uri="sio:SIO_000668")
     private String inRelationTo;
 
     @PropertyField(uri="hasco:relation")
@@ -570,7 +571,7 @@ public class SDDAttribute extends HADatAcThing {
                     sdda.setUnit(string);
                 } else if (statement.getPredicate().getURI().equals(HASCO.HAS_EVENT)) {
                     sdda.setEventUri(string);
-				} else if (statement.getPredicate().getURI().equals(HASCO.IN_RELATION_TO)) {
+				} else if (statement.getPredicate().getURI().equals(SIO.IN_RELATION_TO)) {
 					sdda.setInRelationTo(string);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_RELATION)) {
 					sdda.setRelation(string);

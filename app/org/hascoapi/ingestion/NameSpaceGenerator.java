@@ -19,7 +19,7 @@ public class NameSpaceGenerator extends BaseGenerator {
 	@Override
 	public void initMapping() {
 		try {
-			//System.out.println("initMapping of NameSpaceGenerator");
+			System.out.println("initMapping of NameSpaceGenerator");
 			mapCol.clear();
 			mapCol.put("nsAbbrev", templates.getNSABBREV());
 			mapCol.put("nsUri", templates.getNSNAME());
@@ -52,6 +52,14 @@ public class NameSpaceGenerator extends BaseGenerator {
 	}
 
     public HADatAcThing createNameSpace(Record record) throws Exception {
+
+		//System.out.println("Inside createNameSpace: ");
+
+		//System.out.println("Printing record:");
+		//for (int aux=0; aux < record.size(); aux++) {
+		//	System.out.println("  - [" + record.getValueByColumnIndex(aux) + "]");
+		//}
+
 		String nsUri = getNSUri(record); 
 		if (nsUri == null || nsUri.isEmpty()) {
 			throw new Exception("[ERROR] NameSpaceGenerator: no NS URI has been provided.");

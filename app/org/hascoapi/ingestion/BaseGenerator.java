@@ -77,7 +77,7 @@ public abstract class BaseGenerator {
     		logger = dataFile.getLogger();
     	}
     	
-        System.out.println("BaseGenerator: (Constructor) process initMapping");
+        //System.out.println("BaseGenerator: (Constructor) process initMapping");
         initMapping();
     }
 
@@ -182,7 +182,7 @@ public abstract class BaseGenerator {
         if (records == null) {
             return;
         }
-        //System.out.println("In BaseGenerator.createRows(): number of record is " + records.size());
+        System.out.println("In BaseGenerator.createRows(): number of record is " + records.size());
 
         int rowNumber = 0;
         int skippedRows = 0;
@@ -276,13 +276,13 @@ public abstract class BaseGenerator {
     }
 
     public boolean commitRowsToTripleStore(List<Map<String, Object>> rows) {
-        //System.out.println("BaseGenerator: commitRowsToTripleStore(): received values");
+        System.out.println("BaseGenerator: commitRowsToTripleStore(): received values");
         //for (Map<String, Object> row : rows) {
         //    for (Map.Entry<String, Object> entry : row.entrySet()) {
         //        System.out.println("Row: " + entry.getKey() + ": " + entry.getValue());
         //    }
         //}
-        System.out.println("BaseGenerator: commitRowsToTripleStore(): getNamedGraphUri() is " + getNamedGraphUri());
+        //System.out.println("BaseGenerator: commitRowsToTripleStore(): getNamedGraphUri() is " + getNamedGraphUri());
         Model model = MetadataFactory.createModel(rows, getNamedGraphUri());
         int numCommitted = MetadataFactory.commitModelToTripleStore(
                 model, CollectionUtil.getCollectionPath(
@@ -308,9 +308,9 @@ public abstract class BaseGenerator {
         
         for (String name : caches.keySet()) {
             if (caches.get(name).getNeedCommit()) {
-                System.out.println("cache " + name + " size: Initial " + caches.get(name).getInitialCache().values().size());
-                System.out.println("cache " + name + " size: New " + caches.get(name).getNewCache().values().size());
-                System.out.println("cache " + name + " size: Total " + caches.get(name).getMapCache().values().size());
+                //System.out.println("cache " + name + " size: Initial " + caches.get(name).getInitialCache().values().size());
+                //System.out.println("cache " + name + " size: New " + caches.get(name).getNewCache().values().size());
+                //System.out.println("cache " + name + " size: Total " + caches.get(name).getMapCache().values().size());
                 for (Object obj : caches.get(name).getNewCache().values()) {
                     if (obj instanceof HADatAcThing) {
                         //System.out.println("BaseGenerator.commitObjectsToTriplestore() [2]");

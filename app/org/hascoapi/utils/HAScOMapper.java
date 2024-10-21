@@ -351,8 +351,8 @@ public class HAScOMapper {
         } else {
             filterProvider.addFilter("sddAttributeFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "partOfSchema", "listPosition", "attribute", "objectUri", "unit", 
-                            "eventUri", "inRelationTo", "wasDerivedFrom", "hasSIRManagerEmail"));
+                            "hascoTypeLabel", "comment", "partOfSchema", "listPosition", "attribute", "objectUri", 
+                            "unit", "eventUri", "inRelationTo", "wasDerivedFrom", "hasSIRManagerEmail"));
         }
 
         // SDD_OBJECT

@@ -690,7 +690,7 @@ public class SDD extends MetadataTemplate {
         }
 
 
-        System.out.println("SDD: read Data Dictionary 1");
+        //System.out.println("SDD: read Data Dictionary 1");
 
         System.out.println("header size: " + file.getHeaders().size());
 
@@ -700,7 +700,7 @@ public class SDD extends MetadataTemplate {
             dataFile.getLogger().printExceptionById("SDD_00007");
         }
 
-        System.out.println("SDD: read Data Dictionary 2");
+        //System.out.println("SDD: read Data Dictionary 2");
 
         //Boolean uriResolvable = true;
         Boolean namespaceRegistered = true;
@@ -723,7 +723,7 @@ public class SDD extends MetadataTemplate {
         long rowNumber = 0;
         for (Record record : file.getRecords()) {
             rowNumber++;
-            System.out.println("processing row " + rowNumber);
+            //System.out.println("processing row " + rowNumber);
             if (checkCellValue(record.getValueByColumnIndex(0))) {
                 String attributeCell = record.getValueByColumnName("Attribute");
                 String entityCell = record.getValueByColumnName("Entity");
@@ -892,7 +892,7 @@ public class SDD extends MetadataTemplate {
 
         }
 
-        System.out.println("SDD: read Data Dictionary 3");
+        //System.out.println("SDD: read Data Dictionary 3");
 
         if (checkUriNamespaceResults.size() > 0) {
             dataFile.getLogger().printExceptionByIdWithArgs("SDD_00012", String.join(", ", checkUriNamespaceResults));
@@ -912,7 +912,7 @@ public class SDD extends MetadataTemplate {
             return false;
         }
 
-        System.out.println("SDD: read Data Dictionary 4");
+        //System.out.println("SDD: read Data Dictionary 4");
 
         if (namespaceRegistered == true) {
             dataFile.getLogger().println("The Dictionary Mapping's namespaces are all registered.");
@@ -941,7 +941,8 @@ public class SDD extends MetadataTemplate {
             if (uri.startsWith("obo:UO_")) {
                 uri = uri.replace("obo:UO_", "uo:");
             }
-            codeMappings.put(code, uri);
+            //System.out.println("code mappings: code=[" + code + "] uri=[" + uri + "]");
+            codeMappings.put(code, URIUtils.replacePrefixEx(uri));
         }
 
         if (codeMappings.isEmpty()) {
@@ -956,11 +957,8 @@ public class SDD extends MetadataTemplate {
             return false;
         }
 
-        System.out.println("SDD.readCodebook: getTemplates().getLABEL() is " + getTemplates().getLABEL());
-
         for (Record record : file.getRecords()) {
-            System.out.println("SDD.readCodebook: record.getValueByColumnName(getTemplates().getLABEL() is " + 
-            record.getValueByColumnName(getTemplates().getLABEL()));
+            //record.getValueByColumnName(getTemplates().getLABEL());
 
             if (!record.getValueByColumnName(getTemplates().getLABEL()).isEmpty()) {
                 String colName = record.getValueByColumnName(getTemplates().getLABEL());

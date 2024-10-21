@@ -29,6 +29,7 @@ import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.PROV;
 import org.hascoapi.vocabularies.RDF;
 import org.hascoapi.vocabularies.RDFS;
+import org.hascoapi.vocabularies.SIO;
 import org.hascoapi.vocabularies.VSTOI;
 
 @JsonFilter("sddObjectFilter")
@@ -69,7 +70,7 @@ public class SDDObject extends HADatAcThing {
 
     private String roleLabel;
 
-    @PropertyField(uri="hasco:inRelationTo")
+    @PropertyField(uri="sio:SIO_000668")
     private String inRelationTo;
 
     private String inRelationToLabel;
@@ -377,7 +378,7 @@ public class SDDObject extends HADatAcThing {
                     sddo.setEntity(string);
                 } else if (statement.getPredicate().getURI().equals(HASCO.HAS_ROLE)) {
                     sddo.setRole(string);
-				} else if (statement.getPredicate().getURI().equals(HASCO.IN_RELATION_TO)) {
+				} else if (statement.getPredicate().getURI().equals(SIO.IN_RELATION_TO)) {
 					sddo.setInRelationTo(string);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_RELATION)) {
 					sddo.setRelation(string);
