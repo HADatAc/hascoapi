@@ -16,7 +16,6 @@ import org.hascoapi.entity.pojo.INS;
 import org.hascoapi.entity.pojo.Study;
 //import org.hascoapi.ingestion.IngestDSG;
 import org.hascoapi.ingestion.IngestKGR;
-import org.hascoapi.ingestion.IngestSDD;
 import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.ConfigProp;
 import org.hascoapi.utils.HAScOMapper;
