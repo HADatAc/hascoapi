@@ -15,18 +15,25 @@ public class SDDObjectGenerator extends BaseGenerator {
 	
 	final String kbPrefix = ConfigProp.getKbPrefix();
 	String startTime = "";
-	String SDDName = "";
+	String sddName = "";
+	String sddUri = "";
+	String managerEmail = "";
 	Map<String, String> codeMap;
 
 	// the SDDOGenerator object for each study will have java objects of all the templates, too
 	List<SDDVirtualObject> templateList = new ArrayList<SDDVirtualObject>();
     //List<String> timeList = new ArrayList<String>();
 
-	public SDDObjectGenerator(DataFile dataFile, String SDDName, Map<String, String> codeMap) {
+	public SDDObjectGenerator(DataFile dataFile, String sddUri, String sddName, Map<String, String> codeMap) {
 		super(dataFile);
 		this.codeMap = codeMap;
-		this.SDDName = SDDName;
-		
+		this.sddUri = sddUri;
+		this.sddName = sddName;
+		this.managerEmail = dataFile.getHasSIRManagerEmail();
+	
+		//System.out.println("SDDObjectGenerator (START)");
+        System.out.println("SDDObjectGenerator: SDDUri = [" + this.sddUri + "]");
+
 		//for (Record rec : file.getRecords()) {
 		//    if (rec.getValueByColumnName("Time") != null && !rec.getValueByColumnName("Time").isEmpty()) {
 		//	timeList.add(rec.getValueByColumnName("Time"));
@@ -90,17 +97,20 @@ public class SDDObjectGenerator extends BaseGenerator {
 	}
 
 	public String getInRelationTo(Record rec) {
+		return rec.getValueByColumnName(mapCol.get("InRelationTo"));
+		/* 
 		String inRelationTo = rec.getValueByColumnName(mapCol.get("InRelationTo"));
 		if (inRelationTo.length() == 0) {
 			return "";
 		} else {
 			List<String> items = new ArrayList<String>();
 			for (String item : Arrays.asList(inRelationTo.split("\\s*,\\s*"))) {
-				items.add(kbPrefix + "SDDO-" + SDDName + "-" + item.replace("_","-").replace("??", ""));
+				items.add(kbPrefix + "SDDO-" + sddName + "-" + item.replace("_","-").replace("??", ""));
 			}
 			
 			return items.get(0);
 		}
+		*/
 	}
 	
 	public String getInRelationToString(Record rec) {
@@ -121,7 +131,7 @@ public class SDDObjectGenerator extends BaseGenerator {
 	}
    
 	public String getSDDName(){
-		return this.SDDName;
+		return this.sddName;
 	}
 
 	public List<SDDVirtualObject> getTemplateList(){
@@ -166,7 +176,7 @@ public class SDDObjectGenerator extends BaseGenerator {
 	    	if (getEntity(record)  == null || getEntity(record).equals("")) {
 	    		continue;
 	    	} else {
-	    		result.add(kbPrefix + "SDDO-" + SDDName + "-" + getLabel(record).trim().replace(" ","").replace("_","-").replace("??", ""));
+	    		result.add(kbPrefix + "SDDO-" + sddName + "-" + getLabel(record).trim().replace(" ","").replace("_","-").replace("??", ""));
 	    	}
 	    }
 	    return result;
@@ -176,14 +186,20 @@ public class SDDObjectGenerator extends BaseGenerator {
 	@Override
 	public Map<String, Object> createRow(Record rec, int rowNumber) throws Exception {
 		Map<String, Object> row = new HashMap<String, Object>();
-		row.put("hasURI", kbPrefix + "SDDO-" + SDDName + "-" + getLabel(rec).trim().replace(" ","").replace("_","-").replace("??", ""));
+		String sddObjUri = sddUri.replace("SDDICT","SDDOBJ") + "/" + String.valueOf(rowNumber);
+		row.put("hasURI", sddObjUri);
 		row.put("a", "hasco:SDDObject");
+		row.put("hasco:hascoType", "hasco:SDDObject");
 		row.put("rdfs:label", getLabel(rec));
 		row.put("rdfs:comment", getLabel(rec).trim().replace(" ","").replace("_","-").replace("??", ""));
-		row.put("hasco:partOfSchema", kbPrefix + "SDD-" + SDDName);
+		row.put("hasco:partOfSchema", sddUri);
+		row.put("hasco:listPosition", String.valueOf(rowNumber));
 		row.put("hasco:hasEntity", getEntity(rec));
 		row.put("hasco:hasRole", getRole(rec));
+		row.put("hasco:relation", getRelation(rec));
+		row.put("sio:SIO_000668", getInRelationTo(rec));
 		//System.out.println("[SDDOGenerator] [createRow] getRelation: [" + getRelation(rec) + "]    inRelationTo: [" + getInRelationTo(rec) + "]    inRelationToString: [" + getInRelationToString(rec) + "]");
+		/* 
 		if (getRelation(rec).length() > 0) {
 			if (getInRelationTo(rec).length() > 0) {
 				row.put(getRelation(rec), getInRelationTo(rec));
@@ -197,10 +213,12 @@ public class SDDObjectGenerator extends BaseGenerator {
 				row.put("hasco:Relation", "sio:SIO_000668");
 			}
 		}
+		*/
 		row.put("hasco:hasUnit", getUnit(rec));
 		row.put("hasco:isVirtual", checkVirtual(rec).toString());
 		row.put("hasco:isPIConfirmed", "false");
-		row.put("hasco:wasDerivedFrom", getWasDerivedFrom(rec));
+		row.put("prov:wasDerivedFrom", getWasDerivedFrom(rec));
+		row.put("vstoi:hasSIRManagerEmail", managerEmail);
 
 		// Also generate a SDDVirtualObject for each virtual column
 		if(checkVirtual(rec)) {
@@ -217,7 +235,9 @@ public class SDDObjectGenerator extends BaseGenerator {
 	
 	Map<String, Object> createRelationRow(Record rec, int rowNumber) throws Exception {
 		Map<String, Object> row = new HashMap<String, Object>();
-		row.put("hasURI", kbPrefix + "SDDO-" + SDDName + "-" + getLabel(rec).trim().replace(" ","").replace("_","-").replace("??", ""));
+		//row.put("hasURI", kbPrefix + "SDDO-" + sddName + "-" + getLabel(rec).trim().replace(" ","").replace("_","-").replace("??", ""));
+		String sddObjUri = sddUri.replace("SDDICT","SDDOBJ") + "/" + String.valueOf(rowNumber);
+		row.put("hasURI", sddObjUri);
 		if (getRelation(rec).length() > 0) {
 			if (getInRelationTo(rec).length() > 0) {
 				row.put(getRelation(rec), getInRelationTo(rec));

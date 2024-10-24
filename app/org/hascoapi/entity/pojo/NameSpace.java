@@ -340,6 +340,15 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
         }
     }
 
+    public void saveWithoutURIValidation() {
+        // permanent name spaces are not saved into the triple store
+        if (!this.permanent) {
+            System.out.println("Save: namespace without URI validation: " + this.namedGraph);
+            System.out.println("   URI = [" + this.getUri() + "]");
+            saveToTripleStore(false);
+        }
+     }
+
     @Override
     public void save() {
         // permanent name spaces are not saved into the triple store
@@ -354,7 +363,7 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
     public void delete() {
         // permanent name spaces cannot be deleted from triple store because they are not store into the triple store
         if (!this.permanent) {
-            this.setNamedGraph(Constants.DEFAULT_REPOSITORY);
+            //this.setNamedGraph(Constants.DEFAULT_REPOSITORY);
             System.out.println("Delete namespace: " + this.namedGraph);
             System.out.println("   URI = [" + this.getUri() + "]");
             deleteFromTripleStore();
@@ -370,11 +379,11 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
         }
 
         // DELETE FROM MEMORY
-        boolean response = NameSpaces.getInstance().deleteNamespace(abbreviation);
-        if (response == false) {
-            return "When deleting from memory cache, could not find namespace with abbreviation [" + abbreviation + "] to be deleted.";
-        }
-        System.out.println(abbreviation + " deleted from memory");
+        //boolean response = NameSpaces.getInstance().deleteNamespace(abbreviation);
+        //if (response == false) {
+        //    return "When deleting from memory cache, could not find namespace with abbreviation [" + abbreviation + "] to be deleted.";
+        //}
+        //System.out.println(abbreviation + " deleted from memory");
 
         // DELETE FROM TRIPLE STORE
         // NameSpace.find() retrieves the namespace from triple store
@@ -383,6 +392,8 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
             forDeletion.delete();
             System.out.println(abbreviation + " deleted from triple store");
         }
+
+        NameSpaces.resetNameSpaces();
 
         return "";
     }

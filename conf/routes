@@ -19,6 +19,8 @@ GET     /hascoapi/api/uri/:uri                              org.hascoapi.console
 GET     /hascoapi/api/urigen/:elementtype                   org.hascoapi.console.controllers.restapi.URIPage.uriGen(elementtype: String)
 GET     /hascoapi/api/usage/:uri                            org.hascoapi.console.controllers.restapi.SIRElementAPI.usage(uri: String)
 GET     /hascoapi/api/derivation/:uri                       org.hascoapi.console.controllers.restapi.SIRElementAPI.derivation(uri: String)
+GET     /hascoapi/api/hascotype/:uri                        org.hascoapi.console.controllers.restapi.SIRElementAPI.hascoType(uri: String)
+GET     /hascoapi/api/children/:superuri                    org.hascoapi.console.controllers.restapi.HAScOClassAPI.getChildren(superuri: String)
 GET     /hascoapi/api/:elementType/elements/:pageSize/:offset                                       org.hascoapi.console.controllers.restapi.SIRElementAPI.getElementsWithPage(elementType: String, pageSize : Integer, offset : Integer)
 GET     /hascoapi/api/:elementType/elements/total                                                   org.hascoapi.console.controllers.restapi.SIRElementAPI.getTotalElements(elementType: String)
 GET     /hascoapi/api/:elementType/keywordlanguage/:keyword/:language/:pageSize/:offset             org.hascoapi.console.controllers.restapi.SIRElementAPI.getElementsByKeywordAndLanguageWithPage(elementType: String, keyword : String, language : String, pageSize : Integer, offset : Integer)
@@ -31,6 +33,8 @@ GET     /hascoapi/api/:elementtype/manageremailbystudy/:studyuri/:manageremail/:
 GET     /hascoapi/api/:elementtype/manageremailbystudy/total/:studyuri/:manageremail                org.hascoapi.console.controllers.restapi.StudyAPI.getTotalElementsByManagerEmailByStudy(studyuri : String, elementtype : String, manageremail : String)
 GET     /hascoapi/api/:elementtype/manageremailbysoc/:socuri/:manageremail/:pageSize/:offset        org.hascoapi.console.controllers.restapi.StudyObjectCollectionAPI.getElementsByManagerEmailBySOC(socuri : String, elementtype: String, manageremail : String, pageSize : Integer, offset : Integer)
 GET     /hascoapi/api/:elementtype/manageremailbysoc/total/:socuri/:manageremail                    org.hascoapi.console.controllers.restapi.StudyObjectCollectionAPI.getTotalElementsByManagerEmailBySOC(socuri : String, elementtype : String, manageremail : String)
+GET     /hascoapi/api/:elementtype/manageremailbycontainer/:containeruri/:manageremail/:pageSize/:offset        org.hascoapi.console.controllers.restapi.ContainerAPI.getElementsByManagerEmailByContainer(containeruri : String, elementtype: String, manageremail : String, pageSize : Integer, offset : Integer)
+GET     /hascoapi/api/:elementtype/manageremailbycontainer/total/:containeruri/:manageremail                    org.hascoapi.console.controllers.restapi.ContainerAPI.getTotalElementsByManagerEmailByContainer(containeruri : String, elementtype : String, manageremail : String)
 
 # RETRIEVAL REVERSE
 GET     /hascoapi/api/place/contains/place/:uri/:pageSize/:offset                         org.hascoapi.console.controllers.restapi.PlaceAPI.findContainsPlace(uri: String, pageSize : Integer, offset : Integer)
@@ -65,7 +69,8 @@ GET     /hascoapi/api/repo/label/:label                     org.hascoapi.console
 GET     /hascoapi/api/repo/title/:title                     org.hascoapi.console.controllers.restapi.RepoPage.updateTitle(title : String)
 GET     /hascoapi/api/repo/description/:description         org.hascoapi.console.controllers.restapi.RepoPage.updateDescription(description : String)
 GET     /hascoapi/api/repo/namespace/default/:abbreviation/:url    org.hascoapi.console.controllers.restapi.RepoPage.updateDefaultNamespace(abbreviation : String, url : String)
-GET     /hascoapi/api/repo/namespace/create/:abbreviation/:url     org.hascoapi.console.controllers.restapi.RepoPage.updateNamespace(abbreviation : String, url : String)
+GET     /hascoapi/api/repo/namespace/reset                  org.hascoapi.console.controllers.restapi.RepoPage.resetNamespaces()
+GET     /hascoapi/api/repo/namespace/create/:json           org.hascoapi.console.controllers.restapi.RepoPage.createNamespace(json : String)
 GET     /hascoapi/api/repo/namespace/delete/:abbreviation   org.hascoapi.console.controllers.restapi.RepoPage.deleteSelectedNamespace(abbreviation : String)
 GET     /hascoapi/api/repo/namespace/delete                 org.hascoapi.console.controllers.restapi.RepoPage.deleteNamespace()
 GET     /hascoapi/api/repo/table/informants                 org.hascoapi.console.controllers.restapi.RepoPage.getInformants()
@@ -106,6 +111,17 @@ GET     /hascoapi/api/studyobjectcollection/bystudy/:studyUri         org.hascoa
 GET     /hascoapi/api/virtualcolumn/bystudy/:studyUri                 org.hascoapi.console.controllers.restapi.VirtualColumnAPI.getVCsByStudy(studyUri: String)
 GET     /hascoapi/api/studyobject/bysoc/:socUri/:pageSize/:offset     org.hascoapi.console.controllers.restapi.StudyObjectAPI.getStudyObjectsBySOCWithPage(socUri: String, pageSize: Integer, offset: Integer)
 GET     /hascoapi/api/studyobject/bysoc/total/:socUri                 org.hascoapi.console.controllers.restapi.StudyObjectAPI.getTotalStudyObjectsBySOC(socUri: String)
+
+GET     /hascoapi/api/deployment/:state/:email/:pageSize/:offset      org.hascoapi.console.controllers.restapi.DeploymentAPI.findCanUpdateWithPages(state: String, email: String, pageSize: Integer, offset: Integer)
+GET     /hascoapi/api/deployment/total/:state/:email                  org.hascoapi.console.controllers.restapi.DeploymentAPI.findTotalCanUpdateWithPages(state: String, email: String)
+GET     /hascoapi/api/deploymentbyplatforminstance/:platforminstanceUri/:pageSize/:offset  org.hascoapi.console.controllers.restapi.DeploymentAPI.findDeploymentsByPlatformInstanceWithPage(platforminstanceUri: String, pageSize: Integer, offset: Integer)
+GET     /hascoapi/api/deploymentbyplatforminstance/total/:platforminstanceUri              org.hascoapi.console.controllers.restapi.DeploymentAPI.findTotalDeploymentsByPlatformInstance(platforminstanceUri: String)
+
+GET     /hascoapi/api/stream/:state/:email/:deploymentUri/:pageSize/:offset       org.hascoapi.console.controllers.restapi.StreamAPI.findCanUpdateByDeploymentWithPages(state: String, email: String, deploymentUri: String, pageSize: Integer, offset: Integer)
+GET     /hascoapi/api/stream/total/:state/:email/:deploymentUri                   org.hascoapi.console.controllers.restapi.StreamAPI.findTotalCanUpdateByDeploymentWithPages(state: String, email: String, deploymentUri: String)
+
+GET     /hascoapi/api/platforminstance/byplatform/:platformUri/:pageSize/:offset  org.hascoapi.console.controllers.restapi.VSTOIInstanceAPI.findPlatformInstancesByPlatformWithPage(platformUri: String, pageSize: Integer, offset: Integer)
+GET     /hascoapi/api/platforminstance/byplatform/total/:platformUri              org.hascoapi.console.controllers.restapi.VSTOIInstanceAPI.findTotalPlatformInstancesByPlatform(platformUri: String)
 
 # INGESTION METHODS
 
@@ -176,3 +192,4 @@ GET     /hascoapi/ontologies/maintenance                   org.hascoapi.console.
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /hascoapi/assets/*file                              controllers.Assets.versioned(path="/public", file: Asset)
+

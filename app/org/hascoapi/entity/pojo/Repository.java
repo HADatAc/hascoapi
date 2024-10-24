@@ -1,6 +1,8 @@
 package org.hascoapi.entity.pojo;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSetRewindable;
 import org.apache.jena.sparql.engine.http.QueryExceptionHTTP;
@@ -13,6 +15,7 @@ import org.hascoapi.annotations.PropertyField;
 import org.hascoapi.annotations.PropertyValueType;
 import org.hascoapi.utils.SPARQLUtils;
 import org.hascoapi.utils.URIUtils;
+import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.RDF;
@@ -213,6 +216,31 @@ public class Repository extends HADatAcThing {
     public void setStartedAtXsdWithMillis(String startedAt) {
         DateTimeFormatter formatter = ISODateTimeFormat.dateTime();
         this.startedAt = formatter.parseDateTime(startedAt);
+    }
+
+    public static boolean newNamespace(String json) {
+        ObjectMapper objectMapper = new ObjectMapper(); 
+        NameSpace namespace;
+        try {
+            namespace = (NameSpace)objectMapper.readValue(json, NameSpace.class);
+            namespace.saveWithoutURIValidation();
+            return true;
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            System.out.println("Following error parsing JSON for " + NameSpace.class + ": " + e.getMessage());
+            return false;
+        }
+    }
+
+    public static boolean resetNamespaces() {
+        try {
+            NameSpaces.resetNameSpaces();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Following error while resetting NameSpaces: " + e.getMessage());
+            return false;
+        }
     }
 
     public static Repository getRepository() {

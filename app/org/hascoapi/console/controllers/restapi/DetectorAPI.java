@@ -91,7 +91,7 @@ public class DetectorAPI extends Controller {
             } else if (testDetectorStem2 == null) {
               return ok(ApiUtil.createResponse("Required TestDetectorStem2 does not exist.", false));
             } else {
-                testDetector1 = new Detector();
+                testDetector1 = new Detector(VSTOI.DETECTOR);
                 testDetector1.setUri(TEST_DETECTOR1_URI);
                 testDetector1.setLabel("Test Detector 1");
                 testDetector1.setTypeUri(VSTOI.DETECTOR);
@@ -105,7 +105,7 @@ public class DetectorAPI extends Controller {
                 testDetector1.setNamedGraph(Constants.TEST_KB);
                 testDetector1.save();
 
-                testDetector2 = new Detector();
+                testDetector2 = new Detector(VSTOI.DETECTOR);
                 testDetector2.setUri(TEST_DETECTOR2_URI);
                 testDetector2.setLabel("Test Detector 2");
                 testDetector2.setTypeUri(VSTOI.DETECTOR);
@@ -119,7 +119,7 @@ public class DetectorAPI extends Controller {
                 testDetector2.setNamedGraph(Constants.TEST_KB);
                 testDetector2.save();
 
-                testDetector3 = new Detector();
+                testDetector3 = new Detector(VSTOI.DETECTOR);
                 testDetector3.setUri(TEST_DETECTOR3_URI);
                 testDetector3.setLabel("Test Detector 3");
                 testDetector3.setTypeUri(VSTOI.DETECTOR);
@@ -133,7 +133,7 @@ public class DetectorAPI extends Controller {
                 testDetector3.setNamedGraph(Constants.TEST_KB);
                 testDetector3.save();
 
-                testDetector4 = new Detector();
+                testDetector4 = new Detector(VSTOI.DETECTOR);
                 testDetector4.setUri(TEST_DETECTOR4_URI);
                 testDetector4.setLabel("Test Detector 4");
                 testDetector4.setTypeUri(VSTOI.DETECTOR);

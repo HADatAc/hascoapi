@@ -44,7 +44,7 @@ libraryDependencies ++= Seq(
   "org.eclipse.rdf4j" % "rdf4j-repository-api" % "4.2.3",
   "org.eclipse.rdf4j" % "rdf4j-runtime" % "4.2.3",
   "args4j" % "args4j" % "2.33",
-  "joda-time" % "joda-time" % "2.12.2",
+  "joda-time" % "joda-time" % "2.12.5",
   "org.jasypt" % "jasypt" % "1.9.3",
   "com.typesafe.play" %% "play-iteratees" % "2.6.1",
   "com.typesafe.play" %% "play-iteratees-reactive-streams" % "2.6.1",

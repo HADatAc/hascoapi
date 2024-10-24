@@ -51,6 +51,15 @@ public class Utils {
             case "instrument":
                 shortPrefix = Constants.PREFIX_INSTRUMENT;
                 break;
+            case "instrumentinstance":
+                shortPrefix = Constants.PREFIX_INSTRUMENT_INSTANCE;
+                break;
+            case "detectorinstance":
+                shortPrefix = Constants.PREFIX_DETECTOR_INSTANCE;
+                break;
+            case "platforminstance":
+                shortPrefix = Constants.PREFIX_PLATFORM_INSTANCE;
+                break;
             case "subcontainer":
                 shortPrefix = Constants.PREFIX_SUBCONTAINER;
                 break;
@@ -83,6 +92,15 @@ public class Utils {
                 break;
             case "sdd":
                 shortPrefix = Constants.PREFIX_SDD;
+                break;
+            case "semanticdatadictionary":
+                shortPrefix = Constants.PREFIX_SEMANTIC_DATA_DICTIONARY;
+                break;
+            case "dp2":
+                shortPrefix = Constants.PREFIX_DP2;
+                break;
+            case "str":
+                shortPrefix = Constants.PREFIX_STR;
                 break;
             case "ins":
                 shortPrefix = Constants.PREFIX_INS;

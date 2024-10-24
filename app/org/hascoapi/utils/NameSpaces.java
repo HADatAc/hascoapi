@@ -23,13 +23,17 @@ public class NameSpaces {
     private String turtleNameSpaceList = "";
     private String sparqlNameSpaceList = "";
 
-    private static NameSpaces instance = null;
+    private static NameSpaces instance;
 
     public static NameSpaces getInstance() {
         if (instance == null) {
             instance = new NameSpaces();
         }
         return instance;
+    }
+
+    public static void resetNameSpaces() {
+        instance = null;
     }
 
     private List<NameSpace> InitiateNameSpaces() {
@@ -148,7 +152,7 @@ public class NameSpaces {
         HASCO_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
         HASCO_NAMESPACE.setHascoTypeUri(HASCO.ONTOLOGY);
         HASCO_NAMESPACE.setSourceMime("text/turtle");
-        HASCO_NAMESPACE.setSource("https://hadatac.org/ont/hasco/");
+        HASCO_NAMESPACE.setSource("https://hadatac.org/ont/hasco/1.2");
         HASCO_NAMESPACE.setComment("Human-Aware Science Ontology");
         HASCO_NAMESPACE.setVersion("1.0");
         HASCO_NAMESPACE.setPermanent(true);
@@ -162,7 +166,7 @@ public class NameSpaces {
         VSTOI_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
         VSTOI_NAMESPACE.setHascoTypeUri(HASCO.ONTOLOGY);
         VSTOI_NAMESPACE.setSourceMime("text/turtle");
-        VSTOI_NAMESPACE.setSource("https://hadatac.org/ont/vstoi#");
+        VSTOI_NAMESPACE.setSource("https://hadatac.org/ont/vstoi");
         VSTOI_NAMESPACE.setComment("Virtual Terrestrial Solar Observatory - Instruments");
         VSTOI_NAMESPACE.setVersion("1.0");
         VSTOI_NAMESPACE.setPermanent(true);

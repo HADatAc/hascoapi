@@ -302,7 +302,6 @@ public class Annotation extends HADatAcThing implements Comparable<Annotation>  
     }
     */
 
-
     @Override
     public int compareTo(Annotation another) {
         return this.getHasPosition().compareTo(another.getHasPosition());

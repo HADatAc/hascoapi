@@ -2,8 +2,10 @@ package org.hascoapi.entity.pojo;
 
 import java.io.*;
 import java.lang.reflect.Field;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -52,6 +54,8 @@ public abstract class HADatAcThing {
 
     @PropertyField(uri="rdfs:comment")
     String comment = "";
+
+    String nodeId = "";
 
     String field = "";
     String query = "";
@@ -151,6 +155,14 @@ public abstract class HADatAcThing {
 
     public void setLabel(String label) {
         this.label = label;
+    }
+
+    public String getNodeId() {
+        return nodeId;
+    }
+
+    public void setNodeId(String nodeId) {
+        this.nodeId = nodeId;
     }
 
     public String getField() {
@@ -284,7 +296,7 @@ public abstract class HADatAcThing {
     @JsonIgnore
     public void delete() { throw new NotImplementedException("Used unimplemented HADatAcThing.delete() method"); }
 
-    private Model generateRDFModel() {
+    private Model generateRDFModel(boolean withValidation) {
         Map<String, Object> row = new HashMap<String, Object>();
         List<Map<String, Object>> reversed_rows = new ArrayList<Map<String, Object>>();
 
@@ -308,12 +320,16 @@ public abstract class HADatAcThing {
                     if (field.isAnnotationPresent(Subject.class)) {
                         String uri = (String)field.get(this);
                         //System.out.println("inside HADatAcThing.saveToTripleStore(): has Subject.class annotation present. hasUri=[" + uri + "]");
-                        if (URIUtils.isValidURI(uri)) {
-                            row.put("hasURI", uri);
-                            //System.out.println("inside HADatAcThing.saveToTripleStore(): hasUri=[" + uri + "]");
+                        if (withValidation) {
+                            if (URIUtils.isValidURI(uri)) {
+                                row.put("hasURI", uri);
+                                //System.out.println("inside HADatAcThing.saveToTripleStore(): hasUri=[" + uri + "]");
+                            } else {
+                                System.out.println("[ERROR] URI [" + uri + "] IS NOT VALID");
+                                return null;
+                            }
                         } else {
-                            System.out.println("[ERROR] URI [" + uri + "] IS NOT VALID");
-                            return null;
+                            row.put("hasURI", uri);
                         }
                     }
 
@@ -456,13 +472,37 @@ public abstract class HADatAcThing {
         return null;
     }
 
+    // Create an 5-character string hash ID from an URL
+    public static String createUrlHash(String url) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hashBytes = digest.digest(url.getBytes());
+            String base64Hash = Base64.getEncoder().encodeToString(hashBytes);
+
+            // Make Base64 URL-safe by replacing '+' and '/' with '-' and '_', and removing '=' padding
+            String urlSafeHash = base64Hash.replace("+", "-").replace("/", "_").replace("=", "");
+
+            // Return only the first 5 characters of the URL-safe hash
+            return urlSafeHash.substring(0, Math.min(5, urlSafeHash.length()));
+        } catch (Exception e) {
+            System.err.println("Error occurred while creating URL-safe hash.");
+            e.printStackTrace();
+            return "";
+        }
+    }
+
     @SuppressWarnings("unchecked")
     public boolean saveToTripleStore() {
+        return saveToTripleStore(true);
+    }
+
+    @SuppressWarnings("unchecked")
+    public boolean saveToTripleStore(boolean withValidation) {
         //System.out.println("inside HADatAcThing.saveToTripleStore(): calling deleteFromTripleStore().");
         deleteFromTripleStore();
 
         //Model model = MetadataFactory.createModel(reversed_rows, getNamedGraph());
-        Model model = generateRDFModel();
+        Model model = generateRDFModel(withValidation);
         if (model == null) {
             System.out.println("[ERROR] inside HADatAcThing.saveToTripleStore(): MetadataFactory.commitModelToTripleStore() received EMPTY model");
         }

@@ -15,7 +15,7 @@ import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.entity.pojo.Deployment;
 import org.hascoapi.entity.pojo.HADatAcThing;
 //import org.hascoapi.entity.pojo.Measurement;
-import org.hascoapi.entity.pojo.STR;
+import org.hascoapi.entity.pojo.Stream;
 import org.hascoapi.utils.URIUtils;
 import org.hascoapi.utils.ConfigProp;
 import org.hascoapi.utils.Templates;
@@ -179,7 +179,7 @@ public class STRMessageGenerator extends BaseGenerator {
 		row.put("hasco:hasPort", getPort(rec));
 		row.put("hasco:isDataAcquisitionOf", study.getUri());
 		row.put("hasco:hasSchemaSpec", URIUtils.replacePrefixEx(getSdd(rec)));
-        row.put("hasco:hasMessageStatus", STR.SUSPENDED);
+        row.put("hasco:hasMessageStatus", Stream.SUSPENDED);
 		if (startTime.isEmpty()) {
 			row.put("prov:startedAtTime", (new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")).format(new Date()));
 		} else {
@@ -224,19 +224,19 @@ public class STRMessageGenerator extends BaseGenerator {
 	    return createSTR(row, ownerEmail, permissionUri);
     }
 
-    private STR createSTR(
+    private Stream createSTR(
             Map<String, Object> row, 
             String ownerEmail, 
             String permissionUri) throws Exception {
 
-        STR str = new STR();
+        Stream str = new Stream();
 
         str.setUri(URIUtils.replacePrefixEx((String)row.get("hasURI")));
         //String message = "createStr [1/5] - Creating STR with URI=" + str.getUri();
         //logger.println(message);
         str.setLabel(URIUtils.replacePrefixEx((String)row.get("rdfs:label")));
         str.setStudyUri(URIUtils.replacePrefixEx((String)row.get("hasco:isDataAcquisitionOf")));
-        str.setSchemaUri(URIUtils.replacePrefixEx((String)row.get("hasco:hasSchemaSpec")));
+        str.setSDDUri(URIUtils.replacePrefixEx((String)row.get("hasco:hasSchemaSpec")));
         str.setTriggeringEvent(TriggeringEvent.INITIAL_DEPLOYMENT);
         // TODO
         //str.setNumberDataPoints(Measurement.getNumByDataAcquisition(str));
@@ -252,9 +252,9 @@ public class STRMessageGenerator extends BaseGenerator {
         str.addCellScopeUri("STREAM");
         String pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
         if (startTime.isEmpty()) {
-            str.setStartedAt(new DateTime(new Date()));
+            //str.setStartedAt(new DateTime(new Date()));
         } else {
-            str.setStartedAt(DateTimeFormat.forPattern(pattern).parseDateTime(startTime));
+            //str.setStartedAt(DateTimeFormat.forPattern(pattern).parseDateTime(startTime));
         }
 
         //message = "createStr [3/5] - Specified owner email: [" + ownerEmail + "]";
@@ -269,11 +269,6 @@ public class STRMessageGenerator extends BaseGenerator {
         }
         */
 
-        str.setPlatformUri("");
-        str.setPlatformName("");
-        str.setInstrumentUri("");
-        str.setInstrumentModel("");
-        
         str.setStatus(9999);
 
         return str;

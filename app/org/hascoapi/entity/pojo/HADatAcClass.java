@@ -9,6 +9,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Base64;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSetRewindable;
@@ -19,6 +23,7 @@ import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.query.ResultSetFormatter;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.hascoapi.utils.CollectionUtil;
@@ -33,7 +38,7 @@ import org.hascoapi.annotations.PropertyField;
 import org.hascoapi.annotations.ReversedPropertyField;
 import org.hascoapi.annotations.Subject;
 
-
+@JsonFilter("hascoClassFilter")
 public class HADatAcClass extends HADatAcThing {
 
     String className = "";
@@ -46,6 +51,10 @@ public class HADatAcClass extends HADatAcThing {
     public  List<String> isDomainOf = null;
     public  List<String> isRangeOf = null;
     public  List<String> isDisjointWith = null;
+
+    public HADatAcClass () {
+        this.className = "";
+    }
 
     public HADatAcClass (String currentClassName) {
         if (currentClassName == null) {
@@ -83,17 +92,6 @@ public class HADatAcClass extends HADatAcThing {
         this.superUri = superUri;
     }
 
-    //public String getLabel() {
-    //    return label;
-    //}
-
-    //public void setLabel(String label) {
-    //    if (label == null) {
-    //        label = "";
-    //    }
-    //    this.label = label;
-    //}
-
     public String getLocalName() {
         return localName;
     }
@@ -104,17 +102,6 @@ public class HADatAcClass extends HADatAcThing {
         }
         this.localName = localName;
     }
-
-    //public String getComment() {
-    //    return comment;
-    //}
-
-    //public void setComment(String comment) {
-    //    if (comment == null) {
-    //        comment = "";
-    //    }
-    //    this.comment = comment;
-    //}
 
     public List<String> getIsDomainOf() {
         return isDomainOf;
@@ -175,7 +162,6 @@ public class HADatAcClass extends HADatAcThing {
         }
         return superType.getLabel();
     }
-
 
     public List<HADatAcClass> findGeneric() {
         List<HADatAcClass> typeClasses = new ArrayList<HADatAcClass>();
@@ -278,6 +264,60 @@ public class HADatAcClass extends HADatAcThing {
         return typeClass;
     }
 
+    public static HADatAcClass lightWeightedFind(String classUri) {
+        HADatAcClass typeClass = null;
+        Statement statement;
+        RDFNode subject;
+        RDFNode object;
+
+        String queryString = "DESCRIBE <" + classUri + ">";
+        Model model = SPARQLUtils.describe(CollectionUtil.getCollectionPath(
+                CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+        StmtIterator stmtIterator = model.listStatements();
+
+        // returns null if not statement is found
+        if (!stmtIterator.hasNext()) {
+            return typeClass;
+        }
+
+        typeClass = new HADatAcClass("");
+
+        while (stmtIterator.hasNext()) {
+            statement = stmtIterator.next();
+            subject = statement.getSubject();
+            object = statement.getObject();
+            //System.out.println("pred: " + statement.getPredicate().getURI());
+            String predUri = statement.getPredicate().getURI();
+            if (predUri.equals(RDFS.LABEL)) {
+                typeClass.setLabel(object.asLiteral().getString());
+            } else if (predUri.equals(RDF.TYPE)) {
+                String objUri = object.asResource().getURI();
+                //System.out.println("obj: " + objUri);
+                if (objUri != null && !objUri.equals(classUri)) {
+                    typeClass.setTypeUri(objUri);
+                }
+            } else if (predUri.equals(RDFS.SUBCLASS_OF)) {
+                String objUri = object.asResource().getURI();
+                //System.out.println("is subClass of [" + objUri + "]");
+                if (objUri != null && !objUri.equals(classUri)) {
+                    typeClass.setSuperUri(objUri);
+                }
+            } else if (predUri.equals(RDFS.COMMENT) ||
+                       predUri.equals(PROV.DEFINITION)) {
+                String textStr = object.asLiteral().getString();
+                if (textStr != null) {
+                    typeClass.setComment(textStr);
+                }
+            }
+        }
+
+        typeClass.setUri(classUri);
+        typeClass.setLocalName(classUri.substring(classUri.indexOf('#') + 1));
+
+        return typeClass;
+    }
+
     @JsonIgnore
     public String getHierarchyJson() {
         //System.out.println("Inside HADatAcClass's getHierarchyJson: [" + className + "]");
@@ -330,10 +370,12 @@ public class HADatAcClass extends HADatAcThing {
         return "";
     }
 
+    @JsonIgnore
     public TreeNode getSuperClasses() {
         ArrayList<TreeNode> branchCollection = new ArrayList<TreeNode>();
         if (this.uri == null) {
-            return null;
+            // return null;
+            return new TreeNode("");
         }
         HADatAcClass current = find(this.uri);
         while (current != null) {
@@ -353,11 +395,13 @@ public class HADatAcClass extends HADatAcThing {
         }
         TreeNode result = buildTree(branchCollection);
         if (result.getChildren() == null || result.getChildren().size() <= 0) {
-            return null;
+            return new TreeNode("");
+            //return null;
         }
         return result.getChildren().get(0);
     }
 
+    @JsonIgnore
     public TreeNode getSubClasses() {
         String node = null;
         String nodeLabel = null;
@@ -407,15 +451,39 @@ public class HADatAcClass extends HADatAcThing {
             if (result.getChildren() == null || result.getChildren().size() <= 0) {
                 return new TreeNode("");
             }
+            if (result.getChildren().get(0) == null) {
+                return new TreeNode("");
+            }
             return result.getChildren().get(0);
 
         } catch (Exception e) {
             e.printStackTrace();
+            return new TreeNode("");
         }
-
-        return new TreeNode("");
     }
 
+    public static List<HADatAcClass> getImmediateSubclasses(String superUri) {
+        //System.out.println("HADatAcClass.ImmediateSubClasses of [" + superUri + "]");
+        List<HADatAcClass> subclasses = new ArrayList<HADatAcClass>();
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                "SELECT ?uri WHERE { " +
+                "   ?uri rdfs:subClassOf <" + superUri + "> .  " +
+                "} " + 
+                " ORDER BY ASC(?uri) ";
+
+        ResultSetRewindable resultsrw = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+        while (resultsrw.hasNext()) {
+            QuerySolution soln = resultsrw.next();
+            HADatAcClass subclass = HADatAcClass.find(soln.getResource("uri").getURI());
+            subclass.setNodeId(HADatAcThing.createUrlHash(subclass.getUri()));
+            subclasses.add(subclass);
+        }
+
+        return subclasses;
+    }
+    
     @JsonIgnore
     public List<GenericInstance> getInstances() {
         List<GenericInstance> instances = new ArrayList<GenericInstance>();

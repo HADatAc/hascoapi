@@ -36,7 +36,7 @@ public class InstrumentAPI extends Controller {
         if (testInstrument != null) {
             return ok(ApiUtil.createResponse("Test instrument <" + TEST_INSTRUMENT_URI + "> already exists.", false));
         } else {
-            testInstrument = new Instrument();
+            testInstrument = new Instrument(VSTOI.INSTRUMENT);
             testInstrument.setUri(TEST_INSTRUMENT_URI);
             testInstrument.setLabel("Test Instrument");
             testInstrument.setTypeUri(VSTOI.QUESTIONNAIRE);

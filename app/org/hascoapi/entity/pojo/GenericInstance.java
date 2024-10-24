@@ -20,6 +20,7 @@ import org.hascoapi.utils.SPARQLUtils;
 import org.hascoapi.utils.URIUtils;
 import org.hascoapi.vocabularies.RDF;
 import org.hascoapi.vocabularies.RDFS;
+import org.hascoapi.vocabularies.VSTOI;
 
 public class GenericInstance extends HADatAcThing implements Comparable<GenericInstance> {
 
@@ -50,6 +51,42 @@ public class GenericInstance extends HADatAcThing implements Comparable<GenericI
         }
         return pltType.getLabel();
     }
+
+    public String getHascoType(String uri) {
+        String platformQuery = NameSpaces.getInstance().printSparqlNameSpaceList();
+        platformQuery += " select ?uri where { " +
+                " ?uri rdfs:subClassOf* vstoi:Platform . " +
+                "}";
+        if (execQuery(platformQuery)) {
+            return VSTOI.PLATFORM;
+        }
+        String instrumentQuery = NameSpaces.getInstance().printSparqlNameSpaceList();
+        instrumentQuery += " select ?uri where { " +
+                " ?uri rdfs:subClassOf* vstoi:Instrument . " +
+                "}";
+        if (execQuery(instrumentQuery)) {
+            return VSTOI.INSTRUMENT;
+        }
+        String detectorQuery = NameSpaces.getInstance().printSparqlNameSpaceList();
+        detectorQuery += " select ?uri where { " +
+                " ?uri rdfs:subClassOf* vstoi:Detector . " +
+                "}";
+        if (execQuery(detectorQuery)) {
+            return VSTOI.DETECTOR;
+        }
+        return null;
+    }
+
+    private boolean execQuery(String query) {
+        try {
+            ResultSetRewindable resultsrw = SPARQLUtils.select(CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), query);
+            return resultsrw.hasNext();
+        } catch (Exception e) { 
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 
     public static GenericInstance find(String uri) {
         GenericInstance instance = null;
@@ -85,6 +122,8 @@ public class GenericInstance extends HADatAcThing implements Comparable<GenericI
         }
 
         instance.setUri(uri);
+
+        instance.setNodeId(HADatAcThing.createUrlHash(uri));
 
         //System.out.println("GenericInstance.find() instance's URI is [" + instance.getUri() + "] and type is [" + instance.getTypeUri() + "]");
 

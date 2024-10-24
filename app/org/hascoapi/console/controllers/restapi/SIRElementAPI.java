@@ -21,7 +21,7 @@ public class SIRElementAPI extends Controller {
      */
 
     public Result createElement(String elementType, String json) {
-        //System.out.println("Type: [" + elementType + "]  JSON [" + json + "]");
+        System.out.println("Type: [" + elementType + "]  JSON [" + json + "]");
         if (json == null || json.equals("")) {
             return ok(ApiUtil.createResponse("No json content has been provided.", false));
         }
@@ -29,7 +29,6 @@ public class SIRElementAPI extends Controller {
             return ok(ApiUtil.createResponse("No elementType has been provided", false));
         }
         Class clazz = GenericFind.getElementClass(elementType);
-        //System.out.println("Clazz: [" + clazz + "]");
         if (clazz == null) {
             return ok(ApiUtil.createResponse("No valid elementType has been provided", false));
         }
@@ -43,6 +42,37 @@ public class SIRElementAPI extends Controller {
                 object.save();
             } catch (JsonProcessingException e) {
                 message = e.getMessage();
+                e.printStackTrace();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == InstrumentInstance.class) {
+            InstrumentInstance object;
+            try {
+                object = (InstrumentInstance)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                e.printStackTrace();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == DetectorInstance.class) {
+            DetectorInstance object;
+            try {
+                object = (DetectorInstance)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                e.printStackTrace();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == PlatformInstance.class) {
+            PlatformInstance object;
+            try {
+                object = (PlatformInstance)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                e.printStackTrace();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
         } else if (clazz == Subcontainer.class) {
@@ -210,6 +240,65 @@ public class SIRElementAPI extends Controller {
                 message = e.getMessage();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
+        } else if (clazz == SemanticDataDictionary.class) {
+            try {
+                SemanticDataDictionary object;
+                object = (SemanticDataDictionary)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == SDDAttribute.class) {
+            try {
+                SDDAttribute object;
+                object = (SDDAttribute)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                e.printStackTrace();
+                return ok(ApiUtil.createResponse("Following JSON Exception while parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            } catch (Exception e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == SDDObject.class) {
+            try {
+                SDDObject object;
+                object = (SDDObject)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == PossibleValue.class) {
+            try {
+                PossibleValue object;
+                object = (PossibleValue)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                e.printStackTrace();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == DP2.class) {
+            try {
+                DP2 object;
+                object = (DP2)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == STR.class) {
+            try {
+                STR object;
+                object = (STR)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
         } else if (clazz == DataFile.class) {
             try {
                 DataFile object;
@@ -225,7 +314,6 @@ public class SIRElementAPI extends Controller {
                 object = (DSG)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
-                System.out.println("Error processing DSG: " + e.getMessage());
                 message = e.getMessage();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
@@ -271,7 +359,36 @@ public class SIRElementAPI extends Controller {
                 object = (VirtualColumn)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
-                System.out.println("Error processing VirtualColumn: " + e.getMessage());
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == Platform.class) {
+            try {
+                Platform object;
+                object = (Platform)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                System.out.println("Error processing Platform: " + e.getMessage());
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == Stream.class) {
+            try {
+                Stream object;
+                object = (Stream)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                System.out.println("Error processing Stream: " + e.getMessage());
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == Deployment.class) {
+            try {
+                Deployment object;
+                object = (Deployment)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                System.out.println("Error processing Deployment: " + e.getMessage());
                 message = e.getMessage();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
@@ -350,6 +467,24 @@ public class SIRElementAPI extends Controller {
         }
         if (clazz == Instrument.class) {
             Instrument object = Instrument.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == InstrumentInstance.class) {
+            InstrumentInstance object = InstrumentInstance.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == DetectorInstance.class) {
+            DetectorInstance object = DetectorInstance.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == PlatformInstance.class) {
+            PlatformInstance object = PlatformInstance.find(uri);
             if (object == null) {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
@@ -474,6 +609,42 @@ public class SIRElementAPI extends Controller {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
+        } else if (clazz == SemanticDataDictionary.class) {
+            SemanticDataDictionary object = SemanticDataDictionary.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == SDDAttribute.class) {
+            SDDAttribute object = SDDAttribute.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == SDDObject.class) {
+            SDDObject object = SDDObject.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == PossibleValue.class) {
+            PossibleValue object = PossibleValue.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == DP2.class) {
+            DP2 object = DP2.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == STR.class) {
+            STR object = STR.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
         } else if (clazz == DataFile.class) {
             DataFile object = DataFile.find(uri);
             if (object == null) {
@@ -512,6 +683,24 @@ public class SIRElementAPI extends Controller {
             object.delete();
         } else if (clazz == VirtualColumn.class) {
             VirtualColumn object = VirtualColumn.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == Platform.class) {
+            Platform object = Platform.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == Stream.class) {
+            Stream object = Stream.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == Deployment.class) {
+            Deployment object = Deployment.find(uri);
             if (object == null) {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
@@ -605,6 +794,18 @@ public class SIRElementAPI extends Controller {
             GenericFind<Instrument> query = new GenericFind<Instrument>();
             List<Instrument> results = query.findByKeywordWithPages(Instrument.class,keyword, pageSize, offset);
             return InstrumentAPI.getInstruments(results);
+        } else if (elementType.equals("instrumentinstance")) {
+            GenericFind<InstrumentInstance> query = new GenericFind<InstrumentInstance>();
+            List<InstrumentInstance> results = query.findByKeywordWithPages(InstrumentInstance.class,keyword, pageSize, offset);
+            return VSTOIInstanceAPI.getInstrumentInstances(results);
+        } else if (elementType.equals("detectorinstance")) {
+            GenericFind<DetectorInstance> query = new GenericFind<DetectorInstance>();
+            List<DetectorInstance> results = query.findByKeywordWithPages(DetectorInstance.class,keyword, pageSize, offset);
+            return VSTOIInstanceAPI.getDetectorInstances(results);
+        } else if (elementType.equals("platforminstance")) {
+            GenericFind<PlatformInstance> query = new GenericFind<PlatformInstance>();
+            List<PlatformInstance> results = query.findByKeywordWithPages(PlatformInstance.class,keyword, pageSize, offset);
+            return VSTOIInstanceAPI.getPlatformInstances(results);
         } else if (elementType.equals("detectorstem")) {
             GenericFind<DetectorStem> query = new GenericFind<DetectorStem>();
             List<DetectorStem> results = query.findByKeywordWithPages(DetectorStem.class,keyword, pageSize, offset);
@@ -656,12 +857,31 @@ public class SIRElementAPI extends Controller {
         }  else if (elementType.equals("dd")) {
             GenericFind<DD> query = new GenericFind<DD>();
             List<DD> results = query.findByKeywordWithPages(DD.class,keyword, pageSize, offset);
-            //System.out.println("Size results: " + results.size());
             return DDAPI.getDDs(results);
         }  else if (elementType.equals("sdd")) {
             GenericFind<SDD> query = new GenericFind<SDD>();
             List<SDD> results = query.findByKeywordWithPages(SDD.class,keyword, pageSize, offset);
             return SDDAPI.getSDDs(results);
+        }  else if (elementType.equals("semanticdatadictionary")) {
+            GenericFind<SemanticDataDictionary> query = new GenericFind<SemanticDataDictionary>();
+            List<SemanticDataDictionary> results = query.findByKeywordWithPages(SemanticDataDictionary.class,keyword, pageSize, offset);
+            return SemanticDataDictionaryAPI.getSemanticDataDictionaries(results);
+        }  else if (elementType.equals("sddattribute")) {
+            GenericFind<SDDAttribute> query = new GenericFind<SDDAttribute>();
+            List<SDDAttribute> results = query.findByKeywordWithPages(SDDAttribute.class,keyword, pageSize, offset);
+            return SemanticDataDictionaryAPI.getSDDAttributes(results);
+        }  else if (elementType.equals("sddobject")) {
+            GenericFind<SDDObject> query = new GenericFind<SDDObject>();
+            List<SDDObject> results = query.findByKeywordWithPages(SDDObject.class,keyword, pageSize, offset);
+            return SemanticDataDictionaryAPI.getSDDObjects(results);
+        }  else if (elementType.equals("dp2")) {
+            GenericFind<DP2> query = new GenericFind<DP2>();
+            List<DP2> results = query.findByKeywordWithPages(DP2.class,keyword, pageSize, offset);
+            return DP2API.getDP2s(results);
+        }  else if (elementType.equals("str")) {
+            GenericFind<STR> query = new GenericFind<STR>();
+            List<STR> results = query.findByKeywordWithPages(STR.class,keyword, pageSize, offset);
+            return STRAPI.getSTRs(results);
         }  else if (elementType.equals("datafile")) {
             GenericFind<DataFile> query = new GenericFind<DataFile>();
             List<DataFile> results = query.findByKeywordWithPages(DataFile.class,keyword, pageSize, offset);
@@ -690,6 +910,18 @@ public class SIRElementAPI extends Controller {
             GenericFind<VirtualColumn> query = new GenericFind<VirtualColumn>();
             List<VirtualColumn> results = query.findByKeywordWithPages(VirtualColumn.class,keyword, pageSize, offset);
             return VirtualColumnAPI.getVirtualColumns(results);
+        }  else if (elementType.equals("platform")) {
+            GenericFind<Platform> query = new GenericFind<Platform>();
+            List<Platform> results = query.findByKeywordWithPages(Platform.class,keyword, pageSize, offset);
+            return PlatformAPI.getPlatforms(results);
+        }  else if (elementType.equals("stream")) {
+            GenericFind<Stream> query = new GenericFind<Stream>();
+            List<Stream> results = query.findByKeywordWithPages(Stream.class,keyword, pageSize, offset);
+            return StreamAPI.getStreams(results);
+        }  else if (elementType.equals("deployment")) {
+            GenericFind<Deployment> query = new GenericFind<Deployment>();
+            List<Deployment> results = query.findByKeywordWithPages(Deployment.class,keyword, pageSize, offset);
+            return DeploymentAPI.getDeployments(results);
         }  else if (elementType.equals("person")) {
             GenericFind<Person> query = new GenericFind<Person>();
             List<Person> results = query.findByKeywordWithPages(Person.class,keyword, pageSize, offset);
@@ -788,6 +1020,7 @@ public class SIRElementAPI extends Controller {
             GenericFind<Unit> query = new GenericFind<Unit>();
             List<Unit> results = query.findByKeywordAndLanguageWithPages(Unit.class, keyword, language, pageSize, offset);
             return UnitAPI.getUnits(results);
+        /* NOTE: THE CLASSES BELOW DO NOT HAVE LANGUAGE PROPERTY 
         }  else if (elementType.equals("ins")) {
             GenericFind<INS> query = new GenericFind<INS>();
             List<INS> results = query.findByKeywordAndLanguageWithPages(INS.class, keyword, language, pageSize, offset);
@@ -804,6 +1037,14 @@ public class SIRElementAPI extends Controller {
             GenericFind<SDD> query = new GenericFind<SDD>();
             List<SDD> results = query.findByKeywordAndLanguageWithPages(SDD.class, keyword, language, pageSize, offset);
             return SDDAPI.getSDDs(results);
+        }  else if (elementType.equals("dp2")) {
+            GenericFind<DP2> query = new GenericFind<DP2>();
+            List<DP2> results = query.findByKeywordAndLanguageWithPages(DP2.class, keyword, language, pageSize, offset);
+            return DP2API.getDP2s(results);
+        }  else if (elementType.equals("str")) {
+            GenericFind<STR> query = new GenericFind<STR>();
+            List<STR> results = query.findByKeywordAndLanguageWithPages(STR.class, keyword, language, pageSize, offset);
+            return STRAPI.getSTRs(results);
         }  else if (elementType.equals("datafile")) {
             GenericFind<DataFile> query = new GenericFind<DataFile>();
             List<DataFile> results = query.findByKeywordAndLanguageWithPages(DataFile.class, keyword, language, pageSize, offset);
@@ -852,6 +1093,7 @@ public class SIRElementAPI extends Controller {
             GenericFind<KGR> query = new GenericFind<KGR>();
             List<KGR> results = query.findByKeywordAndLanguageWithPages(KGR.class, keyword, language, pageSize, offset);
             return KGRAPI.getKGRs(results);
+        */
         } 
         return ok("[getElementsByKeywordAndLanguageWithPage] No valid element type.");
     }
@@ -895,6 +1137,18 @@ public class SIRElementAPI extends Controller {
             GenericFind<Instrument> query = new GenericFind<Instrument>();
             List<Instrument> results = query.findByManagerEmailWithPages(Instrument.class, managerEmail, pageSize, offset);
             return InstrumentAPI.getInstruments(results);
+        } else if (elementType.equals("instrumentinstance")) {
+            GenericFind<InstrumentInstance> query = new GenericFind<InstrumentInstance>();
+            List<InstrumentInstance> results = query.findByManagerEmailWithPages(InstrumentInstance.class, managerEmail, pageSize, offset);
+            return VSTOIInstanceAPI.getInstrumentInstances(results);
+        } else if (elementType.equals("detectorinstance")) {
+            GenericFind<DetectorInstance> query = new GenericFind<DetectorInstance>();
+            List<DetectorInstance> results = query.findByManagerEmailWithPages(DetectorInstance.class, managerEmail, pageSize, offset);
+            return VSTOIInstanceAPI.getDetectorInstances(results);
+        } else if (elementType.equals("platforminstance")) {
+            GenericFind<PlatformInstance> query = new GenericFind<PlatformInstance>();
+            List<PlatformInstance> results = query.findByManagerEmailWithPages(PlatformInstance.class, managerEmail, pageSize, offset);
+            return VSTOIInstanceAPI.getPlatformInstances(results);
         }  else if (elementType.equals("detectorstem")) {
             GenericFind<DetectorStem> query = new GenericFind<DetectorStem>();
             List<DetectorStem> results = query.findByManagerEmailWithPages(DetectorStem.class, managerEmail, pageSize, offset);
@@ -935,6 +1189,18 @@ public class SIRElementAPI extends Controller {
             GenericFind<SDD> query = new GenericFind<SDD>();
             List<SDD> results = query.findByManagerEmailWithPages(SDD.class, managerEmail, pageSize, offset);
             return SDDAPI.getSDDs(results);
+        }  else if (elementType.equals("semanticdatadictionary")) {
+            GenericFind<SemanticDataDictionary> query = new GenericFind<SemanticDataDictionary>();
+            List<SemanticDataDictionary> results = query.findByManagerEmailWithPages(SemanticDataDictionary.class, managerEmail, pageSize, offset);
+            return SemanticDataDictionaryAPI.getSemanticDataDictionaries(results);
+        }  else if (elementType.equals("dp2")) {
+            GenericFind<DP2> query = new GenericFind<DP2>();
+            List<DP2> results = query.findByManagerEmailWithPages(DP2.class, managerEmail, pageSize, offset);
+            return DP2API.getDP2s(results);
+        }  else if (elementType.equals("str")) {
+            GenericFind<STR> query = new GenericFind<STR>();
+            List<STR> results = query.findByManagerEmailWithPages(STR.class, managerEmail, pageSize, offset);
+            return STRAPI.getSTRs(results);
         }  else if (elementType.equals("datafile")) {
             GenericFind<DataFile> query = new GenericFind<DataFile>();
             List<DataFile> results = query.findByManagerEmailWithPages(DataFile.class, managerEmail, pageSize, offset);
@@ -963,6 +1229,18 @@ public class SIRElementAPI extends Controller {
             GenericFind<VirtualColumn> query = new GenericFind<VirtualColumn>();
             List<VirtualColumn> results = query.findByManagerEmailWithPages(VirtualColumn.class, managerEmail, pageSize, offset);
             return VirtualColumnAPI.getVirtualColumns(results);
+        }  else if (elementType.equals("platform")) {
+            GenericFind<Platform> query = new GenericFind<Platform>();
+            List<Platform> results = query.findByManagerEmailWithPages(Platform.class, managerEmail, pageSize, offset);
+            return PlatformAPI.getPlatforms(results);
+        }  else if (elementType.equals("stream")) {
+            GenericFind<Stream> query = new GenericFind<Stream>();
+            List<Stream> results = query.findByManagerEmailWithPages(Stream.class, managerEmail, pageSize, offset);
+            return StreamAPI.getStreams(results);
+        }  else if (elementType.equals("deployment")) {
+            GenericFind<Deployment> query = new GenericFind<Deployment>();
+            List<Deployment> results = query.findByManagerEmailWithPages(Deployment.class, managerEmail, pageSize, offset);
+            return DeploymentAPI.getDeployments(results);
         }  else if (elementType.equals("person")) {
             GenericFind<Person> query = new GenericFind<Person>();
             List<Person> results = query.findByManagerEmailWithPages(Person.class, managerEmail, pageSize, offset);
@@ -1043,6 +1321,19 @@ public class SIRElementAPI extends Controller {
         //    return ok(ApiUtil.createResponse(totalDetectorsJSON, true));
         //}
         return ok("[derivation] No valid element type.");
+    }
+
+    public Result hascoType(String classUri){
+        if (classUri == null || classUri.isEmpty()) {
+            return ok("[hascoType] No valid classUri has been provided.");
+        }
+        GenericInstance instance = new GenericInstance();
+        String response = instance.getHascoType(classUri);
+        if (response != null) {
+            String respJSON = "{\"hascoType\":\"" + response + "\"}";
+            return ok(ApiUtil.createResponse(respJSON, true));
+        }     
+        return ok("No recognizable HASCO type.");
     }
 
 }

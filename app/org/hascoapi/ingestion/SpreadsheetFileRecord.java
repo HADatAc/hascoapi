@@ -20,7 +20,11 @@ public class SpreadsheetFileRecord implements Record {
         String value = "";
         try {
             Cell c = row.getCell(getColumnIndexByName(columnName));
-            value = getCellValueAsString(c);
+            if (c.getHyperlink() != null) {
+                value = c.getHyperlink().getAddress();
+            } else {
+                value = getCellValueAsString(c);
+            }
         } catch (Exception e) {
             // System.out.println("row " + row.getRowNum() + ", column name " + columnName + " not found!");
         }

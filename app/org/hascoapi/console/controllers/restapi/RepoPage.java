@@ -86,8 +86,30 @@ public class RepoPage extends Controller {
         RepositoryInstance.getInstance().setHasNamespaceAbbreviation(abbreviation);
         RepositoryInstance.getInstance().setHasNamespaceURL(url);
         RepositoryInstance.getInstance().save();
-        NameSpaces.getInstance().updateLocalNamespace();
+        NameSpaces.getInstance().resetNameSpaces();;
         return ok(ApiUtil.createResponse("Repository's local namespace has been UPDATED.", true));
+    }
+
+    public Result createNamespace(String json){
+        if (json == null || json.equals("")) {
+            return ok(ApiUtil.createResponse("No JSON has been provided.", false));
+        }
+        if (RepositoryInstance.getInstance().newNamespace(json)) {
+            RepositoryInstance.getInstance().save();
+            NameSpaces.getInstance().resetNameSpaces();
+            return ok(ApiUtil.createResponse("New namespace has been added to the repository.", true));
+        } else {
+            return ok(ApiUtil.createResponse("Failed to add new namespace into the repository.", false));
+        }
+    }
+
+    public Result resetNamespaces(){
+        if (RepositoryInstance.getInstance().resetNamespaces()) {
+            NameSpaces.getInstance().resetNameSpaces();;
+            return ok(ApiUtil.createResponse("Namespaces have been reset.", true));
+        } else {
+            return ok(ApiUtil.createResponse("Failed to reset namespaces.", false));
+        }
     }
 
     public Result deleteSelectedNamespace(String abbreviation){
@@ -95,6 +117,7 @@ public class RepoPage extends Controller {
             return ok(ApiUtil.createResponse("No Namespace's ABBREVIATION has been provided.", false));
         }
         String response = NameSpace.deleteNamespace(abbreviation);
+        NameSpaces.getInstance().resetNameSpaces();;
         if (response.isEmpty()) {
             return ok(ApiUtil.createResponse("Namespace [" + abbreviation + "] has been DELETED.", true));
         } else {

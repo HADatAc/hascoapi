@@ -33,6 +33,12 @@ public class GenericFind<T> {
         
         if (elementType.equals("instrument")) {
             return Instrument.class;
+        } else if (elementType.equals("instrumentinstance")) {
+            return InstrumentInstance.class;
+        } else if (elementType.equals("detectorinstance")) {
+            return DetectorInstance.class;
+        } else if (elementType.equals("platforminstance")) {
+            return PlatformInstance.class;
         } else if (elementType.equals("subcontainer")) {
             return Subcontainer.class;
         } else if (elementType.equals("slotelement")) {
@@ -75,6 +81,18 @@ public class GenericFind<T> {
             return DD.class;
         } else if (elementType.equals("sdd")) {
             return SDD.class;
+        } else if (elementType.equals("sddattribute")) {
+            return SDDAttribute.class;
+        } else if (elementType.equals("sddobject")) {
+            return SDDObject.class;
+        } else if (elementType.equals("possiblevalue")) {
+            return PossibleValue.class;
+        } else if (elementType.equals("semanticdatadictionary")) {
+            return SemanticDataDictionary.class;
+        } else if (elementType.equals("dp2")) {
+            return DP2.class;
+        } else if (elementType.equals("str")) {
+            return STR.class;
         } else if (elementType.equals("datafile")) {
             return DataFile.class;
         } else if (elementType.equals("dsg")) {
@@ -89,6 +107,12 @@ public class GenericFind<T> {
             return StudyRole.class;
         } else if (elementType.equals("virtualcolumn")) {
             return VirtualColumn.class;
+        } else if (elementType.equals("platform")) {
+            return Platform.class;
+        } else if (elementType.equals("stream")) {
+            return Stream.class;
+        } else if (elementType.equals("deployment")) {
+            return Deployment.class;
         } else if (elementType.equals("person")) {
             return Person.class;
         } else if (elementType.equals("organization")) {
@@ -105,16 +129,14 @@ public class GenericFind<T> {
 
 
     private static String classNameWithNamespace (Class clazz) {
-        if (clazz == Instrument.class) {
-            return URIUtils.replaceNameSpace(VSTOI.INSTRUMENT);
-        } else if (clazz == Subcontainer.class) {
-            return URIUtils.replaceNameSpace(VSTOI.SUBCONTAINER);
+        if (clazz == InstrumentInstance.class) {
+            return URIUtils.replaceNameSpace(VSTOI.INSTRUMENT_INSTANCE);
+        } else if (clazz == DetectorInstance.class) {
+            return URIUtils.replaceNameSpace(VSTOI.DETECTOR_INSTANCE);
+        } else if (clazz == PlatformInstance.class) {
+            return URIUtils.replaceNameSpace(VSTOI.PLATFORM_INSTANCE);
         } else if (clazz == ContainerSlot.class) {
             return URIUtils.replaceNameSpace(VSTOI.CONTAINER_SLOT);
-        } else if (clazz == DetectorStem.class) {
-            return URIUtils.replaceNameSpace(VSTOI.DETECTOR_STEM);
-        } else if (clazz == Detector.class) {
-            return URIUtils.replaceNameSpace(VSTOI.DETECTOR);
         } else if (clazz == Codebook.class) {
             return URIUtils.replaceNameSpace(VSTOI.CODEBOOK);
         } else if (clazz == CodebookSlot.class) {
@@ -127,12 +149,6 @@ public class GenericFind<T> {
             return URIUtils.replaceNameSpace(VSTOI.ANNOTATION);
         } else if (clazz == SemanticVariable.class) {
             return URIUtils.replaceNameSpace(HASCO.SEMANTIC_VARIABLE);
-        } else if (clazz == Entity.class) {
-            return URIUtils.replaceNameSpace(SIO.ENTITY);
-        } else if (clazz == Attribute.class) {
-            return URIUtils.replaceNameSpace(SIO.ATTRIBUTE);
-        } else if (clazz == Unit.class) {
-            return URIUtils.replaceNameSpace(SIO.UNIT);
         } else if (clazz == Agent.class) {
             return URIUtils.replaceNameSpace(HASCO.AGENT);
         } else if (clazz == INS.class) {
@@ -143,6 +159,18 @@ public class GenericFind<T> {
             return URIUtils.replaceNameSpace(HASCO.DD);
         } else if (clazz == SDD.class) {
             return URIUtils.replaceNameSpace(HASCO.SDD);
+        } else if (clazz == SemanticDataDictionary.class) {
+            return URIUtils.replaceNameSpace(HASCO.SEMANTIC_DATA_DICTIONARY);
+        } else if (clazz == SDDAttribute.class) {
+            return URIUtils.replaceNameSpace(HASCO.SDD_ATTRIBUTE);
+        } else if (clazz == SDDObject.class) {
+            return URIUtils.replaceNameSpace(HASCO.SDD_OBJECT);
+        } else if (clazz == PossibleValue.class) {
+            return URIUtils.replaceNameSpace(HASCO.POSSIBLE_VALUE);
+        } else if (clazz == DP2.class) {
+            return URIUtils.replaceNameSpace(HASCO.DP2);
+        } else if (clazz == STR.class) {
+            return URIUtils.replaceNameSpace(HASCO.STR);
         } else if (clazz == DataFile.class) {
             return URIUtils.replaceNameSpace(HASCO.DATAFILE);
         } else if (clazz == DSG.class) {
@@ -157,6 +185,10 @@ public class GenericFind<T> {
             return URIUtils.replaceNameSpace(HASCO.STUDY_ROLE);
         } else if (clazz == VirtualColumn.class) {
             return URIUtils.replaceNameSpace(HASCO.VIRTUAL_COLUMN);
+        } else if (clazz == Stream.class) {
+            return URIUtils.replaceNameSpace(HASCO.STREAM);
+        } else if (clazz == Deployment.class) {
+            return URIUtils.replaceNameSpace(VSTOI.DEPLOYMENT);
         } else if (clazz == Person.class) {
             return URIUtils.replaceNameSpace(FOAF.PERSON);
         } else if (clazz == Organization.class) {
@@ -184,10 +216,9 @@ public class GenericFind<T> {
  
     public static boolean isMT (Class clazz) {
         // MT is Metadata Template
-        if (//clazz == SDD.class ||
-            ///clazz == DPL.class || 
-            //clazz == SSD.class ||
-            //clazz == STR.class ||
+        if (clazz == SDD.class ||
+            clazz == DP2.class || 
+            clazz == STR.class ||
             clazz == INS.class ||
             clazz == DA.class ||
             clazz == DD.class ||
@@ -198,24 +229,20 @@ public class GenericFind<T> {
         return false;
     }
 
-    private static Class superClassOfMT(Class clazz) {
-        return clazz;
-        /* 
-        if (clazz == DSG.class) {
-            return DSG.class;
-        }
-        if (clazz == KGR.class) {  // the superclass of KGR is KGR itself
-            return KGR.class;
-        }
-        return null;
-        */
-    } 
-
     private static String superclassNameWithNamespace (Class clazz) {
-        if (clazz == InstrumentType.class) {
+        //if (clazz == InstrumentType.class) {
+        //    return URIUtils.replaceNameSpace(VSTOI.INSTRUMENT);
+        //} else 
+        if (clazz == Instrument.class) {
             return URIUtils.replaceNameSpace(VSTOI.INSTRUMENT);
-        } else if (clazz == DetectorStemType.class) {
+        //} else if (clazz == DetectorStemType.class) {
+        //    return URIUtils.replaceNameSpace(VSTOI.DETECTOR_STEM);
+        } else if (clazz == DetectorStem.class) {
+            return URIUtils.replaceNameSpace(VSTOI.DETECTOR_STEM);
+        } else if (clazz == Detector.class) {
             return URIUtils.replaceNameSpace(VSTOI.DETECTOR);
+        } else if (clazz == Platform.class) {
+            return URIUtils.replaceNameSpace(VSTOI.PLATFORM);
         } else if (clazz == Entity.class) {
             return URIUtils.replaceNameSpace(SIO.ENTITY);
         } else if (clazz == Attribute.class) {
@@ -372,31 +399,52 @@ public class GenericFind<T> {
         if (clazz == null) {
             return null;
         }
+        String superclassName = null;
         String className = classNameWithNamespace(clazz);
-        if (className != null) {
-            if (clazz == Detector.class) {
-              return findDetectorInstancesByKeywordWithPages(clazz, className, keyword, pageSize, offset);
-            } else if (isSIR(clazz)) {
-              return findSIRInstancesByKeywordWithPages(clazz, className, keyword, pageSize, offset);
-            } else {
-              return findInstancesByKeywordWithPages(clazz, className, keyword, pageSize, offset);
-            }
+        if (className == null) {
+            superclassName = superclassNameWithNamespace(clazz);
         }
-        String subClassName = superclassNameWithNamespace(clazz);
-        if (subClassName != null) {
-            return findSubclassesByKeywordWithPages(clazz, subClassName, keyword, pageSize, offset);
+        if (className == null && superclassName == null) {
+            return null;
         }
-        return null;
+        //System.out.println("findByKeywordWithPages: hascoType=[" + hascoType+ "]");
+        if (clazz == Detector.class) {
+            return findDetectorClassesByKeywordWithPages(clazz, superclassName, keyword, pageSize, offset);
+        } else if (isSIR(clazz) && superclassName != null) {
+            return findSIRClassesByKeywordWithPages(clazz, superclassName, keyword, pageSize, offset);
+        } else if (isSIR(clazz) && className != null) {
+            return findSIRInstancesByKeywordWithPages(clazz, className, keyword, pageSize, offset);
+        } else if (superclassName != null) {
+            return findClassesByKeywordWithPages(clazz, superclassName, keyword, pageSize, offset);
+        }             
+        return findInstancesByKeywordWithPages(clazz, className, keyword, pageSize, offset);
     }
 
-    public static <T> List<T> findDetectorInstancesByKeywordWithPages(Class clazz, String className, String keyword, int pageSize, int offset) {
-        //System.out.println("GenericFind.findDetectorInstancesByKeywordWithPages: " + className + "  " + pageSize + "  " + offset);
+    public static <T> List<T> findDetectorClassesByKeywordWithPages(Class clazz, String superclassName, String keyword, int pageSize, int offset) {
+        System.out.println("GenericFind.findDetectorClassesByKeywordWithPages: " + superclassName + "  " + keyword + "  " + pageSize + "  " + offset);
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?type rdfs:subClassOf* " + className + " . " +
-                " ?uri a ?type ." +
-                " ?uri vstoi:hasDetectorStem ?stem . " +
+                " ?uri rdfs:subClassOf* " + superclassName + " . " +
+                //" ?uri hasco:hascoType " + hascoType + " . " +
+                //" ?uri vstoi:hasDetectorStem ?stem . " +
                 " ?stem vstoi:hasContent ?content . " +
+                "   FILTER regex(?content, \"" + keyword + "\", \"i\") " +
+                "} " +
+                " ORDER BY ASC(?content) " +
+                " LIMIT " + pageSize +
+                " OFFSET " + offset;
+
+        //System.out.println("GenericFind.findSIRInstancesByKeywordWithPages: [" + queryString + "]");
+        return findByQuery(clazz, queryString);
+    }
+
+    public static <T> List<T> findSIRClassesByKeywordWithPages(Class clazz, String superclassName, String keyword, int pageSize, int offset) {
+        //System.out.println("GenericFind.findSIRInstancesByKeywordWithPages: " + superclassName + " " + keyword + "  " + pageSize + "  " + offset);
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT ?uri WHERE { " +
+                " ?uri rdfs:subClassOf* " + superclassName + " . " +
+                //" ?uri hasco:hascoType " + hascoType + " . " +
+                " ?uri vstoi:hasContent ?content . " +
                 "   FILTER regex(?content, \"" + keyword + "\", \"i\") " +
                 "} " +
                 " ORDER BY ASC(?content) " +
@@ -411,8 +459,9 @@ public class GenericFind<T> {
         //System.out.println("GenericFind.findSIRInstancesByKeywordWithPages: " + className + " " + keyword + "  " + pageSize + "  " + offset);
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?type rdfs:subClassOf* " + className + " . " +
-                " ?uri a ?type ." +
+                //" ?type rdfs:subClassOf* " + className + " . " +
+                //" ?uri a ?type ." +
+                " ?uri hasco:hascoType " + className + " . " +
                 " ?uri vstoi:hasContent ?content . " +
                 "   FILTER regex(?content, \"" + keyword + "\", \"i\") " +
                 "} " +
@@ -424,12 +473,12 @@ public class GenericFind<T> {
         return findByQuery(clazz, queryString);
     }
 
-    public static <T> List<T> findInstancesByKeywordWithPages(Class clazz, String className, String keyword, int pageSize, int offset) {
-        //System.out.println("GenericFind.findInstancesByKeywordWithPages: " + className + "  " + keyword + " " + pageSize + "  " + offset);
+    public static <T> List<T> findClassesByKeywordWithPages(Class clazz, String superclassName, String keyword, int pageSize, int offset) {
+        //System.out.println("GenericFind.findClassesByKeywordWithPages: " + superclassName + "  " + keyword + " " + pageSize + "  " + offset);
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?type rdfs:subClassOf* " + className + " . " +
-                " ?uri a ?type ." +
+                " ?uri rdfs:subClassOf* " + superclassName + " . " +
+                //" ?uri hasco:hascoType " + hascoType + " . " +
                 " ?uri rdfs:label ?label . " +
                 "   FILTER regex(?label, \"" + keyword + "\", \"i\") " +
                 "} " +
@@ -441,54 +490,74 @@ public class GenericFind<T> {
         return findByQuery(clazz, queryString);
     }
 
-    public static <T> List<T> findSubclassesByKeywordWithPages(Class clazz, String superClassName, String keyword, int pageSize, int offset) {
+    public static <T> List<T> findInstancesByKeywordWithPages(Class clazz, String className, String keyword, int pageSize, int offset) {
+        //System.out.println("GenericFind.findInstancesByKeywordWithPages: " + superclassName + "  " + keyword + " " + pageSize + "  " + offset);
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?uri rdfs:subClassOf* " + superClassName + " . " +
+                //" ?type rdfs:subClassOf* " + className + " . " +
+                //" ?uri a ?type ." +
+                " ?uri hasco:hascoType " + className + " . " +
                 " ?uri rdfs:label ?label . " +
                 "   FILTER regex(?label, \"" + keyword + "\", \"i\") " +
                 "} " +
                 " ORDER BY ASC(?label) " +
                 " LIMIT " + pageSize +
                 " OFFSET " + offset;
-
+        //System.out.println("GenericFind.findInstancesByKeywordWithPages: [" + queryString + "]");
         return findByQuery(clazz, queryString);
     }
 
     public static int findTotalByKeyword(Class clazz, String keyword) {
-        String className = classNameWithNamespace(clazz);
-        if (className != null) {
-            return findTotalInstancesByKeyword(className, keyword);
+        String hascoType = classNameWithNamespace(clazz);
+        if (hascoType == null) {
+            hascoType = superclassNameWithNamespace(clazz);
         }
-        String superClassName = superclassNameWithNamespace(clazz);
-        if (superClassName != null) {
-            return findTotalSubclassesByKeyword(superClassName, keyword);
+        if (hascoType == null) {
+            return -1;
         }
-        return -1;
-    }
-
-    public static int findTotalInstancesByKeyword(String className, String keyword) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                " SELECT (count(?uri) as ?tot) WHERE { " +
-                " ?type rdfs:subClassOf* " + className + " . " +
-                " ?uri a ?type . " +
-                " ?uri rdfs:label ?label . " +
-                "   FILTER regex(?label, \"" + keyword + "\", \"i\") " +
-                "} ";
-
+            " SELECT (count(?uri) as ?tot) WHERE { " +
+            //" ?type rdfs:subClassOf* " + className + " . " +
+            //" ?uri a ?type . " +
+            " ?uri hasco:hascoType " + hascoType + " . ";
+        if (keyword != null) {
+            queryString += " ?uri rdfs:label ?label . " +
+                "   FILTER regex(?label, \"" + keyword + "\", \"i\") ";
+        }
+        queryString += "} ";
         return findTotalByQuery(queryString);
     }
 
+    /* 
+    public static int findTotalElementsByKeyword(String hascoType, String keyword) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT (count(?uri) as ?tot) WHERE { " +
+                //" ?type rdfs:subClassOf* " + className + " . " +
+                //" ?uri a ?type . " +
+                " ?uri hasco:hascoType " + hascoType + " . ";
+        if (keyword != null) {
+            queryString += " ?uri rdfs:label ?label . " +
+                "   FILTER regex(?label, \"" + keyword + "\", \"i\") ";
+        }
+        queryString += "} ";
+
+        return findTotalByQuery(queryString);
+    }
+    */
+
+    /* 
     public static int findTotalSubclassesByKeyword(String superClassName, String keyword) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT (count(?uri) as ?tot) WHERE { " +
-                " ?uri rdfs:subClassOf* " + superClassName + " . " +
+                //" ?uri rdfs:subClassOf* " + superClassName + " . " +
+                " ?uri hasco:hascoType " + superClassName + " . " +
                 " ?uri rdfs:label ?label . " +
                 "   FILTER regex(?label, \"" + keyword + "\", \"i\") " +
                 "} ";
 
         return findTotalByQuery(queryString);
     }
+    */
 
     /**
      *     FIND ELEMENTS BY KEYWORD AND LANGUAGE (AND THEIR TOTALS) WITH PAHES
@@ -498,28 +567,28 @@ public class GenericFind<T> {
         if (clazz == null) {
             return null;
         }
-        String className = classNameWithNamespace(clazz);
-        if (className != null) {
-            if (clazz == Detector.class) {
-              return findDetectorInstancesByKeywordAndLanguageWithPages(clazz, className, keyword, language, pageSize, offset);
-            } else if (isSIR(clazz)) {
-              return findSIRInstancesByKeywordAndLanguageWithPages(clazz, className, keyword, language, pageSize, offset);
-            } else {
-              return findInstancesByKeywordAndLanguageWithPages(clazz, className, keyword, language, pageSize, offset);
-            }
+        String hascoType = classNameWithNamespace(clazz);
+        if (hascoType == null) {
+            hascoType = superclassNameWithNamespace(clazz);
         }
-        String subClassName = superclassNameWithNamespace(clazz);
-        if (subClassName != null) {
-            return findSubClassesByKeywordAndLanguageWithPages(clazz, subClassName, keyword, language, pageSize, offset);
+        if (hascoType == null) {
+            return null;
         }
-        return null;
+        if (clazz == Detector.class) {
+            return findDetectorInstancesByKeywordAndLanguageWithPages(clazz, hascoType, keyword, language, pageSize, offset);
+        } else if (isSIR(clazz)) {
+            return findSIRElementsByKeywordAndLanguageWithPages(clazz, hascoType, keyword, language, pageSize, offset);
+        } else {
+            return findElementsByKeywordAndLanguageWithPages(clazz, hascoType, keyword, language, pageSize, offset);
+        }
     }
 
-	public static <T> List<T> findDetectorInstancesByKeywordAndLanguageWithPages(Class clazz, String className, String keyword, String language, int pageSize, int offset) {
+	public static <T> List<T> findDetectorInstancesByKeywordAndLanguageWithPages(Class clazz, String hascoType, String keyword, String language, int pageSize, int offset) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
 		queryString += " SELECT ?uri WHERE { " +
-				" ?type rdfs:subClassOf* " + className + " . " +
-				" ?uri a ?type . " +
+				//" ?type rdfs:subClassOf* " + className + " . " +
+				//" ?uri a ?type . " +
+                " ?uri hasco:hascoType " + hascoType + " . " +
                 " ?uri vstoi:hasDetectorStem ?stem . ";
 		if (!language.isEmpty()) {
 			queryString += " ?stem vstoi:hasLanguage ?language . ";
@@ -539,11 +608,12 @@ public class GenericFind<T> {
 		return findByQuery(clazz, queryString);
 	}
 
-	public static <T> List<T> findSIRInstancesByKeywordAndLanguageWithPages(Class clazz, String className, String keyword, String language, int pageSize, int offset) {
+	public static <T> List<T> findSIRElementsByKeywordAndLanguageWithPages(Class clazz, String hascoType, String keyword, String language, int pageSize, int offset) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
 		queryString += " SELECT ?uri WHERE { " +
-				" ?type rdfs:subClassOf* " + className + " . " +
-				" ?uri a ?type .";
+				//" ?type rdfs:subClassOf* " + className + " . " +
+				//" ?uri a ?type .";
+                " ?uri hasco:hascoType " + hascoType + " . ";
 		if (!language.isEmpty()) {
 			queryString += " ?uri vstoi:hasLanguage ?language . ";
 		}
@@ -563,11 +633,12 @@ public class GenericFind<T> {
 		return findByQuery(clazz, queryString);
 	}
 
-	public static <T> List<T> findInstancesByKeywordAndLanguageWithPages(Class clazz, String className, String keyword, String language, int pageSize, int offset) {
+	public static <T> List<T> findElementsByKeywordAndLanguageWithPages(Class clazz, String hascoType, String keyword, String language, int pageSize, int offset) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
 		queryString += " SELECT ?uri WHERE { " +
-				" ?type rdfs:subClassOf* " + className + " . " +
-				" ?uri a ?type .";
+				//" ?type rdfs:subClassOf* " + className + " . " +
+				//" ?uri a ?type .";
+                " ?uri hasco:hascoType " + hascoType + " . ";
 		if (!language.isEmpty()) {
 			queryString += " ?uri vstoi:hasLanguage ?language . ";
 		}
@@ -586,6 +657,7 @@ public class GenericFind<T> {
 		return findByQuery(clazz, queryString);
 	}
 
+    /* 
 	public static <T> List<T> findSubClassesByKeywordAndLanguageWithPages(Class clazz, String subClassName, String keyword, String language, int pageSize, int offset) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
 		queryString += " SELECT ?uri WHERE { " +
@@ -607,12 +679,21 @@ public class GenericFind<T> {
 				" OFFSET " + offset;
 		return findByQuery(clazz, queryString);
 	}
+    */
 
 	public static int findTotalByKeywordAndLanguage(Class clazz, String keyword, String language) {
+        String hascoType = classNameWithNamespace(clazz);
+        if (hascoType == null) {
+            hascoType = superclassNameWithNamespace(clazz);
+        }
+        if (hascoType == null) {
+            return -1;
+        }
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
 		queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
-				" ?type rdfs:subClassOf* " + classNameWithNamespace(clazz) + " . " +
-				" ?uri a ?type .";
+//				" ?type rdfs:subClassOf* " + classNameWithNamespace(clazz) + " . " +
+//				" ?uri a ?type .";
+                " ?uri hasco:hascoType " + hascoType + " . ";
 		if (!language.isEmpty()) {
 			queryString += " ?uri vstoi:hasLanguage ?language . ";
 		}
@@ -635,33 +716,32 @@ public class GenericFind<T> {
      */
 
 	public List<T> findByManagerEmailWithPages(Class clazz, String managerEmail, int pageSize, int offset) {
-        String className = classNameWithNamespace(clazz);
         //System.out.println("findByManagerEmailWithPages: Clazz=[" + clazz + "]");
-        if (className != null) {
-            if (clazz == Detector.class) {
-                return findDetectorInstancesByManagerEmailWithPages(clazz, className, managerEmail, pageSize, offset);
-            } else if (isSIR(clazz)) {
-                return findSIRInstancesByManagerEmailWithPages(clazz, className, managerEmail, pageSize, offset);
-            } else if (isMT(clazz)) {
-                Class superClazz = superClassOfMT(clazz);
-                //System.out.println("findByManagerEmailWithPages: Clazz=[" + clazz + "] className[" + className + "]");
-                return findMTInstancesByManagerEmailWithPages(superClazz, className, managerEmail, pageSize, offset);
-            } else {
-                return findInstancesByManagerEmailWithPages(clazz, className, managerEmail, pageSize, offset);
-            }
+        String hascoTypeStr = classNameWithNamespace(clazz);
+        if (hascoTypeStr == null || hascoTypeStr.isEmpty()) {
+            hascoTypeStr = superclassNameWithNamespace(clazz);
         }
-        String subClassName = superclassNameWithNamespace(clazz);
-        if (subClassName != null) {
-            return findSubclassesByManagerEmailWithPages(clazz, subClassName, managerEmail, pageSize, offset);
+        if (hascoTypeStr == null || hascoTypeStr.isEmpty()) {
+            return null;
         }
-        return null;
+        //System.out.println("findByManagerEmailWithPages: hascoTypeStr=[" + hascoTypeStr + "]");
+        if (clazz == Detector.class) {
+            return findDetectorInstancesByManagerEmailWithPages(clazz, hascoTypeStr, managerEmail, pageSize, offset);
+        } else if (isSIR(clazz)) {
+            return findSIRInstancesByManagerEmailWithPages(clazz, hascoTypeStr, managerEmail, pageSize, offset);
+        } else if (isMT(clazz)) {
+            return findMTInstancesByManagerEmailWithPages(clazz, hascoTypeStr, managerEmail, pageSize, offset);
+        } else {
+            return findElementsByManagerEmailWithPages(clazz, hascoTypeStr, managerEmail, pageSize, offset);
+        }
     }
 
-	public List<T> findDetectorInstancesByManagerEmailWithPages(Class clazz, String className, String managerEmail, int pageSize, int offset) {
+	public List<T> findDetectorInstancesByManagerEmailWithPages(Class clazz, String hascoTypeStr, String managerEmail, int pageSize, int offset) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
 		queryString += " SELECT ?uri WHERE { " +
-				" ?model rdfs:subClassOf* " + className + " . " +
-				" ?uri a ?model ." +
+				//" ?model rdfs:subClassOf* " + className + " . " +
+				//" ?uri a ?model ." +
+                " ?uri hasco:hascoType " + hascoTypeStr + " . " +
                 " ?uri vstoi:hasDetectorStem ?stem . " +
                 " OPTIONAL { ?stem vstoi:hasContent ?content . } " +
 				" ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
@@ -673,11 +753,12 @@ public class GenericFind<T> {
 		return findByQuery(clazz, queryString);
 	}
 
-	public List<T> findSIRInstancesByManagerEmailWithPages(Class clazz, String className, String managerEmail, int pageSize, int offset) {
+	public List<T> findSIRInstancesByManagerEmailWithPages(Class clazz, String hascoTypeStr, String managerEmail, int pageSize, int offset) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
 		queryString += " SELECT ?uri WHERE { " +
-				" ?model rdfs:subClassOf* " + className + " . " +
-				" ?uri a ?model ." +
+				//" ?model rdfs:subClassOf* " + className + " . " +
+				//" ?uri a ?model ." +
+				" ?uri hasco:hascoType " + hascoTypeStr + " . " +
                 " OPTIONAL { ?uri vstoi:hasContent ?content . } " +
 				" ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
 				"   FILTER (?managerEmail = \"" + managerEmail + "\") " +
@@ -688,12 +769,27 @@ public class GenericFind<T> {
 		return findByQuery(clazz, queryString);
 	}
 
-	public List<T> findInstancesByManagerEmailWithPages(Class clazz, String className, String managerEmail, int pageSize, int offset) {
+	public List<T> findMTInstancesByManagerEmailWithPages(Class clazz, String hascoTypeStr, String managerEmail, int pageSize, int offset) {
+		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+		queryString += " SELECT ?uri WHERE { " +
+				" ?uri hasco:hascoType " + hascoTypeStr + " . " +
+				" OPTIONAL { ?uri rdfs:label ?label . } " +
+                " ?uri hasco:hasDataFile ?dataFile . " +   // a MT concept requires an associated DataFile
+				" ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
+				"   FILTER (?managerEmail = \"" + managerEmail + "\") " +
+				"}" +
+				" ORDER BY ASC(?label) " +
+				" LIMIT " + pageSize +
+				" OFFSET " + offset;
+		return findByQuery(clazz, queryString);
+	}
+
+	public List<T> findElementsByManagerEmailWithPages(Class clazz, String hascoTypeStr, String managerEmail, int pageSize, int offset) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
 		queryString += " SELECT ?uri WHERE { " +
 				//" ?model rdfs:subClassOf* " + className + " . " +
 				//" ?uri a ?model ." +
-				" ?uri hasco:hascoType " + className + " . " +
+				" ?uri hasco:hascoType " + hascoTypeStr + " . " +
 				" OPTIONAL { ?uri rdfs:label ?label . } " +
 				" ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
 				"   FILTER (?managerEmail = \"" + managerEmail + "\") " +
@@ -701,6 +797,7 @@ public class GenericFind<T> {
 				" ORDER BY ASC(?label) " +
 				" LIMIT " + pageSize +
 				" OFFSET " + offset;
+        //System.out.println(queryString);
 		return findByQuery(clazz, queryString);
 	}
 
@@ -743,51 +840,43 @@ public class GenericFind<T> {
 		return findByQuery(clazz, queryString);
 	}
 
-	public List<T> findMTInstancesByManagerEmailWithPages(Class clazz, String className, String managerEmail, int pageSize, int offset) {
+	public List<T> findByManagerEmailWithPagesByContainer(Class clazz, String containeruri, String managerEmail, int pageSize, int offset) {
+        String className = classNameWithNamespace(clazz);
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
 		queryString += " SELECT ?uri WHERE { " +
-				" ?uri hasco:hascoType " + className + " . " +
-				" OPTIONAL { ?uri rdfs:label ?label . } " +
-                " ?uri hasco:hasDataFile ?dataFile . " +   // a MT concept requires an associated DataFile
-				" ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
-				"   FILTER (?managerEmail = \"" + managerEmail + "\") " +
-				"}" +
-				" ORDER BY ASC(?label) " +
-				" LIMIT " + pageSize +
-				" OFFSET " + offset;
-		return findByQuery(clazz, queryString);
-	}
-
-	public List<T> findSubclassesByManagerEmailWithPages(Class clazz, String subClassName, String managerEmail, int pageSize, int offset) {
-		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
-		queryString += " SELECT ?uri WHERE { " +
-				" ?uri rdfs:subClassOf* " + subClassName + " . " +
-				" OPTIONAL { ?uri rdfs:label ?label . } " +
-				" ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
-				"   FILTER (?managerEmail = \"" + managerEmail + "\") " +
-				"}" +
-				" ORDER BY ASC(?label) " +
-				" LIMIT " + pageSize +
-				" OFFSET " + offset;
-        //System.out.println("subclasses: " + queryString);
+            "  ?uri hasco:hascoType " + classNameWithNamespace(clazz) + " . " +
+            "  OPTIONAL { ?uri rdfs:label ?label . } " +
+            "  ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
+            "  ?uri vstoi:belongsTo <" + containeruri + "> . " + 
+            "  FILTER (?managerEmail = \"" + managerEmail + "\") " +
+            "}" +
+            "  ORDER BY ASC(?label) " +
+            "  LIMIT " + pageSize +
+            "  OFFSET " + offset;
 		return findByQuery(clazz, queryString);
 	}
 
 	public static int findTotalByManagerEmail(Class clazz, String managerEmail) {
         if (isMT(clazz)) {
-            Class superClazz = superClassOfMT(clazz);
-            return findTotalMTByManagerEmail(superClazz,managerEmail);
+            return findTotalMTByManagerEmail(clazz,managerEmail);
         } else {
-            return findTotalInstancesByManagerEmail(clazz,managerEmail);
+            String hascoTypeStr = classNameWithNamespace(clazz);
+            if (hascoTypeStr == null || hascoTypeStr.isEmpty()) {
+                hascoTypeStr = superclassNameWithNamespace(clazz);
+            }
+            if (hascoTypeStr == null || hascoTypeStr.isEmpty()) {
+                return -1;
+            }
+            return findTotalElementsByManagerEmail(hascoTypeStr,managerEmail);
         }
     }
 
-	public static int findTotalInstancesByManagerEmail(Class clazz, String managerEmail) {
+	public static int findTotalElementsByManagerEmail(String hascoTypeStr, String managerEmail) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
 		queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
 				//" ?model rdfs:subClassOf* " + classNameWithNamespace(clazz) + " . " +
 				//" ?uri a ?model ." +
-				" ?uri hasco:hascoType " + classNameWithNamespace(clazz) + " . " +
+				" ?uri hasco:hascoType " + hascoTypeStr + " . " +
 				" ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
 				"   FILTER (?managerEmail = \"" + managerEmail + "\") " +
 				"}";
@@ -815,6 +904,17 @@ public class GenericFind<T> {
 		queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
 			" ?uri hasco:hascoType " + classNameWithNamespace(clazz) + " . " +
             " ?uri hasco:isMemberOf <" + studyobjectcollectionuri + "> . " +
+            " ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
+			"   FILTER (?managerEmail = \"" + manageremail + "\") " +
+			"}";
+        return findTotalByQuery(queryString);
+	}
+
+	public static int findTotalByManagerEmailByContainer(Class clazz, String containeruri, String manageremail) {
+		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+		queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
+			" ?uri hasco:hascoType " + classNameWithNamespace(clazz) + " . " +
+            " ?uri vstoi:belongsTo <" + containeruri + "> . " +
             " ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
 			"   FILTER (?managerEmail = \"" + manageremail + "\") " +
 			"}";
@@ -853,7 +953,9 @@ public class GenericFind<T> {
             QuerySolution soln = resultsrw.next();
             if (soln != null) {
                 if (soln.getResource("uri") != null && soln.getResource("uri").getURI() != null) {
-                    T element = findElement(clazz, soln.getResource("uri").getURI());
+                    String uri = soln.getResource("uri").getURI();
+                    //System.out.println("FindByQuery: retrieved uri = [" + uri + "]");
+                    T element = findElement(clazz, uri);
                     if (element != null) {                        
                       list.add(element);
                     }
@@ -882,18 +984,26 @@ public class GenericFind<T> {
             return (T)StudyObjectCollectionType.find(uri);
         } else if (clazz == StudyObjectType.class) {
             return (T)StudyObjectType.find(uri);
-
-        // List of elements
         } else if (clazz == Instrument.class) {
             return (T)Instrument.find(uri);
         } else if (clazz == Subcontainer.class) {
             return (T)Subcontainer.find(uri);
-        } else if (clazz == ContainerSlot.class) {
-            return (T)ContainerSlot.find(uri);
         } else if (clazz == DetectorStem.class) {
             return (T)DetectorStem.find(uri);
         } else if (clazz == Detector.class) {
             return (T)Detector.findDetector(uri);
+        } else if (clazz == Platform.class) {
+            return (T)Platform.find(uri);
+
+        // List of instances
+        } else if (clazz == InstrumentInstance.class) {
+            return (T)InstrumentInstance.find(uri);
+        } else if (clazz == DetectorInstance.class) {
+            return (T)DetectorInstance.find(uri);
+        } else if (clazz == PlatformInstance.class) {
+            return (T)PlatformInstance.find(uri);
+        } else if (clazz == ContainerSlot.class) {
+            return (T)ContainerSlot.find(uri);
         } else if (clazz == Codebook.class) {
             return (T)Codebook.find(uri);
         } else if (clazz == CodebookSlot.class) {
@@ -914,6 +1024,18 @@ public class GenericFind<T> {
             return (T)DD.find(uri);
         } else if (clazz == SDD.class) {
             return (T)SDD.find(uri);
+        } else if (clazz == SDDAttribute.class) {
+            return (T)SDDAttribute.find(uri);
+        } else if (clazz == SDDObject.class) {
+            return (T)SDDObject.find(uri);
+        } else if (clazz == PossibleValue.class) {
+            return (T)PossibleValue.find(uri);
+        } else if (clazz == SemanticDataDictionary.class) {
+            return (T)SemanticDataDictionary.find(uri);
+        } else if (clazz == DP2.class) {
+            return (T)DP2.find(uri);
+        } else if (clazz == STR.class) {
+            return (T)STR.find(uri);
         } else if (clazz == DataFile.class) {
             return (T)DataFile.find(uri);
         } else if (clazz == DSG.class) {
@@ -928,6 +1050,10 @@ public class GenericFind<T> {
             return (T)StudyRole.find(uri);
         } else if (clazz == VirtualColumn.class) {
             return (T)VirtualColumn.find(uri);
+        } else if (clazz == Stream.class) {
+            return (T)Stream.find(uri);
+        } else if (clazz == Deployment.class) {
+            return (T)Deployment.find(uri);
         } else if (clazz == Person.class) {
             return (T)Person.find(uri);
         } else if (clazz == Organization.class) {

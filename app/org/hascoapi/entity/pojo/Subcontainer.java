@@ -36,6 +36,13 @@ public class Subcontainer extends Container implements SlotElement {
 
 	private static final Logger log = LoggerFactory.getLogger(Subcontainer.class);
 
+	public Subcontainer () {
+    }
+
+	public Subcontainer (String className) {
+		super(className);
+    }
+
 	@Override
 	public boolean equals(Object o) {
 		if((o instanceof Subcontainer) && (((Subcontainer)o).getUri().equals(this.getUri()))) {
@@ -64,7 +71,7 @@ public class Subcontainer extends Container implements SlotElement {
 		if (!stmtIterator.hasNext()) {
 			return null;
 		} else {
-			subcontainer = new Subcontainer();
+			subcontainer = new Subcontainer(VSTOI.SUBCONTAINER);
 		}
 		
 		while (stmtIterator.hasNext()) {
@@ -74,8 +81,8 @@ public class Subcontainer extends Container implements SlotElement {
 			if (uri != null && !uri.isEmpty()) {
 				if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
 					subcontainer.setLabel(str);
-				} else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
-					subcontainer.setTypeUri(str); 
+				} else if (statement.getPredicate().getURI().equals(RDFS.SUBCLASS_OF)) {
+					subcontainer.setSuperUri(str); 
 				} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
 					subcontainer.setHascoTypeUri(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
@@ -92,8 +99,6 @@ public class Subcontainer extends Container implements SlotElement {
 					subcontainer.setHasPrevious(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PRIORITY)) {
 					subcontainer.setHasPriority(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
-					subcontainer.setSerialNumber(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_INFORMANT)) {
 					subcontainer.setHasInformant(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
@@ -179,12 +184,11 @@ public class Subcontainer extends Container implements SlotElement {
 
 		// properties that this update can change in the subcontainer
 		curSubcontainer.setLabel(newSubcontainer.getLabel());
-		curSubcontainer.setTypeUri(newSubcontainer.getTypeUri()); 
+		curSubcontainer.setSuperUri(newSubcontainer.getSuperUri()); 
 		curSubcontainer.setHascoTypeUri(newSubcontainer.getHascoTypeUri());
 		curSubcontainer.setHasStatus(newSubcontainer.getHasStatus());
 		curSubcontainer.setComment(newSubcontainer.getComment());
 		curSubcontainer.setHasPriority(newSubcontainer.getHasPriority());
-		curSubcontainer.setSerialNumber(newSubcontainer.getSerialNumber());
 		curSubcontainer.setHasInformant(newSubcontainer.getHasInformant());
 		curSubcontainer.setImage(newSubcontainer.getImage());
 		curSubcontainer.setHasShortName(newSubcontainer.getHasShortName());
