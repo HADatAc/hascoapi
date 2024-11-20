@@ -1,6 +1,6 @@
-fuseki/
+#fuseki/
 fuseki-yasgui/
-conf/application.conf
+#conf/application.conf
 conf/hascoapi-docker.conf
 conf/hascoapi.conf
 logs
