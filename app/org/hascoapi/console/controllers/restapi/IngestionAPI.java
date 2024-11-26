@@ -9,10 +9,11 @@ import org.hascoapi.Constants;
 import org.hascoapi.ingestion.IngestionWorker;
 import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.entity.pojo.GenericInstance;
-import org.hascoapi.entity.pojo.KGR;
-import org.hascoapi.entity.pojo.SDD;
 import org.hascoapi.entity.pojo.DSG;
 import org.hascoapi.entity.pojo.INS;
+import org.hascoapi.entity.pojo.KGR;
+import org.hascoapi.entity.pojo.SDD;
+import org.hascoapi.entity.pojo.STR;
 import org.hascoapi.entity.pojo.Study;
 //import org.hascoapi.ingestion.IngestDSG;
 import org.hascoapi.ingestion.IngestKGR;
@@ -103,7 +104,8 @@ public class IngestionAPI extends Controller {
         /* } else */ 
         if (elementType.equals("dsg") || 
             elementType.equals("ins") ||
-            elementType.equals("sdd")) {
+            elementType.equals("sdd") || 
+            elementType.equals("str")) {
             System.out.println("IngestionAPI.ingest(): inside elementType=[" + elementType + "]");
             DataFile dataFile = null;
             if (elementType.equals("dsg")) {
@@ -124,6 +126,12 @@ public class IngestionAPI extends Controller {
                     return ok(ApiUtil.createResponse("IngestionAPI.ingest(): File FAILED to be ingested: could not retrieve " + elementType + ". ",false));
                 }
                 dataFile = DataFile.find(sdd.getHasDataFileUri());
+            } else if (elementType.equals("str")) {
+                STR str = STR.find(elementUri);
+                if (str == null) {
+                    return ok(ApiUtil.createResponse("IngestionAPI.ingest(): File FAILED to be ingested: could not retrieve " + elementType + ". ",false));
+                }
+                dataFile = DataFile.find(str.getHasDataFileUri());
             }
             if (dataFile != null) {
                 dataFile.setLastProcessTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));

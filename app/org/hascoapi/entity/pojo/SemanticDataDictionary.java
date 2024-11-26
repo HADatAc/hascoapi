@@ -708,6 +708,10 @@ public class SemanticDataDictionary extends HADatAcThing {
         }
 
         sdd.setUri(uri);
+        //System.out.println("SDD HASCO TYPE: " + sdd.getHascoTypeUri());
+        if (!sdd.getHascoTypeUri().equals(HASCO.SEMANTIC_DATA_DICTIONARY)) {
+            return null;
+        }
 
         return sdd;
     }

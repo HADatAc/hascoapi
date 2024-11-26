@@ -716,7 +716,7 @@ public class GenericFind<T> {
      */
 
 	public List<T> findByManagerEmailWithPages(Class clazz, String managerEmail, int pageSize, int offset) {
-        //System.out.println("findByManagerEmailWithPages: Clazz=[" + clazz + "]");
+        System.out.println("findByManagerEmailWithPages: Clazz=[" + clazz + "]");
         String hascoTypeStr = classNameWithNamespace(clazz);
         if (hascoTypeStr == null || hascoTypeStr.isEmpty()) {
             hascoTypeStr = superclassNameWithNamespace(clazz);
@@ -812,7 +812,10 @@ public class GenericFind<T> {
             " ?uri vstoi:hasSIRManagerEmail ?managerEmail . ";
         if (clazz.equals(StudyObject.class)) {
             queryString += "   ?uri hasco:isMemberOf ?socuri . " +
-                "   ?socuri hasco:isMemberOf <" + studyuri + "> . "; 
+                    "   ?socuri hasco:isMemberOf <" + studyuri + "> . "; 
+        } else if (clazz.equals(Stream.class) || 
+                   clazz.equals(STR.class)) {
+            queryString += "   ?uri hasco:hasStudy <" + studyuri + "> . "; 
         } else {
             queryString += "   ?uri hasco:isMemberOf <" + studyuri + "> . "; 
         }
@@ -890,6 +893,8 @@ public class GenericFind<T> {
         if (clazz.equals(StudyObject.class)) {
             queryString += "   ?uri hasco:isMemberOf ?socuri . " +
                 "   ?socuri hasco:isMemberOf <" + studyuri + "> . "; 
+        } else if (clazz.equals(Stream.class)) {
+            queryString += "   ?uri hasco:hasStudy <" + studyuri + "> . "; 
         } else {
             queryString += "   ?uri hasco:isMemberOf <" + studyuri + "> . "; 
         }

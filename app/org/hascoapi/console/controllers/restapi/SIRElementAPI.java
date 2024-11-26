@@ -35,7 +35,164 @@ public class SIRElementAPI extends Controller {
         boolean success = true;
         String message = "";
         ObjectMapper objectMapper = new ObjectMapper();
-        if (clazz == Instrument.class) {
+        if (clazz == Annotation.class) {
+            try {
+                Annotation object;
+                object = (Annotation)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == AnnotationStem.class) {
+            try {
+                AnnotationStem object;
+                object = (AnnotationStem)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == Attribute.class) {
+            try {
+                Attribute object;
+                object = (Attribute)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == Codebook.class) {
+            try {
+                Codebook object;
+                object = (Codebook)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == CodebookSlot.class) {
+            try {
+                CodebookSlot object;
+                object = (CodebookSlot)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == ContainerSlot.class) {
+            // NOTE: Use ContainerSlot.createContainerSlots(container,totContainerSlots) to create container slots
+        } else if (clazz == DA.class) {
+            try {
+                DA object;
+                object = (DA)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == DataFile.class) {
+            try {
+                DataFile object;
+                object = (DataFile)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == DD.class) {
+            try {
+                DD object;
+                object = (DD)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == Deployment.class) {
+            try {
+                Deployment object;
+                object = (Deployment)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                System.out.println("Error processing Deployment: " + e.getMessage());
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == Detector.class) {
+            try {
+                Detector object;
+                object = (Detector)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == DetectorInstance.class) {
+            DetectorInstance object;
+            try {
+                object = (DetectorInstance)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                e.printStackTrace();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == DetectorStem.class) {
+            try {
+                DetectorStem object;
+                object = (DetectorStem)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == DetectorStemType.class) {
+            try {
+                DetectorStemType object;
+                object = (DetectorStemType)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == DP2.class) {
+            try {
+                DP2 object;
+                object = (DP2)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == DSG.class) {
+            try {
+                DSG object;
+                object = (DSG)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == Entity.class) {
+            try {
+                Entity object;
+                object = (Entity)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == INS.class) {
+            try {
+                INS object;
+                object = (INS)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == Instrument.class) {
             Instrument object;
             try {
                 object = (Instrument)objectMapper.readValue(json, clazz);
@@ -55,14 +212,63 @@ public class SIRElementAPI extends Controller {
                 e.printStackTrace();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
-        } else if (clazz == DetectorInstance.class) {
-            DetectorInstance object;
+        } else if (clazz == InstrumentType.class) {
             try {
-                object = (DetectorInstance)objectMapper.readValue(json, clazz);
+                InstrumentType object;
+                object = (InstrumentType)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
                 message = e.getMessage();
-                e.printStackTrace();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == KGR.class) {
+            try {
+                KGR object;
+                object = (KGR)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                System.out.println("Error processing KGR: " + e.getMessage());
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == Organization.class) {
+            try {
+                Organization object;
+                object = (Organization)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                System.out.println("Error processing Organization: " + e.getMessage());
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == Person.class) {
+            try {
+                Person object;
+                object = (Person)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                System.out.println("Error processing Person: " + e.getMessage());
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == Place.class) {
+            try {
+                Place object;
+                object = (Place)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                System.out.println("Error processing Place: " + e.getMessage());
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == Platform.class) {
+            try {
+                Platform object;
+                object = (Platform)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                System.out.println("Error processing Platform: " + e.getMessage());
+                message = e.getMessage();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
         } else if (clazz == PlatformInstance.class) {
@@ -75,42 +281,23 @@ public class SIRElementAPI extends Controller {
                 e.printStackTrace();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
-        } else if (clazz == Subcontainer.class) {
+        } else if (clazz == PossibleValue.class) {
             try {
-                Subcontainer object;
-                object = (Subcontainer)objectMapper.readValue(json, clazz);
-                //System.out.println("SIRElementAPI.create(Subcontainer): JSON=[" + json + "]");
-                object.saveAsSlot();
-            } catch (JsonProcessingException e) {
-                message = e.getMessage();
-                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
-            }
-        } else if (clazz == DetectorStem.class) {
-            try {
-                DetectorStem object;
-                object = (DetectorStem)objectMapper.readValue(json, clazz);
+                PossibleValue object;
+                object = (PossibleValue)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
                 message = e.getMessage();
+                e.printStackTrace();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
-        } else if (clazz == Detector.class) {
+        } else if (clazz == PostalAddress.class) {
             try {
-                Detector object;
-                object = (Detector)objectMapper.readValue(json, clazz);
+                PostalAddress object;
+                object = (PostalAddress)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
-                message = e.getMessage();
-                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
-            }
-        } else if (clazz == ContainerSlot.class) {
-            // NOTE: Use ContainerSlot.createContainerSlots(container,totContainerSlots) to create container slots
-        } else if (clazz == Codebook.class) {
-            try {
-                Codebook object;
-                object = (Codebook)objectMapper.readValue(json, clazz);
-                object.save();
-            } catch (JsonProcessingException e) {
+                System.out.println("Error processing PostalAddress: " + e.getMessage());
                 message = e.getMessage();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
@@ -123,127 +310,10 @@ public class SIRElementAPI extends Controller {
                 message = e.getMessage();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
-        } else if (clazz == CodebookSlot.class) {
-            try {
-                CodebookSlot object;
-                object = (CodebookSlot)objectMapper.readValue(json, clazz);
-                object.save();
-            } catch (JsonProcessingException e) {
-                message = e.getMessage();
-                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
-            }
-        } else if (clazz == AnnotationStem.class) {
-            try {
-                AnnotationStem object;
-                object = (AnnotationStem)objectMapper.readValue(json, clazz);
-                object.save();
-            } catch (JsonProcessingException e) {
-                message = e.getMessage();
-                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
-            }
-        } else if (clazz == Annotation.class) {
-            try {
-                Annotation object;
-                object = (Annotation)objectMapper.readValue(json, clazz);
-                object.save();
-            } catch (JsonProcessingException e) {
-                message = e.getMessage();
-                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
-            }
-        } else if (clazz == SemanticVariable.class) {
-            try {
-                SemanticVariable object;
-                object = (SemanticVariable)objectMapper.readValue(json, clazz);
-                object.save();
-            } catch (JsonProcessingException e) {
-                message = e.getMessage();
-                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
-            }
-        } else if (clazz == InstrumentType.class) {
-            try {
-                InstrumentType object;
-                object = (InstrumentType)objectMapper.readValue(json, clazz);
-                object.save();
-            } catch (JsonProcessingException e) {
-                message = e.getMessage();
-                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
-            }
-        } else if (clazz == DetectorStemType.class) {
-            try {
-                DetectorStemType object;
-                object = (DetectorStemType)objectMapper.readValue(json, clazz);
-                object.save();
-            } catch (JsonProcessingException e) {
-                message = e.getMessage();
-                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
-            }
-        } else if (clazz == Entity.class) {
-            try {
-                Entity object;
-                object = (Entity)objectMapper.readValue(json, clazz);
-                object.save();
-            } catch (JsonProcessingException e) {
-                message = e.getMessage();
-                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
-            }
-        } else if (clazz == Attribute.class) {
-            try {
-                Attribute object;
-                object = (Attribute)objectMapper.readValue(json, clazz);
-                object.save();
-            } catch (JsonProcessingException e) {
-                message = e.getMessage();
-                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
-            }
-        } else if (clazz == Unit.class) {
-            try {
-                Unit object;
-                object = (Unit)objectMapper.readValue(json, clazz);
-                object.save();
-            } catch (JsonProcessingException e) {
-                message = e.getMessage();
-                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
-            }
-        } else if (clazz == INS.class) {
-            try {
-                INS object;
-                object = (INS)objectMapper.readValue(json, clazz);
-                object.save();
-            } catch (JsonProcessingException e) {
-                message = e.getMessage();
-                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
-            }
-        } else if (clazz == DA.class) {
-            try {
-                DA object;
-                object = (DA)objectMapper.readValue(json, clazz);
-                object.save();
-            } catch (JsonProcessingException e) {
-                message = e.getMessage();
-                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
-            }
-        } else if (clazz == DD.class) {
-            try {
-                DD object;
-                object = (DD)objectMapper.readValue(json, clazz);
-                object.save();
-            } catch (JsonProcessingException e) {
-                message = e.getMessage();
-                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
-            }
         } else if (clazz == SDD.class) {
             try {
                 SDD object;
                 object = (SDD)objectMapper.readValue(json, clazz);
-                object.save();
-            } catch (JsonProcessingException e) {
-                message = e.getMessage();
-                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
-            }
-        } else if (clazz == SemanticDataDictionary.class) {
-            try {
-                SemanticDataDictionary object;
-                object = (SemanticDataDictionary)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
                 message = e.getMessage();
@@ -271,20 +341,19 @@ public class SIRElementAPI extends Controller {
                 message = e.getMessage();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
-        } else if (clazz == PossibleValue.class) {
+        } else if (clazz == SemanticDataDictionary.class) {
             try {
-                PossibleValue object;
-                object = (PossibleValue)objectMapper.readValue(json, clazz);
+                SemanticDataDictionary object;
+                object = (SemanticDataDictionary)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
                 message = e.getMessage();
-                e.printStackTrace();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
-        } else if (clazz == DP2.class) {
+        } else if (clazz == SemanticVariable.class) {
             try {
-                DP2 object;
-                object = (DP2)objectMapper.readValue(json, clazz);
+                SemanticVariable object;
+                object = (SemanticVariable)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
                 message = e.getMessage();
@@ -295,25 +364,18 @@ public class SIRElementAPI extends Controller {
                 STR object;
                 object = (STR)objectMapper.readValue(json, clazz);
                 object.save();
+                System.out.println("saved STR");
             } catch (JsonProcessingException e) {
                 message = e.getMessage();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
-        } else if (clazz == DataFile.class) {
+        } else if (clazz == Stream.class) {
             try {
-                DataFile object;
-                object = (DataFile)objectMapper.readValue(json, clazz);
+                Stream object;
+                object = (Stream)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
-                message = e.getMessage();
-                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
-            }
-        } else if (clazz == DSG.class) {
-            try {
-                DSG object;
-                object = (DSG)objectMapper.readValue(json, clazz);
-                object.save();
-            } catch (JsonProcessingException e) {
+                System.out.println("Error processing Stream: " + e.getMessage());
                 message = e.getMessage();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
@@ -321,15 +383,6 @@ public class SIRElementAPI extends Controller {
             try {
                 Study object;
                 object = (Study)objectMapper.readValue(json, clazz);
-                object.save();
-            } catch (JsonProcessingException e) {
-                message = e.getMessage();
-                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
-            }
-        } else if (clazz == StudyObjectCollection.class) {
-            try {
-                StudyObjectCollection object;
-                object = (StudyObjectCollection)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
                 message = e.getMessage();
@@ -344,10 +397,38 @@ public class SIRElementAPI extends Controller {
                 message = e.getMessage();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
+        } else if (clazz == StudyObjectCollection.class) {
+            try {
+                StudyObjectCollection object;
+                object = (StudyObjectCollection)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
         } else if (clazz == StudyRole.class) {
             try {
                 StudyRole object;
                 object = (StudyRole)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == Subcontainer.class) {
+            try {
+                Subcontainer object;
+                object = (Subcontainer)objectMapper.readValue(json, clazz);
+                //System.out.println("SIRElementAPI.create(Subcontainer): JSON=[" + json + "]");
+                object.saveAsSlot();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == Unit.class) {
+            try {
+                Unit object;
+                object = (Unit)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
                 message = e.getMessage();
@@ -359,86 +440,6 @@ public class SIRElementAPI extends Controller {
                 object = (VirtualColumn)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
-                message = e.getMessage();
-                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
-            }
-        } else if (clazz == Platform.class) {
-            try {
-                Platform object;
-                object = (Platform)objectMapper.readValue(json, clazz);
-                object.save();
-            } catch (JsonProcessingException e) {
-                System.out.println("Error processing Platform: " + e.getMessage());
-                message = e.getMessage();
-                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
-            }
-        } else if (clazz == Stream.class) {
-            try {
-                Stream object;
-                object = (Stream)objectMapper.readValue(json, clazz);
-                object.save();
-            } catch (JsonProcessingException e) {
-                System.out.println("Error processing Stream: " + e.getMessage());
-                message = e.getMessage();
-                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
-            }
-        } else if (clazz == Deployment.class) {
-            try {
-                Deployment object;
-                object = (Deployment)objectMapper.readValue(json, clazz);
-                object.save();
-            } catch (JsonProcessingException e) {
-                System.out.println("Error processing Deployment: " + e.getMessage());
-                message = e.getMessage();
-                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
-            }
-        } else if (clazz == Person.class) {
-            try {
-                Person object;
-                object = (Person)objectMapper.readValue(json, clazz);
-                object.save();
-            } catch (JsonProcessingException e) {
-                System.out.println("Error processing Person: " + e.getMessage());
-                message = e.getMessage();
-                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
-            }
-        } else if (clazz == Organization.class) {
-            try {
-                Organization object;
-                object = (Organization)objectMapper.readValue(json, clazz);
-                object.save();
-            } catch (JsonProcessingException e) {
-                System.out.println("Error processing Organization: " + e.getMessage());
-                message = e.getMessage();
-                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
-            }
-        } else if (clazz == Place.class) {
-            try {
-                Place object;
-                object = (Place)objectMapper.readValue(json, clazz);
-                object.save();
-            } catch (JsonProcessingException e) {
-                System.out.println("Error processing Place: " + e.getMessage());
-                message = e.getMessage();
-                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
-            }
-        } else if (clazz == PostalAddress.class) {
-            try {
-                PostalAddress object;
-                object = (PostalAddress)objectMapper.readValue(json, clazz);
-                object.save();
-            } catch (JsonProcessingException e) {
-                System.out.println("Error processing PostalAddress: " + e.getMessage());
-                message = e.getMessage();
-                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
-            }
-       } else if (clazz == KGR.class) {
-            try {
-                KGR object;
-                object = (KGR)objectMapper.readValue(json, clazz);
-                object.save();
-            } catch (JsonProcessingException e) {
-                System.out.println("Error processing KGR: " + e.getMessage());
                 message = e.getMessage();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }

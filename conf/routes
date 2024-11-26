@@ -53,6 +53,8 @@ GET     /hascoapi/api/study/socs/:uri/:pageSize/:offset                         
 GET     /hascoapi/api/study/socs/total/:uri                                               org.hascoapi.console.controllers.restapi.StudyAPI.findTotalSOCs(uri: String)
 GET     /hascoapi/api/study/virtualcolumns/:uri                                           org.hascoapi.console.controllers.restapi.StudyAPI.findVCs(uri: String)
 GET     /hascoapi/api/study/virtualcolumns/total/:uri                                     org.hascoapi.console.controllers.restapi.StudyAPI.findTotalVCs(uri: String)
+GET     /hascoapi/api/study/streams/:uri                                                  org.hascoapi.console.controllers.restapi.StudyAPI.findStreams(uri: String)
+GET     /hascoapi/api/study/streams/total/:uri                                            org.hascoapi.console.controllers.restapi.StudyAPI.findTotalStreams(uri: String)
 GET     /hascoapi/api/study/studyobjects/total/:uri                                       org.hascoapi.console.controllers.restapi.StudyAPI.findTotalSOs(uri: String)
 
 # MANAGEMENT GENERIC 

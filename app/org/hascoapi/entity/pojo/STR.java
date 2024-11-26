@@ -9,7 +9,7 @@ import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
-
+import org.hascoapi.annotations.PropertyField;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.SPARQLUtils;
 import org.hascoapi.utils.URIUtils;
@@ -22,6 +22,27 @@ import org.hascoapi.vocabularies.VSTOI;
 public class STR extends MetadataTemplate {
 
     public String className = "hasco:STR";
+
+    /*
+     *   GENERIC STR PROPERTIES
+     */
+    @PropertyField(uri="hasco:hasStudy")
+    private String studyUri;
+
+    /*
+     *   SETTERS AND GETTERS
+     */
+    public String getStudyUri() {
+        return studyUri;
+    }
+    public Study getStudy() {
+        if (studyUri == null || studyUri.equals(""))
+            return null;
+        return Study.find(studyUri);
+    }
+    public void setStudyUri(String study_uri) {
+        this.studyUri = study_uri;
+    }
 
     public static STR find(String uri) {
             
@@ -58,6 +79,8 @@ public class STR extends MetadataTemplate {
                     str.setTypeUri(string); 
                 } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
                     str.setHascoTypeUri(string);
+                } else if (statement.getPredicate().getURI().equals(HASCO.HAS_STUDY)) {
+                    str.setStudyUri(string);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
                     str.setHasStatus(string);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
@@ -75,6 +98,16 @@ public class STR extends MetadataTemplate {
         str.setUri(uri);
         
         return str;
+    }
+
+    @Override
+    public void save() {
+        saveToTripleStore();
+    }
+
+    @Override
+    public void delete() {
+        deleteFromTripleStore();
     }
 
 }

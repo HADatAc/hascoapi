@@ -22,6 +22,8 @@ import org.hascoapi.entity.pojo.PostalAddress;
 import org.hascoapi.entity.pojo.ResponseOption;
 import org.hascoapi.entity.pojo.SDD;
 import org.hascoapi.entity.pojo.SemanticVariable;
+import org.hascoapi.entity.pojo.STR;
+import org.hascoapi.entity.pojo.Stream;
 import org.hascoapi.entity.pojo.Study;
 import org.hascoapi.entity.pojo.StudyObject;
 import org.hascoapi.entity.pojo.StudyObjectCollection;
@@ -76,6 +78,14 @@ public class StudyAPI extends Controller {
             GenericFind<VirtualColumn> query = new GenericFind<VirtualColumn>();
             List<VirtualColumn> results = query.findByManagerEmailWithPagesByStudy(VirtualColumn.class, studyuri, manageremail, pagesize, offset);
             return VirtualColumnAPI.getVirtualColumns(results);
+        }  else if (elementtype.equals("stream")) {
+            GenericFind<Stream> query = new GenericFind<Stream>();
+            List<Stream> results = query.findByManagerEmailWithPagesByStudy(Stream.class, studyuri, manageremail, pagesize, offset);
+            return StreamAPI.getStreams(results);
+        }  else if (elementtype.equals("str")) {
+            GenericFind<STR> query = new GenericFind<STR>();
+            List<STR> results = query.findByManagerEmailWithPagesByStudy(STR.class, studyuri, manageremail, pagesize, offset);
+            return STRAPI.getSTRs(results);
         }
         /* 
         else if (elementType.equals("person")) {
@@ -176,6 +186,21 @@ public class StudyAPI extends Controller {
             return ok(ApiUtil.createResponse(totalElementsJSON, true));
         }     
         return ok(ApiUtil.createResponse("Query method findTotalVCss() failed to retrieve total number of element", false));   
+    }
+
+    public Result findStreams(String studyuri) {
+        List<Stream> results = Stream.findStreamsByStudy(studyuri);
+        return StreamAPI.getStreams(results);
+       
+    }
+
+    public Result findTotalStreams(String studyuri) {
+        int totalElements = Stream.findTotalStreamsByStudy(studyuri);
+        if (totalElements >= 0) {
+            String totalElementsJSON = "{\"total\":" + totalElements + "}";
+            return ok(ApiUtil.createResponse(totalElementsJSON, true));
+        }     
+        return ok(ApiUtil.createResponse("Query method findTotalStreams() failed to retrieve total number of element", false));   
     }
 
     public Result findTotalSOs(String studyuri) {

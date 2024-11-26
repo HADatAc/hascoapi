@@ -62,6 +62,7 @@ public class HASCO {
     public static final String HAS_COMPLETION_TIME                    = "http://hadatac.org/ont/hasco/hasCompletionTime";
     public static final String HAS_DATAFILE                           = "http://hadatac.org/ont/hasco/hasDataFile";
     public static final String HAS_DATASET                            = "http://hadatac.org/ont/hasco/hasDataset";
+    public static final String HAS_DATASET_PATTERN                    = "http://hadatac.org/ont/hasco/hasDatasetPattern";
     public static final String HAS_DD                                 = "http://hadatac.org/ont/hasco/hasDD";
     public static final String HAS_DEFAULT_NAMESPACE_ABBREVIATION     = "http://hadatac.org/ont/hasco/hasDefaultNamespaceAbbreviation";
     public static final String HAS_DEFAULT_NAMESPACE_URL              = "http://hadatac.org/ont/hasco/hasDefaultNamespaceURL";

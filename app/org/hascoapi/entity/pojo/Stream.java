@@ -52,7 +52,7 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
     @PropertyField(uri="hasco:hasStudy")
     private String studyUri;
     @PropertyField(uri="hasco:hasSDD")
-    private String sddUri;
+    private String semanticDataDictionaryUri;
     @PropertyField(uri="hasco:hasDeployment")
     private String deploymentUri;
     @PropertyField(uri="hasco:hasMethod")
@@ -235,25 +235,26 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
         this.studyUri = study_uri;
     }
 
-    public String getSDDUri() {
-        return sddUri;
+    public String getSemanticDataDictionaryUri() {
+        return this.semanticDataDictionaryUri;
     }
-    public SemanticDataDictionary getSDD() {
-        if (sddUri == null || sddUri.equals("")) {
+
+    public SemanticDataDictionary getSemanticDataDictionary() {
+        if (this.semanticDataDictionaryUri == null || this.semanticDataDictionaryUri.equals("")) {
             return null;
         }
-        SemanticDataDictionary sdd = SemanticDataDictionary.find(sddUri);
+        SemanticDataDictionary semanticDataDictionary = SemanticDataDictionary.find(semanticDataDictionaryUri);
         headers = new ArrayList<String>();
-        if (sdd != null && sdd.getAttributes() != null) {
-            for (SDDAttribute attr : sdd.getAttributes()) {
+        if (semanticDataDictionary != null && semanticDataDictionary.getAttributes() != null) {
+            for (SDDAttribute attr : semanticDataDictionary.getAttributes()) {
                 headers.add(attr.getLabel());
             }
         }
         setHeaders(headers.toString());
-        return sdd;
+        return semanticDataDictionary;
     }
-    public void setSDDUri(String sddUri) {
-        this.sddUri = sddUri;
+    public void setSemanticDataDictionaryUri(String semanticDataDictionaryUri) {
+        this.semanticDataDictionaryUri = semanticDataDictionaryUri;
     }
 
     public String getHasVersion() {
@@ -569,6 +570,14 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
         getHeaders();
     }
 
+    public String getDatasetPattern() {
+        return datasetPattern;
+    }
+
+    public void setDatasetPattern(String datasetPattern) {
+        this.datasetPattern = datasetPattern;
+    }
+
     public boolean hasScope() {
         return (hasCellScope());
     }
@@ -780,7 +789,7 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
 		    statement = stmtIterator.next();
 		    object = statement.getObject();
 			String string = URIUtils.objectRDFToString(object);
-            System.out.println("Property valuee: [" + string + "]");
+            //System.out.println("Predicate: [" + statement.getPredicate().getURI() + "]   Predicate value: [" + string + "]");
 			if (uri != null && !uri.isEmpty()) {
 				if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
 					str.setLabel(string);
@@ -791,11 +800,13 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_DEPLOYMENT)) {
 					str.setDeploymentUri(string);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_STUDY)) {
-					str.setStudyUri(uri);
+					str.setStudyUri(string);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_SDD)) {
-					str.setSDDUri(uri);
+					str.setSemanticDataDictionaryUri(string);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_METHOD)) {
 					str.setMethod(string);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_DATASET_PATTERN)) {
+					str.setDatasetPattern(string);
 				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
 					str.setComment(string);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.DESIGNED_AT_TIME)) {
@@ -890,8 +901,31 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
         */
 
 		str.setUri(uri);
-		
+
 		return str;
+	}
+
+    public static List<Stream> findStreamsByStudy(String studyUri) {
+        if (studyUri == null) {
+            return null;
+        }
+        List<Stream> streamList = new ArrayList<Stream>();
+
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + 
+                "SELECT ?uri WHERE { \n" + 
+                "   ?uri hasco:hasStudy <" + studyUri + "> . \n" +
+                "   ?uri hasco:hascoType hasco:Stream . \n" +
+                " } ";
+        return findManyByQuery(queryString);
+    }
+
+    public static int findTotalStreamsByStudy(String studyUri) {
+		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+		queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
+            "   ?uri hasco:hasStudy <" + studyUri + "> . \n" +
+            "   ?uri hasco:hascoType hasco:Stream . \n" +
+            " } ";
+        return GenericFind.findTotalByQuery(queryString);
 	}
 
     public static List<Stream> findByStateDeployment(State state, String deploymentUri) {
