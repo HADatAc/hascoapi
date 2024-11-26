@@ -26,6 +26,11 @@ import org.hascoapi.entity.pojo.HADatAcThing;
 import org.hascoapi.utils.MetadataFactory;
 import org.hascoapi.utils.CollectionUtil;
 
+import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.ModelFactory;
+import org.eclipse.rdf4j.model.impl.LinkedHashModelFactory;
+
+
 public abstract class BaseGenerator {
 
     protected List<Record> records = null;
@@ -277,6 +282,9 @@ public abstract class BaseGenerator {
 
     public boolean commitRowsToTripleStore(List<Map<String, Object>> rows) {
         System.out.println("BaseGenerator: commitRowsToTripleStore(): received values");
+
+        long startTime = System.currentTimeMillis();
+
         //for (Map<String, Object> row : rows) {
         //    for (Map.Entry<String, Object> entry : row.entrySet()) {
         //        System.out.println("Row: " + entry.getKey() + ": " + entry.getValue());
@@ -292,18 +300,34 @@ public abstract class BaseGenerator {
             logger.println(String.format("%d triple(s) have been committed to triple store", model.size()));
         }
 
+        long endTime = System.currentTimeMillis();
+
+        System.out.println("BaseGenerator.commitRowsToTripleStore() took " + (endTime - startTime)/1000 + " seconds to commit " + rows.size() + " rows and " + numCommitted + " triples");
+
         return true;
     }
 
     public boolean commitObjectsToTripleStore(List<HADatAcThing> objects) {
         int count = 0;
+
+        long startTime = System.currentTimeMillis();
+
+        // Create a empty model
+        ModelFactory modelFactory = new LinkedHashModelFactory();
+        Model model = modelFactory.createEmptyModel();
+
+        //model = null;
+
         for (HADatAcThing obj : objects) {
             obj.setNamedGraph(getNamedGraphUri());
 
             //System.out.println("BaseGenerator.commitObjectsToTriplestore() [1]");
-            if (obj.saveToTripleStore()) {
+
+            if (obj.saveToTripleStore(true, model)) {
+            //if (obj.saveToTripleStore()) {
                 count++;
             }
+            //System.out.println("Model size [obj]: " + model.size());
         }
         
         for (String name : caches.keySet()) {
@@ -314,16 +338,29 @@ public abstract class BaseGenerator {
                 for (Object obj : caches.get(name).getNewCache().values()) {
                     if (obj instanceof HADatAcThing) {
                         //System.out.println("BaseGenerator.commitObjectsToTriplestore() [2]");
-                        ((HADatAcThing) obj).saveToTripleStore();
+                        ((HADatAcThing) obj).saveToTripleStore(true, model);
+                        //((HADatAcThing) obj).saveToTripleStore();
                         count++;
+                        
                     }
                 }
             }
         }
 
+        int numCommitted = 0;
         if (count > 0) {
             logger.println(String.format("%d object(s) have been committed to triple store", count));
+
+            numCommitted = MetadataFactory.commitModelToTripleStore(
+                model, CollectionUtil.getCollectionPath(
+                        CollectionUtil.Collection.SPARQL_GRAPH));
+
+            //System.out.println("Num committed is " + numCommitted);
         }
+
+        long endTime = System.currentTimeMillis();
+
+        System.out.println("BaseGenerator.commitObjectsToTripleStore() took " + (endTime - startTime)/1000 + " seconds to commit " + count + " objects and " + numCommitted + " triples");
 
         return true;
     }

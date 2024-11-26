@@ -296,7 +296,8 @@ public abstract class HADatAcThing {
     @JsonIgnore
     public void delete() { throw new NotImplementedException("Used unimplemented HADatAcThing.delete() method"); }
 
-    private Model generateRDFModel(boolean withValidation) {
+    //private Model generateRDFModel(boolean withValidation, Model model) {        
+    public Model generateRDFModel(boolean withValidation, Model model) {
         Map<String, Object> row = new HashMap<String, Object>();
         List<Map<String, Object>> reversed_rows = new ArrayList<Map<String, Object>>();
 
@@ -435,12 +436,12 @@ public abstract class HADatAcThing {
             //System.out.println("Default URL: [" + RepositoryInstance.getInstance().getHasDefaultNamespaceURL() + "]");
             //System.out.println("Default Abbrev: [" + RepositoryInstance.getInstance().getHasDefaultNamespaceAbbreviation() + "]");
             if (RepositoryInstance.getInstance() != null && RepositoryInstance.getInstance().getHasDefaultNamespaceURL() != null) {
-                return MetadataFactory.createModel(reversed_rows,RepositoryInstance.getInstance().getHasDefaultNamespaceURL());
+                return MetadataFactory.createModel(reversed_rows,RepositoryInstance.getInstance().getHasDefaultNamespaceURL(), model);
             } else {
-                return MetadataFactory.createModel(reversed_rows,Constants.DEFAULT_REPOSITORY);
+                return MetadataFactory.createModel(reversed_rows,Constants.DEFAULT_REPOSITORY, model);
             }
         }
-        return MetadataFactory.createModel(reversed_rows, getNamedGraph());
+        return MetadataFactory.createModel(reversed_rows, getNamedGraph(), model);
     }
 
     public String printRDF() {
@@ -493,22 +494,34 @@ public abstract class HADatAcThing {
 
     @SuppressWarnings("unchecked")
     public boolean saveToTripleStore() {
-        return saveToTripleStore(true);
+        return saveToTripleStore(true, null);
     }
 
     @SuppressWarnings("unchecked")
     public boolean saveToTripleStore(boolean withValidation) {
+        return saveToTripleStore(true, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public boolean saveToTripleStore(boolean withValidation, Model model) {
         //System.out.println("inside HADatAcThing.saveToTripleStore(): calling deleteFromTripleStore().");
         deleteFromTripleStore();
 
+        // Check given model
+        boolean wasNull = model == null;
+
         //Model model = MetadataFactory.createModel(reversed_rows, getNamedGraph());
-        Model model = generateRDFModel(withValidation);
+        model = generateRDFModel(withValidation, model);
         if (model == null) {
             System.out.println("[ERROR] inside HADatAcThing.saveToTripleStore(): MetadataFactory.commitModelToTripleStore() received EMPTY model");
         }
-        int numCommitted = MetadataFactory.commitModelToTripleStore(
+        
+        int numCommitted = 0;
+        if (wasNull) {
+            numCommitted = MetadataFactory.commitModelToTripleStore(
                 model, CollectionUtil.getCollectionPath(
                         CollectionUtil.Collection.SPARQL_GRAPH));
+        }
 
         //System.out.println("For Uri " + uri + " num committed is " + numCommitted);
         return numCommitted >= 0;
