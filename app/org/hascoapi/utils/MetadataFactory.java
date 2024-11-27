@@ -91,9 +91,7 @@ public class MetadataFactory {
                             model.add(sub, pred, obj, (Resource)namedGraph);
                         }
                     }
-
                 } // end of for-loop
-
             }
         }
 

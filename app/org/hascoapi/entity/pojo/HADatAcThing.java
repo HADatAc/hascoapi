@@ -296,8 +296,7 @@ public abstract class HADatAcThing {
     @JsonIgnore
     public void delete() { throw new NotImplementedException("Used unimplemented HADatAcThing.delete() method"); }
 
-    //private Model generateRDFModel(boolean withValidation, Model model) {        
-    public Model generateRDFModel(boolean withValidation, Model model) {
+    private Model generateRDFModel(boolean withValidation, Model model) {
         Map<String, Object> row = new HashMap<String, Object>();
         List<Map<String, Object>> reversed_rows = new ArrayList<Map<String, Object>>();
 
@@ -486,7 +485,7 @@ public abstract class HADatAcThing {
             // Return only the first 5 characters of the URL-safe hash
             return urlSafeHash.substring(0, Math.min(5, urlSafeHash.length()));
         } catch (Exception e) {
-            System.err.println("Error occurred while creating URL-safe hash.");
+            System.err.println("[ERROR] Error occurred while creating URL-safe hash.");
             e.printStackTrace();
             return "";
         }
@@ -499,15 +498,14 @@ public abstract class HADatAcThing {
 
     @SuppressWarnings("unchecked")
     public boolean saveToTripleStore(boolean withValidation) {
-        return saveToTripleStore(true, null);
+        return saveToTripleStore(withValidation, null);
     }
 
     @SuppressWarnings("unchecked")
     public boolean saveToTripleStore(boolean withValidation, Model model) {
         //System.out.println("inside HADatAcThing.saveToTripleStore(): calling deleteFromTripleStore().");
-        deleteFromTripleStore();
+        //deleteFromTripleStore();
 
-        // Check given model
         boolean wasNull = model == null;
 
         //Model model = MetadataFactory.createModel(reversed_rows, getNamedGraph());
@@ -515,14 +513,14 @@ public abstract class HADatAcThing {
         if (model == null) {
             System.out.println("[ERROR] inside HADatAcThing.saveToTripleStore(): MetadataFactory.commitModelToTripleStore() received EMPTY model");
         }
-        
+
         int numCommitted = 0;
         if (wasNull) {
             numCommitted = MetadataFactory.commitModelToTripleStore(
                 model, CollectionUtil.getCollectionPath(
                         CollectionUtil.Collection.SPARQL_GRAPH));
         }
-
+        
         //System.out.println("For Uri " + uri + " num committed is " + numCommitted);
         return numCommitted >= 0;
     }
