@@ -506,15 +506,57 @@ public class IngestionWorker {
             System.out.println(record.getValueByColumnIndex(0) + ":" + record.getValueByColumnIndex(1));
         }
 
+        nameSpaceGen(dataFile, mapCatalog,templateFile);
+
+        annotationGen(dataFile, mapCatalog, templateFile);
+
         GeneratorChain chain = new GeneratorChain();
         RecordFile sheet = null;
 
         try {
 
-            nameSpaceGen(dataFile, mapCatalog,templateFile);
             chain.setNamedGraphUri(dataFile.getUri());
-            chain.addGenerator(new NameSpaceGenerator(dataFile,templateFile));
     
+            /* 
+            String annotationStemSheet = mapCatalog.get("AnnotationStems");
+            if (annotationStemSheet == null) {
+                System.out.println("[WARNING] 'AnnotationStems' sheet is missing.");
+                dataFile.getLogger().println("[WARNING] 'AnnotationStems' sheet is missing.");
+            } else {
+                annotationStemSheet.replace("#", "");
+                sheet = new SpreadsheetRecordFile(dataFile.getFile(), annotationStemSheet);
+                try {
+                    DataFile dataFileForSheet = (DataFile)dataFile.clone();
+                    dataFileForSheet.setRecordFile(sheet);
+                    INSGenerator annotationStemGen = new INSGenerator("annotationstem",dataFileForSheet);
+                    annotationStemGen.setNamedGraphUri(dataFileForSheet.getUri());
+                    chain.addGenerator(annotationStemGen);
+                } catch (CloneNotSupportedException e) {
+                    e.printStackTrace();
+                }
+            }
+            */
+
+            /* 
+            String annotationSheet = mapCatalog.get("Annotations");
+            if (annotationSheet == null) {
+                System.out.println("[WARNING] 'Annotations' sheet is missing.");
+                dataFile.getLogger().println("[WARNING] 'Annotations' sheet is missing.");
+            } else {
+                annotationSheet.replace("#", "");
+                sheet = new SpreadsheetRecordFile(dataFile.getFile(), annotationSheet);
+                try {
+                    DataFile dataFileForSheet = (DataFile)dataFile.clone();
+                    dataFileForSheet.setRecordFile(sheet);
+                    INSGenerator annotationGen = new INSGenerator("annotation",dataFileForSheet);
+                    annotationGen.setNamedGraphUri(dataFileForSheet.getUri());
+                    chain.addGenerator(annotationGen);
+                } catch (CloneNotSupportedException e) {
+                    e.printStackTrace();
+                }
+            }
+            */
+
             String responseOptionSheet = mapCatalog.get("ResponseOptions");
             if (responseOptionSheet == null) {
                 System.out.println("[WARNING] 'ResponseOptions' sheet is missing.");
@@ -1024,6 +1066,66 @@ public class IngestionWorker {
             System.out.println("[WARNING] NameSpaceGenerator: could not find any sheet inside of Metadata Template called [hasDependencies].");
         }
         return false;
+    }
+
+    public static boolean annotationGen(DataFile dataFile, Map<String, String> mapCatalog, String templateFile) {
+        RecordFile annotationStemRecordFile = null;
+        RecordFile annotationRecordFile = null;
+        DataFile annotationStemDataFile;
+        DataFile annotationDataFile;
+        try {
+            annotationStemDataFile = (DataFile)dataFile.clone();
+            annotationDataFile = (DataFile)dataFile.clone();
+        } catch (Exception e) {
+            System.out.println("[ERROR] IngestionWorker.annotationGen() - following error cloning dataFile: " + e.getMessage());
+            return false;
+        }
+        if (mapCatalog.get("AnnotationStems") != null) {
+            System.out.print("Extracting [AnnotationStems] sheet from spreadsheet... ");
+            annotationStemRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), mapCatalog.get("AnnotationStems"));
+            if (annotationStemRecordFile == null) {
+                System.out.println("[WARNING] 'AnnotationStems' sheet is missing.");
+                dataFile.getLogger().println("[WARNING] 'AnnotationStems' sheet is missing.");
+                return false;
+            } else if (annotationStemRecordFile.getRecords() == null) {
+                System.out.println("[WARNING] annotationGen(): annotationStemRecordFile.getRecords() is NULL.");
+                return false;
+            }
+            annotationStemDataFile.setRecordFile(annotationStemRecordFile);
+        }
+        if (mapCatalog.get("Annotations") != null) {
+            System.out.print("Extracting [Annotations] sheet from spreadsheet... ");
+            annotationRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), mapCatalog.get("Annotations"));
+            if (annotationRecordFile == null) {
+                System.out.println("[WARNING] 'Annotations' sheet is missing.");
+                dataFile.getLogger().println("[WARNING] 'Annotations' sheet is missing.");
+                return false;
+            } else if (annotationRecordFile.getRecords() == null) {
+                System.out.println("[WARNING] annotationGen(): annotationRecordFile.getRecords() is NULL.");
+                return false;
+            }
+            annotationDataFile.setRecordFile(annotationRecordFile);
+        }
+
+        INSGenerator annotationStemGen = new INSGenerator("annotationstem",annotationStemDataFile);
+        annotationStemGen.setNamedGraphUri(dataFile.getUri());
+        INSGenerator annotationGen = new INSGenerator("annotation",annotationDataFile);
+        annotationGen.setNamedGraphUri(dataFile.getUri());
+
+        GeneratorChain chain = new GeneratorChain();
+        chain.setNamedGraphUri(dataFile.getUri());
+        chain.addGenerator(annotationStemGen);
+        chain.addGenerator(annotationGen);
+        boolean isSuccess = false;
+        if (chain != null) {
+            isSuccess = chain.generate();
+        }
+        if (isSuccess) {                                
+            System.out.println("Done extracting annotationStem and annotation sheets. ");
+        } else {
+            System.out.println("Failed to extract annotationStem and/or annotation sheets. ");
+        }
+        return isSuccess;
     }
 
 }
