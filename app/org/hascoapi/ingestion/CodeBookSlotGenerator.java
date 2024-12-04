@@ -25,6 +25,7 @@ public class CodeBookSlotGenerator extends BaseGenerator {
 		System.out.println("inside of CodeBookSlotGenerator's: total of records=" + records.size());
 
 		int priority = 1;
+		String pastBelongsTo = "";
 		
         int rowNumber = 0;
         int skippedRows = 0;
@@ -45,6 +46,10 @@ public class CodeBookSlotGenerator extends BaseGenerator {
 					if (belongsTo.isEmpty()) {
 						System.out.println("[ERROR] CodeBookSlotGenerator: could not find a value for vstoi:belongsTo");
 					} else {
+						if (!belongsTo.equals(pastBelongsTo)) {
+							priority = 1;
+							pastBelongsTo = belongsTo;
+						}
 						String priorityStr = String.valueOf(priority++);
 						tempRow.put("vstoi:hasPriority",priorityStr);
 						tempRow.put("hasURI",computeCodeBookSlotUri(priorityStr, belongsTo));
@@ -58,9 +63,9 @@ public class CodeBookSlotGenerator extends BaseGenerator {
         	}
         }
 
-        if (skippedRows > 0) {
-        	System.out.println("Skipped rows: " + skippedRows);
-        }
+        //if (skippedRows > 0) {
+        //	System.out.println("Skipped rows: " + skippedRows);
+        //}
 
     }
 	

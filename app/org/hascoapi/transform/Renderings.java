@@ -128,7 +128,7 @@ public class Renderings {
 		return lines;
 	}
 
-	private static String runtimeRendering(String rendering, int page) {
+	protected static String runtimeRendering(String rendering, int page) {
 		//System.out.println("Rendering: [" + rendering + "]  page: [" + page + "]" );
         if (rendering.indexOf(Constants.META_VARIABLE_PAGE) == -1) {
             return rendering;
@@ -138,11 +138,12 @@ public class Renderings {
 		return str;	
 	}
 
-	private static String headerHTML(Instrument instr, int page) {
-		Annotation topLeftAnnotation = Annotation.findByContainerAndPosition(instr.getUri(),VSTOI.PAGE_TOP_LEFT);
-		Annotation topCenterAnnotation = Annotation.findByContainerAndPosition(instr.getUri(),VSTOI.PAGE_TOP_CENTER);
-		Annotation topRightAnnotation = Annotation.findByContainerAndPosition(instr.getUri(),VSTOI.PAGE_TOP_RIGHT);
-		Annotation lineBelowTopAnnotation = Annotation.findByContainerAndPosition(instr.getUri(),VSTOI.PAGE_LINE_BELOW_TOP);
+	/*
+	private static String headerHTML(Container container, int page) {
+		Annotation topLeftAnnotation = Annotation.findByContainerAndPosition(container.getUri(),VSTOI.PAGE_TOP_LEFT);
+		Annotation topCenterAnnotation = Annotation.findByContainerAndPosition(container.getUri(),VSTOI.PAGE_TOP_CENTER);
+		Annotation topRightAnnotation = Annotation.findByContainerAndPosition(container.getUri(),VSTOI.PAGE_TOP_RIGHT);
+		Annotation lineBelowTopAnnotation = Annotation.findByContainerAndPosition(container.getUri(),VSTOI.PAGE_LINE_BELOW_TOP);
 
  		String topLeft = "";
 		if (topLeftAnnotation != null) {
@@ -176,13 +177,15 @@ public class Renderings {
 				lineBelowTop + "<br>" +
 				"<br>\n";
 	}
+	*/
 
-	private static String footerHTML(Instrument instr, int page) {
+	/* 
+	private static String footerHTML(Container container, int page) {
 
-		Annotation bottomLeftAnnotation = Annotation.findByContainerAndPosition(instr.getUri(),VSTOI.PAGE_BOTTOM_LEFT);
-		Annotation bottomCenterAnnotation = Annotation.findByContainerAndPosition(instr.getUri(),VSTOI.PAGE_BOTTOM_CENTER);
-		Annotation bottomRightAnnotation = Annotation.findByContainerAndPosition(instr.getUri(),VSTOI.PAGE_BOTTOM_RIGHT);
-		Annotation lineAboveBottomAnnotation = Annotation.findByContainerAndPosition(instr.getUri(),VSTOI.PAGE_LINE_ABOVE_BOTTOM);
+		Annotation bottomLeftAnnotation = Annotation.findByContainerAndPosition(container.getUri(),VSTOI.PAGE_BOTTOM_LEFT);
+		Annotation bottomCenterAnnotation = Annotation.findByContainerAndPosition(container.getUri(),VSTOI.PAGE_BOTTOM_CENTER);
+		Annotation bottomRightAnnotation = Annotation.findByContainerAndPosition(container.getUri(),VSTOI.PAGE_BOTTOM_RIGHT);
+		Annotation lineAboveBottomAnnotation = Annotation.findByContainerAndPosition(container.getUri(),VSTOI.PAGE_LINE_ABOVE_BOTTOM);
 
 		String lineAboveBottom = "";
 		if (lineAboveBottomAnnotation != null) {
@@ -215,7 +218,9 @@ public class Renderings {
 				"</table> " +
 				"<br><br><br><br>";
 	}
+	*/
 
+	/* 
 	private static String styleHTML() {
 		return "<style>\n" +
 				"table, tr, td {\n" +
@@ -246,15 +251,18 @@ public class Renderings {
 				"}\n" +
 				"</style>\n";
 	}
+	*/
 
 	private static String printPage(Instrument instr, int page) {
 		String html = "";
 
 		// PRINT HEADER
 		if (page == 1) {
-			html += headerHTML(instr,page);
+			html += HeaderFooter.pageHeaderHTML(instr,page);
 			html += "<br>\n";
 		}
+
+		List<SlotElement> slots = instr.getSlotElements();
 
 		int first = 0;
 		int last = 0;
@@ -262,11 +270,11 @@ public class Renderings {
 		if (page == 1) {
 			currentPageSize = 25;
 			first = 1;
-			if (instr.getSlotElements() != null && instr.getSlotElements().size() > 25) {
+			if (slots != null && slots.size() > 25) {
 				last = 25;
 			} else {
-				if (instr.getSlotElements() != null) {
-					last = instr.getSlotElements().size();
+				if (slots != null) {
+					last = slots.size();
 				} else {
 					last = 0;
 				}
@@ -288,14 +296,87 @@ public class Renderings {
 		// System.out.println(" Last: " + last);
 		// System.out.println(" CurrentPageSize: " + currentPageSize);
 		// System.out.println("");
+		/* 
 		html += "<table>\n";
-		if (instr.getSlotElements() == null || instr.getSlotElements().size() <= 0) {
+		if (slots == null || slots.size() <= 0) {
 			html += "<p>EMPTY TABLE</p>";
 		} else {
 			// System.out.println("Renderings.java: total containerSlots: " +
 			// instr.getSlotElements().size());
 			for (int element = first - 1; element < last; element++) {
-				SlotElement slotElement = instr.getSlotElements().get(element);
+				SlotElement slotElement = slots.get(element);
+				if (slotElement instanceof ContainerSlot) {
+					 
+					ContainerSlot containerSlot = (ContainerSlot)slotElement;
+					Detector detector = containerSlot.getDetector();
+					if (detector == null) {
+						if (containerSlot.getHasPriority() != null) {
+							html += "<tr><td>" + containerSlot.getHasPriority() + ".</tr></td>\n";
+						}
+					} else {
+						String content = "";
+						//System.out.println(detector.toString());
+						if (detector != null && detector.getDetectorStem() != null && detector.getDetectorStem().getHasContent() != null) {
+							content = detector.getDetectorStem().getHasContent();
+						}
+						html += "<tr>";
+						html += "<td>" + containerSlot.getHasPriority() + ". " + content + "</td>";
+						Codebook codebook = detector.getCodebook();
+						if (codebook != null) {
+							List<CodebookSlot> cbslots = codebook.getCodebookSlots();
+							if (cbslots != null && cbslots.size() > 0) {
+								for (CodebookSlot cbslot : cbslots) {
+									if (cbslot.getResponseOption() != null) {
+										ResponseOption responseOption = cbslot.getResponseOption();
+										if (responseOption != null && responseOption.getHasContent() != null) {
+											html += "<td>" + responseOption.getHasContent() + "</td>";
+										}
+									}
+								}
+							}
+						}
+						html += "</tr>\n";
+					} 
+				} else if (slotElement instanceof Subcontainer) {
+					Subcontainer subcontainer = (Subcontainer)slotElement;
+					html += printContainer(subcontainer, page, currentPageSize);
+				}
+			}
+		}
+		html += "</table>\n";
+		*/
+		html += printContainer(instr, page, currentPageSize);
+
+		// FILL THE REST OF THE PAGE BLANK
+		//for (int aux = 0; aux + last <= currentPageSize; aux++) {
+		//	html += "<br>";
+		//}
+
+		// PRINT FOOTER
+		html += HeaderFooter.pageFooterHTML(instr, page);
+
+		return html;
+	}
+
+	private static String printContainer(Container container, int page, int currentPageSize) {
+		//String html = "Printing subcontainer " + subcontainer.getLabel() + "<br>";
+		String html = "";
+
+		if (container instanceof Subcontainer) {
+			html += HeaderFooter.sectionHeaderHTML((Subcontainer)container,page);
+		}
+
+		html += "<br><table>\n";
+		List<SlotElement> slots = container.getSlotElements();
+		if (slots == null || slots.size() <= 0) {
+			html += "<p>EMPTY SUBCONTAINER</p>";
+		} else {
+			// System.out.println("Renderings.java: total containerSlots: " +
+			// instr.getSlotElements().size());
+			int first = 1;
+			int last = slots.size();
+			for (int element = first - 1; element < last; element++) {
+				SlotElement slotElement = slots.get(element);
 				if (slotElement instanceof ContainerSlot) {
 					ContainerSlot containerSlot = (ContainerSlot)slotElement;
 					Detector detector = containerSlot.getDetector();
@@ -313,11 +394,11 @@ public class Renderings {
 						html += "<td>" + containerSlot.getHasPriority() + ". " + content + "</td>";
 						Codebook codebook = detector.getCodebook();
 						if (codebook != null) {
-							List<CodebookSlot> slots = codebook.getCodebookSlots();
-							if (slots != null && slots.size() > 0) {
-								for (CodebookSlot slot : slots) {
-									if (slot.getResponseOption() != null) {
-										ResponseOption responseOption = slot.getResponseOption();
+							List<CodebookSlot> cbslots = codebook.getCodebookSlots();
+							if (cbslots != null && cbslots.size() > 0) {
+								for (CodebookSlot cbslot : cbslots) {
+									if (cbslot.getResponseOption() != null) {
+										ResponseOption responseOption = cbslot.getResponseOption();
 										if (responseOption != null && responseOption.getHasContent() != null) {
 											html += "<td>" + responseOption.getHasContent() + "</td>";
 										}
@@ -327,18 +408,17 @@ public class Renderings {
 						}
 						html += "</tr>\n";
 					}
+				} else if (slotElement instanceof Subcontainer) {
+					Subcontainer subsubcontainer = (Subcontainer)slotElement;
+					html += printContainer(subsubcontainer, page, currentPageSize);
 				}
 			}
 		}
 		html += "</table>\n";
-
-		// FILL THE REST OF THE PAGE BLANK
-		for (int aux = 0; aux + last <= currentPageSize; aux++) {
-			html += "<br>";
+		if (container instanceof Subcontainer) {
+			html += HeaderFooter.sectionFooterHTML((Subcontainer)container,page);
+			html += "<br>\n";
 		}
-
-		// PRINT FOOTER
-		html += footerHTML(instr, page);
 
 		return html;
 	}
@@ -354,7 +434,7 @@ public class Renderings {
 		html += "<!DOCTYPE html>\n" +
 				"<html>\n" +
 				"<head>\n" +
-				styleHTML() +
+				Style.styleHTML() +
 				"</head>\n" +
 				"<body>\n";
 
