@@ -4,8 +4,12 @@ WORKDIR /hascoapi
 
 COPY . .
 
+RUN apt-get update && \
+    apt-get install -y tmux && \
+    rm -rf /var/lib/apt/lists/*
+
 RUN sbt update
 
 EXPOSE 9000
 
-CMD ["sbt", "run"]
+CMD ["tmux", "new-session", "-s", "hascoapi", "sbt run"]
