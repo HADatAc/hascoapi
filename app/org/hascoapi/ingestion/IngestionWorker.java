@@ -201,7 +201,7 @@ public class IngestionWorker {
         Map<String, String> mapCatalog = new HashMap<String, String>();
         for (Record record : dataFile.getRecordFile().getRecords()) {
             mapCatalog.put(record.getValueByColumnIndex(0), record.getValueByColumnIndex(1));
-            System.out.println(record.getValueByColumnIndex(0) + ":" + record.getValueByColumnIndex(1));
+            //System.out.println(record.getValueByColumnIndex(0) + ":" + record.getValueByColumnIndex(1));
         }
 
         if (dataFile.getFilename().endsWith(".xlsx")) {
@@ -253,7 +253,7 @@ public class IngestionWorker {
         Map<String, String> mapCatalog = new HashMap<String, String>();
         for (Record record : dataFile.getRecordFile().getRecords()) {
             mapCatalog.put(record.getValueByColumnIndex(0), record.getValueByColumnIndex(1));
-            System.out.println(record.getValueByColumnIndex(0) + ":" + record.getValueByColumnIndex(1));
+            //System.out.println(record.getValueByColumnIndex(0) + ":" + record.getValueByColumnIndex(1));
         }
 
         RecordFile ssdRecordFile = null;
@@ -503,7 +503,7 @@ public class IngestionWorker {
         Map<String, String> mapCatalog = new HashMap<String, String>();
         for (Record record : dataFile.getRecordFile().getRecords()) {
             mapCatalog.put(record.getValueByColumnIndex(0), record.getValueByColumnIndex(1));
-            System.out.println(record.getValueByColumnIndex(0) + ":" + record.getValueByColumnIndex(1));
+            //System.out.println(record.getValueByColumnIndex(0) + ":" + record.getValueByColumnIndex(1));
         }
 
         nameSpaceGen(dataFile, mapCatalog,templateFile);
@@ -812,7 +812,7 @@ public class IngestionWorker {
         Map<String, String> mapCatalog = new HashMap<String, String>();
         for (Record record : dataFile.getRecordFile().getRecords()) {
             mapCatalog.put(record.getValueByColumnIndex(0), record.getValueByColumnIndex(1));
-            System.out.println(record.getValueByColumnIndex(0) + ":" + record.getValueByColumnIndex(1));
+            //System.out.println(record.getValueByColumnIndex(0) + ":" + record.getValueByColumnIndex(1));
             if (record.getValueByColumnIndex(0).isEmpty() && record.getValueByColumnIndex(1).isEmpty()) {
                 break;
             }
