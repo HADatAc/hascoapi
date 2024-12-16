@@ -716,7 +716,7 @@ public class GenericFind<T> {
      */
 
 	public List<T> findByManagerEmailWithPages(Class clazz, String managerEmail, int pageSize, int offset) {
-        System.out.println("findByManagerEmailWithPages: Clazz=[" + clazz + "]");
+        //System.out.println("findByManagerEmailWithPages: Clazz=[" + clazz + "]");
         String hascoTypeStr = classNameWithNamespace(clazz);
         if (hascoTypeStr == null || hascoTypeStr.isEmpty()) {
             hascoTypeStr = superclassNameWithNamespace(clazz);

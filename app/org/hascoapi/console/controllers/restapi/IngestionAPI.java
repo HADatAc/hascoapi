@@ -9,6 +9,7 @@ import org.hascoapi.Constants;
 import org.hascoapi.ingestion.IngestionWorker;
 import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.entity.pojo.GenericInstance;
+import org.hascoapi.entity.pojo.DP2;
 import org.hascoapi.entity.pojo.DSG;
 import org.hascoapi.entity.pojo.INS;
 import org.hascoapi.entity.pojo.KGR;
@@ -102,13 +103,20 @@ public class IngestionAPI extends Controller {
          * DSG
          */
         /* } else */ 
-        if (elementType.equals("dsg") || 
+        if (elementType.equals("dp2") || 
+            elementType.equals("dsg") ||
             elementType.equals("ins") ||
             elementType.equals("sdd") || 
             elementType.equals("str")) {
             System.out.println("IngestionAPI.ingest(): inside elementType=[" + elementType + "]");
             DataFile dataFile = null;
-            if (elementType.equals("dsg")) {
+            if (elementType.equals("dp2")) {
+                DP2 dp2 = DP2.find(elementUri);
+                if (dp2 == null) {
+                    return ok(ApiUtil.createResponse("IngestionAPI.ingest(): File FAILED to be ingested: could not retrieve " + elementType + ". ",false));
+                }
+                dataFile = DataFile.find(dp2.getHasDataFileUri());
+            } else if (elementType.equals("dsg")) {
                 DSG dsg = DSG.find(elementUri);
                 if (dsg == null) {
                     return ok(ApiUtil.createResponse("IngestionAPI.ingest(): File FAILED to be ingested: could not retrieve " + elementType + ". ",false));
@@ -298,6 +306,9 @@ public class IngestionAPI extends Controller {
             } else if (mtRaw.getHascoTypeUri().equals(HASCO.SDD)) {
                 mtType = HASCO.SDD;
                 System.out.println("IngestionAPI.uningestMetadataTemplate() read SDD");
+            } else if (mtRaw.getHascoTypeUri().equals(HASCO.DP2)) {
+                mtType = HASCO.DP2;
+                System.out.println("IngestionAPI.uningestMetadataTemplate() read DP2");
             } else if (mtRaw.getHascoTypeUri().equals(HASCO.DSG)) {
                 mtType = HASCO.DSG;
                 System.out.println("IngestionAPI.uningestMetadataTemplate() read DSG");
@@ -356,6 +367,33 @@ public class IngestionAPI extends Controller {
             }
 
             System.out.println("IngestionAPI.ingest(): API has able to retrieve DSG from triplestore");
+
+            // Delete API copy of metadata template
+            boolean deletedFile = IngestionAPI.deletePermanentFile(dataFile.getFilename());
+
+            // Uningest Datafile content
+            dataFile.delete();
+
+            String msg = "IngestionAPI.uningestMetadataTemplate(): successfully ingested metadataTemplateUri " + metadataTemplateUri;
+            System.out.println(msg);
+            return ok(ApiUtil.createResponse(msg,true));
+
+        } else if (mtType.equals(HASCO.DP2)) {
+
+            DP2 dp2 = DP2.find(metadataTemplateUri);
+            if (dp2 == null) {
+                String errorMsg = "[ERROR] IngestionAPI.uningestMetadataTemplate() unable to retrieve DP2 with metadataTemplateUri = " + metadataTemplateUri;
+                System.out.println(errorMsg);
+                return ok(ApiUtil.createResponse(errorMsg,false));
+            }
+            DataFile dataFile = DataFile.find(dp2.getHasDataFileUri());
+            if (dataFile == null) {
+                String errorMsg = "[ERROR] IngestionAPI.uningestMetadataTemplate() unable to retrieve DP2's dataFile = " + dp2.getHasDataFileUri();
+                System.out.println(errorMsg);
+                return ok(ApiUtil.createResponse(errorMsg,false));
+            }
+
+            System.out.println("IngestionAPI.ingest(): API has able to retrieve DP2 from triplestore");
 
             // Delete API copy of metadata template
             boolean deletedFile = IngestionAPI.deletePermanentFile(dataFile.getFilename());

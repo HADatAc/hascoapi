@@ -47,7 +47,7 @@ public class DP2API extends Controller {
             return ok(ApiUtil.createResponse("No DP2 has been found", false));
         } else {
             //for (DP2 dp2: results) {
-            //    System.out.println(dp2.getLabel() + "  [" + dp2.getHasDataFile() + "]");
+            //    System.out.println(dp2.getLabel() + "  [" + dp2.getHasDataFile().getFileStatus() + "]");
             //}
             ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL,HASCO.DP2);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
