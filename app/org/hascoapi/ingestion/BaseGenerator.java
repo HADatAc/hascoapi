@@ -527,9 +527,13 @@ public abstract class BaseGenerator {
         UpdateProcessor processor = UpdateExecutionFactory.createRemote(
                 request, CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
         try {
+
             processor.execute();
+            
         } catch (Exception e) {
+            
             e.printStackTrace();
+
         }
         // System.out.println("UPDATE END");
 
