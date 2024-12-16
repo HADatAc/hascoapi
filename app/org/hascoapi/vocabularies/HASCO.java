@@ -80,6 +80,7 @@ public class HASCO {
     public static final String HAS_FIRST_COORDINATE                   = "http://hadatac.org/ont/hasco/hasFirstCoordinate";
     public static final String HAS_FIRST_COORDINATE_UNIT              = "http://hadatac.org/ont/hasco/hasFirstCoordinateUnit";
     public static final String HAS_FIRST_COORDINATE_CHARACTERISTIC    = "http://hadatac.org/ont/hasco/hasFirstCoordinateCharacteristic";
+    public static final String HAS_GEOMETRY                           = "http://hadatac.org/ont/hasco/hasGeometry";
     public static final String HAS_GROUNDING_LABEL                    = "http://hadatac.org/ont/hasco/hasGroundingLabel";
     public static final String HAS_IMAGE                              = "http://hadatac.org/ont/hasco/hasImage";
     public static final String HAS_INSTITUTION                        = "http://hadatac.org/ont/hasco/hasInstitution";

@@ -364,7 +364,6 @@ public class SIRElementAPI extends Controller {
                 STR object;
                 object = (STR)objectMapper.readValue(json, clazz);
                 object.save();
-                System.out.println("saved STR");
             } catch (JsonProcessingException e) {
                 message = e.getMessage();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
