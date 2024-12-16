@@ -1081,23 +1081,28 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
 
     @Override
     public void save() {
-        saveToTripleStore();
+        saveToTripleStore(true, true, null, null);
         return;
     }
 
     @Override
-    public boolean saveToTripleStore() {
+    //@SuppressWarnings("unchecked")
+    public boolean saveToTripleStore(boolean withValidation, boolean withDeletion, org.eclipse.rdf4j.model.Model model, List<String> query) {
         String insert = "";
 
-        String socUri = "";
-        if (this.getUri().startsWith("<")) {
-            socUri = this.getUri();
+        if (query == null || query.isEmpty()) {
+            insert += NameSpaces.getInstance().printSparqlNameSpaceList();
+            insert += INSERT_LINE1;
         } else {
-            socUri = "<" + this.getUri() + ">";
+            insert = query.get(0);
         }
 
-        insert += NameSpaces.getInstance().printSparqlNameSpaceList();
-        insert += INSERT_LINE1;
+        String socUri = "";
+            if (this.getUri().startsWith("<")) {
+                socUri = this.getUri();
+            } else {
+                socUri = "<" + this.getUri() + ">";
+            }
 
         if (!getNamedGraph().isEmpty()) {
             insert += " GRAPH <" + getNamedGraph() + "> { ";
@@ -1172,18 +1177,28 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         // NAMEDGRAPH CLOSING
         insert += " } ";
 
-        insert += LINE_LAST;
+        //System.out.println("\n\nsave to TS: insert = " + insert + "\n ");
 
-        //System.out.println("save to TS: insert = " + insert);
+        if (query == null){
+            // INSERT CLOSING
+            insert += LINE_LAST;
 
-        try {
-            UpdateRequest request = UpdateFactory.create(insert);
-            UpdateProcessor processor = UpdateExecutionFactory.createRemote(
-                    request, CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
-            processor.execute();
-        } catch (QueryParseException e) {
-            System.out.println("QueryParseException due to update query: " + insert);
-            throw e;
+            try {
+                UpdateRequest request = UpdateFactory.create(insert);
+                UpdateProcessor processor = UpdateExecutionFactory.createRemote(
+                        request, CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
+                processor.execute();
+            } catch (QueryParseException e) {
+                System.out.println("QueryParseException due to update query: " + insert);
+                throw e;
+            }
+        } else {
+            // Update query
+            if (query.isEmpty()){
+                query.add(insert);
+            } else {
+                query.set(0, insert);
+            }
         }
 
         //saveObjectUris(socUri);

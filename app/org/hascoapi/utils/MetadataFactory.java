@@ -30,6 +30,7 @@ public class MetadataFactory {
         //}
         //System.out.println("MetadataFactory.createModel() received MODEL " + model);
         if (model == null) {
+            // Create a empty model
             ModelFactory modelFactory = new LinkedHashModelFactory();
             model = modelFactory.createEmptyModel();
         }

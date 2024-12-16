@@ -1,10 +1,11 @@
 package org.hascoapi.ingestion;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.String;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.jena.query.QueryParseException;
 import org.apache.jena.update.UpdateExecutionFactory;
 import org.apache.jena.update.UpdateFactory;
 import org.apache.jena.update.UpdateProcessor;
@@ -22,9 +24,12 @@ import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.sparql.SPARQLRepository;
 import org.hascoapi.utils.Templates;
 import org.hascoapi.utils.IngestionLogger;
+import org.hascoapi.Constants;
+import org.hascoapi.RepositoryInstance;
 import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.entity.pojo.HADatAcThing;
 import org.hascoapi.utils.MetadataFactory;
+import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.CollectionUtil;
 
 import org.eclipse.rdf4j.model.Model;
@@ -39,7 +44,7 @@ public abstract class BaseGenerator {
 
     protected List<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
     protected List<HADatAcThing> objects = new ArrayList<HADatAcThing>();
-    
+
     protected Map<String, Cache> caches = new HashMap<String, Cache>();
 
     protected HashMap<String, String> mapCol = new HashMap<String, String>();
@@ -56,7 +61,7 @@ public abstract class BaseGenerator {
     public BaseGenerator(DataFile dataFile) {
     	this(dataFile, null, null);
     }
-    
+
     public BaseGenerator(DataFile dataFile, String studyUri) {
     	this(dataFile, studyUri, null);
     }
@@ -81,31 +86,31 @@ public abstract class BaseGenerator {
             //System.out.println("BaseGenerator: (Constructor) process dataFile: logger");
     		logger = dataFile.getLogger();
     	}
-    	
+
         //System.out.println("BaseGenerator: (Constructor) process initMapping");
         initMapping();
     }
 
     public void initMapping() {}
-    
+
     public void addCache(Cache cache) {
         if (!caches.containsKey(cache.getName())) {
             caches.put(cache.getName(), cache);
         }
     }
-    
+
     public void clearCacheByName(String name) {
         if (caches.containsKey(name)) {
             caches.get(name).clear();
         }
     }
-    
+
     public void clearAllCaches() {
         for (String name : caches.keySet()) {
             caches.get(name).clear();
         }
     }
-    
+
     public IngestionLogger getLogger() {
         return logger;
     }
@@ -124,7 +129,7 @@ public abstract class BaseGenerator {
     public DataFile getDataFile() {
         return dataFile;
     }
-    
+
     public String getFileName() {
         return fileName;
     }
@@ -151,7 +156,7 @@ public abstract class BaseGenerator {
 	public String getElementType() {
 		return this.elementType;
 	}
-    
+
 	public void setElementType(String elementType) {
 		this.elementType = elementType;
 	}
@@ -168,11 +173,11 @@ public abstract class BaseGenerator {
     public List<HADatAcThing> getObjects() {
         return objects;
     }
-    
+
     public void addRow(Map<String, Object> row) {
         rows.add(row);
     }
-    
+
     public void addObject(HADatAcThing object) {
         objects.add(object);
     }
@@ -183,7 +188,7 @@ public abstract class BaseGenerator {
     public void postprocess() throws Exception {}
     public Map<String,String> postprocessuris() throws Exception { return new HashMap<String,String>(); }
 
-    public void createRows() throws Exception {        
+    public void createRows() throws Exception {
         if (records == null) {
             return;
         }
@@ -282,9 +287,6 @@ public abstract class BaseGenerator {
 
     public boolean commitRowsToTripleStore(List<Map<String, Object>> rows) {
         System.out.println("BaseGenerator: commitRowsToTripleStore(): received values");
-
-        //long startTime = System.currentTimeMillis();
-
         //for (Map<String, Object> row : rows) {
         //    for (Map.Entry<String, Object> entry : row.entrySet()) {
         //        System.out.println("Row: " + entry.getKey() + ": " + entry.getValue());
@@ -295,36 +297,48 @@ public abstract class BaseGenerator {
         int numCommitted = MetadataFactory.commitModelToTripleStore(
                 model, CollectionUtil.getCollectionPath(
                         CollectionUtil.Collection.SPARQL_GRAPH));
-        logger.println(String.format("%d triple(s) have been committed to triple store", model.size())
-        );
+
         if (numCommitted > 0) {
             logger.println(String.format("%d triple(s) have been committed to triple store", model.size()));
         }
-
-        /*long endTime = System.currentTimeMillis();
-
-        System.out.println("BaseGenerator.commitRowsToTripleStore() took " + (endTime - startTime) / 1_000.0 + " seconds to commit " + rows.size() + " rows and " + numCommitted + " triples");*/
 
         return true;
     }
 
     public boolean commitObjectsToTripleStore(List<HADatAcThing> objects) {
         int count = 0;
-
-        // long startTime = System.currentTimeMillis();
+        boolean withValidation = true;
 
         // Create a empty model
         ModelFactory modelFactory = new LinkedHashModelFactory();
         Model model = modelFactory.createEmptyModel();
 
+        // Create a empty query (To StudyObjectCollections)
+        List<String> query = new ArrayList<>();
+        //query = null;
+
+        //System.out.println("DELETION START");
+        // Delete all triples from the named graph
+        deleteObjectsFromTripleStore(objects);
+        //System.out.println("DELETION DONE");
+
         for (HADatAcThing obj : objects) {
             obj.setNamedGraph(getNamedGraphUri());
             //System.out.println("BaseGenerator.commitObjectsToTriplestore() [1]");
-            if (obj.saveToTripleStore(true, model)) {
+
+            if (obj.getClass().getSimpleName() == "StudyObjectCollection"){
+                obj.saveToTripleStore(
+                    false,
+                    false,
+                    null,
+                    query
+                );
+            } else if (obj.saveToTripleStore(withValidation, false, model)){
                 count++;
             }
+
         }
-        
+
         for (String name : caches.keySet()) {
             if (caches.get(name).getNeedCommit()) {
                 //System.out.println("cache " + name + " size: Initial " + caches.get(name).getInitialCache().values().size());
@@ -333,32 +347,37 @@ public abstract class BaseGenerator {
                 for (Object obj : caches.get(name).getNewCache().values()) {
                     if (obj instanceof HADatAcThing) {
                         //System.out.println("BaseGenerator.commitObjectsToTriplestore() [2]");
-                        ((HADatAcThing) obj).saveToTripleStore(true, model);
+                        ((HADatAcThing) obj).setNamedGraph(getNamedGraphUri());
+                        ((HADatAcThing) obj).saveToTripleStore(withValidation, false, model);
                         count++;
-                        
+
                     }
                 }
             }
         }
 
-        /*long endTime = System.currentTimeMillis();
-
-        System.out.println("BaseGenerator.commitObjectsToTripleStore().1 took " + (endTime - startTime)/ 1_000.0 + " seconds to get " + count + " objects");
-
-        startTime = System.currentTimeMillis();*/
-
         int numCommitted = 0;
         if (count > 0) {
             logger.println(String.format("%d object(s) have been committed to triple store", count));
 
-            numCommitted = MetadataFactory.commitModelToTripleStore(
-                model, CollectionUtil.getCollectionPath(
-                        CollectionUtil.Collection.SPARQL_GRAPH));
+            if (model.size() > 0) {
+                numCommitted += MetadataFactory.commitModelToTripleStore(
+                    model, CollectionUtil.getCollectionPath(
+                            CollectionUtil.Collection.SPARQL_GRAPH));
+            } else if (query != null && !query.isEmpty()) {
+                String query1 = query.get(0) + "}  ";
+                // System.out.println("query1: " + query1);
+                try {
+                    UpdateRequest request = UpdateFactory.create(query1);
+                    UpdateProcessor processor = UpdateExecutionFactory.createRemote(
+                            request, CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
+                    processor.execute();
+                } catch (QueryParseException e) {
+                    System.out.println("QueryParseException due to update query: " + query1);
+                    throw e;
+                }
+            }
         }
-
-        /*endTime = System.currentTimeMillis();
-
-        System.out.println("BaseGenerator.commitObjectsToTripleStore().2 took " + (endTime - startTime)/ 1_000.0 + " seconds to commit " + count + " objects and " + numCommitted + " triples");*/
 
         return true;
     }
@@ -377,7 +396,7 @@ public abstract class BaseGenerator {
         dropGraph(namedGraph);
     }
 
-    public boolean deleteObjectsFromTripleStore(List<HADatAcThing> objects) {
+    /*public boolean deleteObjectsFromTripleStore(List<HADatAcThing> objects) {
         for (HADatAcThing obj : objects) {
             if ( obj.getNamedGraph() == null || obj.getNamedGraph().length() == 0 ) {
                 obj.setNamedGraph(getNamedGraphUri());
@@ -387,7 +406,7 @@ public abstract class BaseGenerator {
                 obj.deleteFromTripleStore();
             }
         }
-        
+
         for (String name : caches.keySet()) {
             if (caches.get(name).getNeedCommit()) {
                 for (Object obj : caches.get(name).getNewCache().values()) {
@@ -404,6 +423,116 @@ public abstract class BaseGenerator {
         dropGraph(namedGraph);
 
         return true;
+    }*/
+
+    public void deleteObjectsFromTripleStore(List<HADatAcThing> objects) {
+        int count = 0;
+        String query;
+        //String namedGraph = "";
+        //String uri = "";
+
+        // Group objects uri by named graph
+        Map<String, List<String>> objectsUriByNamedGraph = new HashMap<>();
+        for (HADatAcThing obj : objects) {
+            String namedGraph = obj.getNamedGraph();
+            String uri = obj.getUri();
+
+            if (uri == null || uri.equals("")) {
+                continue;
+            } else if (uri.startsWith("http")) {
+                uri = "<" + uri + ">";
+            }
+
+            if ( namedGraph == null || namedGraph.equals("")) {
+                if (RepositoryInstance.getInstance() != null &&
+                        RepositoryInstance.getInstance().getHasDefaultNamespaceURL() != null) {
+                    namedGraph = RepositoryInstance.getInstance().getHasDefaultNamespaceURL();
+                } else {
+                    namedGraph = Constants.DEFAULT_REPOSITORY;
+                }
+            }
+
+            objectsUriByNamedGraph.putIfAbsent(namedGraph, new ArrayList<>());
+
+            List<String> uris = objectsUriByNamedGraph.get(namedGraph);
+            uris.add(uri);
+
+        }
+
+
+        query = NameSpaces.getInstance().printSparqlNameSpaceList();
+        query += "DELETE WHERE { \n";
+
+        for (Map.Entry<String, List<String>> entry : objectsUriByNamedGraph.entrySet()) { 
+            String namedGraph = entry.getKey(); 
+            List<String> uris = entry.getValue();
+
+            query += "\n    GRAPH <" + namedGraph + "> { \n";
+
+            for (String uri : uris) {
+                query += "\n        " + uri + " ?p ?o . ";
+                count++;
+            }
+
+            query += "\n\n    } \n";
+        }
+        query += "\n}  ";
+
+        // for (HADatAcThing obj : objects) {
+        //     namedGraph = obj.getNamedGraph();
+        //     uri = obj.getUri();
+
+        //     if (uri == null || uri.equals("")) {
+        //         continue;
+        //     }
+
+        //     if (uri.startsWith("http")) {
+        //         uri = "<" + uri + ">";
+        //     }
+
+        //     if ( namedGraph == null || namedGraph.equals("")) {
+        //         if (RepositoryInstance.getInstance() != null &&
+        //                 RepositoryInstance.getInstance().getHasDefaultNamespaceURL() != null) {
+        //             namedGraph = RepositoryInstance.getInstance().getHasDefaultNamespaceURL();
+        //         } else {
+        //             namedGraph = Constants.DEFAULT_REPOSITORY;
+        //         }
+        //     }
+        //     query += "    GRAPH <" + namedGraph + "> { \n";
+        //     query += "\n        " + uri + " ?p ?o . \n";
+        //     query += "\n    }\n";
+        // }
+        // //query += "    }\n}  ";
+        // query += "}  ";
+
+        // System.out.println("UPDATE START");
+        // FileWriter fileWriter = null;
+        // try {
+        //     fileWriter = new FileWriter("/home/natanael/Desktop/query.txt");
+        //     fileWriter.write(query);
+        // } catch (IOException e) {
+        //     System.out.println("An error occurred while writing to the file: " + e.getMessage());
+        // } finally {
+        //     if (fileWriter != null) {
+        //         try { 
+        //             fileWriter.close(); 
+        //         } catch (IOException e) { 
+        //             System.out.println("An error occurred while closing the writer: " + e.getMessage());
+        //         } 
+        //     }
+        // }
+        
+        // Apply the query to the triplestore
+        UpdateRequest request = UpdateFactory.create(query);
+        UpdateProcessor processor = UpdateExecutionFactory.createRemote(
+                request, CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
+        try {
+            processor.execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        // System.out.println("UPDATE END");
+
     }
 
     private void dropGraph(String namedGraphUri)
@@ -414,5 +543,4 @@ public abstract class BaseGenerator {
                 request, CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
         processor.execute();
     }
-
 }

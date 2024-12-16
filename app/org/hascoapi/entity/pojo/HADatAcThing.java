@@ -428,6 +428,11 @@ public abstract class HADatAcThing {
             }
         }
 
+        if (row.containsKey("hasco:hasStudy")
+                && row.get("hasco:hasStudy") == "http://hadatac.org/ont/hasco/StudyObjectCollection") {
+            System.out.println("\n\nRow " + row.toString() + "\n\n");
+        }
+
         //System.out.println("HADatAcThing.generateDRFModel: URI=[" + objUri + "]   NamedGraph=[" + getNamedGraph() + "]");
 
         reversed_rows.add(row);
@@ -485,7 +490,7 @@ public abstract class HADatAcThing {
             // Return only the first 5 characters of the URL-safe hash
             return urlSafeHash.substring(0, Math.min(5, urlSafeHash.length()));
         } catch (Exception e) {
-            System.err.println("[ERROR] Error occurred while creating URL-safe hash.");
+            System.err.println("Error occurred while creating URL-safe hash.");
             e.printStackTrace();
             return "";
         }
@@ -493,22 +498,34 @@ public abstract class HADatAcThing {
 
     @SuppressWarnings("unchecked")
     public boolean saveToTripleStore() {
-        return saveToTripleStore(true, null);
+        return saveToTripleStore(true, true, null, null);
     }
 
     @SuppressWarnings("unchecked")
     public boolean saveToTripleStore(boolean withValidation) {
-        return saveToTripleStore(withValidation, null);
+        return saveToTripleStore(withValidation, true, null, null);
     }
 
     @SuppressWarnings("unchecked")
-    public boolean saveToTripleStore(boolean withValidation, Model model) {
+    public boolean saveToTripleStore(boolean withValidation, boolean withDeletion) {
+        return saveToTripleStore(withValidation, withDeletion, null, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public boolean saveToTripleStore(boolean withValidation, boolean withDeletion, Model model) {
+        return saveToTripleStore(withValidation, withDeletion, model, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public boolean saveToTripleStore(boolean withValidation, boolean withDeletion, Model model, List<String> query) {
         //System.out.println("inside HADatAcThing.saveToTripleStore(): calling deleteFromTripleStore().");
-        //deleteFromTripleStore();
+
+        if (withDeletion) {
+            deleteFromTripleStore();
+        }
 
         boolean wasNull = model == null;
 
-        //Model model = MetadataFactory.createModel(reversed_rows, getNamedGraph());
         model = generateRDFModel(withValidation, model);
         if (model == null) {
             System.out.println("[ERROR] inside HADatAcThing.saveToTripleStore(): MetadataFactory.commitModelToTripleStore() received EMPTY model");
