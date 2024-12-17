@@ -29,24 +29,6 @@ services:
         depends_on:
             - fuseki
 
-    hascoapi:
-        build: ./
-        restart: always
-        container_name: hascoapi
-        tty: true
-        ports:
-            - "9000:9000"
-        networks:
-            hascoapi:
-                aliases:
-                    - hascoapi
-        environment:
-            JAVA_OPTS: "-Xms128m -Xmx12g"
-        volumes:
-            - /var/log/hascoapi:/hascoapi/logs
-        depends_on:
-            - fuseki
-
 volumes:
     hascoapi-fuseki-data:
 

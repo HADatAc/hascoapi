@@ -2,6 +2,9 @@ package org.hascoapi.entity.pojo;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Property;
@@ -9,7 +12,8 @@ import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
-
+import org.hascoapi.ingestion.Record;
+import org.hascoapi.ingestion.RecordFile;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.SPARQLUtils;
 import org.hascoapi.utils.URIUtils;
@@ -21,8 +25,8 @@ import org.hascoapi.vocabularies.VSTOI;
 @JsonFilter("dp2Filter")
 public class DP2 extends MetadataTemplate {
 
-    public String className = "hasco:DP2";
-
+    public  String className = "hasco:DP2";
+	
     public static DP2 find(String uri) {
             
         if (uri == null || uri.isEmpty()) {

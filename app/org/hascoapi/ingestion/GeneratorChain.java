@@ -150,8 +150,12 @@ public class GeneratorChain {
             }
                         
             try {
-                generator.commitRowsToTripleStore(generator.getRows());
-                generator.commitObjectsToTripleStore(generator.getObjects());
+                if (generator.getRows().size() > 0){
+                    generator.commitRowsToTripleStore(generator.getRows());
+                }
+                if (generator.getObjects().size() > 0){
+                    generator.commitObjectsToTripleStore(generator.getObjects());
+                }
             } catch (Exception e) {
                 System.out.println(generator.getErrorMsg(e));
                 e.printStackTrace();
@@ -196,8 +200,12 @@ public class GeneratorChain {
                 //System.out.println("  - GenerationChain:PostProcess");
                 generator.postprocess();
                 uris = generator.postprocessuris();
-                generator.commitRowsToTripleStore(generator.getRows());
-                generator.commitObjectsToTripleStore(generator.getObjects());
+                if (generator.getRows().size() > 0){
+                    generator.commitRowsToTripleStore(generator.getRows());
+                }
+                if (generator.getObjects().size() > 0){
+                    generator.commitObjectsToTripleStore(generator.getObjects());
+                }
             } catch (Exception e) {
                 System.out.println("[ERROR] GenerationChain: " + generator.getErrorMsg(e));
                 e.printStackTrace();                

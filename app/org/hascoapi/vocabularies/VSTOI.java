@@ -46,6 +46,7 @@ public class VSTOI {
     public static final String DETECTOR_STEM = "http://hadatac.org/ont/vstoi#DetectorStem";
     public static final String DETECTOR_INSTANCE = "http://hadatac.org/ont/vstoi#DetectorInstance";
     public static final String CONTAINER_SLOT = "http://hadatac.org/ont/vstoi#ContainerSlot";
+    public static final String FIELD_OF_VIEW = "http://hadatac.org/ont/vstoi#FieldOfView";
     public static final String INFORMANT = "http://hadatac.org/ont/vstoi#Informant";
     public static final String ITEM = "http://hadatac.org/ont/vstoi#Item";
     public static final String INSTRUMENT_INSTANCE = "http://hadatac.org/ont/vstoi#InstrumentInstance";
@@ -87,6 +88,7 @@ public class VSTOI {
     public static final String HAS_VERSION = "http://hadatac.org/ont/vstoi#hasVersion";
     public static final String HOST_TYPE = "http://hadatac.org/ont/vstoi#hostType";
     public static final String IS_DAMAGED = "http://hadatac.org/ont/vstoi#isDamaged";
+    public static final String IS_FIELD_OF_VIEW_OF = "http://hadatac.org/ont/vstoi#isFieldOfViewOf";
     public static final String OF_CODEBOOK = "http://hadatac.org/ont/vstoi#ofCodebook";
 
     /*

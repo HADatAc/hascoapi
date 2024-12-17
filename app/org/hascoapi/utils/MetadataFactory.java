@@ -13,6 +13,10 @@ public class MetadataFactory {
     private static final Logger log = LoggerFactory.getLogger(MetadataFactory.class);
 
     public static Model createModel(List<Map<String, Object>> rows, String namedGraphUri) {
+        return createModel(rows, namedGraphUri, null);
+    }
+
+    public static Model createModel(List<Map<String, Object>> rows, String namedGraphUri, Model model) {
 
         if (rows == null) {
             System.out.println("[ERROR] MetadataFactory.createModel() received null ROWS");
@@ -24,8 +28,12 @@ public class MetadataFactory {
         } //else {
          //   System.out.println("MetadataFactory.createModel() received namedGraphUri [" + namedGraphUri + "]");
         //}
-        ModelFactory modelFactory = new LinkedHashModelFactory();
-        Model model = modelFactory.createEmptyModel();
+        //System.out.println("MetadataFactory.createModel() received MODEL " + model);
+        if (model == null) {
+            // Create a empty model
+            ModelFactory modelFactory = new LinkedHashModelFactory();
+            model = modelFactory.createEmptyModel();
+        }
 
         ValueFactory factory = SimpleValueFactory.getInstance();
         IRI namedGraph = null;
@@ -84,9 +92,7 @@ public class MetadataFactory {
                             model.add(sub, pred, obj, (Resource)namedGraph);
                         }
                     }
-
                 } // end of for-loop
-
             }
         }
 
