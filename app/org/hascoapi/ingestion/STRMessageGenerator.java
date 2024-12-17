@@ -236,7 +236,7 @@ public class STRMessageGenerator extends BaseGenerator {
         //logger.println(message);
         str.setLabel(URIUtils.replacePrefixEx((String)row.get("rdfs:label")));
         str.setStudyUri(URIUtils.replacePrefixEx((String)row.get("hasco:isDataAcquisitionOf")));
-        str.setSDDUri(URIUtils.replacePrefixEx((String)row.get("hasco:hasSchemaSpec")));
+        str.setSemanticDataDictionaryUri(URIUtils.replacePrefixEx((String)row.get("hasco:hasSchemaSpec")));
         str.setTriggeringEvent(TriggeringEvent.INITIAL_DEPLOYMENT);
         // TODO
         //str.setNumberDataPoints(Measurement.getNumByDataAcquisition(str));

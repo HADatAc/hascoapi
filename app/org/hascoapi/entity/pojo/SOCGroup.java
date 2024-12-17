@@ -275,6 +275,8 @@ public class SOCGroup extends HADatAcThing {
 
         insert += LINE_LAST;
 
+        //System.out.println("\n\nsave to TS: insert = " + insert + "\n ");
+
         try {
             UpdateRequest request = UpdateFactory.create(insert);
             UpdateProcessor processor = UpdateExecutionFactory.createRemote(

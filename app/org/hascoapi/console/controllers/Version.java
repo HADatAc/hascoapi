@@ -12,7 +12,7 @@ import org.hascoapi.console.views.html.version;
 public class Version extends Controller {
 
     public Result index() {
-        String code_version = "0.0.1";
+        String code_version = "0.8";
         String base_ontology = "";
 
         String loaded_base_ontology = NameSpaces.getInstance().getNameByAbbreviation(base_ontology);

@@ -98,7 +98,7 @@ public class IngestDSG {
         Map<String, String> mapCatalog = dsg.getCatalog();
         for (Record record : recordFile.getRecords()) {
             mapCatalog.put(record.getValueByColumnIndex(0), record.getValueByColumnIndex(1));
-            System.out.println(record.getValueByColumnIndex(0) + ":" + record.getValueByColumnIndex(1));
+            //System.out.println(record.getValueByColumnIndex(0) + ":" + record.getValueByColumnIndex(1));
         }
 
         // the template is needed to process individual sheets

@@ -62,6 +62,7 @@ public class HASCO {
     public static final String HAS_COMPLETION_TIME                    = "http://hadatac.org/ont/hasco/hasCompletionTime";
     public static final String HAS_DATAFILE                           = "http://hadatac.org/ont/hasco/hasDataFile";
     public static final String HAS_DATASET                            = "http://hadatac.org/ont/hasco/hasDataset";
+    public static final String HAS_DATASET_PATTERN                    = "http://hadatac.org/ont/hasco/hasDatasetPattern";
     public static final String HAS_DD                                 = "http://hadatac.org/ont/hasco/hasDD";
     public static final String HAS_DEFAULT_NAMESPACE_ABBREVIATION     = "http://hadatac.org/ont/hasco/hasDefaultNamespaceAbbreviation";
     public static final String HAS_DEFAULT_NAMESPACE_URL              = "http://hadatac.org/ont/hasco/hasDefaultNamespaceURL";
@@ -79,6 +80,7 @@ public class HASCO {
     public static final String HAS_FIRST_COORDINATE                   = "http://hadatac.org/ont/hasco/hasFirstCoordinate";
     public static final String HAS_FIRST_COORDINATE_UNIT              = "http://hadatac.org/ont/hasco/hasFirstCoordinateUnit";
     public static final String HAS_FIRST_COORDINATE_CHARACTERISTIC    = "http://hadatac.org/ont/hasco/hasFirstCoordinateCharacteristic";
+    public static final String HAS_GEOMETRY                           = "http://hadatac.org/ont/hasco/hasGeometry";
     public static final String HAS_GROUNDING_LABEL                    = "http://hadatac.org/ont/hasco/hasGroundingLabel";
     public static final String HAS_IMAGE                              = "http://hadatac.org/ont/hasco/hasImage";
     public static final String HAS_INSTITUTION                        = "http://hadatac.org/ont/hasco/hasInstitution";

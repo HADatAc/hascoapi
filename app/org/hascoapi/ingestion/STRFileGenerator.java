@@ -243,15 +243,15 @@ public class STRFileGenerator extends BaseGenerator {
             dataFile.getLogger().printExceptionById("STR_00021");
             throw new Exception();
 	    }
-        str.setSDDUri(URIUtils.replacePrefixEx((String)row.get("hasco:hasSchema")));
-        SDD schema = SDD.find(str.getSDDUri());
+        str.setSemanticDataDictionaryUri(URIUtils.replacePrefixEx((String)row.get("hasco:hasSchema")));
+        SDD schema = SDD.find(str.getSemanticDataDictionaryUri());
         if (schema != null) {
             str.setStatus(9999);
         } else {
-            dataFile.getLogger().printExceptionByIdWithArgs("STR_00035", str.getSDDUri());
+            dataFile.getLogger().printExceptionByIdWithArgs("STR_00035", str.getSemanticDataDictionaryUri());
             throw new Exception();
         }
-        dataFile.getLogger().println("createStr [6/6] - Specified SDD: [" + str.getSDDUri() + "]");
+        dataFile.getLogger().println("createStr [6/6] - Specified SDD: [" + str.getSemanticDataDictionaryUri() + "]");
         
 	    if (!isFileStreamValid(str)) {
             throw new Exception();
@@ -296,7 +296,7 @@ public class STRFileGenerator extends BaseGenerator {
         Map<String, String> dasoPL = new HashMap<String, String>();
         List<SDDObject> dasos = new ArrayList<SDDObject>();
         List<String> roles = new ArrayList<String>();
-        for (SDDAttribute attr : str.getSDD().getAttributes()) {
+        for (SDDAttribute attr : str.getSemanticDataDictionary().getAttributes()) {
             if (attr.getObjectViewLabel().length() > 0) {
                 if (!roles.contains(attr.getObjectViewLabel())) {
                     roles.add(attr.getObjectViewLabel());
@@ -404,7 +404,7 @@ public class STRFileGenerator extends BaseGenerator {
                                                         if (soln.get("o").isResource()){
                                                             if (soln.getResource("o") != null) {
                                                                 if (tarList.containsValue(soln.getResource("o").toString())) {
-                                                                    answer.add(str.getSDD().getObject(soln.getResource("o").toString()).getEntityLabel());
+                                                                    answer.add(str.getSemanticDataDictionary().getObject(soln.getResource("o").toString()).getEntityLabel());
                                                                     dasoPL.put(daso.getUri(), answer.get(1) + " " + answer.get(0));
                                                                     found = true;
                                                                     break;

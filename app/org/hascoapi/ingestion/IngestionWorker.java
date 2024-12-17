@@ -15,6 +15,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.stream.events.Namespace;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.jena.query.QueryParseException;
 import org.apache.jena.query.QuerySolution;
@@ -27,7 +29,8 @@ import org.hascoapi.entity.pojo.Stream;
 import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.Constants;
 import org.hascoapi.entity.pojo.DOI;
-import org.hascoapi.entity.pojo.DPL;
+import org.hascoapi.entity.pojo.DP2;
+//import org.hascoapi.entity.pojo.DPL;
 import org.hascoapi.entity.pojo.SDD;
 import org.hascoapi.entity.pojo.SDDAttribute;
 import org.hascoapi.entity.pojo.SDDObject;
@@ -92,7 +95,7 @@ public class IngestionWorker {
         if (chain != null) {
             System.out.println("IngestionWorker: chain.generate() STARTED.");
             bSucceed = chain.generate();
-            System.out.println("IngestionWorker: chain.generate() ENDED.");
+            System.out.println("IngestionWorker: chain.generate() ENDED. Response: [" + bSucceed + "]");
         }
 
         if (bSucceed) {
@@ -101,7 +104,7 @@ public class IngestionWorker {
             if (chain.getPV()) {
                 PVGenerator.generateOthers(chain.getCodebookFile(), chain.getSddName(), ConfigProp.getKbPrefix());
             }
-            
+
             if (dataFile.getFileStatus().equals(DataFile.WORKING_STD)) {
                 dataFile.setFileStatus(DataFile.PROCESSED_STD);
             } else {
@@ -112,9 +115,9 @@ public class IngestionWorker {
             dataFile.save();
 
         }
-        
+
         if (dataFile.getFileStatus().equals(DataFile.PROCESSED_STD)) {
-            System.out.println("================> REINVOKING DSG for SDD processing");
+            System.out.println("================> REINVOKING DSG for SSD processing");
             System.out.println("  DataFile Status: [" + dataFile.getFileStatus() + "]");
             IngestionWorker.ingest(dataFile, file, templateFile);
         }
@@ -137,8 +140,8 @@ public class IngestionWorker {
             dataFile.getFileStatus().equals(DataFile.PROCESSED_STD)) {
             chain = annotateSSDFile(dataFile, templateFile);
             
-        } else if (fileName.startsWith("DPL-")) {
-            chain = annotateDPLFile(dataFile);
+        } else if (fileName.startsWith("DP2-")) {
+            chain = annotateDP2File(dataFile, templateFile);
             
         } else if (fileName.startsWith("INS-")) {
             chain = annotateINSFile(dataFile, templateFile);
@@ -201,7 +204,7 @@ public class IngestionWorker {
         Map<String, String> mapCatalog = new HashMap<String, String>();
         for (Record record : dataFile.getRecordFile().getRecords()) {
             mapCatalog.put(record.getValueByColumnIndex(0), record.getValueByColumnIndex(1));
-            System.out.println(record.getValueByColumnIndex(0) + ":" + record.getValueByColumnIndex(1));
+            //System.out.println(record.getValueByColumnIndex(0) + ":" + record.getValueByColumnIndex(1));
         }
 
         if (dataFile.getFilename().endsWith(".xlsx")) {
@@ -253,7 +256,7 @@ public class IngestionWorker {
         Map<String, String> mapCatalog = new HashMap<String, String>();
         for (Record record : dataFile.getRecordFile().getRecords()) {
             mapCatalog.put(record.getValueByColumnIndex(0), record.getValueByColumnIndex(1));
-            System.out.println(record.getValueByColumnIndex(0) + ":" + record.getValueByColumnIndex(1));
+            //System.out.println(record.getValueByColumnIndex(0) + ":" + record.getValueByColumnIndex(1));
         }
 
         RecordFile ssdRecordFile = null;
@@ -454,10 +457,10 @@ public class IngestionWorker {
     }
 
     /****************************
-     *    DPL                   *
+     *    DP2                   *
      ****************************/    
     
-    public static GeneratorChain annotateDPLFile(DataFile dataFile) {
+    public static GeneratorChain annotateDP2File(DataFile dataFile, String templateFile) {
         RecordFile recordFile = new SpreadsheetRecordFile(dataFile.getFile(), "InfoSheet");
         if (!recordFile.isValid()) {
             dataFile.getLogger().printExceptionById("DPL_00001");
@@ -466,25 +469,118 @@ public class IngestionWorker {
             dataFile.setRecordFile(recordFile);
         }
         
-        DPL dpl = new DPL(dataFile);
-        Map<String, String> mapCatalog = dpl.getCatalog();
+        Map<String, String> mapCatalog = new HashMap<String, String>();
+        System.out.println("InfoSheet: ");
+        for (Record record : dataFile.getRecordFile().getRecords()) {
+            mapCatalog.put(record.getValueByColumnIndex(0), record.getValueByColumnIndex(1));
+            System.out.println("  (" + record.getValueByColumnIndex(0) + ") : " + record.getValueByColumnIndex(1));
+        }
 
+        // hasDependencies
+        nameSpaceGen(dataFile, mapCatalog,templateFile);
+
+        //MessageStream
+        //MessageTopic
+        messageGen(dataFile, mapCatalog,templateFile);
+
+        //Instruments
+        //Detectors
+        //SensingPerspective
+        deployInstancesGen(dataFile, mapCatalog, templateFile);
+
+        // Deployments
+        // PlatformModels
+        // Platforms
+        // FieldsOfView
         GeneratorChain chain = new GeneratorChain();
-        for (String key : mapCatalog.keySet()) {
-            if (mapCatalog.get(key).length() > 0) {
-                String sheetName = mapCatalog.get(key).replace("#", "");
-                RecordFile sheet = new SpreadsheetRecordFile(dataFile.getFile(), sheetName);
-                
+        RecordFile sheet = null;
+
+        try {
+
+            chain.setNamedGraphUri(dataFile.getUri());
+    
+            // PlatformModels
+            String platformModelsSheet = mapCatalog.get("PlatformModels");
+            if (platformModelsSheet == null) {
+                System.out.println("[WARNING] 'PlatformModels' sheet is missing.");
+                dataFile.getLogger().println("[WARNING] 'PlatformModels' sheet is missing.");
+            } else {
+                platformModelsSheet.replace("#", "");
+                sheet = new SpreadsheetRecordFile(dataFile.getFile(), platformModelsSheet);
                 try {
                     DataFile dataFileForSheet = (DataFile)dataFile.clone();
                     dataFileForSheet.setRecordFile(sheet);
-                    chain.addGenerator(new DPLGenerator(dataFileForSheet));
+                    DP2Generator platformModelsGen = new DP2Generator("platform",dataFileForSheet);
+                    platformModelsGen.setNamedGraphUri(dataFileForSheet.getUri());
+                    chain.addGenerator(platformModelsGen);
                 } catch (CloneNotSupportedException e) {
                     e.printStackTrace();
                 }
             }
+
+            // Platforms
+            String platformsSheet = mapCatalog.get("Platforms");
+            if (platformsSheet == null) {
+                System.out.println("[WARNING] 'Platforms' sheet is missing.");
+                dataFile.getLogger().println("[WARNING] 'Platforms' sheet is missing.");
+            } else {
+                platformsSheet.replace("#", "");
+                sheet = new SpreadsheetRecordFile(dataFile.getFile(), platformsSheet);
+                try {
+                    DataFile dataFileForSheet = (DataFile)dataFile.clone();
+                    dataFileForSheet.setRecordFile(sheet);
+                    DP2Generator platformsGen = new DP2Generator("platforminstance",dataFileForSheet);
+                    platformsGen.setNamedGraphUri(dataFileForSheet.getUri());
+                    chain.addGenerator(platformsGen);
+                } catch (CloneNotSupportedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            // FieldsOfView
+            String fieldsOfViewSheet = mapCatalog.get("FieldsOfView");
+            if (fieldsOfViewSheet == null) {
+                System.out.println("[WARNING] 'FieldsOfView' sheet is missing.");
+                dataFile.getLogger().println("[WARNING] 'FieldsOfView' sheet is missing.");
+            } else {
+                fieldsOfViewSheet.replace("#", "");
+                sheet = new SpreadsheetRecordFile(dataFile.getFile(), fieldsOfViewSheet);
+                try {
+                    DataFile dataFileForSheet = (DataFile)dataFile.clone();
+                    dataFileForSheet.setRecordFile(sheet);
+                    DP2Generator fieldsOfViewGen = new DP2Generator("fieldofview",dataFileForSheet);
+                    fieldsOfViewGen.setNamedGraphUri(dataFileForSheet.getUri());
+                    chain.addGenerator(fieldsOfViewGen);
+                } catch (CloneNotSupportedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            // Deployments
+            String deploymentsSheet = mapCatalog.get("Deployments");
+            if (deploymentsSheet == null) {
+                System.out.println("[WARNING] 'Deployments' sheet is missing.");
+                dataFile.getLogger().println("[WARNING] 'Deployments' sheet is missing.");
+            } else {
+                deploymentsSheet.replace("#", "");
+                sheet = new SpreadsheetRecordFile(dataFile.getFile(), deploymentsSheet);
+                try {
+                    DataFile dataFileForSheet = (DataFile)dataFile.clone();
+                    dataFileForSheet.setRecordFile(sheet);
+                    DP2Generator deploymentsGen = new DP2Generator("deployment",dataFileForSheet);
+                    deploymentsGen.setNamedGraphUri(dataFileForSheet.getUri());
+                    chain.addGenerator(deploymentsGen);
+                } catch (CloneNotSupportedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
         return chain;
+
     }
 
     /****************************
@@ -503,17 +599,19 @@ public class IngestionWorker {
         Map<String, String> mapCatalog = new HashMap<String, String>();
         for (Record record : dataFile.getRecordFile().getRecords()) {
             mapCatalog.put(record.getValueByColumnIndex(0), record.getValueByColumnIndex(1));
-            System.out.println(record.getValueByColumnIndex(0) + ":" + record.getValueByColumnIndex(1));
+            //System.out.println(record.getValueByColumnIndex(0) + ":" + record.getValueByColumnIndex(1));
         }
+
+        nameSpaceGen(dataFile, mapCatalog,templateFile);
+
+        annotationGen(dataFile, mapCatalog, templateFile);
 
         GeneratorChain chain = new GeneratorChain();
         RecordFile sheet = null;
 
         try {
 
-            nameSpaceGen(dataFile, mapCatalog,templateFile);
             chain.setNamedGraphUri(dataFile.getUri());
-            chain.addGenerator(new NameSpaceGenerator(dataFile,templateFile));
     
             String responseOptionSheet = mapCatalog.get("ResponseOptions");
             if (responseOptionSheet == null) {
@@ -770,7 +868,7 @@ public class IngestionWorker {
         Map<String, String> mapCatalog = new HashMap<String, String>();
         for (Record record : dataFile.getRecordFile().getRecords()) {
             mapCatalog.put(record.getValueByColumnIndex(0), record.getValueByColumnIndex(1));
-            System.out.println(record.getValueByColumnIndex(0) + ":" + record.getValueByColumnIndex(1));
+            //System.out.println(record.getValueByColumnIndex(0) + ":" + record.getValueByColumnIndex(1));
             if (record.getValueByColumnIndex(0).isEmpty() && record.getValueByColumnIndex(1).isEmpty()) {
                 break;
             }
@@ -1024,6 +1122,205 @@ public class IngestionWorker {
             System.out.println("[WARNING] NameSpaceGenerator: could not find any sheet inside of Metadata Template called [hasDependencies].");
         }
         return false;
+    }
+
+    public static boolean annotationGen(DataFile dataFile, Map<String, String> mapCatalog, String templateFile) {
+        RecordFile annotationStemRecordFile = null;
+        RecordFile annotationRecordFile = null;
+        DataFile annotationStemDataFile;
+        DataFile annotationDataFile;
+        try {
+            annotationStemDataFile = (DataFile)dataFile.clone();
+            annotationDataFile = (DataFile)dataFile.clone();
+        } catch (Exception e) {
+            System.out.println("[ERROR] IngestionWorker.annotationGen() - following error cloning dataFile: " + e.getMessage());
+            return false;
+        }
+        if (mapCatalog.get("AnnotationStems") != null) {
+            System.out.print("Extracting [AnnotationStems] sheet from spreadsheet... ");
+            annotationStemRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), mapCatalog.get("AnnotationStems"));
+            if (annotationStemRecordFile == null) {
+                System.out.println("[WARNING] 'AnnotationStems' sheet is missing.");
+                dataFile.getLogger().println("[WARNING] 'AnnotationStems' sheet is missing.");
+                return false;
+            } else if (annotationStemRecordFile.getRecords() == null) {
+                System.out.println("[WARNING] annotationGen(): annotationStemRecordFile.getRecords() is NULL.");
+                return false;
+            }
+            annotationStemDataFile.setRecordFile(annotationStemRecordFile);
+        }
+        if (mapCatalog.get("Annotations") != null) {
+            System.out.print("Extracting [Annotations] sheet from spreadsheet... ");
+            annotationRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), mapCatalog.get("Annotations"));
+            if (annotationRecordFile == null) {
+                System.out.println("[WARNING] 'Annotations' sheet is missing.");
+                dataFile.getLogger().println("[WARNING] 'Annotations' sheet is missing.");
+                return false;
+            } else if (annotationRecordFile.getRecords() == null) {
+                System.out.println("[WARNING] annotationGen(): annotationRecordFile.getRecords() is NULL.");
+                return false;
+            }
+            annotationDataFile.setRecordFile(annotationRecordFile);
+        }
+
+        INSGenerator annotationStemGen = new INSGenerator("annotationstem",annotationStemDataFile);
+        annotationStemGen.setNamedGraphUri(dataFile.getUri());
+        INSGenerator annotationGen = new INSGenerator("annotation",annotationDataFile);
+        annotationGen.setNamedGraphUri(dataFile.getUri());
+
+        GeneratorChain chain = new GeneratorChain();
+        chain.setNamedGraphUri(dataFile.getUri());
+        chain.addGenerator(annotationStemGen);
+        chain.addGenerator(annotationGen);
+        boolean isSuccess = false;
+        if (chain != null) {
+            isSuccess = chain.generate();
+        }
+        if (isSuccess) {                                
+            System.out.println("Done extracting annotationStem and annotation sheets. ");
+        } else {
+            System.out.println("Failed to extract annotationStem and/or annotation sheets. ");
+        }
+        return isSuccess;
+    }
+
+    public static boolean messageGen(DataFile dataFile, Map<String, String> mapCatalog, String templateFile) {
+        RecordFile messageStreamRecordFile = null;
+        RecordFile messageTopicRecordFile = null;
+        DataFile messageStreamDataFile;
+        DataFile messageTopicDataFile;
+        try {
+            messageStreamDataFile = (DataFile)dataFile.clone();
+            messageTopicDataFile = (DataFile)dataFile.clone();
+        } catch (Exception e) {
+            System.out.println("[ERROR] IngestionWorker.messageGen() - following error cloning dataFile: " + e.getMessage());
+            return false;
+        }
+        if (mapCatalog.get("MessageStream") != null) {
+            System.out.print("Extracting [MessageStream] sheet from spreadsheet... ");
+            messageStreamRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), mapCatalog.get("MessageStream"));
+            if (messageStreamRecordFile == null) {
+                System.out.println("[WARNING] 'MessageStream' sheet is missing.");
+                dataFile.getLogger().println("[WARNING] 'MessageStream' sheet is missing.");
+                return false;
+            } else if (messageStreamRecordFile.getRecords() == null) {
+                System.out.println("[WARNING] messageGen(): MessageStreamRecordFile.getRecords() is NULL.");
+                return false;
+            }
+            messageStreamDataFile.setRecordFile(messageStreamRecordFile);
+        }
+        if (mapCatalog.get("MessageTopic") != null) {
+            System.out.print("Extracting [MessageTopic] sheet from spreadsheet... ");
+            messageTopicRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), mapCatalog.get("MessageTopic"));
+            if (messageTopicRecordFile == null) {
+                System.out.println("[WARNING] 'MessageTopic' sheet is missing.");
+                dataFile.getLogger().println("[WARNING] 'MessageTopic' sheet is missing.");
+                return false;
+            } else if (messageTopicRecordFile.getRecords() == null) {
+                System.out.println("[WARNING] messageGen(): messageTopicRecordFile.getRecords() is NULL.");
+                return false;
+            }
+            messageTopicDataFile.setRecordFile(messageTopicRecordFile);
+        }
+
+        DP2Generator messageStreamGen = new DP2Generator("messagestream",messageStreamDataFile);
+        messageStreamGen.setNamedGraphUri(dataFile.getUri());
+        DP2Generator messageTopicGen = new DP2Generator("messagetopic",messageTopicDataFile);
+        messageTopicGen.setNamedGraphUri(dataFile.getUri());
+
+        GeneratorChain chain = new GeneratorChain();
+        chain.setNamedGraphUri(dataFile.getUri());
+        chain.addGenerator(messageStreamGen);
+        chain.addGenerator(messageTopicGen);
+        boolean isSuccess = false;
+        if (chain != null) {
+            isSuccess = chain.generate();
+        }
+        if (isSuccess) {                                
+            System.out.println("Done extracting messageStream and messageTopic sheets. ");
+        } else {
+            System.out.println("Failed to extract messageStream and/or messageTopic sheets. ");
+        }
+        return isSuccess;
+    }
+
+    public static boolean deployInstancesGen(DataFile dataFile, Map<String, String> mapCatalog, String templateFile) {
+        RecordFile instrumentsRecordFile = null;
+        RecordFile detectorsRecordFile = null;
+        RecordFile sensingPerspectiveRecordFile = null;
+        DataFile instrumentsDataFile;
+        DataFile detectorsDataFile;
+        DataFile sensingPerspectiveDataFile;
+        try {
+            instrumentsDataFile = (DataFile)dataFile.clone();
+            detectorsDataFile = (DataFile)dataFile.clone();
+            sensingPerspectiveDataFile = (DataFile)dataFile.clone();
+        } catch (Exception e) {
+            System.out.println("[ERROR] IngestionWorker.messageGen() - following error cloning dataFile: " + e.getMessage());
+            return false;
+        }
+        if (mapCatalog.get("Instruments") != null) {
+            System.out.print("Extracting [Instruments] sheet from spreadsheet... ");
+            instrumentsRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), mapCatalog.get("Instruments"));
+            if (instrumentsRecordFile == null) {
+                System.out.println("[WARNING] 'Instruments' sheet is missing.");
+                dataFile.getLogger().println("[WARNING] 'Instruments' sheet is missing.");
+                return false;
+            } else if (instrumentsRecordFile.getRecords() == null) {
+                System.out.println("[WARNING] deployInstancesGen(): instrumentsRecordFile.getRecords() is NULL.");
+                return false;
+            }
+            instrumentsDataFile.setRecordFile(instrumentsRecordFile);
+        }
+        if (mapCatalog.get("Detectors") != null) {
+            System.out.print("Extracting [Detectors] sheet from spreadsheet... ");
+            detectorsRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), mapCatalog.get("Detectors"));
+            if (detectorsRecordFile == null) {
+                System.out.println("[WARNING] 'Detectors' sheet is missing.");
+                dataFile.getLogger().println("[WARNING] 'Detectors' sheet is missing.");
+                return false;
+            } else if (detectorsRecordFile.getRecords() == null) {
+                System.out.println("[WARNING] deployInstancesGen(): detectorsRecordFile.getRecords() is NULL.");
+                return false;
+            }
+            detectorsDataFile.setRecordFile(detectorsRecordFile);
+        }
+        if (mapCatalog.get("SensingPerspective") != null) {
+            System.out.print("Extracting [SensingPerspective] sheet from spreadsheet... ");
+            sensingPerspectiveRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), mapCatalog.get("SensingPerspective"));
+            if (sensingPerspectiveRecordFile == null) {
+                System.out.println("[WARNING] 'SensingPerspective' sheet is missing.");
+                dataFile.getLogger().println("[WARNING] 'SensingPerspective' sheet is missing.");
+                return false;
+            } else if (sensingPerspectiveRecordFile.getRecords() == null) {
+                System.out.println("[WARNING] deployInstancesGen(): sensingPerspectiveRecordFile.getRecords() is NULL.");
+                return false;
+            }
+            sensingPerspectiveDataFile.setRecordFile(sensingPerspectiveRecordFile);
+        }
+
+        DP2Generator instrumentsGen = new DP2Generator("instrumentinstance",instrumentsDataFile);
+        instrumentsGen.setNamedGraphUri(dataFile.getUri());
+        DP2Generator detectorsGen = new DP2Generator("detectorinstance",detectorsDataFile);
+        detectorsGen.setNamedGraphUri(dataFile.getUri());
+        DP2Generator sensingPerspectiveGen = new DP2Generator("sensingperspective",sensingPerspectiveDataFile);
+        sensingPerspectiveGen.setNamedGraphUri(dataFile.getUri());
+
+        GeneratorChain chain = new GeneratorChain();
+        chain.setNamedGraphUri(dataFile.getUri());
+        chain.addGenerator(instrumentsGen);
+        chain.addGenerator(detectorsGen);
+        chain.addGenerator(sensingPerspectiveGen);
+        boolean isSuccess = false;
+        if (chain != null) {
+            isSuccess = chain.generate();
+        }
+        if (isSuccess) {                                
+            System.out.println("Done extracting instruments, detectors and sensingPerspective sheets. ");
+        } else {
+            System.out.println("Failed to extract instruments and/or detectors and/or sensingPerspective sheets. ");
+        }
+        return isSuccess;
     }
 
 }

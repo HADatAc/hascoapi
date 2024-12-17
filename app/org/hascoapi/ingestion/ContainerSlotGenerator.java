@@ -37,12 +37,12 @@ public class ContainerSlotGenerator extends BaseGenerator {
     public void createRows() throws Exception {    		
 
 		if (records == null) {
-			System.out.println("[ERROR] SlotElementGenerator: no records to process.");
+			System.out.println("[ERROR] ContainerSlotGenerator: no records to process.");
             return;
         }
 
-		System.out.println("inside of SlotElementGenerator's createRows");
-		System.out.println("inside of SlotElementGenerator's: total of records=" + records.size());
+		System.out.println("inside of ContainerSlotGenerator's createRows");
+		System.out.println("inside of ContainerSlotGenerator's: total of records=" + records.size());
 
 		Map<String, String> contexts = new HashMap<String, String>();
 		int priority = 1;
@@ -53,13 +53,14 @@ public class ContainerSlotGenerator extends BaseGenerator {
         Record lastRecord = null;
 		boolean isFirst = true;
 		String previousUri = null;
+
         for (Record record : records) {
         	if (lastRecord != null && record.equals(lastRecord)) {
         		skippedRows++;
         	} else {
         		Map<String, Object> tempRow = createRow(record, ++rowNumber);
 				//for (Map.Entry<String, Object> entry : tempRow.entrySet()) {
-				//	System.out.println(entry.getKey() + ": " + entry.getValue());
+				//	System.out.println(entry.getKey() + ": [" + entry.getValue() + "]");
 				//}
 				if (tempRow != null) {
 
@@ -71,26 +72,32 @@ public class ContainerSlotGenerator extends BaseGenerator {
 					if (tempRow.get("hasco:originalID") != null) {
 						belongsTo = (String)tempRow.get("vstoi:belongsTo");
 					}
+					String detector = "";
+					if (tempRow.get("hasco:originalID") != null) {
+						detector = (String)tempRow.get("vstoi:hasDetector");
+					}
 					
 					if (id.startsWith("??") && id.length() > 2) {
-						System.out.println("Included context " + id + ":" + belongsTo);
+						//System.out.println("Included context " + id + ":" + belongsTo);
 						contexts.put(id, belongsTo);
 					}
 				
 					if (belongsTo.startsWith("??") && !belongsTo.equals(context) && contexts.containsKey(belongsTo)) { 
-						System.out.println("Changed context " + belongsTo);
+						//System.out.println("Changed context " + belongsTo);
 						context = belongsTo;
 						priority = 1;
 					} 
 					String containerUri = this.computeContainerUri(id, belongsTo, contexts);
 					String slotUri = this.computeSlotUri(id, belongsTo, contexts);
-					System.out.println("Context: [" + context + "] Priority: [" + priority++ + "] Id: [" + id + "] BelongsTo: [" + belongsTo + "]");
-					System.out.println("          ContainerURI: [" + containerUri + "]   SlotUri: [" + slotUri + "]");
+					//System.out.println("Context: [" + context + "] Priority: [" + priority + "] Id: [" + id + "]" +
+					//	" BelongsTo: [" + belongsTo + "]   Detector: [" + detector + "]");
+					//System.out.println("          ContainerURI: [" + containerUri + "]   SlotUri: [" + slotUri + "]");
 					tempRow.put("hasURI",slotUri);
 					tempRow.put("vstoi:belongsTo",containerUri);
 					String priorityStr = String.valueOf(priority);
 					tempRow.put("vstoi:hasPriority",priorityStr);
 					tempRow.put("rdfs:label", cleanName(id));
+					tempRow.put("vstoi:hasDetector", detector);
 					if (id.startsWith("??")) {
 						tempRow.put("rdf:type", VSTOI.SUBCONTAINER);
 						tempRow.put("hasco:hascoType", VSTOI.SUBCONTAINER);
@@ -121,11 +128,13 @@ public class ContainerSlotGenerator extends BaseGenerator {
         			rows.add(tempRow);
         			lastRecord = record;
         		}
+				priority++;
+
         	}
         }
-        if (skippedRows > 0) {
-        	System.out.println("Skipped rows: " + skippedRows);
-        }
+        //if (skippedRows > 0) {
+        //	System.out.println("Skipped rows: " + skippedRows);
+        //}
 
 		Map<String, String> subcontainers = new HashMap<String, String>();
 
@@ -136,10 +145,10 @@ public class ContainerSlotGenerator extends BaseGenerator {
 			if (rowNow.get("hasco:hascoType").equals(VSTOI.SUBCONTAINER)) {
 				subcontainers.put((String)rowNow.get("hasURI"), String.valueOf(i));
 			}
-			System.out.println(i + "    " + rowNow.get("hasURI") + "     " + rowNow.get("vstoi:belongsTo"));
+			//System.out.println(i + "    " + rowNow.get("hasURI") + "     " + rowNow.get("vstoi:belongsTo"));
 			if (rowNow.get("vstoi:belongsTo").equals(rowNext.get("vstoi:belongsTo"))) {
 				rowNow.put("vstoi:hasNext", rowNext.get("hasURI"));				
-				System.out.println("adding hasNext");
+				//System.out.println("adding hasNext");
 			} else {
 				int subIndex = Integer.valueOf((String)subcontainers.get(rowNext.get("vstoi:belongsTo")));
 				Map<String, Object> rowSubcontainer = rows.get(subIndex); 
@@ -154,15 +163,18 @@ public class ContainerSlotGenerator extends BaseGenerator {
 		Map<String, Object> row = new HashMap<String, Object>();
 		
 		for (String header : file.getHeaders()) {
-		    if (!header.trim().isEmpty()) {
+			//System.out.println("Header: [" + header + "]");
+			if (!header.trim().isEmpty()) {
 		        String value = rec.getValueByColumnName(header);
 		        if (value != null && !value.isEmpty()) {
 					if (!header.equals("instrument")) {
-		            	row.put(header, value);
+						//System.out.println("CreateRow: Header=[" + header + "]  Value=[" + value + "]");
+						row.put(header, value);
 					}
 		        }
 		    }
 		}
+
 		//row.put("hasco:hascoType", VSTOI.INSTRUMENT);
 		row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
 

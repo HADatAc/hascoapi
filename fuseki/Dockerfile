@@ -1,7 +1,7 @@
 FROM hansidm/fuseki:4.7.0
 
 RUN mkdir /fuseki/configuration
-COPY fuseki-jetty.xml hascoapi_assembler.ttl /fuseki/configuration/
+COPY --chown=fuseki:fuseki fuseki-jetty.xml hascoapi_assembler.ttl /fuseki/configuration/
 
 CMD [ \
     "--config=/fuseki/configuration/hascoapi_assembler.ttl", \
