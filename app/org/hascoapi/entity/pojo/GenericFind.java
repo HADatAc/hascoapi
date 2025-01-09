@@ -128,7 +128,7 @@ public class GenericFind<T> {
     }
 
 
-    private static String classNameWithNamespace (Class clazz) {
+    public static String classNameWithNamespace (Class clazz) {
         if (clazz == InstrumentInstance.class) {
             return URIUtils.replaceNameSpace(VSTOI.INSTRUMENT_INSTANCE);
         } else if (clazz == DetectorInstance.class) {
@@ -203,7 +203,7 @@ public class GenericFind<T> {
         return null;
     }
 
-    private static boolean isSIR (Class clazz) {
+    public static boolean isSIR (Class clazz) {
         // Instrument/Container is not SIR Element
         if (clazz == DetectorStem.class ||
             clazz == Detector.class ||
@@ -229,7 +229,7 @@ public class GenericFind<T> {
         return false;
     }
 
-    private static String superclassNameWithNamespace (Class clazz) {
+    public static String superclassNameWithNamespace (Class clazz) {
         //if (clazz == InstrumentType.class) {
         //    return URIUtils.replaceNameSpace(VSTOI.INSTRUMENT);
         //} else 
@@ -944,7 +944,7 @@ public class GenericFind<T> {
      *    QUERY EXECUTION
      */
 
-    private static <T> List<T> findByQuery(Class clazz,String queryString) {
+    public static <T> List<T> findByQuery(Class clazz,String queryString) {
         //System.out.println("FindByQuery: query = [" + queryString + "]");
         List<T> list = new ArrayList<T>();
         ResultSetRewindable resultsrw = SPARQLUtils.select(
