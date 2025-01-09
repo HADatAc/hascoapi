@@ -57,8 +57,6 @@ public class GenericFindWithStatus<T> {
 	public List<T> findDetectorInstancesByStatusWithPages(Class clazz, String hascoTypeStr, String hasStatus, int pageSize, int offset) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
 		queryString += " SELECT ?uri WHERE { " +
-				//" ?model rdfs:subClassOf* " + className + " . " +
-				//" ?uri a ?model ." +
                 " ?uri hasco:hascoType " + hascoTypeStr + " . " +
                 " ?uri vstoi:hasDetectorStem ?stem . " +
                 " OPTIONAL { ?stem vstoi:hasContent ?content . } " +
@@ -73,8 +71,6 @@ public class GenericFindWithStatus<T> {
 	public List<T> findSIRInstancesByStatusWithPages(Class clazz, String hascoTypeStr, String hasStatus, int pageSize, int offset) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
 		queryString += " SELECT ?uri WHERE { " +
-				//" ?model rdfs:subClassOf* " + className + " . " +
-				//" ?uri a ?model ." +
 				" ?uri hasco:hascoType " + hascoTypeStr + " . " +
                 " OPTIONAL { ?uri vstoi:hasContent ?content . } " +
 				" ?uri vstoi:hasStatus <" + hasStatus + "> . " +
@@ -102,8 +98,6 @@ public class GenericFindWithStatus<T> {
 	public List<T> findElementsByStatusWithPages(Class clazz, String hascoTypeStr, String hasStatus, int pageSize, int offset) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
 		queryString += " SELECT ?uri WHERE { " +
-				//" ?model rdfs:subClassOf* " + className + " . " +
-				//" ?uri a ?model ." +
 				" ?uri hasco:hascoType " + hascoTypeStr + " . " +
 				" OPTIONAL { ?uri rdfs:label ?label . } " +
 				" ?uri vstoi:hasStatus <" + hasStatus + "> . " +
@@ -133,8 +127,6 @@ public class GenericFindWithStatus<T> {
 	public static int findTotalElementsByStatus(String hascoTypeStr, String hasStatus) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
 		queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
-				//" ?model rdfs:subClassOf* " + classNameWithNamespace(clazz) + " . " +
-				//" ?uri a ?model ." +
 				" ?uri hasco:hascoType " + hascoTypeStr + " . " +
 				" ?uri vstoi:hasStatus <" + hasStatus + "> . " +
 				"}";
@@ -144,8 +136,6 @@ public class GenericFindWithStatus<T> {
 	public static int findTotalMTByStatus(Class clazz, String hasStatus) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
 		queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
-				//" ?model rdfs:subClassOf* " + classNameWithNamespace(clazz) + " . " +
-				//" ?uri a ?model ." +
 				" ?uri hasco:hascoType " + GenericFind.classNameWithNamespace(clazz) + " . " +
                 " ?uri hasco:hasDataFile ?dataFile . " +   // a MT concept requires an associated DataFile
 				" ?uri vstoi:hasStatus <" + hasStatus + "> . " +
@@ -157,7 +147,7 @@ public class GenericFindWithStatus<T> {
      *     FIND ELEMENTS BY STATUS AND MANAGER (AND THEIR TOTALS)
      */
 
-	public List<T> findByStatusManagerEmailWithPages(Class clazz, String hasStatus, String managerEmail, int pageSize, int offset) {
+	public List<T> findByStatusManagerEmailWithPages(Class clazz, String hasStatus, String managerEmail, boolean withCurrent, int pageSize, int offset) {
         //System.out.println("findByStatusManagerEmailWithPages: Clazz=[" + clazz + "]");
         String hascoTypeStr = GenericFind.classNameWithNamespace(clazz);
         if (hascoTypeStr == null || hascoTypeStr.isEmpty()) {
@@ -168,88 +158,152 @@ public class GenericFindWithStatus<T> {
         }
         //System.out.println("findByStatusManagerEmailWithPages: hascoTypeStr=[" + hascoTypeStr + "]");
         if (clazz == Detector.class) {
-            return findDetectorInstancesByStatusManagerEmailWithPages(clazz, hascoTypeStr, hasStatus, managerEmail, pageSize, offset);
+            return findDetectorInstancesByStatusManagerEmailWithPages(clazz, hascoTypeStr, hasStatus, managerEmail, withCurrent, pageSize, offset);
         } else if (GenericFind.isSIR(clazz)) {
-            return findSIRInstancesByStatusManagerEmailWithPages(clazz, hascoTypeStr, hasStatus, managerEmail, pageSize, offset);
+            return findSIRInstancesByStatusManagerEmailWithPages(clazz, hascoTypeStr, hasStatus, managerEmail, withCurrent, pageSize, offset);
         } else if (GenericFind.isMT(clazz)) {
-            return findMTInstancesByStatusManagerEmailWithPages(clazz, hascoTypeStr, hasStatus, managerEmail, pageSize, offset);
+            return findMTInstancesByStatusManagerEmailWithPages(clazz, hascoTypeStr, hasStatus, managerEmail, withCurrent, pageSize, offset);
         } else {
-            return findElementsByStatusManagerEmailWithPages(clazz, hascoTypeStr, hasStatus, managerEmail, pageSize, offset);
+            return findElementsByStatusManagerEmailWithPages(clazz, hascoTypeStr, hasStatus, managerEmail, withCurrent, pageSize, offset);
         }
     }
 
-	public List<T> findDetectorInstancesByStatusManagerEmailWithPages(Class clazz, String hascoTypeStr, String hasStatus, String managerEmail, int pageSize, int offset) {
+	public List<T> findDetectorInstancesByStatusManagerEmailWithPages(Class clazz, String hascoTypeStr, String hasStatus, String managerEmail, boolean withCurrent, int pageSize, int offset) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
-		queryString += " SELECT ?uri WHERE { " +
-				//" ?model rdfs:subClassOf* " + className + " . " +
-				//" ?uri a ?model ." +
-                " ?uri hasco:hascoType " + hascoTypeStr + " . " +
-                " ?uri vstoi:hasDetectorStem ?stem . " +
-                " OPTIONAL { ?stem vstoi:hasContent ?content . } " +
-				" ?uri vstoi:hasStatus <" + hasStatus + "> . " +
-				" ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
-				"   FILTER (?managerEmail = \"" + managerEmail + "\") " +
-				"}" +
-				" ORDER BY ASC(?content) " +
-				" LIMIT " + pageSize +
-				" OFFSET " + offset;
+        if (withCurrent) {
+            queryString += " SELECT ?uri WHERE { " +
+                    " ?uri hasco:hascoType " + hascoTypeStr + " . " +
+                    " ?uri vstoi:hasDetectorStem ?stem . " +
+                    " OPTIONAL { ?stem vstoi:hasContent ?content . } " +
+                    " { " +
+                    "   ?uri vstoi:hasStatus <" + hasStatus + "> . " +
+                    "   ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
+                    "     FILTER (?managerEmail = \"" + managerEmail + "\") " +
+                    " } UNION { " +
+                    "   ?uri vstoi:hasStatus <" + VSTOI.CURRENT + "> . " +
+                    " } " +
+                    "}" +
+                    " ORDER BY ASC(?content) " +
+                    " LIMIT " + pageSize +
+                    " OFFSET " + offset;
+        } else {
+            queryString += " SELECT ?uri WHERE { " +
+                    " ?uri hasco:hascoType " + hascoTypeStr + " . " +
+                    " ?uri vstoi:hasDetectorStem ?stem . " +
+                    " OPTIONAL { ?stem vstoi:hasContent ?content . } " +
+                    " ?uri vstoi:hasStatus <" + hasStatus + "> . " +
+                    " ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
+                    "   FILTER (?managerEmail = \"" + managerEmail + "\") " +
+                    "}" +
+                    " ORDER BY ASC(?content) " +
+                    " LIMIT " + pageSize +
+                    " OFFSET " + offset;
+        }
 		return GenericFind.findByQuery(clazz, queryString);
 	}
 
-	public List<T> findSIRInstancesByStatusManagerEmailWithPages(Class clazz, String hascoTypeStr, String hasStatus, String managerEmail, int pageSize, int offset) {
+	public List<T> findSIRInstancesByStatusManagerEmailWithPages(Class clazz, String hascoTypeStr, String hasStatus, String managerEmail,  boolean withCurrent, int pageSize, int offset) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
-		queryString += " SELECT ?uri WHERE { " +
-				//" ?model rdfs:subClassOf* " + className + " . " +
-				//" ?uri a ?model ." +
-				" ?uri hasco:hascoType " + hascoTypeStr + " . " +
-                " OPTIONAL { ?uri vstoi:hasContent ?content . } " +
-				" ?uri vstoi:hasStatus <" + hasStatus + "> . " +
-				" ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
-				"   FILTER (?managerEmail = \"" + managerEmail + "\") " +
-				"}" +
-				" ORDER BY ASC(?content) " +
-				" LIMIT " + pageSize +
-				" OFFSET " + offset;
+        if (withCurrent) {
+            queryString += " SELECT ?uri WHERE { " +
+                    " ?uri hasco:hascoType " + hascoTypeStr + " . " +
+                    " OPTIONAL { ?uri vstoi:hasContent ?content . } " +
+                    " { " +
+                    "   ?uri vstoi:hasStatus <" + hasStatus + "> . " +
+                    "   ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
+                    "     FILTER (?managerEmail = \"" + managerEmail + "\") " +
+                    " } UNION { " +
+                    "   ?uri vstoi:hasStatus <" + VSTOI.CURRENT + "> . " +
+                    " } " +
+                    "}" +
+                    " ORDER BY ASC(?content) " +
+                    " LIMIT " + pageSize +
+                    " OFFSET " + offset;
+        } else {
+            queryString += " SELECT ?uri WHERE { " +
+                    " ?uri hasco:hascoType " + hascoTypeStr + " . " +
+                    " OPTIONAL { ?uri vstoi:hasContent ?content . } " +
+                    " ?uri vstoi:hasStatus <" + hasStatus + "> . " +
+                    " ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
+                    "   FILTER (?managerEmail = \"" + managerEmail + "\") " +
+                    "}" +
+                    " ORDER BY ASC(?content) " +
+                    " LIMIT " + pageSize +
+                    " OFFSET " + offset;
+        }
 		return GenericFind.findByQuery(clazz, queryString);
 	}
 
-	public List<T> findMTInstancesByStatusManagerEmailWithPages(Class clazz, String hascoTypeStr, String hasStatus, String managerEmail, int pageSize, int offset) {
+	public List<T> findMTInstancesByStatusManagerEmailWithPages(Class clazz, String hascoTypeStr, String hasStatus, String managerEmail, boolean withCurrent, int pageSize, int offset) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
-		queryString += " SELECT ?uri WHERE { " +
-				" ?uri hasco:hascoType " + hascoTypeStr + " . " +
-				" OPTIONAL { ?uri rdfs:label ?label . } " +
-                " ?uri hasco:hasDataFile ?dataFile . " +   // a MT concept requires an associated DataFile
-				" ?uri vstoi:hasStatus <" + hasStatus + "> . " +
-				" ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
-				"   FILTER (?managerEmail = \"" + managerEmail + "\") " +
-				"}" +
-				" ORDER BY ASC(?label) " +
-				" LIMIT " + pageSize +
-				" OFFSET " + offset;
+        if (withCurrent) {
+            queryString += " SELECT ?uri WHERE { " +
+                    " ?uri hasco:hascoType " + hascoTypeStr + " . " +
+                    " OPTIONAL { ?uri rdfs:label ?label . } " +
+                    " ?uri hasco:hasDataFile ?dataFile . " +   // a MT concept requires an associated DataFile
+                    " { " +
+                    "   ?uri vstoi:hasStatus <" + hasStatus + "> . " +
+                    "   ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
+                    "     FILTER (?managerEmail = \"" + managerEmail + "\") " +
+                    " } UNION { " +
+                    "   ?uri vstoi:hasStatus <" + VSTOI.CURRENT + "> . " +
+                    " } " +
+                    "}" +
+                    " ORDER BY ASC(?label) " +
+                    " LIMIT " + pageSize +
+                    " OFFSET " + offset;
+        } else {
+            queryString += " SELECT ?uri WHERE { " +
+                    " ?uri hasco:hascoType " + hascoTypeStr + " . " +
+                    " OPTIONAL { ?uri rdfs:label ?label . } " +
+                    " ?uri hasco:hasDataFile ?dataFile . " +   // a MT concept requires an associated DataFile
+                    " ?uri vstoi:hasStatus <" + hasStatus + "> . " +
+                    " ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
+                    "   FILTER (?managerEmail = \"" + managerEmail + "\") " +
+                    "}" +
+                    " ORDER BY ASC(?label) " +
+                    " LIMIT " + pageSize +
+                    " OFFSET " + offset;
+        }
 		return GenericFind.findByQuery(clazz, queryString);
 	}
 
-	public List<T> findElementsByStatusManagerEmailWithPages(Class clazz, String hascoTypeStr, String hasStatus, String managerEmail, int pageSize, int offset) {
+	public List<T> findElementsByStatusManagerEmailWithPages(Class clazz, String hascoTypeStr, String hasStatus, String managerEmail, boolean withCurrent, int pageSize, int offset) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
-		queryString += " SELECT ?uri WHERE { " +
-				//" ?model rdfs:subClassOf* " + className + " . " +
-				//" ?uri a ?model ." +
-				" ?uri hasco:hascoType " + hascoTypeStr + " . " +
-				" OPTIONAL { ?uri rdfs:label ?label . } " +
-				" ?uri vstoi:hasStatus <" + hasStatus + "> . " +
-				" ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
-				"   FILTER (?managerEmail = \"" + managerEmail + "\") " +
-				"}" +
-				" ORDER BY ASC(?label) " +
-				" LIMIT " + pageSize +
-				" OFFSET " + offset;
+        if (withCurrent) {
+            queryString += " SELECT ?uri WHERE { " +
+                    " ?uri hasco:hascoType " + hascoTypeStr + " . " +
+                    " OPTIONAL { ?uri rdfs:label ?label . } " +
+                    " { " +
+                    "   ?uri vstoi:hasStatus <" + hasStatus + "> . " +
+                    "   ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
+                    "     FILTER (?managerEmail = \"" + managerEmail + "\") " +
+                    " } UNION { " +
+                    "   ?uri vstoi:hasStatus <" + VSTOI.CURRENT + "> . " +
+                    " } " +
+                    "}" +
+                    " ORDER BY ASC(?label) " +
+                    " LIMIT " + pageSize +
+                    " OFFSET " + offset;
+        } else {            
+            queryString += " SELECT ?uri WHERE { " +
+                    " ?uri hasco:hascoType " + hascoTypeStr + " . " +
+                    " OPTIONAL { ?uri rdfs:label ?label . } " +
+                    " ?uri vstoi:hasStatus <" + hasStatus + "> . " +
+                    " ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
+                    "   FILTER (?managerEmail = \"" + managerEmail + "\") " +
+                    "}" +
+                    " ORDER BY ASC(?label) " +
+                    " LIMIT " + pageSize +
+                    " OFFSET " + offset;
+        }
         //System.out.println(queryString);
 		return GenericFind.findByQuery(clazz, queryString);
 	}
 
-	public static int findTotalByStatusManagerEmail(Class clazz, String hasStatus, String managerEmail) {
+	public static int findTotalByStatusManagerEmail(Class clazz, String hasStatus, String managerEmail, boolean withCurrent) {
         if (GenericFind.isMT(clazz)) {
-            return findTotalMTByStatusManagerEmail(clazz,hasStatus,managerEmail);
+            return findTotalMTByStatusManagerEmail(clazz,hasStatus,managerEmail, withCurrent);
         } else {
             String hascoTypeStr = GenericFind.classNameWithNamespace(clazz);
             if (hascoTypeStr == null || hascoTypeStr.isEmpty()) {
@@ -258,34 +312,57 @@ public class GenericFindWithStatus<T> {
             if (hascoTypeStr == null || hascoTypeStr.isEmpty()) {
                 return -1;
             }
-            return findTotalElementsByStatusManagerEmail(hascoTypeStr,hasStatus,managerEmail);
+            return findTotalElementsByStatusManagerEmail(hascoTypeStr,hasStatus,managerEmail, withCurrent);
         }
     }
 
-	public static int findTotalElementsByStatusManagerEmail(String hascoTypeStr, String hasStatus, String managerEmail) {
+	public static int findTotalElementsByStatusManagerEmail(String hascoTypeStr, String hasStatus, String managerEmail, boolean withCurrent) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
-		queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
-				//" ?model rdfs:subClassOf* " + classNameWithNamespace(clazz) + " . " +
-				//" ?uri a ?model ." +
-				" ?uri hasco:hascoType " + hascoTypeStr + " . " +
-				" ?uri vstoi:hasStatus <" + hasStatus + "> . " +
-				" ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
-				"   FILTER (?managerEmail = \"" + managerEmail + "\") " +
-				"}";
+        if (withCurrent) {
+            queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
+                    " ?uri hasco:hascoType " + hascoTypeStr + " . " +
+                    " { " +
+                    "   ?uri vstoi:hasStatus <" + hasStatus + "> . " +
+                    "   ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
+                    "     FILTER (?managerEmail = \"" + managerEmail + "\") " +
+                    " } UNION { " +
+                    "   ?uri vstoi:hasStatus <" + VSTOI.CURRENT + "> . " +
+                    " } " +
+                    "}";
+        } else {
+            queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
+                    " ?uri hasco:hascoType " + hascoTypeStr + " . " +
+                    " ?uri vstoi:hasStatus <" + hasStatus + "> . " +
+                    " ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
+                    "   FILTER (?managerEmail = \"" + managerEmail + "\") " +
+                    "}";
+        }
         return GenericFind.findTotalByQuery(queryString);
 	}
 
-	public static int findTotalMTByStatusManagerEmail(Class clazz, String hasStatus, String managerEmail) {
+	public static int findTotalMTByStatusManagerEmail(Class clazz, String hasStatus, String managerEmail, boolean withCurrent) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
-		queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
-				//" ?model rdfs:subClassOf* " + classNameWithNamespace(clazz) + " . " +
-				//" ?uri a ?model ." +
-				" ?uri hasco:hascoType " + GenericFind.classNameWithNamespace(clazz) + " . " +
-                " ?uri hasco:hasDataFile ?dataFile . " +   // a MT concept requires an associated DataFile
-				" ?uri vstoi:hasStatus <" + hasStatus + "> . " +
-				" ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
-				"   FILTER (?managerEmail = \"" + managerEmail + "\") " +
-				"}";
+        if (withCurrent) {
+            queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
+                    " ?uri hasco:hascoType " + GenericFind.classNameWithNamespace(clazz) + " . " +
+                    " ?uri hasco:hasDataFile ?dataFile . " +   // a MT concept requires an associated DataFile
+                    " { " +
+                    "   ?uri vstoi:hasStatus <" + hasStatus + "> . " +
+                    "   ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
+                    "     FILTER (?managerEmail = \"" + managerEmail + "\") " +
+                    " } UNION { " +
+                    "   ?uri vstoi:hasStatus <" + VSTOI.CURRENT + "> . " +
+                    " } " +
+                    "}";
+        } else {
+            queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
+                    " ?uri hasco:hascoType " + GenericFind.classNameWithNamespace(clazz) + " . " +
+                    " ?uri hasco:hasDataFile ?dataFile . " +   // a MT concept requires an associated DataFile
+                    " ?uri vstoi:hasStatus <" + hasStatus + "> . " +
+                    " ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
+                    "   FILTER (?managerEmail = \"" + managerEmail + "\") " +
+                    "}";
+        }
         return GenericFind.findTotalByQuery(queryString);
 	}
 

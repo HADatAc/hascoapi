@@ -1453,148 +1453,148 @@ public class SIRElementAPI extends Controller {
      *   GET ELEMENTS BY STATUS AND MANAGER EMAIL WITH PAGE
      */
 
-     public Result getElementsByStatusManagerEmail(String elementType, String hasStatus, String managerEmail, int pageSize, int offset) {
+     public Result getElementsByStatusManagerEmail(String elementType, String hasStatus, String managerEmail, boolean withCurrent, int pageSize, int offset) {
         if (managerEmail == null || managerEmail.isEmpty()) {
             return ok(ApiUtil.createResponse("No Manager Email has been provided", false));
         }
         if (elementType.equals("semanticvariable")) {
             GenericFindWithStatus<SemanticVariable> query = new GenericFindWithStatus<SemanticVariable>();
-            List<SemanticVariable> results = query.findByStatusManagerEmailWithPages(SemanticVariable.class, hasStatus, managerEmail, pageSize, offset);
+            List<SemanticVariable> results = query.findByStatusManagerEmailWithPages(SemanticVariable.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return SemanticVariableAPI.getSemanticVariables(results);
         } else if (elementType.equals("instrument")) {
             GenericFindWithStatus<Instrument> query = new GenericFindWithStatus<Instrument>();
-            List<Instrument> results = query.findByStatusManagerEmailWithPages(Instrument.class, hasStatus, managerEmail, pageSize, offset);
+            List<Instrument> results = query.findByStatusManagerEmailWithPages(Instrument.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return InstrumentAPI.getInstruments(results);
         } else if (elementType.equals("instrumentinstance")) {
             GenericFindWithStatus<InstrumentInstance> query = new GenericFindWithStatus<InstrumentInstance>();
-            List<InstrumentInstance> results = query.findByStatusManagerEmailWithPages(InstrumentInstance.class, hasStatus, managerEmail, pageSize, offset);
+            List<InstrumentInstance> results = query.findByStatusManagerEmailWithPages(InstrumentInstance.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return VSTOIInstanceAPI.getInstrumentInstances(results);
         } else if (elementType.equals("detectorinstance")) {
             GenericFindWithStatus<DetectorInstance> query = new GenericFindWithStatus<DetectorInstance>();
-            List<DetectorInstance> results = query.findByStatusManagerEmailWithPages(DetectorInstance.class, hasStatus, managerEmail, pageSize, offset);
+            List<DetectorInstance> results = query.findByStatusManagerEmailWithPages(DetectorInstance.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return VSTOIInstanceAPI.getDetectorInstances(results);
         } else if (elementType.equals("platforminstance")) {
             GenericFindWithStatus<PlatformInstance> query = new GenericFindWithStatus<PlatformInstance>();
-            List<PlatformInstance> results = query.findByStatusManagerEmailWithPages(PlatformInstance.class, hasStatus, managerEmail, pageSize, offset);
+            List<PlatformInstance> results = query.findByStatusManagerEmailWithPages(PlatformInstance.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return VSTOIInstanceAPI.getPlatformInstances(results);
         }  else if (elementType.equals("detectorstem")) {
             GenericFindWithStatus<DetectorStem> query = new GenericFindWithStatus<DetectorStem>();
-            List<DetectorStem> results = query.findByStatusManagerEmailWithPages(DetectorStem.class, hasStatus, managerEmail, pageSize, offset);
+            List<DetectorStem> results = query.findByStatusManagerEmailWithPages(DetectorStem.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return DetectorStemAPI.getDetectorStems(results);
         }  else if (elementType.equals("detector")) {
             GenericFindWithStatus<Detector> query = new GenericFindWithStatus<Detector>();
-            List<Detector> results = query.findByStatusManagerEmailWithPages(Detector.class, hasStatus, managerEmail, pageSize, offset);
+            List<Detector> results = query.findByStatusManagerEmailWithPages(Detector.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return DetectorAPI.getDetectors(results);
         }  else if (elementType.equals("codebook")) {
             GenericFindWithStatus<Codebook> query = new GenericFindWithStatus<Codebook>();
-            List<Codebook> results = query.findByStatusManagerEmailWithPages(Codebook.class, hasStatus, managerEmail, pageSize, offset);
+            List<Codebook> results = query.findByStatusManagerEmailWithPages(Codebook.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return CodebookAPI.getCodebooks(results);
         }  else if (elementType.equals("responseoption")) {
             GenericFindWithStatus<ResponseOption> query = new GenericFindWithStatus<ResponseOption>();
-            List<ResponseOption> results = query.findByStatusManagerEmailWithPages(ResponseOption.class, hasStatus, managerEmail, pageSize, offset);
+            List<ResponseOption> results = query.findByStatusManagerEmailWithPages(ResponseOption.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return ResponseOptionAPI.getResponseOptions(results);
         }  else if (elementType.equals("annotationstem")) {
             GenericFindWithStatus<AnnotationStem> query = new GenericFindWithStatus<AnnotationStem>();
-            List<AnnotationStem> results = query.findByStatusManagerEmailWithPages(AnnotationStem.class, hasStatus, managerEmail, pageSize, offset);
+            List<AnnotationStem> results = query.findByStatusManagerEmailWithPages(AnnotationStem.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return AnnotationStemAPI.getAnnotationStems(results);
         }  else if (elementType.equals("annotation")) {
             GenericFindWithStatus<Annotation> query = new GenericFindWithStatus<Annotation>();
-            List<Annotation> results = query.findByStatusManagerEmailWithPages(Annotation.class, hasStatus, managerEmail, pageSize, offset);
+            List<Annotation> results = query.findByStatusManagerEmailWithPages(Annotation.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return AnnotationAPI.getAnnotations(results);
         }  else if (elementType.equals("ins")) {
             GenericFindWithStatus<INS> query = new GenericFindWithStatus<INS>();
-            List<INS> results = query.findByStatusManagerEmailWithPages(INS.class, hasStatus, managerEmail, pageSize, offset);
+            List<INS> results = query.findByStatusManagerEmailWithPages(INS.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return INSAPI.getINSs(results);
         }  else if (elementType.equals("da")) {
             GenericFindWithStatus<DA> query = new GenericFindWithStatus<DA>();
-            List<DA> results = query.findByStatusManagerEmailWithPages(DA.class, hasStatus, managerEmail, pageSize, offset);
+            List<DA> results = query.findByStatusManagerEmailWithPages(DA.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return DAAPI.getDAs(results);
         }  else if (elementType.equals("dd")) {
             GenericFindWithStatus<DD> query = new GenericFindWithStatus<DD>();
-            List<DD> results = query.findByStatusManagerEmailWithPages(DD.class, hasStatus, managerEmail, pageSize, offset);
+            List<DD> results = query.findByStatusManagerEmailWithPages(DD.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return DDAPI.getDDs(results);
         }  else if (elementType.equals("sdd")) {
             GenericFindWithStatus<SDD> query = new GenericFindWithStatus<SDD>();
-            List<SDD> results = query.findByStatusManagerEmailWithPages(SDD.class, hasStatus, managerEmail, pageSize, offset);
+            List<SDD> results = query.findByStatusManagerEmailWithPages(SDD.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return SDDAPI.getSDDs(results);
         }  else if (elementType.equals("semanticdatadictionary")) {
             GenericFindWithStatus<SemanticDataDictionary> query = new GenericFindWithStatus<SemanticDataDictionary>();
-            List<SemanticDataDictionary> results = query.findByStatusManagerEmailWithPages(SemanticDataDictionary.class, hasStatus, managerEmail, pageSize, offset);
+            List<SemanticDataDictionary> results = query.findByStatusManagerEmailWithPages(SemanticDataDictionary.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return SemanticDataDictionaryAPI.getSemanticDataDictionaries(results);
         }  else if (elementType.equals("dp2")) {
             GenericFindWithStatus<DP2> query = new GenericFindWithStatus<DP2>();
-            List<DP2> results = query.findByStatusManagerEmailWithPages(DP2.class, hasStatus, managerEmail, pageSize, offset);
+            List<DP2> results = query.findByStatusManagerEmailWithPages(DP2.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return DP2API.getDP2s(results);
         }  else if (elementType.equals("str")) {
             GenericFindWithStatus<STR> query = new GenericFindWithStatus<STR>();
-            List<STR> results = query.findByStatusManagerEmailWithPages(STR.class, hasStatus, managerEmail, pageSize, offset);
+            List<STR> results = query.findByStatusManagerEmailWithPages(STR.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return STRAPI.getSTRs(results);
         }  else if (elementType.equals("datafile")) {
             GenericFindWithStatus<DataFile> query = new GenericFindWithStatus<DataFile>();
-            List<DataFile> results = query.findByStatusManagerEmailWithPages(DataFile.class, hasStatus, managerEmail, pageSize, offset);
+            List<DataFile> results = query.findByStatusManagerEmailWithPages(DataFile.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return DataFileAPI.getDataFiles(results);
         }  else if (elementType.equals("dsg")) {
             GenericFindWithStatus<DSG> query = new GenericFindWithStatus<DSG>();
-            List<DSG> results = query.findByStatusManagerEmailWithPages(DSG.class, hasStatus, managerEmail, pageSize, offset);
+            List<DSG> results = query.findByStatusManagerEmailWithPages(DSG.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return DSGAPI.getDSGs(results);
         }  else if (elementType.equals("study")) {
             GenericFindWithStatus<Study> query = new GenericFindWithStatus<Study>();
-            List<Study> results = query.findByStatusManagerEmailWithPages(Study.class, hasStatus, managerEmail, pageSize, offset);
+            List<Study> results = query.findByStatusManagerEmailWithPages(Study.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return StudyAPI.getStudies(results);
         }  else if (elementType.equals("studyobjectcollection")) {
             GenericFindWithStatus<StudyObjectCollection> query = new GenericFindWithStatus<StudyObjectCollection>();
-            List<StudyObjectCollection> results = query.findByStatusManagerEmailWithPages(StudyObjectCollection.class, hasStatus, managerEmail, pageSize, offset);
+            List<StudyObjectCollection> results = query.findByStatusManagerEmailWithPages(StudyObjectCollection.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return StudyObjectCollectionAPI.getStudyObjectCollections(results);
         }  else if (elementType.equals("studyobject")) {
             GenericFindWithStatus<StudyObject> query = new GenericFindWithStatus<StudyObject>();
-            List<StudyObject> results = query.findByStatusManagerEmailWithPages(StudyObject.class, hasStatus, managerEmail, pageSize, offset);
+            List<StudyObject> results = query.findByStatusManagerEmailWithPages(StudyObject.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return StudyObjectAPI.getStudyObjects(results);
         }  else if (elementType.equals("studyrole")) {
             GenericFindWithStatus<StudyRole> query = new GenericFindWithStatus<StudyRole>();
-            List<StudyRole> results = query.findByStatusManagerEmailWithPages(StudyRole.class, hasStatus, managerEmail, pageSize, offset);
+            List<StudyRole> results = query.findByStatusManagerEmailWithPages(StudyRole.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return StudyRoleAPI.getStudyRoles(results);
         }  else if (elementType.equals("virtualcolumn")) {
             GenericFindWithStatus<VirtualColumn> query = new GenericFindWithStatus<VirtualColumn>();
-            List<VirtualColumn> results = query.findByStatusManagerEmailWithPages(VirtualColumn.class, hasStatus, managerEmail, pageSize, offset);
+            List<VirtualColumn> results = query.findByStatusManagerEmailWithPages(VirtualColumn.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return VirtualColumnAPI.getVirtualColumns(results);
         }  else if (elementType.equals("platform")) {
             GenericFindWithStatus<Platform> query = new GenericFindWithStatus<Platform>();
-            List<Platform> results = query.findByStatusManagerEmailWithPages(Platform.class, hasStatus, managerEmail, pageSize, offset);
+            List<Platform> results = query.findByStatusManagerEmailWithPages(Platform.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return PlatformAPI.getPlatforms(results);
         }  else if (elementType.equals("stream")) {
             GenericFindWithStatus<Stream> query = new GenericFindWithStatus<Stream>();
-            List<Stream> results = query.findByStatusManagerEmailWithPages(Stream.class, hasStatus, managerEmail, pageSize, offset);
+            List<Stream> results = query.findByStatusManagerEmailWithPages(Stream.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return StreamAPI.getStreams(results);
         }  else if (elementType.equals("deployment")) {
             GenericFindWithStatus<Deployment> query = new GenericFindWithStatus<Deployment>();
-            List<Deployment> results = query.findByStatusManagerEmailWithPages(Deployment.class, hasStatus, managerEmail, pageSize, offset);
+            List<Deployment> results = query.findByStatusManagerEmailWithPages(Deployment.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return DeploymentAPI.getDeployments(results);
         }  else if (elementType.equals("person")) {
             GenericFindWithStatus<Person> query = new GenericFindWithStatus<Person>();
-            List<Person> results = query.findByStatusManagerEmailWithPages(Person.class, hasStatus, managerEmail, pageSize, offset);
+            List<Person> results = query.findByStatusManagerEmailWithPages(Person.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return PersonAPI.getPeople(results);
         }  else if (elementType.equals("organization")) {
             GenericFindWithStatus<Organization> query = new GenericFindWithStatus<Organization>();
-            List<Organization> results = query.findByStatusManagerEmailWithPages(Organization.class, hasStatus, managerEmail, pageSize, offset);
+            List<Organization> results = query.findByStatusManagerEmailWithPages(Organization.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return OrganizationAPI.getOrganizations(results);
         }  else if (elementType.equals("place")) {
             GenericFindWithStatus<Place> query = new GenericFindWithStatus<Place>();
-            List<Place> results = query.findByStatusManagerEmailWithPages(Place.class, managerEmail, hasStatus, pageSize, offset);
+            List<Place> results = query.findByStatusManagerEmailWithPages(Place.class, managerEmail, hasStatus, withCurrent, pageSize, offset);
             return PlaceAPI.getPlaces(results);
         }  else if (elementType.equals("postaladdress")) {
             GenericFindWithStatus<PostalAddress> query = new GenericFindWithStatus<PostalAddress>();
-            List<PostalAddress> results = query.findByStatusManagerEmailWithPages(PostalAddress.class, hasStatus, managerEmail, pageSize, offset);
+            List<PostalAddress> results = query.findByStatusManagerEmailWithPages(PostalAddress.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return PostalAddressAPI.getPostalAddresses(results);
         }  else if (elementType.equals("kgr")) {
             GenericFindWithStatus<KGR> query = new GenericFindWithStatus<KGR>();
-            List<KGR> results = query.findByStatusManagerEmailWithPages(KGR.class, hasStatus, managerEmail, pageSize, offset);
+            List<KGR> results = query.findByStatusManagerEmailWithPages(KGR.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return KGRAPI.getKGRs(results);
         } 
         return ok("[getElementsByStatusManagerEmail] No valid element type.");
 
     }
 
-    public Result getTotalElementsByStatusManagerEmail(String elementType, String hasStatus, String managerEmail){
+    public Result getTotalElementsByStatusManagerEmail(String elementType, String hasStatus, String managerEmail, boolean withCurrent){
         //System.out.println("SIRElementAPI: getTotalElementsByManagerEmail");
         if (elementType == null || elementType.isEmpty()) {
             return ok(ApiUtil.createResponse("No elementType has been provided", false));
@@ -1604,7 +1604,7 @@ public class SIRElementAPI extends Controller {
             return ok(ApiUtil.createResponse("[" + elementType + "] is not a valid elementType", false));
         }
         
-        int totalElements = totalElements = GenericFindWithStatus.findTotalByStatusManagerEmail(clazz, hasStatus, managerEmail);
+        int totalElements = totalElements = GenericFindWithStatus.findTotalByStatusManagerEmail(clazz, hasStatus, managerEmail, withCurrent);
         if (totalElements >= 0) {
             String totalElementsJSON = "{\"total\":" + totalElements + "}";
             return ok(ApiUtil.createResponse(totalElementsJSON, true));
