@@ -130,6 +130,16 @@ public class CodebookSlotAPI extends Controller {
         if (results == null) {
             return ok(ApiUtil.createResponse("No response option slot has been found", false));
         } else {
+            JsonNode jsonObject = null;
+            try {
+                ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL,VSTOI.CODEBOOK_SLOT);
+                jsonObject = mapper.convertValue(results, JsonNode.class);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return ok(ApiUtil.createResponse(jsonObject, true));
+
+            /*
             ObjectMapper mapper = new ObjectMapper();
             SimpleFilterProvider filterProvider = new SimpleFilterProvider();
             filterProvider.addFilter("CodebookSlotFilter",
@@ -138,6 +148,7 @@ public class CodebookSlotAPI extends Controller {
             mapper.setFilterProvider(filterProvider);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));
+            */
         }
     }
 
