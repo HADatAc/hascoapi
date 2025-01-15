@@ -11,6 +11,7 @@ import org.hascoapi.annotations.PropertyField;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.SPARQLUtils;
+import org.hascoapi.utils.URIUtils;
 import org.hascoapi.utils.Utils;
 import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.RDF;
@@ -139,24 +140,27 @@ public class Codebook extends HADatAcThing implements Comparable<Codebook> {
         while (stmtIterator.hasNext()) {
             statement = stmtIterator.next();
             object = statement.getObject();
-            if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-                codebook.setLabel(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
-                codebook.setTypeUri(object.asResource().getURI());
-            } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
-                codebook.setComment(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
-                codebook.setHascoTypeUri(object.asResource().getURI());
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
-                codebook.setHasStatus(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
-                codebook.setSerialNumber(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
-                codebook.setHasLanguage(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
-                codebook.setHasVersion(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
-                codebook.setHasSIRManagerEmail(object.asLiteral().getString());
+ 			String str = URIUtils.objectRDFToString(object);
+			if (uri != null && !uri.isEmpty()) {
+				if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
+					codebook.setLabel(str);
+                } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
+                    codebook.setTypeUri(str);
+                } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
+                    codebook.setComment(str);
+                } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
+                    codebook.setHascoTypeUri(str);
+                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
+                    codebook.setHasStatus(str);
+                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
+                    codebook.setSerialNumber(str);
+                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
+                    codebook.setHasLanguage(str);
+                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
+                    codebook.setHasVersion(str);
+                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
+                    codebook.setHasSIRManagerEmail(str);
+                }
             }
         }
 

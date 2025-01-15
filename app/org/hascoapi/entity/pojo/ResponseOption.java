@@ -122,7 +122,7 @@ public class ResponseOption extends HADatAcThing implements SIRElement /*, Compa
             statement = stmtIterator.next();
             object = statement.getObject();
             String str = URIUtils.objectRDFToString(object);
-            System.out.println(statement.getPredicate().getURI() + " <<" + str + ">>");
+            //System.out.println(statement.getPredicate().getURI() + " <<" + str + ">>");
             if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
                 responseOption.setLabel(str);
             } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
