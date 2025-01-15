@@ -35,6 +35,8 @@ public class NameSpaceGenerator extends BaseGenerator {
 	}
 	
 	private String getNSUri(Record rec) {
+		System.out.println("mapCol: [" + mapCol.get("nsUri") + "]");
+		System.out.println("value: [" + rec.getValueByColumnName(mapCol.get("nsUri")) + "]");
 		return rec.getValueByColumnName(mapCol.get("nsUri"));
 	}
 	
@@ -59,10 +61,10 @@ public class NameSpaceGenerator extends BaseGenerator {
 		//for (int aux=0; aux < record.size(); aux++) {
 		//	System.out.println("  - [" + record.getValueByColumnIndex(aux) + "]");
 		//}
-
 		String nsUri = getNSUri(record); 
 		if (nsUri == null || nsUri.isEmpty()) {
-			throw new Exception("[ERROR] NameSpaceGenerator: no NS URI has been provided.");
+			return null;
+			//throw new Exception("[ERROR] NameSpaceGenerator: no NS URI has been provided.");
     	}
 
 		String nsAbbrev = getNSAbbreviation(record);
