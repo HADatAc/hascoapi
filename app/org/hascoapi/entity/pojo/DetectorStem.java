@@ -12,6 +12,7 @@ import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.hascoapi.annotations.PropertyField;
 import org.hascoapi.utils.SPARQLUtils;
+import org.hascoapi.utils.URIUtils;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.vocabularies.*;
@@ -233,42 +234,47 @@ public class DetectorStem extends HADatAcClass implements SIRElement, Comparable
         while (stmtIterator.hasNext()) {
             statement = stmtIterator.next();
             object = statement.getObject();
-            if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-                detectorStem.setLabel(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals(RDFS.SUBCLASS_OF)) {
-                detectorStem.setSuperUri(object.asResource().getURI());
-            } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
-                detectorStem.setComment(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
-                detectorStem.setHascoTypeUri(object.asResource().getURI());
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
-                detectorStem.setHasStatus(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
-                detectorStem.setImage(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_CONTENT)) {
-                detectorStem.setHasContent(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
-                detectorStem.setHasLanguage(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
-                detectorStem.setHasVersion(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals(HASCO.DETECTS)) {
-                try {
-                    detectorStem.setDetects(object.asResource().getURI());
-                } catch (Exception e) {
-                }
-            } else if (statement.getPredicate().getURI().equals(PROV.WAS_DERIVED_FROM)) {
-                try {
-                    detectorStem.setWasDerivedFrom(object.asResource().getURI());
-                } catch (Exception e) {
-                }
-            } else if (statement.getPredicate().getURI().equals(PROV.WAS_GENERATED_BY)) {
-                try {
-                    detectorStem.setWasGeneratedBy(object.asResource().getURI());
-                } catch (Exception e) {
-                }
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
-                detectorStem.setHasSIRManagerEmail(object.asLiteral().getString());
-            } 
+ 			String str = URIUtils.objectRDFToString(object);
+			if (uri != null && !uri.isEmpty()) {
+				if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
+					detectorStem.setLabel(str);
+				} else if (statement.getPredicate().getURI().equals(RDFS.SUBCLASS_OF)) {
+					detectorStem.setSuperUri(str); 
+				} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
+					detectorStem.setHascoTypeUri(str);
+                } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
+                    detectorStem.setComment(str);
+                } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
+                    detectorStem.setHascoTypeUri(str);
+                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
+                    detectorStem.setHasStatus(str);
+                } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+                    detectorStem.setImage(str);
+                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_CONTENT)) {
+                    detectorStem.setHasContent(str);
+                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
+                    detectorStem.setHasLanguage(str);
+                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
+                    detectorStem.setHasVersion(str);
+                } else if (statement.getPredicate().getURI().equals(HASCO.DETECTS)) {
+                    try {
+                        detectorStem.setDetects(str);
+                    } catch (Exception e) {
+                    }
+                } else if (statement.getPredicate().getURI().equals(PROV.WAS_DERIVED_FROM)) {
+                    try {
+                        detectorStem.setWasDerivedFrom(str);
+                    } catch (Exception e) {
+                    }
+                } else if (statement.getPredicate().getURI().equals(PROV.WAS_GENERATED_BY)) {
+                    try {
+                        detectorStem.setWasGeneratedBy(str);
+                    } catch (Exception e) {
+                    }
+                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
+                    detectorStem.setHasSIRManagerEmail(str);
+                } 
+            }
         }
 
         detectorStem.setUri(uri);
