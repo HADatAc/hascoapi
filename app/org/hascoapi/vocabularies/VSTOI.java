@@ -72,6 +72,7 @@ public class VSTOI {
     public static final String HAS_DETECTOR                 = VSTOI + "hasDetector";
     public static final String HAS_DETECTOR_INSTANCE        = VSTOI + "hasDetectorInstance";
     public static final String HAS_DETECTOR_STEM            = VSTOI + "hasDetectorStem";
+    public static final String HAS_EDITOR_EMAIL             = VSTOI + "hasEditorEmail";
     public static final String HAS_FIRST                    = VSTOI + "hasFirst";
     public static final String HAS_INFORMANT                = VSTOI + "hasInformant";
     public static final String HAS_INSTRUMENT_INSTANCE      = VSTOI + "hasInstrumentInstance";
@@ -81,12 +82,14 @@ public class VSTOI {
     public static final String HAS_POSITION                 = VSTOI + "hasPosition";
     public static final String HAS_PRIORITY                 = VSTOI + "hasPriority";
     public static final String HAS_RESPONSE_OPTION          = VSTOI + "hasResponseOption";
+    public static final String HAS_REVIEW_NOTE              = VSTOI + "hasReviewNote";
     public static final String HAS_SHORT_NAME               = VSTOI + "hasShortName";
     public static final String HAS_STATUS                   = VSTOI + "hasStatus";
     public static final String HAS_SIR_MANAGER_EMAIL        = VSTOI + "hasSIRManagerEmail";
     public static final String HAS_SUBCONTAINER             = VSTOI + "hasSubcontainer";
     public static final String HAS_VERSION                  = VSTOI + "hasVersion";
     public static final String HOST_TYPE                    = VSTOI + "hostType";
+    public static final String IS_ATTRIBUTE_OF              = VSTOI + "isAttributeOf";
     public static final String IS_DAMAGED                   = VSTOI + "isDamaged";
     public static final String IS_FIELD_OF_VIEW_OF          = VSTOI + "isFieldOfViewOf";
     public static final String OF_CODEBOOK                  = VSTOI + "ofCodebook";

@@ -12,6 +12,7 @@ import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.hascoapi.annotations.PropertyField;
 import org.hascoapi.utils.SPARQLUtils;
+import org.hascoapi.utils.URIUtils;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.vocabularies.*;
@@ -25,17 +26,8 @@ public class Detector extends DetectorStem {
     @PropertyField(uri="vstoi:hasCodebook")
     private String hasCodebook;
 
-    /* 
-    public String getHasSerialNumber() {
-        return hasSerialNumber;
-    }
-    */
-
-    /* 
-    public void setHasSerialNumber(String hasSerialNumber) {
-        this.hasSerialNumber = hasSerialNumber;
-    }
-    */
+    @PropertyField(uri="vstoi:isAttributeOf")
+    private String isAttributeOf;
 
     public String getHasDetectorStem() {
         return hasDetectorStem;
@@ -69,23 +61,13 @@ public class Detector extends DetectorStem {
         return codebook;
     }
 
-    /* 
-    public String getSuperLabel() {
-        DetectorStem detStem = DetectorStem.find(getSuperUri());
-        if (detStemType == null || detStemType.getLabel() == null) {
-            return "";
-        }
-        return detStemType.getLabel();
+    public void setIsAttributeOf(String isAttributeOf) {
+        this.isAttributeOf = isAttributeOf;
     }
 
-    public String getSuperUri() {
-        DetectorStemType detStemType = DetectorStemType.find(getTypeUri());
-        if (detStemType == null || detStemType.getLabel() == null) {
-            return "";
-        }
-        return detStemType.getURL();
+    public String getIsAttributeOf() {
+        return isAttributeOf;
     }
-    */
 
     public Detector() {
     }
@@ -320,49 +302,54 @@ public class Detector extends DetectorStem {
         while (stmtIterator.hasNext()) {
             statement = stmtIterator.next();
             object = statement.getObject();
-            if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-                detector.setLabel(object.asLiteral().getString());
-//            } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
-//                detector.setTypeUri(object.asResource().getURI());
-            } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
-                detector.setComment(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
-                detector.setHascoTypeUri(object.asResource().getURI());
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
-                detector.setHasStatus(object.asLiteral().getString());
-            //} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
-            //    detector.setHasSerialNumber(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
-                detector.setImage(object.asLiteral().getString());
-//            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_CONTENT)) {
-//                detector.setHasContent(object.asLiteral().getString());
-//            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
-//                detector.setHasLanguage(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
-                detector.setHasVersion(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals(PROV.WAS_DERIVED_FROM)) {
-                try {
-                    detector.setWasDerivedFrom(object.asResource().getURI());
-                } catch (Exception e) {
-                }
-            } else if (statement.getPredicate().getURI().equals(PROV.WAS_GENERATED_BY)) {
-                try {
-                    detector.setWasGeneratedBy(object.asResource().getURI());
-                } catch (Exception e) {
-                }
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
-                detector.setHasSIRManagerEmail(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_DETECTOR_STEM)) {
-                try {
-                    detector.setHasDetectorStem(object.asResource().getURI());
-                } catch (Exception e) {
-                    detector.setHasDetectorStem(null);
-                }
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_CODEBOOK)) {
-                try {
-                    detector.setHasCodebook(object.asResource().getURI());
-                } catch (Exception e) {
-                    detector.setHasCodebook(null);
+ 			String str = URIUtils.objectRDFToString(object);
+			if (uri != null && !uri.isEmpty()) {
+                if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
+                    detector.setLabel(str);
+                } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
+                    detector.setComment(str);
+                } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
+                    detector.setHascoTypeUri(str);
+                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
+                    detector.setHasStatus(str);
+                } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+                    detector.setImage(str);
+                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
+                    detector.setHasVersion(str);
+                } else if (statement.getPredicate().getURI().equals(PROV.WAS_DERIVED_FROM)) {
+                    try {
+                        detector.setWasDerivedFrom(str);
+                    } catch (Exception e) {
+                    }
+                } else if (statement.getPredicate().getURI().equals(PROV.WAS_GENERATED_BY)) {
+                    try {
+                        detector.setWasGeneratedBy(str);
+                    } catch (Exception e) {
+                    }
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_REVIEW_NOTE)) {
+					detector.setHasReviewNote(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
+					detector.setHasSIRManagerEmail(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_EDITOR_EMAIL)) {
+				    detector.setHasEditorEmail(str);
+                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_DETECTOR_STEM)) {
+                    try {
+                        detector.setHasDetectorStem(str);
+                    } catch (Exception e) {
+                        detector.setHasDetectorStem(null);
+                    }
+                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_CODEBOOK)) {
+                    try {
+                        detector.setHasCodebook(str);
+                    } catch (Exception e) {
+                        detector.setHasCodebook(null);
+                    }
+                } else if (statement.getPredicate().getURI().equals(VSTOI.IS_ATTRIBUTE_OF)) {
+                    try {
+                        detector.setIsAttributeOf(str);
+                    } catch (Exception e) {
+                        detector.setIsAttributeOf(null);
+                    }
                 }
             }
         }

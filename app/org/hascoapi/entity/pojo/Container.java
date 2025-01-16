@@ -64,8 +64,14 @@ public abstract class Container extends HADatAcClass implements SIRElement, Comp
  	@PropertyField(uri="vstoi:hasPriority")
 	private String hasPriority;
 
-	@PropertyField(uri="vstoi:hasSIRManagerEmail")
-	private String hasSIRManagerEmail;
+    @PropertyField(uri = "vstoi:hasReviewNote")
+    String hasReviewNote;
+
+    @PropertyField(uri = "vstoi:hasSIRManagerEmail")
+    private String hasSIRManagerEmail;
+
+    @PropertyField(uri = "vstoi:hasEditorEmail")
+    private String hasEditorEmail;
 
 	public String getHasStatus() {
 		return hasStatus;
@@ -155,13 +161,29 @@ public abstract class Container extends HADatAcClass implements SIRElement, Comp
 		this.hasPriority = hasPriority;
 	}
    
-	public String getHasSIRManagerEmail() {
-		return hasSIRManagerEmail;
-	}
+    public String getHasReviewNote() {      
+        return hasReviewNote;
+    }
 
-	public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
-		this.hasSIRManagerEmail = hasSIRManagerEmail;
-	}
+    public void setHasReviewNote(String hasReviewNote) {
+        this.hasReviewNote = hasReviewNote;
+    }
+
+    public String getHasSIRManagerEmail() {
+        return hasSIRManagerEmail;
+    }
+
+    public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
+        this.hasSIRManagerEmail = hasSIRManagerEmail;
+    }
+
+    public String getHasEditorEmail() {
+        return hasEditorEmail;
+    }
+
+    public void setHasEditorEmail(String hasEditorEmail) {
+        this.hasEditorEmail = hasEditorEmail;
+    }
 
 	public String getTypeLabel() {
     	InstrumentType insType = InstrumentType.find(getTypeUri());
@@ -362,8 +384,12 @@ public abstract class Container extends HADatAcClass implements SIRElement, Comp
 					container.setHasLanguage(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
          			container.setHasVersion(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_REVIEW_NOTE)) {
+					container.setHasReviewNote(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
 					container.setHasSIRManagerEmail(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_EDITOR_EMAIL)) {
+					container.setHasEditorEmail(str);
 				}
 			}
 		}

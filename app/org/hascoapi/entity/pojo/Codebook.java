@@ -38,8 +38,14 @@ public class Codebook extends HADatAcThing implements Comparable<Codebook> {
     @PropertyField(uri = "vstoi:hasVersion")
     private String hasVersion;
 
+    @PropertyField(uri = "vstoi:hasReviewNote")
+    String hasReviewNote;
+
     @PropertyField(uri = "vstoi:hasSIRManagerEmail")
     private String hasSIRManagerEmail;
+
+    @PropertyField(uri = "vstoi:hasEditorEmail")
+    private String hasEditorEmail;
 
     public String getHasStatus() {
         return hasStatus;
@@ -73,12 +79,28 @@ public class Codebook extends HADatAcThing implements Comparable<Codebook> {
         this.hasVersion = hasVersion;
     }
 
+    public String getHasReviewNote() {      
+        return hasReviewNote;
+    }
+
+    public void setHasReviewNote(String hasReviewNote) {
+        this.hasReviewNote = hasReviewNote;
+    }
+
     public String getHasSIRManagerEmail() {
         return hasSIRManagerEmail;
     }
 
     public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
         this.hasSIRManagerEmail = hasSIRManagerEmail;
+    }
+
+    public String getHasEditorEmail() {
+        return hasEditorEmail;
+    }
+
+    public void setHasEditorEmail(String hasEditorEmail) {
+        this.hasEditorEmail = hasEditorEmail;
     }
 
     public List<CodebookSlot> getCodebookSlots() {
@@ -158,8 +180,12 @@ public class Codebook extends HADatAcThing implements Comparable<Codebook> {
                     codebook.setHasLanguage(str);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
                     codebook.setHasVersion(str);
+                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_REVIEW_NOTE)) {
+                    codebook.setHasReviewNote(str);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
                     codebook.setHasSIRManagerEmail(str);
+                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_EDITOR_EMAIL)) {
+                    codebook.setHasEditorEmail(str);
                 }
             }
         }

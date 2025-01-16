@@ -41,8 +41,14 @@ public class DetectorStem extends HADatAcClass implements SIRElement, Comparable
     @PropertyField(uri="prov:wasGeneratedBy")
     private String wasGeneratedBy;
 
-    @PropertyField(uri="vstoi:hasSIRManagerEmail")
+    @PropertyField(uri = "vstoi:hasReviewNote")
+    String hasReviewNote;
+
+    @PropertyField(uri = "vstoi:hasSIRManagerEmail")
     private String hasSIRManagerEmail;
+
+    @PropertyField(uri = "vstoi:hasEditorEmail")
+    private String hasEditorEmail;
 
     @PropertyField(uri="hasco:detects")
     private String detects;
@@ -118,12 +124,28 @@ public class DetectorStem extends HADatAcClass implements SIRElement, Comparable
         this.hasVersion = hasVersion;
     }
 
+    public String getHasReviewNote() {      
+        return hasReviewNote;
+    }
+
+    public void setHasReviewNote(String hasReviewNote) {
+        this.hasReviewNote = hasReviewNote;
+    }
+
     public String getHasSIRManagerEmail() {
         return hasSIRManagerEmail;
     }
 
     public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
         this.hasSIRManagerEmail = hasSIRManagerEmail;
+    }
+
+    public String getHasEditorEmail() {
+        return hasEditorEmail;
+    }
+
+    public void setHasEditorEmail(String hasEditorEmail) {
+        this.hasEditorEmail = hasEditorEmail;
     }
 
     /* 
@@ -271,8 +293,12 @@ public class DetectorStem extends HADatAcClass implements SIRElement, Comparable
                         detectorStem.setWasGeneratedBy(str);
                     } catch (Exception e) {
                     }
-                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
-                    detectorStem.setHasSIRManagerEmail(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_REVIEW_NOTE)) {
+					detectorStem.setHasReviewNote(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
+					detectorStem.setHasSIRManagerEmail(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_EDITOR_EMAIL)) {
+					detectorStem.setHasEditorEmail(str);
                 } 
             }
         }
