@@ -1089,5 +1089,65 @@ public class GenericFind<T> {
         return -1;
     }
 
+    public static int[] findTotalsUnderReview() {
+
+
+        String queryString = "";
+        queryString += NameSpaces.getInstance().printSparqlNameSpaceList(); // Add necessary namespaces
+
+        // Use UNION to combine the queries
+        queryString += "SELECT " 
+            + " (COUNT(?typeAS) AS ?tot1) "  
+            + " (COUNT(?typeCB) AS ?tot2) " 
+            + " (COUNT(?typeCN) AS ?tot3) " 
+            + " (COUNT(?typeDT) AS ?tot4) " 
+            + " (COUNT(?typeDS) AS ?tot5) " 
+            + " (COUNT(?typeRO) AS ?tot6) " 
+            + " WHERE {"
+            + "     { ?typeAS rdfs:subClassOf* <" + VSTOI.ANNOTATION_STEM + "> . "
+            + "       ?typeAS hasco:hasStatus <" + VSTOI.UNDER_REVIEW + "> . }"
+            + "  UNION"
+            + "     { ?typeCB rdfs:subClassOf* <" + VSTOI.CODEBOOK + "> . "
+            + "       ?typeCB hasco:hasStatus <" + VSTOI.UNDER_REVIEW + "> . }"
+            + "  UNION"
+            + "     { ?typeCN rdfs:subClassOf* <" + VSTOI.CONTAINER + "> . "
+            + "       ?typeCN hasco:hasStatus <" + VSTOI.UNDER_REVIEW + "> . }"
+            + "  UNION"
+            + "     { ?typeDT rdfs:subClassOf* <" + VSTOI.DETECTOR + "> . "
+            + "       ?typeDT hasco:hasStatus <" + VSTOI.UNDER_REVIEW + "> . }"
+            + "  UNION"
+            + "     { ?typeDS rdfs:subClassOf* <" + VSTOI.DETECTOR_STEM + "> . "
+            + "       ?typeDS hasco:hasStatus <" + VSTOI.UNDER_REVIEW + "> . }"
+            + "  UNION"
+            + "     { ?typeRO rdfs:subClassOf* <" + VSTOI.RESPONSE_OPTION + "> . "
+            + "       ?typeRO hasco:hasStatus <" + VSTOI.UNDER_REVIEW + "> . }"
+            + "}";
+
+
+        int[] totals = new int[6]; 
+        
+        try {
+            // Execute the query using the SPARQLUtils utility
+            ResultSetRewindable resultsrw = SPARQLUtils.select(
+                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+            // Check if there are results
+            if (resultsrw.hasNext()) {
+                QuerySolution soln = resultsrw.next();
+                totals[0] = Integer.parseInt(soln.getLiteral("tot1").getString());
+                totals[1] = Integer.parseInt(soln.getLiteral("tot2").getString());
+                totals[2] = Integer.parseInt(soln.getLiteral("tot3").getString());
+                totals[3] = Integer.parseInt(soln.getLiteral("tot4").getString());
+                totals[4] = Integer.parseInt(soln.getLiteral("tot5").getString());
+                totals[5] = Integer.parseInt(soln.getLiteral("tot6").getString());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return totals;
+    }
+
+
 }
 

@@ -136,6 +136,11 @@ GET     /hascoapi/api/uningest/:dataFileUri              org.hascoapi.console.co
 GET     /hascoapi/api/uningest/mt/:metadataTemplateUri   org.hascoapi.console.controllers.restapi.IngestionAPI.uningestMetadataTemplate(metadataTemplateUri: String)
 GET     /hascoapi/api/ingestion/:dataFileUri/log         org.hascoapi.console.controllers.restapi.IngestionAPI.getLog(dataFileUri : String)
 
+# REVIEWING METHODS 
+
+GET     /hascoapi/api/review/pending                        org.hascoapi.console.controllers.restapi.SIRElementAPI.pendingReviews
+# POST    /hascoapi/api/review/recursive/:containerUri        org.hascoapi.console.controllers.restapi.ContainerAPI.updateReviewRecursive(containerUri: String)
+
 # TESTING METHODS
 
 GET     /hascoapi/test/instrument/create                    org.hascoapi.console.controllers.restapi.InstrumentAPI.createInstrumentForTesting()

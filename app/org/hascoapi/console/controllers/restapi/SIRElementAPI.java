@@ -1664,4 +1664,20 @@ public class SIRElementAPI extends Controller {
         return ok("No recognizable HASCO type.");
     }
 
+    public Result pendingReviews(){
+        GenericInstance instance = new GenericInstance();
+        int[] response = GenericFind.findTotalsUnderReview();
+        if (response != null) {
+            String respJSON = "[" + 
+                "{\"AnnotationStem\":\"" + response[0] + "\"}," + 
+                "{\"Codebook\":\"" + response[1] + "\"}," + 
+                "{\"Container\":\"" + response[2] + "\"}," + 
+                "{\"Detector\":\"" + response[3] + "\"}," + 
+                "{\"DetectorStem\":\"" + response[4] + "\"}," + 
+                "{\"ResponseOption\":\"" + response[5] + "\"}" + "]";
+            return ok(ApiUtil.createResponse(respJSON, true));
+        }     
+        return ok("Failed retrieving elements under review.");
+    }
+
 }
