@@ -109,8 +109,12 @@ public class Subcontainer extends Container implements SlotElement {
 					subcontainer.setHasLanguage(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
 					subcontainer.setHasVersion(str);
+				} else if (statement.getPredicate().getURI().equals(PROV.WAS_DERIVED_FROM)) {
+					subcontainer.setWasDerivedFrom(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
 					subcontainer.setHasSIRManagerEmail(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_EDITOR_EMAIL)) {
+					subcontainer.setHasEditorEmail(str);
 				}
 			}
 		}

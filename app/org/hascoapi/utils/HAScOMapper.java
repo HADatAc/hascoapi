@@ -57,7 +57,7 @@ public class HAScOMapper {
             filterProvider.addFilter("annotationStemFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
                             "hascoTypeLabel", "comment", "hasContent", "hasLanguage", "hasVersion",
-                            "wasDerivedFrom", "wasGeneratedBy", "hasSIRManagerEmail"));
+                            "wasDerivedFrom", "wasGeneratedBy", "hasSIRManagerEmail", "hasEditorEmail"));
         }
 
         // ATTRIBUTE
@@ -76,7 +76,7 @@ public class HAScOMapper {
             filterProvider.addFilter("codebookFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
                             "hascoTypeLabel", "comment", "hasSerialNumber", "responseOptions", "hasLanguage",
-                            "hasVersion", "hasSIRManagerEmail", "CodebookSlots"));
+                            "hasVersion", "wasDerivedFrom", "hasSIRManagerEmail", "hasEditorEmail", "CodebookSlots"));
         }
 
         // CODEBOOK SLOT
@@ -95,7 +95,7 @@ public class HAScOMapper {
             filterProvider.addFilter("containerFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
                             "hascoTypeLabel", "hasInformant", "comment", "belongsTo", "hasFirst", "hasSerialNumber", "hasLanguage", 
-                            "hasVersion", "hasPriority", "hasNext", "hasPrevious", "hasSIRManagerEmail"));
+                            "hasVersion", "hasPriority", "hasNext", "hasPrevious", "wasDerivedFrom", "hasSIRManagerEmail", "hasEditorEmail"));
         }
 
         // CONTAINER_SLOT
@@ -162,7 +162,8 @@ public class HAScOMapper {
             filterProvider.addFilter("detectorFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "superUri", "typeLabel", "hasStatus", "hascoTypeUri",
                             "hascoTypeLabel", "comment", "hasSerialNumber", "hasVersion",
-                            "wasDerivedFrom", "wasGeneratedBy", "hasSIRManagerEmail", "hasDetectorStem", "detectorStem", "hasCodebook", "codebook"));
+                            "wasDerivedFrom", "wasGeneratedBy", "hasSIRManagerEmail", "hasEditorEmail",  
+                            "hasDetectorStem", "detectorStem", "hasCodebook", "codebook"));
         }
 
         // DETECTOR_INSTANCE
@@ -182,7 +183,7 @@ public class HAScOMapper {
             filterProvider.addFilter("detectorStemFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "superUri", "typeLabel", "hasStatus", "hascoTypeUri",
                             "hascoTypeLabel", "comment", "hasContent", "hasLanguage", "hasVersion",
-                            "wasDerivedFrom", "wasGeneratedBy", "hasSIRManagerEmail", "detects", "detectsSemanticVariable"));
+                            "wasDerivedFrom", "wasGeneratedBy", "hasSIRManagerEmail", "hasEditorEmail", "detects", "detectsSemanticVariable"));
         }
 
         // DETECTOR_STEM_TYPE
@@ -232,7 +233,7 @@ public class HAScOMapper {
             filterProvider.addFilter("instrumentFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "superUri", "typeLabel", "hasStatus", "hascoTypeUri",
                             "hascoTypeLabel", "hasInformant", "comment", "hasFirst", "hasSerialNumber", "hasLanguage", 
-                            "hasVersion", "hasSIRManagerEmail"));
+                            "hasVersion", "wasDerivedFrom", "hasSIRManagerEmail", "hasEditorEmail"));
         }
 
         // INSTRUMENT_INSTANCE
@@ -333,7 +334,7 @@ public class HAScOMapper {
             filterProvider.addFilter("responseOptionFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
                             "hascoTypeLabel", "comment", "hasContent", "hasSerialNumber", "hasLanguage", "hasVersion",
-                            "hasSIRManagerEmail"));
+                            "wasDerivedFrom", "hasSIRManagerEmail", "hasEditorEmail"));
         }
 
         // SDD
@@ -419,17 +420,6 @@ public class HAScOMapper {
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
                             "hascoTypeLabel", "comment", "isMemberOf"));
         }
-
-        // STUDY OBJECT COLLECTION
-        //if (mode.equals(FULL) && typeResult.equals(HASCO.OBJECT_COLLECTION)) {
-        //    filterProvider.addFilter("studyObjectFilter", SimpleBeanPropertyFilter.serializeAllExcept("measurements"));
-        //} else if (typeResult.equals(HASCO.STUDY_OBJECT)) {
-        //    filterProvider.addFilter("studyObjectFilter", SimpleBeanPropertyFilter.serializeAll());
-        //} else {
-        //    filterProvider.addFilter("studyObjectFilter",
-        //            SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-        //                    "hascoTypeLabel", "comment"));
-        //}
 
         // STUDY OBJECT COLLECTION
         if (mode.equals(FULL) && typeResult.equals(HASCO.STUDY_OBJECT_COLLECTION)) {
