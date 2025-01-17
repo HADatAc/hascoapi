@@ -139,7 +139,7 @@ GET     /hascoapi/api/ingestion/:dataFileUri/log         org.hascoapi.console.co
 # REVIEWING METHODS 
 
 GET     /hascoapi/api/review/pending                        org.hascoapi.console.controllers.restapi.SIRElementAPI.pendingReviews
-# POST    /hascoapi/api/review/recursive/:containerUri        org.hascoapi.console.controllers.restapi.ContainerAPI.updateReviewRecursive(containerUri: String)
+GET     /hascoapi/api/review/recursive/:instrumentUri       org.hascoapi.console.controllers.restapi.InstrumentAPI.updateReviewsRecursive(instrumentUri: String)
 
 # TESTING METHODS
 

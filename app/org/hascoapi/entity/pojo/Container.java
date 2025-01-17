@@ -18,6 +18,7 @@ import org.hascoapi.utils.SPARQLUtils;
 import org.hascoapi.utils.URIUtils;
 import org.hascoapi.utils.Utils;
 import org.hascoapi.vocabularies.HASCO;
+import org.hascoapi.vocabularies.PROV;
 import org.hascoapi.vocabularies.RDF;
 import org.hascoapi.vocabularies.RDFS;
 import org.hascoapi.vocabularies.VSTOI;
@@ -66,6 +67,9 @@ public abstract class Container extends HADatAcClass implements SIRElement, Comp
 
     @PropertyField(uri = "vstoi:hasReviewNote")
     String hasReviewNote;
+
+    @PropertyField(uri="prov:wasDerivedFrom")
+    private String wasDerivedFrom;
 
     @PropertyField(uri = "vstoi:hasSIRManagerEmail")
     private String hasSIRManagerEmail;
@@ -167,6 +171,14 @@ public abstract class Container extends HADatAcClass implements SIRElement, Comp
 
     public void setHasReviewNote(String hasReviewNote) {
         this.hasReviewNote = hasReviewNote;
+    }
+
+    public void setWasDerivedFrom(String wasDerivedFrom) {
+        this.wasDerivedFrom = wasDerivedFrom;
+    }
+
+    public String getWasDerivedFrom() {
+        return wasDerivedFrom;
     }
 
     public String getHasSIRManagerEmail() {
@@ -386,6 +398,8 @@ public abstract class Container extends HADatAcClass implements SIRElement, Comp
          			container.setHasVersion(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_REVIEW_NOTE)) {
 					container.setHasReviewNote(str);
+                } else if (statement.getPredicate().getURI().equals(PROV.WAS_DERIVED_FROM)) {
+                    container.setWasDerivedFrom(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
 					container.setHasSIRManagerEmail(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_EDITOR_EMAIL)) {

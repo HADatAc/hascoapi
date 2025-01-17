@@ -12,6 +12,7 @@ import org.hascoapi.Constants;
 import org.hascoapi.entity.fhir.Questionnaire;
 import org.hascoapi.entity.pojo.Instrument;
 import org.hascoapi.transform.Renderings;
+import org.hascoapi.transform.InstrumentTraversal;
 import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.HAScOMapper;
 import org.hascoapi.vocabularies.VSTOI;
@@ -176,4 +177,22 @@ public class InstrumentAPI extends Controller {
 
         return ok(serialized).as("application/xml");
     }
+
+    public Result updateReviewsRecursive(String uri) {
+        if (uri  == null || uri.equals("")) {
+            return ok(ApiUtil.createResponse("No URI has been provided", false));
+        }
+        Instrument instr = Instrument.find(uri);
+        if (instr == null) {
+            return ok(ApiUtil.createResponse("No instrument instance found for uri [" + uri + "]", false));
+        }
+
+        int totalElements = InstrumentTraversal.updateStatusRecursive(uri);
+        if (totalElements >= 0) { 
+        String totalElementsJSON = "{\"total\":" + totalElements + "}";
+            return ok(ApiUtil.createResponse(totalElementsJSON, true));
+        }
+        return ok(ApiUtil.createResponse("updataReviewsRecursive() failed to retrieve total number of element", false));
+    }
+
 }

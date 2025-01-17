@@ -13,6 +13,7 @@ import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.SPARQLUtils;
 import org.hascoapi.utils.URIUtils;
 import org.hascoapi.vocabularies.HASCO;
+import org.hascoapi.vocabularies.PROV;
 import org.hascoapi.vocabularies.RDF;
 import org.hascoapi.vocabularies.RDFS;
 import org.hascoapi.vocabularies.VSTOI;
@@ -44,6 +45,9 @@ public class ResponseOption extends HADatAcThing implements SIRElement /*, Compa
 
     @PropertyField(uri = "vstoi:hasReviewNote")
     String hasReviewNote;
+
+    @PropertyField(uri="prov:wasDerivedFrom")
+    private String wasDerivedFrom;
 
     @PropertyField(uri = "vstoi:hasSIRManagerEmail")
     private String hasSIRManagerEmail;
@@ -107,6 +111,14 @@ public class ResponseOption extends HADatAcThing implements SIRElement /*, Compa
         this.hasReviewNote = hasReviewNote;
     }
 
+    public void setWasDerivedFrom(String wasDerivedFrom) {
+        this.wasDerivedFrom = wasDerivedFrom;
+    }
+
+    public String getWasDerivedFrom() {
+        return wasDerivedFrom;
+    }
+
     public String getHasSIRManagerEmail() {
         return hasSIRManagerEmail;
     }
@@ -167,6 +179,8 @@ public class ResponseOption extends HADatAcThing implements SIRElement /*, Compa
                 responseOption.setHasVersion(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_REVIEW_NOTE)) {
                 responseOption.setHasReviewNote(str);
+            } else if (statement.getPredicate().getURI().equals(PROV.WAS_DERIVED_FROM)) {
+                responseOption.setWasDerivedFrom(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
                 responseOption.setHasSIRManagerEmail(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_EDITOR_EMAIL)) {
