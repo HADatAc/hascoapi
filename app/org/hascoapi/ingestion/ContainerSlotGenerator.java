@@ -13,6 +13,8 @@ public class ContainerSlotGenerator extends BaseGenerator {
 
 	protected String firstSlotUri = "";
 
+	protected String hasStatus = "";
+
 	public String getInstrumentUri() {
 		return this.instrumentUri;
 	}
@@ -29,8 +31,17 @@ public class ContainerSlotGenerator extends BaseGenerator {
 		this.firstSlotUri = firstSlotUri;
 	}
 
-	public ContainerSlotGenerator(DataFile dataFile) {
+	public String getHasStatus() {
+		return this.hasStatus;
+	}
+    
+	public void setHasStatus(String hasStatus) {
+		this.hasStatus = hasStatus;
+	}
+
+	public ContainerSlotGenerator(DataFile dataFile, String hasStatus) {
 		super(dataFile);
+		this.hasStatus = hasStatus;
 	}
 
 	@Override

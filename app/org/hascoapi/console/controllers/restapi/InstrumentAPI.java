@@ -179,6 +179,7 @@ public class InstrumentAPI extends Controller {
     }
 
     public Result updateReviewsRecursive(String uri) {
+        System.out.println("updateReviewsRecursive: [" + uri + "]");
         if (uri  == null || uri.equals("")) {
             return ok(ApiUtil.createResponse("No URI has been provided", false));
         }

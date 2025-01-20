@@ -9,8 +9,20 @@ import org.hascoapi.vocabularies.VSTOI;
 
 public class CodeBookSlotGenerator extends BaseGenerator {
 
-	public CodeBookSlotGenerator(DataFile dataFile) {
+	protected String hasStatus = "";
+
+	public String getHasStatus() {
+		return this.hasStatus;
+	}
+    
+	public void setHasStatus(String hasStatus) {
+		this.hasStatus = hasStatus;
+	}
+
+
+	public CodeBookSlotGenerator(DataFile dataFile, String hasStatus) {
 		super(dataFile);
+		this.setHasStatus(hasStatus);
 	}
 
 	@Override

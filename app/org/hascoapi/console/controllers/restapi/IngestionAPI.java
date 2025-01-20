@@ -57,7 +57,7 @@ public class IngestionAPI extends Controller {
         return config.getString("hascoapi.templates.template_filename");
     }
 
-    public Result ingest(String elementType, String elementUri, Http.Request request) {
+    public Result ingest(String status, String elementType, String elementUri, Http.Request request) {
         System.out.println(" ");
         System.out.println(" ");
         System.out.println("== NEW " + elementType + " =========================================================== ");
@@ -158,7 +158,7 @@ public class IngestionAPI extends Controller {
             if (dataFile != null & filePerm != null) {
                 final DataFile finalDataFile = dataFile; 
                 CompletableFuture.runAsync(() -> {
-                    IngestionWorker.ingest(finalDataFile, filePerm, templateFile());
+                    IngestionWorker.ingest(finalDataFile, filePerm, templateFile(), status);
                 });
                 System.out.println("IngestionAPI.ingest(): API has just called IngestionWorker.ingest()");
             } else {

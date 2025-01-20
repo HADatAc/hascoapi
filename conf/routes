@@ -131,15 +131,15 @@ GET     /hascoapi/api/platforminstance/byplatform/total/:platformUri            
 
 # INGESTION METHODS
 
-POST    /hascoapi/api/ingest/:elementType/:elementUri    org.hascoapi.console.controllers.restapi.IngestionAPI.ingest(elementType: String, elementUri: String, request: play.mvc.Http.Request)
-GET     /hascoapi/api/uningest/:dataFileUri              org.hascoapi.console.controllers.restapi.IngestionAPI.uningestDataFile(dataFileUri: String)
-GET     /hascoapi/api/uningest/mt/:metadataTemplateUri   org.hascoapi.console.controllers.restapi.IngestionAPI.uningestMetadataTemplate(metadataTemplateUri: String)
-GET     /hascoapi/api/ingestion/:dataFileUri/log         org.hascoapi.console.controllers.restapi.IngestionAPI.getLog(dataFileUri : String)
+POST    /hascoapi/api/ingest/:status/:elementType/:elementUri                     org.hascoapi.console.controllers.restapi.IngestionAPI.ingest(status: String, elementType: String, elementUri: String, request: play.mvc.Http.Request)
+GET     /hascoapi/api/uningest/:dataFileUri                 org.hascoapi.console.controllers.restapi.IngestionAPI.uningestDataFile(dataFileUri: String)
+GET     /hascoapi/api/uningest/mt/:metadataTemplateUri      org.hascoapi.console.controllers.restapi.IngestionAPI.uningestMetadataTemplate(metadataTemplateUri: String)
+GET     /hascoapi/api/ingestion/:dataFileUri/log            org.hascoapi.console.controllers.restapi.IngestionAPI.getLog(dataFileUri : String)
 
 # REVIEWING METHODS 
 
 GET     /hascoapi/api/review/pending                        org.hascoapi.console.controllers.restapi.SIRElementAPI.pendingReviews
-GET     /hascoapi/api/review/recursive/:instrumentUri       org.hascoapi.console.controllers.restapi.InstrumentAPI.updateReviewsRecursive(instrumentUri: String)
+POST    /hascoapi/api/review/recursive/:instrumentUri       org.hascoapi.console.controllers.restapi.InstrumentAPI.updateReviewsRecursive(instrumentUri: String)
 
 # TESTING METHODS
 
