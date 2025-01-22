@@ -337,11 +337,11 @@ public class HAScOMapper {
                             "wasDerivedFrom", "wasGeneratedBy", "hasSIRManagerEmail", "hasEditorEmail"));
         }
  
-        // PROCESS_SETM
+        // PROCESS_STEM
         if (mode.equals(FULL) && typeResult.equals(VSTOI.PROCESS_STEM)) {
-            filterProvider.addFilter("processFilter", SimpleBeanPropertyFilter.serializeAll());
+            filterProvider.addFilter("processStemFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
-            filterProvider.addFilter("processFilter",
+            filterProvider.addFilter("processStemFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "superUri", "typeLabel", "hasStatus", "hascoTypeUri",
                             "hascoTypeLabel", "comment", "hasContent", "hasLanguage", "hasVersion",
                             "wasDerivedFrom", "wasGeneratedBy", "hasSIRManagerEmail", "hasEditorEmail"));
