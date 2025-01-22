@@ -138,6 +138,12 @@ public class Utils {
             case "postaladdress":
                 shortPrefix = Constants.PREFIX_POSTAL_ADDRESS;
                 break;
+            case "process":
+                shortPrefix = Constants.PREFIX_PROCESS;
+                break;
+            case "processstem":
+                shortPrefix = Constants.PREFIX_PROCESS_STEM;
+                break;
             default:
                 shortPrefix = null;
         }
