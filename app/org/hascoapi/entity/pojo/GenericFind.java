@@ -31,72 +31,88 @@ public class GenericFind<T> {
 
     public static Class getElementClass(String elementType) {
         
-        if (elementType.equals("instrument")) {
+        if (elementType.equals("agent")) {
+            return Agent.class;
+        } else if (elementType.equals("annotation")) {
+            return Annotation.class;
+        } else if (elementType.equals("annotationstem")) {
+            return AnnotationStem.class;
+        } else if (elementType.equals("attribute")) {
+            return Attribute.class;
+        } else if (elementType.equals("codebook")) {
+            return Codebook.class;
+        } else if (elementType.equals("codebookslot")) {
+            return CodebookSlot.class;
+        } else if (elementType.equals("containerslot")) {
+            return ContainerSlot.class;
+        } else if (elementType.equals("da")) {
+            return DA.class;
+        } else if (elementType.equals("datafile")) {
+            return DataFile.class;
+        } else if (elementType.equals("dd")) {
+            return DD.class;
+        } else if (elementType.equals("deployment")) {
+            return Deployment.class;
+        } else if (elementType.equals("detector")) {
+            return Detector.class;
+        } else if (elementType.equals("detectorinstance")) {
+            return DetectorInstance.class;
+        } else if (elementType.equals("detectorstem")) {
+            return DetectorStem.class;
+        } else if (elementType.equals("detectorstemtype")) {
+            return DetectorStemType.class;
+        } else if (elementType.equals("dp2")) {
+            return DP2.class;
+        } else if (elementType.equals("dsg")) {
+            return DSG.class;
+        } else if (elementType.equals("entity")) {
+            return Entity.class;
+        } else if (elementType.equals("ins")) {
+            return INS.class;
+        } else if (elementType.equals("instrument")) {
             return Instrument.class;
         } else if (elementType.equals("instrumentinstance")) {
             return InstrumentInstance.class;
-        } else if (elementType.equals("detectorinstance")) {
-            return DetectorInstance.class;
-        } else if (elementType.equals("platforminstance")) {
-            return PlatformInstance.class;
-        } else if (elementType.equals("subcontainer")) {
-            return Subcontainer.class;
-        } else if (elementType.equals("slotelement")) {
-            return SlotElement.class;
-        } else if (elementType.equals("detectorstem")) {
-            return DetectorStem.class;
-        } else if (elementType.equals("detector")) {
-            return Detector.class;
-        } else if (elementType.equals("containerslot")) {
-            return ContainerSlot.class;
-        } else if (elementType.equals("codebook")) {
-            return Codebook.class;
-        } else if (elementType.equals("responseoption")) {
-            return ResponseOption.class;
-        } else if (elementType.equals("codebookslot")) {
-            return CodebookSlot.class;
-        } else if (elementType.equals("annotationstem")) {
-            return AnnotationStem.class;
-        } else if (elementType.equals("annotation")) {
-            return Annotation.class;
-        } else if (elementType.equals("semanticvariable")) {
-            return SemanticVariable.class;
         } else if (elementType.equals("instrumenttype")) {
             return InstrumentType.class;
-        } else if (elementType.equals("detectorstemtype")) {
-            return DetectorStemType.class;
-        } else if (elementType.equals("entity")) {
-            return Entity.class;
-        } else if (elementType.equals("attribute")) {
-            return Attribute.class;
-        } else if (elementType.equals("unit")) {
-            return Unit.class;
-        } else if (elementType.equals("agent")) {
-            return Agent.class;
-        } else if (elementType.equals("ins")) {
-            return INS.class;
-        } else if (elementType.equals("da")) {
-            return DA.class;
-        } else if (elementType.equals("dd")) {
-            return DD.class;
+        } else if (elementType.equals("kgr")) {
+            return KGR.class;
+        } else if (elementType.equals("organization")) {
+            return Organization.class;
+        } else if (elementType.equals("person")) {
+            return Person.class;
+        } else if (elementType.equals("place")) {
+            return Place.class;
+        } else if (elementType.equals("platform")) {
+            return Platform.class;
+        } else if (elementType.equals("platforminstance")) {
+            return PlatformInstance.class;
+        } else if (elementType.equals("possiblevalue")) {
+            return PossibleValue.class;
+        } else if (elementType.equals("postaladdress")) {
+            return PostalAddress.class;
+        } else if (elementType.equals("process")) {
+            return Process.class;
+        } else if (elementType.equals("processstem")) {
+            return ProcessStem.class;
+        } else if (elementType.equals("responseoption")) {
+            return ResponseOption.class;
         } else if (elementType.equals("sdd")) {
             return SDD.class;
         } else if (elementType.equals("sddattribute")) {
             return SDDAttribute.class;
         } else if (elementType.equals("sddobject")) {
             return SDDObject.class;
-        } else if (elementType.equals("possiblevalue")) {
-            return PossibleValue.class;
         } else if (elementType.equals("semanticdatadictionary")) {
             return SemanticDataDictionary.class;
-        } else if (elementType.equals("dp2")) {
-            return DP2.class;
+        } else if (elementType.equals("semanticvariable")) {
+            return SemanticVariable.class;
+        } else if (elementType.equals("slotelement")) {
+            return SlotElement.class;
         } else if (elementType.equals("str")) {
             return STR.class;
-        } else if (elementType.equals("datafile")) {
-            return DataFile.class;
-        } else if (elementType.equals("dsg")) {
-            return DSG.class;
+        } else if (elementType.equals("stream")) {
+            return Stream.class;
         } else if (elementType.equals("study")) {
             return Study.class;
         } else if (elementType.equals("studyobjectcollection")) {
@@ -105,25 +121,13 @@ public class GenericFind<T> {
             return StudyObject.class;
         } else if (elementType.equals("studyrole")) {
             return StudyRole.class;
+        } else if (elementType.equals("subcontainer")) {
+            return Subcontainer.class;
+        } else if (elementType.equals("unit")) {
+            return Unit.class;
         } else if (elementType.equals("virtualcolumn")) {
             return VirtualColumn.class;
-        } else if (elementType.equals("platform")) {
-            return Platform.class;
-        } else if (elementType.equals("stream")) {
-            return Stream.class;
-        } else if (elementType.equals("deployment")) {
-            return Deployment.class;
-        } else if (elementType.equals("person")) {
-            return Person.class;
-        } else if (elementType.equals("organization")) {
-            return Organization.class;
-        } else if (elementType.equals("place")) {
-            return Place.class;
-        } else if (elementType.equals("postaladdress")) {
-            return PostalAddress.class;
-        } else if (elementType.equals("kgr")) {
-            return KGR.class;
-        } 
+        }
         return null;
     }
 
@@ -197,6 +201,10 @@ public class GenericFind<T> {
             return URIUtils.replaceNameSpace(SCHEMA.PLACE);
         } else if (clazz == PostalAddress.class) {
             return URIUtils.replaceNameSpace(SCHEMA.POSTAL_ADDRESS);
+        } else if (clazz == Process.class) {
+            return URIUtils.replaceNameSpace(VSTOI.PROCESS);
+        } else if (clazz == ProcessStem.class) {
+            return URIUtils.replaceNameSpace(VSTOI.PROCESS_STEM);
         } else if (clazz == KGR.class) {
             return URIUtils.replaceNameSpace(HASCO.KNOWLEDGE_GRAPH);
         }
@@ -208,7 +216,9 @@ public class GenericFind<T> {
         if (clazz == DetectorStem.class ||
             clazz == Detector.class ||
             clazz == ResponseOption.class ||
-            clazz == AnnotationStem.class) {
+            clazz == AnnotationStem.class ||
+            clazz == Process.class ||
+            clazz == ProcessStem.class) {
             return true;
         }
         return false;
@@ -241,6 +251,8 @@ public class GenericFind<T> {
             return URIUtils.replaceNameSpace(VSTOI.DETECTOR_STEM);
         } else if (clazz == Detector.class) {
             return URIUtils.replaceNameSpace(VSTOI.DETECTOR);
+        } else if (clazz == Process.class) {
+            return URIUtils.replaceNameSpace(VSTOI.PROCESS);
         } else if (clazz == Platform.class) {
             return URIUtils.replaceNameSpace(VSTOI.PLATFORM);
         } else if (clazz == Entity.class) {
@@ -999,6 +1011,8 @@ public class GenericFind<T> {
             return (T)Detector.findDetector(uri);
         } else if (clazz == Platform.class) {
             return (T)Platform.find(uri);
+        } else if (clazz == ProcessStem.class) {
+            return (T)ProcessStem.find(uri);
 
         // List of instances
         } else if (clazz == InstrumentInstance.class) {
@@ -1067,6 +1081,8 @@ public class GenericFind<T> {
             return (T)Place.find(uri);
         } else if (clazz == PostalAddress.class) {
             return (T)PostalAddress.find(uri);
+        } else if (clazz == Process.class) {
+            return (T)Process.find(uri);
         } else if (clazz == KGR.class) {
             return (T)KGR.find(uri);
         }
@@ -1103,11 +1119,13 @@ public class GenericFind<T> {
             + " (COUNT(?typeDT) AS ?tot4) " 
             + " (COUNT(?typeDS) AS ?tot5) " 
             + " (COUNT(?typeRO) AS ?tot6) " 
+            + " (COUNT(?typePS) AS ?tot7) " 
+            + " (COUNT(?typePC) AS ?tot8) " 
             + " WHERE {"
             + "     { ?typeAS rdfs:subClassOf* <" + VSTOI.ANNOTATION_STEM + "> . "
             + "       ?typeAS hasco:hasStatus <" + VSTOI.UNDER_REVIEW + "> . }"
             + "  UNION"
-            + "     { ?typeCB rdfs:subClassOf* <" + VSTOI.CODEBOOK + "> . "
+            + "     { ?typeCB rdf:type <" + VSTOI.CODEBOOK + "> . "
             + "       ?typeCB hasco:hasStatus <" + VSTOI.UNDER_REVIEW + "> . }"
             + "  UNION"
             + "     { ?typeCN rdfs:subClassOf* <" + VSTOI.CONTAINER + "> . "
@@ -1121,10 +1139,16 @@ public class GenericFind<T> {
             + "  UNION"
             + "     { ?typeRO rdfs:subClassOf* <" + VSTOI.RESPONSE_OPTION + "> . "
             + "       ?typeRO hasco:hasStatus <" + VSTOI.UNDER_REVIEW + "> . }"
+            + "  UNION"
+            + "     { ?typePS rdfs:subClassOf* <" + VSTOI.PROCESS_STEM + "> . "
+            + "       ?typePS hasco:hasStatus <" + VSTOI.UNDER_REVIEW + "> . }"
+            + "  UNION"
+            + "     { ?typePC rdf:type <" + VSTOI.PROCESS + "> . "
+            + "       ?typePC hasco:hasStatus <" + VSTOI.UNDER_REVIEW + "> . }"
             + "}";
 
 
-        int[] totals = new int[6]; 
+        int[] totals = new int[8]; 
         
         try {
             // Execute the query using the SPARQLUtils utility
@@ -1140,6 +1164,8 @@ public class GenericFind<T> {
                 totals[3] = Integer.parseInt(soln.getLiteral("tot4").getString());
                 totals[4] = Integer.parseInt(soln.getLiteral("tot5").getString());
                 totals[5] = Integer.parseInt(soln.getLiteral("tot6").getString());
+                totals[6] = Integer.parseInt(soln.getLiteral("tot7").getString());
+                totals[7] = Integer.parseInt(soln.getLiteral("tot8").getString());
             }
         } catch (Exception e) {
             e.printStackTrace();

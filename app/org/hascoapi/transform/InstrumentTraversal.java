@@ -9,6 +9,7 @@ import org.xhtmlrenderer.layout.SharedContext;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
 import org.hascoapi.Constants;
+import org.hascoapi.console.controllers.restapi.URIPage;
 import org.hascoapi.entity.pojo.*;
 import org.hascoapi.vocabularies.VSTOI;
 
@@ -32,7 +33,28 @@ public class InstrumentTraversal {
 		Set<String> set = new HashSet<>(list);
         List<String> uniqueList = new ArrayList<>(set);
 		for (String str: uniqueList) {
-			System.out.println("* " + str);
+ 			HADatAcThing object = URIPage.objectFromUri(str);
+			if (object instanceof Instrument) {
+				Instrument instrument = (Instrument)object;
+				instrument.setHasStatus(VSTOI.UNDER_REVIEW);
+				instrument.save();
+			} else if (object instanceof Detector) {
+				Detector detector = (Detector)object;
+				detector.setHasStatus(VSTOI.UNDER_REVIEW);
+				detector.save();
+			} else if (object instanceof DetectorStem) {
+				DetectorStem detectorStem = (DetectorStem)object;
+				detectorStem.setHasStatus(VSTOI.UNDER_REVIEW);
+				detectorStem.save();
+			} else if (object instanceof Codebook) {
+				Codebook codebook = (Codebook)object;
+				codebook.setHasStatus(VSTOI.UNDER_REVIEW);
+				codebook.save();
+			} else if (object instanceof ResponseOption) {
+				ResponseOption responseOption = (ResponseOption)object;
+				responseOption.setHasStatus(VSTOI.UNDER_REVIEW);
+				responseOption.save();
+			}
 		}
 		System.out.println("Number of elements:" + uniqueList.size());
 		return uniqueList.size();

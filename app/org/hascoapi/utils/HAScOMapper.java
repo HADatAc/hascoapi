@@ -327,6 +327,26 @@ public class HAScOMapper {
                             "hasAddressRegionUri", "hasAddressCountryUri", "hasAddressLocality", "hasAddressRegion", "hasAddressCountry"));
         }
  
+        // PROCESS
+        if (mode.equals(FULL) && typeResult.equals(VSTOI.PROCESS)) {
+            filterProvider.addFilter("processFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("processFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
+                            "hascoTypeLabel", "comment", "hasContent", "hasLanguage", "hasVersion",
+                            "wasDerivedFrom", "wasGeneratedBy", "hasSIRManagerEmail", "hasEditorEmail"));
+        }
+ 
+        // PROCESS_SETM
+        if (mode.equals(FULL) && typeResult.equals(VSTOI.PROCESS_STEM)) {
+            filterProvider.addFilter("processFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("processFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "superUri", "typeLabel", "hasStatus", "hascoTypeUri",
+                            "hascoTypeLabel", "comment", "hasContent", "hasLanguage", "hasVersion",
+                            "wasDerivedFrom", "wasGeneratedBy", "hasSIRManagerEmail", "hasEditorEmail"));
+        }
+ 
         // RESPONSE OPTION
         if (mode.equals(FULL) && typeResult.equals(VSTOI.RESPONSE_OPTION)) {
             filterProvider.addFilter("responseOptionFilter", SimpleBeanPropertyFilter.serializeAll());
@@ -526,6 +546,10 @@ public class HAScOMapper {
             return getFiltered(mode, VSTOI.PLATFORM);
         } else if (clazz == PostalAddress.class) {
             return getFiltered(mode, SCHEMA.POSTAL_ADDRESS);
+        } else if (clazz == org.hascoapi.entity.pojo.Process.class) {
+            return getFiltered(mode, VSTOI.PROCESS);
+        } else if (clazz == ProcessStem.class) {
+            return getFiltered(mode, VSTOI.PROCESS_STEM);
         } else if (clazz == ResponseOption.class) {
             return getFiltered(mode, VSTOI.RESPONSE_OPTION);
         } else if (clazz == SDD.class) {

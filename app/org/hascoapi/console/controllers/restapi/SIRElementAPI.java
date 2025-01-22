@@ -301,6 +301,26 @@ public class SIRElementAPI extends Controller {
                 message = e.getMessage();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
+        } else if (clazz == org.hascoapi.entity.pojo.Process.class) {
+            try {
+                org.hascoapi.entity.pojo.Process object;
+                object = (org.hascoapi.entity.pojo.Process)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                System.out.println("Error processing Process: " + e.getMessage());
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == ProcessStem.class) {
+            try {
+                ProcessStem object;
+                object = (ProcessStem)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                System.out.println("Error processing ProcessStem: " + e.getMessage());
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
         } else if (clazz == ResponseOption.class) {
             try {
                 ResponseOption object;
@@ -465,7 +485,115 @@ public class SIRElementAPI extends Controller {
         if (clazz == null) {
             return ok(ApiUtil.createResponse("No valid elementType has been provided", false));
         }
-        if (clazz == Instrument.class) {
+        if (clazz == Annotation.class) {
+            Annotation object = Annotation.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == AnnotationStem.class) {
+            AnnotationStem object = AnnotationStem.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == Attribute.class) {
+            Attribute object = Attribute.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == Codebook.class) {
+            Codebook object = Codebook.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == CodebookSlot.class) {
+            CodebookSlot object = CodebookSlot.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == ContainerSlot.class) {
+            //ContainerSlot object = ContainerSlot.find(uri);
+            if (!SlotOperations.deleteSlotElement(uri)) {
+                return ok(ApiUtil.createResponse("Failed to delete element with URI [" + uri + "]", false));
+            }
+            //object.delete();
+        } else if (clazz == DA.class) {
+            DA object = DA.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == DataFile.class) {
+            DataFile object = DataFile.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == DD.class) {
+            DD object = DD.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == Deployment.class) {
+            Deployment object = Deployment.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == Detector.class) {
+            Detector object = Detector.findDetector(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == DetectorInstance.class) {
+            DetectorInstance object = DetectorInstance.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == DetectorStem.class) {
+            DetectorStem object = DetectorStem.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == DetectorStemType.class) {
+            DetectorStemType object = DetectorStemType.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == DP2.class) {
+            DP2 object = DP2.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == DSG.class) {
+            DSG object = DSG.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == Entity.class) {
+            Entity object = Entity.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == INS.class) {
+            INS object = INS.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == Instrument.class) {
             Instrument object = Instrument.find(uri);
             if (object == null) {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
@@ -477,8 +605,38 @@ public class SIRElementAPI extends Controller {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
-        } else if (clazz == DetectorInstance.class) {
-            DetectorInstance object = DetectorInstance.find(uri);
+        } else if (clazz == InstrumentType.class) {
+            InstrumentType object = InstrumentType.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == KGR.class) {
+            KGR object = KGR.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == Organization.class) {
+            Organization object = Organization.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == Person.class) {
+            Person object = Person.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == Place.class) {
+            Place object = Place.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == Platform.class) {
+            Platform object = Platform.find(uri);
             if (object == null) {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
@@ -489,38 +647,26 @@ public class SIRElementAPI extends Controller {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
-        } else if (clazz == Subcontainer.class) {
-            //Subcontainer object = Subcontainer.find(uri);
-            if (!SlotOperations.deleteSlotElement(uri)) {
-                return ok(ApiUtil.createResponse("Failed to delete element with URI [" + uri + "]", false));
-            }
-            //object.deleteAndDetach();
-        } else if (clazz == SlotElement.class) {
-            //Subcontainer object = Subcontainer.find(uri);
-            if (!SlotOperations.deleteSlotElement(uri)) {
-                return ok(ApiUtil.createResponse("Failed to delete element with URI [" + uri + "]", false));
-            }
-            //object.deleteAndDetach();
-        } else if (clazz == DetectorStem.class) {
-            DetectorStem object = DetectorStem.find(uri);
+        } else if (clazz == PossibleValue.class) {
+            PossibleValue object = PossibleValue.find(uri);
             if (object == null) {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
-        } else if (clazz == Detector.class) {
-            Detector object = Detector.findDetector(uri);
+        } else if (clazz == PostalAddress.class) {
+            PostalAddress object = PostalAddress.find(uri);
             if (object == null) {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
-        } else if (clazz == ContainerSlot.class) {
-            //ContainerSlot object = ContainerSlot.find(uri);
-            if (!SlotOperations.deleteSlotElement(uri)) {
-                return ok(ApiUtil.createResponse("Failed to delete element with URI [" + uri + "]", false));
+        } else if (clazz == org.hascoapi.entity.pojo.Process.class) {
+            org.hascoapi.entity.pojo.Process object = org.hascoapi.entity.pojo.Process.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
-            //object.delete();
-        } else if (clazz == Codebook.class) {
-            Codebook object = Codebook.find(uri);
+            object.delete();
+        } else if (clazz == ProcessStem.class) {
+            ProcessStem object = ProcessStem.find(uri);
             if (object == null) {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
@@ -531,86 +677,8 @@ public class SIRElementAPI extends Controller {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
-        } else if (clazz == CodebookSlot.class) {
-            CodebookSlot object = CodebookSlot.find(uri);
-            if (object == null) {
-                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
-            }
-            object.delete();
-        } else if (clazz == AnnotationStem.class) {
-            AnnotationStem object = AnnotationStem.find(uri);
-            if (object == null) {
-                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
-            }
-            object.delete();
-        } else if (clazz == Annotation.class) {
-            Annotation object = Annotation.find(uri);
-            if (object == null) {
-                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
-            }
-            object.delete();
-        } else if (clazz == SemanticVariable.class) {
-            SemanticVariable object = SemanticVariable.find(uri);
-            if (object == null) {
-                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
-            }
-            object.delete();
-        } else if (clazz == InstrumentType.class) {
-            InstrumentType object = InstrumentType.find(uri);
-            if (object == null) {
-                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
-            }
-            object.delete();
-        } else if (clazz == DetectorStemType.class) {
-            DetectorStemType object = DetectorStemType.find(uri);
-            if (object == null) {
-                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
-            }
-            object.delete();
-        } else if (clazz == Entity.class) {
-            Entity object = Entity.find(uri);
-            if (object == null) {
-                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
-            }
-            object.delete();
-        } else if (clazz == Attribute.class) {
-            Attribute object = Attribute.find(uri);
-            if (object == null) {
-                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
-            }
-            object.delete();
-        } else if (clazz == Unit.class) {
-            Unit object = Unit.find(uri);
-            if (object == null) {
-                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
-            }
-            object.delete();
-        } else if (clazz == INS.class) {
-            INS object = INS.find(uri);
-            if (object == null) {
-                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
-            }
-            object.delete();
-        } else if (clazz == DA.class) {
-            DA object = DA.find(uri);
-            if (object == null) {
-                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
-            }
-            object.delete();
-        } else if (clazz == DD.class) {
-            DD object = DD.find(uri);
-            if (object == null) {
-                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
-            }
-            object.delete();
         } else if (clazz == SDD.class) {
             SDD object = SDD.find(uri);
-            if (object == null) {
-                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
-            }
-            object.delete();
-        } else if (clazz == SemanticDataDictionary.class) {
-            SemanticDataDictionary object = SemanticDataDictionary.find(uri);
             if (object == null) {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
@@ -627,68 +695,26 @@ public class SIRElementAPI extends Controller {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
-        } else if (clazz == PossibleValue.class) {
-            PossibleValue object = PossibleValue.find(uri);
+        } else if (clazz == SemanticDataDictionary.class) {
+            SemanticDataDictionary object = SemanticDataDictionary.find(uri);
             if (object == null) {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
-        } else if (clazz == DP2.class) {
-            DP2 object = DP2.find(uri);
+        } else if (clazz == SemanticVariable.class) {
+            SemanticVariable object = SemanticVariable.find(uri);
             if (object == null) {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
+        } else if (clazz == SlotElement.class) {
+            //Subcontainer object = Subcontainer.find(uri);
+            if (!SlotOperations.deleteSlotElement(uri)) {
+                return ok(ApiUtil.createResponse("Failed to delete element with URI [" + uri + "]", false));
+            }
+            //object.deleteAndDetach();
         } else if (clazz == STR.class) {
             STR object = STR.find(uri);
-            if (object == null) {
-                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
-            }
-            object.delete();
-        } else if (clazz == DataFile.class) {
-            DataFile object = DataFile.find(uri);
-            if (object == null) {
-                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
-            }
-            object.delete();
-        } else if (clazz == DSG.class) {
-            DSG object = DSG.find(uri);
-            if (object == null) {
-                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
-            }
-            object.delete();
-        } else if (clazz == Study.class) {
-            Study object = Study.find(uri);
-            if (object == null) {
-                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
-            }
-            object.delete();
-        } else if (clazz == StudyObjectCollection.class) {
-            StudyObjectCollection object = StudyObjectCollection.find(uri);
-            if (object == null) {
-                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
-            }
-            object.delete();
-        } else if (clazz == StudyObject.class) {
-            StudyObject object = StudyObject.find(uri);
-            if (object == null) {
-                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
-            }
-            object.delete();
-        } else if (clazz == StudyRole.class) {
-            StudyRole object = StudyRole.find(uri);
-            if (object == null) {
-                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
-            }
-            object.delete();
-        } else if (clazz == VirtualColumn.class) {
-            VirtualColumn object = VirtualColumn.find(uri);
-            if (object == null) {
-                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
-            }
-            object.delete();
-        } else if (clazz == Platform.class) {
-            Platform object = Platform.find(uri);
             if (object == null) {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
@@ -699,38 +725,44 @@ public class SIRElementAPI extends Controller {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
-        } else if (clazz == Deployment.class) {
-            Deployment object = Deployment.find(uri);
+        } else if (clazz == Study.class) {
+            Study object = Study.find(uri);
             if (object == null) {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
-        } else if (clazz == Person.class) {
-            Person object = Person.find(uri);
+        } else if (clazz == StudyObject.class) {
+            StudyObject object = StudyObject.find(uri);
             if (object == null) {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
-        } else if (clazz == Organization.class) {
-            Organization object = Organization.find(uri);
+        } else if (clazz == StudyObjectCollection.class) {
+            StudyObjectCollection object = StudyObjectCollection.find(uri);
             if (object == null) {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
-        } else if (clazz == Place.class) {
-            Place object = Place.find(uri);
+        } else if (clazz == StudyRole.class) {
+            StudyRole object = StudyRole.find(uri);
             if (object == null) {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
-        } else if (clazz == PostalAddress.class) {
-            PostalAddress object = PostalAddress.find(uri);
+        } else if (clazz == Subcontainer.class) {
+            //Subcontainer object = Subcontainer.find(uri);
+            if (!SlotOperations.deleteSlotElement(uri)) {
+                return ok(ApiUtil.createResponse("Failed to delete element with URI [" + uri + "]", false));
+            }
+            //object.deleteAndDetach();
+        } else if (clazz == Unit.class) {
+            Unit object = Unit.find(uri);
             if (object == null) {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
-        } else if (clazz == KGR.class) {
-            KGR object = KGR.find(uri);
+        } else if (clazz == VirtualColumn.class) {
+            VirtualColumn object = VirtualColumn.find(uri);
             if (object == null) {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
@@ -938,6 +970,14 @@ public class SIRElementAPI extends Controller {
             GenericFind<PostalAddress> query = new GenericFind<PostalAddress>();
             List<PostalAddress> results = query.findByKeywordWithPages(PostalAddress.class,keyword, pageSize, offset);
             return PostalAddressAPI.getPostalAddresses(results);
+        }  else if (elementType.equals("process")) {
+            GenericFind<org.hascoapi.entity.pojo.Process> query = new GenericFind<org.hascoapi.entity.pojo.Process>();
+            List<org.hascoapi.entity.pojo.Process> results = query.findByKeywordWithPages(org.hascoapi.entity.pojo.Process.class,keyword, pageSize, offset);
+            return ProcessAPI.getProcesses(results);
+        }  else if (elementType.equals("processstem")) {
+            GenericFind<ProcessStem> query = new GenericFind<ProcessStem>();
+            List<ProcessStem> results = query.findByKeywordWithPages(ProcessStem.class,keyword, pageSize, offset);
+            return ProcessAPI.getProcessStems(results);
         }  else if (elementType.equals("kgr")) {
             GenericFind<KGR> query = new GenericFind<KGR>();
             List<KGR> results = query.findByKeywordWithPages(KGR.class,keyword, pageSize, offset);
@@ -1020,6 +1060,14 @@ public class SIRElementAPI extends Controller {
             GenericFind<Unit> query = new GenericFind<Unit>();
             List<Unit> results = query.findByKeywordAndLanguageWithPages(Unit.class, keyword, language, pageSize, offset);
             return UnitAPI.getUnits(results);
+        }  else if (elementType.equals("process")) {
+            GenericFind<org.hascoapi.entity.pojo.Process> query = new GenericFind<org.hascoapi.entity.pojo.Process>();
+            List<org.hascoapi.entity.pojo.Process> results = query.findByKeywordAndLanguageWithPages(org.hascoapi.entity.pojo.Process.class, keyword, language, pageSize, offset);
+            return ProcessAPI.getProcesses(results);
+        }  else if (elementType.equals("processstem")) {
+            GenericFind<ProcessStem> query = new GenericFind<ProcessStem>();
+            List<ProcessStem> results = query.findByKeywordAndLanguageWithPages(ProcessStem.class, keyword, language, pageSize, offset);
+            return ProcessAPI.getProcessStems(results);
         /* NOTE: THE CLASSES BELOW DO NOT HAVE LANGUAGE PROPERTY 
         }  else if (elementType.equals("ins")) {
             GenericFind<INS> query = new GenericFind<INS>();
@@ -1257,6 +1305,14 @@ public class SIRElementAPI extends Controller {
             GenericFind<PostalAddress> query = new GenericFind<PostalAddress>();
             List<PostalAddress> results = query.findByManagerEmailWithPages(PostalAddress.class, managerEmail, pageSize, offset);
             return PostalAddressAPI.getPostalAddresses(results);
+        }  else if (elementType.equals("process")) {
+            GenericFind<org.hascoapi.entity.pojo.Process> query = new GenericFind<org.hascoapi.entity.pojo.Process>();
+            List<org.hascoapi.entity.pojo.Process> results = query.findByManagerEmailWithPages(org.hascoapi.entity.pojo.Process.class, managerEmail, pageSize, offset);
+            return ProcessAPI.getProcesses(results);
+        }  else if (elementType.equals("processstem")) {
+            GenericFind<ProcessStem> query = new GenericFind<ProcessStem>();
+            List<ProcessStem> results = query.findByManagerEmailWithPages(ProcessStem.class, managerEmail, pageSize, offset);
+            return ProcessAPI.getProcessStems(results);
         }  else if (elementType.equals("kgr")) {
             GenericFind<KGR> query = new GenericFind<KGR>();
             List<KGR> results = query.findByManagerEmailWithPages(KGR.class, managerEmail, pageSize, offset);
@@ -1421,6 +1477,14 @@ public class SIRElementAPI extends Controller {
             GenericFindWithStatus<PostalAddress> query = new GenericFindWithStatus<PostalAddress>();
             List<PostalAddress> results = query.findByStatusWithPages(PostalAddress.class, hasStatus, pageSize, offset);
             return PostalAddressAPI.getPostalAddresses(results);
+        }  else if (elementType.equals("process")) {
+            GenericFindWithStatus<org.hascoapi.entity.pojo.Process> query = new GenericFindWithStatus<org.hascoapi.entity.pojo.Process>();
+            List<org.hascoapi.entity.pojo.Process> results = query.findByStatusWithPages(org.hascoapi.entity.pojo.Process.class, hasStatus, pageSize, offset);
+            return ProcessAPI.getProcesses(results);
+        }  else if (elementType.equals("processstem")) {
+            GenericFindWithStatus<ProcessStem> query = new GenericFindWithStatus<ProcessStem>();
+            List<ProcessStem> results = query.findByStatusWithPages(ProcessStem.class, hasStatus, pageSize, offset);
+            return ProcessAPI.getProcessStems(results);
         }  else if (elementType.equals("kgr")) {
             GenericFindWithStatus<KGR> query = new GenericFindWithStatus<KGR>();
             List<KGR> results = query.findByStatusWithPages(KGR.class, hasStatus, pageSize, offset);
@@ -1585,6 +1649,14 @@ public class SIRElementAPI extends Controller {
             GenericFindWithStatus<PostalAddress> query = new GenericFindWithStatus<PostalAddress>();
             List<PostalAddress> results = query.findByStatusManagerEmailWithPages(PostalAddress.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return PostalAddressAPI.getPostalAddresses(results);
+        }  else if (elementType.equals("process")) {
+            GenericFindWithStatus<org.hascoapi.entity.pojo.Process> query = new GenericFindWithStatus<org.hascoapi.entity.pojo.Process>();
+            List<org.hascoapi.entity.pojo.Process> results = query.findByStatusManagerEmailWithPages(org.hascoapi.entity.pojo.Process.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
+            return ProcessAPI.getProcesses(results);
+        }  else if (elementType.equals("processstem")) {
+            GenericFindWithStatus<ProcessStem> query = new GenericFindWithStatus<ProcessStem>();
+            List<ProcessStem> results = query.findByStatusManagerEmailWithPages(ProcessStem.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
+            return ProcessAPI.getProcessStems(results);
         }  else if (elementType.equals("kgr")) {
             GenericFindWithStatus<KGR> query = new GenericFindWithStatus<KGR>();
             List<KGR> results = query.findByStatusManagerEmailWithPages(KGR.class, hasStatus, managerEmail, withCurrent, pageSize, offset);

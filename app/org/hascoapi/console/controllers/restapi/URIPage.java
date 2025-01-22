@@ -193,6 +193,10 @@ public class URIPage extends Controller {
                 finalResult = PossibleValue.find(uri);
             } else if (result.getHascoTypeUri().equals(SCHEMA.POSTAL_ADDRESS)) {
                 finalResult = PostalAddress.find(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.PROCESS)) {
+                finalResult = org.hascoapi.entity.pojo.Process.find(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.PROCESS_STEM)) {
+                finalResult = ProcessStem.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.RESPONSE_OPTION)) {
                 finalResult = ResponseOption.find(uri);
             } else if (result.getHascoTypeUri().equals(HASCO.SDD)) {

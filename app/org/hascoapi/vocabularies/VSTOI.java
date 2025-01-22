@@ -43,17 +43,19 @@ public class VSTOI {
     public static final String ANNOTATION_STEM              = VSTOI + "AnnotationStem";
     public static final String ANNOTATION                   = VSTOI + "Annotation";
     public static final String CODEBOOK                     = VSTOI + "Codebook";
+    public static final String CODEBOOK_SLOT                = VSTOI + "CodebookSlot";
+    public static final String CONTAINER_SLOT               = VSTOI + "ContainerSlot";
     public static final String DETECTOR_STEM                = VSTOI + "DetectorStem";
     public static final String DETECTOR_INSTANCE            = VSTOI + "DetectorInstance";
-    public static final String CONTAINER_SLOT               = VSTOI + "ContainerSlot";
     public static final String FIELD_OF_VIEW                = VSTOI + "FieldOfView";
     public static final String INFORMANT                    = VSTOI + "Informant";
     public static final String ITEM                         = VSTOI + "Item";
     public static final String INSTRUMENT_INSTANCE          = VSTOI + "InstrumentInstance";
     public static final String PLATFORM_INSTANCE            = VSTOI + "PlatformInstance";
+    public static final String PROCESS                      = VSTOI + "Process";
+    public static final String PROCESS_STEM                 = VSTOI + "ProcessStem";
     public static final String PSYCHOMETRIC_QUESTIONNAIRE   = VSTOI + "PsychometricQuestionnaire";
     public static final String RESPONSE_OPTION              = VSTOI + "ResponseOption";
-    public static final String CODEBOOK_SLOT                = VSTOI + "CodebookSlot";
     public static final String TABLE                        = VSTOI + "Table";
     public static final String VSTOI_INSTANCE               = VSTOI + "VSTOIInstance";
 

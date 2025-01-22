@@ -659,7 +659,7 @@ public class IngestionWorker {
                 try {
                     DataFile dataFileForSheet = (DataFile)dataFile.clone();
                     dataFileForSheet.setRecordFile(sheet);
-                    CodeBookSlotGenerator cbSlotGen = new CodeBookSlotGenerator(dataFileForSheet, status);
+                    CodeBookSlotGenerator cbSlotGen = new CodeBookSlotGenerator(dataFileForSheet);
                     cbSlotGen.setNamedGraphUri(dataFileForSheet.getUri());
                     chain.addGenerator(cbSlotGen);
                 } catch (CloneNotSupportedException e) {
@@ -713,7 +713,7 @@ public class IngestionWorker {
                 try {
                     DataFile dataFileForSheet = (DataFile)dataFile.clone();
                     dataFileForSheet.setRecordFile(sheet);
-                    ContainerSlotGenerator slotGen = new ContainerSlotGenerator(dataFileForSheet, status);
+                    ContainerSlotGenerator slotGen = new ContainerSlotGenerator(dataFileForSheet);
                     slotGen.setNamedGraphUri(dataFileForSheet.getUri());
                     chain.addGenerator(slotGen);
                 } catch (CloneNotSupportedException e) {
