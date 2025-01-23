@@ -419,15 +419,21 @@ public class GenericFind<T> {
         if (className == null && superclassName == null) {
             return null;
         }
-        System.out.println("findByKeywordWithPages: hascoType=[" + hascoType + "]");
         System.out.println("findByKeywordWithPages: className=[" + className + "]");
         System.out.println("findByKeywordWithPages: hascoType=[" + superclassName + "]");
-        System.out.println("findByKeywordWithPages: isSIR=[" + isSIR(clazz) + "]");
+        System.out.println("findByKeywordWithPages: hascoType=[" + isSIR(clazz) + "]");
         if (clazz == Detector.class) {
             return findDetectorClassesByKeywordWithPages(clazz, superclassName, keyword, pageSize, offset);
         } else if (isSIR(clazz) && superclassName != null) {
             return findSIRClassesByKeywordWithPages(clazz, superclassName, keyword, pageSize, offset);
         } else if (isSIR(clazz) && className != null) {
+            return findSIRInstancesByKeywordWithPages(clazz, className, keyword, pageSize, offset);
+        } else if (superclassName != null) {
+            return findClassesByKeywordWithPages(clazz, superclassName, keyword, pageSize, offset);
+        }             
+        return findInstancesByKeywordWithPages(clazz, className, keyword, pageSize, offset);
+    }
+
     public static <T> List<T> findDetectorClassesByKeywordWithPages(Class clazz, String superclassName, String keyword, int pageSize, int offset) {
         System.out.println("GenericFind.findDetectorClassesByKeywordWithPages: " + superclassName + "  " + keyword + "  " + pageSize + "  " + offset);
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
