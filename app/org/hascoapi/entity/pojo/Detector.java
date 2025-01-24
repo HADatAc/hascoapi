@@ -429,6 +429,8 @@ public class Detector extends HADatAcThing implements SIRElement  {
 			if (uri != null && !uri.isEmpty()) {
                 if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
                     detector.setLabel(str);
+                } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
+                    detector.setTypeUri(str);
                 } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
                     detector.setComment(str);
                 } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
@@ -437,6 +439,10 @@ public class Detector extends HADatAcThing implements SIRElement  {
                     detector.setHasStatus(str);
                 } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
                     detector.setImage(str);
+                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_CONTENT)) {
+                    detector.setHasContent(str);
+                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
+                    detector.setHasLanguage(str);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
                     detector.setHasVersion(str);
                 } else if (statement.getPredicate().getURI().equals(PROV.WAS_DERIVED_FROM)) {
