@@ -540,7 +540,7 @@ public class Detector extends HADatAcThing implements SIRElement  {
     }
 
     public static boolean attach(ContainerSlot containerSlot, Detector detector) {
-        System.out.println("called Detector.attach()");
+        //System.out.println("called Detector.attach()");
         if (containerSlot == null) {
             System.out.println("A valid container slot is required to attach a detector");
             return false;
@@ -549,7 +549,7 @@ public class Detector extends HADatAcThing implements SIRElement  {
     }
 
     public static boolean detach(ContainerSlot containerSlot) {
-        System.out.println("called Detector.detach()");
+        //System.out.println("called Detector.detach()");
         if (containerSlot == null) {
             return false;
         }

@@ -237,8 +237,10 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
 
     public static List<NameSpace> find() {
         String query =
-            " SELECT ?uri WHERE { " +
-            " ?uri  <" + HASCO.HASCO_TYPE + ">  <" + HASCO.ONTOLOGY + "> . " +
+            " SELECT ?uri ?graph WHERE { " +
+            "    GRAPH ?graph {  " +
+            "       ?uri  <" + HASCO.HASCO_TYPE + ">  <" + HASCO.ONTOLOGY + "> . " +
+            "    } " +
             "} ";
         return findManyByQuery(query);
     }
@@ -252,7 +254,9 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
         while (resultsrw.hasNext()) {
             QuerySolution soln = resultsrw.next();
             String uri = soln.getResource("uri").getURI();
+            String graph = soln.getResource("graph").getURI();
             NameSpace ns = NameSpace.find(uri);
+            ns.setNamedGraph(graph);
             nss.add(ns);
         }
 

@@ -843,6 +843,7 @@ public class SIRElementAPI extends Controller {
             List<DetectorStem> results = query.findByKeywordWithPages(DetectorStem.class,keyword, pageSize, offset);
             return DetectorStemAPI.getDetectorStems(results);
         } else if (elementType.equals("detector")) {
+            System.out.println("[HERE87] Key [" + keyword + "]");
             GenericFind<Detector> query = new GenericFind<Detector>();
             List<Detector> results = query.findByKeywordWithPages(Detector.class,keyword, pageSize, offset);
             return DetectorAPI.getDetectors(results);

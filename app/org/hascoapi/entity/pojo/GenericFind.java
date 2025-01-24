@@ -421,9 +421,9 @@ public class GenericFind<T> {
         if (className == null && superclassName == null) {
             return null;
         }
-        //System.out.println("findByKeywordWithPages: className=[" + className + "]");
-        //System.out.println("findByKeywordWithPages: superclassName=[" + superclassName + "]");
-        //System.out.println("findByKeywordWithPages: isSIR=[" + isSIR(clazz) + "]");
+        System.out.println("findByKeywordWithPages: className=[" + className + "]");
+        System.out.println("findByKeywordWithPages: superclassName=[" + superclassName + "]");
+        System.out.println("findByKeywordWithPages: isSIR=[" + isSIR(clazz) + "]");
         //if (clazz == Detector.class) {
         //    return findDetectorClassesByKeywordWithPages(clazz, superclassName, keyword, pageSize, offset);
         //} else 

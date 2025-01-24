@@ -26,6 +26,7 @@
                     <thead>
                     <tr>
                         <th style="width: 50px;" scope="col">#</th>
+                        <th style="width: 100px;" scope="col">NamedGraph</th>
                         <th style="width: 100px;" scope="col">Abbreviation</th>
                         <th style="width: 300px;" scope="col">Definition (mandatory)</th>
                         <th style="width: 150px;" scope="col">Mime Type (only for loaded ontologies)</th>
@@ -37,6 +38,7 @@
                     @for((ns, i) <- namespaces.zipWithIndex) {
                     <tr>
                         <td style="word-break: break-all;">@(i+1)</td>
+                        <td style="word-break: break-all;" axis="nsNamedGraph@(i+1)">@ns.getNamedGraph()</td>
                         <td style="word-break: break-all;" axis="nsAbbrev@(i+1)">@ns.getLabel()</td>
                         <td style="word-break: break-all;" axis="nsName@(i+1)">@ns.getUri()</td>
                         <td style="word-break: break-all;" axis="nsMimeType@(i+1)">@ns.getSourceMime()</td>
