@@ -60,7 +60,6 @@ public class InstrumentTraversal {
 		return uniqueList.size();
 	}
 
-
 	private static List<String> traverseContainer(List<String> list, Container container) {
 		System.out.println("  - Container: " + container.getUri());
 		if (!list.contains(container.getUri())) {
@@ -117,6 +116,43 @@ public class InstrumentTraversal {
 			}
 		}
 
+		return list;
+	}
+
+	public static List<String> retrieveInstrumentDetectors(String uri) {
+		Instrument instr = Instrument.find(uri);
+		List<String> list = new ArrayList<String>();
+		if (instr == null) {
+			return list;
+		}
+		list.addAll(traverseContainerDetector(list, (Container)instr));
+		Set<String> set = new HashSet<>(list);
+        List<String> uniqueList = new ArrayList<>(set);
+		return uniqueList;
+	}
+
+	private static List<String> traverseContainerDetector(List<String> list, Container container) {
+		//System.out.println("  - Container: " + container.getUri());
+		List<SlotElement> slots = container.getSlotElements();
+		if (slots == null || slots.size() <= 0) {
+			return list;
+		} else {
+			for (SlotElement slotElement: slots) {
+				if (slotElement instanceof ContainerSlot) {
+					ContainerSlot containerSlot = (ContainerSlot)slotElement;
+					Detector detector = containerSlot.getDetector();
+					if (detector != null) {
+						System.out.println("    - Detector: " + detector.getUri());
+						if (!list.contains(detector.getUri())) {
+							list.add(detector.getUri());
+						}
+					}
+				} else if (slotElement instanceof Subcontainer) {
+					Subcontainer subsubcontainer = (Subcontainer)slotElement;
+					list.addAll(traverseContainer(list, subsubcontainer));
+				}
+			}
+		}
 		return list;
 	}
 

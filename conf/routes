@@ -95,6 +95,7 @@ GET     /hascoapi/api/instrument/totext/html/:uri           org.hascoapi.console
 GET     /hascoapi/api/instrument/totext/pdf/:uri            org.hascoapi.console.controllers.restapi.InstrumentAPI.toTextPDF(uri: String)
 GET     /hascoapi/api/instrument/tordf/:uri                 org.hascoapi.console.controllers.restapi.InstrumentAPI.toRDF(uri: String)
 GET     /hascoapi/api/instrument/tofhir/:uri                org.hascoapi.console.controllers.restapi.InstrumentAPI.toFHIR(uri: String)
+GET     /hascoapi/api/instriment/detectors/:instrumentUri   org.hascoapi.console.controllers.restapi.InstrumentAPI.retrieveInstrumentDetectors(instrumentUri: String)
 
 # CONCEPT-SPECIFIC METHODS
 

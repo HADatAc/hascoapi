@@ -2,6 +2,7 @@ package org.hascoapi.console.controllers.restapi;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
@@ -194,6 +195,29 @@ public class InstrumentAPI extends Controller {
             return ok(ApiUtil.createResponse(totalElementsJSON, true));
         }
         return ok(ApiUtil.createResponse("updataReviewsRecursive() failed to retrieve total number of element", false));
+    }
+
+    public Result retrieveInstrumentDetectors(String uri) {
+        System.out.println("updateReviewsRecursive: [" + uri + "]");
+        if (uri  == null || uri.equals("")) {
+            return ok(ApiUtil.createResponse("No URI has been provided", false));
+        }
+        Instrument instr = Instrument.find(uri);
+        if (instr == null) {
+            return ok(ApiUtil.createResponse("No instrument instance found for uri [" + uri + "]", false));
+        }
+
+        List<String> detectors = InstrumentTraversal.retrieveInstrumentDetectors(uri);
+        if (detectors.size() >= 0) { 
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                String jsonArray = objectMapper.writeValueAsString(detectors);
+                return ok(ApiUtil.createResponse(jsonArray, true));
+            } catch (Exception e) {
+                return ok(ApiUtil.createResponse("retrieveInstrumentDetectors() failed to retrieve detectors", false));
+            }
+        }
+        return ok(ApiUtil.createResponse("retrieveInstrumentDetectors() failed to retrieve detectors", false));
     }
 
 }
