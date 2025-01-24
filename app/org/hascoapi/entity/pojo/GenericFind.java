@@ -310,7 +310,7 @@ public class GenericFind<T> {
     
     private static <T> List<T> findSIRInstancesWithPages(Class clazz, String className, int pageSize, int offset) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                " SELECT ?uri WHERE { " +
+                " SELECT DISTINCT ?uri WHERE { " +
                 " ?type rdfs:subClassOf* " + className + " . " +
                 " ?uri a ?type ." +
                 " ?uri vstoi:hasContent ?content . " +
@@ -323,7 +323,7 @@ public class GenericFind<T> {
         
     private static <T> List<T> findMTInstancesWithPages(Class clazz, String className, int pageSize, int offset) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                " SELECT ?uri WHERE { " +
+                " SELECT DISTINCT ?uri WHERE { " +
                 " ?type rdfs:subClassOf* " + className + " . " +
                 " ?uri a ?type ." +
                 " ?uri hasco:hasDataFile ?dataFile . " +   // a MT concept requires an associated DataFile
@@ -337,7 +337,7 @@ public class GenericFind<T> {
     
     private static <T> List<T> findInstancesWithPages(Class clazz, String className, int pageSize, int offset) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                " SELECT ?uri WHERE { " +
+                " SELECT DISTINCT ?uri WHERE { " +
                 " ?type rdfs:subClassOf* " + className + " . " +
                 " ?uri a ?type ." +
                 " OPTIONAL { ?uri rdfs:label ?label . } " +
@@ -351,7 +351,7 @@ public class GenericFind<T> {
     private static <T> List<T> findSubclassesWithPages(Class clazz, String superClassName, int pageSize, int offset) {
         //System.out.println("subClassName: " + subClassName);
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                " SELECT ?uri WHERE { " +
+                " SELECT DISTINCT ?uri WHERE { " +
                 " ?uri rdfs:subClassOf* " + superClassName + " . " +
                 " ?uri rdfs:label ?label . " +
                 "} " +
@@ -460,7 +460,7 @@ public class GenericFind<T> {
     public static <T> List<T> findSIRClassesByKeywordWithPages(Class clazz, String superclassName, String keyword, int pageSize, int offset) {
         //System.out.println("GenericFind.findSIRInstancesByKeywordWithPages: " + superclassName + " " + keyword + "  " + pageSize + "  " + offset);
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                " SELECT ?uri WHERE { " +
+                " SELECT DISTINCT ?uri WHERE { " +
                 " ?uri rdfs:subClassOf* " + superclassName + " . " +
                 //" ?uri hasco:hascoType " + hascoType + " . " +
                 " ?uri vstoi:hasContent ?content . " +
@@ -495,7 +495,7 @@ public class GenericFind<T> {
     public static <T> List<T> findClassesByKeywordWithPages(Class clazz, String superclassName, String keyword, int pageSize, int offset) {
         //System.out.println("GenericFind.findClassesByKeywordWithPages: " + superclassName + "  " + keyword + " " + pageSize + "  " + offset);
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                " SELECT ?uri WHERE { " +
+                " SELECT DISTINCT ?uri WHERE { " +
                 " ?uri rdfs:subClassOf* " + superclassName + " . " +
                 //" ?uri hasco:hascoType " + hascoType + " . " +
                 " ?uri rdfs:label ?label . " +
@@ -983,7 +983,7 @@ public class GenericFind<T> {
             if (soln != null) {
                 if (soln.getResource("uri") != null && soln.getResource("uri").getURI() != null) {
                     String uri = soln.getResource("uri").getURI();
-                    //System.out.println("FindByQuery: retrieved uri = [" + uri + "]");
+                    System.out.println("FindByQuery: retrieved uri = [" + uri + "]");
                     T element = findElement(clazz, uri);
                     if (element != null) {                        
                       list.add(element);
