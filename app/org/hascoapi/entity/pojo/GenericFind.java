@@ -135,6 +135,8 @@ public class GenericFind<T> {
     public static String classNameWithNamespace (Class clazz) {
         if (clazz == InstrumentInstance.class) {
             return URIUtils.replaceNameSpace(VSTOI.INSTRUMENT_INSTANCE);
+        } else if (clazz == Detector.class) {
+            return URIUtils.replaceNameSpace(VSTOI.DETECTOR);
         } else if (clazz == DetectorInstance.class) {
             return URIUtils.replaceNameSpace(VSTOI.DETECTOR_INSTANCE);
         } else if (clazz == PlatformInstance.class) {
@@ -249,8 +251,6 @@ public class GenericFind<T> {
         //    return URIUtils.replaceNameSpace(VSTOI.DETECTOR_STEM);
         } else if (clazz == DetectorStem.class) {
             return URIUtils.replaceNameSpace(VSTOI.DETECTOR_STEM);
-        } else if (clazz == Detector.class) {
-            return URIUtils.replaceNameSpace(VSTOI.DETECTOR);
         } else if (clazz == Process.class) {
             return URIUtils.replaceNameSpace(VSTOI.PROCESS);
         } else if (clazz == Platform.class) {
@@ -275,9 +275,10 @@ public class GenericFind<T> {
         }
         String className = classNameWithNamespace(clazz);
         if (className != null) {
-            if (clazz == Detector.class) {
-              return findDetectorInstancesWithPages(clazz, className, pageSize, offset);
-            } else if (isSIR(clazz)) {
+            //if (clazz == Detector.class) {
+            //  return findDetectorInstancesWithPages(clazz, className, pageSize, offset);
+            //} else 
+            if (isSIR(clazz)) {
               return findSIRInstancesWithPages(clazz, className, pageSize, offset);
             } else if (isMT(clazz)) {
               return findMTInstancesWithPages(clazz, className, pageSize, offset);
@@ -292,6 +293,7 @@ public class GenericFind<T> {
         return null;
     }
 
+    /*
     private static <T> List<T> findDetectorInstancesWithPages(Class clazz, String className, int pageSize, int offset) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
@@ -304,7 +306,7 @@ public class GenericFind<T> {
                 " LIMIT " + pageSize +
                 " OFFSET " + offset;
         return findByQuery(clazz, queryString);
-    }
+    }*/
     
     private static <T> List<T> findSIRInstancesWithPages(Class clazz, String className, int pageSize, int offset) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
@@ -419,12 +421,13 @@ public class GenericFind<T> {
         if (className == null && superclassName == null) {
             return null;
         }
-        System.out.println("findByKeywordWithPages: className=[" + className + "]");
-        System.out.println("findByKeywordWithPages: hascoType=[" + superclassName + "]");
-        System.out.println("findByKeywordWithPages: hascoType=[" + isSIR(clazz) + "]");
-        if (clazz == Detector.class) {
-            return findDetectorClassesByKeywordWithPages(clazz, superclassName, keyword, pageSize, offset);
-        } else if (isSIR(clazz) && superclassName != null) {
+        //System.out.println("findByKeywordWithPages: className=[" + className + "]");
+        //System.out.println("findByKeywordWithPages: superclassName=[" + superclassName + "]");
+        //System.out.println("findByKeywordWithPages: isSIR=[" + isSIR(clazz) + "]");
+        //if (clazz == Detector.class) {
+        //    return findDetectorClassesByKeywordWithPages(clazz, superclassName, keyword, pageSize, offset);
+        //} else 
+        if (isSIR(clazz) && superclassName != null) {
             return findSIRClassesByKeywordWithPages(clazz, superclassName, keyword, pageSize, offset);
         } else if (isSIR(clazz) && className != null) {
             return findSIRInstancesByKeywordWithPages(clazz, className, keyword, pageSize, offset);
@@ -434,6 +437,7 @@ public class GenericFind<T> {
         return findInstancesByKeywordWithPages(clazz, className, keyword, pageSize, offset);
     }
 
+    /*
     public static <T> List<T> findDetectorClassesByKeywordWithPages(Class clazz, String superclassName, String keyword, int pageSize, int offset) {
         System.out.println("GenericFind.findDetectorClassesByKeywordWithPages: " + superclassName + "  " + keyword + "  " + pageSize + "  " + offset);
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
@@ -451,6 +455,7 @@ public class GenericFind<T> {
         //System.out.println("GenericFind.findSIRInstancesByKeywordWithPages: [" + queryString + "]");
         return findByQuery(clazz, queryString);
     }
+    */
 
     public static <T> List<T> findSIRClassesByKeywordWithPages(Class clazz, String superclassName, String keyword, int pageSize, int offset) {
         //System.out.println("GenericFind.findSIRInstancesByKeywordWithPages: " + superclassName + " " + keyword + "  " + pageSize + "  " + offset);
@@ -588,15 +593,17 @@ public class GenericFind<T> {
         if (hascoType == null) {
             return null;
         }
-        if (clazz == Detector.class) {
-            return findDetectorInstancesByKeywordAndLanguageWithPages(clazz, hascoType, keyword, language, pageSize, offset);
-        } else if (isSIR(clazz)) {
+        //if (clazz == Detector.class) {
+        //    return findDetectorInstancesByKeywordAndLanguageWithPages(clazz, hascoType, keyword, language, pageSize, offset);
+        //} else 
+        if (isSIR(clazz)) {
             return findSIRElementsByKeywordAndLanguageWithPages(clazz, hascoType, keyword, language, pageSize, offset);
         } else {
             return findElementsByKeywordAndLanguageWithPages(clazz, hascoType, keyword, language, pageSize, offset);
         }
     }
 
+    /*
 	public static <T> List<T> findDetectorInstancesByKeywordAndLanguageWithPages(Class clazz, String hascoType, String keyword, String language, int pageSize, int offset) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
 		queryString += " SELECT ?uri WHERE { " +
@@ -621,6 +628,7 @@ public class GenericFind<T> {
 				" OFFSET " + offset;
 		return findByQuery(clazz, queryString);
 	}
+    */
 
 	public static <T> List<T> findSIRElementsByKeywordAndLanguageWithPages(Class clazz, String hascoType, String keyword, String language, int pageSize, int offset) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
@@ -739,9 +747,10 @@ public class GenericFind<T> {
             return null;
         }
         //System.out.println("findByManagerEmailWithPages: hascoTypeStr=[" + hascoTypeStr + "]");
-        if (clazz == Detector.class) {
-            return findDetectorInstancesByManagerEmailWithPages(clazz, hascoTypeStr, managerEmail, pageSize, offset);
-        } else if (isSIR(clazz)) {
+        //if (clazz == Detector.class) {
+        //    return findDetectorInstancesByManagerEmailWithPages(clazz, hascoTypeStr, managerEmail, pageSize, offset);
+        //} else 
+        if (isSIR(clazz)) {
             return findSIRInstancesByManagerEmailWithPages(clazz, hascoTypeStr, managerEmail, pageSize, offset);
         } else if (isMT(clazz)) {
             return findMTInstancesByManagerEmailWithPages(clazz, hascoTypeStr, managerEmail, pageSize, offset);
@@ -750,6 +759,7 @@ public class GenericFind<T> {
         }
     }
 
+    /*
 	public List<T> findDetectorInstancesByManagerEmailWithPages(Class clazz, String hascoTypeStr, String managerEmail, int pageSize, int offset) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
 		queryString += " SELECT ?uri WHERE { " +
@@ -765,7 +775,7 @@ public class GenericFind<T> {
 				" LIMIT " + pageSize +
 				" OFFSET " + offset;
 		return findByQuery(clazz, queryString);
-	}
+	}*/
 
 	public List<T> findSIRInstancesByManagerEmailWithPages(Class clazz, String hascoTypeStr, String managerEmail, int pageSize, int offset) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
@@ -1009,8 +1019,6 @@ public class GenericFind<T> {
             return (T)Subcontainer.find(uri);
         } else if (clazz == DetectorStem.class) {
             return (T)DetectorStem.find(uri);
-        } else if (clazz == Detector.class) {
-            return (T)Detector.findDetector(uri);
         } else if (clazz == Platform.class) {
             return (T)Platform.find(uri);
         } else if (clazz == ProcessStem.class) {
@@ -1019,6 +1027,8 @@ public class GenericFind<T> {
         // List of instances
         } else if (clazz == InstrumentInstance.class) {
             return (T)InstrumentInstance.find(uri);
+        } else if (clazz == Detector.class) {
+            return (T)Detector.findDetector(uri);
         } else if (clazz == DetectorInstance.class) {
             return (T)DetectorInstance.find(uri);
         } else if (clazz == PlatformInstance.class) {

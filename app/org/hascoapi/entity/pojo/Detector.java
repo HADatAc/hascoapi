@@ -18,7 +18,7 @@ import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.vocabularies.*;
 
 @JsonFilter("detectorFilter")
-public class Detector extends DetectorStem {
+public class Detector extends HADatAcThing implements SIRElement  {
 
     @PropertyField(uri="vstoi:hasDetectorStem")
     private String hasDetectorStem;
@@ -28,6 +28,39 @@ public class Detector extends DetectorStem {
 
     @PropertyField(uri="vstoi:isAttributeOf")
     private String isAttributeOf;
+
+    @PropertyField(uri = "vstoi:hasStatus")    
+    private String hasStatus;
+
+    @PropertyField(uri = "vstoi:hasSerialNumber")
+    String serialNumber;
+
+    @PropertyField(uri = "hasco:hasImage")
+    String image;
+
+    @PropertyField(uri = "vstoi:hasContent")
+    String hasContent;
+
+    @PropertyField(uri = "vstoi:hasLanguage")
+    private String hasLanguage;
+
+    @PropertyField(uri = "vstoi:hasVersion")
+    String hasVersion;
+
+    @PropertyField(uri = "vstoi:hasReviewNote")
+    String hasReviewNote;
+
+    @PropertyField(uri="prov:wasDerivedFrom")
+    private String wasDerivedFrom;
+
+    @PropertyField(uri="prov:wasGeneratedBy")
+    private String wasGeneratedBy;
+
+    @PropertyField(uri = "vstoi:hasSIRManagerEmail")
+    private String hasSIRManagerEmail;
+
+    @PropertyField(uri = "vstoi:hasEditorEmail")
+    private String hasEditorEmail;
 
     public String getHasDetectorStem() {
         return hasDetectorStem;
@@ -69,14 +102,101 @@ public class Detector extends DetectorStem {
         return isAttributeOf;
     }
 
-    public Detector() {
+    public String getHasStatus() {
+        return hasStatus;
     }
 
-    public Detector(String className) {
-		super(className);
+    public void setHasStatus(String hasStatus) {
+        this.hasStatus = hasStatus;
     }
 
-    /** 
+    public String getSerialNumber() {
+        return serialNumber;
+    }       
+
+    public void setSerialNumber(String serialNumber) {
+        this.serialNumber = serialNumber;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public String getHasContent() {
+        return hasContent;
+    }
+
+    public void setHasContent(String hasContent) {
+        this.hasContent = hasContent;
+    }
+
+    public String getHasLanguage() {
+        return hasLanguage;
+    }
+
+    public void setHasLanguage(String hasLanguage) {
+        this.hasLanguage = hasLanguage;
+    }
+
+    public String getHasVersion() {      
+        return hasVersion;
+    }
+
+    public void setHasVersion(String hasVersion) {
+        this.hasVersion = hasVersion;
+    }
+
+    public String getHasReviewNote() {      
+        return hasReviewNote;
+    }
+
+    public void setHasReviewNote(String hasReviewNote) {
+        this.hasReviewNote = hasReviewNote;
+    }
+
+    public void setWasDerivedFrom(String wasDerivedFrom) {
+        this.wasDerivedFrom = wasDerivedFrom;
+    }
+
+    public String getWasDerivedFrom() {
+        return wasDerivedFrom;
+    }
+
+    public void setWasGeneratedBy(String wasGeneratedBy) {
+        this.wasGeneratedBy = wasGeneratedBy;
+    }
+
+    public String getWasGeneratedBy() {
+        return wasGeneratedBy;
+    }
+
+    public String getHasSIRManagerEmail() {
+        return hasSIRManagerEmail;
+    }
+
+    public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
+        this.hasSIRManagerEmail = hasSIRManagerEmail;
+    }
+
+    public String getHasEditorEmail() {
+        return hasEditorEmail;
+    }
+
+    public void setHasEditorEmail(String hasEditorEmail) {
+        this.hasEditorEmail = hasEditorEmail;
+    }
+
+    //public Detector() {
+    //}
+
+    //public Detector(String className) {
+	//	super(className);
+    //}
+
     public static List<Detector> findDetectors() {
         List<Detector> detectors = new ArrayList<Detector>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
@@ -93,6 +213,7 @@ public class Detector extends DetectorStem {
         return findDetectorsByQuery(queryString);
     }
 
+    /*
     public static int getNumberDetectors() {
         String queryString = "";
         queryString += NameSpaces.getInstance().printSparqlNameSpaceList();
@@ -102,7 +223,7 @@ public class Detector extends DetectorStem {
                 "}";
 
         return findTotalDetectorsByQuery(queryString);
-    }
+    }*/
 
     public static List<Detector> findDetectorsWithPages(int pageSize, int offset) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
@@ -166,6 +287,7 @@ public class Detector extends DetectorStem {
         return findDetectorsByQuery(queryString);
     }
 
+    /*
     public static int findTotalDetectorsByKeywordAndLanguage(String keyword, String language) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
         queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
@@ -188,7 +310,7 @@ public class Detector extends DetectorStem {
         queryString += "}";
 
         return findTotalDetectorsByQuery(queryString);
-    }
+    }*/
 
     public static List<Detector> findDetectorsByManagerEmailWithPages(String managerEmail, int pageSize, int offset) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
@@ -207,6 +329,7 @@ public class Detector extends DetectorStem {
         return findDetectorsByQuery(queryString);
     }
 
+    /*
     public static int findTotalDetectorsByManagerEmail(String managerEmail) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
         queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
@@ -217,7 +340,7 @@ public class Detector extends DetectorStem {
                 "}";
 
         return findTotalDetectorsByQuery(queryString);
-    }
+    }*/
 
     public static List<Detector> findDetectorsByManagerEmail(String managerEmail) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
@@ -233,7 +356,6 @@ public class Detector extends DetectorStem {
 
         return findDetectorsByQuery(queryString);
     }
-    **/
 
     public static List<Detector> findDetectorsByContainer(String containerUri) {
         //System.out.println("findByContainer: [" + containerUri + "]");
@@ -277,7 +399,7 @@ public class Detector extends DetectorStem {
             detectors.add(detector);
         }
 
-        java.util.Collections.sort((List<Detector>) detectors);
+        //java.util.Collections.sort((List<Detector>) detectors);
         return detectors;
 
     }
@@ -297,7 +419,8 @@ public class Detector extends DetectorStem {
             return null;
         }
 
-        detector = new Detector(VSTOI.DETECTOR);
+        //detector = new Detector(VSTOI.DETECTOR);
+        detector = new Detector();
 
         while (stmtIterator.hasNext()) {
             statement = stmtIterator.next();
