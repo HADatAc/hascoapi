@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 import org.hascoapi.Constants;
 import org.hascoapi.entity.pojo.ContainerSlot;
+import org.hascoapi.entity.pojo.Detector;
+import org.hascoapi.entity.pojo.Instrument;
 import org.hascoapi.entity.pojo.Process;
 import org.hascoapi.entity.pojo.ProcessStem;
 import org.hascoapi.utils.ApiUtil;
@@ -78,6 +80,98 @@ public class ProcessAPI extends Controller {
             ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL,VSTOI.PROCESS_STEM);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));
+        }
+    }
+
+    public Result addInstrument(String processUri, String instrumentUri){
+        if (processUri == null || processUri.equals("")) {
+            return ok(ApiUtil.createResponse("No processURI has been provided.", false));
+        }
+        if (instrumentUri == null || instrumentUri.equals("")) {
+            return ok(ApiUtil.createResponse("No instrumentURI has been provided.", false));
+        }
+        Process process = Process.find(processUri);
+        if (process == null) {
+            return ok(ApiUtil.createResponse("Process with URI <" + processUri + "> could not be found.", false));
+        } 
+        Instrument instrument = Instrument.find(instrumentUri);
+        if (instrument == null) {
+            return ok(ApiUtil.createResponse("Instrument with URI <" + instrumentUri + "> could not be found.", false));
+        } 
+        boolean resp = process.addInstrumentUri(instrumentUri);
+        if (resp) {
+            return ok(ApiUtil.createResponse("Instrument <" + instrumentUri + "> added to process <" + processUri + ">.", true));
+        } else {
+            return ok(ApiUtil.createResponse("Failed to add instrument <" + instrumentUri + "> to process <" + processUri + ">.", false));
+        }
+    }
+
+    public Result removeInstrument(String processUri, String instrumentUri){
+        if (processUri == null || processUri.equals("")) {
+            return ok(ApiUtil.createResponse("No processURI has been provided.", false));
+        }
+        if (instrumentUri == null || instrumentUri.equals("")) {
+            return ok(ApiUtil.createResponse("No instrumentURI has been provided.", false));
+        }
+        Process process = Process.find(processUri);
+        if (process == null) {
+            return ok(ApiUtil.createResponse("Process with URI <" + processUri + "> could not be found.", false));
+        } 
+        Instrument instrument = Instrument.find(instrumentUri);
+        if (instrument == null) {
+            return ok(ApiUtil.createResponse("Instrument with URI <" + instrumentUri + "> could not be found.", false));
+        } 
+        boolean resp = process.removeInstrumentUri(instrumentUri);
+        if (resp) {
+            return ok(ApiUtil.createResponse("Instrument <" + instrumentUri + "> removed from process <" + processUri + ">.", true));
+        } else {
+            return ok(ApiUtil.createResponse("Failed to remove instrument <" + instrumentUri + "> from process <" + processUri + ">.", false));
+        }
+    }
+
+    public Result addDetector(String processUri, String detectorUri){
+        if (processUri == null || processUri.equals("")) {
+            return ok(ApiUtil.createResponse("No processURI has been provided.", false));
+        }
+        if (detectorUri == null || detectorUri.equals("")) {
+            return ok(ApiUtil.createResponse("No detectorURI has been provided.", false));
+        }
+        Process process = Process.find(processUri);
+        if (process == null) {
+            return ok(ApiUtil.createResponse("Process with URI <" + processUri + "> could not be found.", false));
+        } 
+        Detector detector = Detector.find(detectorUri);
+        if (detector == null) {
+            return ok(ApiUtil.createResponse("Detector with URI <" + detectorUri + "> could not be found.", false));
+        } 
+        boolean resp = process.addDetectorUri(detectorUri);
+        if (resp) {
+            return ok(ApiUtil.createResponse("Detector <" + detectorUri + "> added to process <" + processUri + ">.", true));
+        } else {
+            return ok(ApiUtil.createResponse("Failed to add detector <" + detectorUri + "> to process <" + processUri + ">.", false));
+        }
+    }
+
+    public Result removeDetector(String processUri, String detectorUri){
+        if (processUri == null || processUri.equals("")) {
+            return ok(ApiUtil.createResponse("No processURI has been provided.", false));
+        }
+        if (detectorUri == null || detectorUri.equals("")) {
+            return ok(ApiUtil.createResponse("No detectorURI has been provided.", false));
+        }
+        Process process = Process.find(processUri);
+        if (process == null) {
+            return ok(ApiUtil.createResponse("Process with URI <" + processUri + "> could not be found.", false));
+        } 
+        Detector detector = Detector.find(detectorUri);
+        if (detector == null) {
+            return ok(ApiUtil.createResponse("Detector with URI <" + detectorUri + "> could not be found.", false));
+        } 
+        boolean resp = process.removeDetectorUri(detectorUri);
+        if (resp) {
+            return ok(ApiUtil.createResponse("Detector <" + detectorUri + "> removed from process <" + processUri + ">.", true));
+        } else {
+            return ok(ApiUtil.createResponse("Failed to reomve detector <" + detectorUri + "> from process <" + processUri + ">.", false));
         }
     }
 

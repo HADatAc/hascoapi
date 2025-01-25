@@ -54,7 +54,7 @@ public class Instrument extends Container {
 	}
 
 	public static Instrument find(String uri) {
-		System.out.println("Instrument.java : in find(): uri = [" + uri + "]");
+		//System.out.println("Instrument.java : in find(): uri = [" + uri + "]");
 	    Instrument instrument = null;
 	    Statement statement;
 	    RDFNode object;
@@ -66,7 +66,7 @@ public class Instrument extends Container {
 		StmtIterator stmtIterator = model.listStatements();
 
 		if (!stmtIterator.hasNext()) {
-			System.out.println("No instruement retrieved");
+			//System.out.println("No instruement retrieved");
 			return null;
 		} else {
 			instrument = new Instrument(VSTOI.INSTRUMENT);
@@ -76,7 +76,7 @@ public class Instrument extends Container {
 		    statement = stmtIterator.next();
 		    object = statement.getObject();
 			String str = URIUtils.objectRDFToString(object);
-			System.out.println(statement.getPredicate().getURI() + " : [" + str + "]");
+			//System.out.println(statement.getPredicate().getURI() + " : [" + str + "]");
 			if (uri != null && !uri.isEmpty()) {
 				if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
 					instrument.setLabel(str);

@@ -114,21 +114,26 @@ GET     /hascoapi/api/slotelements/bycontainer/:containerUri                    
 GET     /hascoapi/api/annotationsbycontainerposition/:containerUri/:positionUri     org.hascoapi.console.controllers.restapi.AnnotationAPI.getAnnotationByContainerAndPosition(containerUri: String, positionUri: String)
 GET     /hascoapi/api/slots/bycodebook/:codebookUri                                 org.hascoapi.console.controllers.restapi.CodebookSlotAPI.getCodebookSlotsByCodebook(codebookUri: String)
 
-GET     /hascoapi/api/studyobjectcollection/bystudy/:studyUri         org.hascoapi.console.controllers.restapi.StudyObjectCollectionAPI.getSOCsByStudy(studyUri: String)
-GET     /hascoapi/api/virtualcolumn/bystudy/:studyUri                 org.hascoapi.console.controllers.restapi.VirtualColumnAPI.getVCsByStudy(studyUri: String)
-GET     /hascoapi/api/studyobject/bysoc/:socUri/:pageSize/:offset     org.hascoapi.console.controllers.restapi.StudyObjectAPI.getStudyObjectsBySOCWithPage(socUri: String, pageSize: Integer, offset: Integer)
-GET     /hascoapi/api/studyobject/bysoc/total/:socUri                 org.hascoapi.console.controllers.restapi.StudyObjectAPI.getTotalStudyObjectsBySOC(socUri: String)
+GET     /hascoapi/api/studyobjectcollection/bystudy/:studyUri                       org.hascoapi.console.controllers.restapi.StudyObjectCollectionAPI.getSOCsByStudy(studyUri: String)
+GET     /hascoapi/api/virtualcolumn/bystudy/:studyUri                               org.hascoapi.console.controllers.restapi.VirtualColumnAPI.getVCsByStudy(studyUri: String)
+GET     /hascoapi/api/studyobject/bysoc/:socUri/:pageSize/:offset                   org.hascoapi.console.controllers.restapi.StudyObjectAPI.getStudyObjectsBySOCWithPage(socUri: String, pageSize: Integer, offset: Integer)
+GET     /hascoapi/api/studyobject/bysoc/total/:socUri                               org.hascoapi.console.controllers.restapi.StudyObjectAPI.getTotalStudyObjectsBySOC(socUri: String)
 
-GET     /hascoapi/api/deployment/:state/:email/:pageSize/:offset      org.hascoapi.console.controllers.restapi.DeploymentAPI.findCanUpdateWithPages(state: String, email: String, pageSize: Integer, offset: Integer)
-GET     /hascoapi/api/deployment/total/:state/:email                  org.hascoapi.console.controllers.restapi.DeploymentAPI.findTotalCanUpdateWithPages(state: String, email: String)
+GET     /hascoapi/api/deployment/:state/:email/:pageSize/:offset                    org.hascoapi.console.controllers.restapi.DeploymentAPI.findCanUpdateWithPages(state: String, email: String, pageSize: Integer, offset: Integer)
+GET     /hascoapi/api/deployment/total/:state/:email                                org.hascoapi.console.controllers.restapi.DeploymentAPI.findTotalCanUpdateWithPages(state: String, email: String)
 GET     /hascoapi/api/deploymentbyplatforminstance/:platforminstanceUri/:pageSize/:offset  org.hascoapi.console.controllers.restapi.DeploymentAPI.findDeploymentsByPlatformInstanceWithPage(platforminstanceUri: String, pageSize: Integer, offset: Integer)
-GET     /hascoapi/api/deploymentbyplatforminstance/total/:platforminstanceUri              org.hascoapi.console.controllers.restapi.DeploymentAPI.findTotalDeploymentsByPlatformInstance(platforminstanceUri: String)
+GET     /hascoapi/api/deploymentbyplatforminstance/total/:platforminstanceUri       org.hascoapi.console.controllers.restapi.DeploymentAPI.findTotalDeploymentsByPlatformInstance(platforminstanceUri: String)
 
-GET     /hascoapi/api/stream/:state/:email/:deploymentUri/:pageSize/:offset       org.hascoapi.console.controllers.restapi.StreamAPI.findCanUpdateByDeploymentWithPages(state: String, email: String, deploymentUri: String, pageSize: Integer, offset: Integer)
-GET     /hascoapi/api/stream/total/:state/:email/:deploymentUri                   org.hascoapi.console.controllers.restapi.StreamAPI.findTotalCanUpdateByDeploymentWithPages(state: String, email: String, deploymentUri: String)
+GET     /hascoapi/api/stream/:state/:email/:deploymentUri/:pageSize/:offset         org.hascoapi.console.controllers.restapi.StreamAPI.findCanUpdateByDeploymentWithPages(state: String, email: String, deploymentUri: String, pageSize: Integer, offset: Integer)
+GET     /hascoapi/api/stream/total/:state/:email/:deploymentUri                     org.hascoapi.console.controllers.restapi.StreamAPI.findTotalCanUpdateByDeploymentWithPages(state: String, email: String, deploymentUri: String)
 
-GET     /hascoapi/api/platforminstance/byplatform/:platformUri/:pageSize/:offset  org.hascoapi.console.controllers.restapi.VSTOIInstanceAPI.findPlatformInstancesByPlatformWithPage(platformUri: String, pageSize: Integer, offset: Integer)
-GET     /hascoapi/api/platforminstance/byplatform/total/:platformUri              org.hascoapi.console.controllers.restapi.VSTOIInstanceAPI.findTotalPlatformInstancesByPlatform(platformUri: String)
+GET     /hascoapi/api/platforminstance/byplatform/:platformUri/:pageSize/:offset    org.hascoapi.console.controllers.restapi.VSTOIInstanceAPI.findPlatformInstancesByPlatformWithPage(platformUri: String, pageSize: Integer, offset: Integer)
+GET     /hascoapi/api/platforminstance/byplatform/total/:platformUri                org.hascoapi.console.controllers.restapi.VSTOIInstanceAPI.findTotalPlatformInstancesByPlatform(platformUri: String)
+
+POST    /hascoapi/api/process/instrument/add/:processuri/:instrumenturi             org.hascoapi.console.controllers.restapi.ProcessAPI.addInstrument(processuri: String, instrumenturi: String)
+POST    /hascoapi/api/process/instrument/remove/:processuri/:instrumenturi          org.hascoapi.console.controllers.restapi.ProcessAPI.removeInstrument(processuri: String, instrumenturi: String)
+POST    /hascoapi/api/process/detector/add/:processuri/:detectoruri                 org.hascoapi.console.controllers.restapi.ProcessAPI.addDetector(processuri: String, detectoruri: String)
+POST    /hascoapi/api/process/detector/remove/:processuri/:detectoruri              org.hascoapi.console.controllers.restapi.ProcessAPI.removeDetector(processuri: String, detectoruri: String)
 
 # INGESTION METHODS
 

@@ -395,7 +395,7 @@ public class Detector extends HADatAcThing implements SIRElement  {
 
         while (resultsrw.hasNext()) {
             QuerySolution soln = resultsrw.next();
-            Detector detector = findDetector(soln.getResource("uri").getURI());
+            Detector detector = find(soln.getResource("uri").getURI());
             detectors.add(detector);
         }
 
@@ -404,7 +404,7 @@ public class Detector extends HADatAcThing implements SIRElement  {
 
     }
 
-    public static Detector findDetector(String uri) {
+    public static Detector find(String uri) {
         Detector detector = null;
         Statement statement;
         RDFNode object;

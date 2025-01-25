@@ -58,7 +58,7 @@ public class DetectorAPI extends Controller {
         if (uri == null || uri.equals("")) {
             return ok(ApiUtil.createResponse("No detector URI has been provided.", false));
         }
-        Detector detector = Detector.findDetector(uri);
+        Detector detector = Detector.find(uri);
         if (detector == null) {
             return ok(ApiUtil.createResponse("There is no detector with URI <" + uri + "> to be deleted.", false));
         } else {
@@ -71,10 +71,10 @@ public class DetectorAPI extends Controller {
      */
 
     public Result createDetectorsForTesting() {
-        Detector testDetector1 = Detector.findDetector(TEST_DETECTOR1_URI);
-        Detector testDetector2 = Detector.findDetector(TEST_DETECTOR2_URI);
-        Detector testDetector3 = Detector.findDetector(TEST_DETECTOR3_URI);
-        Detector testDetector4 = Detector.findDetector(TEST_DETECTOR4_URI);
+        Detector testDetector1 = Detector.find(TEST_DETECTOR1_URI);
+        Detector testDetector2 = Detector.find(TEST_DETECTOR2_URI);
+        Detector testDetector3 = Detector.find(TEST_DETECTOR3_URI);
+        Detector testDetector4 = Detector.find(TEST_DETECTOR4_URI);
         if (testDetector1 != null) {
             return ok(ApiUtil.createResponse("Test detector 1 already exists.", false));
         } else if (testDetector2 != null) {
@@ -153,10 +153,10 @@ public class DetectorAPI extends Controller {
     }
 
     public Result deleteDetectorsForTesting(){
-        Detector test1 = Detector.findDetector(TEST_DETECTOR1_URI);
-        Detector test2 = Detector.findDetector(TEST_DETECTOR2_URI);
-        Detector test3 = Detector.findDetector(TEST_DETECTOR3_URI);
-        Detector test4 = Detector.findDetector(TEST_DETECTOR4_URI);
+        Detector test1 = Detector.find(TEST_DETECTOR1_URI);
+        Detector test2 = Detector.find(TEST_DETECTOR2_URI);
+        Detector test3 = Detector.find(TEST_DETECTOR3_URI);
+        Detector test4 = Detector.find(TEST_DETECTOR4_URI);
         String msg = "";
         if (test1 == null) {
             msg += "Test Detector 1. ";

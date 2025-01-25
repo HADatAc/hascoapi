@@ -546,7 +546,7 @@ public class SIRElementAPI extends Controller {
             }
             object.delete();
         } else if (clazz == Detector.class) {
-            Detector object = Detector.findDetector(uri);
+            Detector object = Detector.find(uri);
             if (object == null) {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }

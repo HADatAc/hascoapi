@@ -95,6 +95,8 @@ public class VSTOI {
     public static final String IS_DAMAGED                   = VSTOI + "isDamaged";
     public static final String IS_FIELD_OF_VIEW_OF          = VSTOI + "isFieldOfViewOf";
     public static final String OF_CODEBOOK                  = VSTOI + "ofCodebook";
+    public static final String USES_INSTRUMENT              = VSTOI + "usesInstrument";
+    public static final String REQUIRES_DETECTOR            = VSTOI + "requiresDetector";
 
     /*
      * STATUS

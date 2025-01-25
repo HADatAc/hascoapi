@@ -344,6 +344,7 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
         }
     }
 
+    /*
     public void saveWithoutURIValidation() {
         // permanent name spaces are not saved into the triple store
         if (!this.permanent) {
@@ -352,14 +353,16 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
             saveToTripleStore(false);
         }
      }
+     */
 
     @Override
     public void save() {
         // permanent name spaces are not saved into the triple store
         if (!this.permanent) {
-            System.out.println("Save: namespace: " + this.namedGraph);
+            // namespaces are always stored into the named graph called DEFAULT_REPOSITORY 
+            this.setNamedGraph(Constants.DEFAULT_REPOSITORY);
             System.out.println("   URI = [" + this.getUri() + "]");
-            saveToTripleStore();
+            saveToTripleStore(false);
         }
      }
 
@@ -367,8 +370,8 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
     public void delete() {
         // permanent name spaces cannot be deleted from triple store because they are not store into the triple store
         if (!this.permanent) {
-            //this.setNamedGraph(Constants.DEFAULT_REPOSITORY);
-            System.out.println("Delete namespace: " + this.namedGraph);
+            // namespaces are always stored into the named graph called DEFAULT_REPOSITORY 
+            this.setNamedGraph(Constants.DEFAULT_REPOSITORY);
             System.out.println("   URI = [" + this.getUri() + "]");
             deleteFromTripleStore();
         }

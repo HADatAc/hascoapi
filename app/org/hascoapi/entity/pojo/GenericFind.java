@@ -1028,7 +1028,7 @@ public class GenericFind<T> {
         } else if (clazz == InstrumentInstance.class) {
             return (T)InstrumentInstance.find(uri);
         } else if (clazz == Detector.class) {
-            return (T)Detector.findDetector(uri);
+            return (T)Detector.find(uri);
         } else if (clazz == DetectorInstance.class) {
             return (T)DetectorInstance.find(uri);
         } else if (clazz == PlatformInstance.class) {

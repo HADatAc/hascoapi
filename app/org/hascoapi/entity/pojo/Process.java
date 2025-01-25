@@ -8,6 +8,7 @@ import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.hascoapi.annotations.PropertyField;
+import org.hascoapi.annotations.PropertyValueType;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.SPARQLUtils;
@@ -50,6 +51,12 @@ public class Process extends HADatAcThing implements Comparable<Process> {
 
     @PropertyField(uri = "vstoi:hasEditorEmail")
     private String hasEditorEmail;
+
+    @PropertyField(uri="vstoi:usesInstrument", valueType=PropertyValueType.URI)
+    private List<String> instrumentUris = new ArrayList<String>();
+
+    @PropertyField(uri="vstoi:requiresDetector", valueType=PropertyValueType.URI)
+    private List<String> detectorUris = new ArrayList<String>();
 
     public String getHasStatus() {
         return hasStatus;
@@ -115,6 +122,96 @@ public class Process extends HADatAcThing implements Comparable<Process> {
         this.hasEditorEmail = hasEditorEmail;
     }
 
+    public List<String> getInstrumentUris() {
+        return instrumentUris;
+    }
+
+    public List<Instrument> getInstruments() {
+        List<Instrument> resp = new ArrayList<Instrument>();
+        if (instrumentUris == null || instrumentUris.size() <= 0) {
+            return resp;
+        }
+        for (String instrumentUri : instrumentUris) {
+            Instrument instrument = Instrument.find(instrumentUri);
+            if (instrument != null) {
+                resp.add(instrument);
+            }
+        }
+        return resp;
+    }
+
+    public boolean addInstrumentUri(String instrumentUri) {
+        Instrument instrument = Instrument.find(instrumentUri);
+        if (instrument == null) {
+            return false;
+        }
+        if (instrumentUris == null) {
+            instrumentUris = new ArrayList<String>();
+        }
+        if (instrumentUris == null || instrumentUris.contains(instrumentUri)) {
+            return false; 
+        }
+        instrumentUris.add(instrumentUri);
+        return true;
+    }
+
+    public boolean removeInstrumentUri(String instrumentUri) {
+        Instrument instrument = Instrument.find(instrumentUri);
+        if (instrument == null) {
+            return false;
+        }
+        if (instrumentUris == null || !instrumentUris.contains(instrumentUri)) {
+            return false; 
+        }
+        instrumentUris.remove(instrumentUri);
+        return true;
+    }
+
+    public List<String> getDetectorUris() {
+        return detectorUris;
+    }
+
+    public List<Detector> getDetectors() {
+        List<Detector> resp = new ArrayList<Detector>();
+        if (detectorUris == null || detectorUris.size() <= 0) {
+            return resp;
+        }
+        for (String detectorUri : detectorUris) {
+            Detector detector = Detector.find(detectorUri);
+            if (detector != null) {
+                resp.add(detector);
+            }
+        }
+        return resp;
+    }
+
+    public boolean addDetectorUri(String detectorUri) {
+        Detector detector = Detector.find(detectorUri);
+        if (detector == null) {
+            return false;
+        }
+        if (detectorUris == null) {
+            detectorUris = new ArrayList<String>();
+        }
+        if (detectorUris == null || detectorUris.contains(detector)) {
+            return false; 
+        }
+        detectorUris.add(detectorUri);
+        return true;
+    }
+
+    public boolean removeDetectorUri(String detectorUri) {
+        Detector detector = Detector.find(detectorUri);
+        if (detector == null) {
+            return false;
+        }
+        if (detectorUri == null || !detectorUris.contains(detectorUri)) {
+            return false; 
+        }
+        detectorUris.remove(detectorUri);
+        return true;
+    }
+
     public static Process find(String uri) {
         Process process = null;
         Statement statement;
@@ -161,6 +258,10 @@ public class Process extends HADatAcThing implements Comparable<Process> {
                     process.setHasSIRManagerEmail(str);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_EDITOR_EMAIL)) {
                     process.setHasEditorEmail(str);
+                } else if (statement.getPredicate().getURI().equals(VSTOI.USES_INSTRUMENT)) {
+                    process.addInstrumentUri(str);
+                } else if (statement.getPredicate().getURI().equals(VSTOI.REQUIRES_DETECTOR)) {
+                    process.addDetectorUri(str);
                 }
             }
         }

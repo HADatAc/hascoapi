@@ -160,7 +160,7 @@ public class URIPage extends Controller {
             } else if (result.getHascoTypeUri().equals(VSTOI.DEPLOYMENT)) {
                 finalResult = Deployment.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.DETECTOR)) {
-                finalResult = Detector.findDetector(uri);
+                finalResult = Detector.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.DETECTOR_INSTANCE)) {
                 finalResult = DetectorInstance.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.DETECTOR_STEM)) {
