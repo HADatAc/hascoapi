@@ -99,11 +99,16 @@ public class NameSpaceGenerator extends BaseGenerator {
 			return null;
 		}
 
+		System.out.println("NameSpaceGenerator: adding " + nsAbbrev + " into In-Memory NameSpaces.");
+
 		NameSpaces.getInstance().addNamespace(ns);
 
 		// ** ATTENTION **: the namespace needs to be added to the cache in NameSpaces.getInstance()
 		//                  before the newly created namespace ns can be saved with ns.save(). Otherwise
 		//                  the save command is going to cause the ns's uri to be invalid.  
+
+		System.out.println("NameSpaceGenerator: adding " + nsAbbrev + " into triple store.");
+
 		ns.save();
 
 		return ns;

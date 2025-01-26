@@ -1,6 +1,8 @@
 package org.hascoapi.entity.pojo;
 
 import java.io.File;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.net.URL;
 import java.util.*;
 
@@ -311,6 +313,9 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
             }
             String endpointUrl = CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_GRAPH);
             GSPClient gspClient = new GSPClient(endpointUrl);
+            if (address.equals("http://hadatac.org/ont/uberon/uberonpmsr.ttl")) {
+                NameSpace.printFirst30Lines(tripleFile);
+            }
             gspClient.postFile(tripleFile, format.getDefaultMIMEType(), getUri());
             System.out.println("Loaded triples from " + address + " \n");
             //System.out.println("Loaded triples from " + address + " \n");
@@ -319,6 +324,38 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
             throw new RuntimeException(e);
         } finally {
             tempFileOpt.ifPresent(FileUtils::deleteQuietly);
+        }
+    }
+
+    public static void printFirst30Lines(File file) {
+        BufferedReader reader = null;
+
+        try {
+            // Create BufferedReader using the File object
+            reader = new BufferedReader(new FileReader(file));
+            String line;
+            int lineCount = 0;
+
+            // Read and print the first 30 lines
+            while ((line = reader.readLine()) != null && lineCount < 30) {
+                System.out.println(line);
+                lineCount++;
+            }
+
+            // If the file contains fewer than 30 lines
+            if (lineCount < 30) {
+                System.out.println("The file contains fewer than 30 lines.");
+            }
+        } catch (Exception e) {
+            System.out.println("Error reading the file: " + e.getMessage());
+        } finally {
+            try {
+                if (reader != null) {
+                    reader.close();
+                }
+            } catch (Exception e) {
+                System.out.println("Error closing the file: " + e.getMessage());
+            }
         }
     }
 

@@ -63,8 +63,8 @@ public class ConfigProp {
         return ConfigFactory.load("application.conf").getString("pac4j.jwt.secret");
     }
     public static String getKbPrefix() {
-        //return RepositoryInstance.getInstance().getHasDefaultNamespaceAbbreviation() + "-kb:";
-        return RepositoryInstance.getInstance().getHasDefaultNamespaceAbbreviation() + ":";
+        //return RepositoryInstance.getInstance().getHasDefaultNamespacePrefix() + "-kb:";
+        return RepositoryInstance.getInstance().getHasDefaultNamespacePrefix() + ":";
     }
 
 	public static String getTemplateFileName() {

@@ -64,10 +64,13 @@ public class HASCO {
     public static final String HAS_DATASET                            = "http://hadatac.org/ont/hasco/hasDataset";
     public static final String HAS_DATASET_PATTERN                    = "http://hadatac.org/ont/hasco/hasDatasetPattern";
     public static final String HAS_DD                                 = "http://hadatac.org/ont/hasco/hasDD";
-    public static final String HAS_DEFAULT_NAMESPACE_ABBREVIATION     = "http://hadatac.org/ont/hasco/hasDefaultNamespaceAbbreviation";
+    public static final String HAS_DEFAULT_NAMESPACE_PREFIX           = "http://hadatac.org/ont/hasco/hasDefaultNamespacePrefix";
+    public static final String HAS_DEFAULT_NAMESPACE_SOURCE           = "http://hadatac.org/ont/hasco/hasDefaultNamespaceSource";
+    public static final String HAS_DEFAULT_NAMESPACE_SOURCE_MIME      = "http://hadatac.org/ont/hasco/hasDefaultNamespaceSourceMime";
     public static final String HAS_DEFAULT_NAMESPACE_URL              = "http://hadatac.org/ont/hasco/hasDefaultNamespaceURL";
     public static final String HAS_DEPLOYMENT                         = "http://hadatac.org/ont/hasco/hasDeployment";
     public static final String HAS_DETECTOR                           = "http://hadatac.org/ont/hasco/hasDetector";
+    public static final String HAS_DOMAIN_URL                         = "http://hadatac.org/ont/hasco/hasDomainURL";
     public static final String HAS_EDITOR_EMAIL                       = "http://hadatac.org/ont/hasco/hasEditorEmail";
     public static final String HAS_ENTITY                             = "http://hadatac.org/ont/hasco/hasEntity";
     public static final String HAS_EVENT                              = "http://hadatac.org/ont/hasco/hasEvent";
