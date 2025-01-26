@@ -180,7 +180,7 @@ public class InstrumentAPI extends Controller {
     }
 
     public Result updateReviewsRecursive(String uri) {
-        System.out.println("updateReviewsRecursive: [" + uri + "]");
+        //System.out.println("updateReviewsRecursive: [" + uri + "]");
         if (uri  == null || uri.equals("")) {
             return ok(ApiUtil.createResponse("No URI has been provided", false));
         }
@@ -198,7 +198,7 @@ public class InstrumentAPI extends Controller {
     }
 
     public Result retrieveInstrumentDetectors(String uri) {
-        System.out.println("updateReviewsRecursive: [" + uri + "]");
+        //System.out.println("retrieveInstrumentDetectors: [" + uri + "]");
         if (uri  == null || uri.equals("")) {
             return ok(ApiUtil.createResponse("No URI has been provided", false));
         }

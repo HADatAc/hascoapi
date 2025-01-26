@@ -421,9 +421,9 @@ public class GenericFind<T> {
         if (className == null && superclassName == null) {
             return null;
         }
-        System.out.println("findByKeywordWithPages: className=[" + className + "]");
-        System.out.println("findByKeywordWithPages: superclassName=[" + superclassName + "]");
-        System.out.println("findByKeywordWithPages: isSIR=[" + isSIR(clazz) + "]");
+        //System.out.println("findByKeywordWithPages: className=[" + className + "]");
+        //System.out.println("findByKeywordWithPages: superclassName=[" + superclassName + "]");
+        //System.out.println("findByKeywordWithPages: isSIR=[" + isSIR(clazz) + "]");
         //if (clazz == Detector.class) {
         //    return findDetectorClassesByKeywordWithPages(clazz, superclassName, keyword, pageSize, offset);
         //} else 
@@ -983,7 +983,7 @@ public class GenericFind<T> {
             if (soln != null) {
                 if (soln.getResource("uri") != null && soln.getResource("uri").getURI() != null) {
                     String uri = soln.getResource("uri").getURI();
-                    System.out.println("FindByQuery: retrieved uri = [" + uri + "]");
+                    //System.out.println("FindByQuery: retrieved uri = [" + uri + "]");
                     T element = findElement(clazz, uri);
                     if (element != null) {                        
                       list.add(element);

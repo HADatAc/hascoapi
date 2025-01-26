@@ -84,6 +84,7 @@ public class ProcessAPI extends Controller {
     }
 
     public Result addInstrument(String processUri, String instrumentUri){
+        System.out.println("ProcessAPI.java: adding instrument [" + instrumentUri + "] to process [" + processUri + "]");
         if (processUri == null || processUri.equals("")) {
             return ok(ApiUtil.createResponse("No processURI has been provided.", false));
         }

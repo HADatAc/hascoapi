@@ -151,7 +151,9 @@ public class Process extends HADatAcThing implements Comparable<Process> {
         if (instrumentUris == null || instrumentUris.contains(instrumentUri)) {
             return false; 
         }
+        System.out.println("Process.java: adding instrument [" + instrumentUri + "] to process [" + this.getUri() + "]");
         instrumentUris.add(instrumentUri);
+        this.save();
         return true;
     }
 
@@ -164,6 +166,7 @@ public class Process extends HADatAcThing implements Comparable<Process> {
             return false; 
         }
         instrumentUris.remove(instrumentUri);
+        this.save();
         return true;
     }
 
@@ -197,6 +200,7 @@ public class Process extends HADatAcThing implements Comparable<Process> {
             return false; 
         }
         detectorUris.add(detectorUri);
+        this.save();
         return true;
     }
 
@@ -209,6 +213,7 @@ public class Process extends HADatAcThing implements Comparable<Process> {
             return false; 
         }
         detectorUris.remove(detectorUri);
+        this.save();
         return true;
     }
 
