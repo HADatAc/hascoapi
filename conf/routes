@@ -3,24 +3,26 @@
 # ~~~~
 
 # Webjars
-->      /webjars                                          webjars.Routes
+->      /webjars                                                webjars.Routes
 
 # Home page
-GET     /                                                   org.hascoapi.console.controllers.Portal.index(request: Request)
-GET     /hascoapi                                           org.hascoapi.console.controllers.Portal.index(request: Request)
-GET     /hascoapi/                                          org.hascoapi.console.controllers.Portal.index(request: Request)
-POST    /hascoapi/                                          org.hascoapi.console.controllers.Portal.postIndex(request: Request)
-GET     /hascoapi/version                                   org.hascoapi.console.controllers.Version.index()
-POST    /hascoapi/version                                   org.hascoapi.console.controllers.Version.postIndex()
+GET     /                                                       org.hascoapi.console.controllers.Portal.index(request: Request)
+GET     /hascoapi                                               org.hascoapi.console.controllers.Portal.index(request: Request)
+GET     /hascoapi/                                              org.hascoapi.console.controllers.Portal.index(request: Request)
+POST    /hascoapi/                                              org.hascoapi.console.controllers.Portal.postIndex(request: Request)
+GET     /hascoapi/version                                       org.hascoapi.console.controllers.Version.index()
+POST    /hascoapi/version                                       org.hascoapi.console.controllers.Version.postIndex()
 
 # RETRIEVAL GENERIC
 
-GET     /hascoapi/api/uri/:uri                              org.hascoapi.console.controllers.restapi.URIPage.getUri(uri: String)
-GET     /hascoapi/api/urigen/:elementtype                   org.hascoapi.console.controllers.restapi.URIPage.uriGen(elementtype: String)
-GET     /hascoapi/api/usage/:uri                            org.hascoapi.console.controllers.restapi.SIRElementAPI.usage(uri: String)
-GET     /hascoapi/api/derivation/:uri                       org.hascoapi.console.controllers.restapi.SIRElementAPI.derivation(uri: String)
-GET     /hascoapi/api/hascotype/:uri                        org.hascoapi.console.controllers.restapi.SIRElementAPI.hascoType(uri: String)
-GET     /hascoapi/api/children/:superuri                    org.hascoapi.console.controllers.restapi.HAScOClassAPI.getChildren(superuri: String)
+GET     /hascoapi/api/uri/:uri                                  org.hascoapi.console.controllers.restapi.URIPage.getUri(uri: String)
+GET     /hascoapi/api/urigen/:elementtype                       org.hascoapi.console.controllers.restapi.URIPage.uriGen(elementtype: String)
+GET     /hascoapi/api/usage/:uri                                org.hascoapi.console.controllers.restapi.SIRElementAPI.usage(uri: String)
+GET     /hascoapi/api/derivation/:uri                           org.hascoapi.console.controllers.restapi.SIRElementAPI.derivation(uri: String)
+GET     /hascoapi/api/hascotype/:uri                            org.hascoapi.console.controllers.restapi.SIRElementAPI.hascoType(uri: String)
+GET     /hascoapi/api/children/:superuri                        org.hascoapi.console.controllers.restapi.HAScOClassAPI.getChildren(superuri: String)
+GET     /hascoapi/api/subclasses/keyword/:superuri/:keyword     org.hascoapi.console.controllers.restapi.HAScOClassAPI.getSubclassesByKeyword(superuri: String, keyword : String)
+GET     /hascoapi/api/superclasses/:uri                         org.hascoapi.console.controllers.restapi.HAScOClassAPI.getSuperclasses(uri: String)
 GET     /hascoapi/api/:elementType/elements/:pageSize/:offset                                       org.hascoapi.console.controllers.restapi.SIRElementAPI.getElementsWithPage(elementType: String, pageSize : Integer, offset : Integer)
 GET     /hascoapi/api/:elementType/elements/total                                                   org.hascoapi.console.controllers.restapi.SIRElementAPI.getTotalElements(elementType: String)
 GET     /hascoapi/api/:elementType/keywordlanguage/:keyword/:language/:pageSize/:offset             org.hascoapi.console.controllers.restapi.SIRElementAPI.getElementsByKeywordAndLanguageWithPage(elementType: String, keyword : String, language : String, pageSize : Integer, offset : Integer)
@@ -51,7 +53,7 @@ GET     /hascoapi/api/organization/suborganizations/:uri/:pageSize/:offset      
 GET     /hascoapi/api/organization/suborganizations/total/:uri                            org.hascoapi.console.controllers.restapi.OrganizationAPI.findTotalSubOrganizations(uri: String)
 GET     /hascoapi/api/organization/affiliations/:uri/:pageSize/:offset                    org.hascoapi.console.controllers.restapi.OrganizationAPI.findAffiliations(uri: String, pageSize : Integer, offset : Integer)
 GET     /hascoapi/api/organization/affiliations/total/:uri                                org.hascoapi.console.controllers.restapi.OrganizationAPI.findTotalAffiliations(uri: String)
-GET     /hascoapi/api/study/dataacquisitions/total/:uri                                   org.hascoapi.console.controllers.restapi.StudyAPI.findTotalDAs(uri: String)
+GET     /hascoapi/api/study/dataacquiinsectsitions/total/:uri                                   org.hascoapi.console.controllers.restapi.StudyAPI.findTotalDAs(uri: String)
 GET     /hascoapi/api/study/studyroles/total/:uri                                         org.hascoapi.console.controllers.restapi.StudyAPI.findTotalRoles(uri: String)
 GET     /hascoapi/api/study/socs/:uri/:pageSize/:offset                                   org.hascoapi.console.controllers.restapi.StudyAPI.findSOCs(uri: String, pageSize : Integer, offset : Integer)
 GET     /hascoapi/api/study/socs/total/:uri                                               org.hascoapi.console.controllers.restapi.StudyAPI.findTotalSOCs(uri: String)

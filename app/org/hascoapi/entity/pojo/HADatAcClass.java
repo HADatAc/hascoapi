@@ -316,7 +316,7 @@ public class HADatAcClass extends HADatAcThing {
         typeClass.setLocalName(classUri.substring(classUri.indexOf('#') + 1));
 
         return typeClass;
-    }
+    }             
 
     @JsonIgnore
     public String getHierarchyJson() {
@@ -468,8 +468,9 @@ public class HADatAcClass extends HADatAcThing {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 "SELECT ?uri WHERE { " +
                 "   ?uri rdfs:subClassOf <" + superUri + "> .  " +
+                "   ?uri rdfs:label ?label . " +
                 "} " + 
-                " ORDER BY ASC(?uri) ";
+                " ORDER BY ASC(?label) ";
 
         ResultSetRewindable resultsrw = SPARQLUtils.select(
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
@@ -484,6 +485,63 @@ public class HADatAcClass extends HADatAcThing {
         return subclasses;
     }
     
+    public static List<HADatAcClass> findSuperclasses(String uri) {
+        //System.out.println("HADatAcClass.ImmediateSubClasses of [" + superUri + "]");
+        List<HADatAcClass> superclasses = new ArrayList<HADatAcClass>();
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                "SELECT ?superuri WHERE { " +
+                "   <" + uri + "> rdfs:subClassOf* ?superuri  .  " +
+                "   ?superuri rdfs:label ?label . " +
+                "} ";
+
+        ResultSetRewindable resultsrw = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+        while (resultsrw.hasNext()) {
+            QuerySolution soln = resultsrw.next();
+            HADatAcClass superclass = HADatAcClass.find(soln.getResource("superuri").getURI());
+            superclasses.add(superclass);
+        }
+
+        return superclasses;
+    }
+    
+    public static List<HADatAcClass> findSubclassesByKeyword(String superUri, String keyword) {
+        //System.out.println("GenericFind.findClassesByKeywordWithPages: " + superclassName + "  " + keyword + " " + pageSize + "  " + offset);
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT DISTINCT ?uri ?label WHERE { " +
+                " ?uri rdfs:subClassOf* <" + superUri + "> . " +
+                " ?uri rdfs:label ?label . " +
+                "   FILTER regex(?label, \"" + keyword + "\", \"i\") " +
+                "} " +
+                " ORDER BY ASC(?label) ";
+
+        //System.out.println("GenericFind.findInstancesByKeywordWithPages: [" + queryString + "]");
+        return findClassesByQuery(queryString);
+    }
+
+    public static List<HADatAcClass> findClassesByQuery(String queryString) {
+        List<HADatAcClass> list = new ArrayList<HADatAcClass>();
+        ResultSetRewindable resultsrw = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+        if (!resultsrw.hasNext()) {
+            return null;
+        }
+        while (resultsrw.hasNext()) {
+            QuerySolution soln = resultsrw.next();
+            if (soln != null) {
+                if (soln.getResource("uri") != null && soln.getResource("uri").getURI() != null) {
+                    String uri = soln.getResource("uri").getURI();
+                    HADatAcClass clazz = HADatAcClass.find(uri);
+                    if (clazz != null) {
+                        list.add(clazz);
+                    }
+                } 
+            }
+        }
+        return list;
+    }
+
     @JsonIgnore
     public List<GenericInstance> getInstances() {
         List<GenericInstance> instances = new ArrayList<GenericInstance>();

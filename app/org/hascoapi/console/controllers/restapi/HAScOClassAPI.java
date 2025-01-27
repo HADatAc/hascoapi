@@ -36,6 +36,39 @@ public class HAScOClassAPI extends Controller {
         //}
     }
 
+    public Result getSuperclasses(String uri){
+
+        if (uri == null || uri.isEmpty()) {
+            return ok(ApiUtil.createResponse("No uri has been provided to retrieve superclasses", false));
+        }
+        List<HADatAcClass> results = HADatAcClass.findSuperclasses(uri);
+        if (results == null) {
+            results = new ArrayList<HADatAcClass>();
+        }
+        ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL,HASCO.HASCO_CLASS);
+        JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
+        return ok(ApiUtil.createResponse(jsonObject, true));
+        //}
+    }
+
+    public Result getSubclassesByKeyword(String superuri, String keyword){
+
+        if (superuri == null || superuri.isEmpty()) {
+            return ok(ApiUtil.createResponse("No superuri has been provided to retrieve subclasses", false));
+        }
+        if (keyword == null || keyword.isEmpty()) {
+            return ok(ApiUtil.createResponse("No keyword has been provided to retrieve subclasses", false));
+        }
+        List<HADatAcClass> results = HADatAcClass.findSubclassesByKeyword(superuri, keyword);
+        if (results == null) {
+            results = new ArrayList<HADatAcClass>();
+        }
+        ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL,HASCO.HASCO_CLASS);
+        JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
+        return ok(ApiUtil.createResponse(jsonObject, true));
+        //}
+    }
+
     public Result getChildren(String superUri) {
         System.out.println("HAScOClassAPI.getChildren of [" + superUri + "]");
         if (superUri == null || superUri.isEmpty()) {
