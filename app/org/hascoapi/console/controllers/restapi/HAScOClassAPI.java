@@ -70,7 +70,7 @@ public class HAScOClassAPI extends Controller {
     }
 
     public Result getChildren(String superUri) {
-        System.out.println("HAScOClassAPI.getChildren of [" + superUri + "]");
+        //System.out.println("HAScOClassAPI.getChildren of [" + superUri + "]");
         if (superUri == null || superUri.isEmpty()) {
             return ok(ApiUtil.createResponse("No superclass URI has been provided to retrieve children of HADatAcClass", false));
         }

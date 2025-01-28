@@ -656,7 +656,7 @@ public abstract class HADatAcThing {
             }
             query1 += " ?p ?o . } \n";
             query1 += " } ";
-            System.out.println("Delete query: [" + query1 + "]");
+            //System.out.println("Delete query: [" + query1 + "]");
             UpdateRequest request = UpdateFactory.create(query1);
             UpdateProcessor processor = UpdateExecutionFactory.createRemote(
                     request, CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
