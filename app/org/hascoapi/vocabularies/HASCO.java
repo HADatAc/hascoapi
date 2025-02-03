@@ -98,6 +98,7 @@ public class HASCO {
     public static final String HAS_LAYOUT_HEIGHT                      = "http://hadatac.org/ont/hasco/hasLayoutHeight";
     public static final String HAS_LAYOUT_HEIGHT_UNIT                 = "http://hadatac.org/ont/hasco/hasLayoutHeightUnit";
     public static final String HAS_LOG                                = "http://hadatac.org/ont/hasco/hasLog";
+    public static final String HAS_MANAGER                            = "http://hadatac.org/ont/hasco/hasManager";
     public static final String HAS_MANAGER_EMAIL                      = "http://hadatac.org/ont/hasco/hasManagerEmail";
     public static final String HAS_MESSSAGE_ARCHIVE_ID                = "http://hadatac.org/ont/hasco/hasMessageArchiveID";
     public static final String HAS_MESSSAGE_HEADER                    = "http://hadatac.org/ont/hasco/hasMessageHeader";
