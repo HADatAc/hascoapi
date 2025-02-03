@@ -22,7 +22,6 @@ import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.hascoapi.annotations.PropertyField;
 import org.hascoapi.annotations.PropertyValueType;
-//import org.hascoapi.data.model.StreamQueryResult;
 import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.RDF;
 import org.hascoapi.vocabularies.RDFS;
@@ -38,6 +37,12 @@ import org.slf4j.LoggerFactory;
 public class Value extends HADatAcThing {
 
     private static final Logger log = LoggerFactory.getLogger(Value.class);
+
+    /************************************* 
+     *
+     *            PROPERTIES
+     * 
+     *************************************/
 
     // CORE
 
@@ -70,32 +75,42 @@ public class Value extends HADatAcThing {
 
     // POPULATION
 
+    @PropertyField(uri="hasco:hasStudy")
     private String studyUri;
     //Field("object_collection_type_str")
-    private String objectCollectionType;
+    @PropertyField(uri="hasco:hasSOCType")
+    private String socType;
     //Field("object_uri_str")
+    @PropertyField(uri="hasco:hasObject")
     private String objectUri;
     //Field("study_object_uri_str")
+    @PropertyField(uri="hasco:hasStudyObject")
     private String studyObjectUri;
     //Field("entry_object_uri_str")
     //private String entryObjectUri;                // ???
     //Field("study_object_type_uri_str")
+    @PropertyField(uri="hasco:hasStudyObjectType")
     private String studyObjectTypeUri;
 
 
     // ACTUAL VALUE
 
     //Field("value_str")
+    @PropertyField(uri="hasco:hasValue")
     private String value;
+    @PropertyField(uri="hasco:hasValueClass")
     private String valueClass;
     //Field("original_value_str")
+    @PropertyField(uri="hasco:hasOriginalValue")
     private String originalValue;
     //Field("lod_str")
+    @PropertyField(uri="hasco:hasLevelOfDetection")
     private String levelOfDetection;
 
     // SEMVAR
 
-    private String semanticVariableUri;
+    @PropertyField(uri="hasco:hasSemanticVariable")
+    private String semanticVariableUddi;
     //Field("named_time_str")                        // SEMVAR: Event
     //private String abstractTime;
     //Field("time_value_double")                     // SEMVAR: Event (2)
@@ -127,10 +142,23 @@ public class Value extends HADatAcThing {
     //Field("elevation_double")
     //private double elevation;
 
+
+    /************************************* 
+     *
+     *            CONSTRUCT
+     * 
+     *************************************/
+
     public Value() {
         typeUri = HASCO.VALUE;
         hascoTypeUri = HASCO.VALUE;
     }
+
+    /************************************* 
+     *
+     *         GETTERS/SETTERS
+     * 
+     *************************************/
 
     public String getHasManagerUri() {
         return hasManagerUri;
@@ -172,12 +200,12 @@ public class Value extends HADatAcThing {
         this.studyUri = studyUri;
     }
 
-    public String getObjectCollectionType() {
-        return objectCollectionType;
+    public String getSOCType() {
+        return socType;
     }
 
-    public void setObjectCollectionType(String objectCollectionType) {
-        this.objectCollectionType = objectCollectionType;
+    public void setSOCType(String socType) {
+        this.socType = socType;
     }
 
     public String getObjectUri() {
@@ -244,12 +272,26 @@ public class Value extends HADatAcThing {
         this.levelOfDetection = levelOfDetection;
     }
 
-    public SemanticVariable getVariable() {
-        if (this.semanticVariableUri == null) {
+    public String getSemanticVariableUddi() {
+        return semanticVariableUddi;
+    }
+
+    public void setSemanticVariableUddi(String semanticVariableUddi) {
+        this.semanticVariableUddi = semanticVariableUddi;
+    }
+
+    public SemanticVariable getSemanticVariable() {
+        if (this.semanticVariableUddi == null) {
             return null;
         }
-        return SemanticVariable.find(this.semanticVariableUri);
+        return SemanticVariable.find(this.semanticVariableUddi);
     }
+
+    /************************************* 
+     *
+     *         GENERIC METHODS
+     * 
+     *************************************/
 
     public static Value find(String uri) {
         if (uri == null || uri.isEmpty()) {
@@ -291,12 +333,28 @@ public class Value extends HADatAcThing {
 					value.setOriginalId(str);
 				//} else if (statement.getPredicate().getURI().equals(HASCO.HAS_SUBMISSION_TIME)) {
 				//	value.setTimestamp(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_VALUE)) {
+					value.setValue(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_VALUE_CLASS)) {
+					value.setValueClass(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_ORIGINAL_VALUE)) {
+					value.setOriginalValue(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_LEVEL_OF_DETECTION)) {
+					value.setLevelOfDetection(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_STREAM)) {
 					value.setStreamUri(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_STUDY)) {
 					value.setStudyUri(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_SOC_TYPE)) {
+					value.setSOCType(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_OBJECT)) {
+					value.setObjectUri(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_STUDY_OBJECT)) {
+					value.setStudyObjectUri(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_STUDY_OBJECT_TYPE)) {
 					value.setStudyObjectTypeUri(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_SEMANTIC_VARIABLE)) {
+					value.setSemanticVariableUddi(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_MANAGER)) {
 					value.setHasManagerUri(str);
 				}
