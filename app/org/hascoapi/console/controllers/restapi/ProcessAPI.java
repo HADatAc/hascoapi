@@ -83,7 +83,8 @@ public class ProcessAPI extends Controller {
         }
     }
 
-    public Result setInstruments(String processUri, List<String> instrumentUris){
+    //public Result setInstruments(String processUri, List<String> instrumentUris){
+    public Result setInstruments(String processUri){
         System.out.println("ProcessAPI.java: setting instruments to process [" + processUri + "]");
         if (processUri == null || processUri.equals("")) {
             return ok(ApiUtil.createResponse("No processURI has been provided.", false));
@@ -92,12 +93,13 @@ public class ProcessAPI extends Controller {
         if (process == null) {
             return ok(ApiUtil.createResponse("Process with URI <" + processUri + "> could not be found.", false));
         } 
-        boolean resp = process.setInstrumentUris(instrumentUris);
-        if (resp) {
-            return ok(ApiUtil.createResponse("A total of <" + instrumentUris.size() + "> instrument(s) has(ve) been set to process <" + processUri + ">.", true));
-        } else {
-            return ok(ApiUtil.createResponse("Failed to set <" + instrumentUris.size() + "> instruments to process <" + processUri + ">.", false));
-        }
+        return ok(ApiUtil.createResponse("Called reset instrument(s) has(ve) been set to process <" + processUri + ">.", true));
+        //boolean resp = process.setInstrumentUris(instrumentUris);
+        //if (resp) {
+        //    return ok(ApiUtil.createResponse("A total of <" + instrumentUris.size() + "> instrument(s) has(ve) been set to process <" + processUri + ">.", true));
+        //} else {
+        //    return ok(ApiUtil.createResponse("Failed to set <" + instrumentUris.size() + "> instruments to process <" + processUri + ">.", false));
+        //}
     }
 
     /*
