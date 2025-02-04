@@ -133,8 +133,8 @@ GET     /hascoapi/api/stream/total/:state/:email/:deploymentUri                 
 GET     /hascoapi/api/platforminstance/byplatform/:platformUri/:pageSize/:offset    org.hascoapi.console.controllers.restapi.VSTOIInstanceAPI.findPlatformInstancesByPlatformWithPage(platformUri: String, pageSize: Integer, offset: Integer)
 GET     /hascoapi/api/platforminstance/byplatform/total/:platformUri                org.hascoapi.console.controllers.restapi.VSTOIInstanceAPI.findTotalPlatformInstancesByPlatform(platformUri: String)
 
-POST    /hascoapi/api/process/instruments/:processuri                               org.hascoapi.console.controllers.restapi.ProcessAPI.setInstruments(processuri: String, instrumenturis: java.util.List[String])
-# GET     /hascoapi/api/process/instrument/remove/:processuri/:instrumenturi          org.hascoapi.console.controllers.restapi.ProcessAPI.removeInstrument(processuri: String, instrumenturi: String)
+POST    /hascoapi/api/process/instruments                                           org.hascoapi.console.controllers.restapi.ProcessAPI.setInstruments(processuri: String, instrumenturis: java.util.List[String])
+# GET     /hascoapi/api/process/instrument/remove/:processuri/:instrumenturi        org.hascoapi.console.controllers.restapi.ProcessAPI.removeInstrument(processuri: String, instrumenturi: String)
 GET     /hascoapi/api/process/detector/add/:processuri/:detectoruri                 org.hascoapi.console.controllers.restapi.ProcessAPI.addDetector(processuri: String, detectoruri: String)
 GET     /hascoapi/api/process/detector/remove/:processuri/:detectoruri              org.hascoapi.console.controllers.restapi.ProcessAPI.removeDetector(processuri: String, detectoruri: String)
 
