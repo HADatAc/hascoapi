@@ -83,6 +83,24 @@ public class ProcessAPI extends Controller {
         }
     }
 
+    public Result setInstruments(String processUri, List<String> instrumentUris){
+        System.out.println("ProcessAPI.java: setting instruments to process [" + processUri + "]");
+        if (processUri == null || processUri.equals("")) {
+            return ok(ApiUtil.createResponse("No processURI has been provided.", false));
+        }
+        Process process = Process.find(processUri);
+        if (process == null) {
+            return ok(ApiUtil.createResponse("Process with URI <" + processUri + "> could not be found.", false));
+        } 
+        boolean resp = process.setInstrumentUris(instrumentUris);
+        if (resp) {
+            return ok(ApiUtil.createResponse("A total of <" + instrumentUris.size() + "> instrument(s) has(ve) been set to process <" + processUri + ">.", true));
+        } else {
+            return ok(ApiUtil.createResponse("Failed to set <" + instrumentUris.size() + "> instruments to process <" + processUri + ">.", false));
+        }
+    }
+
+    /*
     public Result addInstrument(String processUri, String instrumentUri){
         System.out.println("ProcessAPI.java: adding instrument [" + instrumentUri + "] to process [" + processUri + "]");
         if (processUri == null || processUri.equals("")) {
@@ -106,7 +124,9 @@ public class ProcessAPI extends Controller {
             return ok(ApiUtil.createResponse("Failed to add instrument <" + instrumentUri + "> to process <" + processUri + ">.", false));
         }
     }
+    */
 
+    /*
     public Result removeInstrument(String processUri, String instrumentUri){
         if (processUri == null || processUri.equals("")) {
             return ok(ApiUtil.createResponse("No processURI has been provided.", false));
@@ -129,6 +149,7 @@ public class ProcessAPI extends Controller {
             return ok(ApiUtil.createResponse("Failed to remove instrument <" + instrumentUri + "> from process <" + processUri + ">.", false));
         }
     }
+    */
 
     public Result addDetector(String processUri, String detectorUri){
         if (processUri == null || processUri.equals("")) {

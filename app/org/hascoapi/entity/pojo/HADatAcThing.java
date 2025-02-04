@@ -375,6 +375,27 @@ public abstract class HADatAcThing {
                             }
                         }
 
+                        if (Map.class.isAssignableFrom(field.getType())) {
+                            Map<?, ?> map = (Map<?, ?>) field.get(this);
+                            if (map != null && !map.isEmpty()) {
+                                for (Map.Entry<?, ?> entry : map.entrySet()) {
+                                    if (entry.getKey() instanceof String && entry.getValue() instanceof List) {
+                                        String mapKey = (String) entry.getKey();
+                                        List<?> list = (List<?>) entry.getValue();
+                                        if (list != null && !list.isEmpty() && list.get(0) instanceof String) {
+                                            for (String element : (List<String>) list) {
+                                                if (element != null && !element.isEmpty()) {
+                                                    // The mapkey in RDF is a combination the annotation’s URI with the original map key:
+                                                    String composedPropertyUri = propertyField.uri() + "___" + mapKey;
+                                                    row.put(composedPropertyUri, element);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
                         //System.out.println("inside HADatAcThing.saveToTripleStore() (2) ");
 
                         if (field.getType().equals(Integer.class)) {

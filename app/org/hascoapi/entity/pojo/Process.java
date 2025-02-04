@@ -126,6 +126,11 @@ public class Process extends HADatAcThing implements Comparable<Process> {
         return instrumentUris;
     }
 
+    public Boolean setInstrumentUris(List<String> instrumentUris) {
+        this.instrumentUris = instrumentUris;
+        return true;
+    }
+
     public List<Instrument> getInstruments() {
         List<Instrument> resp = new ArrayList<Instrument>();
         if (instrumentUris == null || instrumentUris.size() <= 0) {
@@ -140,6 +145,7 @@ public class Process extends HADatAcThing implements Comparable<Process> {
         return resp;
     }
 
+    /*
     public boolean addInstrumentUri(String instrumentUri) {
         Instrument instrument = Instrument.find(instrumentUri);
         if (instrument == null) {
@@ -168,7 +174,7 @@ public class Process extends HADatAcThing implements Comparable<Process> {
         instrumentUris.remove(instrumentUri);
         this.save();
         return true;
-    }
+    }*/
 
     public List<String> getDetectorUris() {
         return detectorUris;
@@ -227,6 +233,7 @@ public class Process extends HADatAcThing implements Comparable<Process> {
                 CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
         StmtIterator stmtIterator = model.listStatements();
+        List<String> instruments = new ArrayList<String>();
 
         if (!stmtIterator.hasNext()) {
             return null;
@@ -264,13 +271,14 @@ public class Process extends HADatAcThing implements Comparable<Process> {
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_EDITOR_EMAIL)) {
                     process.setHasEditorEmail(str);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.USES_INSTRUMENT)) {
-                    process.addInstrumentUri(str);
+                    instruments.add(str);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.REQUIRES_DETECTOR)) {
                     process.addDetectorUri(str);
                 }
             }
         }
 
+        process.setInstrumentUris(instruments);
         process.setUri(uri);
 
         return process;
