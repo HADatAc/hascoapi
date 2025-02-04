@@ -15,10 +15,12 @@ import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.HAScOMapper;
 import org.hascoapi.vocabularies.VSTOI;
 
+import play.mvc.Http;
 import play.mvc.Controller;
 import play.mvc.Result;
 import static org.hascoapi.Constants.*;
 import java.util.List;
+import java.util.ArrayList;
 
 
 public class ProcessAPI extends Controller {
@@ -83,7 +85,50 @@ public class ProcessAPI extends Controller {
         }
     }
 
+    public Result setInstruments(Http.Request request) {
+        // Get the JSON body from the request
+        JsonNode json = request.body().asJson();
+
+        if (json == null) {
+            return badRequest("Expecting JSON data");
+        }
+
+        // Extract the "processuri" from the JSON body
+        String processuri = json.path("processuri").asText();
+
+        if (processuri.isEmpty()) {
+            return badRequest("Missing parameter: processuri");
+        }
+
+        Process process = Process.find(processuri);
+
+        if (process == null) {
+            return ok(ApiUtil.createResponse("Process with URI <" + processuri + "> could not be found.", false));
+        } 
+
+        // Extract the "instrumenturis" array from the JSON body
+        JsonNode instrumenturisNode = json.path("instrumenturis");
+
+        // Check if "instrumenturis" is a valid array
+        if (instrumenturisNode.isArray()) {
+            List<String> instrumenturis = new ArrayList<>();
+            for (JsonNode node : instrumenturisNode) {
+                instrumenturis.add(node.asText());
+            }
+
+            process.setInstrumentUris(instrumenturis);
+            process.save();
+
+            // Your logic here with both processuri and instrumenturis
+            return ok("Received processuri: " + processuri + ", instrumenturis: " + instrumenturis);
+        } else {
+            return badRequest("Missing or invalid parameter: instrumenturis");
+        }
+    }
+
+
     //public Result setInstruments(String processUri, List<String> instrumentUris){
+    /*
     public Result setInstruments(String processUri){
         System.out.println("ProcessAPI.java: setting instruments to process [" + processUri + "]");
         if (processUri == null || processUri.equals("")) {
@@ -101,6 +146,7 @@ public class ProcessAPI extends Controller {
         //    return ok(ApiUtil.createResponse("Failed to set <" + instrumentUris.size() + "> instruments to process <" + processUri + ">.", false));
         //}
     }
+    */
 
     /*
     public Result addInstrument(String processUri, String instrumentUri){
