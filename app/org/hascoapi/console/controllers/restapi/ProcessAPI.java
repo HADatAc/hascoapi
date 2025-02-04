@@ -109,12 +109,16 @@ public class ProcessAPI extends Controller {
         // Extract the "instrumenturis" array from the JSON body
         JsonNode instrumenturisNode = json.path("instrumenturis");
 
+        System.out.println("instrumenturis: <" + instrumenturisNode.asText() + ">");
+
         // Check if "instrumenturis" is a valid array
         if (instrumenturisNode.isArray()) {
             List<String> instrumenturis = new ArrayList<>();
             for (JsonNode node : instrumenturisNode) {
+                System.out.println("   instrument uri: <" + node.asText() + ">");
                 instrumenturis.add(node.asText());
             }
+            System.out.println("Total instruments: <" + instrumenturis.size() + ">");
 
             process.setInstrumentUris(instrumenturis);
             process.save();
