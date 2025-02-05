@@ -13,10 +13,14 @@ public class MetadataFactory {
     private static final Logger log = LoggerFactory.getLogger(MetadataFactory.class);
 
     public static Model createModel(List<Map<String, Object>> rows, String namedGraphUri) {
-        return createModel(rows, namedGraphUri, null);
+        return createModel(rows, null, namedGraphUri, null);
     }
 
-    public static Model createModel(List<Map<String, Object>> rows, String namedGraphUri, Model model) {
+    public static Model createModel(List<Map<String, Object>> rows, Map<String,List<String>>  property_lists, String namedGraphUri) {
+        return createModel(rows, property_lists, namedGraphUri, null);
+    }
+
+    public static Model createModel(List<Map<String, Object>> rows, Map<String,List<String>>  property_lists, String namedGraphUri, Model model) {
 
         if (rows == null) {
             System.out.println("[ERROR] MetadataFactory.createModel() received null ROWS");
@@ -93,6 +97,38 @@ public class MetadataFactory {
                         }
                     }
                 } // end of for-loop
+                if (property_lists != null && property_lists.size() > 0) {
+                    for (Map.Entry<String, List<String>> entry : property_lists.entrySet()) {
+                        String predRaw = (String)entry.getKey();
+                        IRI pred = factory.createIRI(URIUtils.replacePrefixEx(predRaw));
+                        List<String> list = (List<String>)entry.getValue();
+                        if (list != null && list.size() > 0) {
+                            for (String objRaw : list) {
+                                if (URIUtils.isValidURI(objRaw)) {
+                                    IRI obj = factory.createIRI(URIUtils.replacePrefixEx(objRaw));
+                                    if (namedGraph == null) {
+                                        model.add(sub, pred, obj);
+                                        System.out.println("[WARNING] Triple (" + sub + "," + pred + "," + obj + ") is default named graph.");
+                                    } else {
+                                        model.add(sub, pred, obj, (Resource)namedGraph);
+                                        //System.out.println("Triple (" + sub + "," + pred + "," + obj + ")");
+                                    }
+                                } else {
+                                    if (objRaw == null) {
+                                        objRaw = "NULL";
+                                    }
+                                    Literal obj = factory.createLiteral(objRaw.replace("\n", " ").replace("\r", " ").replace("\"", "''"));
+                                    if (namedGraph == null) {
+                                        model.add(sub, pred, obj);
+                                        System.out.println("[WARNING] Triple (" + sub + "," + pred + "," + obj + ") is default named graph.");
+                                    } else {
+                                        model.add(sub, pred, obj, (Resource)namedGraph);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
 

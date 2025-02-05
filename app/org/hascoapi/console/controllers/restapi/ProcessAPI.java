@@ -100,7 +100,9 @@ public class ProcessAPI extends Controller {
             return badRequest("Missing parameter: processuri");
         }
 
+        System.out.println("ProcessAPI: will read process");
         Process process = Process.find(processuri);
+        System.out.println("ProcessAPI: read process");
 
         if (process == null) {
             return ok(ApiUtil.createResponse("Process with URI <" + processuri + "> could not be found.", false));
@@ -120,8 +122,17 @@ public class ProcessAPI extends Controller {
             }
             System.out.println("Total instruments: <" + instrumenturis.size() + ">");
 
+            System.out.println("ProcessAPI: will add instruments");
             process.setInstrumentUris(instrumenturis);
-            process.save();
+            System.out.println("ProcessAPI: added instruments");
+
+            System.out.println("ProcessAPI: will save process");
+            try {
+                process.save();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            System.out.println("ProcessAPI: saved process");
 
             // Your logic here with both processuri and instrumenturis
             return ok("Received processuri: " + processuri + ", instrumenturis: " + instrumenturis);

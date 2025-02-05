@@ -52,7 +52,7 @@ public class Process extends HADatAcThing implements Comparable<Process> {
     @PropertyField(uri = "vstoi:hasEditorEmail")
     private String hasEditorEmail;
 
-    @PropertyField(uri="vstoi:usesInstrument", valueType=PropertyValueType.URI)
+    @PropertyField(uri="vstoi:usesInstrument")
     private List<String> instrumentUris = new ArrayList<String>();
 
     @PropertyField(uri="vstoi:requiresDetector", valueType=PropertyValueType.URI)
@@ -126,9 +126,8 @@ public class Process extends HADatAcThing implements Comparable<Process> {
         return instrumentUris;
     }
 
-    public Boolean setInstrumentUris(List<String> instrumentUris) {
+    public void setInstrumentUris(List<String> instrumentUris) {
         this.instrumentUris = instrumentUris;
-        return true;
     }
 
     public List<Instrument> getInstruments() {
