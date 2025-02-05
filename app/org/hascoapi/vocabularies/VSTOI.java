@@ -55,6 +55,7 @@ public class VSTOI {
     public static final String PROCESS                      = VSTOI + "Process";
     public static final String PROCESS_STEM                 = VSTOI + "ProcessStem";
     public static final String PSYCHOMETRIC_QUESTIONNAIRE   = VSTOI + "PsychometricQuestionnaire";
+    public static final String REQUIRED_INSTRUMENTATION     = VSTOI + "RequiredInstrumentation";
     public static final String RESPONSE_OPTION              = VSTOI + "ResponseOption";
     public static final String TABLE                        = VSTOI + "Table";
     public static final String VSTOI_INSTANCE               = VSTOI + "VSTOIInstance";
@@ -83,6 +84,8 @@ public class VSTOI {
     public static final String HAS_PREVIOUS                 = VSTOI + "hasPrevious";
     public static final String HAS_POSITION                 = VSTOI + "hasPosition";
     public static final String HAS_PRIORITY                 = VSTOI + "hasPriority";
+    public static final String HAS_REQUIRED_DETECTOR        = VSTOI + "hasRequiredDetector";
+    public static final String HAS_REQUIRED_INSTRUMENTATION = VSTOI + "hasRequiredInstrumentation";
     public static final String HAS_RESPONSE_OPTION          = VSTOI + "hasResponseOption";
     public static final String HAS_REVIEW_NOTE              = VSTOI + "hasReviewNote";
     public static final String HAS_SHORT_NAME               = VSTOI + "hasShortName";
@@ -96,7 +99,6 @@ public class VSTOI {
     public static final String IS_FIELD_OF_VIEW_OF          = VSTOI + "isFieldOfViewOf";
     public static final String OF_CODEBOOK                  = VSTOI + "ofCodebook";
     public static final String USES_INSTRUMENT              = VSTOI + "usesInstrument";
-    public static final String REQUIRES_DETECTOR            = VSTOI + "requiresDetector";
 
     /*
      * STATUS

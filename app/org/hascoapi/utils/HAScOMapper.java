@@ -335,7 +335,7 @@ public class HAScOMapper {
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
                             "hascoTypeLabel", "comment", "hasContent", "hasLanguage", "hasVersion",
                             "wasDerivedFrom", "wasGeneratedBy", "hasSIRManagerEmail", "hasEditorEmail",
-                            "instrumentUris", "instruments", "detectorUris", "detectors"));
+                            "requiredInstrumentation"));
         }
  
         // PROCESS_STEM
@@ -346,6 +346,15 @@ public class HAScOMapper {
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "superUri", "typeLabel", "hasStatus", "hascoTypeUri",
                             "hascoTypeLabel", "comment", "hasContent", "hasLanguage", "hasVersion",
                             "wasDerivedFrom", "wasGeneratedBy", "hasSIRManagerEmail", "hasEditorEmail"));
+        }
+ 
+        // REQUIRED_INSTRUMENTATION
+        if (mode.equals(FULL) && typeResult.equals(VSTOI.REQUIRED_INSTRUMENTATION)) {
+            filterProvider.addFilter("requiredInstrumentationFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("requiredInstrumentationFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
+                            "hascoTypeLabel", "comment", "usedInstrument", "hasRequiredDetector", "instrument", "detectors"));
         }
  
         // RESPONSE OPTION

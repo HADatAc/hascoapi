@@ -73,6 +73,9 @@ public class Constants {
     public static final String PREFIX_PLATFORM_INSTANCE          = "PFI";
     public static final String PREFIX_POSSIBLE_VALUE             = "PSV";
     public static final String PREFIX_POSTAL_ADDRESS             = "PAD";
+    public static final String PREFIX_PROCESS                    = "PC0";
+    public static final String PREFIX_PROCESS_STEM               = "PST";
+    public static final String PREFIX_REQUIRED_INSTRUMENTATION   = "RIN";
     public static final String PREFIX_RESPONSE_OPTION            = "ROP";
     public static final String PREFIX_SDD                        = "SDD";
     public static final String PREFIX_SDD_ATTRIBUTE              = "SDDATT";
@@ -87,8 +90,6 @@ public class Constants {
     public static final String PREFIX_STREAM                     = "STM";
     public static final String PREFIX_SUBCONTAINER               = "SCT";
     public static final String PREFIX_VIRTUAL_COLUMN             = "VCO";
-    public static final String PREFIX_PROCESS_STEM               = "PST";
-    public static final String PREFIX_PROCESS                    = "PC0";
   
     /*
     public static final String PREFIX_ANNOTATION                 = "AN";

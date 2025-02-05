@@ -52,11 +52,8 @@ public class Process extends HADatAcThing implements Comparable<Process> {
     @PropertyField(uri = "vstoi:hasEditorEmail")
     private String hasEditorEmail;
 
-    @PropertyField(uri="vstoi:usesInstrument")
-    private List<String> instrumentUris = new ArrayList<String>();
-
-    @PropertyField(uri="vstoi:requiresDetector", valueType=PropertyValueType.URI)
-    private List<String> detectorUris = new ArrayList<String>();
+    @PropertyField(uri="vstoi:hasRequiredInstrumentation", valueType=PropertyValueType.URI)
+    private List<String> hasRequiredInstrumentationUris = new ArrayList<String>();
 
     public String getHasStatus() {
         return hasStatus;
@@ -122,23 +119,27 @@ public class Process extends HADatAcThing implements Comparable<Process> {
         this.hasEditorEmail = hasEditorEmail;
     }
 
-    public List<String> getInstrumentUris() {
-        return instrumentUris;
+    public List<String> getHasRequiredInstrumentationUris() {
+        return hasRequiredInstrumentationUris;
     }
 
-    public void setInstrumentUris(List<String> instrumentUris) {
-        this.instrumentUris = instrumentUris;
+    public void setHasRequiredInstrumentationUris(List<String> hasRequiredInstrumentationUris) {
+        this.hasRequiredInstrumentationUris = hasRequiredInstrumentationUris;
     }
 
-    public List<Instrument> getInstruments() {
-        List<Instrument> resp = new ArrayList<Instrument>();
-        if (instrumentUris == null || instrumentUris.size() <= 0) {
+    public void addHasRequiredInstrumentationUri(String hasRequiredInstrumentationUri) {
+        this.hasRequiredInstrumentationUris.add(hasRequiredInstrumentationUri);
+    }
+
+    public List<RequiredInstrumentation> getRequiredInstrumentation() {
+        List<RequiredInstrumentation> resp = new ArrayList<RequiredInstrumentation>();
+        if (hasRequiredInstrumentationUris == null || hasRequiredInstrumentationUris.size() <= 0) {
             return resp;
         }
-        for (String instrumentUri : instrumentUris) {
-            Instrument instrument = Instrument.find(instrumentUri);
-            if (instrument != null) {
-                resp.add(instrument);
+        for (String hasRequiredInstrumentationUri : hasRequiredInstrumentationUris) {
+            RequiredInstrumentation requiredInstrumentation = RequiredInstrumentation.find(hasRequiredInstrumentationUri);
+            if (requiredInstrumentation != null) {
+                resp.add(requiredInstrumentation);
             }
         }
         return resp;
@@ -174,53 +175,6 @@ public class Process extends HADatAcThing implements Comparable<Process> {
         this.save();
         return true;
     }*/
-
-    public List<String> getDetectorUris() {
-        return detectorUris;
-    }
-
-    public List<Detector> getDetectors() {
-        List<Detector> resp = new ArrayList<Detector>();
-        if (detectorUris == null || detectorUris.size() <= 0) {
-            return resp;
-        }
-        for (String detectorUri : detectorUris) {
-            Detector detector = Detector.find(detectorUri);
-            if (detector != null) {
-                resp.add(detector);
-            }
-        }
-        return resp;
-    }
-
-    public boolean addDetectorUri(String detectorUri) {
-        Detector detector = Detector.find(detectorUri);
-        if (detector == null) {
-            return false;
-        }
-        if (detectorUris == null) {
-            detectorUris = new ArrayList<String>();
-        }
-        if (detectorUris == null || detectorUris.contains(detector)) {
-            return false; 
-        }
-        detectorUris.add(detectorUri);
-        this.save();
-        return true;
-    }
-
-    public boolean removeDetectorUri(String detectorUri) {
-        Detector detector = Detector.find(detectorUri);
-        if (detector == null) {
-            return false;
-        }
-        if (detectorUri == null || !detectorUris.contains(detectorUri)) {
-            return false; 
-        }
-        detectorUris.remove(detectorUri);
-        this.save();
-        return true;
-    }
 
     public static Process find(String uri) {
         Process process = null;
@@ -269,15 +223,12 @@ public class Process extends HADatAcThing implements Comparable<Process> {
                     process.setHasSIRManagerEmail(str);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_EDITOR_EMAIL)) {
                     process.setHasEditorEmail(str);
-                } else if (statement.getPredicate().getURI().equals(VSTOI.USES_INSTRUMENT)) {
-                    instruments.add(str);
-                } else if (statement.getPredicate().getURI().equals(VSTOI.REQUIRES_DETECTOR)) {
-                    process.addDetectorUri(str);
+                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_REQUIRED_INSTRUMENTATION)) {
+                    process.addHasRequiredInstrumentationUri(str);
                 }
             }
         }
 
-        process.setInstrumentUris(instruments);
         process.setUri(uri);
 
         return process;

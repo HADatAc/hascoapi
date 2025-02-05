@@ -25,6 +25,7 @@ import org.hascoapi.utils.IngestionLogger;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.SPARQLUtils;
 import org.hascoapi.utils.URIUtils;
+import org.hascoapi.utils.Utils;
 import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.PROV;
 import org.hascoapi.vocabularies.RDF;
@@ -748,24 +749,10 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
     }
     */
 
-    private static String retrieveHASCOTypeUri(String uri) {
-        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                " SELECT ?type WHERE { " +
-                " <" + uri + "> hasco:hascoType ?type ." +
-                "} ";
-        ResultSetRewindable resultsrw = SPARQLUtils.select(
-                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
-        if (resultsrw.hasNext()) {
-            QuerySolution soln = resultsrw.next();
-            return soln.getResource("type").getURI();
-        }
-		return null;
-    }
-
     public static Stream find(String uri) {
         System.out.println("inside Stream.find(uri): " + uri);
 		Stream str;
-		String hascoTypeUri = retrieveHASCOTypeUri(uri);
+		String hascoTypeUri = Utils.retrieveHASCOTypeUri(uri);
 		if (hascoTypeUri.equals(HASCO.STREAM)) {
 			str = new Stream();
 		} else {

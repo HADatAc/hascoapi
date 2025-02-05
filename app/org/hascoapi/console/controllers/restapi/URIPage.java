@@ -197,6 +197,8 @@ public class URIPage extends Controller {
                 finalResult = org.hascoapi.entity.pojo.Process.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.PROCESS_STEM)) {
                 finalResult = ProcessStem.find(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.REQUIRED_INSTRUMENTATION)) {
+                finalResult = RequiredInstrumentation.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.RESPONSE_OPTION)) {
                 finalResult = ResponseOption.find(uri);
             } else if (result.getHascoTypeUri().equals(HASCO.SDD)) {

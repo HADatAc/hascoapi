@@ -3,6 +3,9 @@ package org.hascoapi.utils;
 import java.util.Random;
 import java.security.*;
 
+import org.apache.jena.query.QuerySolution;
+import org.apache.jena.query.ResultSetRewindable;
+
 import org.hascoapi.Constants;
 import org.hascoapi.RepositoryInstance;
 
@@ -259,6 +262,20 @@ public class Utils {
 
         return repoUri + shortPrefix + '_' + identifier;
 
+    }
+
+    public static String retrieveHASCOTypeUri(String uri) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT ?type WHERE { " +
+                " <" + uri + "> hasco:hascoType ?type ." +
+                "} ";
+        ResultSetRewindable resultsrw = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+        if (resultsrw.hasNext()) {
+            QuerySolution soln = resultsrw.next();
+            return soln.getResource("type").getURI();
+        }
+		return null;
     }
 
 }

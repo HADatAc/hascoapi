@@ -352,23 +352,9 @@ public class PostalAddress extends HADatAcThing implements Comparable<PostalAddr
 		}
 	}
 
-	private static String retrieveHASCOTypeUri(String uri) {
-        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                " SELECT ?type WHERE { " +
-                " <" + uri + "> hasco:hascoType ?type ." +
-                "} ";
-        ResultSetRewindable resultsrw = SPARQLUtils.select(
-                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
-        if (resultsrw.hasNext()) {
-            QuerySolution soln = resultsrw.next();
-            return soln.getResource("type").getURI();
-        }
-		return null;
-    }
-
 	public static PostalAddress find(String uri) {
 		PostalAddress postalAddress;
-		String hascoTypeUri = retrieveHASCOTypeUri(uri);
+		String hascoTypeUri = Utils.retrieveHASCOTypeUri(uri);
 		if (hascoTypeUri.equals(SCHEMA.POSTAL_ADDRESS)) {
 			postalAddress = new PostalAddress();
 		} else {
