@@ -317,24 +317,17 @@ public abstract class BaseGenerator {
 
         // Create a empty query (To StudyObjectCollections)
         List<String> query = new ArrayList<>();
-        //query = null;
 
-        //System.out.println("DELETION START");
-        // Delete all triples from the named graph
+        // Delete all objects triples from the named graph
         deleteObjectsFromTripleStore(objects);
-        //System.out.println("DELETION DONE");
 
         for (HADatAcThing obj : objects) {
             obj.setNamedGraph(getNamedGraphUri());
             //System.out.println("BaseGenerator.commitObjectsToTriplestore() [1]");
 
             if (obj.getClass().getSimpleName() == "StudyObjectCollection"){
-                obj.saveToTripleStore(
-                    false,
-                    false,
-                    null,
-                    query
-                );
+                // Access the Override method in the StudyObjectCollection class
+                obj.saveToTripleStore(false, false, null, query);
             } else if (obj.saveToTripleStore(withValidation, false, model)){
                 count++;
             }
