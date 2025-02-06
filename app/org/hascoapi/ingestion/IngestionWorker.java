@@ -46,7 +46,7 @@ import org.hascoapi.utils.SPARQLUtils;
 
 public class IngestionWorker {
 
-    public static void ingest(DataFile dataFile, File file, String templateFile) {
+    public static void ingest(DataFile dataFile, File file, String templateFile, String status) {
 
         System.out.println("Processing file with filename: " + dataFile.getFilename());
         System.out.println("Processing file with URI: " + dataFile.getUri());
@@ -85,7 +85,7 @@ public class IngestionWorker {
         dataFile.setRecordFile(recordFile);
 
         boolean bSucceed = false;
-        GeneratorChain chain = getGeneratorChain(dataFile, templateFile);
+        GeneratorChain chain = getGeneratorChain(dataFile, templateFile, status);
         if (studyUri == null || studyUri.isEmpty()) {
             chain.setStudyUri("");
         } else {
@@ -119,11 +119,11 @@ public class IngestionWorker {
         if (dataFile.getFileStatus().equals(DataFile.PROCESSED_STD)) {
             System.out.println("================> REINVOKING DSG for SSD processing");
             System.out.println("  DataFile Status: [" + dataFile.getFileStatus() + "]");
-            IngestionWorker.ingest(dataFile, file, templateFile);
+            IngestionWorker.ingest(dataFile, file, templateFile, status);
         }
     }
 
-    public static GeneratorChain getGeneratorChain(DataFile dataFile, String templateFile) {
+    public static GeneratorChain getGeneratorChain(DataFile dataFile, String templateFile, String status) {
         GeneratorChain chain = null;
         String fileName = FilenameUtils.getBaseName(dataFile.getFilename());
 
@@ -144,7 +144,7 @@ public class IngestionWorker {
             chain = annotateDP2File(dataFile, templateFile);
             
         } else if (fileName.startsWith("INS-")) {
-            chain = annotateINSFile(dataFile, templateFile);
+            chain = annotateINSFile(dataFile, templateFile, status);
             
         } else if (fileName.startsWith("STR-")) {
             //checkSTRFile(dataFile);
@@ -587,7 +587,7 @@ public class IngestionWorker {
      *    INS                   *
      ****************************/    
     
-     public static GeneratorChain annotateINSFile(DataFile dataFile, String templateFile) {
+     public static GeneratorChain annotateINSFile(DataFile dataFile, String templateFile, String status) {
         RecordFile recordFile = new SpreadsheetRecordFile(dataFile.getFile(), "InfoSheet");
         if (!recordFile.isValid()) {
             dataFile.getLogger().printExceptionById("DPL_00001");
@@ -604,7 +604,7 @@ public class IngestionWorker {
 
         nameSpaceGen(dataFile, mapCatalog,templateFile);
 
-        annotationGen(dataFile, mapCatalog, templateFile);
+        annotationGen(dataFile, mapCatalog, templateFile, status);
 
         GeneratorChain chain = new GeneratorChain();
         RecordFile sheet = null;
@@ -623,7 +623,7 @@ public class IngestionWorker {
                 try {
                     DataFile dataFileForSheet = (DataFile)dataFile.clone();
                     dataFileForSheet.setRecordFile(sheet);
-                    INSGenerator respOptionGen = new INSGenerator("responseoption",dataFileForSheet);
+                    INSGenerator respOptionGen = new INSGenerator("responseoption",dataFileForSheet, status);
                     respOptionGen.setNamedGraphUri(dataFileForSheet.getUri());
                     chain.addGenerator(respOptionGen);
                 } catch (CloneNotSupportedException e) {
@@ -641,7 +641,7 @@ public class IngestionWorker {
                 try {
                     DataFile dataFileForSheet = (DataFile)dataFile.clone();
                     dataFileForSheet.setRecordFile(sheet);
-                    INSGenerator codeBookGen = new INSGenerator("codebook",dataFileForSheet);
+                    INSGenerator codeBookGen = new INSGenerator("codebook",dataFileForSheet, status);
                     codeBookGen.setNamedGraphUri(dataFileForSheet.getUri());
                     chain.addGenerator(codeBookGen);
                 } catch (CloneNotSupportedException e) {
@@ -677,7 +677,7 @@ public class IngestionWorker {
                 try {
                     DataFile dataFileForSheet = (DataFile)dataFile.clone();
                     dataFileForSheet.setRecordFile(sheet);
-                    INSGenerator detStemGen = new INSGenerator("detectorstem",dataFileForSheet);
+                    INSGenerator detStemGen = new INSGenerator("detectorstem",dataFileForSheet, status);
                     detStemGen.setNamedGraphUri(dataFileForSheet.getUri());
                     chain.addGenerator(detStemGen);
                 } catch (CloneNotSupportedException e) {
@@ -695,7 +695,7 @@ public class IngestionWorker {
                 try {
                     DataFile dataFileForSheet = (DataFile)dataFile.clone();
                     dataFileForSheet.setRecordFile(sheet);
-                    DetectorGenerator detGen = new DetectorGenerator(dataFileForSheet);
+                    DetectorGenerator detGen = new DetectorGenerator(dataFileForSheet, status);
                     detGen.setNamedGraphUri(dataFileForSheet.getUri());
                     chain.addGenerator(detGen);
                 } catch (CloneNotSupportedException e) {
@@ -731,7 +731,7 @@ public class IngestionWorker {
                 try {
                     DataFile dataFileForSheet = (DataFile)dataFile.clone();
                     dataFileForSheet.setRecordFile(sheet);
-                    INSGenerator ins = new INSGenerator("instrument",dataFileForSheet);
+                    INSGenerator ins = new INSGenerator("instrument",dataFileForSheet, status);
                     ins.setNamedGraphUri(dataFileForSheet.getUri());
                     chain.addGenerator(ins);
                 } catch (CloneNotSupportedException e) {
@@ -1124,7 +1124,7 @@ public class IngestionWorker {
         return false;
     }
 
-    public static boolean annotationGen(DataFile dataFile, Map<String, String> mapCatalog, String templateFile) {
+    public static boolean annotationGen(DataFile dataFile, Map<String, String> mapCatalog, String templateFile, String status) {
         RecordFile annotationStemRecordFile = null;
         RecordFile annotationRecordFile = null;
         DataFile annotationStemDataFile;
@@ -1163,9 +1163,9 @@ public class IngestionWorker {
             annotationDataFile.setRecordFile(annotationRecordFile);
         }
 
-        INSGenerator annotationStemGen = new INSGenerator("annotationstem",annotationStemDataFile);
+        INSGenerator annotationStemGen = new INSGenerator("annotationstem",annotationStemDataFile, status);
         annotationStemGen.setNamedGraphUri(dataFile.getUri());
-        INSGenerator annotationGen = new INSGenerator("annotation",annotationDataFile);
+        INSGenerator annotationGen = new INSGenerator("annotation",annotationDataFile, status);
         annotationGen.setNamedGraphUri(dataFile.getUri());
 
         GeneratorChain chain = new GeneratorChain();

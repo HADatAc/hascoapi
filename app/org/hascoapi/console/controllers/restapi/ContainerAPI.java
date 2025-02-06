@@ -41,7 +41,7 @@ public class ContainerAPI extends Controller {
         if (uri == null || uri.equals("")) {
             return ok(ApiUtil.createResponse("No detector URI has been provided.", false));
         }
-        Detector detector = Detector.findDetector(uri);
+        Detector detector = Detector.find(uri);
         if (detector == null) {
             return ok(ApiUtil.createResponse("There is no detector with URI <" + uri + "> to be attached.", false));
         }
@@ -86,8 +86,8 @@ public class ContainerAPI extends Controller {
         if (testInstrument.getSlotElements() == null) {
             return ok(ApiUtil.createResponse("Create containerSlots for test instrument before trying to attach detectors.", false));
         }
-        Detector detector1 = Detector.findDetector(TEST_DETECTOR1_URI);
-        Detector detector2 = Detector.findDetector(TEST_DETECTOR2_URI);
+        Detector detector1 = Detector.find(TEST_DETECTOR1_URI);
+        Detector detector2 = Detector.find(TEST_DETECTOR2_URI);
         ContainerSlot slot1 = ContainerSlot.find(TEST_CONTAINER_SLOT1_URI);
         ContainerSlot slot2 = ContainerSlot.find(TEST_CONTAINER_SLOT2_URI);
         if (detector1 == null) {
@@ -112,8 +112,8 @@ public class ContainerAPI extends Controller {
         if (testSubcontainer.getSlotElements() == null) {
             return ok(ApiUtil.createResponse("Create containerSlots for test subcontainer before trying to attach detectors.", false));
         }
-        Detector detector3 = Detector.findDetector(TEST_DETECTOR3_URI);
-        Detector detector4 = Detector.findDetector(TEST_DETECTOR4_URI);
+        Detector detector3 = Detector.find(TEST_DETECTOR3_URI);
+        Detector detector4 = Detector.find(TEST_DETECTOR4_URI);
         ContainerSlot slot3 = ContainerSlot.find(TEST_CONTAINER_SLOT3_URI);
         ContainerSlot slot4 = ContainerSlot.find(TEST_CONTAINER_SLOT4_URI);
         if (detector3 == null) {
@@ -164,8 +164,8 @@ public class ContainerAPI extends Controller {
         if (testInst.getSlotElements() == null) {
             return ok(ApiUtil.createResponse("Test instrument has no containerSlots for detectors.", false));
         }
-        Detector test1 = Detector.findDetector(TEST_DETECTOR1_URI);
-        Detector test2 = Detector.findDetector(TEST_DETECTOR2_URI);
+        Detector test1 = Detector.find(TEST_DETECTOR1_URI);
+        Detector test2 = Detector.find(TEST_DETECTOR2_URI);
         ContainerSlot slot1 = ContainerSlot.find(TEST_CONTAINER_SLOT1_URI);
         ContainerSlot slot2 = ContainerSlot.find(TEST_CONTAINER_SLOT2_URI);
         if (test1 == null) {
@@ -190,8 +190,8 @@ public class ContainerAPI extends Controller {
         if (testSubcontainer.getSlotElements() == null) {
             return ok(ApiUtil.createResponse("Test subcontainer has no containerSlots for detectors.", false));
         }
-        Detector detector3 = Detector.findDetector(TEST_DETECTOR3_URI);
-        Detector detector4 = Detector.findDetector(TEST_DETECTOR4_URI);
+        Detector detector3 = Detector.find(TEST_DETECTOR3_URI);
+        Detector detector4 = Detector.find(TEST_DETECTOR4_URI);
         ContainerSlot slot3 = ContainerSlot.find(TEST_CONTAINER_SLOT3_URI);
         ContainerSlot slot4 = ContainerSlot.find(TEST_CONTAINER_SLOT4_URI);
         if (detector3 == null) {

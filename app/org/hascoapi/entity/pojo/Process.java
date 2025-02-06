@@ -8,6 +8,7 @@ import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.hascoapi.annotations.PropertyField;
+import org.hascoapi.annotations.PropertyValueType;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.SPARQLUtils;
@@ -24,8 +25,8 @@ import java.util.List;
 
 import static org.hascoapi.Constants.*;
 
-@JsonFilter("codebookFilter")
-public class Codebook extends HADatAcThing implements Comparable<Codebook> {
+@JsonFilter("processFilter")
+public class Process extends HADatAcThing implements Comparable<Process> {
 
     @PropertyField(uri = "vstoi:hasStatus")
     private String hasStatus;
@@ -50,6 +51,9 @@ public class Codebook extends HADatAcThing implements Comparable<Codebook> {
 
     @PropertyField(uri = "vstoi:hasEditorEmail")
     private String hasEditorEmail;
+
+    @PropertyField(uri="vstoi:hasRequiredInstrumentation", valueType=PropertyValueType.URI)
+    private List<String> hasRequiredInstrumentationUris = new ArrayList<String>();
 
     public String getHasStatus() {
         return hasStatus;
@@ -115,47 +119,65 @@ public class Codebook extends HADatAcThing implements Comparable<Codebook> {
         this.hasEditorEmail = hasEditorEmail;
     }
 
-    public List<CodebookSlot> getCodebookSlots() {
-        List<CodebookSlot> slots = CodebookSlot.findByCodebook(uri);
-        return slots;
+    public List<String> getHasRequiredInstrumentationUris() {
+        return hasRequiredInstrumentationUris;
     }
 
-    public boolean createCodebookSlots(int totSlots) {
-        if (totSlots <= 0) {
-            return false;
-        }
-        if (this.getCodebookSlots() != null || uri == null || uri.isEmpty()) {
-            return false;
-        }
-        for (int aux = 1; aux <= totSlots; aux++) {
-            String auxstr = Utils.adjustedPriority(String.valueOf(aux), totSlots);
-            String newUri = uri + "/" + CODEBOOK_SLOT_PREFIX + "/" + auxstr;
-            CodebookSlot.createCodebookSlot(uri, newUri, auxstr, null);
-        }
-        List<CodebookSlot> slotList = CodebookSlot.findByCodebook(uri);
-        if (slotList == null) {
-            return false;
-        }
-        return (slotList.size() == totSlots);
+    public void setHasRequiredInstrumentationUris(List<String> hasRequiredInstrumentationUris) {
+        this.hasRequiredInstrumentationUris = hasRequiredInstrumentationUris;
     }
 
-    public boolean deleteCodebookSlots() {
-        if (this.getCodebookSlots() == null || uri == null || uri.isEmpty()) {
-            return true;
-        }
-        List<CodebookSlot> slots = CodebookSlot.findByCodebook(uri);
-        if (slots == null) {
-            return true;
-        }
-        for (CodebookSlot slot : slots) {
-            slot.delete();
-        }
-        slots = CodebookSlot.findByCodebook(uri);
-        return (slots == null);
+    public void addHasRequiredInstrumentationUri(String hasRequiredInstrumentationUri) {
+        this.hasRequiredInstrumentationUris.add(hasRequiredInstrumentationUri);
     }
 
-    public static Codebook find(String uri) {
-        Codebook codebook = null;
+    public List<RequiredInstrumentation> getRequiredInstrumentation() {
+        List<RequiredInstrumentation> resp = new ArrayList<RequiredInstrumentation>();
+        if (hasRequiredInstrumentationUris == null || hasRequiredInstrumentationUris.size() <= 0) {
+            return resp;
+        }
+        for (String hasRequiredInstrumentationUri : hasRequiredInstrumentationUris) {
+            RequiredInstrumentation requiredInstrumentation = RequiredInstrumentation.find(hasRequiredInstrumentationUri);
+            if (requiredInstrumentation != null) {
+                resp.add(requiredInstrumentation);
+            }
+        }
+        return resp;
+    }
+
+    /*
+    public boolean addInstrumentUri(String instrumentUri) {
+        Instrument instrument = Instrument.find(instrumentUri);
+        if (instrument == null) {
+            return false;
+        }
+        if (instrumentUris == null) {
+            instrumentUris = new ArrayList<String>();
+        }
+        if (instrumentUris == null || instrumentUris.contains(instrumentUri)) {
+            return false; 
+        }
+        System.out.println("Process.java: adding instrument [" + instrumentUri + "] to process [" + this.getUri() + "]");
+        instrumentUris.add(instrumentUri);
+        this.save();
+        return true;
+    }
+
+    public boolean removeInstrumentUri(String instrumentUri) {
+        Instrument instrument = Instrument.find(instrumentUri);
+        if (instrument == null) {
+            return false;
+        }
+        if (instrumentUris == null || !instrumentUris.contains(instrumentUri)) {
+            return false; 
+        }
+        instrumentUris.remove(instrumentUri);
+        this.save();
+        return true;
+    }*/
+
+    public static Process find(String uri) {
+        Process process = null;
         Statement statement;
         RDFNode object;
 
@@ -164,12 +186,13 @@ public class Codebook extends HADatAcThing implements Comparable<Codebook> {
                 CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
         StmtIterator stmtIterator = model.listStatements();
+        List<String> instruments = new ArrayList<String>();
 
         if (!stmtIterator.hasNext()) {
             return null;
         }
 
-        codebook = new Codebook();
+        process = new Process();
 
         while (stmtIterator.hasNext()) {
             statement = stmtIterator.next();
@@ -177,40 +200,42 @@ public class Codebook extends HADatAcThing implements Comparable<Codebook> {
  			String str = URIUtils.objectRDFToString(object);
 			if (uri != null && !uri.isEmpty()) {
 				if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-					codebook.setLabel(str);
+					process.setLabel(str);
                 } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
-                    codebook.setTypeUri(str);
+                    process.setTypeUri(str);
                 } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
-                    codebook.setComment(str);
+                    process.setComment(str);
                 } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
-                    codebook.setHascoTypeUri(str);
+                    process.setHascoTypeUri(str);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
-                    codebook.setHasStatus(str);
+                    process.setHasStatus(str);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
-                    codebook.setSerialNumber(str);
+                    process.setSerialNumber(str);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
-                    codebook.setHasLanguage(str);
+                    process.setHasLanguage(str);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
-                    codebook.setHasVersion(str);
+                    process.setHasVersion(str);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_REVIEW_NOTE)) {
-                    codebook.setHasReviewNote(str);
+                    process.setHasReviewNote(str);
                 } else if (statement.getPredicate().getURI().equals(PROV.WAS_DERIVED_FROM)) {
-                    codebook.setWasDerivedFrom(str);
+                    process.setWasDerivedFrom(str);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
-                    codebook.setHasSIRManagerEmail(str);
+                    process.setHasSIRManagerEmail(str);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_EDITOR_EMAIL)) {
-                    codebook.setHasEditorEmail(str);
+                    process.setHasEditorEmail(str);
+                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_REQUIRED_INSTRUMENTATION)) {
+                    process.addHasRequiredInstrumentationUri(str);
                 }
             }
         }
 
-        codebook.setUri(uri);
+        process.setUri(uri);
 
-        return codebook;
+        return process;
     }
 
     @Override
-    public int compareTo(Codebook another) {
+    public int compareTo(Process another) {
         return this.getLabel().compareTo(another.getLabel());
     }
 

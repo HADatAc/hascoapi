@@ -160,7 +160,7 @@ public class URIPage extends Controller {
             } else if (result.getHascoTypeUri().equals(VSTOI.DEPLOYMENT)) {
                 finalResult = Deployment.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.DETECTOR)) {
-                finalResult = Detector.findDetector(uri);
+                finalResult = Detector.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.DETECTOR_INSTANCE)) {
                 finalResult = DetectorInstance.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.DETECTOR_STEM)) {
@@ -193,6 +193,12 @@ public class URIPage extends Controller {
                 finalResult = PossibleValue.find(uri);
             } else if (result.getHascoTypeUri().equals(SCHEMA.POSTAL_ADDRESS)) {
                 finalResult = PostalAddress.find(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.PROCESS)) {
+                finalResult = org.hascoapi.entity.pojo.Process.find(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.PROCESS_STEM)) {
+                finalResult = ProcessStem.find(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.REQUIRED_INSTRUMENTATION)) {
+                finalResult = RequiredInstrumentation.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.RESPONSE_OPTION)) {
                 finalResult = ResponseOption.find(uri);
             } else if (result.getHascoTypeUri().equals(HASCO.SDD)) {

@@ -23,6 +23,7 @@ import org.hascoapi.utils.SPARQLUtils;
 import org.hascoapi.utils.URIUtils;
 import org.hascoapi.utils.Utils;
 import org.hascoapi.vocabularies.HASCO;
+import org.hascoapi.vocabularies.PROV;
 import org.hascoapi.vocabularies.RDF;
 import org.hascoapi.vocabularies.RDFS;
 import org.hascoapi.vocabularies.VSTOI;
@@ -109,8 +110,12 @@ public class Subcontainer extends Container implements SlotElement {
 					subcontainer.setHasLanguage(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
 					subcontainer.setHasVersion(str);
+				} else if (statement.getPredicate().getURI().equals(PROV.WAS_DERIVED_FROM)) {
+					subcontainer.setWasDerivedFrom(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
 					subcontainer.setHasSIRManagerEmail(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_EDITOR_EMAIL)) {
+					subcontainer.setHasEditorEmail(str);
 				}
 			}
 		}

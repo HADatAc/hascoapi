@@ -51,6 +51,47 @@ public class Constants {
     public static final String TEST_ATTRIBUTE2_URI = TEST_KB + "TestAttribute2";
     public static final String TEST_UNIT_URI = TEST_KB + "TestUnit";
 
+    public static final String PREFIX_ANNOTATION                 = "ANN";
+    public static final String PREFIX_ANNOTATION_STEM            = "ASM";
+    public static final String PREFIX_CODEBOOK                   = "CBK";
+    public static final String PREFIX_DATAFILE                   = "DFL";
+    public static final String PREFIX_DATA_ACQUISITION           = "DA0";
+    public static final String PREFIX_DD                         = "DD0";
+    public static final String PREFIX_DP2                        = "DP2";
+    public static final String PREFIX_DEPLOYMENT                 = "DPL";
+    public static final String PREFIX_DETECTOR_STEM              = "DSM";
+    public static final String PREFIX_DETECTOR                   = "DTC";
+    public static final String PREFIX_DETECTOR_INSTANCE          = "DTI";
+    public static final String PREFIX_DSG                        = "DSG";
+    public static final String PREFIX_INSTRUMENT                 = "INS";
+    public static final String PREFIX_INSTRUMENT_INSTANCE        = "IN0";
+    public static final String PREFIX_INS                        = "INS";
+    public static final String PREFIX_ORGANIZATION               = "ORG";
+    public static final String PREFIX_PERSON                     = "PER";
+    public static final String PREFIX_PLACE                      = "PLC";
+    public static final String PREFIX_PLATFORM                   = "PF0";
+    public static final String PREFIX_PLATFORM_INSTANCE          = "PFI";
+    public static final String PREFIX_POSSIBLE_VALUE             = "PSV";
+    public static final String PREFIX_POSTAL_ADDRESS             = "PAD";
+    public static final String PREFIX_PROCESS                    = "PC0";
+    public static final String PREFIX_PROCESS_STEM               = "PST";
+    public static final String PREFIX_REQUIRED_INSTRUMENTATION   = "RIN";
+    public static final String PREFIX_RESPONSE_OPTION            = "ROP";
+    public static final String PREFIX_SDD                        = "SDD";
+    public static final String PREFIX_SDD_ATTRIBUTE              = "SDDATT";
+    public static final String PREFIX_SDD_OBJECT                 = "SDDOBJ";
+    public static final String PREFIX_SEMANTIC_DATA_DICTIONARY   = "SDDICT";
+    public static final String PREFIX_SEMANTIC_VARIABLE          = "SVR";
+    public static final String PREFIX_STUDY                      = "STD";
+    public static final String PREFIX_STUDY_OBJECT_COLLECTION    = "OCL";
+    public static final String PREFIX_STUDY_OBJECT               = "OBJ";
+    public static final String PREFIX_STUDY_ROLE                 = "RLE";
+    public static final String PREFIX_STR                        = "STR";
+    public static final String PREFIX_STREAM                     = "STM";
+    public static final String PREFIX_SUBCONTAINER               = "SCT";
+    public static final String PREFIX_VIRTUAL_COLUMN             = "VCO";
+  
+    /*
     public static final String PREFIX_ANNOTATION                 = "AN";
     public static final String PREFIX_ANNOTATION_STEM            = "AS";
     public static final String PREFIX_CODEBOOK                   = "CB";
@@ -73,6 +114,8 @@ public class Constants {
     public static final String PREFIX_PLATFORM                   = "PF";
     public static final String PREFIX_PLATFORM_INSTANCE          = "PFI";
     public static final String PREFIX_POSTAL_ADDRESS             = "PA";
+    public static final String PREFIX_PROCESS                    = "PC";
+    public static final String PREFIX_PROCESS_STEM               = "PST";
     public static final String PREFIX_RESPONSE_OPTION            = "RO";
     public static final String PREFIX_SEMANTIC_DATA_DICTIONARY   = "SY";
     public static final String PREFIX_SEMANTIC_VARIABLE          = "SV";
@@ -85,6 +128,7 @@ public class Constants {
     public static final String PREFIX_STUDY_ROLE                 = "RL";
     public static final String PREFIX_SUBCONTAINER               = "SC";
     public static final String PREFIX_VIRTUAL_COLUMN             = "VC";
+    */
   
     public static final String DEFAULT_KB = "http://hadatac.org/kb/default/";
     public static final String DEFAULT_REPOSITORY = DEFAULT_KB + "repository";

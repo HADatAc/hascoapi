@@ -85,7 +85,7 @@ public class ContainerSlot extends HADatAcThing implements SlotElement, Comparab
         if (hasDetector == null || hasDetector.isEmpty()) {
             return null;
         }
-        return Detector.findDetector(hasDetector);
+        return Detector.find(hasDetector);
     }
 
     public static int getNumberContainerSlots() {

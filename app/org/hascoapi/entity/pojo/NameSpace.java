@@ -1,6 +1,8 @@
 package org.hascoapi.entity.pojo;
 
 import java.io.File;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.net.URL;
 import java.util.*;
 
@@ -237,8 +239,10 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
 
     public static List<NameSpace> find() {
         String query =
-            " SELECT ?uri WHERE { " +
-            " ?uri  <" + HASCO.HASCO_TYPE + ">  <" + HASCO.ONTOLOGY + "> . " +
+            " SELECT ?uri ?graph WHERE { " +
+            "    GRAPH ?graph {  " +
+            "       ?uri  <" + HASCO.HASCO_TYPE + ">  <" + HASCO.ONTOLOGY + "> . " +
+            "    } " +
             "} ";
         return findManyByQuery(query);
     }
@@ -252,7 +256,9 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
         while (resultsrw.hasNext()) {
             QuerySolution soln = resultsrw.next();
             String uri = soln.getResource("uri").getURI();
+            String graph = soln.getResource("graph").getURI();
             NameSpace ns = NameSpace.find(uri);
+            ns.setNamedGraph(graph);
             nss.add(ns);
         }
 
@@ -307,6 +313,9 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
             }
             String endpointUrl = CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_GRAPH);
             GSPClient gspClient = new GSPClient(endpointUrl);
+            if (address.equals("http://hadatac.org/ont/uberon/uberonpmsr.ttl")) {
+                NameSpace.printFirst30Lines(tripleFile);
+            }
             gspClient.postFile(tripleFile, format.getDefaultMIMEType(), getUri());
             System.out.println("Loaded triples from " + address + " \n");
             //System.out.println("Loaded triples from " + address + " \n");
@@ -315,6 +324,38 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
             throw new RuntimeException(e);
         } finally {
             tempFileOpt.ifPresent(FileUtils::deleteQuietly);
+        }
+    }
+
+    public static void printFirst30Lines(File file) {
+        BufferedReader reader = null;
+
+        try {
+            // Create BufferedReader using the File object
+            reader = new BufferedReader(new FileReader(file));
+            String line;
+            int lineCount = 0;
+
+            // Read and print the first 30 lines
+            while ((line = reader.readLine()) != null && lineCount < 30) {
+                System.out.println(line);
+                lineCount++;
+            }
+
+            // If the file contains fewer than 30 lines
+            if (lineCount < 30) {
+                System.out.println("The file contains fewer than 30 lines.");
+            }
+        } catch (Exception e) {
+            System.out.println("Error reading the file: " + e.getMessage());
+        } finally {
+            try {
+                if (reader != null) {
+                    reader.close();
+                }
+            } catch (Exception e) {
+                System.out.println("Error closing the file: " + e.getMessage());
+            }
         }
     }
 
@@ -340,6 +381,7 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
         }
     }
 
+    /*
     public void saveWithoutURIValidation() {
         // permanent name spaces are not saved into the triple store
         if (!this.permanent) {
@@ -348,14 +390,16 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
             saveToTripleStore(false);
         }
      }
+     */
 
     @Override
     public void save() {
         // permanent name spaces are not saved into the triple store
         if (!this.permanent) {
-            System.out.println("Save: namespace: " + this.namedGraph);
+            // namespaces are always stored into the named graph called DEFAULT_REPOSITORY 
+            this.setNamedGraph(Constants.DEFAULT_REPOSITORY);
             System.out.println("   URI = [" + this.getUri() + "]");
-            saveToTripleStore();
+            saveToTripleStore(false);
         }
      }
 
@@ -363,8 +407,8 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
     public void delete() {
         // permanent name spaces cannot be deleted from triple store because they are not store into the triple store
         if (!this.permanent) {
-            //this.setNamedGraph(Constants.DEFAULT_REPOSITORY);
-            System.out.println("Delete namespace: " + this.namedGraph);
+            // namespaces are always stored into the named graph called DEFAULT_REPOSITORY 
+            this.setNamedGraph(Constants.DEFAULT_REPOSITORY);
             System.out.println("   URI = [" + this.getUri() + "]");
             deleteFromTripleStore();
         }

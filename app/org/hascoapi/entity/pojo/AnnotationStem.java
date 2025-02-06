@@ -41,8 +41,14 @@ public class AnnotationStem extends HADatAcThing implements SIRElement, Comparab
     @PropertyField(uri="prov:wasGeneratedBy")
     private String wasGeneratedBy;
 
-    @PropertyField(uri="vstoi:hasSIRManagerEmail")
+    @PropertyField(uri = "vstoi:hasReviewNote")
+    String hasReviewNote;
+
+    @PropertyField(uri = "vstoi:hasSIRManagerEmail")
     private String hasSIRManagerEmail;
+
+    @PropertyField(uri = "vstoi:hasEditorEmail")
+    private String hasEditorEmail;
 
     public String getHasStatus() {
         return hasStatus;
@@ -100,12 +106,28 @@ public class AnnotationStem extends HADatAcThing implements SIRElement, Comparab
         this.hasVersion = hasVersion;
     }
 
+    public String getHasReviewNote() {      
+        return hasReviewNote;
+    }
+
+    public void setHasReviewNote(String hasReviewNote) {
+        this.hasReviewNote = hasReviewNote;
+    }
+
     public String getHasSIRManagerEmail() {
         return hasSIRManagerEmail;
     }
 
     public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
         this.hasSIRManagerEmail = hasSIRManagerEmail;
+    }
+
+    public String getHasEditorEmail() {
+        return hasEditorEmail;
+    }
+
+    public void setHasEditorEmail(String hasEditorEmail) {
+        this.hasEditorEmail = hasEditorEmail;
     }
 
     public static AnnotationStem find(String uri) {
@@ -151,8 +173,12 @@ public class AnnotationStem extends HADatAcThing implements SIRElement, Comparab
                 annotationStem.setWasDerivedFrom(str);
             } else if (statement.getPredicate().getURI().equals(PROV.WAS_GENERATED_BY)) {
                 annotationStem.setWasGeneratedBy(str);
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_REVIEW_NOTE)) {
+                annotationStem.setHasReviewNote(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
                 annotationStem.setHasSIRManagerEmail(str);
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_EDITOR_EMAIL)) {
+                annotationStem.setHasEditorEmail(str);
             } 
         }
 

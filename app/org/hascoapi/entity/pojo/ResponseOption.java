@@ -13,6 +13,7 @@ import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.SPARQLUtils;
 import org.hascoapi.utils.URIUtils;
 import org.hascoapi.vocabularies.HASCO;
+import org.hascoapi.vocabularies.PROV;
 import org.hascoapi.vocabularies.RDF;
 import org.hascoapi.vocabularies.RDFS;
 import org.hascoapi.vocabularies.VSTOI;
@@ -42,8 +43,17 @@ public class ResponseOption extends HADatAcThing implements SIRElement /*, Compa
     @PropertyField(uri = "vstoi:hasVersion")
     String hasVersion;
 
+    @PropertyField(uri = "vstoi:hasReviewNote")
+    String hasReviewNote;
+
+    @PropertyField(uri="prov:wasDerivedFrom")
+    private String wasDerivedFrom;
+
     @PropertyField(uri = "vstoi:hasSIRManagerEmail")
     private String hasSIRManagerEmail;
+
+    @PropertyField(uri = "vstoi:hasEditorEmail")
+    private String hasEditorEmail;
 
     public String getHasStatus() {
         return hasStatus;
@@ -93,12 +103,36 @@ public class ResponseOption extends HADatAcThing implements SIRElement /*, Compa
         this.hasVersion = hasVersion;
     }
 
+    public String getHasReviewNote() {      
+        return hasReviewNote;
+    }
+
+    public void setHasReviewNote(String hasReviewNote) {
+        this.hasReviewNote = hasReviewNote;
+    }
+
+    public void setWasDerivedFrom(String wasDerivedFrom) {
+        this.wasDerivedFrom = wasDerivedFrom;
+    }
+
+    public String getWasDerivedFrom() {
+        return wasDerivedFrom;
+    }
+
     public String getHasSIRManagerEmail() {
         return hasSIRManagerEmail;
     }
 
     public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
         this.hasSIRManagerEmail = hasSIRManagerEmail;
+    }
+
+    public String getHasEditorEmail() {
+        return hasEditorEmail;
+    }
+
+    public void setHasEditorEmail(String hasEditorEmail) {
+        this.hasEditorEmail = hasEditorEmail;
     }
 
     public static ResponseOption find(String uri) {
@@ -122,6 +156,7 @@ public class ResponseOption extends HADatAcThing implements SIRElement /*, Compa
             statement = stmtIterator.next();
             object = statement.getObject();
             String str = URIUtils.objectRDFToString(object);
+            //System.out.println(statement.getPredicate().getURI() + " <<" + str + ">>");
             if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
                 responseOption.setLabel(str);
             } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
@@ -142,8 +177,14 @@ public class ResponseOption extends HADatAcThing implements SIRElement /*, Compa
                 responseOption.setHasLanguage(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
                 responseOption.setHasVersion(str);
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_REVIEW_NOTE)) {
+                responseOption.setHasReviewNote(str);
+            } else if (statement.getPredicate().getURI().equals(PROV.WAS_DERIVED_FROM)) {
+                responseOption.setWasDerivedFrom(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
                 responseOption.setHasSIRManagerEmail(str);
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_EDITOR_EMAIL)) {
+                responseOption.setHasEditorEmail(str);
             }
         }
 

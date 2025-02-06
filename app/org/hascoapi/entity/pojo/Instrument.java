@@ -66,6 +66,7 @@ public class Instrument extends Container {
 		StmtIterator stmtIterator = model.listStatements();
 
 		if (!stmtIterator.hasNext()) {
+			//System.out.println("No instruement retrieved");
 			return null;
 		} else {
 			instrument = new Instrument(VSTOI.INSTRUMENT);
@@ -75,6 +76,7 @@ public class Instrument extends Container {
 		    statement = stmtIterator.next();
 		    object = statement.getObject();
 			String str = URIUtils.objectRDFToString(object);
+			//System.out.println(statement.getPredicate().getURI() + " : [" + str + "]");
 			if (uri != null && !uri.isEmpty()) {
 				if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
 					instrument.setLabel(str);
@@ -105,7 +107,7 @@ public class Instrument extends Container {
 		}
 
 		instrument.setUri(uri);
-		
+
 		return instrument;
 	}
 

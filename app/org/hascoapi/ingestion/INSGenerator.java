@@ -14,6 +14,8 @@ public class INSGenerator extends BaseGenerator {
 
 	protected String firstSlotUri = "";
 
+	protected String hasStatus = "";
+
 	public String getInstrumentUri() {
 		return this.instrumentUri;
 	}
@@ -30,9 +32,18 @@ public class INSGenerator extends BaseGenerator {
 		this.firstSlotUri = firstSlotUri;
 	}
 
-	public INSGenerator(String elementType, DataFile dataFile) {
+	public String getHasStatus() {
+		return this.hasStatus;
+	}
+    
+	public void setHasStatus(String hasStatus) {
+		this.hasStatus = hasStatus;
+	}
+
+	public INSGenerator(String elementType, DataFile dataFile, String hasStatus) {
 		super(dataFile);
 		this.setElementType(elementType);
+		this.setHasStatus(hasStatus);
 	}
 
 	@Override
@@ -52,24 +63,42 @@ public class INSGenerator extends BaseGenerator {
 			//row.put("rdfs:subClassOf", VSTOI.INSTRUMENT);
 			row.put("hasco:hascoType", VSTOI.INSTRUMENT);
 			row.put("vstoi:hasFirst", this.getFirstSlotUri());
+			if (this.getHasStatus() != null && !this.getHasStatus().equals("_")) {
+			    row.put("vstoi:hasStatus", this.getHasStatus());
+			}
 			row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
 		} else if (this.getElementType().equals("detectorstem")) {
 			//row.put("rdfs:subClassOf", VSTOI.DETECTOR_STEM);
 			row.put("hasco:hascoType", VSTOI.DETECTOR_STEM);
+			if (this.getHasStatus() != null && !this.getHasStatus().equals("_")) {
+			    row.put("vstoi:hasStatus", this.getHasStatus());
+			}
 			row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
 		} else if (this.getElementType().equals("codebook")) {
 			//row.put("rdfs:subClassOf", VSTOI.CODEBOOK);
 			row.put("hasco:hascoType", VSTOI.CODEBOOK);
+			if (this.getHasStatus() != null && !this.getHasStatus().equals("_")) {
+			    row.put("vstoi:hasStatus", this.getHasStatus());
+			}
 			row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
 		} else if (this.getElementType().equals("responseoption")) {
 			//row.put("rdfs:subClassOf", VSTOI.RESPONSE_OPTION);
 			row.put("hasco:hascoType", VSTOI.RESPONSE_OPTION);
+			if (this.getHasStatus() != null && !this.getHasStatus().equals("_")) {
+			    row.put("vstoi:hasStatus", this.getHasStatus());
+			}
 			row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
 		} else if (this.getElementType().equals("annotationstem")) {
 			row.put("hasco:hascoType", VSTOI.ANNOTATION_STEM);
+			if (this.getHasStatus() != null && !this.getHasStatus().equals("_")) {
+			    row.put("vstoi:hasStatus", this.getHasStatus());
+			}
 			row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
 		} else if (this.getElementType().equals("annotation")) {
 			row.put("hasco:hascoType", VSTOI.ANNOTATION);
+			if (this.getHasStatus() != null && !this.getHasStatus().equals("_")) {
+			    row.put("vstoi:hasStatus", this.getHasStatus());
+			}
 			row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
 		}
 
