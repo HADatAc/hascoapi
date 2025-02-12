@@ -8,6 +8,7 @@ import org.apache.jena.query.ResultSetRewindable;
 
 import org.hascoapi.Constants;
 import org.hascoapi.RepositoryInstance;
+import org.hascoapi.vocabularies.VSTOI;
 
 public class Utils {
 
@@ -277,5 +278,11 @@ public class Utils {
         }
 		return null;
     }
+
+    public static boolean validReviewStatus(String statusUri) {
+        return (statusUri.equals(VSTOI.DRAFT) || statusUri.equals(VSTOI.UNDER_REVIEW) ||
+                statusUri.equals(VSTOI.CURRENT) || statusUri.equals(VSTOI.DEPRECATED));
+    }
+
 
 }

@@ -143,7 +143,7 @@ public class VSTOI {
         wasGeneratedBy = new HashMap<>();
         wasGeneratedBy.put(DEFAULT_WAS_GENERATED_BY, "Original");
         wasGeneratedBy.put(VSTOI + "Translation", "Translation");
-        wasGeneratedBy.put(VSTOI + "Generalization", "Generalization");
+        wasGeneratedBy.put(VSTOI + "Refinement", "Refinement");
         wasGeneratedBy.put(VSTOI + "Specialization", "Specialization");
     }
 

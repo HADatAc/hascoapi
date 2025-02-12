@@ -111,6 +111,7 @@ POST    /hascoapi/api/slots/codebook/delete/:codebookUri              org.hascoa
 GET     /hascoapi/api/slots/container/attach/:elementUri/:containerSlotUri          org.hascoapi.console.controllers.restapi.ContainerAPI.attach(elementUri: String, containerSlotUri : String)
 GET     /hascoapi/api/slots/container/detach/:containerSlotUri                      org.hascoapi.console.controllers.restapi.ContainerAPI.detach(containerSlotUri : String)
 GET     /hascoapi/api/slots/codebook/attach/:responseOptionUri/:codebookSlotUri     org.hascoapi.console.controllers.restapi.CodebookAPI.attach(responseOptionUri: String, codebookSlotUri : String)
+GET     /hascoapi/api/slots/codebook/attach/status/:responseOptionUri/:codebookSlotUri/:statusUri     org.hascoapi.console.controllers.restapi.CodebookAPI.attachWithStatus(responseOptionUri: String, codebookSlotUri : String, statusUri)
 GET     /hascoapi/api/slots/codebook/detach/:codebookSlotUri                        org.hascoapi.console.controllers.restapi.CodebookAPI.detach(codebookSlotUri : String)
         
 GET     /hascoapi/api/slotelements/bycontainer/:containerUri                        org.hascoapi.console.controllers.restapi.ContainerAPI.getSlotElements(containerUri: String)
