@@ -18,6 +18,7 @@ import org.hascoapi.utils.HAScOMapper;
 import org.hascoapi.utils.Utils;
 import org.hascoapi.vocabularies.FOAF;
 import org.hascoapi.vocabularies.HASCO;
+import org.hascoapi.vocabularies.OWL;
 import org.hascoapi.vocabularies.SCHEMA;
 import org.hascoapi.vocabularies.SIO;
 import org.hascoapi.vocabularies.VSTOI;
@@ -229,6 +230,8 @@ public class URIPage extends Controller {
                 finalResult = Unit.find(uri);
             } else if (result.getHascoTypeUri().equals(HASCO.VIRTUAL_COLUMN)) {
                 finalResult = VirtualColumn.find(uri);
+            } else if (result.getTypeUri().equals(OWL.CLASS)) {
+                finalResult = HADatAcClass.find(uri);
             } else {
                 finalResult = result;
             }
