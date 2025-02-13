@@ -39,7 +39,6 @@ import org.hascoapi.annotations.Subject;
 public abstract class HADatAcThing {
 
     public static String OWL_THING = "http://www.w3.org/2002/07/owl#Thing";
-    public static int QUERY_LIMIT = 5000;
 
     @Subject
     String uri = "";
