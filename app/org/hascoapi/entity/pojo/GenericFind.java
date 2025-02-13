@@ -219,6 +219,7 @@ public class GenericFind<T> {
             clazz == Detector.class ||
             clazz == ResponseOption.class ||
             clazz == AnnotationStem.class ||
+            clazz == Annotation.class ||
             clazz == Process.class ||
             clazz == ProcessStem.class) {
             return true;
