@@ -38,7 +38,7 @@ import org.eclipse.rdf4j.model.impl.LinkedHashModelFactory;
 
 public abstract class BaseGenerator {
 
-    protected int QUERY_LIMIT = 5000;
+    protected int QUERY_LIMIT = 2000;
 
     protected List<Record> records = null;
     protected RecordFile file;
@@ -482,6 +482,7 @@ public abstract class BaseGenerator {
             int controllerCounter = 0;
 
             for (String uri : uris) {
+
                 // Restart query
                 if (controllerCounter == QUERY_LIMIT){
                     // Close current query and add to query list
@@ -519,7 +520,9 @@ public abstract class BaseGenerator {
         // Add the header and append to query list
         queries.add(queryHeader + query);
 
+        // Looping through the query list
         for (String query_i : queries) {
+            // Update respective query into the triple store
             updateTripleStore(query_i);
         }
 
