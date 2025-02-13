@@ -105,6 +105,9 @@ public class CodebookAPI extends Controller {
         if (responseOption == null) {
             return ok(ApiUtil.createResponse("There is no detector with URI <" + uri + "> to be attached.", false));
         }
+        if (!responseOption.getHasStatus().equals(VSTOI.DRAFT)) {
+            return ok(ApiUtil.createResponse("Cannot change the status of response option <" + uri + "> because it is not a draft.", false));
+        }
         if (codebookSlotUri == null || codebookSlotUri.equals("")) {
             return ok(ApiUtil.createResponse("No CodebookSlot URI has been provided.", false));
         }
