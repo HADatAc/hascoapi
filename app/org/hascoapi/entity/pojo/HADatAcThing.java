@@ -39,6 +39,7 @@ import org.hascoapi.annotations.Subject;
 public abstract class HADatAcThing {
 
     public static String OWL_THING = "http://www.w3.org/2002/07/owl#Thing";
+    public static int QUERY_LIMIT = 5000;
 
     @Subject
     String uri = "";
@@ -614,6 +615,7 @@ public abstract class HADatAcThing {
 
     public void deleteFromTripleStore() {
         String query = "";
+
         if (getUri() == null || getUri().equals("")) {
             return;
         }
@@ -634,11 +636,8 @@ public abstract class HADatAcThing {
             }
             query += " ?p ?o . } \n";
             query += " } ";
-            //System.out.println("Delete named graph query: [" + query + "]");
-            UpdateRequest request = UpdateFactory.create(query);
-            UpdateProcessor processor = UpdateExecutionFactory.createRemote(
-                    request, CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
-            processor.execute();
+            
+            updateTripleStore(query);
 
         } else {
             // if ( getUri().contains("3539947") ) System.out.println("find 3539947!!!! delete without namespace!!!");
@@ -661,15 +660,8 @@ public abstract class HADatAcThing {
             }
             query1 += " ?p ?o . } \n";
             query1 += " } ";
-            //System.out.println("Delete query: [" + query1 + "]");
-            UpdateRequest request = UpdateFactory.create(query1);
-            UpdateProcessor processor = UpdateExecutionFactory.createRemote(
-                    request, CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
-            try {
-                processor.execute();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            
+            updateTripleStore(query1);
 
             /*
             // Added for deleting Virtual Columns
@@ -708,4 +700,18 @@ public abstract class HADatAcThing {
         //System.out.println("Deleted <" + getUri() + "> from triple store");
     }
 
+    public void updateTripleStore(String query) {
+        if (getUri() == null || getUri().equals("")) {
+            return;
+        }
+
+        UpdateRequest request = UpdateFactory.create(query);
+        UpdateProcessor processor = UpdateExecutionFactory.createRemote(
+                request, CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
+        try {
+            processor.execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
