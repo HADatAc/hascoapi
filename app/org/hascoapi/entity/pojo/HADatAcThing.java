@@ -304,8 +304,8 @@ public abstract class HADatAcThing {
         try {
             Class<?> currentClass = getClass();
             while(currentClass != null) {
-                System.out.println("inside HADatAcThing.generateRDFModel: currentClass: " + currentClass.getName());
-                System.out.println("inside HADatAcThing.generateRDFModel(): hasURI: [" + uri + "]");
+                // System.out.println("inside HADatAcThing.generateRDFModel: currentClass: " + currentClass.getName());
+                // System.out.println("inside HADatAcThing.generateRDFModel(): hasURI: [" + uri + "]");
 
                 for (Field field: currentClass.getDeclaredFields()) {
 
@@ -316,7 +316,7 @@ public abstract class HADatAcThing {
                         }
                     } catch (Exception e) {
                     }
-                    System.out.println("inside HADatAcThing.saveToTripleStore(): field [" + field.getName() + "] or type [" + field.getType() + "]  Value [" + value2 + "]");
+                    //System.out.println("inside HADatAcThing.saveToTripleStore(): field [" + field.getName() + "] or type [" + field.getType() + "]  Value [" + value2 + "]");
                     field.setAccessible(true);
                     if (field.isAnnotationPresent(Subject.class)) {
                         String uri = (String)field.get(this);
@@ -365,7 +365,7 @@ public abstract class HADatAcThing {
                         //System.out.println("inside HADatAcThing.saveToTripleStore() (1) ");
 
                         if (field.getType().equals(List.class)) {
-                            System.out.println("inside HADatAcThing.saveToTripleStore(): Element is list.");
+                            //System.out.println("inside HADatAcThing.saveToTripleStore(): Element is list.");
                             List<?> list = (List<?>)field.get(this);
                             if (list != null && !list.isEmpty() && list.get(0) instanceof String) {
                                 List<String> elements = new ArrayList<String>();
@@ -440,7 +440,7 @@ public abstract class HADatAcThing {
         //System.out.println("HADatAcThing.generateDRFModel: URI=[" + objUri + "]   NamedGraph=[" + getNamedGraph() + "]");
 
         reversed_rows.add(row);
-        System.out.println("Size of reversed rows: " + reversed_rows.size());
+        //System.out.println("Size of reversed rows: " + reversed_rows.size());
         if (getNamedGraph() == null || getNamedGraph().isEmpty()) {
             //System.out.println("Default URL: [" + RepositoryInstance.getInstance().getHasDefaultNamespaceURL() + "]");
             //System.out.println("Default Abbrev: [" + RepositoryInstance.getInstance().getHasDefaultNamespaceAbbreviation() + "]");
@@ -634,7 +634,7 @@ public abstract class HADatAcThing {
             }
             query += " ?p ?o . } \n";
             query += " } ";
-            System.out.println("Delete named graph query: [" + query + "]");
+            //System.out.println("Delete named graph query: [" + query + "]");
             UpdateRequest request = UpdateFactory.create(query);
             UpdateProcessor processor = UpdateExecutionFactory.createRemote(
                     request, CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
@@ -661,7 +661,7 @@ public abstract class HADatAcThing {
             }
             query1 += " ?p ?o . } \n";
             query1 += " } ";
-            ///home/paulo/git/hadatac/app/org/hadatac/entity/pojo/Measurement.javaSystem.out.println("Delete query: [" + query1 + "]");
+            //System.out.println("Delete query: [" + query1 + "]");
             UpdateRequest request = UpdateFactory.create(query1);
             UpdateProcessor processor = UpdateExecutionFactory.createRemote(
                     request, CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));

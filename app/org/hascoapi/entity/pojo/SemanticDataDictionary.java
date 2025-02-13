@@ -92,16 +92,12 @@ public class SemanticDataDictionary extends HADatAcThing {
     @PropertyField(uri = "hasco:namedTime")
     private String namedTimeLabel = "";
     */
-
-    /* 
+ 
     @PropertyField(uri = "hasco:uriId")
     private String idLabel = "";
-    */
 
-    /* 
     @PropertyField(uri = "hasco:originalID")
     private String originalIdLabel = "";
-    */
 
     /* 
     @PropertyField(uri = "hasco:hasElevation")
@@ -316,7 +312,7 @@ public class SemanticDataDictionary extends HADatAcThing {
     }
     public void setNamedTimeLabel(String namedTimeLabel) {
         this.namedTimeLabel = namedTimeLabel;
-    }
+    }*/
 
     public String getIdLabel() {
         return idLabel;
@@ -332,6 +328,14 @@ public class SemanticDataDictionary extends HADatAcThing {
         this.originalIdLabel = originalIdLabel;
     }
 
+    public String getHasSIRManagerEmail() {
+        return hasSIRManagerEmail;
+    }
+    public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
+        this.hasSIRManagerEmail = hasSIRManagerEmail;
+    }
+
+    /*
     public String getLODLabel() {
         return lodLabel;
     }
@@ -352,16 +356,7 @@ public class SemanticDataDictionary extends HADatAcThing {
     public void setMatchingLabel(String matchingLabel) {
         this.matchingLabel = matchingLabel;
     }
-    */
 
-    public String getHasSIRManagerEmail() {
-        return hasSIRManagerEmail;
-    }
-    public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
-        this.hasSIRManagerEmail = hasSIRManagerEmail;
-    }
-
-    /* 
     public String getElevationLabel() {
         return elevationLabel;
     }
