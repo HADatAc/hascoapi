@@ -428,7 +428,9 @@ public class GenericFind<T> {
         //if (clazz == Detector.class) {
         //    return findDetectorClassesByKeywordWithPages(clazz, superclassName, keyword, pageSize, offset);
         //} else 
-        if (isSIR(clazz) && superclassName != null) {
+        if (clazz.equals(Annotation.class)) {
+            return findAnnotationsByKeywordWithPages(clazz, className, keyword, pageSize, offset);
+        } else if (isSIR(clazz) && superclassName != null) {
             return findSIRClassesByKeywordWithPages(clazz, superclassName, keyword, pageSize, offset);
         } else if (isSIR(clazz) && className != null) {
             return findSIRInstancesByKeywordWithPages(clazz, className, keyword, pageSize, offset);
@@ -457,6 +459,23 @@ public class GenericFind<T> {
         return findByQuery(clazz, queryString);
     }
     */
+
+    public static <T> List<T> findAnnotationsByKeywordWithPages(Class clazz, String className, String keyword, int pageSize, int offset) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT DISTINCT ?uri WHERE { " +
+                " ?uri hasco:hascoType " + className + " . " +
+                " OPTIONAL { ?uri vstoi:hasContenWithStyle ?contentWithStyle . } " +
+                " ?uri vstoi:hasAnnotationStem ?stem . " +
+                " ?stem vstoi:hasContent ?content . " +
+                "   FILTER regex(STR(CONCAT(COALESCE(?content, \"\"), COALESCE(?contentWithStyle, \"\"))), \"" + keyword + "\", \"i\") " +
+                "} " +
+                " ORDER BY ASC(?content) " +
+                " LIMIT " + pageSize +
+                " OFFSET " + offset;
+
+        //System.out.println("GenericFind.findSIRInstancesByKeywordWithPages: [" + queryString + "]");
+        return findByQuery(clazz, queryString);
+    }
 
     public static <T> List<T> findSIRClassesByKeywordWithPages(Class clazz, String superclassName, String keyword, int pageSize, int offset) {
         //System.out.println("GenericFind.findSIRInstancesByKeywordWithPages: " + superclassName + " " + keyword + "  " + pageSize + "  " + offset);
