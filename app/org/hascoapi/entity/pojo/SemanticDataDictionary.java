@@ -8,7 +8,6 @@ import java.util.Map;
 import java.io.File;
 import java.net.URL;
 
-
 import com.fasterxml.jackson.annotation.JsonFilter;
 import org.apache.commons.io.FileUtils;
 import org.apache.jena.query.Query;

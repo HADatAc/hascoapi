@@ -1,7 +1,5 @@
 package org.hascoapi.ingestion;
 
-// setStudyObjectCollectionType() ???
-
 import java.time.Instant;
 import java.io.IOException;
 import java.math.BigDecimal;
