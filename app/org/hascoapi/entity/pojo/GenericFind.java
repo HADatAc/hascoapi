@@ -461,6 +461,7 @@ public class GenericFind<T> {
     */
 
     public static <T> List<T> findAnnotationsByKeywordWithPages(Class clazz, String className, String keyword, int pageSize, int offset) {
+        System.out.println("In findAddnotationByKeyword. className=[" + className + "]  keyword=[" + keyword + "]");
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT DISTINCT ?uri WHERE { " +
                 " ?uri hasco:hascoType " + className + " . " +
@@ -473,7 +474,7 @@ public class GenericFind<T> {
                 " LIMIT " + pageSize +
                 " OFFSET " + offset;
 
-        //System.out.println("GenericFind.findSIRInstancesByKeywordWithPages: [" + queryString + "]");
+        System.out.println("GenericFind.findSIRInstancesByKeywordWithPages: [" + queryString + "]");
         return findByQuery(clazz, queryString);
     }
 
