@@ -24,29 +24,11 @@ services:
             hascoapi:
                 aliases:
                     - fuseki-yasgui
+        environment:
+            DEFAULT_SPARQL_ENDPOINT: "http://localhost:3030/store/query"
         depends_on:
             - fuseki
     
-    hascoapi:
-        build:
-            context: .
-            dockerfile: Dockerfile
-        stdin_open: true    
-        tty: true
-        ports:
-            - "9000:9000"
-        environment:
-            JAVA_OPTS: "-Xms128m -Xmx12g"
-        volumes:
-            - /var/log/hascoapi:/hascoapi/logs
-        depends_on:
-            - fuseki
-        networks:
-            hascoapi:
-                aliases:
-                    - hascoapi
-        restart: always
-
 volumes:
     hascoapi-fuseki-data:
 
