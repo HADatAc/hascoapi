@@ -461,11 +461,11 @@ public class GenericFind<T> {
     */
 
     public static <T> List<T> findAnnotationsByKeywordWithPages(Class clazz, String className, String keyword, int pageSize, int offset) {
-        System.out.println("In findAddnotationByKeyword. className=[" + className + "]  keyword=[" + keyword + "]");
+        //System.out.println("In findAddnotationByKeyword. className=[" + className + "]  keyword=[" + keyword + "]");
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT DISTINCT ?uri WHERE { " +
                 " ?uri hasco:hascoType " + className + " . " +
-                " OPTIONAL { ?uri vstoi:hasContenWithStyle ?contentWithStyle . } " +
+                " OPTIONAL { ?uri vstoi:hasContentWithStyle ?contentWithStyle . } " +
                 " ?uri vstoi:hasAnnotationStem ?stem . " +
                 " ?stem vstoi:hasContent ?content . " +
                 "   FILTER regex(STR(CONCAT(COALESCE(?content, \"\"), COALESCE(?contentWithStyle, \"\"))), \"" + keyword + "\", \"i\") " +
@@ -474,7 +474,7 @@ public class GenericFind<T> {
                 " LIMIT " + pageSize +
                 " OFFSET " + offset;
 
-        System.out.println("GenericFind.findSIRInstancesByKeywordWithPages: [" + queryString + "]");
+        //System.out.println("GenericFind.findSIRInstancesByKeywordWithPages: [" + queryString + "]");
         return findByQuery(clazz, queryString);
     }
 
