@@ -3,16 +3,14 @@ package org.hascoapi.utils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
-
-import java.util.List;
-
-import org.hascoapi.annotations.PropertyField;
 import org.hascoapi.entity.pojo.*;
 import org.hascoapi.vocabularies.FOAF;
 import org.hascoapi.vocabularies.HASCO;
-import org.hascoapi.vocabularies.SIO;
 import org.hascoapi.vocabularies.SCHEMA;
+import org.hascoapi.vocabularies.SIO;
 import org.hascoapi.vocabularies.VSTOI;
+
+
 
 public class HAScOMapper {
 
@@ -214,7 +212,7 @@ public class HAScOMapper {
         } else {
             filterProvider.addFilter("hascoClassFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "superUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "nodeId", "comment", "isDomainOf", "isRangeOf", "isDisjointWith", "subClasses"));
+                            "hascoTypeLabel", "nodeId", "comment", "isDomainOf", "isRangeOf", "isDisjointWith", "hasStatus", "subClasses"));
         }
 
         // INS

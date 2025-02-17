@@ -1,31 +1,26 @@
 package org.hascoapi.entity.pojo;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayOutputStream;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.List;
-import java.util.Map;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Base64;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.nio.charset.StandardCharsets;
-
+import java.util.List;
+import java.util.Map;
 import org.apache.jena.query.QuerySolution;
+import org.apache.jena.query.ResultSetFormatter;
 import org.apache.jena.query.ResultSetRewindable;
-import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
-import org.apache.jena.query.ResultSetFormatter;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonFilter;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import org.hascoapi.annotations.PropertyField;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.SPARQLUtils;
@@ -33,10 +28,7 @@ import org.hascoapi.utils.TreeNode;
 import org.hascoapi.vocabularies.PROV;
 import org.hascoapi.vocabularies.RDF;
 import org.hascoapi.vocabularies.RDFS;
-
-import org.hascoapi.annotations.PropertyField;
-import org.hascoapi.annotations.ReversedPropertyField;
-import org.hascoapi.annotations.Subject;
+import org.hascoapi.vocabularies.VSTOI;
 
 @JsonFilter("hascoClassFilter")
 public class HADatAcClass extends HADatAcThing {
@@ -90,6 +82,18 @@ public class HADatAcClass extends HADatAcThing {
             superUri = "";
         }
         this.superUri = superUri;
+    }
+
+    public String getHasStatus() {
+        try {
+            // Check if the field "hasStatus" exists in the current class
+            Field field = this.getClass().getDeclaredField("hasStatus");
+            field.setAccessible(true); // Allow access to private fields if needed
+            return (String) field.get(this); // Get the field value from the current object
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            // If field does not exist or cannot be accessed, return VSTOI.CURRENT
+            return VSTOI.CURRENT;
+        }
     }
 
     public String getLocalName() {
