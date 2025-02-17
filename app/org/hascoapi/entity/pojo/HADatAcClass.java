@@ -21,6 +21,7 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.hascoapi.annotations.PropertyField;
+import org.hascoapi.console.controllers.restapi.URIPage;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.SPARQLUtils;
@@ -481,7 +482,8 @@ public class HADatAcClass extends HADatAcThing {
 
         while (resultsrw.hasNext()) {
             QuerySolution soln = resultsrw.next();
-            HADatAcClass subclass = HADatAcClass.find(soln.getResource("uri").getURI());
+            HADatAcClass subclass = (HADatAcClass)URIPage.objectFromUri(soln.getResource("uri").getURI()); 
+            //HADatAcClass subclass = HADatAcClass.find(soln.getResource("uri").getURI());
             subclass.setNodeId(HADatAcThing.createUrlHash(subclass.getUri()));
             subclasses.add(subclass);
         }
