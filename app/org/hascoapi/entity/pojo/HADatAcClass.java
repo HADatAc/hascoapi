@@ -482,10 +482,16 @@ public class HADatAcClass extends HADatAcThing {
 
         while (resultsrw.hasNext()) {
             QuerySolution soln = resultsrw.next();
-            HADatAcClass subclass = (HADatAcClass)URIPage.objectFromUri(soln.getResource("uri").getURI()); 
-            //HADatAcClass subclass = HADatAcClass.find(soln.getResource("uri").getURI());
-            subclass.setNodeId(HADatAcThing.createUrlHash(subclass.getUri()));
-            subclasses.add(subclass);
+            HADatAcClass subclass;
+            try {
+                subclass = (HADatAcClass)URIPage.objectFromUri(soln.getResource("uri").getURI());
+            } catch (Exception e) { 
+                subclass = HADatAcClass.find(soln.getResource("uri").getURI());
+            }
+            if (subclass != null) {
+                subclass.setNodeId(HADatAcThing.createUrlHash(subclass.getUri()));
+                subclasses.add(subclass);
+            }
         }
 
         return subclasses;
@@ -505,8 +511,15 @@ public class HADatAcClass extends HADatAcThing {
 
         while (resultsrw.hasNext()) {
             QuerySolution soln = resultsrw.next();
-            HADatAcClass superclass = HADatAcClass.find(soln.getResource("superuri").getURI());
-            superclasses.add(superclass);
+            HADatAcClass superclass;
+            try {
+                superclass = (HADatAcClass)URIPage.objectFromUri(soln.getResource("superuri").getURI());
+            } catch (Exception e) { 
+                superclass = HADatAcClass.find(soln.getResource("superuri").getURI());
+            }
+            if (superclass != null) {
+               superclasses.add(superclass);
+            }
         }
 
         return superclasses;
