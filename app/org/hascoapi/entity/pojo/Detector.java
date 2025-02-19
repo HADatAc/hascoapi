@@ -35,9 +35,6 @@ public class Detector extends HADatAcThing implements SIRElement  {
     @PropertyField(uri = "vstoi:hasSerialNumber")
     String serialNumber;
 
-    @PropertyField(uri = "hasco:hasImage")
-    String image;
-
     @PropertyField(uri = "vstoi:hasContent")
     String hasContent;
 
@@ -116,14 +113,6 @@ public class Detector extends HADatAcThing implements SIRElement  {
 
     public void setSerialNumber(String serialNumber) {
         this.serialNumber = serialNumber;
-    }
-
-    public String getImage() {
-        return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
     }
 
     public String getHasContent() {
@@ -435,10 +424,12 @@ public class Detector extends HADatAcThing implements SIRElement  {
                     detector.setComment(str);
                 } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
                     detector.setHascoTypeUri(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+					detector.setHasImageUri(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
+					detector.setHasWebDocument(str);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
                     detector.setHasStatus(str);
-                } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
-                    detector.setImage(str);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_CONTENT)) {
                     detector.setHasContent(str);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {

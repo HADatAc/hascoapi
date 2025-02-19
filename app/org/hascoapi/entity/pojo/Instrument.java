@@ -86,12 +86,14 @@ public class Instrument extends Container {
 					instrument.setHascoTypeUri(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
 					instrument.setHasStatus(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+					instrument.setHasImageUri(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
+					instrument.setHasWebDocument(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_FIRST)) {
 					instrument.setHasFirst(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_INFORMANT)) {
 					instrument.setHasInformant(str);
-				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
-					instrument.setImage(str);
 				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
 					instrument.setComment(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SHORT_NAME)) {

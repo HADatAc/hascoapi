@@ -31,9 +31,6 @@ public class ResponseOption extends HADatAcThing implements SIRElement /*, Compa
     @PropertyField(uri = "vstoi:hasSerialNumber")
     String serialNumber;
 
-    @PropertyField(uri = "hasco:hasImage")
-    String image;
-
     @PropertyField(uri = "vstoi:hasContent")
     String hasContent;
 
@@ -69,14 +66,6 @@ public class ResponseOption extends HADatAcThing implements SIRElement /*, Compa
 
     public void setSerialNumber(String serialNumber) {
         this.serialNumber = serialNumber;
-    }
-
-    public String getImage() {
-        return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
     }
 
     public String getHasContent() {
@@ -165,12 +154,14 @@ public class ResponseOption extends HADatAcThing implements SIRElement /*, Compa
                 responseOption.setComment(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
                 responseOption.setHascoTypeUri(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+                responseOption.setHasImageUri(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
+                responseOption.setHasWebDocument(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
                 responseOption.setHasStatus(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
                 responseOption.setSerialNumber(str);
-            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
-                responseOption.setImage(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_CONTENT)) {
                 responseOption.setHasContent(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {

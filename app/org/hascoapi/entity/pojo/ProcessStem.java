@@ -23,9 +23,6 @@ public class ProcessStem extends HADatAcClass implements SIRElement, Comparable<
     @PropertyField(uri="vstoi:hasStatus")
     private String hasStatus;
 
-    @PropertyField(uri="hasco:hasImage")
-    private String image;
-
     @PropertyField(uri="vstoi:hasContent")
     private String hasContent;
 
@@ -56,14 +53,6 @@ public class ProcessStem extends HADatAcClass implements SIRElement, Comparable<
 
     public void setHasStatus(String hasStatus) {
         this.hasStatus = hasStatus;
-    }
-
-    public String getImage() {
-        return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
     }
 
     public String getHasContent() {
@@ -167,12 +156,14 @@ public class ProcessStem extends HADatAcClass implements SIRElement, Comparable<
 					processStem.setHascoTypeUri(str);
                 } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
                     processStem.setComment(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+					processStem.setHasImageUri(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
+					processStem.setHasWebDocument(str);
                 } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
                     processStem.setHascoTypeUri(str);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
                     processStem.setHasStatus(str);
-                } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
-                    processStem.setImage(str);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_CONTENT)) {
                     processStem.setHasContent(str);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {

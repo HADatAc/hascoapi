@@ -207,6 +207,10 @@ public class Process extends HADatAcThing implements Comparable<Process> {
                     process.setComment(str);
                 } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
                     process.setHascoTypeUri(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+					process.setHasImageUri(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
+					process.setHasWebDocument(str);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
                     process.setHasStatus(str);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {

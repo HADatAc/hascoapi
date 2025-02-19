@@ -310,6 +310,10 @@ public class Place extends HADatAcThing implements Comparable<Place> {
 					place.setComment(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
 					place.setHascoTypeUri(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+					place.setHasImageUri(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
+					place.setHasWebDocument(str);
 				} else if (statement.getPredicate().getURI().equals(FOAF.NAME)) {
 					place.setName(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {

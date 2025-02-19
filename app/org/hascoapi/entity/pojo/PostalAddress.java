@@ -387,6 +387,10 @@ public class PostalAddress extends HADatAcThing implements Comparable<PostalAddr
 					postalAddress.setComment(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
 					postalAddress.setHascoTypeUri(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+					postalAddress.setHasImageUri(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
+					postalAddress.setHasWebDocument(str);
 				} else if (statement.getPredicate().getURI().equals(SCHEMA.STREET_ADDRESS)) {
 					postalAddress.setHasStreetAddress(str);
 				} else if (statement.getPredicate().getURI().equals(SCHEMA.ADDRESS_LOCALITY)) {

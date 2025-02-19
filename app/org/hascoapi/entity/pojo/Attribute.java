@@ -252,6 +252,7 @@ public class Attribute extends HADatAcClass implements Comparable<Attribute> {
         while (stmtIterator.hasNext()) {
             statement = stmtIterator.next();
             object = statement.getObject();
+ 			String str = URIUtils.objectRDFToString(object);
             if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
                 if (object.isLiteral()) {
                     attribute.setLabel(object.asLiteral().getString());
@@ -259,17 +260,21 @@ public class Attribute extends HADatAcClass implements Comparable<Attribute> {
                     attribute.setLabel(object.asResource().getURI());
                 }
             } else if (statement.getPredicate().getURI().equals(RDFS.SUBCLASS_OF)) {
-                attribute.setSuperUri(object.asResource().getURI());
+                attribute.setSuperUri(str);
             } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
-                attribute.setTypeUri(object.asResource().getURI());
+                attribute.setTypeUri(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
-                attribute.setHascoTypeUri(object.asResource().getURI());
+                attribute.setHascoTypeUri(str);
             } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
-                attribute.setComment(object.asLiteral().getString());
+                attribute.setComment(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+                attribute.setHasImageUri(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
+                attribute.setHasWebDocument(str);
             } else if (statement.getPredicate().getURI().equals(DCTERMS.IDENTIFIER)) {
-                attribute.setHasDCTerms(object.asLiteral().getString());
+                attribute.setHasDCTerms(str);
             } else if (statement.getPredicate().getURI().equals(SKOS.NOTATION)) {
-                attribute.setHasSkosNotation(object.asLiteral().getString());
+                attribute.setHasSkosNotation(str);
             }
         }
 

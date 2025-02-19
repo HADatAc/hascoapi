@@ -329,6 +329,10 @@ public class Value extends HADatAcThing {
 					value.setHascoTypeUri(str);
 				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
 					value.setComment(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+					value.setHasImageUri(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
+					value.setHasWebDocument(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.ORIGINAL_ID)) {
 					value.setOriginalId(str);
 				//} else if (statement.getPredicate().getURI().equals(HASCO.HAS_SUBMISSION_TIME)) {

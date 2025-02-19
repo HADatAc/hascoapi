@@ -28,12 +28,16 @@ public class GenericInstance extends HADatAcThing implements Comparable<GenericI
                            String typeUri,
                            String hascoTypeUri,
                            String label,
-                           String comment) {
+                           String comment,
+                           String hasImageUri,
+                           String hasWebDocument) {
         this.uri = uri;
         this.typeUri = typeUri;
         this.hascoTypeUri = typeUri;
         this.label = label;
         this.comment = comment;
+        this.hasImageUri = hasImageUri;
+        this.hasWebDocument = hasWebDocument;
     }
 
     public GenericInstance() {
@@ -42,6 +46,8 @@ public class GenericInstance extends HADatAcThing implements Comparable<GenericI
         this.hascoTypeUri = "";
         this.label = "";
         this.comment = "";
+        this.hasImageUri = "";
+        this.hasWebDocument = "";
     }
 
     public String getTypeLabel() {
@@ -118,6 +124,10 @@ public class GenericInstance extends HADatAcThing implements Comparable<GenericI
                 instance.setHascoTypeUri(str);
             } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
                 instance.setComment(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+                instance.setHasImageUri(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
+                instance.setHasWebDocument(str);
             }
         }
 

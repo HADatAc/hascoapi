@@ -184,6 +184,10 @@ public class Codebook extends HADatAcThing implements Comparable<Codebook> {
                     codebook.setComment(str);
                 } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
                     codebook.setHascoTypeUri(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+					codebook.setHasImageUri(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
+					codebook.setHasWebDocument(str);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
                     codebook.setHasStatus(str);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {

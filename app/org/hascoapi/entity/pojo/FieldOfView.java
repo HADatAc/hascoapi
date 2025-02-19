@@ -267,28 +267,32 @@ public class FieldOfView extends HADatAcThing implements Comparable<FieldOfView>
                 fov.setHascoTypeUri(str);
             } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
                 fov.setComment(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+                fov.setHasImageUri(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
+                fov.setHasWebDocument(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_GEOMETRY)) {
-                fov.setGeometry(object.asResource().getURI());
+                fov.setGeometry(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.IS_FIELD_OF_VIEW_OF)) {
-                fov.setIsFOVOf(object.asResource().getURI());
+                fov.setIsFOVOf(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_FIRST_COORDINATE)) {
                 fov.setFirstParameter(object.asLiteral().getFloat());
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_FIRST_COORDINATE_UNIT)) {
-                fov.setFirstParameterUnit(object.asResource().getURI());
+                fov.setFirstParameterUnit(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_FIRST_COORDINATE_CHARACTERISTIC)) {
-                fov.setFirstParameterCharacteristic(object.asResource().getURI());
+                fov.setFirstParameterCharacteristic(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_SECOND_COORDINATE)) {
                 fov.setSecondParameter(object.asLiteral().getFloat());
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_SECOND_COORDINATE_UNIT)) {
-                fov.setSecondParameterUnit(object.asResource().getURI());
+                fov.setSecondParameterUnit(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_SECOND_COORDINATE_CHARACTERISTIC)) {
-                fov.setSecondParameterCharacteristic(object.asResource().getURI());
+                fov.setSecondParameterCharacteristic(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_THIRD_COORDINATE)) {
                 fov.setThirdParameter(object.asLiteral().getFloat());
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_THIRD_COORDINATE_UNIT)) {
-                fov.setThirdParameterUnit(object.asResource().getURI());
+                fov.setThirdParameterUnit(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_THIRD_COORDINATE_CHARACTERISTIC)) {
-                fov.setThirdParameterCharacteristic(object.asResource().getURI());
+                fov.setThirdParameterCharacteristic(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
                 fov.setHasVersion(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {

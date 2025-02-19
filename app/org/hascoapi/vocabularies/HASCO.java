@@ -150,6 +150,7 @@ public class HASCO {
     public static final String HAS_VERSION                            = "http://hadatac.org/ont/hasco/hasVersion";
     public static final String HAS_VIEWER_EMAIL                       = "http://hadatac.org/ont/hasco/hasViewerEmail";
     public static final String HAS_VIRTUAL_COLUMN                     = "http://hadatac.org/ont/hasco/hasVirtualColumn";
+    public static final String HAS_WEB_DOCUMENT                       = "http://hadatac.org/ont/hasco/hasWebDocument";
     public static final String IN_RELATION_TO                         = "http://hadatac.org/ont/hasco/inRelationTo";
     public static final String IS_MEMBER_OF                           = "http://hadatac.org/ont/hasco/isMemberOf";
     public static final String IS_POSSIBLE_VALUE_OF                   = "http://hadatac.org/ont/hasco/isPossibleValueOf";

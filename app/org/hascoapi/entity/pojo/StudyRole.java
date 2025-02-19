@@ -92,6 +92,10 @@ public class StudyRole extends HADatAcThing implements Comparable<StudyRole>  {
                 studyRole.setComment(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
                 studyRole.setHascoTypeUri(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+                studyRole.setHasImageUri(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
+                studyRole.setHasWebDocument(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
                 studyRole.setHasStatus(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.IS_MEMBER_OF)) {

@@ -206,6 +206,10 @@ public class Organization extends Agent {
                 organization.setComment(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
                 organization.setHascoTypeUri(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+                organization.setHasImageUri(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
+                organization.setHasWebDocument(str);
             } else if (statement.getPredicate().getURI().equals(FOAF.NAME)) {
                 organization.setName(str);
             } else if (statement.getPredicate().getURI().equals(FOAF.MBOX)) {

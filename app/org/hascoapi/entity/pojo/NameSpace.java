@@ -216,6 +216,10 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
 					ns.setHascoTypeUri(str);
 				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
 					ns.setComment(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+					ns.setHasImageUri(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
+					ns.setHasWebDocument(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_ABBREVIATION)) {
 					ns.setLabel(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_SOURCE)) {

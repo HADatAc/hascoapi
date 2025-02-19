@@ -694,6 +694,10 @@ public class SemanticDataDictionary extends HADatAcThing {
                 sdd.setHascoTypeUri(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
                 sdd.setHasStatus(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+                sdd.setHasImageUri(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
+                sdd.setHasWebDocument(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
                 sdd.setHasVersion(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {

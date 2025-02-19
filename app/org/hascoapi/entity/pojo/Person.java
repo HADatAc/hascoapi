@@ -161,6 +161,10 @@ public class Person extends Agent {
                 person.setComment(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
                 person.setHascoTypeUri(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+                person.setHasImageUri(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
+                person.setHasWebDocument(str);
             } else if (statement.getPredicate().getURI().equals(FOAF.NAME)) {
                 person.setName(str);
             } else if (statement.getPredicate().getURI().equals(FOAF.FAMILY_NAME)) {

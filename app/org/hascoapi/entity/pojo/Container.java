@@ -41,9 +41,6 @@ public abstract class Container extends HADatAcClass implements SIRElement, Comp
 	@PropertyField(uri="vstoi:hasInformant")
 	private String hasInformant;
 
-	@PropertyField(uri="hasco:hasImage")
-	private String image;
-
 	@PropertyField(uri="vstoi:hasShortName")
 	private String hasShortName;
 
@@ -100,14 +97,6 @@ public abstract class Container extends HADatAcClass implements SIRElement, Comp
 	public void setHasInformant(String hasInformant) {
 		this.hasInformant = hasInformant;
 	}
-
-	public String getImage() {
-        return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
-    }
 
 	public String getHasShortName() {
 		return hasShortName;
@@ -374,6 +363,10 @@ public abstract class Container extends HADatAcClass implements SIRElement, Comp
 					container.setSuperUri(str); 
 				} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
 					container.setHascoTypeUri(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+					container.setHasImageUri(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
+					container.setHasWebDocument(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
 					container.setHasStatus(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.BELONGS_TO)) {
@@ -386,8 +379,6 @@ public abstract class Container extends HADatAcClass implements SIRElement, Comp
 					container.setHasPrevious(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_INFORMANT)) {
 					container.setHasInformant(str);
-				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
-					container.setImage(str);
 				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
 					container.setComment(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SHORT_NAME)) {

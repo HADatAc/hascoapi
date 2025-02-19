@@ -437,6 +437,10 @@ public class StudyObject extends HADatAcThing {
 					studyObject.setHascoTypeUri(str);
 				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
 					studyObject.setComment(str);
+                } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+					studyObject.setHasImageUri(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
+					studyObject.setHasWebDocument(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.ORIGINAL_ID)) {
 					studyObject.setOriginalId(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.IS_MEMBER_OF)) {

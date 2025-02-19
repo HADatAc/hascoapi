@@ -321,6 +321,10 @@ public class Repository extends HADatAcThing {
                 repo.setComment(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
                 repo.setHascoTypeUri(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+                repo.setHasImageUri(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
+                repo.setHasWebDocument(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_BASE_ONTOLOGY)) {
                 repo.setBaseOntology(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_BASE_URL)) {

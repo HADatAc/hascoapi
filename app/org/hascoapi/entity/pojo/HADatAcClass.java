@@ -30,6 +30,7 @@ import org.hascoapi.vocabularies.PROV;
 import org.hascoapi.vocabularies.RDF;
 import org.hascoapi.vocabularies.RDFS;
 import org.hascoapi.vocabularies.VSTOI;
+import org.hascoapi.vocabularies.HASCO;
 
 @JsonFilter("hascoClassFilter")
 public class HADatAcClass extends HADatAcThing {
@@ -259,6 +260,18 @@ public class HADatAcClass extends HADatAcThing {
                 String textStr = object.asLiteral().getString();
                 if (textStr != null) {
                     typeClass.setComment(textStr);
+                }
+            } else if (predUri.equals(HASCO.HAS_IMAGE)) {
+                String objUri = object.asResource().getURI();
+                //System.out.println("obj: " + objUri);
+                if (objUri != null && !objUri.equals(classUri)) {
+                    typeClass.setHasImageUri(objUri);
+                }
+            } else if (predUri.equals(HASCO.HAS_WEB_DOCUMENT)) {
+                String objUri = object.asResource().getURI();
+                //System.out.println("obj: " + objUri);
+                if (objUri != null && !objUri.equals(classUri)) {
+                    typeClass.setHasWebDocument(objUri);
                 }
             }
         }

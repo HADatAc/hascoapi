@@ -86,6 +86,10 @@ public class Subcontainer extends Container implements SlotElement {
 					subcontainer.setSuperUri(str); 
 				} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
 					subcontainer.setHascoTypeUri(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+					subcontainer.setHasImageUri(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
+					subcontainer.setHasWebDocument(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
 					subcontainer.setHasStatus(str);
 				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
@@ -102,8 +106,6 @@ public class Subcontainer extends Container implements SlotElement {
 					subcontainer.setHasPriority(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_INFORMANT)) {
 					subcontainer.setHasInformant(str);
-				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
-					subcontainer.setImage(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SHORT_NAME)) {
 					subcontainer.setHasShortName(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
@@ -195,7 +197,8 @@ public class Subcontainer extends Container implements SlotElement {
 		curSubcontainer.setComment(newSubcontainer.getComment());
 		curSubcontainer.setHasPriority(newSubcontainer.getHasPriority());
 		curSubcontainer.setHasInformant(newSubcontainer.getHasInformant());
-		curSubcontainer.setImage(newSubcontainer.getImage());
+		curSubcontainer.setHasImageUri(newSubcontainer.getHasImageUri());
+		curSubcontainer.setHasWebDocument(newSubcontainer.getHasWebDocument());
 		curSubcontainer.setHasShortName(newSubcontainer.getHasShortName());
 		curSubcontainer.setHasLanguage(newSubcontainer.getHasLanguage());
 		curSubcontainer.setHasVersion(newSubcontainer.getHasVersion());

@@ -69,9 +69,6 @@ public class Platform extends HADatAcClass implements Comparable<Platform> {
     @PropertyField(uri="hasco:partOf")
     private String partOf;
 
-    @PropertyField(uri="hasco:hasImage")
-    private String image;
-
     @PropertyField(uri="hasco:hasLayout")
     private String layout;
 
@@ -376,14 +373,6 @@ public class Platform extends HADatAcClass implements Comparable<Platform> {
         this.partOf = partOf;
     }
     
-    public String getImage() {
-        return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
-    }
-    
     public String getLayout() {
         return layout;
     }
@@ -456,6 +445,10 @@ public class Platform extends HADatAcClass implements Comparable<Platform> {
                 platform.setHascoTypeUri(str);
             } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
                 platform.setComment(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+                platform.setHasImageUri(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
+                platform.setHasWebDocument(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_FIRST_COORDINATE)) {
                 platform.setFirstCoordinate(Float.parseFloat(str));
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_FIRST_COORDINATE_UNIT)) {
@@ -476,8 +469,6 @@ public class Platform extends HADatAcClass implements Comparable<Platform> {
             	platform.setThirdCoordinateCharacteristic(str);
             } else if (statement.getSubject().getURI().equals(uri) && statement.getPredicate().getURI().equals(HASCO.PART_OF)) {
             	platform.setPartOf(str);
-            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
-                platform.setImage(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_LAYOUT)) {
                 platform.setLayout(str);
             } else if (statement.getSubject().getURI().equals(uri) && statement.getPredicate().getURI().equals(HASCO.HAS_REFERENCE_LAYOUT)) {

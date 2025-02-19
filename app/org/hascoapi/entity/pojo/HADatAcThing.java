@@ -55,6 +55,12 @@ public abstract class HADatAcThing {
     @PropertyField(uri="rdfs:comment")
     String comment = "";
 
+    @PropertyField(uri="hasco:hasImage")
+    String hasImageUri = "";
+
+    @PropertyField(uri="hasco:hasWebDocument")
+    String hasWebDocument = "";
+
     String nodeId = "";
 
     String field = "";
@@ -155,6 +161,22 @@ public abstract class HADatAcThing {
 
     public void setLabel(String label) {
         this.label = label;
+    }
+
+    public String getHasImageUri() {
+        return hasImageUri;
+    }
+
+    public void setHasImageUri(String hasImageUri) {
+        this.hasImageUri = hasImageUri;
+    }
+
+    public String getHasWebDocument() {
+        return hasWebDocument;
+    }
+
+    public void setHasWebDocument(String hasWebDocument) {
+        this.hasWebDocument = hasWebDocument;
     }
 
     public String getNodeId() {

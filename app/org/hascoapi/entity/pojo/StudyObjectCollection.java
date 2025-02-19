@@ -694,6 +694,10 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
                 soc.setComment(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
                 soc.setHascoTypeUri(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+                soc.setHasImageUri(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
+                soc.setHasWebDocument(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_LAST_COUNTER)) {
                 soc.setLastCounter(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {

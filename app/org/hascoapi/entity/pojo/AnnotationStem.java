@@ -23,9 +23,6 @@ public class AnnotationStem extends HADatAcThing implements SIRElement, Comparab
     @PropertyField(uri="vstoi:hasStatus")
     private String hasStatus;
 
-    @PropertyField(uri="hasco:hasImage")
-    private String image;
-
     @PropertyField(uri="vstoi:hasContent")
     private String hasContent;
 
@@ -56,14 +53,6 @@ public class AnnotationStem extends HADatAcThing implements SIRElement, Comparab
 
     public void setHasStatus(String hasStatus) {
         this.hasStatus = hasStatus;
-    }
-
-    public String getImage() {
-        return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
     }
 
     public String getHasContent() {
@@ -159,10 +148,12 @@ public class AnnotationStem extends HADatAcThing implements SIRElement, Comparab
                 annotationStem.setComment(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
                 annotationStem.setHascoTypeUri(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+                annotationStem.setHasImageUri(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
+                annotationStem.setHasWebDocument(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
                 annotationStem.setHasStatus(str);
-            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
-                annotationStem.setImage(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_CONTENT)) {
                 annotationStem.setHasContent(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
