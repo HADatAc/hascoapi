@@ -26,6 +26,7 @@ import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.SPARQLUtils;
 import org.hascoapi.utils.TreeNode;
+import org.hascoapi.utils.URIUtils;
 import org.hascoapi.vocabularies.PROV;
 import org.hascoapi.vocabularies.RDF;
 import org.hascoapi.vocabularies.RDFS;
@@ -221,58 +222,28 @@ public class HADatAcClass extends HADatAcThing {
             statement = stmtIterator.next();
             subject = statement.getSubject();
             object = statement.getObject();
+            String str = URIUtils.objectRDFToString(object);
+
             //System.out.println("pred: " + statement.getPredicate().getURI());
             String predUri = statement.getPredicate().getURI();
             if (predUri.equals(RDFS.LABEL)) {
-                typeClass.setLabel(object.asLiteral().getString());
+                typeClass.setLabel(str);
             } else if (predUri.equals(RDF.TYPE)) {
-                String objUri = object.asResource().getURI();
-                //System.out.println("obj: " + objUri);
-                if (objUri != null && !objUri.equals(classUri)) {
-                    typeClass.setTypeUri(objUri);
-                }
+                typeClass.setTypeUri(str);
             } else if (predUri.equals(RDFS.SUBCLASS_OF)) {
-                String objUri = object.asResource().getURI();
-                //System.out.println("is subClass of [" + objUri + "]");
-                if (objUri != null && !objUri.equals(classUri)) {
-                    typeClass.setSuperUri(objUri);
-                }
+                typeClass.setSuperUri(str);
             } else if (predUri.equals(RDFS.DOMAIN)) {
-                String subUri = subject.asResource().getURI();
-                //System.out.println("sub: " + subUri);
-                if (subUri != null && !subUri.equals(classUri)) {
-                    typeClass.addDomain(subUri);
-                }
+                typeClass.addDomain(str);
             } else if (predUri.equals(RDFS.RANGE)) {
-                String subUri = subject.asResource().getURI();
-                //System.out.println("sub: " + subUri);
-                if (subUri != null && !subUri.equals(classUri)) {
-                    typeClass.addRange(subUri);
-                }
+                typeClass.addRange(str);
             } else if (predUri.equals(RDFS.DISJOINT_WITH)) {
-                String objUri = object.asResource().getURI();
-                if (objUri != null && !objUri.equals(classUri)) {
-                    //System.out.println("obj: " + objUri);
-                    typeClass.addDisjointWith(objUri);
-                }
-            } else if (predUri.equals(RDFS.COMMENT) ||
-                       predUri.equals(PROV.DEFINITION)) {
-                String textStr = object.asLiteral().getString();
-                if (textStr != null) {
-                    typeClass.setComment(textStr);
-                }
+                typeClass.addDisjointWith(str);
+            } else if (predUri.equals(RDFS.COMMENT) || predUri.equals(PROV.DEFINITION)) {
+                typeClass.setComment(str);
             } else if (predUri.equals(HASCO.HAS_IMAGE)) {
-                String objUri = object.asResource().getURI();
-                //System.out.println("obj: " + objUri);
-                if (objUri != null && !objUri.equals(classUri)) {
-                    typeClass.setHasImageUri(objUri);
-                }
+                typeClass.setHasImageUri(str);
             } else if (predUri.equals(HASCO.HAS_WEB_DOCUMENT)) {
-                String objUri = object.asResource().getURI();
-                //System.out.println("obj: " + objUri);
-                if (objUri != null && !objUri.equals(classUri)) {
-                    typeClass.setHasWebDocument(objUri);
-                }
+                typeClass.setHasWebDocument(str);
             }
         }
 
