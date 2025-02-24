@@ -314,7 +314,10 @@ public class IngestionAPI extends Controller {
                 System.out.println("IngestionAPI.uningestMetadataTemplate() read DSG");
             } else if (mtRaw.getHascoTypeUri().equals(HASCO.INS)) {
                 mtType = HASCO.INS;
-                System.out.println("IngestionAPI.uningestMetadataTemplate() read DSG");
+                System.out.println("IngestionAPI.uningestMetadataTemplate() read INS");
+            } else if (mtRaw.getHascoTypeUri().equals(HASCO.STR)) {
+                mtType = HASCO.STR;
+                System.out.println("IngestionAPI.uningestMetadataTemplate() read STR");
             }
         }
 
@@ -448,6 +451,33 @@ public class IngestionAPI extends Controller {
             }
 
             System.out.println("IngestionAPI.ingest(): API has able to retrieve SDD from triplestore");
+
+            // Delete API copy of metadata template
+            boolean deletedFile = IngestionAPI.deletePermanentFile(dataFile.getFilename());
+
+            // Uningest Datafile content
+            dataFile.delete();
+
+            String msg = "IngestionAPI.uningestMetadataTemplate(): successfully ingested metadataTemplateUri " + metadataTemplateUri;
+            System.out.println(msg);
+            return ok(ApiUtil.createResponse(msg,true));
+
+        } else if (mtType.equals(HASCO.STR)) {
+
+            STR str = STR.find(metadataTemplateUri);
+            if (str == null) {
+                String errorMsg = "[ERROR] IngestionAPI.uningestMetadataTemplate() unable to retrieve STR with metadataTemplateUri = " + metadataTemplateUri;
+                System.out.println(errorMsg);
+                return ok(ApiUtil.createResponse(errorMsg,false));
+            }
+            DataFile dataFile = DataFile.find(str.getHasDataFileUri());
+            if (dataFile == null) {
+                String errorMsg = "[ERROR] IngestionAPI.uningestMetadataTemplate() unable to retrieve STR's dataFile = " + str.getHasDataFileUri();
+                System.out.println(errorMsg);
+                return ok(ApiUtil.createResponse(errorMsg,false));
+            }
+
+            System.out.println("IngestionAPI.ingest(): API has able to retrieve STR from triplestore");
 
             // Delete API copy of metadata template
             boolean deletedFile = IngestionAPI.deletePermanentFile(dataFile.getFilename());

@@ -31,7 +31,7 @@ public class GeneratorChain {
     public void setStudyUri(String studyUri) {
         this.studyUri = studyUri;
     }
-    
+
     public String getNamedGraphUri() {
         return namedGraphUri;
     }
@@ -79,11 +79,11 @@ public class GeneratorChain {
     public void setSddName(String sddName) {
         this.sddName = sddName;
     }
-    
+
     public void addGenerator(BaseGenerator generator) {
         chain.add(generator);
     }
-    
+
     public boolean generate() {
         return generate(true);
     }
@@ -96,7 +96,7 @@ public class GeneratorChain {
 
         //int i = 0;
         //for (BaseGenerator generator : chain) {
-        //	log.info("GeneratorChain: Position " + i++ + " has generator of type [" + generator.getClass(). getSimpleName() + "]");
+        //    log.info("GeneratorChain: Position " + i++ + " has generator of type [" + generator.getClass(). getSimpleName() + "]");
         //}
 
         for (BaseGenerator generator : chain) {
@@ -106,29 +106,29 @@ public class GeneratorChain {
             } else {
                 elementType = " (" + elementType + ")";
             }
-        	System.out.println("GeneratorChain: Executing generator of type [" + generator.getClass().getSimpleName() + elementType + "]");
-        	//System.out.println("GeneratorChain: Named Graph is [" + generator.getNamedGraphUri() + "]");
+            System.out.println("GeneratorChain: Executing generator of type [" + generator.getClass().getSimpleName() + elementType + "]");
+            //System.out.println("GeneratorChain: Named Graph is [" + generator.getNamedGraphUri() + "]");
             try {
                 //System.out.println("  - GenerationChain: PreProcess");
                 generator.preprocess();
                 generator.preprocessuris(uris);
-                //System.out.println("  - GenerationChain: CreateRows");
+                //System.out.println("\n\n- GenerationChain: CreateRows");
                 generator.createRows();
-                //System.out.println("  - GenerationChain: CreateObjects");
+                //System.out.println("\n\n- GenerationChain: CreateObjects");
                 generator.createObjects();
-                //System.out.println("  - GenerationChain:PostProcess");
+                //System.out.println("\n\n- GenerationChain:PostProcess");
                 generator.postprocess();
                 uris = generator.postprocessuris();
             } catch (Exception e) {
                 System.out.println("[ERROR] GenerationChain: " + generator.getErrorMsg(e));
                 e.printStackTrace();
-                
+
                 generator.getLogger().printException(generator.getErrorMsg(e));
                 return false;
             }
-        	System.out.println("GeneratorChain: Ended execution of generator of type [" + generator.getClass().getSimpleName() + elementType + "]");
+            System.out.println("GeneratorChain: Ended execution of generator of type [" + generator.getClass().getSimpleName() + elementType + "]");
         }
-        
+
         if (!bCommit) {
             return true;
         }
@@ -137,18 +137,18 @@ public class GeneratorChain {
 
         // Commit if no errors occurred
         for (BaseGenerator generator : chain) {
-        	System.out.println("GeneratorChain: Started commit of generator of type [" + generator.getClass().getSimpleName() + "]");
+            System.out.println("GeneratorChain: Started commit of generator of type [" + generator.getClass().getSimpleName() + "]");
             if (!getNamedGraphUri().isEmpty()) {
                 generator.setNamedGraphUri(getNamedGraphUri());
-            }             
+            }
             if (!generator.getStudyUri().isEmpty()) {
                 setStudyUri(generator.getStudyUri());
             }
-            
+
             if (generator.getStudyUri().isEmpty() && !getStudyUri().isEmpty()) {
                 generator.setStudyUri(getStudyUri());
             }
-                        
+
             try {
                 if (generator.getRows().size() > 0){
                     generator.commitRowsToTripleStore(generator.getRows());
@@ -159,11 +159,11 @@ public class GeneratorChain {
             } catch (Exception e) {
                 System.out.println(generator.getErrorMsg(e));
                 e.printStackTrace();
-                
+
                 generator.getLogger().printException(generator.getErrorMsg(e));
                 return false;
             }
-        	System.out.println("GeneratorChain: Finished commit of generator of type [" + generator.getClass().getSimpleName() + "]");
+            System.out.println("GeneratorChain: Finished commit of generator of type [" + generator.getClass().getSimpleName() + "]");
         }
 
         for (BaseGenerator generator : chain) {
@@ -185,10 +185,10 @@ public class GeneratorChain {
         System.out.println("GeneratorChain: Executing [IMMEDIATE COMMIT] generator chain.");
 
         for (BaseGenerator generator : chain) {
-        	System.out.println("GeneratorChain: Executing generator of type [" + generator.getClass().getSimpleName() + "]");
+            System.out.println("GeneratorChain: Executing generator of type [" + generator.getClass().getSimpleName() + "]");
             if (!getNamedGraphUri().isEmpty()) {
                 generator.setNamedGraphUri(getNamedGraphUri());
-            }             
+            }
             try {
                 //System.out.println("  - GenerationChain: PreProcess");
                 generator.preprocess();
@@ -208,7 +208,7 @@ public class GeneratorChain {
                 }
             } catch (Exception e) {
                 System.out.println("[ERROR] GenerationChain: " + generator.getErrorMsg(e));
-                e.printStackTrace();                
+                e.printStackTrace();
                 generator.getLogger().printException(generator.getErrorMsg(e));
                 return false;
             }
@@ -241,7 +241,7 @@ public class GeneratorChain {
             } catch (Exception e) {
                 System.out.println(generator.getErrorMsg(e));
                 e.printStackTrace();
-                
+
                 generator.getLogger().printException(e);
             }
         }
