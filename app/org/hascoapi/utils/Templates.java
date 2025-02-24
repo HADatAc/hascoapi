@@ -7,11 +7,11 @@ public class Templates {
 
     public String templateFile = null;
     public INIConfiguration iniConfig = null;
-    
+
     public Templates(String templateFile) {
         try {
             this.templateFile = templateFile;
-            this.iniConfig = new HASCOConfig(templateFile); 
+            this.iniConfig = new HASCOConfig(templateFile);
 
             // Print all section names
             //Set<String> sections = this.iniConfig.getSections();
@@ -29,114 +29,114 @@ public class Templates {
     public String getSTUDYID() {
         return iniConfig.getSection("STD").getString("studyID");  // also in ACQ, PID and SID
     }
-    public String getSTUDYTITLE() { 
-        return iniConfig.getSection("STD").getString("studyTitle"); 
+    public String getSTUDYTITLE() {
+        return iniConfig.getSection("STD").getString("studyTitle");
     }
-    public String getSTUDYAIMS() { 
+    public String getSTUDYAIMS() {
         return iniConfig.getSection("STD").getString("studyAims");
     }
-    public String getSTUDYSIGNIFICANCE() { 
-        return iniConfig.getSection("STD").getString("studySignificance"); 
+    public String getSTUDYSIGNIFICANCE() {
+        return iniConfig.getSection("STD").getString("studySignificance");
     }
-    public String getNUMSUBJECTS() { 
-        return iniConfig.getSection("STD").getString("numSubjects"); 
+    public String getNUMSUBJECTS() {
+        return iniConfig.getSection("STD").getString("numSubjects");
     }
-    public String getNUMSAMPLES() { 
-        return iniConfig.getSection("STD").getString("numSamples"); 
+    public String getNUMSAMPLES() {
+        return iniConfig.getSection("STD").getString("numSamples");
     }
-    public String getINSTITUTION() { 
+    public String getINSTITUTION() {
         return iniConfig.getSection("STD").getString("institution"); }
-    public String getPI() { 
+    public String getPI() {
         return iniConfig.getSection("STD").getString("PI"); }
-    public String getPIADDRESS() { 
+    public String getPIADDRESS() {
         return iniConfig.getSection("STD").getString("PIAddress"); }
-    public String getPICITY() { 
+    public String getPICITY() {
         return iniConfig.getSection("STD").getString("PICity"); }
-    public String getPISTATE() { 
+    public String getPISTATE() {
         return iniConfig.getSection("STD").getString("PIState"); }
-    public String getPIZIPCODE() { 
+    public String getPIZIPCODE() {
         return iniConfig.getSection("STD").getString("PIZipCode"); }
-    public String getPIEMAIL() { 
+    public String getPIEMAIL() {
         return iniConfig.getSection("STD").getString("PIEmail"); }
-    public String getPIPHONE() { 
+    public String getPIPHONE() {
         return iniConfig.getSection("STD").getString("PIPhone"); }
-    public String getCPI1FNAME() { 
+    public String getCPI1FNAME() {
         return iniConfig.getSection("STD").getString("CPI1FName"); }
-    public String getCPI1LNAME() { 
+    public String getCPI1LNAME() {
         return iniConfig.getSection("STD").getString("CPI1LName"); }
-    public String getCPI1EMAIL() { 
+    public String getCPI1EMAIL() {
         return iniConfig.getSection("STD").getString("CPI1Email"); }
-    public String getCPI1INSTITUTION() { 
+    public String getCPI1INSTITUTION() {
         return iniConfig.getSection("STD").getString("CPI1institution"); }
-    public String getCPI1ADDRESS() { 
+    public String getCPI1ADDRESS() {
         return iniConfig.getSection("STD").getString("CPI1Address"); }
-    public String getCPI1CITY() { 
+    public String getCPI1CITY() {
         return iniConfig.getSection("STD").getString("CPI1City"); }
-    public String getCPI1STATE() { 
+    public String getCPI1STATE() {
         return iniConfig.getSection("STD").getString("CPI1State"); }
-    public String getCPI1ZIPCODE() { 
+    public String getCPI1ZIPCODE() {
         return iniConfig.getSection("STD").getString("CPI1ZipCode"); }
-    public String getCPI2FNAME() { 
+    public String getCPI2FNAME() {
         return iniConfig.getSection("STD").getString("CPI2FName"); }
-    public String getCPI2LNAME() { 
+    public String getCPI2LNAME() {
         return iniConfig.getSection("STD").getString("CPI2LName"); }
-    public String getCPI2EMAIL() { 
+    public String getCPI2EMAIL() {
         return iniConfig.getSection("STD").getString("CPI2Email"); }
-    public String getCPI2INSTITUTION() { 
+    public String getCPI2INSTITUTION() {
         return iniConfig.getSection("STD").getString("CPI2institution"); }
-    public String getCPI2ADDRESS() { 
+    public String getCPI2ADDRESS() {
         return iniConfig.getSection("STD").getString("CPI2Address"); }
-    public String getCPI2CITY() { 
+    public String getCPI2CITY() {
         return iniConfig.getSection("STD").getString("CPI2City"); }
-    public String getCPI2STATE() { 
+    public String getCPI2STATE() {
         return iniConfig.getSection("STD").getString("CPI2State"); }
-    public String getCPI2ZIPCODE() { 
+    public String getCPI2ZIPCODE() {
         return iniConfig.getSection("STD").getString("CPI2ZipCode"); }
-    public String getCONTACTFNAME() { 
+    public String getCONTACTFNAME() {
         return iniConfig.getSection("STD").getString("contactFName"); }
-    public String getCONTACTLNAME() { 
+    public String getCONTACTLNAME() {
         return iniConfig.getSection("STD").getString("contactLName"); }
-    public String getCONTACTEMAIL() { 
+    public String getCONTACTEMAIL() {
         return iniConfig.getSection("STD").getString("contactEmail"); }
-    public String getCREATEDDATE() { 
+    public String getCREATEDDATE() {
         return iniConfig.getSection("STD").getString("createdDate"); }
-    public String getUPDATEDDATE() { 
+    public String getUPDATEDDATE() {
         return iniConfig.getSection("STD").getString("updatedDate"); }
-    public String getDCACCESSBOOL() { 
+    public String getDCACCESSBOOL() {
         return iniConfig.getSection("STD").getString("DCAccessBool"); }
-    public String getEXTSRC() { 
+    public String getEXTSRC() {
         return iniConfig.getSection("STD").getString("externalSource"); }
-    public String getNSNAME() { 
+    public String getNSNAME() {
         return iniConfig.getSection("STD").getString("nsName"); }
-    public String getNSABBREV() { 
+    public String getNSABBREV() {
         return iniConfig.getSection("STD").getString("nsAbbrev"); }
-    public String getNSFORMAT() { 
-        return iniConfig.getSection("STD").getString("nsFormat"); } 
-    public String getNSSOURCE() { 
+    public String getNSFORMAT() {
+        return iniConfig.getSection("STD").getString("nsFormat"); }
+    public String getNSSOURCE() {
         return iniConfig.getSection("STD").getString("nsSource"); }
 
     // ACQ Template
-    public String getACQ_DATAACQUISITIONNAME() { 
+    public String getACQ_DATAACQUISITIONNAME() {
         return iniConfig.getSection("ACQ").getString("DataAcquisitionName"); }
-    public String getACQ_METHOD() { 
+    public String getACQ_METHOD() {
         return iniConfig.getSection("ACQ").getString("Method"); }
-    public String getACQ_SDDTUDYID() { 
+    public String getACQ_SDDTUDYID() {
         return iniConfig.getSection("ACQ").getString("SDDtudyName"); }
-    public String getACQ_DATADICTIONARYNAME() { 
+    public String getACQ_DATADICTIONARYNAME() {
         return iniConfig.getSection("ACQ").getString("DataDictionaryName"); }
-    public String getACQ_EPILAB() { 
+    public String getACQ_EPILAB() {
         return iniConfig.getSection("ACQ").getString("Epi/Lab"); }
-    public String getACQ_OWNEREMAIL() { 
+    public String getACQ_OWNEREMAIL() {
         return iniConfig.getSection("ACQ").getString("OwnerEmail"); }
-    public String getACQ_PERMISSIONURI() { 
+    public String getACQ_PERMISSIONURI() {
         return iniConfig.getSection("ACQ").getString("PermissionURI"); }
 
     // STR Template
-    public String getDATAACQUISITIONNAME() { 
+    public String getDATAACQUISITIONNAME() {
         return iniConfig.getSection("STR").getString("DataAcquisitionName"); }
-    public String getMETHOD() { 
+    public String getMETHOD() {
         return iniConfig.getSection("STR").getString("Method"); }
-    public String getDATADICTIONARYNAME() { 
+    public String getDATADICTIONARYNAME() {
         return iniConfig.getSection("STR").getString("DataDictionaryName"); }
     public String getSDDTUDYID() { return iniConfig.getSection("STR").getString("SDDtudyName"); }
     public String getTOPICNAME() { return iniConfig.getSection("STR").getString("TopicName"); }
@@ -221,4 +221,4 @@ public class Templates {
     public String getPostalAddressCountry() { return iniConfig.getSection("KGR").getString("postalAddressCountry"); }
     public String getPostalAddressLocality() { return iniConfig.getSection("KGR").getString("postalAddressLocality"); }
     public String getPostalAddressRegion() { return iniConfig.getSection("KGR").getString("postalAddressRegion"); }
-}    
+}

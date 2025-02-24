@@ -48,13 +48,14 @@ public class STRFileGenerator extends BaseGenerator {
     Study study = null;
     RecordFile specRecordFile = null;
 
-    public STRFileGenerator(DataFile dataFile, Study study, RecordFile specRecordFile, String startTime) {
+    public STRFileGenerator(DataFile dataFile, Study study, RecordFile specRecordFile, String startTime, String templateFile) {
         super(dataFile);
 		this.file = specRecordFile;
 		this.records = file.getRecords();
         this.study = study;
         this.specRecordFile = specRecordFile;
         this.startTime = startTime;
+        this.templates = new Templates(templateFile);
         dataFile.getLogger().println("STRFileGenerator: End of constructor -> Number of records: " + specRecordFile.getNumberOfRows());
     }
 
@@ -67,12 +68,14 @@ public class STRFileGenerator extends BaseGenerator {
     }
 
     private String getSDDName(Record rec) {
-        String SDDName = rec.getValueByColumnName(templates.getDATADICTIONARYNAME()).equalsIgnoreCase("NULL")? 
+        String SDDName = rec.getValueByColumnName(templates.getDATADICTIONARYNAME()).equalsIgnoreCase("NULL")?
                 "" : rec.getValueByColumnName(templates.getDATADICTIONARYNAME());
+
+        //System.out.println("\n\nSTRGenerator SDDName: " + rec.getValueByColumnName(templates.getDATADICTIONARYNAME())+"\n\n ");
         return SDDName.replace("SDD-","");
     }
 
-    private String getDeployment(Record rec) { 
+    private String getDeployment(Record rec) {
         return rec.getValueByColumnName(templates.getDEPLOYMENTURI());
     }
 
@@ -91,13 +94,13 @@ public class STRFileGenerator extends BaseGenerator {
     }
 
     private String getPermissionUri(Record rec) {
-        return rec.getValueByColumnName(templates.getPERMISSIONURI());
+        return rec.getValueByColumnName(URIUtils.replacePrefixEx(templates.getPERMISSIONURI()));
     }
 
     @Override
     public Map<String, Object> createRow(Record rec, int rowNumber) throws Exception {
     	Map<String, Object> row = new HashMap<String, Object>();
-		dataFile.getLogger().println("STRFileGenerator: At createRow. Row Number " + rowNumber + "  record size: " + rec.size());
+		//dataFile.getLogger().println("STRFileGenerator: At createRow. Row Number " + rowNumber + "  record size: " + rec.size());
 		row.put("hasURI", kbPrefix + "DA-" + getSTRName(rec));
 		row.put("a", "hasco:DataAcquisition");
 		row.put("rdfs:label", getSTRName(rec));
@@ -108,7 +111,8 @@ public class STRFileGenerator extends BaseGenerator {
 		} else {
 			row.put("prov:startedAtTime", startTime);
 		}
-		row.put("hasco:hasSchema", kbPrefix + "DAS-" + getSDDName(rec));
+		//row.put("hasco:hasSchema", kbPrefix + "DAS-" + getSDDName(rec));
+        row.put("hasco:hasSchema", getSDDName(rec));
     	return row;
     }
 
@@ -118,7 +122,7 @@ public class STRFileGenerator extends BaseGenerator {
 	    if (row == null) {
     		return null;
     	}
-    	
+
         Stream str = new Stream();
 
         str.setUri(URIUtils.replacePrefixEx((String)row.get("hasURI")));
@@ -138,9 +142,13 @@ public class STRFileGenerator extends BaseGenerator {
         // process STREAM NAME (i.e., the DA NAME)
         if (getSTRName(rec) == null || getSTRName(rec).isEmpty()) {
             dataFile.getLogger().printExceptionByIdWithArgs("STR_00020");
-            throw new Exception();
+            //throw new Exception();
+            return null;
     	}
-        str.setLabel(URIUtils.replacePrefixEx((String)row.get("rdfs:label")));
+
+        // str.setLabel(URIUtils.replacePrefixEx((String)row.get("rdfs:label")));
+        str.setLabel((String)row.get("rdfs:label"));
+
         dataFile.getLogger().println("createStr [1/6] - assigned URI: [" + str.getUri() + "]");
 
         // process CELL SCOPE
@@ -168,7 +176,7 @@ public class STRFileGenerator extends BaseGenerator {
                     } else {
                         cellSpec = cellSpec.substring(1, cellSpec.length()-1);
                         elementList = cellSpec.split(",");
-                        if (elementList.length != 2) { 
+                        if (elementList.length != 2) {
                             dataFile.getLogger().printExceptionByIdWithArgs("STR_00026", cellSpec);
                             throw new Exception();
                         }
@@ -177,12 +185,12 @@ public class STRFileGenerator extends BaseGenerator {
                     }
                 }
             }
-        }		
+        }
         dataFile.getLogger().println("createStr [2/6] - Specified CellScope: [" + cellScopeStr + "]");
 
         // process OWNER EMAIL
         String ownerEmail = getOwnerEmail(rec);
-        /* TODO 
+        /* TODO
         SysUser user = SysUser.findByEmail(ownerEmail);
         if (null == user) {
             dataFile.getLogger().printExceptionByIdWithArgs("STR_00028", ownerEmail);
@@ -204,10 +212,10 @@ public class STRFileGenerator extends BaseGenerator {
 	    }
         */
         dataFile.getLogger().println("createStr [3/6] - Specified owner email: [" + ownerEmail + "]");
-	    
+
 	    // process PERMISSION URI
 	    String permissionUri = getPermissionUri(rec);
-        /* TODO 
+        /* TODO
 	    if (permissionUri.isEmpty()) {
 	        user = SysUser.findByEmail(ownerEmail);
 	        if (null != user) {
@@ -222,9 +230,10 @@ public class STRFileGenerator extends BaseGenerator {
 	        }
 	    }
         */
-	    str.setPermissionUri(permissionUri);
+
+	    str.setPermissionUri("\"" + permissionUri + "\"");
         dataFile.getLogger().println("createStr [4/6] - Specified permission: [" + permissionUri + "]");
-	    
+
         // process DEPLOYMENT
         if (row.get("hasco:hasDeployment") == null || ((String)row.get("hasco:hasDeployment")).isEmpty()) {
             dataFile.getLogger().printExceptionByIdWithArgs("STR_00022");
@@ -232,18 +241,20 @@ public class STRFileGenerator extends BaseGenerator {
         }
         str.setDeploymentUri(URIUtils.replacePrefixEx((String)row.get("hasco:hasDeployment")));
         Deployment deployment = Deployment.find(str.getDeploymentUri());
+        //System.out.println("\n\ndeployment: " + str.getDeploymentUri());
         if (deployment == null) {
             dataFile.getLogger().printExceptionByIdWithArgs("STR_00022");
             throw new Exception();
         }
         dataFile.getLogger().println("createStr [5/6] - Specified deployment: [" + str.getDeploymentUri() + "]");
-        
+
         // process SDD
 	    if (getSDDName(rec) == null || getSDDName(rec).isEmpty()) {
             dataFile.getLogger().printExceptionById("STR_00021");
             throw new Exception();
 	    }
         str.setSemanticDataDictionaryUri(URIUtils.replacePrefixEx((String)row.get("hasco:hasSchema")));
+        //System.out.println("\n\nschema: " + URIUtils.replacePrefixEx((String)row.get("hasco:hasSchema")));
         SDD schema = SDD.find(str.getSemanticDataDictionaryUri());
         if (schema != null) {
             str.setStatus(9999);
@@ -252,7 +263,7 @@ public class STRFileGenerator extends BaseGenerator {
             throw new Exception();
         }
         dataFile.getLogger().println("createStr [6/6] - Specified SDD: [" + str.getSemanticDataDictionaryUri() + "]");
-        
+
 	    if (!isFileStreamValid(str)) {
             throw new Exception();
 	    }
@@ -282,7 +293,7 @@ public class STRFileGenerator extends BaseGenerator {
         for (VirtualColumn vc: vcList) {
             if (vc.getGroundingLabel().length() > 0) {
                 refList.put(vc.getSOCReference(), vc.getGroundingLabel());
-                String tarUri = URIUtils.replacePrefixEx(kbPrefix + "DASO-" + study.getId() + "-" + vc.getSOCReference().trim().replace(" ","").replace("_","-").replace("??", "")); 
+                String tarUri = URIUtils.replacePrefixEx(kbPrefix + "DASO-" + study.getId() + "-" + vc.getSOCReference().trim().replace(" ","").replace("_","-").replace("??", ""));
                 //System.out.println("  - (RefList)  [" + vc.getGroundingLabel() + "]  [" + vc.getSOCReference() + "]");
                 tarList.put(tarUri,  vc.getSOCReference());
                 //System.out.println("  - (TarList)  [" + vc.getGroundingLabel() + "]  [" + tarUri + "]");
@@ -291,7 +302,7 @@ public class STRFileGenerator extends BaseGenerator {
 
         String queryString = null;
         ResultSetRewindable resultsrw = null;
-        
+
         //System.out.println("DASOs requiring role assignments: ");
         Map<String, String> dasoPL = new HashMap<String, String>();
         List<SDDObject> dasos = new ArrayList<SDDObject>();
@@ -323,21 +334,21 @@ public class STRFileGenerator extends BaseGenerator {
             	//System.out.println("DASO skipped");
             } else {
                 dasUri = (daso!=null && daso.getPartOfSchema()!=null) ? daso.getPartOfSchema():"";
-            	queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + 
+            	queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                     		"SELECT ?vc ?soc ?socRef ?vcLabel ?role WHERE { " +
                 	    "   <" + daso.getUri() + "> rdfs:label ?vcLabel . " +
                 	    "   ?soc hasco:hasReference ?vc . " +
                 	    "   ?vc hasco:hasSOCReference ?socRef . " +
-                	    "   OPTIONAL { ?soc hasco:hasRoleLabel ?role . } . " + 
+                	    "   OPTIONAL { ?soc hasco:hasRoleLabel ?role . } . " +
                 	    "   FILTER (?socRef = ?vcLabel ) . " +
                 	    " }";
-                
+
                 resultsrw = SPARQLUtils.select(CollectionUtil.getCollectionPath(
                 		CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
                 if (resultsrw.hasNext()) {
                     QuerySolution soln = resultsrw.next();
-                    
+
                     if (soln.get("role").isLiteral() && soln.getLiteral("role") != null) {
                     	dataFile.getLogger().println("PATH: " + daso.getLabel() + " has role \"" + soln.getLiteral("role").toString() + "\"");
                         dasoPL.put(daso.getUri(), soln.getLiteral("role").toString() );
@@ -348,7 +359,7 @@ public class STRFileGenerator extends BaseGenerator {
                             //found = true;
                             //break;
                         //}
-                    } 
+                    }
                 } else {
                 	//dataFile.getLogger().println(daso.getUri() + " misses a role");
                 	//System.out.println(daso.getUri() + " misses a role");
@@ -359,22 +370,22 @@ public class STRFileGenerator extends BaseGenerator {
 
                 	//System.out.println(daso.getUri() + " size of refList: " + refList.size());
                     for (String j : refList.keySet()) {
-                    	
+
                         //dataFile.getLogger().println("daso.getUri(): [" + daso.getUri() + "];   J is [" + j + "]");
                     	//System.out.println("daso.getUri(): [" + daso.getUri() + "];   J is [" + j + "]");
-                    	
+
 
                         if (found == false) {
                             String target = kbPrefix + "DASO-" + study.getId() + "-" + j.trim().replace(" ","").replace("_","-").replace("??", "");
 
-                            queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + 
-                                    "SELECT ?x ?o WHERE { \n" + 
-                                    "<" + daso.getUri() + "> ?p ?x . \n" + 
-                                    "   ?x ?p1 ?o .  \n" + 
+                            queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                                    "SELECT ?x ?o WHERE { \n" +
+                                    "<" + daso.getUri() + "> ?p ?x . \n" +
+                                    "   ?x ?p1 ?o .  \n" +
                                     "   OPTIONAL {?o ?p2 " + target + " } " +
                                     "}";
                             //System.out.println(queryString);
-                            
+
                             resultsrw = SPARQLUtils.select(CollectionUtil.getCollectionPath(
                                     CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
@@ -385,15 +396,15 @@ public class STRFileGenerator extends BaseGenerator {
                             }
 
                             while (resultsrw.hasNext()) {
-                                QuerySolution soln = resultsrw.next();                      
+                                QuerySolution soln = resultsrw.next();
                                 try {
                                     if (soln != null) {
-                                        try {                                       
+                                        try {
                                         	//System.out.println("HERE 4");
                                         	if (soln.get("x").isResource()){
                                                 if (soln.getResource("x") != null) {
                                                     //System.out.println("Resource X: " + soln.getResource("x").toString());
-                                                    if (tarList.containsKey(soln.getResource("x").toString())) {                           
+                                                    if (tarList.containsKey(soln.getResource("x").toString())) {
 	                                                    //System.out.println("IS MATCH");
                                                         answer.add(refList.get(tarList.get(soln.getResource("x").toString())));
                                                         dataFile.getLogger().println("PATH: " + daso.getLabel() + " has role \"" + answer.get(1) + " " + answer.get(0) + "\"");
@@ -456,7 +467,7 @@ public class STRFileGenerator extends BaseGenerator {
                     }
                 }
                 //System.out.println("<<<---- END OF DASO PROCESSING " + daso.getUri());
-            }             
+            }
         }
         //insert the triples
 
@@ -482,7 +493,7 @@ public class STRFileGenerator extends BaseGenerator {
         //System.out.println("<<<===== END OF FILE PROCESSING " + str.getSchema().getUri());
         return resp;
     }
-        
+
     @Override
     public String getTableName() {
         return "STR";
@@ -492,6 +503,6 @@ public class STRFileGenerator extends BaseGenerator {
     public String getErrorMsg(Exception e) {
         return "Error in STRFileGenerator: " + e.getMessage();
     }
-    
+
 }
 

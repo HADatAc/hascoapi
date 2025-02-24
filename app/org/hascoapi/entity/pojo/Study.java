@@ -378,7 +378,7 @@ public class Study extends HADatAcThing {
             return null;
         }
 
-		//System.out.println("Study.java : in find(): uri = [" + uri + "]");
+		System.out.println("Study.java : in find(): uri = [" + uri + "]");
 	    Study study = null;
 	    Statement statement;
 	    RDFNode object;

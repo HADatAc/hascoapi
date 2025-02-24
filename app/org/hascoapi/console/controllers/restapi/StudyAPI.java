@@ -133,6 +133,12 @@ public class StudyAPI extends Controller {
         }
         
         int totalElements = totalElements = GenericFind.findTotalByManagerEmailByStudy(clazz, studyuri, manageremail);
+
+        // ==================================================================
+        // DEBUG
+        System.out.println(elementtype + " [" + totalElements + "]");
+        // ==================================================================
+
         if (totalElements >= 0) {
             String totalElementsJSON = "{\"total\":" + totalElements + "}";
             return ok(ApiUtil.createResponse(totalElementsJSON, true));
