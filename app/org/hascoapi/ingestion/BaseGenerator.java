@@ -540,7 +540,7 @@ public abstract class BaseGenerator {
         // Create a request
         UpdateRequest request = UpdateFactory.create(query);
 
-        System.out.println("\n\n(updateTripleStore) Query: " + query + "\n\n ");
+        // System.out.println("\n\n(updateTripleStore) Query: " + query + "\n\n ");
 
         // Create a processor to execute the request
         UpdateProcessor processor = UpdateExecutionFactory.createRemote(
