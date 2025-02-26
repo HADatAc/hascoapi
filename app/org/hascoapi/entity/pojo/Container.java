@@ -272,16 +272,16 @@ public abstract class Container extends HADatAcClass implements SIRElement, Comp
     }
 
     @JsonIgnore
-	public List<Detector> getDetectors() {
-		List<Detector> detectors = new ArrayList<Detector>();
+	public List<Component> getComponents() {
+		List<Component> components = new ArrayList<Component>();
     	List<SlotElement> slots = getSlotElements(this);
 		for (SlotElement slot : slots) {
 			if (slot instanceof ContainerSlot) {
-				Detector detector = ((ContainerSlot)slot).getDetector();
-				detectors.add(detector);
+				Component component = ((ContainerSlot)slot).getComponent();
+				components.add(component);
 			}
 		} 
-    	return detectors;
+    	return components;
     }
     
 	@Override

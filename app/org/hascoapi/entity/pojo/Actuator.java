@@ -17,99 +17,87 @@ import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.vocabularies.*;
 
-@JsonFilter("detectorFilter")
-public class Detector extends Component  {
+@JsonFilter("actuatorFilter")
+public class Actuator extends Component {
 
-    @PropertyField(uri="vstoi:hasDetectorStem")
-    private String hasDetectorStem;
+    @PropertyField(uri="vstoi:hasActuatorStem")
+    private String hasActuatorStem;
 
-    public String getHasDetectorStem() {
-        return hasDetectorStem;
+    public String getHasActuatorStem() {
+        return hasActuatorStem;
     }
 
-    public DetectorStem getDetectorStem() {
-        if (hasDetectorStem == null || hasDetectorStem.equals("")) {
+    public ActuatorStem getActuatorStem() {
+        if (hasActuatorStem == null || hasActuatorStem.equals("")) {
             return null;
         }
-        DetectorStem detectorStem = DetectorStem.find(hasDetectorStem);
-        return detectorStem;
+        ActuatorStem actuatorStem = ActuatorStem.find(hasActuatorStem);
+        return actuatorStem;
     }
 
-    public void setHasDetectorStem(String hasDetectorStem) {
-        this.hasDetectorStem = hasDetectorStem;
+    public void setHasActuatorStem(String hasActuatorStem) {
+        this.hasActuatorStem = hasActuatorStem;
     }
 
-    public static List<Detector> findDetectors() {
-        List<Detector> detectors = new ArrayList<Detector>();
+    public static List<Actuator> findActuators() {
+        List<Actuator> actuators = new ArrayList<Actuator>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?detModel rdfs:subClassOf* vstoi:Detector . " +
-                " ?uri a ?detModel ." +
-                " ?uri vstoi:hasDetectorStem ?stem . " +
+                " ?model rdfs:subClassOf* vstoi:Actuator . " +
+                " ?uri a ?model ." +
+                " ?uri vstoi:hasActuatorStem ?stem . " +
                 " ?stem vstoi:hasContent ?content . " +
                 "} " +
                 " ORDER BY ASC(?content) ";
 
         //System.out.println("Query: " + queryString);
 
-        return findDetectorsByQuery(queryString);
+        return findActuatorsByQuery(queryString);
     }
 
-    /*
-    public static int getNumberDetectors() {
-        String queryString = "";
-        queryString += NameSpaces.getInstance().printSparqlNameSpaceList();
-        queryString += " select (count(?uri) as ?tot) where { " +
-                " ?detModel rdfs:subClassOf* vstoi:Detector . " +
-                " ?uri a ?detModel ." +
-                "}";
-
-        return findTotalDetectorsByQuery(queryString);
-    }*/
-
-    public static List<Detector> findDetectorsWithPages(int pageSize, int offset) {
+    public static List<Actuator> findActuatorsWithPages(int pageSize, int offset) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 "SELECT ?uri WHERE { " +
-                " ?detModel rdfs:subClassOf* vstoi:Detector . " +
-                " ?uri a ?detModel . } " +
+                " ?model rdfs:subClassOf* vstoi:Actuator . " +
+                " ?uri a ?model . } " +
                 " LIMIT " + pageSize +
                 " OFFSET " + offset;
 
-        return findDetectorsByQuery(queryString);
+        return findActuatorsByQuery(queryString);
     }
 
-    public static List<Detector> findDetectorsByLanguage(String language) {
+    public static List<Actuator> findActuatorsByLanguage(String language) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?detModel rdfs:subClassOf* vstoi:Detector . " +
-                " ?uri a ?detModel ." +
-                " ?uri vstoi:hasDetectorStem ?stem . " +
+                " ?model rdfs:subClassOf* vstoi:Actuator . " +
+                " ?uri a ?model ." +
+                " ?uri vstoi:hasActuatorStem ?stem . " +
                 " ?stem vstoi:hasLanguage ?language . " +
                 "   FILTER (?language = \"" + language + "\") " +
                 "} ";
 
-        return findDetectorsByQuery(queryString);
+        return findActuatorsByQuery(queryString);
     }
 
-    public static List<Detector> findDetectorsByKeyword(String keyword) {
+    public static List<Actuator> findActuatorsByKeyword(String keyword) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?detModel rdfs:subClassOf* vstoi:Detector . " +
-                " ?uri a ?detModel ." +
-                " ?uri vstoi:hasDetectorStem ?stem . " +
+                " ?model rdfs:subClassOf* vstoi:Actuator . " +
+                " ?uri a ?model ." +
+                " ?uri vstoi:hasActuatorStem ?stem . " +
                 " ?stem vstoi:hasContent ?content . " +
                 "   FILTER regex(?content, \"" + keyword + "\", \"i\") " +
                 "} ";
 
-        return findDetectorsByQuery(queryString);
+        return findActuatorsByQuery(queryString);
     }
 
-    public static List<Detector> findDetectorsByKeywordAndLanguageWithPages(String keyword, String language, int pageSize, int offset) {
+    public static List<Actuator> findActuatorsByKeywordAndLanguageWithPages(String keyword, String language, int pageSize, int offset) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
         queryString += " SELECT ?uri WHERE { " +
-                " ?detModel rdfs:subClassOf* vstoi:Detector . " +
-                " ?uri a ?detModel ." + 
-                " ?uri vstoi:hasDetectorStem ?stem . ";
+                " ?model rdfs:subClassOf* vstoi:Actuator . " +
+                " ?uri a ?model ." + 
+                " ?uri vstoi:hasActuatorStem ?stem . ";
         if (!language.isEmpty()) {
             queryString += " ?stem vstoi:hasLanguage ?language . ";
         }
@@ -126,16 +114,16 @@ public class Detector extends Component  {
                 " LIMIT " + pageSize +
                 " OFFSET " + offset;
 
-        return findDetectorsByQuery(queryString);
+        return findActuatorsByQuery(queryString);
     }
 
-    public static List<Detector> findDetectorsByManagerEmailWithPages(String managerEmail, int pageSize, int offset) {
+    public static List<Actuator> findActuatorsByManagerEmailWithPages(String managerEmail, int pageSize, int offset) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?detModel rdfs:subClassOf* vstoi:Detector . " +
-                " ?uri a ?detModel ." +
+                " ?model rdfs:subClassOf* vstoi:Actuator . " +
+                " ?uri a ?model ." +
                 " ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
-                " ?uri vstoi:hasDetectorStem ?stem . " +
+                " ?uri vstoi:hasActuatorStem ?stem . " +
                 " ?stem vstoi:hasContent ?content . " +
                 "   FILTER (?managerEmail = \"" + managerEmail + "\") " +
                 "} " +
@@ -143,53 +131,53 @@ public class Detector extends Component  {
                 " LIMIT " + pageSize +
                 " OFFSET " + offset;
 
-        return findDetectorsByQuery(queryString);
+        return findActuatorsByQuery(queryString);
     }
 
-    public static List<Detector> findDetectorsByManagerEmail(String managerEmail) {
+    public static List<Actuator> findActuatorsByManagerEmail(String managerEmail) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?detModel rdfs:subClassOf* vstoi:Detector . " +
-                " ?uri a ?detModel ." +
+                " ?model rdfs:subClassOf* vstoi:Actuator . " +
+                " ?uri a ?model ." +
                 " ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
-                " ?uri vstoi:hasDetectorStem ?stem . " +
+                " ?uri vstoi:hasActuatorStem ?stem . " +
                 " ?stem vstoi:hasContent ?content . " +
                 "   FILTER (?managerEmail = \"" + managerEmail + "\") " +
                 "} " +
                 " ORDER BY ASC(?content) ";
 
-        return findDetectorsByQuery(queryString);
+        return findActuatorsByQuery(queryString);
     }
 
-    public static List<Detector> findDetectorsByContainer(String containerUri) {
+    public static List<Actuator> findActuatorsByContainer(String containerUri) {
         //System.out.println("findByContainer: [" + containerUri + "]");
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?detModel rdfs:subClassOf* vstoi:Detector . " +
-                " ?uri a ?detModel ." +
-                " ?detSlotUri vstoi:hasDetector ?uri . " +
+                " ?model rdfs:subClassOf* vstoi:Actuator . " +
+                " ?uri a ?model ." +
+                " ?detSlotUri vstoi:hasActuator ?uri . " +
                 " ?detSlotUri vstoi:belongsTo <" + containerUri + ">. " +
                 "} ";
 
-        return findDetectorsByQuery(queryString);
+        return findActuatorsByQuery(queryString);
     }
 
-    public static List<Detector> findDetectorsDeployed() {
+    public static List<Actuator> findActuatorsDeployed() {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                "   ?detModel rdfs:subClassOf* vstoi:Detector . " +
-                "   ?uri a ?detModel ." +
+                "   ?model rdfs:subClassOf* vstoi:Actuator . " +
+                "   ?uri a ?model ." +
                 "   ?dep_uri a vstoi:Deployment . " +
-                "   ?dep_uri hasco:hasDetector ?uri .  " +
+                "   ?dep_uri hasco:hasActuator ?uri .  " +
                 "   FILTER NOT EXISTS { ?dep_uri prov:endedAtTime ?enddatetime . } " +
                 "} " +
                 "ORDER BY DESC(?datetime) ";
 
-        return findDetectorsByQuery(queryString);
+        return findActuatorsByQuery(queryString);
     }
 
-    private static List<Detector> findDetectorsByQuery(String queryString) {
-        List<Detector> detectors = new ArrayList<Detector>();
+    private static List<Actuator> findActuatorsByQuery(String queryString) {
+        List<Actuator> actuators = new ArrayList<Actuator>();
         ResultSetRewindable resultsrw = SPARQLUtils.select(
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
@@ -199,17 +187,17 @@ public class Detector extends Component  {
 
         while (resultsrw.hasNext()) {
             QuerySolution soln = resultsrw.next();
-            Detector detector = find(soln.getResource("uri").getURI());
-            detectors.add(detector);
+            Actuator actuator = find(soln.getResource("uri").getURI());
+            actuators.add(actuator);
         }
 
-        //java.util.Collections.sort((List<Detector>) detectors);
-        return detectors;
+        //java.util.Collections.sort((List<Actuator>) actuators);
+        return actuators;
 
     }
 
-    public static Detector find(String uri) {
-        Detector detector = null;
+    public static Actuator find(String uri) {
+        Actuator actuator = null;
         Statement statement;
         RDFNode object;
 
@@ -223,8 +211,8 @@ public class Detector extends Component  {
             return null;
         }
 
-        //detector = new Detector(VSTOI.DETECTOR);
-        detector = new Detector();
+        //actuator = new Actuator(VSTOI.ACTUATOR);
+        actuator = new Actuator();
 
         while (stmtIterator.hasNext()) {
             statement = stmtIterator.next();
@@ -232,70 +220,70 @@ public class Detector extends Component  {
  			String str = URIUtils.objectRDFToString(object);
 			if (uri != null && !uri.isEmpty()) {
                 if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-                    detector.setLabel(str);
+                    actuator.setLabel(str);
                 } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
-                    detector.setTypeUri(str);
+                    actuator.setTypeUri(str);
                 } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
-                    detector.setComment(str);
+                    actuator.setComment(str);
                 } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
-                    detector.setHascoTypeUri(str);
+                    actuator.setHascoTypeUri(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
-					detector.setHasImageUri(str);
+					actuator.setHasImageUri(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
-					detector.setHasWebDocument(str);
+					actuator.setHasWebDocument(str);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
-                    detector.setHasStatus(str);
+                    actuator.setHasStatus(str);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_CONTENT)) {
-                    detector.setHasContent(str);
+                    actuator.setHasContent(str);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
-                    detector.setHasLanguage(str);
+                    actuator.setHasLanguage(str);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
-                    detector.setHasVersion(str);
+                    actuator.setHasVersion(str);
                 } else if (statement.getPredicate().getURI().equals(PROV.WAS_DERIVED_FROM)) {
                     try {
-                        detector.setWasDerivedFrom(str);
+                        actuator.setWasDerivedFrom(str);
                     } catch (Exception e) {
                     }
                 } else if (statement.getPredicate().getURI().equals(PROV.WAS_GENERATED_BY)) {
                     try {
-                        detector.setWasGeneratedBy(str);
+                        actuator.setWasGeneratedBy(str);
                     } catch (Exception e) {
                     }
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_REVIEW_NOTE)) {
-					detector.setHasReviewNote(str);
+					actuator.setHasReviewNote(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
-					detector.setHasSIRManagerEmail(str);
+					actuator.setHasSIRManagerEmail(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_EDITOR_EMAIL)) {
-				    detector.setHasEditorEmail(str);
-                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_DETECTOR_STEM)) {
+				    actuator.setHasEditorEmail(str);
+                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_ACTUATOR_STEM)) {
                     try {
-                        detector.setHasDetectorStem(str);
+                        actuator.setHasActuatorStem(str);
                     } catch (Exception e) {
-                        detector.setHasDetectorStem(null);
+                        actuator.setHasActuatorStem(null);
                     }
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_CODEBOOK)) {
                     try {
-                        detector.setHasCodebook(str);
+                        actuator.setHasCodebook(str);
                     } catch (Exception e) {
-                        detector.setHasCodebook(null);
+                        actuator.setHasCodebook(null);
                     }
                 } else if (statement.getPredicate().getURI().equals(VSTOI.IS_ATTRIBUTE_OF)) {
                     try {
-                        detector.setIsAttributeOf(str);
+                        actuator.setIsAttributeOf(str);
                     } catch (Exception e) {
-                        detector.setIsAttributeOf(null);
+                        actuator.setIsAttributeOf(null);
                     }
                 }
             }
         }
 
-        detector.setUri(uri);
+        actuator.setUri(uri);
 
-        return detector;
+        return actuator;
     }
 
-    public static List<ContainerSlot> usage(String detectoruri) {
-        if (detectoruri == null || detectoruri.isEmpty()) {
+    public static List<ContainerSlot> usage(String actuatoruri) {
+        if (actuatoruri == null || actuatoruri.isEmpty()) {
             return null;
         }
         List<ContainerSlot> containerSlots = new ArrayList<ContainerSlot>();
@@ -303,7 +291,7 @@ public class Detector extends Component  {
                 " SELECT ?detSlotUri WHERE { " +
                 " ?detSlotModel rdfs:subClassOf* vstoi:ContainerSlot . " +
                 " ?detSlotUri a ?detSlotModel ." +
-                " ?detSlotUri vstoi:hasDetector <" + detectoruri + "> . " +
+                " ?detSlotUri vstoi:hasActuator <" + actuatoruri + "> . " +
                 " ?detSlotUri vstoi:belongsTo ?instUri . " +
                 " ?instUri rdfs:label ?instLabel . " +
                 "} " +
@@ -320,29 +308,29 @@ public class Detector extends Component  {
 
         while (resultsrw.hasNext()) {
             QuerySolution soln = resultsrw.next();
-            //System.out.println("inside Detector.usage(): found uri [" + soln.getResource("uri").getURI().toString() + "]");
+            //System.out.println("inside Actuator.usage(): found uri [" + soln.getResource("uri").getURI().toString() + "]");
             ContainerSlot containerSlot = ContainerSlot.find(soln.getResource("detSlotUri").getURI());
             containerSlots.add(containerSlot);
         }
         return containerSlots;
     }
 
-    public static List<Detector> derivationDetector(String detectoruri) {
-        if (detectoruri == null || detectoruri.isEmpty()) {
+    public static List<Actuator> derivationActuator(String actuatoruri) {
+        if (actuatoruri == null || actuatoruri.isEmpty()) {
             return null;
         }
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?detModel rdfs:subClassOf* vstoi:Detector . " +
-                " ?uri a ?detModel ." +
-                " ?uri prov:wasDerivedFrom <" + detectoruri + "> . " +
+                " ?model rdfs:subClassOf* vstoi:Actuator . " +
+                " ?uri a ?model ." +
+                " ?uri prov:wasDerivedFrom <" + actuatoruri + "> . " +
                 " ?uri vstoi:hasContent ?content . " +
                 "} " +
                 "ORDER BY ASC(?content) ";
 
         //System.out.println("Query: " + queryString);
 
-        return findDetectorsByQuery(queryString);
+        return findActuatorsByQuery(queryString);
     }
 
     @Override public void save() {

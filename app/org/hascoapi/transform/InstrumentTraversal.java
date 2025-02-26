@@ -75,19 +75,31 @@ public class InstrumentTraversal {
 			for (SlotElement slotElement: slots) {
 				if (slotElement instanceof ContainerSlot) {
 					ContainerSlot containerSlot = (ContainerSlot)slotElement;
-					Detector detector = containerSlot.getDetector();
-					if (detector != null) {
-						System.out.println("    - Detector: " + detector.getUri());
-						if (!list.contains(detector.getUri())) {
-							list.add(detector.getUri());
+					Component component = containerSlot.getComponent();
+					if (component != null) {
+						System.out.println("    - Component: " + component.getUri());
+						if (!list.contains(component.getUri())) {
+							list.add(component.getUri());
 						}
-						if (detector.getDetectorStem() != null && detector.getDetectorStem().getHasContent() != null) {
-							System.out.println("      - Detector Stem: " + detector.getDetectorStem().getUri());
-							if (!list.contains(detector.getDetectorStem().getUri())) {
-								list.add(detector.getDetectorStem().getUri());
+						if (component.getHascoTypeUri().equals(VSTOI.DETECTOR)) {
+							Detector detector = (Detector)component;
+							if (detector.getDetectorStem() != null && detector.getDetectorStem().getHasContent() != null) {
+								System.out.println("      - Detector Stem: " + detector.getDetectorStem().getUri());
+								if (!list.contains(detector.getDetectorStem().getUri())) {
+									list.add(detector.getDetectorStem().getUri());
+								}
 							}
 						}
-						Codebook codebook = detector.getCodebook();
+						if (component.getHascoTypeUri().equals(VSTOI.ACTUATOR)) {
+							Actuator actuator = (Actuator)component;
+							if (actuator.getActuatorStem() != null && actuator.getActuatorStem().getHasContent() != null) {
+								System.out.println("      - Actuator Stem: " + actuator.getActuatorStem().getUri());
+								if (!list.contains(actuator.getActuatorStem().getUri())) {
+									list.add(actuator.getActuatorStem().getUri());
+								}
+							}
+						}
+						Codebook codebook = component.getCodebook();
 						if (codebook != null) {
 						    System.out.println("      - Codebook: " + codebook.getUri());
 							if (!list.contains(codebook.getUri())) {
@@ -140,11 +152,11 @@ public class InstrumentTraversal {
 			for (SlotElement slotElement: slots) {
 				if (slotElement instanceof ContainerSlot) {
 					ContainerSlot containerSlot = (ContainerSlot)slotElement;
-					Detector detector = containerSlot.getDetector();
-					if (detector != null) {
-						System.out.println("    - Detector: " + detector.getUri());
-						if (!list.contains(detector.getUri())) {
-							list.add(detector.getUri());
+					Component component = containerSlot.getComponent();
+					if (component != null) {
+						System.out.println("    - Component: " + component.getUri());
+						if (!list.contains(component.getUri())) {
+							list.add(component.getUri());
 						}
 					}
 				} else if (slotElement instanceof Subcontainer) {
