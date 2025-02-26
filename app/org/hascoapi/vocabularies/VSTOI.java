@@ -47,6 +47,7 @@ public class VSTOI {
     public static final String ANNOTATION                   = VSTOI + "Annotation";
     public static final String CODEBOOK                     = VSTOI + "Codebook";
     public static final String CODEBOOK_SLOT                = VSTOI + "CodebookSlot";
+    public static final String COMPONENT                    = VSTOI + "Component";
     public static final String CONTAINER_SLOT               = VSTOI + "ContainerSlot";
     public static final String DETECTOR_STEM                = VSTOI + "DetectorStem";
     public static final String DETECTOR_INSTANCE            = VSTOI + "DetectorInstance";
