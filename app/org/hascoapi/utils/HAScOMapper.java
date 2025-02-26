@@ -90,6 +90,18 @@ public class HAScOMapper {
                             "hascoTypeLabel", "comment", "hasPriority", "hasResponseOption", "responseOption"));
         }
 
+        // COMPONENT
+        if (mode.equals(FULL) && typeResult.equals(VSTOI.COMPONENT)) {
+            filterProvider.addFilter("componentFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("componentFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
+                            "hasImageUri", "hasWebDocument", 
+                            "hascoTypeLabel", "comment", "hasContent", "hasSerialNumber", "hasLanguage", "hasVersion",
+                            "wasDerivedFrom", "wasGeneratedBy", "hasSIRManagerEmail", "hasEditorEmail",  "isAttributeOf", 
+                            "hasCodebook", "codebook"));
+        }
+
         // CONTAINER
         if (mode.equals(FULL) && typeResult.equals(VSTOI.CONTAINER)) {
             filterProvider.addFilter("containerFilter", SimpleBeanPropertyFilter.serializeAll());
