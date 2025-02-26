@@ -107,7 +107,7 @@ public class HAScOMapper {
         } else {
             filterProvider.addFilter("containerSlotFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "hasNext", "hasPrevious", "hasPriority", "hasDetector", "hasSubcontainer", "detector", 
+                            "hascoTypeLabel", "comment", "hasNext", "hasPrevious", "hasPriority", "hasComponent", "hasSubcontainer", "detector", 
                             "subcontainer", "belongsTo"));
         }
 
