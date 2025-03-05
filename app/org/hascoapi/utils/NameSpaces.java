@@ -166,7 +166,7 @@ public class NameSpaces {
         VSTOI_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
         VSTOI_NAMESPACE.setHascoTypeUri(HASCO.ONTOLOGY);
         VSTOI_NAMESPACE.setSourceMime("text/turtle");
-        VSTOI_NAMESPACE.setSource("https://hadatac.org/ont/vstoi/0.7");
+        VSTOI_NAMESPACE.setSource("https://hadatac.org/ont/vstoi/0.8");
         VSTOI_NAMESPACE.setComment("Virtual Terrestrial Solar Observatory - Instruments");
         VSTOI_NAMESPACE.setVersion("0.7");
         VSTOI_NAMESPACE.setPermanent(true);
