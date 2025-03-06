@@ -86,9 +86,9 @@ public class ContainerSlot extends HADatAcThing implements SlotElement, Comparab
             return null;
         }
         GenericInstance genericInstance = GenericInstance.find(hasComponent);
-        if (genericInstance.getTypeUri().equals(VSTOI.ACTUATOR)) {
+        if (genericInstance.getHascoTypeUri().equals(VSTOI.ACTUATOR)) {
             return Actuator.find(hasComponent);
-        } else if (genericInstance.getTypeUri().equals(VSTOI.DETECTOR)) {
+        } else if (genericInstance.getHascoTypeUri().equals(VSTOI.DETECTOR)) {
             return Detector.find(hasComponent);
         }
         return null;
@@ -275,7 +275,7 @@ public class ContainerSlot extends HADatAcThing implements SlotElement, Comparab
 			return false;
 		}
             
-        System.out.println("Received this way: belongsTo = [" + container.getBelongsTo() + "]");
+        //System.out.println("Received this way: belongsTo = [" + container.getBelongsTo() + "]");
 
 		List<SlotElement> slotElements = Container.getSlotElements(container);
 
@@ -329,10 +329,10 @@ public class ContainerSlot extends HADatAcThing implements SlotElement, Comparab
 		if (currentTotal <= 0) {
 		    String auxstr = Utils.adjustedPriority("1", 1000);
 		  	String firstUri = container.getUri() + "/" + CONTAINER_SLOT_PREFIX + "/" + auxstr;
-            System.out.println("Before update: belongsTo = [" + container.getBelongsTo() + "]");
+            //System.out.println("Before update: belongsTo = [" + container.getBelongsTo() + "]");
 		  	container.setHasFirst(firstUri);
 		    container.save();
-            System.out.println("After update: belongsTo = [" + container.getBelongsTo() + "]");
+            //System.out.println("After update: belongsTo = [" + container.getBelongsTo() + "]");
 
 		// IF THE LIST WAS NOT EMPTY	
 		} else {
@@ -379,8 +379,8 @@ public class ContainerSlot extends HADatAcThing implements SlotElement, Comparab
     }
 
     public boolean updateContainerSlotComponent(Component component) {
-        System.out.println("Called ContainerSlot.updateContainerSlotComponent.");
-        System.out.println("Component: " + component);
+        //System.out.println("Called ContainerSlot.updateContainerSlotComponent.");
+        //System.out.println("Component: " + component);
         if (component == null) {
             this.setHasComponent(null);
         }
