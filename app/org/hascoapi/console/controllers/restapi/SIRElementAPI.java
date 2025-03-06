@@ -35,7 +35,25 @@ public class SIRElementAPI extends Controller {
         boolean success = true;
         String message = "";
         ObjectMapper objectMapper = new ObjectMapper();
-        if (clazz == Annotation.class) {
+        if (clazz == Actuator.class) {
+            try {
+                Actuator object;
+                object = (Actuator)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == ActuatorStem.class) {
+            try {
+                ActuatorStem object;
+                object = (ActuatorStem)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == Annotation.class) {
             try {
                 Annotation object;
                 object = (Annotation)objectMapper.readValue(json, clazz);
@@ -485,7 +503,19 @@ public class SIRElementAPI extends Controller {
         if (clazz == null) {
             return ok(ApiUtil.createResponse("No valid elementType has been provided", false));
         }
-        if (clazz == Annotation.class) {
+        if (clazz == Actuator.class) {
+            Actuator object = Actuator.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == ActuatorStem.class) {
+            ActuatorStem object = ActuatorStem.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == Annotation.class) {
             Annotation object = Annotation.find(uri);
             if (object == null) {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
@@ -843,7 +873,6 @@ public class SIRElementAPI extends Controller {
             List<DetectorStem> results = query.findByKeywordWithPages(DetectorStem.class,keyword, pageSize, offset);
             return DetectorStemAPI.getDetectorStems(results);
         } else if (elementType.equals("detector")) {
-            System.out.println("[HERE87] Key [" + keyword + "]");
             GenericFind<Detector> query = new GenericFind<Detector>();
             List<Detector> results = query.findByKeywordWithPages(Detector.class,keyword, pageSize, offset);
             return DetectorAPI.getDetectors(results);
@@ -983,6 +1012,14 @@ public class SIRElementAPI extends Controller {
             GenericFind<KGR> query = new GenericFind<KGR>();
             List<KGR> results = query.findByKeywordWithPages(KGR.class,keyword, pageSize, offset);
             return KGRAPI.getKGRs(results);
+        }  else if (elementType.equals("actuator")) {
+            GenericFind<Actuator> query = new GenericFind<Actuator>();
+            List<Actuator> results = query.findByKeywordWithPages(Actuator.class,keyword, pageSize, offset);
+            return ActuatorAPI.getActuators(results);
+        }  else if (elementType.equals("actuatorstem")) {
+            GenericFind<ActuatorStem> query = new GenericFind<ActuatorStem>();
+            List<ActuatorStem> results = query.findByKeywordWithPages(ActuatorStem.class,keyword, pageSize, offset);
+            return ActuatorStemAPI.getActuatorStems(results);
         } 
         return ok("[getElementsByKeywordWithPage] No valid element type.");
     }
@@ -1069,6 +1106,14 @@ public class SIRElementAPI extends Controller {
             GenericFind<ProcessStem> query = new GenericFind<ProcessStem>();
             List<ProcessStem> results = query.findByKeywordAndLanguageWithPages(ProcessStem.class, keyword, language, pageSize, offset);
             return ProcessAPI.getProcessStems(results);
+        } else if (elementType.equals("actuatorstem")) {
+            GenericFind<ActuatorStem> query = new GenericFind<ActuatorStem>();
+            List<ActuatorStem> results = query.findByKeywordAndLanguageWithPages(ActuatorStem.class, keyword, language, pageSize, offset);
+            return ActuatorStemAPI.getActuatorStems(results);
+        } else if (elementType.equals("actuator")) {
+            GenericFind<Actuator> query = new GenericFind<Actuator>();
+            List<Actuator> results = query.findByKeywordAndLanguageWithPages(Actuator.class, keyword, language, pageSize, offset);
+            return ActuatorAPI.getActuators(results);
         /* NOTE: THE CLASSES BELOW DO NOT HAVE LANGUAGE PROPERTY 
         }  else if (elementType.equals("ins")) {
             GenericFind<INS> query = new GenericFind<INS>();
@@ -1318,6 +1363,14 @@ public class SIRElementAPI extends Controller {
             GenericFind<KGR> query = new GenericFind<KGR>();
             List<KGR> results = query.findByManagerEmailWithPages(KGR.class, managerEmail, pageSize, offset);
             return KGRAPI.getKGRs(results);
+        }  else if (elementType.equals("actuatorstem")) {
+            GenericFind<ActuatorStem> query = new GenericFind<ActuatorStem>();
+            List<ActuatorStem> results = query.findByManagerEmailWithPages(ActuatorStem.class, managerEmail, pageSize, offset);
+            return ActuatorStemAPI.getActuatorStems(results);
+        }  else if (elementType.equals("actuator")) {
+            GenericFind<Actuator> query = new GenericFind<Actuator>();
+            List<Actuator> results = query.findByManagerEmailWithPages(Actuator.class, managerEmail, pageSize, offset);
+            return ActuatorAPI.getActuators(results);
         } 
         return ok("[getElementsByManagerEmail] No valid element type.");
 
@@ -1490,6 +1543,14 @@ public class SIRElementAPI extends Controller {
             GenericFindWithStatus<KGR> query = new GenericFindWithStatus<KGR>();
             List<KGR> results = query.findByStatusWithPages(KGR.class, hasStatus, pageSize, offset);
             return KGRAPI.getKGRs(results);
+        }  else if (elementType.equals("actuatorstem")) {
+            GenericFindWithStatus<ActuatorStem> query = new GenericFindWithStatus<ActuatorStem>();
+            List<ActuatorStem> results = query.findByStatusWithPages(ActuatorStem.class, hasStatus, pageSize, offset);
+            return ActuatorStemAPI.getActuatorStems(results);
+        }  else if (elementType.equals("actuator")) {
+            GenericFindWithStatus<Actuator> query = new GenericFindWithStatus<Actuator>();
+            List<Actuator> results = query.findByStatusWithPages(Actuator.class, hasStatus, pageSize, offset);
+            return ActuatorAPI.getActuators(results);
         } 
         return ok("[getElementsByStatusManagerEmail] No valid element type.");
 
@@ -1662,6 +1723,14 @@ public class SIRElementAPI extends Controller {
             GenericFindWithStatus<KGR> query = new GenericFindWithStatus<KGR>();
             List<KGR> results = query.findByStatusManagerEmailWithPages(KGR.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return KGRAPI.getKGRs(results);
+        }  else if (elementType.equals("actuatorstem")) {
+            GenericFindWithStatus<ActuatorStem> query = new GenericFindWithStatus<ActuatorStem>();
+            List<ActuatorStem> results = query.findByStatusManagerEmailWithPages(ActuatorStem.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
+            return ActuatorStemAPI.getActuatorStems(results);
+        }  else if (elementType.equals("actuator")) {
+            GenericFindWithStatus<Actuator> query = new GenericFindWithStatus<Actuator>();
+            List<Actuator> results = query.findByStatusManagerEmailWithPages(Actuator.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
+            return ActuatorAPI.getActuators(results);
         } 
         return ok("[getElementsByStatusManagerEmail] No valid element type.");
 

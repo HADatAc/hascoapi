@@ -29,8 +29,8 @@ public class ContainerSlot extends HADatAcThing implements SlotElement, Comparab
     @PropertyField(uri="vstoi:belongsTo")
     private String belongsTo;
 
-    @PropertyField(uri="vstoi:hasDetector")
-    private String hasDetector;
+    @PropertyField(uri="vstoi:hasComponent")
+    private String hasComponent;
 
     @PropertyField(uri="vstoi:hasNext")
     private String hasNext;
@@ -49,12 +49,12 @@ public class ContainerSlot extends HADatAcThing implements SlotElement, Comparab
         this.belongsTo = belongsTo;
     }
 
-    public String getHasDetector() {
-        return hasDetector;
+    public String getHasComponent() {
+        return hasComponent;
     }
 
-    public void setHasDetector(String hasDetector) {
-        this.hasDetector = hasDetector;
+    public void setHasComponent(String hasComponent) {
+        this.hasComponent = hasComponent;
     }
 
     public String getHasNext() {
@@ -81,11 +81,17 @@ public class ContainerSlot extends HADatAcThing implements SlotElement, Comparab
         this.hasPriority = hasPriority;
     }
 
-    public Detector getDetector() {
-        if (hasDetector == null || hasDetector.isEmpty()) {
+    public Component getComponent() {
+        if (hasComponent == null || hasComponent.isEmpty()) {
             return null;
         }
-        return Detector.find(hasDetector);
+        GenericInstance genericInstance = GenericInstance.find(hasComponent);
+        if (genericInstance.getHascoTypeUri().equals(VSTOI.ACTUATOR)) {
+            return Actuator.find(hasComponent);
+        } else if (genericInstance.getHascoTypeUri().equals(VSTOI.DETECTOR)) {
+            return Detector.find(hasComponent);
+        }
+        return null;
     }
 
     public static int getNumberContainerSlots() {
@@ -110,13 +116,13 @@ public class ContainerSlot extends HADatAcThing implements SlotElement, Comparab
         return -1;
     }
 
-    public static int getNumberContainerSlotsWithDetectors() {
+    public static int getNumberContainerSlotsWithComponents() {
         String query = "";
         query += NameSpaces.getInstance().printSparqlNameSpaceList();
         query += " select (count(?uri) as ?tot) where { " +
-                " ?attModel rdfs:subClassOf* vstoi:ContainerSlot . " +
-                " ?uri a ?attModel ." +
-                " ?uri vstoi:hasDetector ?detector . " +
+                " ?model rdfs:subClassOf* vstoi:ContainerSlot . " +
+                " ?uri a ?model ." +
+                " ?uri vstoi:hasComponent ?component . " +
                 "}";
 
         try {
@@ -244,8 +250,8 @@ public class ContainerSlot extends HADatAcThing implements SlotElement, Comparab
                 containerSlot.setHascoTypeUri(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.BELONGS_TO)) {
                 containerSlot.setBelongsTo(str);
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_DETECTOR)) {
-                containerSlot.setHasDetector(str);
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_COMPONENT)) {
+                containerSlot.setHasComponent(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PRIORITY)){
                 containerSlot.setHasPriority(str);
             }
@@ -269,7 +275,7 @@ public class ContainerSlot extends HADatAcThing implements SlotElement, Comparab
 			return false;
 		}
             
-        System.out.println("Received this way: belongsTo = [" + container.getBelongsTo() + "]");
+        //System.out.println("Received this way: belongsTo = [" + container.getBelongsTo() + "]");
 
 		List<SlotElement> slotElements = Container.getSlotElements(container);
 
@@ -323,10 +329,10 @@ public class ContainerSlot extends HADatAcThing implements SlotElement, Comparab
 		if (currentTotal <= 0) {
 		    String auxstr = Utils.adjustedPriority("1", 1000);
 		  	String firstUri = container.getUri() + "/" + CONTAINER_SLOT_PREFIX + "/" + auxstr;
-            System.out.println("Before update: belongsTo = [" + container.getBelongsTo() + "]");
+            //System.out.println("Before update: belongsTo = [" + container.getBelongsTo() + "]");
 		  	container.setHasFirst(firstUri);
 		    container.save();
-            System.out.println("After update: belongsTo = [" + container.getBelongsTo() + "]");
+            //System.out.println("After update: belongsTo = [" + container.getBelongsTo() + "]");
 
 		// IF THE LIST WAS NOT EMPTY	
 		} else {
@@ -343,7 +349,7 @@ public class ContainerSlot extends HADatAcThing implements SlotElement, Comparab
 
     static public boolean createContainerSlot(Container container, String containerSlotUri, 
                             String containerSlotUriNext, String containerSlotUriPrevious,  
-                            String priority, String hasDetector) {
+                            String priority, String hasComponent) {
         if (container == null) {
             return false;
         }
@@ -364,19 +370,19 @@ public class ContainerSlot extends HADatAcThing implements SlotElement, Comparab
         if (containerSlotUriPrevious != null && !containerSlotUriPrevious.isEmpty()) {
             containerSlot.setHasPrevious(containerSlotUriPrevious);
         }
-        if (hasDetector != null) {
-            containerSlot.setHasDetector(hasDetector);
+        if (hasComponent != null) {
+            containerSlot.setHasComponent(hasComponent);
         }
         containerSlot.save();
         //System.out.println("ContainerSlot.createContainerSlot: creating containerSlot with URI [" + containerSlotUri + "]" );
         return true;
     }
 
-    public boolean updateContainerSlotDetector(Detector detector) {
-        System.out.println("Called ContainerSlot.updateContainerSlorDetector.");
-        System.out.println("Detector: " + detector);
-        if (detector == null) {
-            this.setHasDetector(null);
+    public boolean updateContainerSlotComponent(Component component) {
+        //System.out.println("Called ContainerSlot.updateContainerSlotComponent.");
+        //System.out.println("Component: " + component);
+        if (component == null) {
+            this.setHasComponent(null);
         }
         ContainerSlot newContainerSlot = new ContainerSlot();
         newContainerSlot.setUri(this.uri);
@@ -388,10 +394,10 @@ public class ContainerSlot extends HADatAcThing implements SlotElement, Comparab
         newContainerSlot.setHasPriority(this.getHasPriority());
         newContainerSlot.setHasNext(this.getHasNext());
         newContainerSlot.setHasPrevious(this.getHasPrevious());
-        // if detector is null, the property setHasDetector is not called. This is how
-        // a detector is removed from a container slot.
-        if (detector != null && detector.getUri() != null && !detector.getUri().isEmpty()) {
-            newContainerSlot.setHasDetector(detector.getUri());
+        // if component is null, the property setHasComponent is not called. This is how
+        // a component is removed from a container slot.
+        if (component != null && component.getUri() != null && !component.getUri().isEmpty()) {
+            newContainerSlot.setHasComponent(component.getUri());
         } 
         this.delete();
         newContainerSlot.save();

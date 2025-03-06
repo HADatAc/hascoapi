@@ -22,8 +22,9 @@ import java.util.StringTokenizer;
 
 public class InstrumentTraversal {
 
-	public static int updateStatusRecursive(String uri) {
+	public static int updateStatusRecursive(String uri, String newStatus) {
 		Instrument instr = Instrument.find(uri);
+		//System.out.println("Instrument's URI: ["+ uri + "]");
 		List<String> list = new ArrayList<String>();
 		if (instr == null) {
 			return -1;
@@ -33,35 +34,65 @@ public class InstrumentTraversal {
 		Set<String> set = new HashSet<>(list);
         List<String> uniqueList = new ArrayList<>(set);
 		for (String str: uniqueList) {
+			//System.out.println("Elements's URI: ["+ str + "]");
  			HADatAcThing object = URIPage.objectFromUri(str);
 			if (object instanceof Instrument) {
 				Instrument instrument = (Instrument)object;
-				instrument.setHasStatus(VSTOI.UNDER_REVIEW);
-				instrument.save();
+				String oldStatus = instrument.getHasStatus();
+				if (!oldStatus.equals(VSTOI.CURRENT) && !oldStatus.equals(VSTOI.DEPRECATED)) {					
+					instrument.setHasStatus(newStatus);
+					instrument.save();
+				}
+			} else if (object instanceof Actuator) {
+				Actuator actuator = (Actuator)object;
+				String oldStatus = actuator.getHasStatus();
+				if (!oldStatus.equals(VSTOI.CURRENT) && !oldStatus.equals(VSTOI.DEPRECATED)) {					
+					actuator.setHasStatus(newStatus);
+					actuator.save();
+				}
+			} else if (object instanceof ActuatorStem) {
+				ActuatorStem actuatorStem = (ActuatorStem)object;
+				String oldStatus = actuatorStem.getHasStatus();
+				if (!oldStatus.equals(VSTOI.CURRENT) && !oldStatus.equals(VSTOI.DEPRECATED)) {					
+					actuatorStem.setHasStatus(newStatus);
+					actuatorStem.save();
+				}
 			} else if (object instanceof Detector) {
 				Detector detector = (Detector)object;
-				detector.setHasStatus(VSTOI.UNDER_REVIEW);
-				detector.save();
+				String oldStatus = detector.getHasStatus();
+				if (!oldStatus.equals(VSTOI.CURRENT) && !oldStatus.equals(VSTOI.DEPRECATED)) {					
+					detector.setHasStatus(newStatus);
+					detector.save();
+				}
 			} else if (object instanceof DetectorStem) {
 				DetectorStem detectorStem = (DetectorStem)object;
-				detectorStem.setHasStatus(VSTOI.UNDER_REVIEW);
-				detectorStem.save();
+				String oldStatus = detectorStem.getHasStatus();
+				if (!oldStatus.equals(VSTOI.CURRENT) && !oldStatus.equals(VSTOI.DEPRECATED)) {					
+					detectorStem.setHasStatus(newStatus);
+					detectorStem.save();
+				}
 			} else if (object instanceof Codebook) {
 				Codebook codebook = (Codebook)object;
-				codebook.setHasStatus(VSTOI.UNDER_REVIEW);
-				codebook.save();
+				String oldStatus = codebook.getHasStatus();
+				if (!oldStatus.equals(VSTOI.CURRENT) && !oldStatus.equals(VSTOI.DEPRECATED)) {					
+					codebook.setHasStatus(newStatus);
+					codebook.save();
+				}
 			} else if (object instanceof ResponseOption) {
 				ResponseOption responseOption = (ResponseOption)object;
-				responseOption.setHasStatus(VSTOI.UNDER_REVIEW);
-				responseOption.save();
+				String oldStatus = responseOption.getHasStatus();
+				if (!oldStatus.equals(VSTOI.CURRENT) && !oldStatus.equals(VSTOI.DEPRECATED)) {					
+					responseOption.setHasStatus(newStatus);
+					responseOption.save();
+				}
 			}
 		}
-		System.out.println("Number of elements:" + uniqueList.size());
+		//System.out.println("Number of elements:" + uniqueList.size());
 		return uniqueList.size();
 	}
 
 	private static List<String> traverseContainer(List<String> list, Container container) {
-		System.out.println("  - Container: " + container.getUri());
+		//System.out.println("  - Container: " + container.getUri());
 		if (!list.contains(container.getUri())) {
 			list.add(container.getUri());
 		}
@@ -75,21 +106,32 @@ public class InstrumentTraversal {
 			for (SlotElement slotElement: slots) {
 				if (slotElement instanceof ContainerSlot) {
 					ContainerSlot containerSlot = (ContainerSlot)slotElement;
-					Detector detector = containerSlot.getDetector();
-					if (detector != null) {
-						System.out.println("    - Detector: " + detector.getUri());
-						if (!list.contains(detector.getUri())) {
-							list.add(detector.getUri());
+					Component component = containerSlot.getComponent();
+					if (component != null) {
+						if (!list.contains(component.getUri())) {
+							list.add(component.getUri());
 						}
-						if (detector.getDetectorStem() != null && detector.getDetectorStem().getHasContent() != null) {
-							System.out.println("      - Detector Stem: " + detector.getDetectorStem().getUri());
-							if (!list.contains(detector.getDetectorStem().getUri())) {
-								list.add(detector.getDetectorStem().getUri());
+						if (component.getHascoTypeUri().equals(VSTOI.DETECTOR)) {
+							Detector detector = (Detector)component;
+							if (detector.getDetectorStem() != null && detector.getDetectorStem().getHasContent() != null) {
+								//System.out.println("      - Detector Stem: " + detector.getDetectorStem().getUri());
+								if (!list.contains(detector.getDetectorStem().getUri())) {
+									list.add(detector.getDetectorStem().getUri());
+								}
 							}
 						}
-						Codebook codebook = detector.getCodebook();
+						if (component.getHascoTypeUri().equals(VSTOI.ACTUATOR)) {
+							Actuator actuator = (Actuator)component;
+							if (actuator.getActuatorStem() != null && actuator.getActuatorStem().getHasContent() != null) {
+								//System.out.println("      - Actuator Stem: " + actuator.getActuatorStem().getUri());
+								if (!list.contains(actuator.getActuatorStem().getUri())) {
+									list.add(actuator.getActuatorStem().getUri());
+								}
+							}
+						}
+						Codebook codebook = component.getCodebook();
 						if (codebook != null) {
-						    System.out.println("      - Codebook: " + codebook.getUri());
+						    //System.out.println("      - Codebook: " + codebook.getUri());
 							if (!list.contains(codebook.getUri())) {
 								list.add(codebook.getUri());
 							}
@@ -99,7 +141,7 @@ public class InstrumentTraversal {
 									if (cbslot.getResponseOption() != null) {
 										ResponseOption responseOption = cbslot.getResponseOption();
 										if (responseOption != null && responseOption.getHasContent() != null) {
-						    				System.out.println("        - ResponseOption: " + responseOption.getUri());
+						    				//System.out.println("        - ResponseOption: " + responseOption.getUri());
 											if (!list.contains(responseOption.getUri())) {
 												list.add(responseOption.getUri());
 											}
@@ -119,19 +161,19 @@ public class InstrumentTraversal {
 		return list;
 	}
 
-	public static List<String> retrieveInstrumentDetectors(String uri) {
+	public static List<String> retrieveInstrumentComponents(String uri) {
 		Instrument instr = Instrument.find(uri);
 		List<String> list = new ArrayList<String>();
 		if (instr == null) {
 			return list;
 		}
-		list.addAll(traverseContainerDetector(list, (Container)instr));
+		list.addAll(traverseContainerComponent(list, (Container)instr));
 		Set<String> set = new HashSet<>(list);
         List<String> uniqueList = new ArrayList<>(set);
 		return uniqueList;
 	}
 
-	private static List<String> traverseContainerDetector(List<String> list, Container container) {
+	private static List<String> traverseContainerComponent(List<String> list, Container container) {
 		//System.out.println("  - Container: " + container.getUri());
 		List<SlotElement> slots = container.getSlotElements();
 		if (slots == null || slots.size() <= 0) {
@@ -140,11 +182,11 @@ public class InstrumentTraversal {
 			for (SlotElement slotElement: slots) {
 				if (slotElement instanceof ContainerSlot) {
 					ContainerSlot containerSlot = (ContainerSlot)slotElement;
-					Detector detector = containerSlot.getDetector();
-					if (detector != null) {
-						System.out.println("    - Detector: " + detector.getUri());
-						if (!list.contains(detector.getUri())) {
-							list.add(detector.getUri());
+					Component component = containerSlot.getComponent();
+					if (component != null) {
+						//System.out.println("    - Component: " + component.getUri());
+						if (!list.contains(component.getUri())) {
+							list.add(component.getUri());
 						}
 					}
 				} else if (slotElement instanceof Subcontainer) {

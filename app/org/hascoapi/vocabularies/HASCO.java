@@ -47,6 +47,7 @@ public class HASCO {
      *    PROPERTIES
      */
 
+    public static final String ACTIVATES                              = "http://hadatac.org/ont/hasco/activates";
     public static final String CAN_UPDATE                             = "http://hadatac.org/ont/hasco/canUpdate";
     public static final String CAN_VIEW                               = "http://hadatac.org/ont/hasco/canView";
     public static final String DETECTS                                = "http://hadatac.org/ont/hasco/detects";

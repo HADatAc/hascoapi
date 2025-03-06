@@ -38,6 +38,28 @@ public class HAScOMapper {
         ObjectMapper mapper = new ObjectMapper();
         SimpleFilterProvider filterProvider = new SimpleFilterProvider();
 
+        // ACTUATOR
+        if (mode.equals(FULL) && typeResult.equals(VSTOI.ACTUATOR)) {
+            filterProvider.addFilter("actuatorFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("actuatorFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
+                            "hasImageUri", "hasWebDocument", 
+                            "hascoTypeLabel", "comment", "hasContent", "hasSerialNumber", "hasLanguage", "hasVersion",
+                            "wasDerivedFrom", "wasGeneratedBy", "hasSIRManagerEmail", "hasEditorEmail",  "isAttributeOf", 
+                            "hasActuatorStem", "actuatorStem", "hasCodebook", "codebook"));
+        }
+
+        // ACTUATOR_STEM
+        if (mode.equals(FULL) && typeResult.equals(VSTOI.ACTUATOR_STEM)) {
+            filterProvider.addFilter("actuatorStemFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("actuatorStemFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "superUri", "typeLabel", "hasStatus", "hascoTypeUri",
+                            "hasImageUri", "hasWebDocument", 
+                            "hascoTypeLabel", "comment", "hasContent", "hasLanguage", "hasVersion",
+                            "wasDerivedFrom", "wasGeneratedBy", "hasSIRManagerEmail", "hasEditorEmail", "activates", "activatesSemanticVariable"));
+        }
         // ANNOTATION
         if (mode.equals(FULL) && typeResult.equals(VSTOI.ANNOTATION)) {
             filterProvider.addFilter("annotationFilter", SimpleBeanPropertyFilter.serializeAll());
@@ -90,6 +112,18 @@ public class HAScOMapper {
                             "hascoTypeLabel", "comment", "hasPriority", "hasResponseOption", "responseOption"));
         }
 
+        // COMPONENT
+        if (mode.equals(FULL) && typeResult.equals(VSTOI.COMPONENT)) {
+            filterProvider.addFilter("componentFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("componentFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
+                            "hasImageUri", "hasWebDocument", 
+                            "hascoTypeLabel", "comment", "hasContent", "hasSerialNumber", "hasLanguage", "hasVersion",
+                            "wasDerivedFrom", "wasGeneratedBy", "hasSIRManagerEmail", "hasEditorEmail",  "isAttributeOf", 
+                            "hasCodebook", "codebook"));
+        }
+
         // CONTAINER
         if (mode.equals(FULL) && typeResult.equals(VSTOI.CONTAINER)) {
             filterProvider.addFilter("containerFilter", SimpleBeanPropertyFilter.serializeAll());
@@ -107,7 +141,7 @@ public class HAScOMapper {
         } else {
             filterProvider.addFilter("containerSlotFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "hasNext", "hasPrevious", "hasPriority", "hasDetector", "hasSubcontainer", "detector", 
+                            "hascoTypeLabel", "comment", "hasNext", "hasPrevious", "hasPriority", "hasComponent", "component", "hasSubcontainer", "detector", 
                             "subcontainer", "belongsTo"));
         }
 

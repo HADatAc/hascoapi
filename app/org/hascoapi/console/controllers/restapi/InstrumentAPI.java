@@ -179,17 +179,20 @@ public class InstrumentAPI extends Controller {
         return ok(serialized).as("application/xml");
     }
 
-    public Result updateReviewsRecursive(String uri) {
+    public Result updateReviewsRecursive(String uri, String status) {
         //System.out.println("updateReviewsRecursive: [" + uri + "]");
         if (uri  == null || uri.equals("")) {
             return ok(ApiUtil.createResponse("No URI has been provided", false));
+        }
+        if (status  == null || status.equals("")) {
+            return ok(ApiUtil.createResponse("No new status value has been provided", false));
         }
         Instrument instr = Instrument.find(uri);
         if (instr == null) {
             return ok(ApiUtil.createResponse("No instrument instance found for uri [" + uri + "]", false));
         }
 
-        int totalElements = InstrumentTraversal.updateStatusRecursive(uri);
+        int totalElements = InstrumentTraversal.updateStatusRecursive(uri, status);
         if (totalElements >= 0) { 
         String totalElementsJSON = "{\"total\":" + totalElements + "}";
             return ok(ApiUtil.createResponse(totalElementsJSON, true));
@@ -197,8 +200,8 @@ public class InstrumentAPI extends Controller {
         return ok(ApiUtil.createResponse("updataReviewsRecursive() failed to retrieve total number of element", false));
     }
 
-    public Result retrieveInstrumentDetectors(String uri) {
-        //System.out.println("retrieveInstrumentDetectors: [" + uri + "]");
+    public Result retrieveInstrumentComponents(String uri) {
+        //System.out.println("retrieveInstrumentComponents: [" + uri + "]");
         if (uri  == null || uri.equals("")) {
             return ok(ApiUtil.createResponse("No URI has been provided", false));
         }
@@ -207,17 +210,17 @@ public class InstrumentAPI extends Controller {
             return ok(ApiUtil.createResponse("No instrument instance found for uri [" + uri + "]", false));
         }
 
-        List<String> detectors = InstrumentTraversal.retrieveInstrumentDetectors(uri);
-        if (detectors.size() >= 0) { 
+        List<String> components = InstrumentTraversal.retrieveInstrumentComponents(uri);
+        if (components.size() >= 0) { 
             try {
                 ObjectMapper objectMapper = new ObjectMapper();
-                String jsonArray = objectMapper.writeValueAsString(detectors);
+                String jsonArray = objectMapper.writeValueAsString(components);
                 return ok(ApiUtil.createResponse(jsonArray, true));
             } catch (Exception e) {
-                return ok(ApiUtil.createResponse("retrieveInstrumentDetectors() failed to retrieve detectors", false));
+                return ok(ApiUtil.createResponse("retrieveInstrumentComponents() failed to retrieve detectors", false));
             }
         }
-        return ok(ApiUtil.createResponse("retrieveInstrumentDetectors() failed to retrieve detectors", false));
+        return ok(ApiUtil.createResponse("retrieveInstrumentComponents() failed to retrieve detectors", false));
     }
 
 }
