@@ -24,6 +24,7 @@ public class InstrumentTraversal {
 
 	public static int updateStatusRecursive(String uri, String newStatus) {
 		Instrument instr = Instrument.find(uri);
+		System.out.println("Instrument's URI: ["+ uri + "]");
 		List<String> list = new ArrayList<String>();
 		if (instr == null) {
 			return -1;
@@ -33,53 +34,55 @@ public class InstrumentTraversal {
 		Set<String> set = new HashSet<>(list);
         List<String> uniqueList = new ArrayList<>(set);
 		for (String str: uniqueList) {
+			System.out.println("Elements's URI: ["+ str + "]");
  			HADatAcThing object = URIPage.objectFromUri(str);
 			if (object instanceof Instrument) {
 				Instrument instrument = (Instrument)object;
 				String oldStatus = instrument.getHasStatus();
-				if (!oldStatus.equals(VSTOI.CURRENT) && oldStatus.equals(VSTOI.DEPRECATED)) {					
+				System.out.println("OldStatus:  ["+ oldStatus + "]");
+				if (!oldStatus.equals(VSTOI.CURRENT) && !oldStatus.equals(VSTOI.DEPRECATED)) {					
 					instrument.setHasStatus(newStatus);
 					instrument.save();
 				}
 			} else if (object instanceof Actuator) {
 				Actuator actuator = (Actuator)object;
 				String oldStatus = actuator.getHasStatus();
-				if (!oldStatus.equals(VSTOI.CURRENT) && oldStatus.equals(VSTOI.DEPRECATED)) {					
+				if (!oldStatus.equals(VSTOI.CURRENT) && !oldStatus.equals(VSTOI.DEPRECATED)) {					
 					actuator.setHasStatus(newStatus);
 					actuator.save();
 				}
 			} else if (object instanceof ActuatorStem) {
 				ActuatorStem actuatorStem = (ActuatorStem)object;
 				String oldStatus = actuatorStem.getHasStatus();
-				if (!oldStatus.equals(VSTOI.CURRENT) && oldStatus.equals(VSTOI.DEPRECATED)) {					
+				if (!oldStatus.equals(VSTOI.CURRENT) && !oldStatus.equals(VSTOI.DEPRECATED)) {					
 					actuatorStem.setHasStatus(newStatus);
 					actuatorStem.save();
 				}
 			} else if (object instanceof Detector) {
 				Detector detector = (Detector)object;
 				String oldStatus = detector.getHasStatus();
-				if (!oldStatus.equals(VSTOI.CURRENT) && oldStatus.equals(VSTOI.DEPRECATED)) {					
+				if (!oldStatus.equals(VSTOI.CURRENT) && !oldStatus.equals(VSTOI.DEPRECATED)) {					
 					detector.setHasStatus(newStatus);
 					detector.save();
 				}
 			} else if (object instanceof DetectorStem) {
 				DetectorStem detectorStem = (DetectorStem)object;
 				String oldStatus = detectorStem.getHasStatus();
-				if (!oldStatus.equals(VSTOI.CURRENT) && oldStatus.equals(VSTOI.DEPRECATED)) {					
+				if (!oldStatus.equals(VSTOI.CURRENT) && !oldStatus.equals(VSTOI.DEPRECATED)) {					
 					detectorStem.setHasStatus(newStatus);
 					detectorStem.save();
 				}
 			} else if (object instanceof Codebook) {
 				Codebook codebook = (Codebook)object;
 				String oldStatus = codebook.getHasStatus();
-				if (!oldStatus.equals(VSTOI.CURRENT) && oldStatus.equals(VSTOI.DEPRECATED)) {					
+				if (!oldStatus.equals(VSTOI.CURRENT) && !oldStatus.equals(VSTOI.DEPRECATED)) {					
 					codebook.setHasStatus(newStatus);
 					codebook.save();
 				}
 			} else if (object instanceof ResponseOption) {
 				ResponseOption responseOption = (ResponseOption)object;
 				String oldStatus = responseOption.getHasStatus();
-				if (!oldStatus.equals(VSTOI.CURRENT) && oldStatus.equals(VSTOI.DEPRECATED)) {					
+				if (!oldStatus.equals(VSTOI.CURRENT) && !oldStatus.equals(VSTOI.DEPRECATED)) {					
 					responseOption.setHasStatus(newStatus);
 					responseOption.save();
 				}
