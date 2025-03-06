@@ -22,7 +22,7 @@ import java.util.StringTokenizer;
 
 public class InstrumentTraversal {
 
-	public static int updateStatusRecursive(String uri) {
+	public static int updateStatusRecursive(String uri, String newStatus) {
 		Instrument instr = Instrument.find(uri);
 		List<String> list = new ArrayList<String>();
 		if (instr == null) {
@@ -36,24 +36,53 @@ public class InstrumentTraversal {
  			HADatAcThing object = URIPage.objectFromUri(str);
 			if (object instanceof Instrument) {
 				Instrument instrument = (Instrument)object;
-				instrument.setHasStatus(VSTOI.UNDER_REVIEW);
-				instrument.save();
+				String oldStatus = instrument.getHasStatus();
+				if (!oldStatus.equals(VSTOI.CURRENT) && oldStatus.equals(VSTOI.DEPRECATED)) {					
+					instrument.setHasStatus(newStatus);
+					instrument.save();
+				}
+			} else if (object instanceof Actuator) {
+				Actuator actuator = (Actuator)object;
+				String oldStatus = actuator.getHasStatus();
+				if (!oldStatus.equals(VSTOI.CURRENT) && oldStatus.equals(VSTOI.DEPRECATED)) {					
+					actuator.setHasStatus(newStatus);
+					actuator.save();
+				}
+			} else if (object instanceof ActuatorStem) {
+				ActuatorStem actuatorStem = (ActuatorStem)object;
+				String oldStatus = actuatorStem.getHasStatus();
+				if (!oldStatus.equals(VSTOI.CURRENT) && oldStatus.equals(VSTOI.DEPRECATED)) {					
+					actuatorStem.setHasStatus(newStatus);
+					actuatorStem.save();
+				}
 			} else if (object instanceof Detector) {
 				Detector detector = (Detector)object;
-				detector.setHasStatus(VSTOI.UNDER_REVIEW);
-				detector.save();
+				String oldStatus = detector.getHasStatus();
+				if (!oldStatus.equals(VSTOI.CURRENT) && oldStatus.equals(VSTOI.DEPRECATED)) {					
+					detector.setHasStatus(newStatus);
+					detector.save();
+				}
 			} else if (object instanceof DetectorStem) {
 				DetectorStem detectorStem = (DetectorStem)object;
-				detectorStem.setHasStatus(VSTOI.UNDER_REVIEW);
-				detectorStem.save();
+				String oldStatus = detectorStem.getHasStatus();
+				if (!oldStatus.equals(VSTOI.CURRENT) && oldStatus.equals(VSTOI.DEPRECATED)) {					
+					detectorStem.setHasStatus(newStatus);
+					detectorStem.save();
+				}
 			} else if (object instanceof Codebook) {
 				Codebook codebook = (Codebook)object;
-				codebook.setHasStatus(VSTOI.UNDER_REVIEW);
-				codebook.save();
+				String oldStatus = codebook.getHasStatus();
+				if (!oldStatus.equals(VSTOI.CURRENT) && oldStatus.equals(VSTOI.DEPRECATED)) {					
+					codebook.setHasStatus(newStatus);
+					codebook.save();
+				}
 			} else if (object instanceof ResponseOption) {
 				ResponseOption responseOption = (ResponseOption)object;
-				responseOption.setHasStatus(VSTOI.UNDER_REVIEW);
-				responseOption.save();
+				String oldStatus = responseOption.getHasStatus();
+				if (!oldStatus.equals(VSTOI.CURRENT) && oldStatus.equals(VSTOI.DEPRECATED)) {					
+					responseOption.setHasStatus(newStatus);
+					responseOption.save();
+				}
 			}
 		}
 		System.out.println("Number of elements:" + uniqueList.size());
@@ -131,19 +160,19 @@ public class InstrumentTraversal {
 		return list;
 	}
 
-	public static List<String> retrieveInstrumentDetectors(String uri) {
+	public static List<String> retrieveInstrumentComponents(String uri) {
 		Instrument instr = Instrument.find(uri);
 		List<String> list = new ArrayList<String>();
 		if (instr == null) {
 			return list;
 		}
-		list.addAll(traverseContainerDetector(list, (Container)instr));
+		list.addAll(traverseContainerComponent(list, (Container)instr));
 		Set<String> set = new HashSet<>(list);
         List<String> uniqueList = new ArrayList<>(set);
 		return uniqueList;
 	}
 
-	private static List<String> traverseContainerDetector(List<String> list, Container container) {
+	private static List<String> traverseContainerComponent(List<String> list, Container container) {
 		//System.out.println("  - Container: " + container.getUri());
 		List<SlotElement> slots = container.getSlotElements();
 		if (slots == null || slots.size() <= 0) {
