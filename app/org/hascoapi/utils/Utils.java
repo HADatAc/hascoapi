@@ -148,6 +148,12 @@ public class Utils {
             case "processstem":
                 shortPrefix = Constants.PREFIX_PROCESS_STEM;
                 break;
+            case "actuatorstem":
+                shortPrefix = Constants.PREFIX_ACTUATOR_STEM;
+                break;
+            case "actuator":
+                shortPrefix = Constants.PREFIX_ACTUATOR;
+                break;
             default:
                 shortPrefix = null;
         }

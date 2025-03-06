@@ -31,7 +31,11 @@ public class GenericFind<T> {
 
     public static Class getElementClass(String elementType) {
         
-        if (elementType.equals("agent")) {
+        if (elementType.equals("actuator")) {
+            return Actuator.class;
+        } else if (elementType.equals("actuatorstem")) {
+            return ActuatorStem.class;
+        } else if (elementType.equals("agent")) {
             return Agent.class;
         } else if (elementType.equals("annotation")) {
             return Annotation.class;
@@ -209,14 +213,21 @@ public class GenericFind<T> {
             return URIUtils.replaceNameSpace(VSTOI.PROCESS_STEM);
         } else if (clazz == KGR.class) {
             return URIUtils.replaceNameSpace(HASCO.KNOWLEDGE_GRAPH);
+        } else if (clazz == Actuator.class) {
+            return URIUtils.replaceNameSpace(VSTOI.ACTUATOR);
+        } else if (clazz == ActuatorStem.class) {
+            return URIUtils.replaceNameSpace(VSTOI.ACTUATOR_STEM);
         }
         return null;
     }
 
     public static boolean isSIR (Class clazz) {
         // Instrument/Container is not SIR Element
-        if (clazz == DetectorStem.class ||
+        if (clazz == Actuator.class ||
+            clazz == ActuatorStem.class ||
             clazz == Detector.class ||
+            clazz == DetectorStem.class ||
+            clazz == Component.class ||
             clazz == ResponseOption.class ||
             clazz == AnnotationStem.class ||
             clazz == Annotation.class ||
@@ -250,6 +261,8 @@ public class GenericFind<T> {
             return URIUtils.replaceNameSpace(VSTOI.INSTRUMENT);
         //} else if (clazz == DetectorStemType.class) {
         //    return URIUtils.replaceNameSpace(VSTOI.DETECTOR_STEM);
+        } else if (clazz == ActuatorStem.class) {
+            return URIUtils.replaceNameSpace(VSTOI.ACTUATOR_STEM);
         } else if (clazz == DetectorStem.class) {
             return URIUtils.replaceNameSpace(VSTOI.DETECTOR_STEM);
         } else if (clazz == Process.class) {
@@ -1118,6 +1131,10 @@ public class GenericFind<T> {
             return (T)Process.find(uri);
         } else if (clazz == KGR.class) {
             return (T)KGR.find(uri);
+        } else if (clazz == Actuator.class) {
+            return (T)Actuator.find(uri);
+        } else if (clazz == ActuatorStem.class) {
+            return (T)ActuatorStem.find(uri);
         }
         return null;
     
