@@ -72,7 +72,7 @@ public class STRInfoGenerator extends BaseGenerator{
     // }
 
     public String getStudyUri() {
-        studyUri = mapCatalog.get("Study_ID");
+        studyUri = mapCatalog.get("Study_URI");
     	//System.out.println("studyID in getStudyUri: [" + studyUri + "]");
         if (studyUri == null || studyUri.isEmpty()) {
         	return "";
@@ -84,8 +84,7 @@ public class STRInfoGenerator extends BaseGenerator{
     	// this will load the study, if available
     	//getStudyId();
     	//return study;
-        studyUri = mapCatalog.get("Study_ID");
-        // studyUri = mapCatalog.get("Study_Uri");
+        studyUri = mapCatalog.get("Study_URI");
 
         studyUri = URIUtils.replacePrefixEx(studyUri);
 
