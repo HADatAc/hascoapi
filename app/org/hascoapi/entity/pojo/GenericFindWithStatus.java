@@ -147,6 +147,10 @@ public class GenericFindWithStatus<T> {
      *     FIND ELEMENTS BY STATUS AND MANAGER (AND THEIR TOTALS)
      */
 
+    /* 
+     *   When withCurrent=TRUE it means retrieving all the elements of the requested status PLUS the current ones.
+     *   When withCurrent=FALSE it means retrieving just the elements of the requested status.
+     */ 
 	public List<T> findByStatusManagerEmailWithPages(Class clazz, String hasStatus, String managerEmail, boolean withCurrent, int pageSize, int offset) {
         //System.out.println("findByStatusManagerEmailWithPages: Clazz=[" + clazz + "]");
         String hascoTypeStr = GenericFind.classNameWithNamespace(clazz);
