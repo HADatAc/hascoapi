@@ -6,14 +6,14 @@ import org.apache.poi.ss.usermodel.*;
 
 public class INSDetector {
 
-    public static Workbook add(Workbook workbook, Detector detector) {
+    public static INSGenHelper add(INSGenHelper helper, Detector detector) {
 
         if (detector == null) {
-            return workbook;
+            return helper;
         }
 
         // Get the "Detectors" sheet
-        Sheet detectorSheet = workbook.getSheet(INSGen.DETECTORS);
+        Sheet detectorSheet = helper.workbook.getSheet(INSGen.DETECTORS);
 
         // Calculate the index for the new row
         int rowIndex = detectorSheet.getLastRowNum() + 1;
@@ -49,7 +49,15 @@ public class INSDetector {
             cell6.setCellValue("");
         }
 
-        return workbook;
+        // "vstoi:isAttributeOf"
+        Cell cell7 = newRow.createCell(6);
+        if (detector != null && detector.getIsAttributeOf() != null) {
+            cell7.setCellValue(URIUtils.replaceNameSpaceEx(detector.getIsAttributeOf()));
+        } else {
+            cell7.setCellValue("");
+        }
+
+        return helper;
     }
 
 }

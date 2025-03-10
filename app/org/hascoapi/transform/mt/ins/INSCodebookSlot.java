@@ -8,30 +8,50 @@ import org.apache.poi.ss.usermodel.*;
 
 public class INSCodebookSlot {
 
-    public static Workbook addByCodebook(Workbook workbook, Codebook codebook) {
+    public static INSGenHelper addByCodebook(INSGenHelper helper, Codebook codebook) {
+
+        if (helper == null) {
+            System.out.println("[ERROR] INSCodebookSlot.addByCodebook(): helper is null");
+            return helper;
+        }
+
+        if (helper.workbook == null) {
+            System.out.println("[ERROR] INSCodebookSlot.addByCodebook(): helper's workbook is null");
+            return helper;
+        }
 
         if (codebook == null) {
-            return workbook;
+            return helper;
         }
 
         List<CodebookSlot> cbSlots = codebook.getCodebookSlots();
         if (cbSlots != null && cbSlots.size() > 0) {
             for (CodebookSlot cbSlot: cbSlots) {
-                workbook = INSCodebookSlot.add(workbook, cbSlot);
+                helper = INSCodebookSlot.add(helper, cbSlot);
             }
         }
-        return workbook;
+        return helper;
 
     }
 
-    private static Workbook add(Workbook workbook, CodebookSlot codebookSlot) {
+    private static INSGenHelper add(INSGenHelper helper, CodebookSlot codebookSlot) {
+
+        if (helper == null) {
+            System.out.println("[ERROR] INSCodebookSlot.add(): helper is null");
+            return helper;
+        }
+
+        if (helper.workbook == null) {
+            System.out.println("[ERROR] INSCodebookSlot.add(): helper's workbook is null");
+            return helper;
+        }
 
         if (codebookSlot == null) {
-            return workbook;
+            return helper;
         }
 
         // Get the "CodebookSlots" sheet
-        Sheet codebookSlotSheet = workbook.getSheet(INSGen.CODEBOOK_SLOTS);
+        Sheet codebookSlotSheet = helper.workbook.getSheet(INSGen.CODEBOOK_SLOTS);
 
         // Calculate the index for the new row
         int rowIndex = codebookSlotSheet.getLastRowNum() + 1;
@@ -71,7 +91,7 @@ public class INSCodebookSlot {
             cell6.setCellValue("");
         }
 
-        return workbook;
+        return helper;
     }
 
 }

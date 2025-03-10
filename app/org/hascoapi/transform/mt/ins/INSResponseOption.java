@@ -6,14 +6,14 @@ import org.apache.poi.ss.usermodel.*;
 
 public class INSResponseOption {
 
-    public static Workbook add(Workbook workbook, ResponseOption responseOption) {
+    public static INSGenHelper add(INSGenHelper helper, ResponseOption responseOption) {
 
         if (responseOption == null) {
-            return workbook;
+            return helper;
         }
 
         // Get the "ResponseOptions" sheet
-        Sheet responseOptionSheet = workbook.getSheet(INSGen.RESPONSE_OPTIONS);
+        Sheet responseOptionSheet = helper.workbook.getSheet(INSGen.RESPONSE_OPTIONS);
 
         // Calculate the index for the new row
         int rowIndex = responseOptionSheet.getLastRowNum() + 1;
@@ -65,7 +65,7 @@ public class INSResponseOption {
         Cell cell11 = newRow.createCell(10);
         cell11.setCellValue(responseOption.getHasWebDocument());
 
-        return workbook;
+        return helper;
     }
 
 }

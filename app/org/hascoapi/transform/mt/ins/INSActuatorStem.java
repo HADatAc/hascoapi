@@ -6,14 +6,24 @@ import org.apache.poi.ss.usermodel.*;
 
 public class INSActuatorStem {
 
-    public static Workbook add(Workbook workbook, ActuatorStem actuatorStem) {
+    public static INSGenHelper add(INSGenHelper helper, ActuatorStem actuatorStem) {
+
+        if (helper == null) {
+            System.out.println("[ERROR] INSActuatorStem: helper is null");
+            return helper;
+        }
+
+        if (helper.workbook == null) {
+            System.out.println("[ERROR] INSActuatorStem: helper's workbook is null");
+            return helper;
+        }
 
         if (actuatorStem == null) {
-            return workbook;
+            return helper;
         }
 
         // Get the "ActuatorStems" sheet
-        Sheet actuatorStemSheet = workbook.getSheet(INSGen.ACTUATOR_STEMS);
+        Sheet actuatorStemSheet = helper.workbook.getSheet(INSGen.ACTUATOR_STEMS);
 
         // Calculate the index for the new row
         int rowIndex = actuatorStemSheet.getLastRowNum() + 1;
@@ -65,7 +75,7 @@ public class INSActuatorStem {
         Cell cell11 = newRow.createCell(10);
         cell11.setCellValue(actuatorStem.getHasWebDocument());
 
-        return workbook;
+        return helper;
     }
 
 }

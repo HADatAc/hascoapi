@@ -12,14 +12,14 @@ import org.apache.poi.ss.usermodel.*;
 
 public class INSContainerSlot {
 
-    public static Workbook addByInstrument(Workbook workbook, Instrument instrument) {
+    public static INSGenHelper addByInstrument(INSGenHelper helper, Instrument instrument) {
         if (instrument == null || instrument.getUri() == null) {
-            return workbook;
+            return helper;
         }
-        return INSContainerSlot.addByContainer(workbook, instrument, instrument, ""); 
+        return INSContainerSlot.addByContainer(helper, instrument, instrument, ""); 
     }
 
-    private static Workbook addByContainer(Workbook workbook, Instrument instrument, Container container, String id) {
+    private static INSGenHelper addByContainer(INSGenHelper helper, Instrument instrument, Container container, String id) {
         List<Container> containers = new ArrayList<Container>(); 
         int componentCount = 0;
         int subcontainerCount = 0;
@@ -34,22 +34,22 @@ public class INSContainerSlot {
             if (element instanceof Subcontainer) {
                 String newId = id + INSContainerSlot.numberToLetter(1 + subcontainerCount++);
                 containers.add((Container)element);
-                workbook = INSContainerSlot.add(workbook, instrument, "??" + newId, currentId, "");
+                helper = INSContainerSlot.add(helper, instrument, "??" + newId, currentId, "");
             } else {
                 ContainerSlot slot = (ContainerSlot)element;
                 String hasComponent = "";
                 if (slot.getComponent() != null && slot.getComponent().getUri() != null) {
                     hasComponent = URIUtils.replaceNameSpaceEx(slot.getComponent().getUri());
                 }
-                workbook = INSContainerSlot.add(workbook, instrument, String.valueOf(componentCount++), currentId, hasComponent);
+                helper = INSContainerSlot.add(helper, instrument, String.valueOf(componentCount++), currentId, hasComponent);
             }
         }
         if (containers.size() > 0) {
             for (int pos = 0; pos < containers.size(); pos++) {
-                workbook = INSContainerSlot.addByContainer(workbook, instrument, containers.get(pos), id + INSContainerSlot.numberToLetter(pos + 1));
+                helper = INSContainerSlot.addByContainer(helper, instrument, containers.get(pos), id + INSContainerSlot.numberToLetter(pos + 1));
             }
         }
-        return workbook;
+        return helper;
 
     }
 
@@ -60,16 +60,16 @@ public class INSContainerSlot {
         return String.valueOf((char) ('A' + number - 1));
     }
 
-    private static Workbook add(Workbook workbook, Instrument instrument, String originalId, String belongsTo, String hasComponent) {
+    private static INSGenHelper add(INSGenHelper helper, Instrument instrument, String originalId, String belongsTo, String hasComponent) {
 
         if (instrument == null   || instrument.getUri() == null || 
             originalId == null   || originalId.isEmpty()        || 
             belongsTo == null    || belongsTo.isEmpty()) { 
-            return workbook;
+            return helper;
         }
 
         // Get the "ContainerSlots" sheet
-        Sheet containerSlotSheet = workbook.getSheet(INSGen.CONTAINER_SLOTS);
+        Sheet containerSlotSheet = helper.workbook.getSheet(INSGen.CONTAINER_SLOTS);
 
         // Calculate the index for the new row
         int rowIndex = containerSlotSheet.getLastRowNum() + 1;
@@ -97,7 +97,7 @@ public class INSContainerSlot {
             cell4.setCellValue("");
         }  
 
-        return workbook;
+        return helper;
     }
 
 }

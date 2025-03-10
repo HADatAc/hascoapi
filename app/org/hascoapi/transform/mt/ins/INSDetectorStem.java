@@ -6,14 +6,14 @@ import org.apache.poi.ss.usermodel.*;
 
 public class INSDetectorStem {
 
-    public static Workbook add(Workbook workbook, DetectorStem detectorStem) {
+    public static INSGenHelper add(INSGenHelper helper,  DetectorStem detectorStem) {
 
         if (detectorStem == null) {
-            return workbook;
+            return helper;
         }
 
         // Get the "DetectorStems" sheet
-        Sheet detectorStemSheet = workbook.getSheet(INSGen.DETECTOR_STEMS);
+        Sheet detectorStemSheet = helper.workbook.getSheet(INSGen.DETECTOR_STEMS);
 
         // Calculate the index for the new row
         int rowIndex = detectorStemSheet.getLastRowNum() + 1;
@@ -65,7 +65,7 @@ public class INSDetectorStem {
         Cell cell11 = newRow.createCell(10);
         cell11.setCellValue(detectorStem.getHasWebDocument());
 
-        return workbook;
+        return helper;
     }
 
 }

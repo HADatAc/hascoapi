@@ -6,14 +6,24 @@ import org.apache.poi.ss.usermodel.*;
 
 public class INSAnnotationStem {
 
-    public static Workbook add(Workbook workbook, AnnotationStem annotationStem) {
+    public static INSGenHelper add(INSGenHelper helper, AnnotationStem annotationStem) {
+
+        if (helper == null) {
+            System.out.println("[ERROR] INSAnnotationStem: helper is null");
+            return helper;
+        }
+
+        if (helper.workbook == null) {
+            System.out.println("[ERROR] INSAnnotationStem: helper's workbook is null");
+            return helper;
+        }
 
         if (annotationStem == null) {
-            return workbook;
+            return helper;
         }
 
         // Get the "AnnotationStems" sheet
-        Sheet annotationStemSheet = workbook.getSheet(INSGen.ANNOTATION_STEMS);
+        Sheet annotationStemSheet = helper.workbook.getSheet(INSGen.ANNOTATION_STEMS);
 
         // Calculate the index for the new row
         int rowIndex = annotationStemSheet.getLastRowNum() + 1;
@@ -61,7 +71,7 @@ public class INSAnnotationStem {
         Cell cell10 = newRow.createCell(9);
         cell10.setCellValue(annotationStem.getHasWebDocument());
 
-        return workbook;
+        return helper;
 
     }
 

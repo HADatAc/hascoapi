@@ -6,14 +6,24 @@ import org.apache.poi.ss.usermodel.*;
 
 public class INSActuator {
 
-    public static Workbook add(Workbook workbook, Actuator actuator) {
+    public static INSGenHelper add(INSGenHelper helper, Actuator actuator) {
+
+        if (helper == null) {
+            System.out.println("[ERROR] INSActuator: helper is null");
+            return helper;
+        }
+
+        if (helper.workbook == null) {
+            System.out.println("[ERROR] INSActuator: helper's workbook is null");
+            return helper;
+        }
 
         if (actuator == null) {
-            return workbook;
+            return helper;
         }
 
         // Get the "Actuators" sheet
-        Sheet actuatorSheet = workbook.getSheet(INSGen.ACTUATORS);
+        Sheet actuatorSheet = helper.workbook.getSheet(INSGen.ACTUATORS);
 
         // Calculate the index for the new row
         int rowIndex = actuatorSheet.getLastRowNum() + 1;
@@ -43,9 +53,21 @@ public class INSActuator {
 
         // "vstoi:hasCodebook",
         Cell cell6 = newRow.createCell(5);
-        cell6.setCellValue(URIUtils.replaceNameSpaceEx(actuator.getHasCodebook()));
+        if (actuator != null && actuator.getHasCodebook() != null) {
+            cell6.setCellValue(URIUtils.replaceNameSpaceEx(actuator.getHasCodebook()));
+        } else {
+            cell6.setCellValue("");
+        }
 
-        return workbook;
+        // "vstoi:isAttributeOf"
+        Cell cell7 = newRow.createCell(6);
+        if (actuator != null && actuator.getIsAttributeOf() != null) {
+            cell7.setCellValue(URIUtils.replaceNameSpaceEx(actuator.getIsAttributeOf()));
+        } else {
+            cell7.setCellValue("");
+        }
+
+        return helper;
 
     }
 

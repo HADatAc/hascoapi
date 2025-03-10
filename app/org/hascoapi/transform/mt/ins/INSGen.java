@@ -22,175 +22,177 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 public class INSGen {
 
     public static final String INFOSHEET            = "InfoSheet";
-    public static final String NAMESPACES           = "#Namespaces";
-    public static final String INSTRUMENTS          = "#Instruments";
-    public static final String CONTAINER_SLOTS      = "#ContainerSlots";
-    public static final String DETECTOR_STEMS       = "#DetectorStems";
-    public static final String DETECTORS            = "#Detectors";
-    public static final String ACTUATOR_STEMS       = "#ActuatorStems";
-    public static final String ACTUATORS            = "#Actuators";
-    public static final String CODEBOOKS            = "#CodeBooks";
-    public static final String CODEBOOK_SLOTS       = "#CodeBookSlots";
-    public static final String RESPONSE_OPTIONS     = "#ResponseOptions";
-    public static final String ANNOTATIONS          = "#Annotations";
-    public static final String ANNOTATION_STEMS     = "#AnnotationStems";
+    public static final String NAMESPACES           = "Namespaces";
+    public static final String INSTRUMENTS          = "Instruments";
+    public static final String CONTAINER_SLOTS      = "ContainerSlots";
+    public static final String DETECTOR_STEMS       = "DetectorStems";
+    public static final String DETECTORS            = "Detectors";
+    public static final String ACTUATOR_STEMS       = "ActuatorStems";
+    public static final String ACTUATORS            = "Actuators";
+    public static final String CODEBOOKS            = "CodeBooks";
+    public static final String CODEBOOK_SLOTS       = "CodeBookSlots";
+    public static final String RESPONSE_OPTIONS     = "ResponseOptions";
+    public static final String ANNOTATIONS          = "Annotations";
+    public static final String ANNOTATION_STEMS     = "AnnotationStems";
 
     public static final int PAGESIZE                = 20000;
     public static final int OFFSET                  = 0;
 
     public static String genByStatus(String status, String filename) {
-        Workbook workbook = INSGen.create(filename);
+        INSGenHelper helper = new INSGenHelper();
+        helper.workbook = INSGen.create(filename);
         String resp = "";
 
         GenericFindWithStatus<Instrument> instrumentQuery = new GenericFindWithStatus<Instrument>();
         List<Instrument> instruments = instrumentQuery.findByStatusWithPages(Instrument.class, status, PAGESIZE, OFFSET);
         if (instruments != null) {
             for (Instrument instrument: instruments) {
-                workbook = INSInstrument.add(workbook,instrument);
-                workbook = INSContainerSlot.addByInstrument(workbook,instrument);
+                helper = INSInstrument.add(helper,instrument);
+                helper = INSContainerSlot.addByInstrument(helper,instrument);
             }
         }
         GenericFindWithStatus<DetectorStem> detStemQuery = new GenericFindWithStatus<DetectorStem>();
         List<DetectorStem> detStems = detStemQuery.findByStatusWithPages(DetectorStem.class, status, PAGESIZE, OFFSET);
         if (detStems != null) {
             for (DetectorStem detStem: detStems) {
-                workbook = INSDetectorStem.add(workbook,detStem);
+                helper = INSDetectorStem.add(helper,detStem);
             }
         }
         GenericFindWithStatus<Detector> detQuery = new GenericFindWithStatus<Detector>();
         List<Detector> dets = detQuery.findByStatusWithPages(Detector.class, status, PAGESIZE, OFFSET);
         if (dets != null) {
             for (Detector det: dets) {
-                workbook = INSDetector.add(workbook,det);
+                helper = INSDetector.add(helper,det);
             }
         }
         GenericFindWithStatus<ActuatorStem> actStemQuery = new GenericFindWithStatus<ActuatorStem>();
         List<ActuatorStem> actStems = actStemQuery.findByStatusWithPages(ActuatorStem.class, status, PAGESIZE, OFFSET);
         if (actStems != null) {
             for (ActuatorStem actStem: actStems) {
-                workbook = INSActuatorStem.add(workbook,actStem);
+                helper = INSActuatorStem.add(helper,actStem);
             }
         }
         GenericFindWithStatus<Actuator> actQuery = new GenericFindWithStatus<Actuator>();
         List<Actuator> acts = actQuery.findByStatusWithPages(Actuator.class, status, PAGESIZE, OFFSET);
         if (acts != null) {
             for (Actuator act: acts) {
-                workbook = INSActuator.add(workbook,act);
+                helper = INSActuator.add(helper,act);
             }
         }
         GenericFindWithStatus<Codebook> cbQuery = new GenericFindWithStatus<Codebook>();
         List<Codebook> cbs = cbQuery.findByStatusWithPages(Codebook.class, status, PAGESIZE, OFFSET);
         if (cbs != null) {
             for (Codebook cb: cbs) {
-                workbook = INSCodebook.add(workbook,cb);
-                workbook = INSCodebookSlot.addByCodebook(workbook,cb);
+                helper = INSCodebook.add(helper,cb);
+                helper = INSCodebookSlot.addByCodebook(helper,cb);
             }
         }
         GenericFindWithStatus<ResponseOption> respOptionQuery = new GenericFindWithStatus<ResponseOption>();
         List<ResponseOption> respOptions = respOptionQuery.findByStatusWithPages(ResponseOption.class, status, PAGESIZE, OFFSET);
         if (respOptions != null) {
             for (ResponseOption respOption: respOptions) {
-                workbook = INSResponseOption.add(workbook,respOption);
+                helper = INSResponseOption.add(helper,respOption);
             }
         }
         GenericFindWithStatus<AnnotationStem> annStemQuery = new GenericFindWithStatus<AnnotationStem>();
         List<AnnotationStem> annStems = annStemQuery.findByStatusWithPages(AnnotationStem.class, status, PAGESIZE, OFFSET);
         if (annStems != null) {
             for (AnnotationStem annStem: annStems) {
-                workbook = INSAnnotationStem.add(workbook,annStem);
+                helper = INSAnnotationStem.add(helper,annStem);
             }
         }
         GenericFindWithStatus<Annotation> annQuery = new GenericFindWithStatus<Annotation>();
         List<Annotation> anns = annQuery.findByStatusWithPages(Annotation.class, status, PAGESIZE, OFFSET);
         if (anns != null) {
             for (Annotation ann: anns) {
-                workbook = INSAnnotation.add(workbook,ann);
+                helper = INSAnnotation.add(helper,ann);
             }
         }
-        return INSGen.save(workbook,filename);
+        return INSGen.save(helper,filename);
     }
 
     public static String genByInstrument(Instrument instrument, String filename) {
-        Workbook workbook = INSGen.create(filename);
+        if (instrument != null) {
+            return "";
+        }
+        INSGenHelper helper = new INSGenHelper();
+        helper.workbook = INSGen.create(filename);
+        INSInstrument.add(helper,instrument);
+        INSContainerSlot.addByInstrument(helper,instrument);
         return "";
     }
 
     public static String genByManager(String useremail, String status, String filename) {
-        Workbook workbook = INSGen.create(filename);
+        INSGenHelper helper = new INSGenHelper();
+        helper.workbook = INSGen.create(filename);
         boolean withCurrent = false; // this assures that the retrieval of just elements of the requested type.
 
         GenericFindWithStatus<Instrument> instrumentQuery = new GenericFindWithStatus<Instrument>();
         List<Instrument> instruments = instrumentQuery.findByStatusManagerEmailWithPages(Instrument.class, status, useremail, withCurrent, PAGESIZE, OFFSET);
-        if (instruments == null) {
-            System.out.println("genByManager: Instruments is NULL");
-        } else {
-            System.out.println("genByManager: Instruments has " + instruments.size() + " elements");
-        }
         if (instruments != null) {
             for (Instrument instrument: instruments) {
-                System.out.println("genByManager: Instrument has URI " + instrument.getUri());
-                INSInstrument.add(workbook,instrument);
-                INSContainerSlot.addByInstrument(workbook,instrument);
+                INSInstrument.add(helper,instrument);
+                INSContainerSlot.addByInstrument(helper,instrument);
             }
         }
         GenericFindWithStatus<DetectorStem> detStemQuery = new GenericFindWithStatus<DetectorStem>();
         List<DetectorStem> detStems = detStemQuery.findByStatusManagerEmailWithPages(DetectorStem.class, status, useremail, withCurrent, PAGESIZE, OFFSET);
         if (detStems != null) {
             for (DetectorStem detStem: detStems) {
-                INSDetectorStem.add(workbook,detStem);
+                INSDetectorStem.add(helper,detStem);
             }
         }
         GenericFindWithStatus<Detector> detQuery = new GenericFindWithStatus<Detector>();
         List<Detector> dets = detQuery.findByStatusManagerEmailWithPages(Detector.class, status, useremail, withCurrent, PAGESIZE, OFFSET);
         if (dets != null) {
             for (Detector det: dets) {
-                INSDetector.add(workbook,det);
+                INSDetector.add(helper,det);
             }
         }
         GenericFindWithStatus<ActuatorStem> actStemQuery = new GenericFindWithStatus<ActuatorStem>();
         List<ActuatorStem> actStems = actStemQuery.findByStatusManagerEmailWithPages(ActuatorStem.class, status, useremail, withCurrent, PAGESIZE, OFFSET);
         if (actStems != null) {
             for (ActuatorStem actStem: actStems) {
-                INSActuatorStem.add(workbook,actStem);
+                INSActuatorStem.add(helper,actStem);
             }
         }
         GenericFindWithStatus<Actuator> actQuery = new GenericFindWithStatus<Actuator>();
         List<Actuator> acts = actQuery.findByStatusManagerEmailWithPages(Actuator.class, status, useremail, withCurrent, PAGESIZE, OFFSET);
         if (acts != null) {
             for (Actuator act: acts) {
-                INSActuator.add(workbook,act);
+                INSActuator.add(helper,act);
             }
         }
         GenericFindWithStatus<Codebook> cbQuery = new GenericFindWithStatus<Codebook>();
         List<Codebook> cbs = cbQuery.findByStatusManagerEmailWithPages(Codebook.class, status, useremail, withCurrent, PAGESIZE, OFFSET);
         if (cbs != null) {
             for (Codebook cb: cbs) {
-                INSCodebook.add(workbook,cb);
-                INSCodebookSlot.addByCodebook(workbook,cb);
+                INSCodebook.add(helper,cb);
+                INSCodebookSlot.addByCodebook(helper,cb);
             }
         }
         GenericFindWithStatus<ResponseOption> respOptionQuery = new GenericFindWithStatus<ResponseOption>();
         List<ResponseOption> respOptions = respOptionQuery.findByStatusManagerEmailWithPages(ResponseOption.class, status, useremail, withCurrent, PAGESIZE, OFFSET);
         if (respOptions != null) {
             for (ResponseOption respOption: respOptions) {
-                INSResponseOption.add(workbook,respOption);
+                INSResponseOption.add(helper,respOption);
             }
         }
         GenericFindWithStatus<AnnotationStem> annStemQuery = new GenericFindWithStatus<AnnotationStem>();
         List<AnnotationStem> annStems = annStemQuery.findByStatusManagerEmailWithPages(AnnotationStem.class, status, useremail, withCurrent, PAGESIZE, OFFSET);
         if (annStems != null) {
             for (AnnotationStem annStem: annStems) {
-                INSAnnotationStem.add(workbook,annStem);
+                INSAnnotationStem.add(helper,annStem);
             }
         }
         GenericFindWithStatus<Annotation> annQuery = new GenericFindWithStatus<Annotation>();
         List<Annotation> anns = annQuery.findByStatusManagerEmailWithPages(Annotation.class, status, useremail, withCurrent, PAGESIZE, OFFSET);
         if (anns != null) {
             for (Annotation ann: anns) {
-                INSAnnotation.add(workbook,ann);
+                INSAnnotation.add(helper,ann);
             }
         }
-        return INSGen.save(workbook,filename);
+        return INSGen.save(helper,filename);
     }
 
     public static Workbook create(String filename) {
@@ -212,73 +214,73 @@ public class INSGen {
         Cell isDataCell1_1 = dataRow1.createCell(0);
         isDataCell1_1.setCellValue("hasDependencies");
         Cell isDataCell1_2 = dataRow1.createCell(1);
-        isDataCell1_2.setCellValue(INSGen.NAMESPACES);
+        isDataCell1_2.setCellValue("#" + INSGen.NAMESPACES);
 
         Row dataRow2 = infoSheet.createRow(2);
         Cell isDataCell2_1 = dataRow2.createCell(0);
         isDataCell2_1.setCellValue("Instruments");
         Cell isDataCell2_2 = dataRow2.createCell(1);
-        isDataCell2_2.setCellValue(INSGen.INSTRUMENTS);
+        isDataCell2_2.setCellValue("#" + INSGen.INSTRUMENTS);
 
         Row isDataRow3 = infoSheet.createRow(3);
         Cell isDataCell3_1 = isDataRow3.createCell(0);
         isDataCell3_1.setCellValue("ContainerSlots");
         Cell isDataCell3_2 = isDataRow3.createCell(1);
-        isDataCell3_2.setCellValue(INSGen.CONTAINER_SLOTS);
+        isDataCell3_2.setCellValue("#" + INSGen.CONTAINER_SLOTS);
 
         Row isDataRow4 = infoSheet.createRow(4);
         Cell isDataCell4_1 = isDataRow4.createCell(0);
         isDataCell4_1.setCellValue("DetectorStems");
         Cell isDataCell4_2 = isDataRow4.createCell(1);
-        isDataCell4_2.setCellValue(INSGen.DETECTOR_STEMS);
+        isDataCell4_2.setCellValue("#" + INSGen.DETECTOR_STEMS);
 
         Row isDataRow5 = infoSheet.createRow(5);
         Cell isDataCell5_1 = isDataRow5.createCell(0);
         isDataCell5_1.setCellValue("Detectors");
         Cell isDataCell5_2 = isDataRow5.createCell(1);
-        isDataCell5_2.setCellValue(INSGen.DETECTORS);
+        isDataCell5_2.setCellValue("#" + INSGen.DETECTORS);
 
         Row isDataRow6 = infoSheet.createRow(6);
         Cell isDataCell6_1 = isDataRow6.createCell(0);
         isDataCell6_1.setCellValue("ActuatorStems");
         Cell isDataCell6_2 = isDataRow6.createCell(1);
-        isDataCell6_2.setCellValue(INSGen.ACTUATOR_STEMS);
+        isDataCell6_2.setCellValue("#" + INSGen.ACTUATOR_STEMS);
 
         Row isDataRow7 = infoSheet.createRow(7);
         Cell isDataCell7_1 = isDataRow7.createCell(0);
         isDataCell7_1.setCellValue("Actuators");
         Cell isDataCell7_2 = isDataRow7.createCell(1);
-        isDataCell7_2.setCellValue(INSGen.ACTUATORS);
+        isDataCell7_2.setCellValue("#" + INSGen.ACTUATORS);
 
         Row isDataRow8 = infoSheet.createRow(8);
         Cell isDataCell8_1 = isDataRow8.createCell(0);
         isDataCell8_1.setCellValue("CodeBooks");
         Cell isDataCell8_2 = isDataRow8.createCell(1);
-        isDataCell8_2.setCellValue(INSGen.CODEBOOKS);
+        isDataCell8_2.setCellValue("#" + INSGen.CODEBOOKS);
 
         Row isDataRow9 = infoSheet.createRow(9);
         Cell isDataCell9_1 = isDataRow9.createCell(0);
         isDataCell9_1.setCellValue("CodeBookSlots");
         Cell isDataCell9_2 = isDataRow9.createCell(1);
-        isDataCell9_2.setCellValue(INSGen.CODEBOOK_SLOTS);
+        isDataCell9_2.setCellValue("#" + INSGen.CODEBOOK_SLOTS);
 
         Row isDataRow10 = infoSheet.createRow(10);
         Cell isDataCell10_1 = isDataRow10.createCell(0);
         isDataCell10_1.setCellValue("ResponseOptions");
         Cell isDataCell10_2 = isDataRow10.createCell(1);
-        isDataCell10_2.setCellValue(INSGen.RESPONSE_OPTIONS);
+        isDataCell10_2.setCellValue("#" + INSGen.RESPONSE_OPTIONS);
 
         Row isDataRow11 = infoSheet.createRow(11);
         Cell isDataCell11_1 = isDataRow11.createCell(0);
         isDataCell11_1.setCellValue("Annotations");
         Cell isDataCell11_2 = isDataRow11.createCell(1);
-        isDataCell11_2.setCellValue(INSGen.ANNOTATIONS);
+        isDataCell11_2.setCellValue("#" + INSGen.ANNOTATIONS);
 
         Row isDataRow12 = infoSheet.createRow(12);
         Cell isDataCell12_1 = isDataRow12.createCell(0);
         isDataCell12_1.setCellValue("AnnotationStems");
         Cell isDataCell12_2 = isDataRow12.createCell(1);
-        isDataCell12_2.setCellValue(INSGen.ANNOTATION_STEMS);
+        isDataCell12_2.setCellValue("#" + INSGen.ANNOTATION_STEMS);
 
         // Create sheet named 'Namespaces'
         Sheet nsSheet = workbook.createSheet(INSGen.NAMESPACES);
@@ -341,7 +343,7 @@ public class INSGen {
 
         // Create sheet named 'Detector'
         Sheet detectorSheet = workbook.createSheet(INSGen.DETECTORS);
-        String[] detectorHeaders = { "hasURI", "hasco:hascoType", "rdf:type", "rdfs:label", "vstoi:hasDetectorStem", "vstoi:hasCodebook" };
+        String[] detectorHeaders = { "hasURI", "hasco:hascoType", "rdf:type", "rdfs:label", "vstoi:hasDetectorStem", "vstoi:hasCodebook", "vstoi:isAttributeOf" };
 
         // Create header row
         Row detectorHeaderRow = detectorSheet.createRow(0);
@@ -370,7 +372,7 @@ public class INSGen {
 
         // Create sheet named 'Actuator'
         Sheet actuatorSheet = workbook.createSheet(INSGen.ACTUATORS);
-        String[] actuatorHeaders = { "hasURI", "hasco:hascoType", "rdf:type", "rdfs:label", "vstoi:hasActuatorStem", "vstoi:hasCodebook" };
+        String[] actuatorHeaders = { "hasURI", "hasco:hascoType", "rdf:type", "rdfs:label", "vstoi:hasActuatorStem", "vstoi:hasCodebook", "vstoi:isAttributeOf" };
 
         // Create header row
         Row actuatorHeaderRow = actuatorSheet.createRow(0);
@@ -480,14 +482,14 @@ public class INSGen {
     }
 
 
-    public static String save(Workbook workbook, String filename) {
+    public static String save(INSGenHelper helper, String filename) {
         // Define the permanent file path
         String pathString = ConfigProp.getPathIngestion() + filename;
 
         String resp = "";
         // Write the workbook content to a file
         try (FileOutputStream fileOut = new FileOutputStream(pathString)) {
-            workbook.write(fileOut);
+            helper.workbook.write(fileOut);
             System.out.println("INS workbook save successfully!");
         } catch (IOException e) {
             resp = "Error occurred while writing the workbook: " + e.getMessage();

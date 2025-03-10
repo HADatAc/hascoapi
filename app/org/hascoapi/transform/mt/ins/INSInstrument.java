@@ -6,14 +6,14 @@ import org.apache.poi.ss.usermodel.*;
 
 public class INSInstrument {
 
-    public static Workbook add(Workbook workbook, Instrument inst) {
+    public static INSGenHelper add(INSGenHelper helper,  Instrument inst) {
 
         if (inst == null) {
-            return workbook;
+            return helper;
         }
 
         // Get the "Instruments" sheet
-        Sheet instrumentSheet = workbook.getSheet(INSGen.INSTRUMENTS);
+        Sheet instrumentSheet = helper.workbook.getSheet(INSGen.INSTRUMENTS);
 
         // Calculate the index for the new row
         int rowIndex = instrumentSheet.getLastRowNum() + 1;
@@ -83,7 +83,7 @@ public class INSInstrument {
         Cell cell15 = newRow.createCell(14);
         cell15.setCellValue(inst.getHasWebDocument());
 
-        return workbook;
+        return helper;
     }
 
 }

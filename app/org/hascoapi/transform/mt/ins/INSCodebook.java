@@ -6,14 +6,24 @@ import org.apache.poi.ss.usermodel.*;
 
 public class INSCodebook {
 
-    public static Workbook add(Workbook workbook, Codebook codebook) {
+    public static INSGenHelper add(INSGenHelper helper, Codebook codebook) {
+
+        if (helper == null) {
+            System.out.println("[ERROR] INSCodebook: helper is null");
+            return helper;
+        }
+
+        if (helper.workbook == null) {
+            System.out.println("[ERROR] INSCodebook: helper's workbook is null");
+            return helper;
+        }
 
         if (codebook == null) {
-            return workbook;
+            return helper;
         }
 
         // Get the "Codebooks" sheet
-        Sheet codebookSheet = workbook.getSheet(INSGen.CODEBOOKS);
+        Sheet codebookSheet = helper.workbook.getSheet(INSGen.CODEBOOKS);
 
         // Calculate the index for the new row
         int rowIndex = codebookSheet.getLastRowNum() + 1;
@@ -61,7 +71,7 @@ public class INSCodebook {
         Cell cell10 = newRow.createCell(9);
         cell10.setCellValue(codebook.getHasWebDocument());
 
-        return workbook;
+        return helper;
     }
 
 }
