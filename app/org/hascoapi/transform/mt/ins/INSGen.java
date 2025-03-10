@@ -119,11 +119,16 @@ public class INSGen {
         Workbook workbook = INSGen.create(filename);
         boolean withCurrent = false; // this assures that the retrieval of just elements of the requested type.
 
-        System.out.println("UserEmail: " + useremail + "   Status: " + status);
         GenericFindWithStatus<Instrument> instrumentQuery = new GenericFindWithStatus<Instrument>();
         List<Instrument> instruments = instrumentQuery.findByStatusManagerEmailWithPages(Instrument.class, status, useremail, withCurrent, PAGESIZE, OFFSET);
+        if (instruments == null) {
+            System.out.println("genByManager: Instruments is NULL");
+        } else {
+            System.out.println("genByManager: Instruments has " + instruments.size() + " elements");
+        }
         if (instruments != null) {
             for (Instrument instrument: instruments) {
+                System.out.println("genByManager: Instrument has URI " + instrument.getUri());
                 INSInstrument.add(workbook,instrument);
                 INSContainerSlot.addByInstrument(workbook,instrument);
             }
@@ -185,8 +190,7 @@ public class INSGen {
                 INSAnnotation.add(workbook,ann);
             }
         }
-
-        return "";
+        return INSGen.save(workbook,filename);
     }
 
     public static Workbook create(String filename) {

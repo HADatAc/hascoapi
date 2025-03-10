@@ -34,7 +34,7 @@ public class GenericFindWithStatus<T> {
      */
 
      public List<T> findByStatusWithPages(Class clazz, String hasStatus, int pageSize, int offset) {
-        System.out.println("findByStatusWithPages: Clazz=[" + clazz + "]");
+        //System.out.println("findByStatusWithPages: Clazz=[" + clazz + "]");
         String hascoTypeStr = GenericFind.classNameWithNamespace(clazz);
         if (hascoTypeStr == null || hascoTypeStr.isEmpty()) {
             hascoTypeStr = GenericFind.superclassNameWithNamespace(clazz);
@@ -42,7 +42,7 @@ public class GenericFindWithStatus<T> {
         if (hascoTypeStr == null || hascoTypeStr.isEmpty()) {
             return null;
         }
-        System.out.println("findByStatusWithPages: hascoTypeStr=[" + hascoTypeStr + "]");
+        //System.out.println("findByStatusWithPages: hascoTypeStr=[" + hascoTypeStr + "]");
         if (clazz == Detector.class) {
             return findDetectorInstancesByStatusWithPages(clazz, hascoTypeStr, hasStatus, pageSize, offset);
         } else if (GenericFind.isSIR(clazz)) {
@@ -105,7 +105,7 @@ public class GenericFindWithStatus<T> {
 				" ORDER BY ASC(?label) " +
 				" LIMIT " + pageSize +
 				" OFFSET " + offset;
-        System.out.println(queryString);
+        //System.out.println(queryString);
 		return GenericFind.findByQuery(clazz, queryString);
 	}
 
@@ -273,6 +273,8 @@ public class GenericFindWithStatus<T> {
 	}
 
 	public List<T> findElementsByStatusManagerEmailWithPages(Class clazz, String hascoTypeStr, String hasStatus, String managerEmail, boolean withCurrent, int pageSize, int offset) {
+        //System.out.println("findElementsByStatusManagerEmailWithPages: Status=[" + hasStatus + "]   email=[" + managerEmail + 
+        //    "]   withCurrent=[" + withCurrent + "]    hascoTypeStr=[" + hascoTypeStr + "]");
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
         if (withCurrent) {
             queryString += " SELECT ?uri WHERE { " +
