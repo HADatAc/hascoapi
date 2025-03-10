@@ -20,6 +20,9 @@ public class INSContainerSlot {
     }
 
     private static INSGenHelper addByContainer(INSGenHelper helper, Instrument instrument, Container container, String id) {
+        if (container == null) {
+            return helper;
+        }
         List<Container> containers = new ArrayList<Container>(); 
         int componentCount = 0;
         int subcontainerCount = 0;

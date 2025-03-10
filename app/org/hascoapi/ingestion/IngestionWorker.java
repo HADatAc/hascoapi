@@ -667,6 +667,42 @@ public class IngestionWorker {
                 }
             }
 
+            String actuatorStemSheet = mapCatalog.get("ActuatorStems");
+            if (actuatorStemSheet == null) {
+                System.out.println("[WARNING] 'ActuatorStems' sheet is missing.");
+                dataFile.getLogger().println("[WARNING] 'ActuatorStems' sheet is missing.");
+            } else {
+                actuatorStemSheet.replace("#", "");
+                sheet = new SpreadsheetRecordFile(dataFile.getFile(), actuatorStemSheet);
+                try {
+                    DataFile dataFileForSheet = (DataFile)dataFile.clone();
+                    dataFileForSheet.setRecordFile(sheet);
+                    INSGenerator actStemGen = new INSGenerator("actuatorstem",dataFileForSheet, status);
+                    actStemGen.setNamedGraphUri(dataFileForSheet.getUri());
+                    chain.addGenerator(actStemGen);
+                } catch (CloneNotSupportedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            String actuatorSheet = mapCatalog.get("Actuators");
+            if (actuatorSheet == null) {
+                System.out.println("[WARNING] 'Actuators' sheet is missing.");
+                dataFile.getLogger().println("[WARNING] 'Actuators' sheet is missing.");
+            } else {
+                actuatorSheet.replace("#", "");
+                sheet = new SpreadsheetRecordFile(dataFile.getFile(), actuatorSheet);
+                try {
+                    DataFile dataFileForSheet = (DataFile)dataFile.clone();
+                    dataFileForSheet.setRecordFile(sheet);
+                    ActuatorGenerator actGen = new ActuatorGenerator(dataFileForSheet, status);
+                    actGen.setNamedGraphUri(dataFileForSheet.getUri());
+                    chain.addGenerator(actGen);
+                } catch (CloneNotSupportedException e) {
+                    e.printStackTrace();
+                }
+            }
+
             String detectorStemSheet = mapCatalog.get("DetectorStems");
             if (detectorStemSheet == null) {
                 System.out.println("[WARNING] 'DetectorStems' sheet is missing.");

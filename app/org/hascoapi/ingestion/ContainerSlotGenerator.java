@@ -72,9 +72,9 @@ public class ContainerSlotGenerator extends BaseGenerator {
 					if (tempRow.get("hasco:originalID") != null) {
 						belongsTo = (String)tempRow.get("vstoi:belongsTo");
 					}
-					String detector = "";
+					String component = "";
 					if (tempRow.get("hasco:originalID") != null) {
-						detector = (String)tempRow.get("vstoi:hasDetector");
+						component = (String)tempRow.get("vstoi:hasComponent");
 					}
 					
 					if (id.startsWith("??") && id.length() > 2) {
@@ -90,14 +90,14 @@ public class ContainerSlotGenerator extends BaseGenerator {
 					String containerUri = this.computeContainerUri(id, belongsTo, contexts);
 					String slotUri = this.computeSlotUri(id, belongsTo, contexts);
 					//System.out.println("Context: [" + context + "] Priority: [" + priority + "] Id: [" + id + "]" +
-					//	" BelongsTo: [" + belongsTo + "]   Detector: [" + detector + "]");
+					//	" BelongsTo: [" + belongsTo + "]   Component: [" + component + "]");
 					//System.out.println("          ContainerURI: [" + containerUri + "]   SlotUri: [" + slotUri + "]");
 					tempRow.put("hasURI",slotUri);
 					tempRow.put("vstoi:belongsTo",containerUri);
 					String priorityStr = String.valueOf(priority);
 					tempRow.put("vstoi:hasPriority",priorityStr);
 					tempRow.put("rdfs:label", cleanName(id));
-					tempRow.put("vstoi:hasDetector", detector);
+					tempRow.put("vstoi:hasComponent", component);
 					if (id.startsWith("??")) {
 						tempRow.put("rdf:type", VSTOI.SUBCONTAINER);
 						tempRow.put("hasco:hascoType", VSTOI.SUBCONTAINER);

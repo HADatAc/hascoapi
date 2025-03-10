@@ -67,6 +67,13 @@ public class INSGenerator extends BaseGenerator {
 			    row.put("vstoi:hasStatus", this.getHasStatus());
 			}
 			row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
+		} else if (this.getElementType().equals("actuatorstem")) {
+			//row.put("rdfs:subClassOf", VSTOI.ACTUATOR_STEM);
+			row.put("hasco:hascoType", VSTOI.ACTUATOR_STEM);
+			if (this.getHasStatus() != null && !this.getHasStatus().equals("_")) {
+			    row.put("vstoi:hasStatus", this.getHasStatus());
+			}
+			row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
 		} else if (this.getElementType().equals("detectorstem")) {
 			//row.put("rdfs:subClassOf", VSTOI.DETECTOR_STEM);
 			row.put("hasco:hascoType", VSTOI.DETECTOR_STEM);
