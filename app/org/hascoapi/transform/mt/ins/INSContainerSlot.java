@@ -12,14 +12,14 @@ import org.apache.poi.ss.usermodel.*;
 
 public class INSContainerSlot {
 
-    public static Workbook addInstrument(Workbook workbook, Instrument instrument) {
+    public static Workbook addByInstrument(Workbook workbook, Instrument instrument) {
         if (instrument == null || instrument.getUri() == null) {
             return workbook;
         }
-        return INSContainerSlot.addContainer(workbook, instrument, instrument, ""); 
+        return INSContainerSlot.addByContainer(workbook, instrument, instrument, ""); 
     }
 
-    public static Workbook addContainer(Workbook workbook, Instrument instrument, Container container, String id) {
+    private static Workbook addByContainer(Workbook workbook, Instrument instrument, Container container, String id) {
         List<Container> containers = new ArrayList<Container>(); 
         int componentCount = 0;
         int subcontainerCount = 0;
@@ -32,13 +32,13 @@ public class INSContainerSlot {
         }
         for (SlotElement element: elements) {
             if (element instanceof Subcontainer) {
-                String newId = id + INSContainerSlot.numberToLetter(subcontainerCount++);
+                String newId = id + INSContainerSlot.numberToLetter(1 + subcontainerCount++);
                 containers.add((Container)element);
                 workbook = INSContainerSlot.add(workbook, instrument, "??" + newId, currentId, "");
             } else {
                 ContainerSlot slot = (ContainerSlot)element;
                 String hasComponent = "";
-                if (slot.getComponent() != null || slot.getComponent().getUri() != null) {
+                if (slot.getComponent() != null && slot.getComponent().getUri() != null) {
                     hasComponent = URIUtils.replaceNameSpaceEx(slot.getComponent().getUri());
                 }
                 workbook = INSContainerSlot.add(workbook, instrument, String.valueOf(componentCount++), currentId, hasComponent);
@@ -46,7 +46,7 @@ public class INSContainerSlot {
         }
         if (containers.size() > 0) {
             for (int pos = 0; pos < containers.size(); pos++) {
-                workbook = INSContainerSlot.addContainer(workbook, instrument, container, id + INSContainerSlot.numberToLetter(pos));
+                workbook = INSContainerSlot.addByContainer(workbook, instrument, containers.get(pos), id + INSContainerSlot.numberToLetter(pos + 1));
             }
         }
         return workbook;
@@ -55,7 +55,7 @@ public class INSContainerSlot {
 
     private static String numberToLetter(int number) {
         if (number < 1 || number > 26) {
-            throw new IllegalArgumentException("Number must be between 1 and 26");
+            return "Z";
         }
         return String.valueOf((char) ('A' + number - 1));
     }

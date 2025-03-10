@@ -1,12 +1,30 @@
 package org.hascoapi.transform.mt.ins;
 
+import java.util.List;
+import org.hascoapi.entity.pojo.Codebook;
 import org.hascoapi.entity.pojo.CodebookSlot;
 import org.hascoapi.utils.URIUtils;
 import org.apache.poi.ss.usermodel.*;
 
 public class INSCodebookSlot {
 
-    public static Workbook add(Workbook workbook, CodebookSlot codebookSlot) {
+    public static Workbook addByCodebook(Workbook workbook, Codebook codebook) {
+
+        if (codebook == null) {
+            return workbook;
+        }
+
+        List<CodebookSlot> cbSlots = codebook.getCodebookSlots();
+        if (cbSlots != null && cbSlots.size() > 0) {
+            for (CodebookSlot cbSlot: cbSlots) {
+                workbook = INSCodebookSlot.add(workbook, cbSlot);
+            }
+        }
+        return workbook;
+
+    }
+
+    private static Workbook add(Workbook workbook, CodebookSlot codebookSlot) {
 
         if (codebookSlot == null) {
             return workbook;
@@ -35,7 +53,7 @@ public class INSCodebookSlot {
 
         // "vstoi:belongsTo"
         Cell cell4 = newRow.createCell(3);
-        cell4.setCellValue(codebookSlot.getBelongsTo());  
+        cell4.setCellValue(URIUtils.replaceNameSpaceEx(codebookSlot.getBelongsTo()));  
 
         // "vstoi:hasCodebookSlot"
         Cell cell5 = newRow.createCell(4);

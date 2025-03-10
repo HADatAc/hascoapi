@@ -47,7 +47,7 @@ public class INSGen {
         if (instruments != null) {
             for (Instrument instrument: instruments) {
                 workbook = INSInstrument.add(workbook,instrument);
-                workbook = INSContainerSlot.addInstrument(workbook,instrument);
+                workbook = INSContainerSlot.addByInstrument(workbook,instrument);
             }
         }
         GenericFindWithStatus<DetectorStem> detStemQuery = new GenericFindWithStatus<DetectorStem>();
@@ -83,14 +83,7 @@ public class INSGen {
         if (cbs != null) {
             for (Codebook cb: cbs) {
                 workbook = INSCodebook.add(workbook,cb);
-            }
-        }
-        GenericFindWithStatus<CodebookSlot> cbSlotQuery = new GenericFindWithStatus<CodebookSlot>();
-        List<CodebookSlot> cbSlots = cbSlotQuery.findByStatusWithPages(CodebookSlot.class, status, PAGESIZE, OFFSET);
-        System.out.println("cbSlots: " + cbSlots);
-        if (cbSlots != null) {
-            for (CodebookSlot cbSlot: cbSlots) {
-                workbook = INSCodebookSlot.add(workbook,cbSlot);
+                workbook = INSCodebookSlot.addByCodebook(workbook,cb);
             }
         }
         GenericFindWithStatus<ResponseOption> respOptionQuery = new GenericFindWithStatus<ResponseOption>();
@@ -126,12 +119,13 @@ public class INSGen {
         Workbook workbook = INSGen.create(filename);
         boolean withCurrent = false; // this assures that the retrieval of just elements of the requested type.
 
+        System.out.println("UserEmail: " + useremail + "   Status: " + status);
         GenericFindWithStatus<Instrument> instrumentQuery = new GenericFindWithStatus<Instrument>();
         List<Instrument> instruments = instrumentQuery.findByStatusManagerEmailWithPages(Instrument.class, status, useremail, withCurrent, PAGESIZE, OFFSET);
         if (instruments != null) {
             for (Instrument instrument: instruments) {
                 INSInstrument.add(workbook,instrument);
-                INSContainerSlot.addInstrument(workbook,instrument);
+                INSContainerSlot.addByInstrument(workbook,instrument);
             }
         }
         GenericFindWithStatus<DetectorStem> detStemQuery = new GenericFindWithStatus<DetectorStem>();
@@ -167,13 +161,7 @@ public class INSGen {
         if (cbs != null) {
             for (Codebook cb: cbs) {
                 INSCodebook.add(workbook,cb);
-            }
-        }
-        GenericFindWithStatus<CodebookSlot> cbSlotQuery = new GenericFindWithStatus<CodebookSlot>();
-        List<CodebookSlot> cbSlots = cbSlotQuery.findByStatusManagerEmailWithPages(CodebookSlot.class, status, useremail, withCurrent, PAGESIZE, OFFSET);
-        if (cbSlots != null) {
-            for (CodebookSlot cbSlot: cbSlots) {
-                INSCodebookSlot.add(workbook,cbSlot);
+                INSCodebookSlot.addByCodebook(workbook,cb);
             }
         }
         GenericFindWithStatus<ResponseOption> respOptionQuery = new GenericFindWithStatus<ResponseOption>();
