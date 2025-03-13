@@ -10,7 +10,7 @@ import org.hascoapi.entity.pojo.Detector;
 import org.hascoapi.entity.pojo.ActuatorStem;
 import org.hascoapi.entity.pojo.Actuator;
 import org.hascoapi.entity.pojo.Codebook;
-import org.hascoapi.entity.pojo.CodebookSlot;
+import org.hascoapi.entity.pojo.SlotElement;
 import org.hascoapi.entity.pojo.ResponseOption;
 import org.hascoapi.entity.pojo.AnnotationStem;
 import org.hascoapi.entity.pojo.Annotation;
@@ -24,7 +24,7 @@ public class INSGen {
     public static final String INFOSHEET            = "InfoSheet";
     public static final String NAMESPACES           = "Namespaces";
     public static final String INSTRUMENTS          = "Instruments";
-    public static final String CONTAINER_SLOTS      = "ContainerSlots";
+    public static final String SLOT_ELEMENTS        = "SlotElements";
     public static final String DETECTOR_STEMS       = "DetectorStems";
     public static final String DETECTORS            = "Detectors";
     public static final String ACTUATOR_STEMS       = "ActuatorStems";
@@ -48,7 +48,7 @@ public class INSGen {
         if (instruments != null) {
             for (Instrument instrument: instruments) {
                 helper = INSInstrument.add(helper,instrument);
-                helper = INSContainerSlot.addByInstrument(helper,instrument);
+                helper = INSSlotElement.addByInstrument(helper,instrument);
             }
         }
         GenericFindWithStatus<DetectorStem> detStemQuery = new GenericFindWithStatus<DetectorStem>();
@@ -118,7 +118,7 @@ public class INSGen {
         INSGenHelper helper = new INSGenHelper();
         helper.workbook = INSGen.create(filename);
         INSInstrument.add(helper,instrument);
-        INSContainerSlot.addByInstrument(helper,instrument);
+        //INSContainerSlot.addByInstrument(helper,instrument);
         return "";
     }
 
@@ -132,7 +132,7 @@ public class INSGen {
         if (instruments != null) {
             for (Instrument instrument: instruments) {
                 INSInstrument.add(helper,instrument);
-                INSContainerSlot.addByInstrument(helper,instrument);
+                INSSlotElement.addByInstrument(helper,instrument);
             }
         }
         GenericFindWithStatus<DetectorStem> detStemQuery = new GenericFindWithStatus<DetectorStem>();
@@ -224,9 +224,9 @@ public class INSGen {
 
         Row isDataRow3 = infoSheet.createRow(3);
         Cell isDataCell3_1 = isDataRow3.createCell(0);
-        isDataCell3_1.setCellValue("ContainerSlots");
+        isDataCell3_1.setCellValue("SlotElements");
         Cell isDataCell3_2 = isDataRow3.createCell(1);
-        isDataCell3_2.setCellValue("#" + INSGen.CONTAINER_SLOTS);
+        isDataCell3_2.setCellValue("#" + INSGen.SLOT_ELEMENTS);
 
         Row isDataRow4 = infoSheet.createRow(4);
         Cell isDataCell4_1 = isDataRow4.createCell(0);
@@ -300,7 +300,7 @@ public class INSGen {
         Sheet instrumentSheet = workbook.createSheet(INSGen.INSTRUMENTS);
         String[] instrumentHeaders = { "hasURI", "hasco:hascoType", "rdfs:subClassOf", "rdfs:label", "vstoi:hasShortName", "vstoi:hasLanguage",
         	"vstoi:hasVersion", "hasco:hasMaker", "rdfs:comment", "hasco:hasImage", "vstoi:maxLoggedMeasurements", "vstoi:minOperatingTemperature", 
-            "vstoi:maxOperatingTemperature", "hasco:hasOperatingTemperatureUnit", "vstoi:hasWebDocumentation"};
+            "vstoi:maxOperatingTemperature", "hasco:hasOperatingTemperatureUnit", "vstoi:hasWebDocumentation", "vstoi:hasFirst"};
 
         // Create header row
         Row instrumentHeaderRow = instrumentSheet.createRow(0);
@@ -312,18 +312,20 @@ public class INSGen {
             instrumentSheet.autoSizeColumn(i);
         }
 
-        // Create sheet named 'ContainerSlots'
-        Sheet containerSlotSheet = workbook.createSheet(INSGen.CONTAINER_SLOTS);
-        String[] containerSlotHeaders = { "instrument", "hasco:originalID", "vstoi:belongsTo", "vstoi:hasComponent" };
+        // Create sheet named 'SlotElements'
+        Sheet slotElementSheet = workbook.createSheet(INSGen.SLOT_ELEMENTS);
+        // OLD: "instrument", "hasco:originalID", "vstoi:belongsTo", "rdfs:label", "vstoi:hasComponent" };
+        String[] slotElementHeaders = { "hasURI", "hasco:hascoType", "vstoi:belongsTo", "vstoi:hasComponent", "vstoi:hasNext", "vstoi:hasPrevious", "vstoi:hasPriority", "rdfs:label" };
+
 
         // Create header row
-        Row containerSlotHeaderRow = containerSlotSheet.createRow(0);
-        for (int i = 0; i < containerSlotHeaders.length; i++) {
-            Cell cell = containerSlotHeaderRow.createCell(i);
-            cell.setCellValue(containerSlotHeaders[i]);
+        Row slotElementHeaderRow = slotElementSheet.createRow(0);
+        for (int i = 0; i < slotElementHeaders.length; i++) {
+            Cell cell = slotElementHeaderRow.createCell(i);
+            cell.setCellValue(slotElementHeaders[i]);
         }
-        for (int i = 0; i < containerSlotHeaders.length; i++) {
-            containerSlotSheet.autoSizeColumn(i);
+        for (int i = 0; i < slotElementHeaders.length; i++) {
+            slotElementSheet.autoSizeColumn(i);
         }
 
         // Create sheet named 'DetectorStem'

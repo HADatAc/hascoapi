@@ -107,6 +107,8 @@ public class INSGenerator extends BaseGenerator {
 			    row.put("vstoi:hasStatus", this.getHasStatus());
 			}
 			row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
+		} else if (this.getElementType().equals("slotelement")) {
+			row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
 		}
 
 		if (row.containsKey("hasURI") && !row.get("hasURI").toString().trim().isEmpty()) {

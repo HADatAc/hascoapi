@@ -739,6 +739,25 @@ public class IngestionWorker {
                 }
             }
 
+            String slotElementSheet = mapCatalog.get("SlotElements");
+            if (slotElementSheet == null) {
+                System.out.println("[WARNING] 'SlotElements' sheet is missing.");
+                dataFile.getLogger().println("[WARNING] 'SlotElements' sheet is missing.");
+            } else {
+                slotElementSheet.replace("#", "");
+                sheet = new SpreadsheetRecordFile(dataFile.getFile(), slotElementSheet);
+                try {
+                    DataFile dataFileForSheet = (DataFile)dataFile.clone();
+                    dataFileForSheet.setRecordFile(sheet);
+                    INSGenerator seGen = new INSGenerator("slotelement",dataFileForSheet, status);
+                    seGen.setNamedGraphUri(dataFileForSheet.getUri());
+                    chain.addGenerator(seGen);
+                } catch (CloneNotSupportedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            /*
             String containerSlotSheet = mapCatalog.get("ContainerSlots");
             if (containerSlotSheet == null) {
                 System.out.println("[WARNING] 'ContainerSlots' sheet is missing.");
@@ -756,9 +775,10 @@ public class IngestionWorker {
                     e.printStackTrace();
                 }
             }
+            */
 
             String instrumentSheet = mapCatalog.get("Instruments");
-            if (containerSlotSheet == null) {
+            if (instrumentSheet == null) {
                 System.out.println("[WARNING] 'Instruments' sheet is missing.");
                 dataFile.getLogger().println("[WARNING] 'Instruments' sheet is missing.");
             } else {

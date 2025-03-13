@@ -83,6 +83,14 @@ public class INSInstrument {
         Cell cell15 = newRow.createCell(14);
         cell15.setCellValue(inst.getHasWebDocument());
 
+        // "vstoi:hasFirst"
+        Cell cell16 = newRow.createCell(15);
+        String hasFirst = "";
+        if (inst != null && inst.getHasFirst() != null) {
+            hasFirst = URIUtils.replaceNameSpaceEx(inst.getHasFirst());
+        }
+        cell16.setCellValue(hasFirst);  
+
         return helper;
     }
 

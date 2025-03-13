@@ -9,6 +9,7 @@ import org.hascoapi.vocabularies.VSTOI;
 
 public class ContainerSlotGenerator extends BaseGenerator {
 
+	/*
 	protected String instrumentUri = "";
 
 	protected String firstSlotUri = "";
@@ -28,6 +29,7 @@ public class ContainerSlotGenerator extends BaseGenerator {
 	public void setFirstSlotUri(String firstSlotUri) {
 		this.firstSlotUri = firstSlotUri;
 	}
+	*/
 
 	public ContainerSlotGenerator(DataFile dataFile) {
 		super(dataFile);

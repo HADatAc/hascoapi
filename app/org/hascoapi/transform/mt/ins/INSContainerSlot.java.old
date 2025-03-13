@@ -37,19 +37,24 @@ public class INSContainerSlot {
             if (element instanceof Subcontainer) {
                 String newId = id + INSContainerSlot.numberToLetter(1 + subcontainerCount++);
                 containers.add((Container)element);
-                helper = INSContainerSlot.add(helper, instrument, "??" + newId, currentId, "");
+                helper = INSContainerSlot.add(helper, instrument, element, "??" + newId, currentId, "");
             } else {
                 ContainerSlot slot = (ContainerSlot)element;
                 String hasComponent = "";
                 if (slot.getComponent() != null && slot.getComponent().getUri() != null) {
                     hasComponent = URIUtils.replaceNameSpaceEx(slot.getComponent().getUri());
                 }
-                helper = INSContainerSlot.add(helper, instrument, String.valueOf(componentCount++), currentId, hasComponent);
+                helper = INSContainerSlot.add(helper, instrument, element,  String.valueOf(componentCount++), currentId, hasComponent);
             }
         }
         if (containers.size() > 0) {
             for (int pos = 0; pos < containers.size(); pos++) {
-                helper = INSContainerSlot.addByContainer(helper, instrument, containers.get(pos), id + INSContainerSlot.numberToLetter(pos + 1));
+                String priority = "";
+                if (containers.get(pos) != null && containers.get(pos).getHasPriority() != null) {
+                    priority = containers.get(pos).getHasPriority();
+                    priority = priority.replaceAll("\\s","_");
+                }
+                helper = INSContainerSlot.addByContainer(helper, instrument, containers.get(pos), priority);
             }
         }
         return helper;
@@ -63,7 +68,7 @@ public class INSContainerSlot {
         return String.valueOf((char) ('A' + number - 1));
     }
 
-    private static INSGenHelper add(INSGenHelper helper, Instrument instrument, String originalId, String belongsTo, String hasComponent) {
+    private static INSGenHelper add(INSGenHelper helper, Instrument instrument, SlotElement element, String originalId, String belongsTo, String hasComponent) {
 
         if (instrument == null   || instrument.getUri() == null || 
             originalId == null   || originalId.isEmpty()        || 
@@ -80,24 +85,41 @@ public class INSContainerSlot {
         // Create the new row
         Row newRow = containerSlotSheet.createRow(rowIndex);
 
-        // 0 "hinstrument"
+        // "vstoi:instrument"
         Cell cell1 = newRow.createCell(0);
         cell1.setCellValue(URIUtils.replaceNameSpaceEx(instrument.getUri()));
 
         // "hasco:originalID"
         Cell cell2 = newRow.createCell(1);
-        cell2.setCellValue(originalId);  
+        //cell2.setCellValue(originalId);  
+        String priority = "";
+        if (element != null && element.getHasPriority() != null) {
+            priority = element.getHasPriority();
+            priority = priority.replaceAll("\\s","_");
+            if (element instanceof Subcontainer) {
+                priority = "??" + priority;
+            }
+        }
+        cell2.setCellValue(priority);
 
         // "vstoi:belongsTo"
         Cell cell3 = newRow.createCell(2);
         cell3.setCellValue(belongsTo);  
 
-        // "vstoi:hasComponent"
+        // "rdfs:label"
         Cell cell4 = newRow.createCell(3);
-        if (hasComponent != null && !hasComponent.isEmpty()) {
-            cell4.setCellValue(URIUtils.replaceNameSpaceEx(hasComponent));
+        if (element != null && element.getLabel() != null) {
+            cell4.setCellValue(element.getLabel());
         } else {
             cell4.setCellValue("");
+        }  
+
+        // "vstoi:hasComponent"
+        Cell cell5 = newRow.createCell(4);
+        if (hasComponent != null && !hasComponent.isEmpty()) {
+            cell5.setCellValue(URIUtils.replaceNameSpaceEx(hasComponent));
+        } else {
+            cell5.setCellValue("");
         }  
 
         return helper;
