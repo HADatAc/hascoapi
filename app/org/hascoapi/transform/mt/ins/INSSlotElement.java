@@ -81,6 +81,7 @@ public class INSSlotElement {
         cell3.setCellValue(URIUtils.replaceNameSpaceEx(slotElement.getBelongsTo()));  
 
         // "vstoi:hasComponent"
+        String hasFirst = "";
         Cell cell4 = newRow.createCell(3);
         String componentUri = "";
         if (slotElement instanceof ContainerSlot) {
@@ -97,7 +98,14 @@ public class INSSlotElement {
                     helper.acts.put(actuator.getUri(),actuator);
                 }
             }
-        } 
+        } else {
+            String subcontainerUri = ((Subcontainer)slotElement).getUri();
+            if (subcontainerUri != null) {
+                Subcontainer subcontainer = Subcontainer.find(subcontainerUri);
+                hasFirst = subcontainer.getHasFirst();
+            }
+
+        }
         cell4.setCellValue(URIUtils.replaceNameSpaceEx(componentUri)); 
 
         // "vstoi:hasNext"
@@ -116,14 +124,22 @@ public class INSSlotElement {
             cell6.setCellValue("");  
         }
 
-        // "vstoi:hasPriority"
+        // "vstoi:hasFirst"
         Cell cell7 = newRow.createCell(6);
-        cell7.setCellValue(slotElement.getHasPriority());  
+        if (hasFirst != null && !hasFirst.isEmpty()) {
+            cell7.setCellValue(URIUtils.replaceNameSpaceEx(hasFirst));  
+        } else {
+            cell7.setCellValue("");  
+        }
+
+        // "vstoi:hasPriority"
+        Cell cell8 = newRow.createCell(7);
+        cell8.setCellValue(slotElement.getHasPriority());  
 
         // "rdfs:label"
-        Cell cell8 = newRow.createCell(7);
+        Cell cell9 = newRow.createCell(8);
         if (slotElement.getLabel() != null) {
-           cell8.setCellValue(URIUtils.replaceNameSpaceEx(slotElement.getLabel()));  
+           cell9.setCellValue(URIUtils.replaceNameSpaceEx(slotElement.getLabel()));  
         } else {
             cell8.setCellValue("");  
         }

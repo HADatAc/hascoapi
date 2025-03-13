@@ -3,6 +3,7 @@ package org.hascoapi.transform.mt.ins;
 import java.util.List;
 import org.hascoapi.entity.pojo.Codebook;
 import org.hascoapi.entity.pojo.CodebookSlot;
+import org.hascoapi.entity.pojo.ResponseOption;
 import org.hascoapi.utils.URIUtils;
 import org.apache.poi.ss.usermodel.*;
 
@@ -79,6 +80,10 @@ public class INSCodebookSlot {
         Cell cell5 = newRow.createCell(4);
         if (codebookSlot != null && codebookSlot.getHasResponseOption() != null) {
             cell5.setCellValue(URIUtils.replaceNameSpaceEx(codebookSlot.getHasResponseOption()));  
+            ResponseOption responseOption = ResponseOption.find(codebookSlot.getHasResponseOption());
+            if (responseOption != null) {
+                helper.respOptions.put(responseOption.getUri(),responseOption);
+            } 
         } else {
             cell5.setCellValue("");
         }

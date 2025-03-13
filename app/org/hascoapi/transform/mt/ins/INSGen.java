@@ -112,7 +112,7 @@ public class INSGen {
     }
 
     public static String genByInstrument(Instrument instrument, String filename) {
-        if (instrument != null) {
+        if (instrument == null) {
             return "";
         }
         INSGenHelper helper = new INSGenHelper();
@@ -143,11 +143,16 @@ public class INSGen {
         if (helper.codebooks.size() > 0) {
             for (Codebook codebook : helper.codebooks.values()) {
                 helper = INSCodebook.add(helper,codebook);
+                helper = INSCodebookSlot.addByCodebook(helper,codebook);
+            }            
+        }
+        if (helper.respOptions.size() > 0) {
+            for (ResponseOption responseOption : helper.respOptions.values()) {
+                helper = INSResponseOption.add(helper,responseOption);
             }            
         }
 
-
-        return "";
+        return INSGen.save(helper, filename);
     }
 
     public static String genByManager(String useremail, String status, String filename) {
@@ -343,8 +348,8 @@ public class INSGen {
         // Create sheet named 'SlotElements'
         Sheet slotElementSheet = workbook.createSheet(INSGen.SLOT_ELEMENTS);
         // OLD: "instrument", "hasco:originalID", "vstoi:belongsTo", "rdfs:label", "vstoi:hasComponent" };
-        String[] slotElementHeaders = { "hasURI", "hasco:hascoType", "vstoi:belongsTo", "vstoi:hasComponent", "vstoi:hasNext", "vstoi:hasPrevious", "vstoi:hasPriority", "rdfs:label" };
-
+        String[] slotElementHeaders = { "hasURI", "hasco:hascoType", "vstoi:belongsTo", "vstoi:hasComponent", "vstoi:hasNext", "vstoi:hasPrevious", 
+            "vstoi:hasFirst", "vstoi:hasPriority", "rdfs:label" };
 
         // Create header row
         Row slotElementHeaderRow = slotElementSheet.createRow(0);
