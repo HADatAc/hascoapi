@@ -6,6 +6,8 @@ import org.hascoapi.entity.pojo.Instrument;
 import org.hascoapi.entity.pojo.Container;
 import org.hascoapi.entity.pojo.Subcontainer;
 import org.hascoapi.entity.pojo.Component;
+import org.hascoapi.entity.pojo.Actuator;
+import org.hascoapi.entity.pojo.Detector;
 import org.hascoapi.entity.pojo.ContainerSlot;
 import org.hascoapi.entity.pojo.SlotElement;
 import org.hascoapi.utils.URIUtils;
@@ -41,7 +43,7 @@ public class INSSlotElement {
 
     }
 
-    public static INSGenHelper add(INSGenHelper helper, SlotElement slotElement) {
+    private static INSGenHelper add(INSGenHelper helper, SlotElement slotElement) {
 
         if (helper == null) {
             System.out.println("[ERROR] INSSlotElement: helper is null");
@@ -80,20 +82,23 @@ public class INSSlotElement {
 
         // "vstoi:hasComponent"
         Cell cell4 = newRow.createCell(3);
-        String component = "";
+        String componentUri = "";
         if (slotElement instanceof ContainerSlot) {
-            component = ((ContainerSlot)slotElement).getHasComponent();
-            if (component == null) {
-                component = "";
+            componentUri = ((ContainerSlot)slotElement).getHasComponent();
+            if (componentUri == null) {
+                componentUri = "";
+            } else {
+                Component component = Component.find(componentUri);
+                if (component instanceof Detector) {
+                    Detector detector = (Detector)component;
+                    helper.dets.put(detector.getUri(),detector);
+                } else if (component instanceof Actuator) {
+                    Actuator actuator = (Actuator)component; 
+                    helper.acts.put(actuator.getUri(),actuator);
+                }
             }
         } 
-        //else if (slotElement instanceof Actuator) {
-        //    component = ((Actuator)slotElement).getHasComponent();
-        //    if (component == null) {
-        //        component = "";
-        //    }
-        //}
-        cell4.setCellValue(URIUtils.replaceNameSpaceEx(component));  
+        cell4.setCellValue(URIUtils.replaceNameSpaceEx(componentUri)); 
 
         // "vstoi:hasNext"
         Cell cell5 = newRow.createCell(4);

@@ -1,6 +1,8 @@
 package org.hascoapi.transform.mt.ins;
 
 import org.hascoapi.entity.pojo.Actuator;
+import org.hascoapi.entity.pojo.ActuatorStem;
+import org.hascoapi.entity.pojo.Codebook;
 import org.hascoapi.utils.URIUtils;
 import org.apache.poi.ss.usermodel.*;
 
@@ -49,12 +51,23 @@ public class INSActuator {
 
         // "vstoi:hasActuatorStem"
         Cell cell5 = newRow.createCell(4);
-        cell5.setCellValue(URIUtils.replaceNameSpaceEx(actuator.getHasActuatorStem()));  
+        cell5.setCellValue(URIUtils.replaceNameSpaceEx(actuator.getHasActuatorStem()));
+        ActuatorStem actuatorStem = null;
+        if (actuator.getHasActuatorStem() != null && !actuator.getHasActuatorStem().isEmpty()) {
+            actuatorStem = ActuatorStem.find(actuator.getHasActuatorStem());
+            if (actuatorStem != null) {
+                helper.actStems.put(actuatorStem.getUri(),actuatorStem);
+            } 
+        }
 
         // "vstoi:hasCodebook",
         Cell cell6 = newRow.createCell(5);
         if (actuator != null && actuator.getHasCodebook() != null) {
             cell6.setCellValue(URIUtils.replaceNameSpaceEx(actuator.getHasCodebook()));
+            Codebook codebook = Codebook.find(actuator.getHasCodebook());
+            if (codebook != null) {
+                helper.codebooks.put(codebook.getUri(),codebook);
+            } 
         } else {
             cell6.setCellValue("");
         }

@@ -117,8 +117,36 @@ public class INSGen {
         }
         INSGenHelper helper = new INSGenHelper();
         helper.workbook = INSGen.create(filename);
-        INSInstrument.add(helper,instrument);
-        //INSContainerSlot.addByInstrument(helper,instrument);
+        
+        helper = INSInstrument.add(helper,instrument);
+        helper = INSSlotElement.addByInstrument(helper,instrument);
+        if (helper.dets.size() > 0) {
+            for (Detector detector : helper.dets.values()) {
+                helper = INSDetector.add(helper,detector);
+            }
+        }
+        if (helper.acts.size() > 0) {
+            for (Actuator actuator : helper.acts.values()) {
+                helper = INSActuator.add(helper,actuator);
+            }            
+        }
+        if (helper.detStems.size() > 0) {
+            for (DetectorStem detectorStem : helper.detStems.values()) {
+                helper = INSDetectorStem.add(helper,detectorStem);
+            }
+        }
+        if (helper.actStems.size() > 0) {
+            for (ActuatorStem actuatorStem : helper.actStems.values()) {
+                helper = INSActuatorStem.add(helper,actuatorStem);
+            }            
+        }
+        if (helper.codebooks.size() > 0) {
+            for (Codebook codebook : helper.codebooks.values()) {
+                helper = INSCodebook.add(helper,codebook);
+            }            
+        }
+
+
         return "";
     }
 

@@ -1,6 +1,8 @@
 package org.hascoapi.transform.mt.ins;
 
+import org.hascoapi.entity.pojo.Codebook;
 import org.hascoapi.entity.pojo.Detector;
+import org.hascoapi.entity.pojo.DetectorStem;
 import org.hascoapi.utils.URIUtils;
 import org.apache.poi.ss.usermodel.*;
 
@@ -39,12 +41,23 @@ public class INSDetector {
 
         // "vstoi:hasDetectorStem"
         Cell cell5 = newRow.createCell(4);
-        cell5.setCellValue(URIUtils.replaceNameSpaceEx(detector.getHasDetectorStem()));  
+        cell5.setCellValue(URIUtils.replaceNameSpaceEx(detector.getHasDetectorStem()));
+        DetectorStem detectorStem = null;
+        if (detector.getHasDetectorStem() != null && !detector.getHasDetectorStem().isEmpty()) {
+            detectorStem = DetectorStem.find(detector.getHasDetectorStem());
+            if (detectorStem != null) {
+                helper.detStems.put(detectorStem.getUri(),detectorStem);
+            } 
+        }
 
         // "vstoi:hasCodebook",
         Cell cell6 = newRow.createCell(5);
         if (detector != null && detector.getHasCodebook() != null) {
             cell6.setCellValue(URIUtils.replaceNameSpaceEx(detector.getHasCodebook()));
+            Codebook codebook = Codebook.find(detector.getHasCodebook());
+            if (codebook != null) {
+                helper.codebooks.put(codebook.getUri(),codebook);
+            } 
         } else {
             cell6.setCellValue("");
         }

@@ -12,8 +12,6 @@ public class INSGenerator extends BaseGenerator {
     
 	protected String instrumentUri = "";
 
-	protected String firstSlotUri = "";
-
 	protected String hasStatus = "";
 
 	public String getInstrumentUri() {
@@ -22,14 +20,6 @@ public class INSGenerator extends BaseGenerator {
     
 	public void setInstrumentUri(String instrumentUri) {
 		this.instrumentUri = instrumentUri;
-	}
-
-	public String getFirstSlotUri() {
-		return this.firstSlotUri;
-	}
-    
-	public void setFirstSlotUri(String firstSlotUri) {
-		this.firstSlotUri = firstSlotUri;
 	}
 
 	public String getHasStatus() {
@@ -62,7 +52,6 @@ public class INSGenerator extends BaseGenerator {
 		if (this.getElementType().equals("instrument")) {
 			//row.put("rdfs:subClassOf", VSTOI.INSTRUMENT);
 			row.put("hasco:hascoType", VSTOI.INSTRUMENT);
-			row.put("vstoi:hasFirst", this.getFirstSlotUri());
 			if (this.getHasStatus() != null && !this.getHasStatus().equals("_")) {
 			    row.put("vstoi:hasStatus", this.getHasStatus());
 			}
@@ -131,7 +120,6 @@ public class INSGenerator extends BaseGenerator {
     @Override
     public void preprocessuris(Map<String,String> uris) throws Exception {
 		if (this.getElementType().equals("instrument")) {
-			this.setFirstSlotUri(uris.get("firstSlotUri"));
 			this.setInstrumentUri(uris.get("instrumentUri"));
 		}
 	}
