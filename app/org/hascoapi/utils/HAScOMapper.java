@@ -386,7 +386,7 @@ public class HAScOMapper {
                             "hasImageUri", "hasWebDocument", 
                             "hascoTypeLabel", "comment", "hasContent", "hasLanguage", "hasVersion",
                             "wasDerivedFrom", "wasGeneratedBy", "hasSIRManagerEmail", "hasEditorEmail",
-                            "requiredInstrumentation"));
+                            "hasTopTask"));
         }
  
         // PROCESS_STEM
@@ -542,6 +542,17 @@ public class HAScOMapper {
                             "hasPriority", "hasSerialNumber", "hasLanguage", "hasVersion", "hasSIRManagerEmail"));
         }
 
+        // TASK
+        if (mode.equals(FULL) && typeResult.equals(VSTOI.TASK)) {
+            filterProvider.addFilter("taskFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("taskFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
+                            "hasImageUri", "hasWebDocument", "hascoTypeLabel", "comment", "hasVersion",
+                            "wasDerivedFrom", "wasGeneratedBy", "hasSIRManagerEmail", "hasEditorEmail", "hasTaskType", "hasSupertask", "subtask", 
+                            "requiredInstrumentation"));
+        }
+ 
         // VALUE
         if (mode.equals(FULL) && typeResult.equals(HASCO.VALUE)) {
             filterProvider.addFilter("valueFilter", SimpleBeanPropertyFilter.serializeAll());

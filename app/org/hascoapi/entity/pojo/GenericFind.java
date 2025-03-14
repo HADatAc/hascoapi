@@ -127,6 +127,8 @@ public class GenericFind<T> {
             return StudyRole.class;
         } else if (elementType.equals("subcontainer")) {
             return Subcontainer.class;
+        } else if (elementType.equals("task")) {
+            return Task.class;
         } else if (elementType.equals("unit")) {
             return Unit.class;
         } else if (elementType.equals("virtualcolumn")) {
@@ -217,6 +219,8 @@ public class GenericFind<T> {
             return URIUtils.replaceNameSpace(VSTOI.ACTUATOR);
         } else if (clazz == ActuatorStem.class) {
             return URIUtils.replaceNameSpace(VSTOI.ACTUATOR_STEM);
+        } else if (clazz == Task.class) {
+            return URIUtils.replaceNameSpace(VSTOI.TASK);
         }
         return null;
     }
@@ -254,13 +258,8 @@ public class GenericFind<T> {
     }
 
     public static String superclassNameWithNamespace (Class clazz) {
-        //if (clazz == InstrumentType.class) {
-        //    return URIUtils.replaceNameSpace(VSTOI.INSTRUMENT);
-        //} else 
         if (clazz == Instrument.class) {
             return URIUtils.replaceNameSpace(VSTOI.INSTRUMENT);
-        //} else if (clazz == DetectorStemType.class) {
-        //    return URIUtils.replaceNameSpace(VSTOI.DETECTOR_STEM);
         } else if (clazz == ActuatorStem.class) {
             return URIUtils.replaceNameSpace(VSTOI.ACTUATOR_STEM);
         } else if (clazz == DetectorStem.class) {
@@ -1135,6 +1134,8 @@ public class GenericFind<T> {
             return (T)Actuator.find(uri);
         } else if (clazz == ActuatorStem.class) {
             return (T)ActuatorStem.find(uri);
+        } else if (clazz == Task.class) {
+            return (T)Task.find(uri);
         }
         return null;
     

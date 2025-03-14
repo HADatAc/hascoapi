@@ -24,14 +24,11 @@ import java.util.List;
 
 import static org.hascoapi.Constants.*;
 
-@JsonFilter("processFilter")
-public class Process extends HADatAcThing implements Comparable<Process> {
+@JsonFilter("taskFilter")
+public class Task extends HADatAcThing implements Comparable<Task> {
 
     @PropertyField(uri = "vstoi:hasStatus")
     private String hasStatus;
-
-    @PropertyField(uri = "vstoi:hasLanguage")
-    private String hasLanguage;
 
     @PropertyField(uri = "vstoi:hasVersion")
     private String hasVersion;
@@ -48,8 +45,17 @@ public class Process extends HADatAcThing implements Comparable<Process> {
     @PropertyField(uri = "vstoi:hasEditorEmail")
     private String hasEditorEmail;
 
-    @PropertyField(uri = "vstoi:hasTopTask")
-    private String hasTopTaskUri;
+    @PropertyField(uri = "vstoi:hasTaskType")
+    private String hasTaskType;
+
+    @PropertyField(uri = "vstoi:hasSupertask")
+    private String hasSupertaskUri;
+
+    @PropertyField(uri="vstoi:hasRequiredInstrumentation", valueType=PropertyValueType.URI)
+    private List<String> hasRequiredInstrumentationUris = new ArrayList<String>();
+
+    @PropertyField(uri="vstoi:hasSubtask", valueType=PropertyValueType.URI)
+    private List<String> hasSubtaskUris = new ArrayList<String>();
 
     public String getHasStatus() {
         return hasStatus;
@@ -57,14 +63,6 @@ public class Process extends HADatAcThing implements Comparable<Process> {
 
     public void setHasStatus(String hasStatus) {
         this.hasStatus = hasStatus;
-    }
-
-    public String getHasLanguage() {
-        return hasLanguage;
-    }
-
-    public void setHasLanguage(String hasLanguage) {
-        this.hasLanguage = hasLanguage;
     }
 
     public String getHasVersion() {
@@ -107,19 +105,75 @@ public class Process extends HADatAcThing implements Comparable<Process> {
         this.hasEditorEmail = hasEditorEmail;
     }
 
-    public String getHasTopTaskUri() {
-        return hasTopTaskUri;
+    public String getHasTaskType() {
+        return hasTaskType;
     }
 
-    public void setHasTopTaskUri(String hasTopTaskUri) {
-        this.hasTopTaskUri = hasTopTaskUri;
+    public void setHasTaskType(String hasTaskType) {
+        this.hasTaskType = hasTaskType;
     }
 
-    public static Process find(String uri) {
+    public String getHasSupertaskUri() {
+        return hasSupertaskUri;
+    }
+
+    public void setHasSupertaskUri(String hasSupertaskUri) {
+        this.hasSupertaskUri = hasSupertaskUri;
+    }
+
+    public List<String> getHasRequiredInstrumentationUris() {
+        return hasRequiredInstrumentationUris;
+    }
+
+    public void setHasRequiredInstrumentationUris(List<String> hasRequiredInstrumentationUris) {
+        this.hasRequiredInstrumentationUris = hasRequiredInstrumentationUris;
+    }
+
+    public void addHasRequiredInstrumentationUri(String hasRequiredInstrumentationUri) {
+        this.hasRequiredInstrumentationUris.add(hasRequiredInstrumentationUri);
+    }
+
+    public List<RequiredInstrumentation> getRequiredInstrumentation() {
+        List<RequiredInstrumentation> resp = new ArrayList<RequiredInstrumentation>();
+        if (hasRequiredInstrumentationUris == null || hasRequiredInstrumentationUris.size() <= 0) {
+            return resp;
+        }
+        for (String hasRequiredInstrumentationUri : hasRequiredInstrumentationUris) {
+            RequiredInstrumentation requiredInstrumentation = RequiredInstrumentation.find(hasRequiredInstrumentationUri);
+            if (requiredInstrumentation != null) {
+                resp.add(requiredInstrumentation);
+            }
+        }
+        return resp;
+    }
+
+    public void setHasSubtaskUris(List<String> hasSubtaskUris) {
+        this.hasSubtaskUris = hasSubtaskUris;
+    }
+
+    public void addHasSubtaskUri(String hasSubtaskUri) {
+        this.hasSubtaskUris.add(hasSubtaskUri);
+    }
+
+    public List<Task> getSubtask() {
+        List<Task> resp = new ArrayList<Task>();
+        if (hasSubtaskUris == null || hasSubtaskUris.size() <= 0) {
+            return resp;
+        }
+        for (String hasSubtaskUri : hasSubtaskUris) {
+            Task subtask = Task.find(hasSubtaskUri);
+            if (subtask != null) {
+                resp.add(subtask);
+            }
+        }
+        return resp;
+    }
+
+    public static Task find(String uri) {
  		if (uri == null || uri.isEmpty()) {
 			return null;
 		}
-		Process process = null;
+		Task task = null;
 		// Construct the SELECT query to retrieve named graphs
 		String queryString = "SELECT DISTINCT ?graph ?p ?o WHERE { GRAPH ?graph { <" + uri + "> ?p ?o } }";
 		ResultSet resultSet = SPARQLUtils.select(CollectionUtil.getCollectionPath(
@@ -128,7 +182,7 @@ public class Process extends HADatAcThing implements Comparable<Process> {
 		if (!resultSet.hasNext()) {
 			return null;
 		} else {
-            process = new Process();
+            task = new Task();
 		}
 
 		// Iterate over results
@@ -137,7 +191,7 @@ public class Process extends HADatAcThing implements Comparable<Process> {
 			
 			// Retrieve the named graph URI
 			if (qs.contains("graph")) {
-				process.setNamedGraph(qs.get("graph").toString());
+				task.setNamedGraph(qs.get("graph").toString());
 				//System.out.println("Graph: " + graphURI);
 			}
 			
@@ -148,44 +202,48 @@ public class Process extends HADatAcThing implements Comparable<Process> {
 				//System.out.println("Predicate: " + predicate + " | Object: " + object);
 
                 if (predicate.equals(RDFS.LABEL)) {
-                    process.setLabel(object);
+                    task.setLabel(object);
                 } else if (predicate.equals(RDF.TYPE)) {
-                    process.setTypeUri(object);
+                    task.setTypeUri(object);
                 } else if (predicate.equals(RDFS.COMMENT)) {
-                    process.setComment(object);
+                    task.setComment(object);
                 } else if (predicate.equals(HASCO.HASCO_TYPE)) {
-                    process.setHascoTypeUri(object);
+                    task.setHascoTypeUri(object);
                 } else if (predicate.equals(HASCO.HAS_IMAGE)) {
-                    process.setHasImageUri(object);
+                    task.setHasImageUri(object);
                 } else if (predicate.equals(HASCO.HAS_WEB_DOCUMENT)) {
-                    process.setHasWebDocument(object);
+                    task.setHasWebDocument(object);
                 } else if (predicate.equals(VSTOI.HAS_STATUS)) {
-                    process.setHasStatus(object);
-                } else if (predicate.equals(VSTOI.HAS_LANGUAGE)) {
-                    process.setHasLanguage(object);
+                    task.setHasStatus(object);
                 } else if (predicate.equals(VSTOI.HAS_VERSION)) {
-                    process.setHasVersion(object);
+                    task.setHasVersion(object);
                 } else if (predicate.equals(VSTOI.HAS_REVIEW_NOTE)) {
-                    process.setHasReviewNote(object);
+                    task.setHasReviewNote(object);
                 } else if (predicate.equals(PROV.WAS_DERIVED_FROM)) {
-                    process.setWasDerivedFrom(object);
+                    task.setWasDerivedFrom(object);
                 } else if (predicate.equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
-                    process.setHasSIRManagerEmail(object);
+                    task.setHasSIRManagerEmail(object);
                 } else if (predicate.equals(VSTOI.HAS_EDITOR_EMAIL)) {
-                    process.setHasEditorEmail(object);
-                } else if (predicate.equals(VSTOI.HAS_TOP_TASK)) {
-                    process.setHasTopTaskUri(object);
+                    task.setHasEditorEmail(object);
+                } else if (predicate.equals(VSTOI.HAS_TASK_TYPE)) {
+                    task.setHasTaskType(object);
+                } else if (predicate.equals(VSTOI.HAS_SUPERTASK)) {
+                    task.setHasSupertaskUri(object);
+                } else if (predicate.equals(VSTOI.HAS_REQUIRED_INSTRUMENTATION)) {
+                    task.addHasRequiredInstrumentationUri(object);
+                } else if (predicate.equals(VSTOI.HAS_SUBTASK)) {
+                    task.addHasSubtaskUri(object);
                 }
             }
         }
+                                                                                                                                                                                                              
+        task.setUri(uri);
 
-        process.setUri(uri);
-
-        return process;
+        return task;
     }
 
     @Override
-    public int compareTo(Process another) {
+    public int compareTo(Task another) {
         return this.getLabel().compareTo(another.getLabel());
     }
 

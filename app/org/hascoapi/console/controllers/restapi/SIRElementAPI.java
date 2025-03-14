@@ -462,6 +462,15 @@ public class SIRElementAPI extends Controller {
                 message = e.getMessage();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
+        } else if (clazz == Task.class) {
+            try {
+                Task object;
+                object = (Task)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
         } else if (clazz == Unit.class) {
             try {
                 Unit object;
@@ -785,6 +794,12 @@ public class SIRElementAPI extends Controller {
                 return ok(ApiUtil.createResponse("Failed to delete element with URI [" + uri + "]", false));
             }
             //object.deleteAndDetach();
+        } else if (clazz == Task.class) {
+            Task object = Task.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("Failed to delete element with URI [" + uri + "]", false));
+            }
+            object.delete();
         } else if (clazz == Unit.class) {
             Unit object = Unit.find(uri);
             if (object == null) {
@@ -1020,6 +1035,10 @@ public class SIRElementAPI extends Controller {
             GenericFind<ActuatorStem> query = new GenericFind<ActuatorStem>();
             List<ActuatorStem> results = query.findByKeywordWithPages(ActuatorStem.class,keyword, pageSize, offset);
             return ActuatorStemAPI.getActuatorStems(results);
+        }  else if (elementType.equals("task")) {
+            GenericFind<Task> query = new GenericFind<Task>();
+            List<Task> results = query.findByKeywordWithPages(Task.class,keyword, pageSize, offset);
+            return TaskAPI.getTasks(results);
         } 
         return ok("[getElementsByKeywordWithPage] No valid element type.");
     }
@@ -1371,6 +1390,10 @@ public class SIRElementAPI extends Controller {
             GenericFind<Actuator> query = new GenericFind<Actuator>();
             List<Actuator> results = query.findByManagerEmailWithPages(Actuator.class, managerEmail, pageSize, offset);
             return ActuatorAPI.getActuators(results);
+        }  else if (elementType.equals("task")) {
+            GenericFind<Task> query = new GenericFind<Task>();
+            List<Task> results = query.findByManagerEmailWithPages(Task.class, managerEmail, pageSize, offset);
+            return TaskAPI.getTasks(results);
         } 
         return ok("[getElementsByManagerEmail] No valid element type.");
 
@@ -1551,6 +1574,10 @@ public class SIRElementAPI extends Controller {
             GenericFindWithStatus<Actuator> query = new GenericFindWithStatus<Actuator>();
             List<Actuator> results = query.findByStatusWithPages(Actuator.class, hasStatus, pageSize, offset);
             return ActuatorAPI.getActuators(results);
+        }  else if (elementType.equals("task")) {
+            GenericFindWithStatus<Task> query = new GenericFindWithStatus<Task>();
+            List<Task> results = query.findByStatusWithPages(Task.class, hasStatus, pageSize, offset);
+            return TaskAPI.getTasks(results);
         } 
         return ok("[getElementsByStatusManagerEmail] No valid element type.");
 
@@ -1731,6 +1758,10 @@ public class SIRElementAPI extends Controller {
             GenericFindWithStatus<Actuator> query = new GenericFindWithStatus<Actuator>();
             List<Actuator> results = query.findByStatusManagerEmailWithPages(Actuator.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return ActuatorAPI.getActuators(results);
+        }  else if (elementType.equals("task")) {
+            GenericFindWithStatus<Task> query = new GenericFindWithStatus<Task>();
+            List<Task> results = query.findByStatusManagerEmailWithPages(Task.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
+            return TaskAPI.getTasks(results);
         } 
         return ok("[getElementsByStatusManagerEmail] No valid element type.");
 
