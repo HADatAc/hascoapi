@@ -5,8 +5,6 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-//import org.apache.jena.query.QuerySolution;
-//import org.apache.jena.query.ResultSetRewindable;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
@@ -54,68 +52,6 @@ public class Instrument extends Container {
 		return getUri().hashCode();
 	}
 
-	/*
-	public static Instrument find(String uri) {
-		//System.out.println("Instrument.java : in find(): uri = [" + uri + "]");
-	    Instrument instrument = null;
-	    Statement statement;
-	    RDFNode object;
-	    
-	    String queryString = "DESCRIBE <" + uri + ">";
-	    Model model = SPARQLUtils.describe(CollectionUtil.getCollectionPath(
-                CollectionUtil.Collection.SPARQL_QUERY), queryString);
-		
-		StmtIterator stmtIterator = model.listStatements();
-
-		if (!stmtIterator.hasNext()) {
-			//System.out.println("No instruement retrieved");
-			return null;
-		} else {
-			instrument = new Instrument(VSTOI.INSTRUMENT);
-		}
-		
-		while (stmtIterator.hasNext()) {
-		    statement = stmtIterator.next();
-		    object = statement.getObject();
-			String str = URIUtils.objectRDFToString(object);
-			//System.out.println(statement.getPredicate().getURI() + " : [" + str + "]");
-			if (uri != null && !uri.isEmpty()) {
-				if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-					instrument.setLabel(str);
-				} else if (statement.getPredicate().getURI().equals(RDFS.SUBCLASS_OF)) {
-					instrument.setSuperUri(str); 
-				} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
-					instrument.setHascoTypeUri(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
-					instrument.setHasStatus(str);
-				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
-					instrument.setHasImageUri(str);
-				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
-					instrument.setHasWebDocument(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_FIRST)) {
-					instrument.setHasFirst(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_INFORMANT)) {
-					instrument.setHasInformant(str);
-				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
-					instrument.setComment(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SHORT_NAME)) {
-					instrument.setHasShortName(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
-					instrument.setHasLanguage(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
-         			instrument.setHasVersion(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
-					instrument.setHasSIRManagerEmail(str);
-				}
-			}
-		}
-
-		instrument.setUri(uri);
-
-		return instrument;
-	}
-	*/
-
 	public static Instrument find(String uri) {
 		Instrument instrument = null;
 
@@ -145,6 +81,7 @@ public class Instrument extends Container {
 				String predicate = qs.get("p").toString();
 				String object = qs.get("o").toString();
 				//System.out.println("Predicate: " + predicate + " | Object: " + object);
+
 				if (predicate.equals(RDFS.LABEL)) {
 					instrument.setLabel(object);
 				} else if (predicate.equals(RDFS.SUBCLASS_OF)) {
@@ -169,8 +106,12 @@ public class Instrument extends Container {
 					instrument.setHasLanguage(object);
 				} else if (predicate.equals(VSTOI.HAS_VERSION)) {
 					instrument.setHasVersion(object);
+				} else if (predicate.equals(VSTOI.HAS_REVIEW_NOTE)) {
+					instrument.setHasReviewNote(object);
 				} else if (predicate.equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
 					instrument.setHasSIRManagerEmail(object);
+				} else if (predicate.equals(VSTOI.HAS_EDITOR_EMAIL)) {
+					instrument.setHasEditorEmail(object);
 				}
 			}
 		}
