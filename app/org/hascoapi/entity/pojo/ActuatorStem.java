@@ -4,8 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
-import org.apache.jena.query.QuerySolution;
-import org.apache.jena.query.ResultSetRewindable;
+import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
@@ -208,70 +207,80 @@ public class ActuatorStem extends HADatAcClass implements SIRElement, Comparable
     }
 
     public static ActuatorStem find(String uri) {
-        ActuatorStem actuatorStem = null;
-        Statement statement;
-        RDFNode object;
+		if (uri == null || uri.isEmpty()) {
+			return null;
+		}
+		ActuatorStem actuatorStem = null;
+		// Construct the SELECT query to retrieve named graphs
+		String queryString = "SELECT DISTINCT ?graph ?p ?o WHERE { GRAPH ?graph { <" + uri + "> ?p ?o } }";
+		ResultSet resultSet = SPARQLUtils.select(CollectionUtil.getCollectionPath(
+        	CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
-        String queryString = "DESCRIBE <" + uri + ">";
-        Model model = SPARQLUtils.describe(CollectionUtil.getCollectionPath(
-                CollectionUtil.Collection.SPARQL_QUERY), queryString);
+		if (!resultSet.hasNext()) {
+			return null;
+		} else {
+            actuatorStem = new ActuatorStem(VSTOI.ACTUATOR_STEM);
+		}
 
-        StmtIterator stmtIterator = model.listStatements();
+		// Iterate over results
+		while (resultSet.hasNext()) {
+			QuerySolution qs = resultSet.next();
+			
+			// Retrieve the named graph URI
+			if (qs.contains("graph")) {
+				actuatorStem.setNamedGraph(qs.get("graph").toString());
+				//System.out.println("Graph: " + graphURI);
+			}
+			
+			// Retrieve predicate and object (optional)
+			if (qs.contains("p") && qs.contains("o")) {
+				String predicate = qs.get("p").toString();
+				String object = qs.get("o").toString();
+				//System.out.println("Predicate: " + predicate + " | Object: " + object);
 
-        if (!stmtIterator.hasNext()) {
-            return null;
-        }
-
-        actuatorStem = new ActuatorStem(VSTOI.DETECTOR_STEM);
-
-        while (stmtIterator.hasNext()) {
-            statement = stmtIterator.next();
-            object = statement.getObject();
- 			String str = URIUtils.objectRDFToString(object);
-			if (uri != null && !uri.isEmpty()) {
-				if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-					actuatorStem.setLabel(str);
-				} else if (statement.getPredicate().getURI().equals(RDFS.SUBCLASS_OF)) {
-					actuatorStem.setSuperUri(str); 
-				} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
-					actuatorStem.setHascoTypeUri(str);
-				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
-					actuatorStem.setHasImageUri(str);
-				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
-					actuatorStem.setHasWebDocument(str);
-                } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
-                    actuatorStem.setComment(str);
-                } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
-                    actuatorStem.setHascoTypeUri(str);
-                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
-                    actuatorStem.setHasStatus(str);
-                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_CONTENT)) {
-                    actuatorStem.setHasContent(str);
-                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
-                    actuatorStem.setHasLanguage(str);
-                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
-                    actuatorStem.setHasVersion(str);
-                } else if (statement.getPredicate().getURI().equals(HASCO.ACTIVATES)) {
+				if (predicate.equals(RDFS.LABEL)) {
+					actuatorStem.setLabel(object);
+				} else if (predicate.equals(RDFS.SUBCLASS_OF)) {
+					actuatorStem.setSuperUri(object); 
+				} else if (predicate.equals(HASCO.HASCO_TYPE)) {
+					actuatorStem.setHascoTypeUri(object);
+				} else if (predicate.equals(HASCO.HAS_IMAGE)) {
+					actuatorStem.setHasImageUri(object);
+				} else if (predicate.equals(HASCO.HAS_WEB_DOCUMENT)) {
+					actuatorStem.setHasWebDocument(object);
+                } else if (predicate.equals(RDFS.COMMENT)) {
+                    actuatorStem.setComment(object);
+                } else if (predicate.equals(HASCO.HASCO_TYPE)) {
+                    actuatorStem.setHascoTypeUri(object);
+                } else if (predicate.equals(VSTOI.HAS_STATUS)) {
+                    actuatorStem.setHasStatus(object);
+                } else if (predicate.equals(VSTOI.HAS_CONTENT)) {
+                    actuatorStem.setHasContent(object);
+                } else if (predicate.equals(VSTOI.HAS_LANGUAGE)) {
+                    actuatorStem.setHasLanguage(object);
+                } else if (predicate.equals(VSTOI.HAS_VERSION)) {
+                    actuatorStem.setHasVersion(object);
+                } else if (predicate.equals(HASCO.ACTIVATES)) {
                     try {
-                        actuatorStem.setActivates(str);
+                        actuatorStem.setActivates(object);
                     } catch (Exception e) {
                     }
-                } else if (statement.getPredicate().getURI().equals(PROV.WAS_DERIVED_FROM)) {
+                } else if (predicate.equals(PROV.WAS_DERIVED_FROM)) {
                     try {
-                        actuatorStem.setWasDerivedFrom(str);
+                        actuatorStem.setWasDerivedFrom(object);
                     } catch (Exception e) {
                     }
-                } else if (statement.getPredicate().getURI().equals(PROV.WAS_GENERATED_BY)) {
+                } else if (predicate.equals(PROV.WAS_GENERATED_BY)) {
                     try {
-                        actuatorStem.setWasGeneratedBy(str);
+                        actuatorStem.setWasGeneratedBy(object);
                     } catch (Exception e) {
                     }
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_REVIEW_NOTE)) {
-					actuatorStem.setHasReviewNote(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
-					actuatorStem.setHasSIRManagerEmail(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_EDITOR_EMAIL)) {
-					actuatorStem.setHasEditorEmail(str);
+				} else if (predicate.equals(VSTOI.HAS_REVIEW_NOTE)) {
+					actuatorStem.setHasReviewNote(object);
+				} else if (predicate.equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
+					actuatorStem.setHasSIRManagerEmail(object);
+				} else if (predicate.equals(VSTOI.HAS_EDITOR_EMAIL)) {
+					actuatorStem.setHasEditorEmail(object);
                 } 
             }
         }

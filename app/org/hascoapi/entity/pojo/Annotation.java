@@ -2,8 +2,7 @@ package org.hascoapi.entity.pojo;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.apache.jena.query.QuerySolution;
-import org.apache.jena.query.ResultSetRewindable;
+import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
@@ -209,44 +208,56 @@ public class Annotation extends HADatAcThing implements Comparable<Annotation>  
 
 
     public static Annotation find(String uri) {
-        Annotation annotation = null;
-        Statement statement;
-        RDFNode object;
+        if (uri == null || uri.isEmpty()) {
+			return null;
+		}
+		Annotation annotation = null;
+		// Construct the SELECT query to retrieve named graphs
+		String queryString = "SELECT DISTINCT ?graph ?p ?o WHERE { GRAPH ?graph { <" + uri + "> ?p ?o } }";
+		ResultSet resultSet = SPARQLUtils.select(CollectionUtil.getCollectionPath(
+        	CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
-        String queryString = "DESCRIBE <" + uri + ">";
-        Model model = SPARQLUtils.describe(CollectionUtil.getCollectionPath(
-                CollectionUtil.Collection.SPARQL_QUERY), queryString);
+		if (!resultSet.hasNext()) {
+			return null;
+		} else {
+            annotation = new Annotation();
+		}
 
-        StmtIterator stmtIterator = model.listStatements();
+		// Iterate over results
+		while (resultSet.hasNext()) {
+			QuerySolution qs = resultSet.next();
+			
+			// Retrieve the named graph URI
+			if (qs.contains("graph")) {
+				annotation.setNamedGraph(qs.get("graph").toString());
+				//System.out.println("Graph: " + graphURI);
+			}
+			
+			// Retrieve predicate and object (optional)
+			if (qs.contains("p") && qs.contains("o")) {
+				String predicate = qs.get("p").toString();
+				String object = qs.get("o").toString();
+				//System.out.println("Predicate: " + predicate + " | Object: " + object);
 
-        if (!stmtIterator.hasNext()) {
-            return null;
-        }
-
-        annotation = new Annotation();
-
-        while (stmtIterator.hasNext()) {
-            statement = stmtIterator.next();
-            object = statement.getObject();
-            String str = URIUtils.objectRDFToString(object);
-            if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-                annotation.setLabel(str);
-            } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
-                annotation.setTypeUri(str);
-            } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
-                annotation.setComment(str);
-            } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
-                annotation.setHascoTypeUri(str);
-            } else if (statement.getPredicate().getURI().equals(VSTOI.BELONGS_TO)) {
-                annotation.setBelongsTo(str);
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_ANNOTATION_STEM)) {
-                annotation.setHasAnnotationStem(str);
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_POSITION)) {
-                annotation.setHasPosition(str);
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_CONTENT_WITH_STYLE)) {
-                annotation.setHasContentWithStyle(str);
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
-                annotation.setHasSIRManagerEmail(str);
+                if (predicate.equals(RDFS.LABEL)) {
+                    annotation.setLabel(object);
+                } else if (predicate.equals(RDF.TYPE)) {
+                    annotation.setTypeUri(object);
+                } else if (predicate.equals(RDFS.COMMENT)) {
+                    annotation.setComment(object);
+                } else if (predicate.equals(HASCO.HASCO_TYPE)) {
+                    annotation.setHascoTypeUri(object);
+                } else if (predicate.equals(VSTOI.BELONGS_TO)) {
+                    annotation.setBelongsTo(object);
+                } else if (predicate.equals(VSTOI.HAS_ANNOTATION_STEM)) {
+                    annotation.setHasAnnotationStem(object);
+                } else if (predicate.equals(VSTOI.HAS_POSITION)) {
+                    annotation.setHasPosition(object);
+                } else if (predicate.equals(VSTOI.HAS_CONTENT_WITH_STYLE)) {
+                    annotation.setHasContentWithStyle(object);
+                } else if (predicate.equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
+                    annotation.setHasSIRManagerEmail(object);
+                }
             }
         }
 

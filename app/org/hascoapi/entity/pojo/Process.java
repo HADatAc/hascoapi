@@ -1,8 +1,7 @@
 package org.hascoapi.entity.pojo;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
-import org.apache.jena.query.QuerySolution;
-import org.apache.jena.query.ResultSetRewindable;
+import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
@@ -145,90 +144,68 @@ public class Process extends HADatAcThing implements Comparable<Process> {
         return resp;
     }
 
-    /*
-    public boolean addInstrumentUri(String instrumentUri) {
-        Instrument instrument = Instrument.find(instrumentUri);
-        if (instrument == null) {
-            return false;
-        }
-        if (instrumentUris == null) {
-            instrumentUris = new ArrayList<String>();
-        }
-        if (instrumentUris == null || instrumentUris.contains(instrumentUri)) {
-            return false; 
-        }
-        System.out.println("Process.java: adding instrument [" + instrumentUri + "] to process [" + this.getUri() + "]");
-        instrumentUris.add(instrumentUri);
-        this.save();
-        return true;
-    }
-
-    public boolean removeInstrumentUri(String instrumentUri) {
-        Instrument instrument = Instrument.find(instrumentUri);
-        if (instrument == null) {
-            return false;
-        }
-        if (instrumentUris == null || !instrumentUris.contains(instrumentUri)) {
-            return false; 
-        }
-        instrumentUris.remove(instrumentUri);
-        this.save();
-        return true;
-    }*/
-
     public static Process find(String uri) {
-        Process process = null;
-        Statement statement;
-        RDFNode object;
+ 		if (uri == null || uri.isEmpty()) {
+			return null;
+		}
+		Process process = null;
+		// Construct the SELECT query to retrieve named graphs
+		String queryString = "SELECT DISTINCT ?graph ?p ?o WHERE { GRAPH ?graph { <" + uri + "> ?p ?o } }";
+		ResultSet resultSet = SPARQLUtils.select(CollectionUtil.getCollectionPath(
+        	CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
-        String queryString = "DESCRIBE <" + uri + ">";
-        Model model = SPARQLUtils.describe(CollectionUtil.getCollectionPath(
-                CollectionUtil.Collection.SPARQL_QUERY), queryString);
+		if (!resultSet.hasNext()) {
+			return null;
+		} else {
+            process = new Process();
+		}
 
-        StmtIterator stmtIterator = model.listStatements();
-        List<String> instruments = new ArrayList<String>();
+		// Iterate over results
+		while (resultSet.hasNext()) {
+			QuerySolution qs = resultSet.next();
+			
+			// Retrieve the named graph URI
+			if (qs.contains("graph")) {
+				process.setNamedGraph(qs.get("graph").toString());
+				//System.out.println("Graph: " + graphURI);
+			}
+			
+			// Retrieve predicate and object (optional)
+			if (qs.contains("p") && qs.contains("o")) {
+				String predicate = qs.get("p").toString();
+				String object = qs.get("o").toString();
+				//System.out.println("Predicate: " + predicate + " | Object: " + object);
 
-        if (!stmtIterator.hasNext()) {
-            return null;
-        }
-
-        process = new Process();
-
-        while (stmtIterator.hasNext()) {
-            statement = stmtIterator.next();
-            object = statement.getObject();
- 			String str = URIUtils.objectRDFToString(object);
-			if (uri != null && !uri.isEmpty()) {
-				if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-					process.setLabel(str);
-                } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
-                    process.setTypeUri(str);
-                } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
-                    process.setComment(str);
-                } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
-                    process.setHascoTypeUri(str);
-				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
-					process.setHasImageUri(str);
-				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
-					process.setHasWebDocument(str);
-                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
-                    process.setHasStatus(str);
-                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
-                    process.setSerialNumber(str);
-                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
-                    process.setHasLanguage(str);
-                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
-                    process.setHasVersion(str);
-                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_REVIEW_NOTE)) {
-                    process.setHasReviewNote(str);
-                } else if (statement.getPredicate().getURI().equals(PROV.WAS_DERIVED_FROM)) {
-                    process.setWasDerivedFrom(str);
-                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
-                    process.setHasSIRManagerEmail(str);
-                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_EDITOR_EMAIL)) {
-                    process.setHasEditorEmail(str);
-                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_REQUIRED_INSTRUMENTATION)) {
-                    process.addHasRequiredInstrumentationUri(str);
+                if (predicate.equals(RDFS.LABEL)) {
+                    process.setLabel(object);
+                } else if (predicate.equals(RDF.TYPE)) {
+                    process.setTypeUri(object);
+                } else if (predicate.equals(RDFS.COMMENT)) {
+                    process.setComment(object);
+                } else if (predicate.equals(HASCO.HASCO_TYPE)) {
+                    process.setHascoTypeUri(object);
+                } else if (predicate.equals(HASCO.HAS_IMAGE)) {
+                    process.setHasImageUri(object);
+                } else if (predicate.equals(HASCO.HAS_WEB_DOCUMENT)) {
+                    process.setHasWebDocument(object);
+                } else if (predicate.equals(VSTOI.HAS_STATUS)) {
+                    process.setHasStatus(object);
+                } else if (predicate.equals(VSTOI.HAS_SERIAL_NUMBER)) {
+                    process.setSerialNumber(object);
+                } else if (predicate.equals(VSTOI.HAS_LANGUAGE)) {
+                    process.setHasLanguage(object);
+                } else if (predicate.equals(VSTOI.HAS_VERSION)) {
+                    process.setHasVersion(object);
+                } else if (predicate.equals(VSTOI.HAS_REVIEW_NOTE)) {
+                    process.setHasReviewNote(object);
+                } else if (predicate.equals(PROV.WAS_DERIVED_FROM)) {
+                    process.setWasDerivedFrom(object);
+                } else if (predicate.equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
+                    process.setHasSIRManagerEmail(object);
+                } else if (predicate.equals(VSTOI.HAS_EDITOR_EMAIL)) {
+                    process.setHasEditorEmail(object);
+                } else if (predicate.equals(VSTOI.HAS_REQUIRED_INSTRUMENTATION)) {
+                    process.addHasRequiredInstrumentationUri(object);
                 }
             }
         }

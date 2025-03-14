@@ -1816,7 +1816,12 @@ public class SIRElementAPI extends Controller {
                 "{\"Container\":\"" + response[2] + "\"}," + 
                 "{\"Detector\":\"" + response[3] + "\"}," + 
                 "{\"DetectorStem\":\"" + response[4] + "\"}," + 
-                "{\"ResponseOption\":\"" + response[5] + "\"}" + "]";
+                "{\"Actuator\":\"" + response[5] + "\"}," + 
+                "{\"ActuatorStem\":\"" + response[6] + "\"}," + 
+                "{\"ResponseOption\":\"" + response[7] + "\"}" + 
+                "{\"ProcessStem\":\"" + response[8] + "\"}," + 
+                "{\"Process\":\"" + response[9] + "\"}" + 
+                "]";
             return ok(ApiUtil.createResponse(respJSON, true));
         }     
         return ok("Failed retrieving elements under review.");

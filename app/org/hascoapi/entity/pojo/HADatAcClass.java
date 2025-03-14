@@ -13,9 +13,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import org.apache.jena.query.QuerySolution;
-import org.apache.jena.query.ResultSetFormatter;
-import org.apache.jena.query.ResultSetRewindable;
+import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Statement;
@@ -200,50 +198,56 @@ public class HADatAcClass extends HADatAcThing {
     }
 
     public static HADatAcClass find(String classUri) {
+ 		if (classUri == null || classUri.isEmpty()) {
+			return null;
+		}
         HADatAcClass typeClass = null;
-        Statement statement;
-        RDFNode subject;
-        RDFNode object;
+		// Construct the SELECT query to retrieve named graphs
+		String queryString = "SELECT DISTINCT ?graph ?p ?o WHERE { GRAPH ?graph { <" + classUri + "> ?p ?o } }";
+		ResultSet resultSet = SPARQLUtils.select(CollectionUtil.getCollectionPath(
+        	CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
-        String queryString = "DESCRIBE <" + classUri + ">";
-        Model model = SPARQLUtils.describe(CollectionUtil.getCollectionPath(
-                CollectionUtil.Collection.SPARQL_QUERY), queryString);
+		if (!resultSet.hasNext()) {
+			return null;
+		} else {
+            typeClass = new HADatAcClass("");
+		}
 
-        StmtIterator stmtIterator = model.listStatements();
+		// Iterate over results
+		while (resultSet.hasNext()) {
+			QuerySolution qs = resultSet.next();
+			
+			// Retrieve the named graph URI
+			if (qs.contains("graph")) {
+				typeClass.setNamedGraph(qs.get("graph").toString());
+				//System.out.println("Graph: " + graphURI);
+			}
+			
+			// Retrieve predicate and object (optional)
+			if (qs.contains("p") && qs.contains("o")) {
+				String predicate = qs.get("p").toString();
+				String object = qs.get("o").toString();
+				//System.out.println("Predicate: " + predicate + " | Object: " + object);
 
-        // returns null if not statement is found
-        if (!stmtIterator.hasNext()) {
-            return typeClass;
-        }
-
-        typeClass = new HADatAcClass("");
-
-        while (stmtIterator.hasNext()) {
-            statement = stmtIterator.next();
-            subject = statement.getSubject();
-            object = statement.getObject();
-            String str = URIUtils.objectRDFToString(object);
-
-            //System.out.println("pred: " + statement.getPredicate().getURI());
-            String predUri = statement.getPredicate().getURI();
-            if (predUri.equals(RDFS.LABEL)) {
-                typeClass.setLabel(str);
-            } else if (predUri.equals(RDF.TYPE)) {
-                typeClass.setTypeUri(str);
-            } else if (predUri.equals(RDFS.SUBCLASS_OF)) {
-                typeClass.setSuperUri(str);
-            } else if (predUri.equals(RDFS.DOMAIN)) {
-                typeClass.addDomain(str);
-            } else if (predUri.equals(RDFS.RANGE)) {
-                typeClass.addRange(str);
-            } else if (predUri.equals(RDFS.DISJOINT_WITH)) {
-                typeClass.addDisjointWith(str);
-            } else if (predUri.equals(RDFS.COMMENT) || predUri.equals(PROV.DEFINITION)) {
-                typeClass.setComment(str);
-            } else if (predUri.equals(HASCO.HAS_IMAGE)) {
-                typeClass.setHasImageUri(str);
-            } else if (predUri.equals(HASCO.HAS_WEB_DOCUMENT)) {
-                typeClass.setHasWebDocument(str);
+                if (predicate.equals(RDFS.LABEL)) {
+                    typeClass.setLabel(object);
+                } else if (predicate.equals(RDF.TYPE)) {
+                    typeClass.setTypeUri(object);
+                } else if (predicate.equals(RDFS.SUBCLASS_OF)) {
+                    typeClass.setSuperUri(object);
+                } else if (predicate.equals(RDFS.DOMAIN)) {
+                    typeClass.addDomain(object);
+                } else if (predicate.equals(RDFS.RANGE)) {
+                    typeClass.addRange(object);
+                } else if (predicate.equals(RDFS.DISJOINT_WITH)) {
+                    typeClass.addDisjointWith(object);
+                } else if (predicate.equals(RDFS.COMMENT) || predicate.equals(PROV.DEFINITION)) {
+                    typeClass.setComment(object);
+                } else if (predicate.equals(HASCO.HAS_IMAGE)) {
+                    typeClass.setHasImageUri(object);
+                } else if (predicate.equals(HASCO.HAS_WEB_DOCUMENT)) {
+                    typeClass.setHasWebDocument(object);
+                }
             }
         }
 

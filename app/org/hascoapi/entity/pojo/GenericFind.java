@@ -1168,9 +1168,11 @@ public class GenericFind<T> {
             + " (COUNT(?typeCN) AS ?tot3) " 
             + " (COUNT(?typeDT) AS ?tot4) " 
             + " (COUNT(?typeDS) AS ?tot5) " 
-            + " (COUNT(?typeRO) AS ?tot6) " 
-            + " (COUNT(?typePS) AS ?tot7) " 
-            + " (COUNT(?typePC) AS ?tot8) " 
+            + " (COUNT(?typeAT) AS ?tot6) " 
+            + " (COUNT(?typeATS) AS ?tot7) " 
+            + " (COUNT(?typeRO) AS ?tot8) " 
+            + " (COUNT(?typePS) AS ?tot9) " 
+            + " (COUNT(?typePC) AS ?tot10) " 
             + " WHERE {"
             + "     { ?typeAS rdfs:subClassOf* <" + VSTOI.ANNOTATION_STEM + "> . "
             + "       ?typeAS hasco:hasStatus <" + VSTOI.UNDER_REVIEW + "> . }"
@@ -1187,6 +1189,12 @@ public class GenericFind<T> {
             + "     { ?typeDS rdfs:subClassOf* <" + VSTOI.DETECTOR_STEM + "> . "
             + "       ?typeDS hasco:hasStatus <" + VSTOI.UNDER_REVIEW + "> . }"
             + "  UNION"
+            + "     { ?typeAT rdfs:subClassOf* <" + VSTOI.ACTUATOR + "> . "
+            + "       ?typeAT hasco:hasStatus <" + VSTOI.UNDER_REVIEW + "> . }"
+            + "  UNION"
+            + "     { ?typeATS rdfs:subClassOf* <" + VSTOI.ACTUATOR_STEM + "> . "
+            + "       ?typeATS hasco:hasStatus <" + VSTOI.UNDER_REVIEW + "> . }"
+            + "  UNION"
             + "     { ?typeRO rdfs:subClassOf* <" + VSTOI.RESPONSE_OPTION + "> . "
             + "       ?typeRO hasco:hasStatus <" + VSTOI.UNDER_REVIEW + "> . }"
             + "  UNION"
@@ -1198,7 +1206,7 @@ public class GenericFind<T> {
             + "}";
 
 
-        int[] totals = new int[8]; 
+        int[] totals = new int[10]; 
         
         try {
             // Execute the query using the SPARQLUtils utility
@@ -1216,6 +1224,8 @@ public class GenericFind<T> {
                 totals[5] = Integer.parseInt(soln.getLiteral("tot6").getString());
                 totals[6] = Integer.parseInt(soln.getLiteral("tot7").getString());
                 totals[7] = Integer.parseInt(soln.getLiteral("tot8").getString());
+                totals[8] = Integer.parseInt(soln.getLiteral("tot9").getString());
+                totals[9] = Integer.parseInt(soln.getLiteral("tot10").getString());
             }
         } catch (Exception e) {
             e.printStackTrace();

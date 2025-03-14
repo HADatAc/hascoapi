@@ -3,12 +3,7 @@ package org.hascoapi.entity.pojo;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.jena.query.Query;
-import org.apache.jena.query.QueryExecution;
-import org.apache.jena.query.QueryExecutionFactory;
-import org.apache.jena.query.QueryFactory;
-import org.apache.jena.query.QuerySolution;
-import org.apache.jena.query.ResultSetRewindable;
+import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
@@ -95,39 +90,50 @@ public class GenericInstance extends HADatAcThing implements Comparable<GenericI
 
 
     public static GenericInstance find(String uri) {
-        GenericInstance instance = null;
-        Model model;
-        Statement statement;
-        RDFNode object;
+ 		if (uri == null || uri.isEmpty()) {
+			return null;
+		}
+		GenericInstance instance = null;
+		// Construct the SELECT query to retrieve named graphs
+		String queryString = "SELECT DISTINCT ?graph ?p ?o WHERE { GRAPH ?graph { <" + uri + "> ?p ?o } }";
+		ResultSet resultSet = SPARQLUtils.select(CollectionUtil.getCollectionPath(
+        	CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
-        String queryString = "DESCRIBE <" + uri + ">";
-        Query query = QueryFactory.create(queryString);
-        QueryExecution qexec = QueryExecutionFactory.sparqlService(
-                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), query);
-        model = qexec.execDescribe();
+		if (!resultSet.hasNext()) {
+			return null;
+		} else {
+            instance = new GenericInstance();
+		}
 
-        StmtIterator stmtIterator = model.listStatements();
-        if (!stmtIterator.hasNext()) {
-            return instance;
-        }
+		// Iterate over results
+		while (resultSet.hasNext()) {
+			QuerySolution qs = resultSet.next();
+			
+			// Retrieve the named graph URI
+			if (qs.contains("graph")) {
+				instance.setNamedGraph(qs.get("graph").toString());
+				//System.out.println("Graph: " + graphURI);
+			}
+			
+			// Retrieve predicate and object (optional)
+			if (qs.contains("p") && qs.contains("o")) {
+				String predicate = qs.get("p").toString();
+				String object = qs.get("o").toString();
+				//System.out.println("Predicate: " + predicate + " | Object: " + object);
 
-        instance = new GenericInstance();
-        while (stmtIterator.hasNext()) {
-            statement = stmtIterator.next();
-            object = statement.getObject();
-            String str = URIUtils.objectRDFToString(object);
-            if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-                instance.setLabel(str);
-            } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
-                instance.setTypeUri(str);
-            } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
-                instance.setHascoTypeUri(str);
-            } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
-                instance.setComment(str);
-            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
-                instance.setHasImageUri(str);
-            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
-                instance.setHasWebDocument(str);
+                if (predicate.equals(RDFS.LABEL)) {
+                    instance.setLabel(object);
+                } else if (predicate.equals(RDF.TYPE)) {
+                    instance.setTypeUri(object);
+                } else if (predicate.equals(HASCO.HASCO_TYPE)) {
+                    instance.setHascoTypeUri(object);
+                } else if (predicate.equals(RDFS.COMMENT)) {
+                    instance.setComment(object);
+                } else if (predicate.equals(HASCO.HAS_IMAGE)) {
+                    instance.setHasImageUri(object);
+                } else if (predicate.equals(HASCO.HAS_WEB_DOCUMENT)) {
+                    instance.setHasWebDocument(object);
+                }
             }
         }
 

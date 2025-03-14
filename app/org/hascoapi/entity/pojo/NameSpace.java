@@ -7,8 +7,7 @@ import java.net.URL;
 import java.util.*;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.jena.query.QuerySolution;
-import org.apache.jena.query.ResultSetRewindable;
+import org.apache.jena.query.*;
 import org.apache.jena.update.UpdateExecutionFactory;
 import org.apache.jena.update.UpdateFactory;
 import org.apache.jena.update.UpdateProcessor;
@@ -186,50 +185,59 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
     }
 
 	public static NameSpace find(String uri) {
-		//System.out.println("Instrument.java : in find(): uri = [" + uri + "]");
-	    NameSpace ns = null;
-	    Statement statement;
-	    RDFNode object;
-	    
-	    String queryString = "DESCRIBE <" + uri + ">";
-	    Model model = SPARQLUtils.describe(CollectionUtil.getCollectionPath(
-                CollectionUtil.Collection.SPARQL_QUERY), queryString);
-		
-		StmtIterator stmtIterator = model.listStatements();
+ 		if (uri == null || uri.isEmpty()) {
+			return null;
+		}
+		NameSpace ns = null;
+		// Construct the SELECT query to retrieve named graphs
+		String queryString = "SELECT DISTINCT ?graph ?p ?o WHERE { GRAPH ?graph { <" + uri + "> ?p ?o } }";
+		ResultSet resultSet = SPARQLUtils.select(CollectionUtil.getCollectionPath(
+        	CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
-		if (!stmtIterator.hasNext()) {
+		if (!resultSet.hasNext()) {
 			return null;
 		} else {
-			ns = new NameSpace();
+            ns = new NameSpace();
 		}
-	
-		while (stmtIterator.hasNext()) {
-		    statement = stmtIterator.next();
-		    object = statement.getObject();
-			String str = URIUtils.objectRDFToString(object);
-			if (uri != null && !uri.isEmpty()) {
-				if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-					ns.setLabel(str);
-				} else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
-					ns.setTypeUri(str); 
-				} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
-					ns.setHascoTypeUri(str);
-				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
-					ns.setComment(str);
-				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
-					ns.setHasImageUri(str);
-				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
-					ns.setHasWebDocument(str);
-				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_ABBREVIATION)) {
-					ns.setLabel(str);
-				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_SOURCE)) {
-					ns.setSource(str);
-				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_SOURCE_MIME)) {
-					ns.setSourceMime(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PRIORITY)) {
-					ns.setPriority(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
-         			ns.setVersion(str);
+
+		// Iterate over results
+		while (resultSet.hasNext()) {
+			QuerySolution qs = resultSet.next();
+			
+			// Retrieve the named graph URI
+			if (qs.contains("graph")) {
+				ns.setNamedGraph(qs.get("graph").toString());
+				//System.out.println("Graph: " + graphURI);
+			}
+			
+			// Retrieve predicate and object (optional)
+			if (qs.contains("p") && qs.contains("o")) {
+				String predicate = qs.get("p").toString();
+				String object = qs.get("o").toString();
+				//System.out.println("Predicate: " + predicate + " | Object: " + object);
+
+				if (predicate.equals(RDFS.LABEL)) {
+					ns.setLabel(object);
+				} else if (predicate.equals(RDF.TYPE)) {
+					ns.setTypeUri(object); 
+				} else if (predicate.equals(HASCO.HASCO_TYPE)) {
+					ns.setHascoTypeUri(object);
+				} else if (predicate.equals(RDFS.COMMENT)) {
+					ns.setComment(object);
+				} else if (predicate.equals(HASCO.HAS_IMAGE)) {
+					ns.setHasImageUri(object);
+				} else if (predicate.equals(HASCO.HAS_WEB_DOCUMENT)) {
+					ns.setHasWebDocument(object);
+				} else if (predicate.equals(HASCO.HAS_ABBREVIATION)) {
+					ns.setLabel(object);
+				} else if (predicate.equals(HASCO.HAS_SOURCE)) {
+					ns.setSource(object);
+				} else if (predicate.equals(HASCO.HAS_SOURCE_MIME)) {
+					ns.setSourceMime(object);
+				} else if (predicate.equals(VSTOI.HAS_PRIORITY)) {
+					ns.setPriority(object);
+				} else if (predicate.equals(VSTOI.HAS_VERSION)) {
+         			ns.setVersion(object);
 				}
 			}
 		}

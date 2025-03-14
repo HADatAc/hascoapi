@@ -1,8 +1,7 @@
 package org.hascoapi.entity.pojo;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
-import org.apache.jena.query.QuerySolution;
-import org.apache.jena.query.ResultSetRewindable;
+import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
@@ -216,44 +215,57 @@ public class ContainerSlot extends HADatAcThing implements SlotElement, Comparab
     }
 
     public static ContainerSlot find(String uri) {
-        ContainerSlot containerSlot = null;
-        Statement statement;
-        RDFNode object;
+        if (uri == null || uri.isEmpty()) {
+			return null;
+		}
+		ContainerSlot containerSlot = null;
 
-        String queryString = "DESCRIBE <" + uri + ">";
-        Model model = SPARQLUtils.describe(CollectionUtil.getCollectionPath(
-                CollectionUtil.Collection.SPARQL_QUERY), queryString);
+		// Construct the SELECT query to retrieve named graphs
+		String queryString = "SELECT DISTINCT ?graph ?p ?o WHERE { GRAPH ?graph { <" + uri + "> ?p ?o } }";
+		ResultSet resultSet = SPARQLUtils.select(CollectionUtil.getCollectionPath(
+        	CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
-        StmtIterator stmtIterator = model.listStatements();
+		if (!resultSet.hasNext()) {
+			return null;
+		} else {
+			containerSlot = new ContainerSlot();
+		}
 
-        if (!stmtIterator.hasNext()) {
-            return null;
-        }
+		// Iterate over results
+		while (resultSet.hasNext()) {
+			QuerySolution qs = resultSet.next();
+			
+			// Retrieve the named graph URI
+			if (qs.contains("graph")) {
+				containerSlot.setNamedGraph(qs.get("graph").toString());
+				//System.out.println("Graph: " + graphURI);
+			}
+			
+			// Retrieve predicate and object (optional)
+			if (qs.contains("p") && qs.contains("o")) {
+				String predicate = qs.get("p").toString();
+				String object = qs.get("o").toString();
+				//System.out.println("Predicate: " + predicate + " | Object: " + object);
 
-        containerSlot = new ContainerSlot();
-
-        while (stmtIterator.hasNext()) {
-            statement = stmtIterator.next();
-            object = statement.getObject();
-            String str = URIUtils.objectRDFToString(object);
-            if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-                containerSlot.setLabel(str);
-            } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
-                containerSlot.setTypeUri(str);
-            } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
-                containerSlot.setComment(str);
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_NEXT)) {
-                containerSlot.setHasNext(str);
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PREVIOUS)) {
-                containerSlot.setHasPrevious(str);
-            } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
-                containerSlot.setHascoTypeUri(str);
-            } else if (statement.getPredicate().getURI().equals(VSTOI.BELONGS_TO)) {
-                containerSlot.setBelongsTo(str);
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_COMPONENT)) {
-                containerSlot.setHasComponent(str);
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PRIORITY)){
-                containerSlot.setHasPriority(str);
+                if (predicate.equals(RDFS.LABEL)) {
+                    containerSlot.setLabel(object);
+                } else if (predicate.equals(RDF.TYPE)) {
+                    containerSlot.setTypeUri(object);
+                } else if (predicate.equals(RDFS.COMMENT)) {
+                    containerSlot.setComment(object);
+                } else if (predicate.equals(VSTOI.HAS_NEXT)) {
+                    containerSlot.setHasNext(object);
+                } else if (predicate.equals(VSTOI.HAS_PREVIOUS)) {
+                    containerSlot.setHasPrevious(object);
+                } else if (predicate.equals(HASCO.HASCO_TYPE)) {
+                    containerSlot.setHascoTypeUri(object);
+                } else if (predicate.equals(VSTOI.BELONGS_TO)) {
+                    containerSlot.setBelongsTo(object);
+                } else if (predicate.equals(VSTOI.HAS_COMPONENT)) {
+                    containerSlot.setHasComponent(object);
+                } else if (predicate.equals(VSTOI.HAS_PRIORITY)){
+                    containerSlot.setHasPriority(object);
+                }
             }
         }
 

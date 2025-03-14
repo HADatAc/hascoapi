@@ -1,8 +1,7 @@
 package org.hascoapi.entity.pojo;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
-import org.apache.jena.query.QuerySolution;
-import org.apache.jena.query.ResultSetRewindable;
+import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
@@ -155,55 +154,65 @@ public class Codebook extends HADatAcThing implements Comparable<Codebook> {
     }
 
     public static Codebook find(String uri) {
-        Codebook codebook = null;
-        Statement statement;
-        RDFNode object;
+ 		if (uri == null || uri.isEmpty()) {
+			return null;
+		}
+		Codebook codebook = null;
+		// Construct the SELECT query to retrieve named graphs
+		String queryString = "SELECT DISTINCT ?graph ?p ?o WHERE { GRAPH ?graph { <" + uri + "> ?p ?o } }";
+		ResultSet resultSet = SPARQLUtils.select(CollectionUtil.getCollectionPath(
+        	CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
-        String queryString = "DESCRIBE <" + uri + ">";
-        Model model = SPARQLUtils.describe(CollectionUtil.getCollectionPath(
-                CollectionUtil.Collection.SPARQL_QUERY), queryString);
+		if (!resultSet.hasNext()) {
+			return null;
+		} else {
+            codebook = new Codebook();
+		}
 
-        StmtIterator stmtIterator = model.listStatements();
+		// Iterate over results
+		while (resultSet.hasNext()) {
+			QuerySolution qs = resultSet.next();
+			
+			// Retrieve the named graph URI
+			if (qs.contains("graph")) {
+				codebook.setNamedGraph(qs.get("graph").toString());
+				//System.out.println("Graph: " + graphURI);
+			}
+			
+			// Retrieve predicate and object (optional)
+			if (qs.contains("p") && qs.contains("o")) {
+				String predicate = qs.get("p").toString();
+				String object = qs.get("o").toString();
+				//System.out.println("Predicate: " + predicate + " | Object: " + object);
 
-        if (!stmtIterator.hasNext()) {
-            return null;
-        }
-
-        codebook = new Codebook();
-
-        while (stmtIterator.hasNext()) {
-            statement = stmtIterator.next();
-            object = statement.getObject();
- 			String str = URIUtils.objectRDFToString(object);
-			if (uri != null && !uri.isEmpty()) {
-				if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-					codebook.setLabel(str);
-                } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
-                    codebook.setTypeUri(str);
-                } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
-                    codebook.setComment(str);
-                } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
-                    codebook.setHascoTypeUri(str);
-				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
-					codebook.setHasImageUri(str);
-				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
-					codebook.setHasWebDocument(str);
-                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
-                    codebook.setHasStatus(str);
-                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
-                    codebook.setSerialNumber(str);
-                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
-                    codebook.setHasLanguage(str);
-                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
-                    codebook.setHasVersion(str);
-                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_REVIEW_NOTE)) {
-                    codebook.setHasReviewNote(str);
-                } else if (statement.getPredicate().getURI().equals(PROV.WAS_DERIVED_FROM)) {
-                    codebook.setWasDerivedFrom(str);
-                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
-                    codebook.setHasSIRManagerEmail(str);
-                } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_EDITOR_EMAIL)) {
-                    codebook.setHasEditorEmail(str);
+				if (predicate.equals(RDFS.LABEL)) {
+					codebook.setLabel(object);
+                } else if (predicate.equals(RDF.TYPE)) {
+                    codebook.setTypeUri(object);
+                } else if (predicate.equals(RDFS.COMMENT)) {
+                    codebook.setComment(object);
+                } else if (predicate.equals(HASCO.HASCO_TYPE)) {
+                    codebook.setHascoTypeUri(object);
+				} else if (predicate.equals(HASCO.HAS_IMAGE)) {
+					codebook.setHasImageUri(object);
+				} else if (predicate.equals(HASCO.HAS_WEB_DOCUMENT)) {
+					codebook.setHasWebDocument(object);
+                } else if (predicate.equals(VSTOI.HAS_STATUS)) {
+                    codebook.setHasStatus(object);
+                } else if (predicate.equals(VSTOI.HAS_SERIAL_NUMBER)) {
+                    codebook.setSerialNumber(object);
+                } else if (predicate.equals(VSTOI.HAS_LANGUAGE)) {
+                    codebook.setHasLanguage(object);
+                } else if (predicate.equals(VSTOI.HAS_VERSION)) {
+                    codebook.setHasVersion(object);
+                } else if (predicate.equals(VSTOI.HAS_REVIEW_NOTE)) {
+                    codebook.setHasReviewNote(object);
+                } else if (predicate.equals(PROV.WAS_DERIVED_FROM)) {
+                    codebook.setWasDerivedFrom(object);
+                } else if (predicate.equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
+                    codebook.setHasSIRManagerEmail(object);
+                } else if (predicate.equals(VSTOI.HAS_EDITOR_EMAIL)) {
+                    codebook.setHasEditorEmail(object);
                 }
             }
         }
