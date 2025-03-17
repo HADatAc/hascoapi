@@ -54,8 +54,6 @@ public class ActuatorGenerator extends BaseGenerator {
 					if (this.getHasStatus() != null && !this.getHasStatus().equals("_")) {
 						tempRow.put("vstoi:hasStatus", this.getHasStatus());
 					}
-					tempRow.put("rdfs:label", "Actuator" );
-					tempRow.put("rdfs:comment", "Actuator");
 					rows.add(tempRow);
         		}
         	}
