@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+
+    fuseki:
+        build: ./fuseki
+        container_name: hascoapi_fuseki
+        ports:
+            - "3030:3030"
+        networks:
+            hascoapi:
+                aliases:
+                    - fuseki
+        volumes:
+            - hascoapi-fuseki-data:/fuseki/databases
+        restart: always
+
+    fuseki-yasgui:
+        build: ./fuseki-yasgui
+        container_name: hascoapi_fuseki_yasgui
+        ports:
+            - "8888:8888"
+        networks:
+            hascoapi:
+                aliases:
+                    - fuseki-yasgui
+        environment:
+            DEFAULT_SPARQL_ENDPOINT: "http://localhost:3030/store/query"
+        depends_on:
+            - fuseki
+    
+volumes:
+    hascoapi-fuseki-data:
+
+networks:
+    hascoapi:

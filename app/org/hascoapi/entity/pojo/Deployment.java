@@ -352,6 +352,10 @@ public class Deployment extends HADatAcThing {
                 deployment.setHascoTypeUri(str);
             } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
                 deployment.setComment(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+                deployment.setHasImageUri(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
+                deployment.setHasWebDocument(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_INSTRUMENT_INSTANCE)) {
                 deployment.setInstrumentInstanceUri(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PLATFORM_INSTANCE)) {

@@ -241,6 +241,10 @@ public class VirtualColumn extends HADatAcThing implements Comparable<VirtualCol
 					vc.setIsMemberOfUri(str);
 				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
 					vc.setComment(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+					vc.setHasImageUri(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
+					vc.setHasWebDocument(str);
                 } else if (statement.getPredicate().getURI().equals(HASCO.HAS_GROUNDING_LABEL)) {
                     vc.setGroundingLabel(str);
                 } else if (statement.getPredicate().getURI().equals(HASCO.HAS_SOC_REFERENCE)) {

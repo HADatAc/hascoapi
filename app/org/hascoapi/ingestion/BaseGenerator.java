@@ -38,6 +38,8 @@ import org.eclipse.rdf4j.model.impl.LinkedHashModelFactory;
 
 public abstract class BaseGenerator {
 
+    protected int QUERY_LIMIT = 2000;
+
     protected List<Record> records = null;
     protected RecordFile file;
     protected DataFile dataFile;
@@ -315,24 +317,16 @@ public abstract class BaseGenerator {
 
         // Create a empty query (To StudyObjectCollections)
         List<String> query = new ArrayList<>();
-        //query = null;
 
-        //System.out.println("DELETION START");
-        // Delete all triples from the named graph
+        // Delete all objects triples from the named graph
         deleteObjectsFromTripleStore(objects);
-        //System.out.println("DELETION DONE");
 
         for (HADatAcThing obj : objects) {
             obj.setNamedGraph(getNamedGraphUri());
             //System.out.println("BaseGenerator.commitObjectsToTriplestore() [1]");
 
             if (obj.getClass().getSimpleName() == "StudyObjectCollection"){
-                obj.saveToTripleStore(
-                    false,
-                    false,
-                    null,
-                    query
-                );
+                obj.saveToTripleStore(false, false, null, query);
             } else if (obj.saveToTripleStore(withValidation, false, model)){
                 count++;
             }
@@ -367,15 +361,16 @@ public abstract class BaseGenerator {
             } else if (query != null && !query.isEmpty()) {
                 String query1 = query.get(0) + "}  ";
                 // System.out.println("query1: " + query1);
-                try {
-                    UpdateRequest request = UpdateFactory.create(query1);
-                    UpdateProcessor processor = UpdateExecutionFactory.createRemote(
-                            request, CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
-                    processor.execute();
-                } catch (QueryParseException e) {
-                    System.out.println("QueryParseException due to update query: " + query1);
-                    throw e;
-                }
+                updateTripleStore(query1);
+                // try {
+                //     UpdateRequest request = UpdateFactory.create(query1);
+                //     UpdateProcessor processor = UpdateExecutionFactory.createRemote(
+                //             request, CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
+                //     processor.execute();
+                // } catch (QueryParseException e) {
+                //     System.out.println("QueryParseException due to update query: " + query1);
+                //     throw e;
+                // }
             }
         }
 
@@ -426,10 +421,11 @@ public abstract class BaseGenerator {
     }*/
 
     public void deleteObjectsFromTripleStore(List<HADatAcThing> objects) {
-        int count = 0;
-        String query;
-        //String namedGraph = "";
-        //String uri = "";
+        int totalUri = 0;
+        String query = "";
+        String queryHeader;
+        String queryGraphHeader;
+        List<String> queries;
 
         // Group objects uri by named graph
         Map<String, List<String>> objectsUriByNamedGraph = new HashMap<>();
@@ -437,12 +433,14 @@ public abstract class BaseGenerator {
             String namedGraph = obj.getNamedGraph();
             String uri = obj.getUri();
 
+            // Adjust the uri to be a valid URI
             if (uri == null || uri.equals("")) {
                 continue;
             } else if (uri.startsWith("http")) {
                 uri = "<" + uri + ">";
             }
 
+            // Set the namedGraph if it is not set
             if ( namedGraph == null || namedGraph.equals("")) {
                 if (RepositoryInstance.getInstance() != null &&
                         RepositoryInstance.getInstance().getHasDefaultNamespaceURL() != null) {
@@ -452,99 +450,115 @@ public abstract class BaseGenerator {
                 }
             }
 
+            // Add namedGraph as key
             objectsUriByNamedGraph.putIfAbsent(namedGraph, new ArrayList<>());
 
+            // Get the namedGraph value list
             List<String> uris = objectsUriByNamedGraph.get(namedGraph);
+
+            // Append uri to the respective list
             uris.add(uri);
 
         }
 
+        // Start a query list
+        queries = new ArrayList<String>();
 
-        query = NameSpaces.getInstance().printSparqlNameSpaceList();
-        query += "DELETE WHERE { \n";
+        // Init the query with namespaces
+        queryHeader = NameSpaces.getInstance().printSparqlNameSpaceList();
 
-        for (Map.Entry<String, List<String>> entry : objectsUriByNamedGraph.entrySet()) { 
-            String namedGraph = entry.getKey(); 
+        // Set the query action
+        queryHeader += "DELETE WHERE { \n";
+
+        for (Map.Entry<String, List<String>> entry : objectsUriByNamedGraph.entrySet()) {
+            // Get the namedGraph and the uri list
+            String namedGraph = entry.getKey();
             List<String> uris = entry.getValue();
 
-            query += "\n    GRAPH <" + namedGraph + "> { \n";
+            // Concatenate query header to GRAPH header
+            query = queryGraphHeader = "\n    GRAPH <" + namedGraph + "> { \n";
+
+            // Init a controller counter
+            int controllerCounter = 0;
 
             for (String uri : uris) {
+
+                // Restart query
+                if (controllerCounter == QUERY_LIMIT){
+                    // Close current query and add to query list
+                    queries.add(
+                        queryHeader + query + "\n\n    } \n\n}  "
+                    );
+
+                    // Restart current query
+                    query = queryGraphHeader;
+
+                    //System.out.println("[WARNING] Query limit reached (" + QUERY_LIMIT + ")");
+
+                    totalUri += controllerCounter;
+
+                    // Restart controllerCounter
+                    controllerCounter = 0;
+                }
+
+                // Add row aassociated to respective URI
                 query += "\n        " + uri + " ?p ?o . ";
-                count++;
+
+                // Update controller counter
+                controllerCounter++;
             }
 
+            // Update the total URI counter
+            totalUri += controllerCounter;
+
+            // Close the current GRAPH query
             query += "\n\n    } \n";
         }
+        // Finalize the query
         query += "\n}  ";
 
-        // for (HADatAcThing obj : objects) {
-        //     namedGraph = obj.getNamedGraph();
-        //     uri = obj.getUri();
+        // Add the header and append to query list
+        queries.add(queryHeader + query);
 
-        //     if (uri == null || uri.equals("")) {
-        //         continue;
-        //     }
-
-        //     if (uri.startsWith("http")) {
-        //         uri = "<" + uri + ">";
-        //     }
-
-        //     if ( namedGraph == null || namedGraph.equals("")) {
-        //         if (RepositoryInstance.getInstance() != null &&
-        //                 RepositoryInstance.getInstance().getHasDefaultNamespaceURL() != null) {
-        //             namedGraph = RepositoryInstance.getInstance().getHasDefaultNamespaceURL();
-        //         } else {
-        //             namedGraph = Constants.DEFAULT_REPOSITORY;
-        //         }
-        //     }
-        //     query += "    GRAPH <" + namedGraph + "> { \n";
-        //     query += "\n        " + uri + " ?p ?o . \n";
-        //     query += "\n    }\n";
-        // }
-        // //query += "    }\n}  ";
-        // query += "}  ";
-
-        // System.out.println("UPDATE START");
-        // FileWriter fileWriter = null;
-        // try {
-        //     fileWriter = new FileWriter("/home/natanael/Desktop/query.txt");
-        //     fileWriter.write(query);
-        // } catch (IOException e) {
-        //     System.out.println("An error occurred while writing to the file: " + e.getMessage());
-        // } finally {
-        //     if (fileWriter != null) {
-        //         try { 
-        //             fileWriter.close(); 
-        //         } catch (IOException e) { 
-        //             System.out.println("An error occurred while closing the writer: " + e.getMessage());
-        //         } 
-        //     }
-        // }
-        
-        // Apply the query to the triplestore
-        UpdateRequest request = UpdateFactory.create(query);
-        UpdateProcessor processor = UpdateExecutionFactory.createRemote(
-                request, CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
-        try {
-
-            processor.execute();
-            
-        } catch (Exception e) {
-            
-            e.printStackTrace();
-
+        // Looping through the query list
+        for (String query_i : queries) {
+            // Update respective query into the triple store
+            updateTripleStore(query_i);
         }
-        // System.out.println("UPDATE END");
 
+        // Show the total URI
+        System.out.println("[INFO] BaseGenerator: (deleteObjectsFromTripleStore) Total URI deleted from triplestore: " + totalUri);
     }
 
     private void dropGraph(String namedGraphUri)
     {
         String dropGraph="DROP GRAPH <"+namedGraphUri+ ">";
-        UpdateRequest request = UpdateFactory.create(dropGraph);
+        updateTripleStore(dropGraph);
+    }
+
+    public void updateTripleStore(String query){
+        // Create a request
+        UpdateRequest request = UpdateFactory.create(query);
+
+        // System.out.println("\n\n(updateTripleStore) Query: " + query + "\n\n ");
+
+        // Create a processor to execute the request
         UpdateProcessor processor = UpdateExecutionFactory.createRemote(
-                request, CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
-        processor.execute();
+            request, CollectionUtil.getCollectionPath(
+                CollectionUtil.Collection.SPARQL_UPDATE
+            )
+        );
+
+        try {
+            // Apply query to update triplestore
+            processor.execute();
+        } catch (QueryParseException e) {
+            System.out.println(
+                "[WARNING] QueryParseException due to update query: " + query
+            );
+            throw e;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

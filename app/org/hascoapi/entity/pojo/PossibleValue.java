@@ -447,6 +447,10 @@ public class PossibleValue extends HADatAcClass implements Comparable<PossibleVa
                 code.setLabel(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
                 code.setHascoTypeUri(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+                code.setHasImageUri(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
+                code.setHasWebDocument(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.PART_OF_SCHEMA)) {
                 code.setPartOfSchema(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.LIST_POSITION)) {

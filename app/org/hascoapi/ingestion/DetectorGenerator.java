@@ -9,8 +9,19 @@ import org.hascoapi.vocabularies.VSTOI;
 
 public class DetectorGenerator extends BaseGenerator {
 
-	public DetectorGenerator(DataFile dataFile) {
+	protected String hasStatus = "";
+
+	public String getHasStatus() {
+		return this.hasStatus;
+	}
+    
+	public void setHasStatus(String hasStatus) {
+		this.hasStatus = hasStatus;
+	}
+
+	public DetectorGenerator(DataFile dataFile, String hasStatus) {
 		super(dataFile);
+		this.setHasStatus(hasStatus);
 	}
 
 	@Override
@@ -40,8 +51,9 @@ public class DetectorGenerator extends BaseGenerator {
 				if (tempRow != null) {
 					tempRow.put("rdf:subClassOf", VSTOI.DETECTOR);
 					tempRow.put("hasco:hascoType", VSTOI.DETECTOR);
-					tempRow.put("rdfs:label", "Detector" );
-					tempRow.put("rdfs:comment", "Detector");
+					if (this.getHasStatus() != null && !this.getHasStatus().equals("_")) {
+						tempRow.put("vstoi:hasStatus", this.getHasStatus());
+					}
 					rows.add(tempRow);
         		}
         	}

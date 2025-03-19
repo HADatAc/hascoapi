@@ -5,8 +5,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.apache.jena.query.QuerySolution;
-import org.apache.jena.query.ResultSetRewindable;
+import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
@@ -18,6 +17,7 @@ import org.hascoapi.utils.SPARQLUtils;
 import org.hascoapi.utils.URIUtils;
 import org.hascoapi.utils.Utils;
 import org.hascoapi.vocabularies.HASCO;
+import org.hascoapi.vocabularies.PROV;
 import org.hascoapi.vocabularies.RDF;
 import org.hascoapi.vocabularies.RDFS;
 import org.hascoapi.vocabularies.VSTOI;
@@ -40,9 +40,6 @@ public abstract class Container extends HADatAcClass implements SIRElement, Comp
 	@PropertyField(uri="vstoi:hasInformant")
 	private String hasInformant;
 
-	@PropertyField(uri="hasco:hasImage")
-	private String image;
-
 	@PropertyField(uri="vstoi:hasShortName")
 	private String hasShortName;
 
@@ -64,8 +61,17 @@ public abstract class Container extends HADatAcClass implements SIRElement, Comp
  	@PropertyField(uri="vstoi:hasPriority")
 	private String hasPriority;
 
-	@PropertyField(uri="vstoi:hasSIRManagerEmail")
-	private String hasSIRManagerEmail;
+    @PropertyField(uri = "vstoi:hasReviewNote")
+    String hasReviewNote;
+
+    @PropertyField(uri="prov:wasDerivedFrom")
+    private String wasDerivedFrom;
+
+    @PropertyField(uri = "vstoi:hasSIRManagerEmail")
+    private String hasSIRManagerEmail;
+
+    @PropertyField(uri = "vstoi:hasEditorEmail")
+    private String hasEditorEmail;
 
 	public String getHasStatus() {
 		return hasStatus;
@@ -90,14 +96,6 @@ public abstract class Container extends HADatAcClass implements SIRElement, Comp
 	public void setHasInformant(String hasInformant) {
 		this.hasInformant = hasInformant;
 	}
-
-	public String getImage() {
-        return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
-    }
 
 	public String getHasShortName() {
 		return hasShortName;
@@ -130,7 +128,7 @@ public abstract class Container extends HADatAcClass implements SIRElement, Comp
 	public void setBelongsTo(String belongsTo) {
 		this.belongsTo = belongsTo;
 	}
-   
+
 	public String getHasNext() {
 		return hasNext;
 	}
@@ -155,28 +153,58 @@ public abstract class Container extends HADatAcClass implements SIRElement, Comp
 		this.hasPriority = hasPriority;
 	}
    
-	public String getHasSIRManagerEmail() {
-		return hasSIRManagerEmail;
-	}
+    public String getHasReviewNote() {      
+        return hasReviewNote;
+    }
 
-	public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
-		this.hasSIRManagerEmail = hasSIRManagerEmail;
-	}
+    public void setHasReviewNote(String hasReviewNote) {
+        this.hasReviewNote = hasReviewNote;
+    }
+
+    public void setWasDerivedFrom(String wasDerivedFrom) {
+        this.wasDerivedFrom = wasDerivedFrom;
+    }
+
+    public String getWasDerivedFrom() {
+        return wasDerivedFrom;
+    }
+
+    public String getHasSIRManagerEmail() {
+        return hasSIRManagerEmail;
+    }
+
+    public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
+        this.hasSIRManagerEmail = hasSIRManagerEmail;
+    }
+
+    public String getHasEditorEmail() {
+        return hasEditorEmail;
+    }
+
+    public void setHasEditorEmail(String hasEditorEmail) {
+        this.hasEditorEmail = hasEditorEmail;
+    }
 
 	public String getTypeLabel() {
+		/*
     	InstrumentType insType = InstrumentType.find(getTypeUri());
     	if (insType == null || insType.getLabel() == null) {
     		return "";
     	}
     	return insType.getLabel();
+		*/
+		return getLabel();
     }
 
     public String getTypeURL() {
+		/*
     	InstrumentType insType = InstrumentType.find(getTypeUri());
     	if (insType == null || insType.getLabel() == null) {
     		return "";
     	}
     	return insType.getURL();
+		*/
+		return getUri();
     }
 
 	@JsonIgnore
@@ -249,16 +277,16 @@ public abstract class Container extends HADatAcClass implements SIRElement, Comp
     }
 
     @JsonIgnore
-	public List<Detector> getDetectors() {
-		List<Detector> detectors = new ArrayList<Detector>();
+	public List<Component> getComponents() {
+		List<Component> components = new ArrayList<Component>();
     	List<SlotElement> slots = getSlotElements(this);
 		for (SlotElement slot : slots) {
 			if (slot instanceof ContainerSlot) {
-				Detector detector = ((ContainerSlot)slot).getDetector();
-				detectors.add(detector);
+				Component component = ((ContainerSlot)slot).getComponent();
+				components.add(component);
 			}
 		} 
-    	return detectors;
+    	return components;
     }
     
 	@Override
@@ -304,8 +332,10 @@ public abstract class Container extends HADatAcClass implements SIRElement, Comp
 	*/
  
 	public static Container find(String uri) {
-		//System.out.println("Container.find(): uri = [" + uri + "]");
-		Container container;
+		if (uri == null || uri.isEmpty()) {
+			return null;
+		}
+		Container container = null;
 		String typeUri = retrieveTypeUri(uri);
 		//System.out.println("Container.find(): typeUri = [" + typeUri + "]");
 		if (typeUri.equals(VSTOI.INSTRUMENT)) {
@@ -316,54 +346,71 @@ public abstract class Container extends HADatAcClass implements SIRElement, Comp
 			return null;
 		}
 
-	    Statement statement;
-	    RDFNode object;
-	    
-	    String queryString = "DESCRIBE <" + uri + ">";
-	    Model model = SPARQLUtils.describe(CollectionUtil.getCollectionPath(
-                CollectionUtil.Collection.SPARQL_QUERY), queryString);
-		
-		StmtIterator stmtIterator = model.listStatements();
+		// Construct the SELECT query to retrieve named graphs
+		String queryString = "SELECT DISTINCT ?graph ?p ?o WHERE { GRAPH ?graph { <" + uri + "> ?p ?o } }";
+		ResultSet resultSet = SPARQLUtils.select(CollectionUtil.getCollectionPath(
+        	CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
-		if (!stmtIterator.hasNext()) {
+		if (!resultSet.hasNext()) {
 			return null;
-		} 
-		
-		while (stmtIterator.hasNext()) {
-		    statement = stmtIterator.next();
-		    object = statement.getObject();
-			String str = URIUtils.objectRDFToString(object);
-			if (uri != null && !uri.isEmpty()) {
-				if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-					container.setLabel(str);
-				} else if (statement.getPredicate().getURI().equals(RDFS.SUBCLASS_OF)) {
-					container.setSuperUri(str); 
-				} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
-					container.setHascoTypeUri(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
-					container.setHasStatus(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.BELONGS_TO)) {
-					container.setBelongsTo(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_FIRST)) {
-					container.setHasFirst(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_NEXT)) {
-					container.setHasNext(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PREVIOUS)) {
-					container.setHasPrevious(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_INFORMANT)) {
-					container.setHasInformant(str);
-				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
-					container.setImage(str);
-				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
-					container.setComment(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SHORT_NAME)) {
-					container.setHasShortName(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
-					container.setHasLanguage(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
-         			container.setHasVersion(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
-					container.setHasSIRManagerEmail(str);
+		} else {
+			container = new Instrument(VSTOI.INSTRUMENT);
+		}
+
+		// Iterate over results
+		while (resultSet.hasNext()) {
+			QuerySolution qs = resultSet.next();
+			
+			// Retrieve the named graph URI
+			if (qs.contains("graph")) {
+				container.setNamedGraph(qs.get("graph").toString());
+				//System.out.println("Graph: " + graphURI);
+			}
+			
+			// Retrieve predicate and object (optional)
+			if (qs.contains("p") && qs.contains("o")) {
+				String predicate = qs.get("p").toString();
+				String object = qs.get("o").toString();
+				//System.out.println("Predicate: " + predicate + " | Object: " + object);
+
+				if (predicate.equals(RDFS.LABEL)) {
+					container.setLabel(object);
+				} else if (predicate.equals(RDFS.SUBCLASS_OF)) {
+					container.setSuperUri(object); 
+				} else if (predicate.equals(HASCO.HASCO_TYPE)) {
+					container.setHascoTypeUri(object);
+				} else if (predicate.equals(HASCO.HAS_IMAGE)) {
+					container.setHasImageUri(object);
+				} else if (predicate.equals(HASCO.HAS_WEB_DOCUMENT)) {
+					container.setHasWebDocument(object);
+				} else if (predicate.equals(VSTOI.HAS_STATUS)) {
+					container.setHasStatus(object);
+				} else if (predicate.equals(VSTOI.BELONGS_TO)) {
+					container.setBelongsTo(object);
+				} else if (predicate.equals(VSTOI.HAS_FIRST)) {
+					container.setHasFirst(object);
+				} else if (predicate.equals(VSTOI.HAS_NEXT)) {
+					container.setHasNext(object);
+				} else if (predicate.equals(VSTOI.HAS_PREVIOUS)) {
+					container.setHasPrevious(object);
+				} else if (predicate.equals(VSTOI.HAS_INFORMANT)) {
+					container.setHasInformant(object);
+				} else if (predicate.equals(RDFS.COMMENT)) {
+					container.setComment(object);
+				} else if (predicate.equals(VSTOI.HAS_SHORT_NAME)) {
+					container.setHasShortName(object);
+				} else if (predicate.equals(VSTOI.HAS_LANGUAGE)) {
+					container.setHasLanguage(object);
+				} else if (predicate.equals(VSTOI.HAS_VERSION)) {
+         			container.setHasVersion(object);
+				} else if (predicate.equals(VSTOI.HAS_REVIEW_NOTE)) {
+					container.setHasReviewNote(object);
+                } else if (predicate.equals(PROV.WAS_DERIVED_FROM)) {
+                    container.setWasDerivedFrom(object);
+				} else if (predicate.equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
+					container.setHasSIRManagerEmail(object);
+				} else if (predicate.equals(VSTOI.HAS_EDITOR_EMAIL)) {
+					container.setHasEditorEmail(object);
 				}
 			}
 		}

@@ -5,12 +5,11 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.apache.jena.query.QuerySolution;
-import org.apache.jena.query.ResultSetRewindable;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
+import org.apache.jena.query.*;
 import org.hascoapi.annotations.PropertyField;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.NameSpaces;
@@ -54,60 +53,73 @@ public class Instrument extends Container {
 	}
 
 	public static Instrument find(String uri) {
-		//System.out.println("Instrument.java : in find(): uri = [" + uri + "]");
-	    Instrument instrument = null;
-	    Statement statement;
-	    RDFNode object;
-	    
-	    String queryString = "DESCRIBE <" + uri + ">";
-	    Model model = SPARQLUtils.describe(CollectionUtil.getCollectionPath(
-                CollectionUtil.Collection.SPARQL_QUERY), queryString);
-		
-		StmtIterator stmtIterator = model.listStatements();
+		Instrument instrument = null;
 
-		if (!stmtIterator.hasNext()) {
+		// Construct the SELECT query to retrieve named graphs
+		String queryString = "SELECT DISTINCT ?graph ?p ?o WHERE { GRAPH ?graph { <" + uri + "> ?p ?o } }";
+		ResultSet resultSet = SPARQLUtils.select(CollectionUtil.getCollectionPath(
+        	CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+		if (!resultSet.hasNext()) {
 			return null;
 		} else {
 			instrument = new Instrument(VSTOI.INSTRUMENT);
 		}
-		
-		while (stmtIterator.hasNext()) {
-		    statement = stmtIterator.next();
-		    object = statement.getObject();
-			String str = URIUtils.objectRDFToString(object);
-			if (uri != null && !uri.isEmpty()) {
-				if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-					instrument.setLabel(str);
-				} else if (statement.getPredicate().getURI().equals(RDFS.SUBCLASS_OF)) {
-					instrument.setSuperUri(str); 
-				} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
-					instrument.setHascoTypeUri(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
-					instrument.setHasStatus(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_FIRST)) {
-					instrument.setHasFirst(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_INFORMANT)) {
-					instrument.setHasInformant(str);
-				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
-					instrument.setImage(str);
-				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
-					instrument.setComment(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SHORT_NAME)) {
-					instrument.setHasShortName(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
-					instrument.setHasLanguage(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
-         			instrument.setHasVersion(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
-					instrument.setHasSIRManagerEmail(str);
+
+		// Iterate over results
+		while (resultSet.hasNext()) {
+			QuerySolution qs = resultSet.next();
+			
+			// Retrieve the named graph URI
+			if (qs.contains("graph")) {
+				instrument.setNamedGraph(qs.get("graph").toString());
+				//System.out.println("Graph: " + graphURI);
+			}
+			
+			// Retrieve predicate and object (optional)
+			if (qs.contains("p") && qs.contains("o")) {
+				String predicate = qs.get("p").toString();
+				String object = qs.get("o").toString();
+				//System.out.println("Predicate: " + predicate + " | Object: " + object);
+
+				if (predicate.equals(RDFS.LABEL)) {
+					instrument.setLabel(object);
+				} else if (predicate.equals(RDFS.SUBCLASS_OF)) {
+					instrument.setSuperUri(object);
+				} else if (predicate.equals(HASCO.HASCO_TYPE)) {
+					instrument.setHascoTypeUri(object);
+				} else if (predicate.equals(VSTOI.HAS_STATUS)) {
+					instrument.setHasStatus(object);
+				} else if (predicate.equals(HASCO.HAS_IMAGE)) {
+					instrument.setHasImageUri(object);
+				} else if (predicate.equals(HASCO.HAS_WEB_DOCUMENT)) {
+					instrument.setHasWebDocument(object);
+				} else if (predicate.equals(VSTOI.HAS_FIRST)) {
+					instrument.setHasFirst(object);
+				} else if (predicate.equals(VSTOI.HAS_INFORMANT)) {
+					instrument.setHasInformant(object);
+				} else if (predicate.equals(RDFS.COMMENT)) {
+					instrument.setComment(object);
+				} else if (predicate.equals(VSTOI.HAS_SHORT_NAME)) {
+					instrument.setHasShortName(object);
+				} else if (predicate.equals(VSTOI.HAS_LANGUAGE)) {
+					instrument.setHasLanguage(object);
+				} else if (predicate.equals(VSTOI.HAS_VERSION)) {
+					instrument.setHasVersion(object);
+				} else if (predicate.equals(VSTOI.HAS_REVIEW_NOTE)) {
+					instrument.setHasReviewNote(object);
+				} else if (predicate.equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
+					instrument.setHasSIRManagerEmail(object);
+				} else if (predicate.equals(VSTOI.HAS_EDITOR_EMAIL)) {
+					instrument.setHasEditorEmail(object);
 				}
 			}
 		}
 
 		instrument.setUri(uri);
-		
 		return instrument;
 	}
+
 
 	public static List<Instrument> findAvailable() {
 		List<Instrument> instruments = new ArrayList<Instrument>();

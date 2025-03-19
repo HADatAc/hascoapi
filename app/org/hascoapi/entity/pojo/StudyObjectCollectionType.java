@@ -127,6 +127,10 @@ public class StudyObjectCollectionType extends HADatAcClass implements Comparabl
 				socType.setAcronym(str);
 			} else if (statement.getPredicate().getURI().equals(HASCO.HAS_STUDY_OBJECT_TYPE)) {
 				socType.setLabelFragment(str);
+			} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+				socType.setHasImageUri(str);
+			} else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
+				socType.setHasWebDocument(str);
 			}
 		}
 

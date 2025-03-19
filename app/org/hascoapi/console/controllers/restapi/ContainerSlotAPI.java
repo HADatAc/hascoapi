@@ -39,16 +39,21 @@ public class ContainerSlotAPI extends Controller {
         if (containerUri == null || containerUri.isEmpty()) {
             return ok(ApiUtil.createResponse("Cannot create container slots without providing a container URI.", false));
         }
-        //System.out.println("createContainerSlots: trying to read as instrument");
         if (containerUri.indexOf("/" + Constants.PREFIX_INSTRUMENT) >= 0) {
+            //System.out.println("createContainerSlots: trying to read as instrument");
+            try {
             Instrument instrument = Instrument.find(containerUri);
+            //System.out.println(instrument.getUri());
             if (instrument != null) {
                 //System.out.println("createContainerSlots: FOUND INSTRUMENT");
                 return createContainerSlots((Container)instrument, totContainerSlots);
             }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }            
         if (containerUri.indexOf("/" + Constants.PREFIX_SUBCONTAINER) >= 0) {
-            //System.out.println("createContainerSlots: trying to read as subcontainer");
+            System.out.println("createContainerSlots: trying to read as subcontainer");
             Subcontainer subcontainer = Subcontainer.find(containerUri);
             if (subcontainer != null) {
                 //System.out.println("createContainerSlots: FOUND SUBCONTAINER");

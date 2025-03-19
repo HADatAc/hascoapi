@@ -12,6 +12,7 @@ import org.hascoapi.entity.pojo.Instrument;
 import org.hascoapi.entity.pojo.ResponseOption;
 import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.HAScOMapper;
+import org.hascoapi.utils.Utils;
 import org.hascoapi.vocabularies.VSTOI;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -83,6 +84,41 @@ public class CodebookAPI extends Controller {
                     false));
         }
         if (ResponseOption.attach(codebookSlot, responseOption)) {
+            return ok(ApiUtil.createResponse("ResponseOption <" + uri
+                    + "> successfully attached to CodebookSlot <" + codebookSlotUri + ">.", true));
+        }
+        return ok(ApiUtil.createResponse("ResponseOption <" + uri + "> failed to associate with CodebookSlot  <"
+                + codebookSlotUri + ">.", false));
+    }
+
+    public Result attachWithStatus(String uri, String codebookSlotUri, String statusUri) {
+        if (uri == null || uri.equals("")) {
+            return ok(ApiUtil.createResponse("No response option URI has been provided.", false));
+        }
+        if (statusUri == null || statusUri.equals("")) {
+            return ok(ApiUtil.createResponse("No status URI has been provided.", false));
+        }
+        if (!Utils.validReviewStatus(statusUri)) {
+            return ok(ApiUtil.createResponse("Status URI is not valid.", false));
+        }
+        ResponseOption responseOption = ResponseOption.find(uri);
+        if (responseOption == null) {
+            return ok(ApiUtil.createResponse("There is no detector with URI <" + uri + "> to be attached.", false));
+        }
+        if (!responseOption.getHasStatus().equals(VSTOI.DRAFT)) {
+            return ok(ApiUtil.createResponse("Cannot change the status of response option <" + uri + "> because it is not a draft.", false));
+        }
+        if (codebookSlotUri == null || codebookSlotUri.equals("")) {
+            return ok(ApiUtil.createResponse("No CodebookSlot URI has been provided.", false));
+        }
+        CodebookSlot codebookSlot = CodebookSlot.find(codebookSlotUri);
+        if (codebookSlot == null) {
+            return ok(ApiUtil.createResponse("There is no CodebookSlot with uri <" + codebookSlotUri + ">.",
+                    false));
+        }
+        if (ResponseOption.attach(codebookSlot, responseOption)) {
+            responseOption.setHasStatus(statusUri);
+            responseOption.save();
             return ok(ApiUtil.createResponse("ResponseOption <" + uri
                     + "> successfully attached to CodebookSlot <" + codebookSlotUri + ">.", true));
         }

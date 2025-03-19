@@ -1,0 +1,284 @@
+package org.hascoapi.ingestion;
+
+import java.lang.String;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.hascoapi.entity.pojo.DataFile;
+import org.hascoapi.vocabularies.VSTOI;
+
+public class ContainerSlotGenerator extends BaseGenerator {
+
+	protected String instrumentUri = "";
+
+	protected String firstSlotUri = "";
+
+	public String getInstrumentUri() {
+		return this.instrumentUri;
+	}
+    
+	public void setInstrumentUri(String instrumentUri) {
+		this.instrumentUri = instrumentUri;
+	}
+
+	public String getFirstSlotUri() {
+		return this.firstSlotUri;
+	}
+    
+	public void setFirstSlotUri(String firstSlotUri) {
+		this.firstSlotUri = firstSlotUri;
+	}
+
+	public ContainerSlotGenerator(DataFile dataFile) {
+		super(dataFile);
+	}
+
+	@Override
+    public void createRows() throws Exception {    		
+
+		if (records == null) {
+			System.out.println("[ERROR] ContainerSlotGenerator: no records to process.");
+            return;
+        }
+
+		System.out.println("inside of ContainerSlotGenerator's createRows");
+		System.out.println("inside of ContainerSlotGenerator's: total of records=" + records.size());
+
+		Map<String, String> contexts = new HashMap<String, String>();
+		String context = "!!root";
+		
+        int rowNumber = 0;
+        int skippedRows = 0;
+        Record lastRecord = null;
+		boolean isFirst = true;
+		String previousUri = null;
+
+        for (Record record : records) {
+        	if (lastRecord != null && record.equals(lastRecord)) {
+        		skippedRows++;
+        	} else {
+        		Map<String, Object> tempRow = createRow(record, ++rowNumber);
+				//for (Map.Entry<String, Object> entry : tempRow.entrySet()) {
+				//	System.out.println(entry.getKey() + ": [" + entry.getValue() + "]");
+				//}
+				if (tempRow != null) {
+
+				// && tempRow.get("instrument") != null && !((String)tempRow.get("instrument")).isEmpty()) {
+
+					String instrument = "";
+					if (tempRow.get("instrument") != null) {
+						instrument = (String)tempRow.get("instrument");
+					}
+					String id = "";
+					if (tempRow.get("hasco:originalID") != null) {
+						id = (String)tempRow.get("hasco:originalID");
+					}
+					String belongsTo = "";
+					if (tempRow.get("vstoi:belongsTo") != null) {
+						belongsTo = (String)tempRow.get("vstoi:belongsTo");
+					}
+					String label = "";
+					if (tempRow.get("rdfs:label") != null) {
+						label = (String)tempRow.get("rdfs:label");
+					}
+					String component = "";
+					if (tempRow.get("vstoi:hasComponent") != null) {
+						component = (String)tempRow.get("vstoi:hasComponent");
+					}
+					
+					if (id.startsWith("??") && id.length() > 2) {
+						//System.out.println("Included context " + id + ":" + belongsTo);
+						contexts.put(id, belongsTo);
+					}
+				
+					if (belongsTo.startsWith("??") && !belongsTo.equals(context) && contexts.containsKey(belongsTo)) { 
+						//System.out.println("Changed context " + belongsTo);
+						context = belongsTo;
+					} 
+					if (id != null && !id.isEmpty() && belongsTo != null && !belongsTo.isEmpty()) {
+						String containerUri = this.computeContainerUri(belongsTo, contexts);
+						String slotUri = this.computeSlotUri(id, belongsTo, contexts);
+						//System.out.println("Context: [" + context + "] Id: [" + id + "]" +
+						//	" BelongsTo: [" + belongsTo + "]   Component: [" + component + "]");
+						//System.out.println("          ContainerURI: [" + containerUri + "]   SlotUri: [" + slotUri + "]");
+						tempRow.put("hasURI",slotUri);
+						tempRow.put("vstoi:belongsTo",containerUri);
+						tempRow.put("vstoi:hasPriority",cleanName(id));
+						tempRow.put("rdfs:label", label);					
+						tempRow.put("rdfs:comment", label);					
+						tempRow.put("vstoi:hasComponent", component);
+						if (id.startsWith("??")) {
+							tempRow.put("rdf:type", VSTOI.SUBCONTAINER);
+							tempRow.put("hasco:hascoType", VSTOI.SUBCONTAINER);
+							tempRow.put("rdfs:subClassOf", VSTOI.SUBCONTAINER);
+						} else {
+							tempRow.put("rdf:type", VSTOI.CONTAINER_SLOT);
+							tempRow.put("hasco:hascoType", VSTOI.CONTAINER_SLOT);
+							tempRow.put("rdfs:subClassOf", VSTOI.CONTAINER_SLOT);
+						}	
+						
+						if (isFirst) {
+							this.setInstrumentUri(containerUri);
+							this.setFirstSlotUri(slotUri);
+							isFirst = false;
+						}
+
+						if (previousUri != null) {
+							tempRow.put("vstoi:hasPrevious", slotUri);
+						}
+
+						previousUri = slotUri;
+					}
+					
+				}
+
+				if (tempRow != null && tempRow.get("instrument") != null && !((String)tempRow.get("instrument")).isEmpty()) {
+        			rows.add(tempRow);
+        			lastRecord = record;
+        		}
+
+        	}
+        }
+        //if (skippedRows > 0) {
+        //	System.out.println("Skipped rows: " + skippedRows);
+        //}
+
+		Map<String, String> subcontainers = new HashMap<String, String>();
+
+		for (int i=0; i < rows.size() - 1; i++) {
+		//for (Map<String, Object> row : rows) 
+			Map<String, Object> rowNow = rows.get(i);
+			Map<String, Object> rowNext = rows.get(i + 1);
+			if (rowNow.get("hasco:hascoType").equals(VSTOI.SUBCONTAINER)) {
+				subcontainers.put((String)rowNow.get("hasURI"), String.valueOf(i));
+				System.out.println("subcontainer: " + (String)rowNow.get("hasURI") + "  pos: " + i);
+			}
+			//System.out.println(i + "    " + rowNow.get("hasURI") + "     " + rowNow.get("vstoi:belongsTo"));
+			if (rowNow.get("vstoi:belongsTo").equals(rowNext.get("vstoi:belongsTo"))) {
+				rowNow.put("vstoi:hasNext", rowNext.get("hasURI"));				
+				//System.out.println("adding hasNext");
+			} else {
+				System.out.println(rowNext.get("vstoi:belongsTo"));
+				int subIndex = Integer.valueOf((String)subcontainers.get(rowNext.get("vstoi:belongsTo")));
+				Map<String, Object> rowSubcontainer = rows.get(subIndex); 
+				rowSubcontainer.put("vstoi:hasFirst", rowNext.get("hasURI"));				
+				//System.out.println("adding hasFirst for " + rowNow.get("hasURI") + " pointing to " + rowNext.get("hasURI"));
+			}			
+		}
+	
+    }
+	
+	@Override
+	public Map<String, Object> createRow(Record rec, int rowNumber) throws Exception {
+		Map<String, Object> row = new HashMap<String, Object>();
+		
+		for (String header : file.getHeaders()) {
+			//System.out.println("Header: [" + header + "]");
+			if (!header.trim().isEmpty()) {
+		        String value = rec.getValueByColumnName(header);
+		        if (value != null && !value.isEmpty()) {
+					if (!header.equals("instrument")) {
+						//System.out.println("CreateRow: Header=[" + header + "]  Value=[" + value + "]");
+						row.put(header, value);
+					}
+		        }
+		    }
+		}
+
+		//row.put("hasco:hascoType", VSTOI.INSTRUMENT);
+		row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
+
+		//if (row.containsKey("hasURI") && !row.get("hasURI").toString().trim().isEmpty()) {
+		    return row;
+		//}
+		
+		//return null;
+	}
+
+	@Override
+    public Map<String,String> postprocessuris() throws Exception {
+		Map<String,String> uris = new HashMap<String,String>();
+		uris.put("instrumentUri",this.getInstrumentUri());
+		uris.put("firstSlotUri",this.getFirstSlotUri());
+		return uris;
+	}
+
+	private String computeContainerUri(String belongsTo, Map<String, String> contexts) {
+
+		//System.out.println("computeContainerUri: belongsTo=[" + belongsTo + "]");
+
+		if (!belongsTo.startsWith("??")) {
+			return belongsTo;
+		}
+
+		String containerUri = cleanName(belongsTo);
+		//String containerUri = cleanName(contexts.get(belongsTo));
+		do {
+			belongsTo = contexts.get(belongsTo);
+			containerUri = cleanName(belongsTo) + "/" + containerUri;
+			//containerUri = containerUri + "/" + cleanName(belongsTo);
+		} while (belongsTo.startsWith("??")); 
+
+		/*
+		// CONTAINER URI
+		String containerUri = "";
+		if (!belongsTo.startsWith("??")) {
+			containerUri = belongsTo;
+		} else {
+			String search = belongsTo;
+			String searchResult = contexts.get(search);
+			containerUri = searchResult + "/" + cleanName(belongsTo);
+			while (contexts.get(search).startsWith("??")) {
+				search = contexts.get(search);
+				searchResult = contexts.get(search);
+				containerUri = searchResult + "/" + cleanName(containerUri);
+			} 
+		}
+		*/
+
+		System.out.println("computeContainerUri: uri=[" + containerUri + "]");
+
+		return containerUri;
+	}
+
+	private String computeSlotUri(String id, String belongsTo, Map<String, String> contexts) {
+
+		//System.out.println("computeSlotUri: id=[" + id + "]  belongsTo=[" + belongsTo + "]");
+		// URI WITH SLOT's ID
+		String fullUri = computeContainerUri(belongsTo,contexts);
+		/*
+		if (!id.startsWith("??")) {
+			fullUri = fullUri + "/CTS/" + id;
+		} else {
+			fullUri = fullUri + "/" + cleanName(id);
+		}
+		*/
+		fullUri = fullUri + "/CTS/" + cleanName(id);
+
+		System.out.println("computeSlotUri: uri=[" + fullUri + "]");
+
+		return fullUri;
+	}
+
+	private String cleanName(String raw) {
+		if (raw == null || raw.isEmpty()) {
+			return "";
+		}
+		if (raw.startsWith("??")) {
+			return raw.substring(2);
+		}
+		return raw;
+	}
+
+
+	@Override
+	public String getTableName() {
+		return "SlotElement";
+	}
+
+	@Override
+	public String getErrorMsg(Exception e) {
+		e.printStackTrace();
+		return "Error in SlotElementGenerator: " + e.getMessage();
+	}
+}

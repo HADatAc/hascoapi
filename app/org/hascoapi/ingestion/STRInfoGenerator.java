@@ -25,13 +25,14 @@ public class STRInfoGenerator extends BaseGenerator{
     private Map<String, String> mapCatalog = new HashMap<String, String>();
     private Map<String, Map<String, String>> fileStreamSpec = new HashMap<String, Map<String, String>>();
     private Map<String, Map<String, String>> messageStreamSpec = new HashMap<String, Map<String, String>>();
-    private String studyId;
+    // private String studyId;
+    private String studyUri;
     private String version;
     private Study study;
 
     public STRInfoGenerator(DataFile dataFile) {
     	super(dataFile);
-    	System.out.println("...inside STRInfoGenerator.");
+    	//System.out.println("...inside STRInfoGenerator.");
     	readCatalog(dataFile.getRecordFile());
     	study = null;
     }
@@ -59,25 +60,47 @@ public class STRInfoGenerator extends BaseGenerator{
         }
     }
 
-    public String getStudyId() {
-        studyId = mapCatalog.get("Study_ID");
-    	//System.out.println("studyID in getStudyId: [" + studyId + "]");
-        if (studyId == null || studyId.isEmpty()) {
-        	study = null;
-        	return "";            
+    // public String getStudyId() {
+    //     studyId = mapCatalog.get("Study_ID");
+    // 	//System.out.println("studyID in getStudyId: [" + studyId + "]");
+    //     if (studyId == null || studyId.isEmpty()) {
+    //     	study = null;
+    //     	return "";
+    //     }
+    //     study = Study.findById(studyId);
+    //     return studyId;
+    // }
+
+    public String getStudyUri() {
+        studyUri = mapCatalog.get("Study_ID");
+    	//System.out.println("studyID in getStudyUri: [" + studyUri + "]");
+        if (studyUri == null || studyUri.isEmpty()) {
+        	return "";
         }
-        study = Study.findById(studyId);
-        return studyId;
+        return studyUri;
     }
 
     public Study getStudy() {
     	// this will load the study, if available
-    	getStudyId();
-    	return study;
+    	//getStudyId();
+    	//return study;
+        studyUri = mapCatalog.get("Study_ID");
+        // studyUri = mapCatalog.get("Study_Uri");
+
+        studyUri = URIUtils.replacePrefixEx(studyUri);
+
+        if (studyUri == null || studyUri.isEmpty()) {
+        	study = null;
+        	return null;
+        }
+
+        study = Study.find(studyUri);
+
+        return study;
     }
-    
+
     public String getVersion() {
-        return version;
+        return mapCatalog.get("Version");
     }
 
     public void setVersion(String version) {

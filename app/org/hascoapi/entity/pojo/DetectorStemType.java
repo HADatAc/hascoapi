@@ -20,11 +20,12 @@ import org.hascoapi.utils.SPARQLUtils;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.vocabularies.RDFS;
-import org.hascoapi.vocabularies.VSTOI;
+//import org.hascoapi.vocabularies.VSTOI;
 
-@JsonFilter("detectorStemTypeFilter")
-public class DetectorStemType extends HADatAcClass implements Comparable<DetectorStemType> {
+//@JsonFilter("detectorStemTypeFilter")
+public class DetectorStemType extends HADatAcClass /* implements Comparable<DetectorStemType> */ {
 
+    /*
     static String className = "vstoi:Detector";
 
     private String url;
@@ -48,6 +49,7 @@ public class DetectorStemType extends HADatAcClass implements Comparable<Detecto
         }
         return superInsType.getLabel();
     }
+    */
 
     /** 
     public static List<DetectorStemType> find() {
@@ -80,6 +82,7 @@ public class DetectorStemType extends HADatAcClass implements Comparable<Detecto
     }
     */
 
+    /*
     public static DetectorStemType find(String uri) {
         DetectorStemType detectorStemType = null;
         Model model;
@@ -140,5 +143,6 @@ public class DetectorStemType extends HADatAcClass implements Comparable<Detecto
         }
         return this.getLocalName().compareTo(another.getLocalName());
     }
+    */
 
 }

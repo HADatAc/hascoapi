@@ -13,6 +13,7 @@ import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.hascoapi.utils.SPARQLUtils;
+import org.hascoapi.utils.URIUtils;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.vocabularies.HASCO;
@@ -95,6 +96,7 @@ public class Entity extends HADatAcClass implements Comparable<Entity> {
         while (stmtIterator.hasNext()) {
             Statement statement = stmtIterator.next();
             RDFNode object = statement.getObject();
+ 			String str = URIUtils.objectRDFToString(object);
             if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
                 String label = object.asLiteral().getString();
 
@@ -103,13 +105,17 @@ public class Entity extends HADatAcClass implements Comparable<Entity> {
                     entity.setLabel(label);
                 }
             } else if (statement.getPredicate().getURI().equals(RDFS.SUBCLASS_OF)) {
-                entity.setSuperUri(object.asResource().getURI());
+                entity.setSuperUri(str);
             } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
-                entity.setTypeUri(object.asResource().getURI());
+                entity.setTypeUri(str);
 			} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
-				entity.setHascoTypeUri(object.asResource().getURI());
+				entity.setHascoTypeUri(str);
 		    } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
-		    	entity.setComment(object.asLiteral().getString());
+		    	entity.setComment(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+                entity.setHasImageUri(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
+                entity.setHasWebDocument(str);
 		    }
 
         }

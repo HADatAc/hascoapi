@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import org.hascoapi.Constants;
 import org.hascoapi.entity.pojo.*;
 import org.hascoapi.utils.ApiUtil;
+import org.hascoapi.utils.HAScOMapper;
 import org.hascoapi.vocabularies.VSTOI;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -114,39 +115,19 @@ public class ResponseOptionAPI extends Controller {
         }
     }
 
-    /** 
-    public Result getAllResponseOptions() {
-        ObjectMapper mapper = new ObjectMapper();
-
-        List<ResponseOption> results = ResponseOption.find();
-        if (results == null) {
-            return notFound(ApiUtil.createResponse("No ResponseOption has been found", false));
-        } else {
-            SimpleFilterProvider filterProvider = new SimpleFilterProvider();
-            filterProvider.addFilter("responseOptionFilter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment",
-                            "hasContent", "hasLanguage", "hasVersion", "hasSIRManagerEmail"));
-            mapper.setFilterProvider(filterProvider);
-            JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
-            return ok(ApiUtil.createResponse(jsonObject, true));
-        }
-    }
-    */
-
     public static Result getResponseOptions(List<ResponseOption> results) {
         if (results == null) {
             return ok(ApiUtil.createResponse("No response option has been found", false));
         } else {
-            ObjectMapper mapper = new ObjectMapper();
-            SimpleFilterProvider filterProvider = new SimpleFilterProvider();
-            filterProvider.addFilter("responseOptionFilter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "hasContent", "hasLanguage", "hasVersion",
-                            "hasSIRManagerEmail"));
-            mapper.setFilterProvider(filterProvider);
-            JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
+            JsonNode jsonObject = null;
+            try {
+                ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL,VSTOI.RESPONSE_OPTION);
+                jsonObject = mapper.convertValue(results, JsonNode.class);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             return ok(ApiUtil.createResponse(jsonObject, true));
+
         }
     }
 

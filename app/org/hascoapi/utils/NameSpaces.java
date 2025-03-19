@@ -166,9 +166,9 @@ public class NameSpaces {
         VSTOI_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
         VSTOI_NAMESPACE.setHascoTypeUri(HASCO.ONTOLOGY);
         VSTOI_NAMESPACE.setSourceMime("text/turtle");
-        VSTOI_NAMESPACE.setSource("https://hadatac.org/ont/vstoi");
+        VSTOI_NAMESPACE.setSource("https://hadatac.org/ont/vstoi/0.8");
         VSTOI_NAMESPACE.setComment("Virtual Terrestrial Solar Observatory - Instruments");
-        VSTOI_NAMESPACE.setVersion("1.0");
+        VSTOI_NAMESPACE.setVersion("0.7");
         VSTOI_NAMESPACE.setPermanent(true);
         VSTOI_NAMESPACE.setPriority(9);
         namespaces.add(VSTOI_NAMESPACE);
@@ -279,16 +279,20 @@ public class NameSpaces {
 
     public void updateLocalNamespace() {
         // Local namespace
-        String abbrev = RepositoryInstance.getInstance().getHasDefaultNamespaceAbbreviation();
+        String prefix = RepositoryInstance.getInstance().getHasDefaultNamespacePrefix();
         String url = RepositoryInstance.getInstance().getHasDefaultNamespaceURL();
+        String mime = RepositoryInstance.getInstance().getHasDefaultNamespaceSourceMime();
+        String source = RepositoryInstance.getInstance().getHasDefaultNamespaceSource();
         if (RepositoryInstance.getInstance() != null &&
-            abbrev != null && !abbrev.equals("") &&
+            prefix != null && !prefix.equals("") &&
             url != null && !url.equals("")) {
             NameSpace LOCAL_NAMESPACE = new NameSpace();
-            LOCAL_NAMESPACE.setLabel(abbrev);
+            LOCAL_NAMESPACE.setLabel(prefix);
             LOCAL_NAMESPACE.setUri(url);
             LOCAL_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
             LOCAL_NAMESPACE.setHascoTypeUri(HASCO.ONTOLOGY);
+            LOCAL_NAMESPACE.setSourceMime(mime);
+            LOCAL_NAMESPACE.setSource(source);
             LOCAL_NAMESPACE.setPermanent(true);
             LOCAL_NAMESPACE.setPriority(30);
 
@@ -296,7 +300,7 @@ public class NameSpaces {
 
             localNamespace = LOCAL_NAMESPACE;
 
-            table.put(abbrev, localNamespace);
+            table.put(prefix, localNamespace);
         }
     }
 

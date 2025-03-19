@@ -61,9 +61,6 @@ public class Study extends HADatAcThing {
     @PropertyField(uri = "hasco:hasDataFile")
     private String hasDataFileUri;
 
-    @PropertyField(uri="hasco:hasImage")
-    private String image;
-
     @PropertyField(uri="hasco:hasTitle")
     private String title;
 
@@ -168,13 +165,6 @@ public class Study extends HADatAcThing {
             return null;
         }
         return DataFile.find(this.hasDataFileUri);
-    }
-
-    public String getImage() {
-        return image;
-    }
-    public void setImage(String image) {
-        this.image = image;
     }
 
     public String getUri() {
@@ -388,7 +378,7 @@ public class Study extends HADatAcThing {
             return null;
         }
 
-		//System.out.println("Study.java : in find(): uri = [" + uri + "]");
+		System.out.println("Study.java : in find(): uri = [" + uri + "]");
 	    Study study = null;
 	    Statement statement;
 	    RDFNode object;
@@ -420,10 +410,12 @@ public class Study extends HADatAcThing {
 					study.setHascoTypeUri(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
 					study.setHasStatus(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+					study.setHasImageUri(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
+					study.setHasWebDocument(str);
                 } else if (statement.getPredicate().getURI().equals(HASCO.HAS_DATAFILE)) {
                     study.setHasDataFileUri(str);
-				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
-					study.setImage(str);
 				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
 					study.setComment(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_PROJECT)) {

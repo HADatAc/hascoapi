@@ -53,6 +53,15 @@ public class RepoPage extends Controller {
         return ok(ApiUtil.createResponse("Repository's (title) has been UPDATED.", true));
     }
 
+    public Result updateURL(String url){
+        if (url == null || url.equals("")) {
+            return ok(ApiUtil.createResponse("No (domainURL) has been provided.", false));
+        }
+        RepositoryInstance.getInstance().setHasDomainURL(url);
+        RepositoryInstance.getInstance().save();
+        return ok(ApiUtil.createResponse("Repository's (domainURL) has been UPDATED.", true));
+    }
+
     public Result updateDescription(String description){
         if (description == null || description.equals("")) {
             return ok(ApiUtil.createResponse("No (description) has been provided.", false));
@@ -62,15 +71,24 @@ public class RepoPage extends Controller {
         return ok(ApiUtil.createResponse("Repository's (description) has been UPDATED.", true));
     }
 
-    public Result updateDefaultNamespace(String abbreviation, String url){
-        if (abbreviation == null || abbreviation.equals("")) {
-            return ok(ApiUtil.createResponse("No (abbreviation) has been provided.", false));
+    public Result updateDefaultNamespace(String prefix, String url, String sourceMime, String source){
+        if (prefix == null || prefix.equals("")) {
+            return ok(ApiUtil.createResponse("No (prefix) has been provided.", false));
         }
         if (url == null || url.equals("")) {
             return ok(ApiUtil.createResponse("No (url) has been provided.", false));
         }
-        RepositoryInstance.getInstance().setHasDefaultNamespaceAbbreviation(abbreviation);
+        if (sourceMime == null) {
+            sourceMime = "";
+        }
+        if (source == null) {
+            source = "";
+        }
+        RepositoryInstance.getInstance().setHasDefaultNamespacePrefix(prefix);
+        System.out.println("RepoPage: default namespace prefix is [" + prefix + "]");
         RepositoryInstance.getInstance().setHasDefaultNamespaceURL(url);
+        RepositoryInstance.getInstance().setHasDefaultNamespaceSourceMime(sourceMime);
+        RepositoryInstance.getInstance().setHasDefaultNamespaceSource(source);
         RepositoryInstance.getInstance().save();
         NameSpaces.getInstance().updateLocalNamespace();
         return ok(ApiUtil.createResponse("Repository's local namespace has been UPDATED.", true));
@@ -126,18 +144,24 @@ public class RepoPage extends Controller {
     }
 
     public Result deleteNamespace(){
-        String abbrev = RepositoryInstance.getInstance().getHasDefaultNamespaceAbbreviation();
+        String prefix = RepositoryInstance.getInstance().getHasDefaultNamespacePrefix();
         String url = RepositoryInstance.getInstance().getHasDefaultNamespaceURL();
-        if (abbrev == null || abbrev.equals("") || url == null || url.equals("")) {
+        String mime = RepositoryInstance.getInstance().getHasDefaultNamespaceSourceMime();
+        String source = RepositoryInstance.getInstance().getHasDefaultNamespaceSource();
+        if (prefix == null || prefix.equals("") || 
+            url == null    || url.equals("") ||
+            mime == null   || mime.equals("") ||
+            source == null || source.equals("")) {
             return ok(ApiUtil.createResponse("There is no default namespace to be deleted.", false));
         }
-        RepositoryInstance.getInstance().setHasDefaultNamespaceAbbreviation("");
-        RepositoryInstance.getInstance().setHasDefaultNamespaceAbbreviation("");
+        RepositoryInstance.getInstance().setHasDefaultNamespacePrefix("");
+        RepositoryInstance.getInstance().setHasDefaultNamespaceURL("");
+        RepositoryInstance.getInstance().setHasDefaultNamespaceSourceMime("");
+        RepositoryInstance.getInstance().setHasDefaultNamespaceSource("");
         RepositoryInstance.getInstance().save();
         NameSpaces.getInstance().deleteLocalNamespace();
         return ok(ApiUtil.createResponse("Repository's local namespace has been DELETED.", true));
     }
-
 
     private Long manageTriples(String oper, String kb) {
         LoadOnt.playLoadOntologiesAsync(oper, kb);

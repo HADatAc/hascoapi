@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Comparator;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -54,6 +54,12 @@ public abstract class HADatAcThing {
 
     @PropertyField(uri="rdfs:comment")
     String comment = "";
+
+    @PropertyField(uri="hasco:hasImage")
+    String hasImageUri = "";
+
+    @PropertyField(uri="hasco:hasWebDocument")
+    String hasWebDocument = "";
 
     String nodeId = "";
 
@@ -155,6 +161,22 @@ public abstract class HADatAcThing {
 
     public void setLabel(String label) {
         this.label = label;
+    }
+
+    public String getHasImageUri() {
+        return hasImageUri;
+    }
+
+    public void setHasImageUri(String hasImageUri) {
+        this.hasImageUri = hasImageUri;
+    }
+
+    public String getHasWebDocument() {
+        return hasWebDocument;
+    }
+
+    public void setHasWebDocument(String hasWebDocument) {
+        this.hasWebDocument = hasWebDocument;
     }
 
     public String getNodeId() {
@@ -297,14 +319,15 @@ public abstract class HADatAcThing {
     public void delete() { throw new NotImplementedException("Used unimplemented HADatAcThing.delete() method"); }
 
     private Model generateRDFModel(boolean withValidation, Model model) {
-        Map<String, Object> row = new HashMap<String, Object>();
+        Map<String, Object> row = new ConcurrentHashMap<String, Object>();
         List<Map<String, Object>> reversed_rows = new ArrayList<Map<String, Object>>();
+        Map<String,List<String>>  property_lists = new ConcurrentHashMap<String,List<String>>();
 
         try {
             Class<?> currentClass = getClass();
             while(currentClass != null) {
-                //System.out.println("inside HADatAcThing.generateRDFModel: currentClass: " + currentClass.getName());
-                //System.out.println("inside HADatAcThing.generateRDFModel(): hasURI: [" + uri + "]");
+                // System.out.println("inside HADatAcThing.generateRDFModel: currentClass: " + currentClass.getName());
+                // System.out.println("inside HADatAcThing.generateRDFModel(): hasURI: [" + uri + "]");
 
                 for (Field field: currentClass.getDeclaredFields()) {
 
@@ -341,7 +364,7 @@ public abstract class HADatAcThing {
                             String value = (String)field.get(this);
                             if (!value.isEmpty()) {
                                 //System.out.println("Prop: " + propertyUri + "  Value: " + value);
-                                Map<String, Object> rvs_row = new HashMap<String, Object>();
+                                Map<String, Object> rvs_row = new ConcurrentHashMap<String, Object>();
                                 rvs_row.put(propertyUri, value);
                                 reversed_rows.add(rvs_row);
                             }
@@ -364,14 +387,17 @@ public abstract class HADatAcThing {
                         //System.out.println("inside HADatAcThing.saveToTripleStore() (1) ");
 
                         if (field.getType().equals(List.class)) {
+                            //System.out.println("inside HADatAcThing.saveToTripleStore(): Element is list.");
                             List<?> list = (List<?>)field.get(this);
                             if (list != null && !list.isEmpty() && list.get(0) instanceof String) {
+                                List<String> elements = new ArrayList<String>();
                                 for (String element : (List<String>)list) {
                                     if (element != null && !element.isEmpty()) {
-                                        //System.out.println("in List assigned [" + element + "] to [" + propertyUri + "]");
-                                        row.put(propertyUri, element);
+                                        System.out.println("in List assigned [" + element + "] to [" + propertyUri + "]");
+                                        elements.add(element);
                                     }
                                 }
+                                property_lists.put(propertyUri,elements);
                             }
                         }
 
@@ -436,16 +462,17 @@ public abstract class HADatAcThing {
         //System.out.println("HADatAcThing.generateDRFModel: URI=[" + objUri + "]   NamedGraph=[" + getNamedGraph() + "]");
 
         reversed_rows.add(row);
+        //System.out.println("Size of reversed rows: " + reversed_rows.size());
         if (getNamedGraph() == null || getNamedGraph().isEmpty()) {
             //System.out.println("Default URL: [" + RepositoryInstance.getInstance().getHasDefaultNamespaceURL() + "]");
             //System.out.println("Default Abbrev: [" + RepositoryInstance.getInstance().getHasDefaultNamespaceAbbreviation() + "]");
             if (RepositoryInstance.getInstance() != null && RepositoryInstance.getInstance().getHasDefaultNamespaceURL() != null) {
-                return MetadataFactory.createModel(reversed_rows,RepositoryInstance.getInstance().getHasDefaultNamespaceURL(), model);
+                return MetadataFactory.createModel(reversed_rows, property_lists, RepositoryInstance.getInstance().getHasDefaultNamespaceURL(), model);
             } else {
-                return MetadataFactory.createModel(reversed_rows,Constants.DEFAULT_REPOSITORY, model);
+                return MetadataFactory.createModel(reversed_rows, property_lists, Constants.DEFAULT_REPOSITORY, model);
             }
         }
-        return MetadataFactory.createModel(reversed_rows, getNamedGraph(), model);
+        return MetadataFactory.createModel(reversed_rows, property_lists, getNamedGraph(), model);
     }
 
     public String printRDF() {
@@ -609,13 +636,14 @@ public abstract class HADatAcThing {
 
     public void deleteFromTripleStore() {
         String query = "";
+
         if (getUri() == null || getUri().equals("")) {
             return;
         }
 
         //System.out.println("Default named graph: " + RepositoryInstance.getInstance().getHasDefaultNamespaceURL());
-        //System.out.println("Deleting thing with namedGraph [" + this.getNamedGraph() + "]");
-        //System.out.println("Deleting <" + getUri() + "> from triple store");
+        System.out.println("Deleting thing with namedGraph [" + this.getNamedGraph() + "]");
+        System.out.println("Deleting <" + getUri() + "> from triple store");
 
         query += NameSpaces.getInstance().printSparqlNameSpaceList();
         //System.out.println("Deleting query namespaces [" + query + "]");
@@ -629,11 +657,8 @@ public abstract class HADatAcThing {
             }
             query += " ?p ?o . } \n";
             query += " } ";
-            //System.out.println("Delete named graph query: [" + query + "]");
-            UpdateRequest request = UpdateFactory.create(query);
-            UpdateProcessor processor = UpdateExecutionFactory.createRemote(
-                    request, CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
-            processor.execute();
+            
+            updateTripleStore(query);
 
         } else {
             // if ( getUri().contains("3539947") ) System.out.println("find 3539947!!!! delete without namespace!!!");
@@ -656,15 +681,8 @@ public abstract class HADatAcThing {
             }
             query1 += " ?p ?o . } \n";
             query1 += " } ";
-            //System.out.println("Delete query: [" + query1 + "]");
-            UpdateRequest request = UpdateFactory.create(query1);
-            UpdateProcessor processor = UpdateExecutionFactory.createRemote(
-                    request, CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
-            try {
-                processor.execute();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            
+            updateTripleStore(query1);
 
             /*
             // Added for deleting Virtual Columns
@@ -703,4 +721,18 @@ public abstract class HADatAcThing {
         //System.out.println("Deleted <" + getUri() + "> from triple store");
     }
 
+    public void updateTripleStore(String query) {
+        if (getUri() == null || getUri().equals("")) {
+            return;
+        }
+
+        UpdateRequest request = UpdateFactory.create(query);
+        UpdateProcessor processor = UpdateExecutionFactory.createRemote(
+                request, CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
+        try {
+            processor.execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

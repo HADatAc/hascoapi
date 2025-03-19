@@ -18,6 +18,7 @@ import org.hascoapi.utils.HAScOMapper;
 import org.hascoapi.utils.Utils;
 import org.hascoapi.vocabularies.FOAF;
 import org.hascoapi.vocabularies.HASCO;
+import org.hascoapi.vocabularies.OWL;
 import org.hascoapi.vocabularies.SCHEMA;
 import org.hascoapi.vocabularies.SIO;
 import org.hascoapi.vocabularies.VSTOI;
@@ -139,7 +140,11 @@ public class URIPage extends Controller {
              * }
              */
 
-            if (result.getHascoTypeUri().equals(VSTOI.ANNOTATION)) {
+            if (result.getHascoTypeUri().equals(VSTOI.ACTUATOR)) {
+                finalResult = Actuator.find(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.ACTUATOR_STEM)) {
+                finalResult = ActuatorStem.find(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.ANNOTATION)) {
                 finalResult = Annotation.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.ANNOTATION_STEM)) {
                 finalResult = AnnotationStem.find(uri);
@@ -160,7 +165,7 @@ public class URIPage extends Controller {
             } else if (result.getHascoTypeUri().equals(VSTOI.DEPLOYMENT)) {
                 finalResult = Deployment.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.DETECTOR)) {
-                finalResult = Detector.findDetector(uri);
+                finalResult = Detector.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.DETECTOR_INSTANCE)) {
                 finalResult = DetectorInstance.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.DETECTOR_STEM)) {
@@ -193,6 +198,12 @@ public class URIPage extends Controller {
                 finalResult = PossibleValue.find(uri);
             } else if (result.getHascoTypeUri().equals(SCHEMA.POSTAL_ADDRESS)) {
                 finalResult = PostalAddress.find(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.PROCESS)) {
+                finalResult = org.hascoapi.entity.pojo.Process.find(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.PROCESS_STEM)) {
+                finalResult = ProcessStem.find(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.REQUIRED_INSTRUMENTATION)) {
+                finalResult = RequiredInstrumentation.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.RESPONSE_OPTION)) {
                 finalResult = ResponseOption.find(uri);
             } else if (result.getHascoTypeUri().equals(HASCO.SDD)) {
@@ -219,10 +230,14 @@ public class URIPage extends Controller {
                 finalResult = StudyRole.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.SUBCONTAINER)) {
                 finalResult = Subcontainer.find(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.TASK)) {
+                finalResult = Task.find(uri);
             } else if (result.getHascoTypeUri().equals(SIO.UNIT)) {
                 finalResult = Unit.find(uri);
             } else if (result.getHascoTypeUri().equals(HASCO.VIRTUAL_COLUMN)) {
                 finalResult = VirtualColumn.find(uri);
+            } else if (result.getTypeUri().equals(OWL.CLASS)) {
+                finalResult = HADatAcClass.find(uri);
             } else {
                 finalResult = result;
             }

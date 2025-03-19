@@ -3,8 +3,12 @@ package org.hascoapi.utils;
 import java.util.Random;
 import java.security.*;
 
+import org.apache.jena.query.QuerySolution;
+import org.apache.jena.query.ResultSetRewindable;
+
 import org.hascoapi.Constants;
 import org.hascoapi.RepositoryInstance;
+import org.hascoapi.vocabularies.VSTOI;
 
 public class Utils {
 
@@ -138,6 +142,18 @@ public class Utils {
             case "postaladdress":
                 shortPrefix = Constants.PREFIX_POSTAL_ADDRESS;
                 break;
+            case "process":
+                shortPrefix = Constants.PREFIX_PROCESS;
+                break;
+            case "processstem":
+                shortPrefix = Constants.PREFIX_PROCESS_STEM;
+                break;
+            case "actuatorstem":
+                shortPrefix = Constants.PREFIX_ACTUATOR_STEM;
+                break;
+            case "actuator":
+                shortPrefix = Constants.PREFIX_ACTUATOR;
+                break;
             default:
                 shortPrefix = null;
         }
@@ -254,5 +270,25 @@ public class Utils {
         return repoUri + shortPrefix + '_' + identifier;
 
     }
+
+    public static String retrieveHASCOTypeUri(String uri) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT ?type WHERE { " +
+                " <" + uri + "> hasco:hascoType ?type ." +
+                "} ";
+        ResultSetRewindable resultsrw = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+        if (resultsrw.hasNext()) {
+            QuerySolution soln = resultsrw.next();
+            return soln.getResource("type").getURI();
+        }
+		return null;
+    }
+
+    public static boolean validReviewStatus(String statusUri) {
+        return (statusUri.equals(VSTOI.DRAFT) || statusUri.equals(VSTOI.UNDER_REVIEW) ||
+                statusUri.equals(VSTOI.CURRENT) || statusUri.equals(VSTOI.DEPRECATED));
+    }
+
 
 }

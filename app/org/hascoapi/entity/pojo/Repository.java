@@ -53,11 +53,20 @@ public class Repository extends HADatAcThing {
 
     private Organization institution;
 
-    @PropertyField(uri="hasco:hasDefaultNamespaceAbbreviation")
-    private String hasDefaultNamespaceAbbreviation;
+    @PropertyField(uri="hasco:hasDomainURL")
+    private String hasDomainURL;
+
+    @PropertyField(uri="hasco:hasDefaultNamespacePrefix")
+    private String hasDefaultNamespacePrefix;
 
     @PropertyField(uri="hasco:hasDefaultNamespaceURL", valueType=PropertyValueType.URI)
     private String hasDefaultNamespaceURL;
+
+    @PropertyField(uri="hasco:hasDefaultNamespaceSourceMime")
+    private String hasDefaultNamespaceSourceMime = "";
+
+    @PropertyField(uri="hasco:hasDefaultNamespaceSource", valueType=PropertyValueType.URI)
+    private String hasDefaultNamespaceSource = "";
 
     @PropertyField(uri="hasco:hasNamespaceAbbreviation")
     private String hasNamespaceAbbreviation;
@@ -74,14 +83,16 @@ public class Repository extends HADatAcThing {
         this.hascoTypeUri = HASCO.REPOSITORY;
         this.label = "";
         this.title = "";
+        this.hasDomainURL = "";
         this.comment = "";
         this.hasBaseOntology = "";
         this.hasBaseURL = "";
-        //this.hasBaseURL =  "http://hadatac.org/kb/" + ConfigProp.getBasePrefix() + "#";
         this.institutionUri = institutionUri;
         this.startedAt = null;
-        this.hasDefaultNamespaceAbbreviation = "";
+        this.hasDefaultNamespacePrefix = "";
         this.hasDefaultNamespaceURL = "";
+        this.hasDefaultNamespaceSourceMime = "";
+        this.hasDefaultNamespaceSource = "";
         this.hasNamespaceAbbreviation = "";
         this.hasNamespaceURL = "";
         this.hasVersion = Constants.REPOSITORY_VERSION;
@@ -114,11 +125,18 @@ public class Repository extends HADatAcThing {
         return Organization.find(institutionUri);
     }
 
-    public String getHasDefaultNamespaceAbbreviation() {
-        if (hasDefaultNamespaceAbbreviation != null && hasDefaultNamespaceAbbreviation.equals("")) {
+    public String getHasDomainURL() {
+        if (hasDomainURL != null && hasDomainURL.equals("")) {
             return null;
         }
-        return hasDefaultNamespaceAbbreviation;
+        return hasDomainURL;
+    }
+
+    public String getHasDefaultNamespacePrefix() {
+        if (hasDefaultNamespacePrefix != null && hasDefaultNamespacePrefix.equals("")) {
+            return null;
+        }
+        return hasDefaultNamespacePrefix;
     }
 
     public String getHasDefaultNamespaceURL() {
@@ -126,6 +144,20 @@ public class Repository extends HADatAcThing {
             return null;
         }
         return hasDefaultNamespaceURL;
+    }
+
+    public String getHasDefaultNamespaceSourceMime() {
+        if (hasDefaultNamespaceSourceMime != null && hasDefaultNamespaceSourceMime.equals("")) {
+            return null;
+        }
+        return hasDefaultNamespaceSourceMime;
+    }
+
+    public String getHasDefaultNamespaceSource() {
+        if (hasDefaultNamespaceSource != null && hasDefaultNamespaceSource.equals("")) {
+            return null;
+        }
+        return hasDefaultNamespaceSource;
     }
 
     public String getHasNamespaceAbbreviation() {
@@ -178,12 +210,24 @@ public class Repository extends HADatAcThing {
         }
     }
 
-    public void setHasDefaultNamespaceAbbreviation(String hasDefaultNamespaceAbbreviation) {
-        this.hasDefaultNamespaceAbbreviation = hasDefaultNamespaceAbbreviation;
+    public void setHasDomainURL(String hasDomainURL) {
+        this.hasDomainURL = hasDomainURL;
+    }
+
+    public void setHasDefaultNamespacePrefix(String hasDefaultNamespacePrefix) {
+        this.hasDefaultNamespacePrefix = hasDefaultNamespacePrefix;
     }
 
     public void setHasDefaultNamespaceURL(String hasDefaultNamespaceURL) {
         this.hasDefaultNamespaceURL = hasDefaultNamespaceURL;
+    }
+
+    public void setHasDefaultNamespaceSourceMime(String hasDefaultNamespaceSourceMime) {
+        this.hasDefaultNamespaceSourceMime = hasDefaultNamespaceSourceMime;
+    }
+
+    public void setHasDefaultNamespaceSource(String hasDefaultNamespaceSource) {
+        this.hasDefaultNamespaceSource = hasDefaultNamespaceSource;
     }
 
     public void setHasNamespaceAbbreviation(String hasNamespaceAbbreviation) {
@@ -223,7 +267,7 @@ public class Repository extends HADatAcThing {
         NameSpace namespace;
         try {
             namespace = (NameSpace)objectMapper.readValue(json, NameSpace.class);
-            namespace.saveWithoutURIValidation();
+            namespace.save();
             return true;
         } catch (JsonProcessingException e) {
             e.printStackTrace();
@@ -277,16 +321,26 @@ public class Repository extends HADatAcThing {
                 repo.setComment(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
                 repo.setHascoTypeUri(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+                repo.setHasImageUri(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
+                repo.setHasWebDocument(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_BASE_ONTOLOGY)) {
                 repo.setBaseOntology(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_BASE_URL)) {
                 repo.setBaseURL(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_INSTITUTION)) {
                 repo.setInstitutionUri(str);
-            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_DEFAULT_NAMESPACE_ABBREVIATION)) {
-                repo.setHasDefaultNamespaceAbbreviation(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_DOMAIN_URL)) {
+                repo.setHasDomainURL(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_DEFAULT_NAMESPACE_PREFIX)) {
+                repo.setHasDefaultNamespacePrefix(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_DEFAULT_NAMESPACE_URL)) {
                 repo.setHasDefaultNamespaceURL(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_DEFAULT_NAMESPACE_SOURCE_MIME)) {
+                repo.setHasDefaultNamespaceSourceMime(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_DEFAULT_NAMESPACE_SOURCE)) {
+                repo.setHasDefaultNamespaceSource(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_NAMESPACE_ABBREVIATION)) {
                 repo.setHasNamespaceAbbreviation(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_NAMESPACE_URL)) {

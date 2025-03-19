@@ -18,6 +18,7 @@ import org.hascoapi.entity.pojo.StudyObject;
 import org.hascoapi.entity.pojo.Instrument;
 import org.hascoapi.entity.pojo.Subcontainer;
 import org.hascoapi.entity.pojo.Detector;
+import org.hascoapi.entity.pojo.Component;
 import org.hascoapi.entity.pojo.GenericFind;
 import org.hascoapi.transform.Renderings;
 import org.hascoapi.utils.ApiUtil;
@@ -39,11 +40,11 @@ public class ContainerAPI extends Controller {
 
     public Result attach(String uri, String containerSlotUri){
         if (uri == null || uri.equals("")) {
-            return ok(ApiUtil.createResponse("No detector URI has been provided.", false));
+            return ok(ApiUtil.createResponse("No component URI has been provided.", false));
         }
-        Detector detector = Detector.findDetector(uri);
-        if (detector == null) {
-            return ok(ApiUtil.createResponse("There is no detector with URI <" + uri + "> to be attached.", false));
+        Component component = Component.find(uri);
+        if (component == null) {
+            return ok(ApiUtil.createResponse("There is no component with URI <" + uri + "> to be attached.", false));
         }
         if (containerSlotUri == null || containerSlotUri.equals("")) {
             return ok(ApiUtil.createResponse("No containerSlot URI has been provided.", false));
@@ -52,10 +53,10 @@ public class ContainerAPI extends Controller {
         if (containerSlot == null) {
             return ok(ApiUtil.createResponse("There is no containerSlot with uri <" + containerSlotUri + ">.", false));
         }
-        if (Detector.attach(containerSlot, detector)) {
-            return ok(ApiUtil.createResponse("Detector <" + uri + "> successfully attached to containerSlot <" + containerSlotUri + ">.", true));
+        if (Detector.attach(containerSlot, component)) {
+            return ok(ApiUtil.createResponse("Component <" + uri + "> successfully attached to containerSlot <" + containerSlotUri + ">.", true));
         }
-        return ok(ApiUtil.createResponse("Detector <" + uri + "> failed to associate with containerSlot  <" + containerSlotUri + ">.", false));
+        return ok(ApiUtil.createResponse("Component <" + uri + "> failed to associate with containerSlot  <" + containerSlotUri + ">.", false));
     }
 
     public Result detach(String containerSlotUri){
@@ -66,10 +67,10 @@ public class ContainerAPI extends Controller {
         if (containerSlot == null) {
             return ok(ApiUtil.createResponse("There is no containerSlot with URI <" + containerSlotUri + ">.", false));
         }
-        if (Detector.detach(containerSlot)) {
-            return ok(ApiUtil.createResponse("No detector is associated with containerSlot <" + containerSlotUri + ">.", true));
+        if (Component.detach(containerSlot)) {
+            return ok(ApiUtil.createResponse("No component is associated with containerSlot <" + containerSlotUri + ">.", true));
         }
-        return ok(ApiUtil.createResponse("A detector has failed to be removed from containerSlot <" + containerSlotUri + ">.", false));
+        return ok(ApiUtil.createResponse("A component has failed to be removed from containerSlot <" + containerSlotUri + ">.", false));
     }
 
     /** 
@@ -81,71 +82,71 @@ public class ContainerAPI extends Controller {
         // VERIFYING INSTRUMENT
         Instrument testInstrument = Instrument.find(TEST_INSTRUMENT_URI);
         if (testInstrument == null) {
-            return ok(ApiUtil.createResponse("create test instrument before trying to attach detectors.", false));
+            return ok(ApiUtil.createResponse("create test instrument before trying to attach components.", false));
         }
         if (testInstrument.getSlotElements() == null) {
-            return ok(ApiUtil.createResponse("Create containerSlots for test instrument before trying to attach detectors.", false));
+            return ok(ApiUtil.createResponse("Create containerSlots for test instrument before trying to attach components.", false));
         }
-        Detector detector1 = Detector.findDetector(TEST_DETECTOR1_URI);
-        Detector detector2 = Detector.findDetector(TEST_DETECTOR2_URI);
+        Component component1 = (Component)Detector.find(TEST_DETECTOR1_URI);
+        Component component2 = (Component)Detector.find(TEST_DETECTOR2_URI);
         ContainerSlot slot1 = ContainerSlot.find(TEST_CONTAINER_SLOT1_URI);
         ContainerSlot slot2 = ContainerSlot.find(TEST_CONTAINER_SLOT2_URI);
-        if (detector1 == null) {
-            return ok(ApiUtil.createResponse("There is no Test Detector 1 to be attached to test instrument.", false));
-        } else if (detector2 == null) {
-            return ok(ApiUtil.createResponse("There is no Test Detector 2 to be attached to test instrument.", false));
+        if (component1 == null) {
+            return ok(ApiUtil.createResponse("There is no Test Component 1 to be attached to test instrument.", false));
+        } else if (component2 == null) {
+            return ok(ApiUtil.createResponse("There is no Test Component 2 to be attached to test instrument.", false));
         } else if (slot1 == null) {
             return ok(ApiUtil.createResponse("There is no Test Container Slot 1 in test instrument.", false));
         } else if (slot2 == null) {
             return ok(ApiUtil.createResponse("There is no Test Container Slot 2 in test instrument.", false));
-        } else if (slot1.getDetector() != null) {
-            return ok(ApiUtil.createResponse("There is a Test Detector already attached to Slot 1.", false));
-        } else if (slot2.getDetector() != null) {
-            return ok(ApiUtil.createResponse("There is a Test Detector already attached to Slot 2.", false));
+        } else if (slot1.getComponent() != null) {
+            return ok(ApiUtil.createResponse("There is a Test Component already attached to Slot 1.", false));
+        } else if (slot2.getComponent() != null) {
+            return ok(ApiUtil.createResponse("There is a Test Component already attached to Slot 2.", false));
         } 
         
         // VERIFYING SUBCONTAINER
         Subcontainer testSubcontainer = Subcontainer.find(TEST_SUBCONTAINER1_URI);
         if (testSubcontainer == null) {
-            return ok(ApiUtil.createResponse("create test subcontainer before trying to attach detectors.", false));
+            return ok(ApiUtil.createResponse("create test subcontainer before trying to attach components.", false));
         }
         if (testSubcontainer.getSlotElements() == null) {
-            return ok(ApiUtil.createResponse("Create containerSlots for test subcontainer before trying to attach detectors.", false));
+            return ok(ApiUtil.createResponse("Create containerSlots for test subcontainer before trying to attach components.", false));
         }
-        Detector detector3 = Detector.findDetector(TEST_DETECTOR3_URI);
-        Detector detector4 = Detector.findDetector(TEST_DETECTOR4_URI);
+        Component component3 = (Component)Detector.find(TEST_DETECTOR3_URI);
+        Component component4 = (Component)Detector.find(TEST_DETECTOR4_URI);
         ContainerSlot slot3 = ContainerSlot.find(TEST_CONTAINER_SLOT3_URI);
         ContainerSlot slot4 = ContainerSlot.find(TEST_CONTAINER_SLOT4_URI);
-        if (detector3 == null) {
+        if (component3 == null) {
             return ok(ApiUtil.createResponse("There is no Test Detector 3 to be attached to test subcontainer.", false));
-        } else if (detector4 == null) {
+        } else if (component4 == null) {
             return ok(ApiUtil.createResponse("There is no Test Detector 4 to be attached to test subcontainer.", false));
         } else if (slot3 == null) {
             return ok(ApiUtil.createResponse("There is no Test Container Slot 3 in test subcontainer.", false));
         } else if (slot4 == null) {
             return ok(ApiUtil.createResponse("There is no Test Container Slot 4 in test subcontainer.", false));
-        } else if (slot3.getDetector() != null) {
+        } else if (slot3.getComponent() != null) {
             return ok(ApiUtil.createResponse("There is a Test Detector already attached to Slot 3.", false));
-        } else if (slot2.getDetector() != null) {
+        } else if (slot2.getComponent() != null) {
             return ok(ApiUtil.createResponse("There is a Test Detector already attached to Slot 4.", false));
         }  
             
         // PERFORM ATTACHMENTS
-        boolean done = Detector.attach(slot1, detector1);
+        boolean done = Component.attach(slot1, component1);
         if (!done) {
-            return ok(ApiUtil.createResponse("The use of ContainerSlot1 to attach TestDetector1 to Test Istrument HAS FAILED.", false));
+            return ok(ApiUtil.createResponse("The use of ContainerSlot1 to attach TestComponent1 to Test Istrument HAS FAILED.", false));
         } else {
-            done = Detector.attach(slot2, detector2);
+            done = Component.attach(slot2, component2);
             if (!done) {
-                return ok(ApiUtil.createResponse("The use of ContainerSlot2 to attach TestDetector2 to Test Instrument HAS FAILED.", false));
+                return ok(ApiUtil.createResponse("The use of ContainerSlot2 to attach TestComponent2 to Test Instrument HAS FAILED.", false));
             } else {
-              done = Detector.attach(slot3, detector3);
+              done = Component.attach(slot3, component3);
               if (!done) {
-                  return ok(ApiUtil.createResponse("The use of ContainerSlot3 to attach TestDetector3 to Test Subcontainer HAS FAILED.", false));
+                  return ok(ApiUtil.createResponse("The use of ContainerSlot3 to attach TestComponent3 to Test Subcontainer HAS FAILED.", false));
               } else {
-                done = Detector.attach(slot4, detector4);
+                done = Component.attach(slot4, component4);
                 if (!done) {
-                  return ok(ApiUtil.createResponse("The use of ContainerSlot4 to attach TestDetector4 to Test Subcontainer HAS FAILED.", false));
+                  return ok(ApiUtil.createResponse("The use of ContainerSlot4 to attach TestComponent4 to Test Subcontainer HAS FAILED.", false));
                 }
               }
             }
@@ -159,53 +160,53 @@ public class ContainerAPI extends Controller {
         // VERIFY INSTRUMENT SETTING FOR DETACH
         Instrument testInst = Instrument.find(TEST_INSTRUMENT_URI);
         if (testInst == null) {
-            return ok(ApiUtil.createResponse("There is no test instrument to detach detectors.", false));
+            return ok(ApiUtil.createResponse("There is no test instrument to detach components.", false));
         }
         if (testInst.getSlotElements() == null) {
-            return ok(ApiUtil.createResponse("Test instrument has no containerSlots for detectors.", false));
+            return ok(ApiUtil.createResponse("Test instrument has no containerSlots for components.", false));
         }
-        Detector test1 = Detector.findDetector(TEST_DETECTOR1_URI);
-        Detector test2 = Detector.findDetector(TEST_DETECTOR2_URI);
+        Component test1 = (Component)Detector.find(TEST_DETECTOR1_URI);
+        Component test2 = (Component)Detector.find(TEST_DETECTOR2_URI);
         ContainerSlot slot1 = ContainerSlot.find(TEST_CONTAINER_SLOT1_URI);
         ContainerSlot slot2 = ContainerSlot.find(TEST_CONTAINER_SLOT2_URI);
         if (test1 == null) {
-            return ok(ApiUtil.createResponse("There is no Test Detector 1 to be attached to test instrument.", false));
+            return ok(ApiUtil.createResponse("There is no Test Component 1 to be attached to test instrument.", false));
         } else if (test2 == null) {
-            return ok(ApiUtil.createResponse("There is no Test Detector 2 to be attached to test instrument.", false));
+            return ok(ApiUtil.createResponse("There is no Test Component 2 to be attached to test instrument.", false));
         } else if (slot1 == null) {
             return ok(ApiUtil.createResponse("There is no Test Container Slot 1 in test instrument.", false));
         } else if (slot2 == null) {
             return ok(ApiUtil.createResponse("There is no Test Container Slot 2 in test instrument.", false));
-        } else if (slot1.getDetector() == null) {
-            return ok(ApiUtil.createResponse("There is no Test Detector to be detached from Slot 1.", false));
-        } else if (slot2.getDetector() == null) {
-            return ok(ApiUtil.createResponse("There is no Test Detector to be detached from Slot 2.", false));
+        } else if (slot1.getComponent() == null) {
+            return ok(ApiUtil.createResponse("There is no Test Component to be detached from Slot 1.", false));
+        } else if (slot2.getComponent() == null) {
+            return ok(ApiUtil.createResponse("There is no Test Component to be detached from Slot 2.", false));
         } 
 
         // VERIFY SUBCONTAINER SETTING FOR DETACH
         Subcontainer testSubcontainer = Subcontainer.find(TEST_SUBCONTAINER1_URI);
         if (testSubcontainer == null) {
-            return ok(ApiUtil.createResponse("There is no test subcontainer to detach detectors.", false));
+            return ok(ApiUtil.createResponse("There is no test subcontainer to detach components.", false));
         }
         if (testSubcontainer.getSlotElements() == null) {
-            return ok(ApiUtil.createResponse("Test subcontainer has no containerSlots for detectors.", false));
+            return ok(ApiUtil.createResponse("Test subcontainer has no containerSlots for components.", false));
         }
-        Detector detector3 = Detector.findDetector(TEST_DETECTOR3_URI);
-        Detector detector4 = Detector.findDetector(TEST_DETECTOR4_URI);
+        Component component3 = (Component)Detector.find(TEST_DETECTOR3_URI);
+        Component component4 = (Component)Detector.find(TEST_DETECTOR4_URI);
         ContainerSlot slot3 = ContainerSlot.find(TEST_CONTAINER_SLOT3_URI);
         ContainerSlot slot4 = ContainerSlot.find(TEST_CONTAINER_SLOT4_URI);
-        if (detector3 == null) {
-            return ok(ApiUtil.createResponse("There is no Test Detector 3 to be attached to test subcontainer.", false));
-        } else if (detector4 == null) {
-            return ok(ApiUtil.createResponse("There is no Test Detector 4 to be attached to test subcontainer.", false));
+        if (component3 == null) {
+            return ok(ApiUtil.createResponse("There is no Test Component 3 to be attached to test subcontainer.", false));
+        } else if (component4 == null) {
+            return ok(ApiUtil.createResponse("There is no Test Component 4 to be attached to test subcontainer.", false));
         } else if (slot3 == null) {
             return ok(ApiUtil.createResponse("There is no Test Container Slot 3 in test subcontainer.", false));
         } else if (slot4 == null) {
             return ok(ApiUtil.createResponse("There is no Test Container Slot 4 in test subcontainer.", false));
-        } else if (slot3.getDetector() == null) {
-            return ok(ApiUtil.createResponse("There is no Test Detector to be detached from Slot 3.", false));
-        } else if (slot4.getDetector() == null) {
-            return ok(ApiUtil.createResponse("There is no Test Detector to be detached from Slot 4.", false));
+        } else if (slot3.getComponent() == null) {
+            return ok(ApiUtil.createResponse("There is no Test Component to be detached from Slot 3.", false));
+        } else if (slot4.getComponent() == null) {
+            return ok(ApiUtil.createResponse("There is no Test Component to be detached from Slot 4.", false));
         } 
 
         // PERFORM DETACHING 
@@ -223,9 +224,9 @@ public class ContainerAPI extends Controller {
             msg += "No datachment at slot 4. ";
         } 
         if (msg.isEmpty()) {
-            return ok(ApiUtil.createResponse("Existing Test Detectors have been DETACHED from Test Instrument and Test Subcontainer.", true));
+            return ok(ApiUtil.createResponse("Existing Test Components have been DETACHED from Test Instrument and Test Subcontainer.", true));
         }        
-        return ok(ApiUtil.createResponse("The detachment of existing Test Detectors from Test Instrument and Test Subcontainer HAS FAILED.", false));
+        return ok(ApiUtil.createResponse("The detachment of existing Test Components from Test Instrument and Test Subcontainer HAS FAILED.", false));
     }
 
     /**

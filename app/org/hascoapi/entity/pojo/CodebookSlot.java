@@ -1,8 +1,7 @@
 package org.hascoapi.entity.pojo;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
-import org.apache.jena.query.QuerySolution;
-import org.apache.jena.query.ResultSetRewindable;
+import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
@@ -151,39 +150,52 @@ public class CodebookSlot extends HADatAcThing implements Comparable<CodebookSlo
     }
 
     public static CodebookSlot find(String uri) {
-        CodebookSlot slot = null;
-        Statement statement;
-        RDFNode object;
+ 		if (uri == null || uri.isEmpty()) {
+			return null;
+		}
+		CodebookSlot slot = null;
+		// Construct the SELECT query to retrieve named graphs
+		String queryString = "SELECT DISTINCT ?graph ?p ?o WHERE { GRAPH ?graph { <" + uri + "> ?p ?o } }";
+		ResultSet resultSet = SPARQLUtils.select(CollectionUtil.getCollectionPath(
+        	CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
-        String queryString = "DESCRIBE <" + uri + ">";
-        Model model = SPARQLUtils.describe(CollectionUtil.getCollectionPath(
-                CollectionUtil.Collection.SPARQL_QUERY), queryString);
+		if (!resultSet.hasNext()) {
+			return null;
+		} else {
+            slot = new CodebookSlot();
+		}
 
-        StmtIterator stmtIterator = model.listStatements();
+		// Iterate over results
+		while (resultSet.hasNext()) {
+			QuerySolution qs = resultSet.next();
+			
+			// Retrieve the named graph URI
+			if (qs.contains("graph")) {
+				slot.setNamedGraph(qs.get("graph").toString());
+				//System.out.println("Graph: " + graphURI);
+			}
+			
+			// Retrieve predicate and object (optional)
+			if (qs.contains("p") && qs.contains("o")) {
+				String predicate = qs.get("p").toString();
+				String object = qs.get("o").toString();
+				//System.out.println("Predicate: " + predicate + " | Object: " + object);
 
-        if (!stmtIterator.hasNext()) {
-            return null;
-        }
-
-        slot = new CodebookSlot();
-
-        while (stmtIterator.hasNext()) {
-            statement = stmtIterator.next();
-            object = statement.getObject();
-            if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-                slot.setLabel(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
-                slot.setTypeUri(object.asResource().getURI());
-            } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
-                slot.setComment(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
-                slot.setHascoTypeUri(object.asResource().getURI());
-            } else if (statement.getPredicate().getURI().equals(VSTOI.BELONGS_TO)) {
-                slot.setBelongsTo(object.asResource().getURI());
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_RESPONSE_OPTION)) {
-                slot.setHasResponseOption(object.asResource().getURI());
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PRIORITY)) {
-                slot.setHasPriority(object.asLiteral().getString());
+                if (predicate.equals(RDFS.LABEL)) {
+                    slot.setLabel(object);
+                } else if (predicate.equals(RDF.TYPE)) {
+                    slot.setTypeUri(object);
+                } else if (predicate.equals(RDFS.COMMENT)) {
+                    slot.setComment(object);
+                } else if (predicate.equals(HASCO.HASCO_TYPE)) {
+                    slot.setHascoTypeUri(object);
+                } else if (predicate.equals(VSTOI.BELONGS_TO)) {
+                    slot.setBelongsTo(object);
+                } else if (predicate.equals(VSTOI.HAS_RESPONSE_OPTION)) {
+                    slot.setHasResponseOption(object);
+                } else if (predicate.equals(VSTOI.HAS_PRIORITY)) {
+                    slot.setHasPriority(object);
+                }
             }
         }
 

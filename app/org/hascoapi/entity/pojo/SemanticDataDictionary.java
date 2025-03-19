@@ -8,7 +8,6 @@ import java.util.Map;
 import java.io.File;
 import java.net.URL;
 
-
 import com.fasterxml.jackson.annotation.JsonFilter;
 import org.apache.commons.io.FileUtils;
 import org.apache.jena.query.Query;
@@ -92,16 +91,12 @@ public class SemanticDataDictionary extends HADatAcThing {
     @PropertyField(uri = "hasco:namedTime")
     private String namedTimeLabel = "";
     */
-
-    /* 
+ 
     @PropertyField(uri = "hasco:uriId")
     private String idLabel = "";
-    */
 
-    /* 
     @PropertyField(uri = "hasco:originalID")
     private String originalIdLabel = "";
-    */
 
     /* 
     @PropertyField(uri = "hasco:hasElevation")
@@ -316,7 +311,7 @@ public class SemanticDataDictionary extends HADatAcThing {
     }
     public void setNamedTimeLabel(String namedTimeLabel) {
         this.namedTimeLabel = namedTimeLabel;
-    }
+    }*/
 
     public String getIdLabel() {
         return idLabel;
@@ -332,6 +327,14 @@ public class SemanticDataDictionary extends HADatAcThing {
         this.originalIdLabel = originalIdLabel;
     }
 
+    public String getHasSIRManagerEmail() {
+        return hasSIRManagerEmail;
+    }
+    public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
+        this.hasSIRManagerEmail = hasSIRManagerEmail;
+    }
+
+    /*
     public String getLODLabel() {
         return lodLabel;
     }
@@ -352,16 +355,7 @@ public class SemanticDataDictionary extends HADatAcThing {
     public void setMatchingLabel(String matchingLabel) {
         this.matchingLabel = matchingLabel;
     }
-    */
 
-    public String getHasSIRManagerEmail() {
-        return hasSIRManagerEmail;
-    }
-    public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
-        this.hasSIRManagerEmail = hasSIRManagerEmail;
-    }
-
-    /* 
     public String getElevationLabel() {
         return elevationLabel;
     }
@@ -700,6 +694,10 @@ public class SemanticDataDictionary extends HADatAcThing {
                 sdd.setHascoTypeUri(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
                 sdd.setHasStatus(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+                sdd.setHasImageUri(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
+                sdd.setHasWebDocument(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
                 sdd.setHasVersion(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {

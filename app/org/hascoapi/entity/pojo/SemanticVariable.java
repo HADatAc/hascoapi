@@ -416,52 +416,33 @@ public class SemanticVariable extends HADatAcThing {
         while (stmtIterator.hasNext()) {
             statement = stmtIterator.next();
             object = statement.getObject();
+            String str = URIUtils.objectRDFToString(object);
             if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-                sv.setLabel(object.asLiteral().getString());
+                sv.setLabel(str);
             } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
 				if (object.asResource().getURI().equals(HASCO.SEMANTIC_VARIABLE)) {
                 	sv.setTypeUri(HASCO.SEMANTIC_VARIABLE);
 				}
             } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
-                sv.setComment(object.asLiteral().getString());
+                sv.setComment(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
-                sv.setHascoTypeUri(object.asResource().getURI());
+                sv.setHascoTypeUri(str);
+			} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+				sv.setHasImageUri(str);
+			} else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
+				sv.setHasWebDocument(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_ENTITY)) {
-                try {
-                    sv.setEntityUri(object.asResource().getURI());
-                } catch (Exception e) {			
-                    sv.setEntityUri(null);
-                }
+                sv.setEntityUri(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_ATTRIBUTE)) {
-                try {
-                    sv.setAttributeUri(object.asResource().getURI());
-                } catch (Exception e) {
-                    sv.setAttributeUri(null);
-                }
+                sv.setAttributeUri(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.IN_RELATION_TO)) {
-                try {
-                    sv.setInRelationToUri(object.asResource().getURI());
-                } catch (Exception e) {
-                    sv.setInRelationToUri(null);
-                }
+                sv.setInRelationToUri(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_UNIT)) {
-                try {
-                    sv.setUnitUri(object.asResource().getURI());
-                } catch (Exception e) {
-                    sv.setUnitUri(null);
-                }
+                sv.setUnitUri(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
-                try {
-                    sv.setHasVersion(object.asLiteral().getString());
-                } catch (Exception e) {
-                    sv.setUnitUri(null);
-                }
+            	sv.setHasVersion(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
-                try {
-                    sv.setHasSIRManagerEmail(object.asLiteral().getString());
-                } catch (Exception e) {
-                    sv.setHasSIRManagerEmail(null);
-                }
+                sv.setHasSIRManagerEmail(str);
 			}
         }
 

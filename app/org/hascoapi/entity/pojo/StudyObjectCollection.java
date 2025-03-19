@@ -61,7 +61,7 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
     private String hasSIRManagerEmail = "";
     private String hasLastCounter = "0";
     private String hasScopeUri = "";
-    
+
     private List<String> spaceScopeUris = null;
     private List<String> timeScopeUris = null;
     private List<String> groupUris = null;
@@ -166,7 +166,7 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
             return null;
         }
         StudyObjectCollectionType socType = StudyObjectCollectionType.find(typeUri);
-        return socType;    
+        return socType;
     }
 
     public String getNextCounter() {
@@ -205,7 +205,7 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
                 request, CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
         processor.execute();
 
-        // in triple store, add new counter 
+        // in triple store, add new counter
         String insert = "";
 
         insert += NameSpaces.getInstance().printSparqlNameSpaceList();
@@ -377,7 +377,7 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         }
         return role.getLabel();
     }
- 
+
 
     public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
         this.hasSIRManagerEmail = hasSIRManagerEmail;
@@ -461,8 +461,8 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
 
     public long getNumOfObjects() {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                " SELECT (COUNT(?obj) AS ?count) WHERE { \n" 
-                + " ?obj hasco:isMemberOf <" + getUri() + "> . \n" 
+                " SELECT (COUNT(?obj) AS ?count) WHERE { \n"
+                + " ?obj hasco:isMemberOf <" + getUri() + "> . \n"
                 + "} \n";
 
         ResultSetRewindable resultsrw = SPARQLUtils.select(
@@ -526,8 +526,8 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
     }
 
     public int getCollectionSize(){
-        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + 
-                "SELECT (count(*) as ?count) WHERE { " + 
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                "SELECT (count(*) as ?count) WHERE { " +
                 "   ?uri hasco:isMemberOf  <" + this.getUri() + "> . " +
                 " } ";
 
@@ -550,10 +550,10 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
 
     private static List<String> retrieveSpaceScope(String socUri) {
         List<String> scopeUris = new ArrayList<String>();
-        String scopeUri = ""; 
-        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + 
-                "SELECT ?spaceScopeUri WHERE { \n" + 
-                " <" + socUri + "> hasco:hasSpaceScope ?spaceScopeUri . \n" + 
+        String scopeUri = "";
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                "SELECT ?spaceScopeUri WHERE { \n" +
+                " <" + socUri + "> hasco:hasSpaceScope ?spaceScopeUri . \n" +
                 "}";
 
         ResultSetRewindable resultsrw = SPARQLUtils.select(
@@ -580,9 +580,9 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
     private static List<String> retrieveTimeScope(String socUri) {
         List<String> scopeUris = new ArrayList<String>();
         String scopeUri = "";
-        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + 
-                "SELECT  ?timeScopeUri WHERE { " + 
-                " <" + socUri + "> hasco:hasTimeScope ?timeScopeUri . " + 
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                "SELECT  ?timeScopeUri WHERE { " +
+                " <" + socUri + "> hasco:hasTimeScope ?timeScopeUri . " +
                 "}";
 
         ResultSetRewindable resultsrw = SPARQLUtils.select(
@@ -609,9 +609,9 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
     private static List<String> retrieveGroup(String socUri) {
         List<String> groupUris = new ArrayList<String>();
         String groupUri = "";
-        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + 
-                "SELECT  ?groupUri WHERE { " + 
-                " <" + socUri + "> hasco:hasGroup ?groupUri . " + 
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                "SELECT  ?groupUri WHERE { " +
+                " <" + socUri + "> hasco:hasGroup ?groupUri . " +
                 "}";
 
         ResultSetRewindable resultsrw = SPARQLUtils.select(
@@ -637,11 +637,11 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
 
     public static List<StudyObjectCollection> findMatchingScopeCollections(String socUri) {
 
-    	List<StudyObjectCollection> matchingSOCs = new ArrayList<StudyObjectCollection>(); 
-        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + 
-                "SELECT ?matchingUri WHERE { \n" + 
-                "  ?matchingUri hasco:hasScope <" + socUri + "> . \n" + 
-                "  ?matchingUri a <" + HASCO.MATCHING_COLLECTION + "> . \n" + 
+    	List<StudyObjectCollection> matchingSOCs = new ArrayList<StudyObjectCollection>();
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                "SELECT ?matchingUri WHERE { \n" +
+                "  ?matchingUri hasco:hasScope <" + socUri + "> . \n" +
+                "  ?matchingUri a <" + HASCO.MATCHING_COLLECTION + "> . \n" +
                 "}";
 
         ResultSetRewindable resultsrw = SPARQLUtils.select(
@@ -694,6 +694,10 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
                 soc.setComment(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
                 soc.setHascoTypeUri(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+                soc.setHasImageUri(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
+                soc.setHasWebDocument(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_LAST_COUNTER)) {
                 soc.setLastCounter(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
@@ -708,7 +712,7 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
                 soc.setHasScopeUri(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
                 soc.setHasSIRManagerEmail(str);
-            } 
+            }
         }
 
         soc.setTimeScopeUris(retrieveTimeScope(uri));
@@ -722,21 +726,21 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         return soc;
     }
 
-    /* 
+    /*
     public static StudyObjectCollection find(String socUri) {
         StudyObjectCollection soc = null;
 
-        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + 
-                "SELECT ?socType ?hascoType ?comment ?isMemberOf ?hasScopeUri ?hasRoleLabel ?hasSIRManagerEmail ?hasVirtualColumnUri ?spaceScopeUri ?timeScopeUri ?lastCounter WHERE { \n" + 
-                "    <" + socUri + "> a ?socType . \n" + 
-                "    <" + socUri + "> hasco:isMemberOf ?isMemberOf . \n" + 
-                "    OPTIONAL { <" + socUri + "> hasco:hascoType ?hascoType } . \n" + 
-                "    OPTIONAL { <" + socUri + "> rdfs:comment ?comment } . \n" + 
-                "    OPTIONAL { <" + socUri + "> hasco:hasScope ?hasScopeUri } . \n" + 
-                "    OPTIONAL { <" + socUri + "> hasco:hasVirtualColumn ?hasVirtualColumnUri } . \n" + 
-                "    OPTIONAL { <" + socUri + "> hasco:hasRoleLabel ?hasRoleLabel } . \n" + 
-                "    OPTIONAL { <" + socUri + "> vstoi:hasSIRManagerEmail ?hasSIRManagerEmail } . \n" + 
-                "    OPTIONAL { <" + socUri + "> hasco:hasLastCounter ?lastCounter } . \n" + 
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                "SELECT ?socType ?hascoType ?comment ?isMemberOf ?hasScopeUri ?hasRoleLabel ?hasSIRManagerEmail ?hasVirtualColumnUri ?spaceScopeUri ?timeScopeUri ?lastCounter WHERE { \n" +
+                "    <" + socUri + "> a ?socType . \n" +
+                "    <" + socUri + "> hasco:isMemberOf ?isMemberOf . \n" +
+                "    OPTIONAL { <" + socUri + "> hasco:hascoType ?hascoType } . \n" +
+                "    OPTIONAL { <" + socUri + "> rdfs:comment ?comment } . \n" +
+                "    OPTIONAL { <" + socUri + "> hasco:hasScope ?hasScopeUri } . \n" +
+                "    OPTIONAL { <" + socUri + "> hasco:hasVirtualColumn ?hasVirtualColumnUri } . \n" +
+                "    OPTIONAL { <" + socUri + "> hasco:hasRoleLabel ?hasRoleLabel } . \n" +
+                "    OPTIONAL { <" + socUri + "> vstoi:hasSIRManagerEmail ?hasSIRManagerEmail } . \n" +
+                "    OPTIONAL { <" + socUri + "> hasco:hasLastCounter ?lastCounter } . \n" +
                 "}";
 
         ResultSetRewindable resultsrw = SPARQLUtils.select(
@@ -846,17 +850,17 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
                 groupUrisStr = retrieveGroup(socUri);
 
                 soc = new StudyObjectCollection(
-                        socUri, 
+                        socUri,
                         typeStr,
-                        hascoTypeStr, 
-                        labelStr, 
-                        commentStr, 
-                        isMemberOfUriStr,  
-                        hasVirtualColumnUriStr, 
+                        hascoTypeStr,
+                        labelStr,
+                        commentStr,
+                        isMemberOfUriStr,
+                        hasVirtualColumnUriStr,
                         hasRoleLabelStr,
-                        hasSIRManagerEmailStr, 
-                        hasScopeUriStr, 
-                        spaceScopeUrisStr, 
+                        hasSIRManagerEmailStr,
+                        hasScopeUriStr,
+                        spaceScopeUrisStr,
                         timeScopeUrisStr,
                         groupUrisStr,
                         lastCounterStr);
@@ -864,9 +868,9 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         }
 
         // retrieve URIs of objects that are member of the collection
-        String queryMemberStr = NameSpaces.getInstance().printSparqlNameSpaceList() + 
-                "SELECT  ?uriMember WHERE { \n" + 
-                "    ?uriMember hasco:isMemberOf <" + socUri + "> . \n" + 
+        String queryMemberStr = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                "SELECT  ?uriMember WHERE { \n" +
+                "    ?uriMember hasco:isMemberOf <" + socUri + "> . \n" +
                 "}";
 
         ResultSetRewindable resultsrwMember = SPARQLUtils.select(
@@ -908,7 +912,7 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         if (studyuri == null || studyuri.isEmpty()) {
             return new ArrayList<StudyObjectCollection>();
         }
-        String query = 
+        String query =
                 "SELECT ?uri " +
                 " WHERE {  ?uri hasco:isMemberOf  <" + studyuri + "> .  " +
 				"          ?uri rdfs:label ?label . " +
@@ -917,25 +921,25 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
                 " LIMIT " + pageSize +
                 " OFFSET " + offset;
         return StudyObjectCollection.findManyByQuery(query);
-    }        
+    }
 
     public static int findTotalStudyObjectCollectionsByStudy(String studyuri) {
         if (studyuri == null || studyuri.isEmpty()) {
             return 0;
         }
-        String query = NameSpaces.getInstance().printSparqlNameSpaceList() + 
+        String query = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT (count(?uri) as ?tot)  " +
                 " WHERE {  ?uri hasco:isMemberOf <" + studyuri + "> .  " +
                 " }";
         return GenericFind.findTotalByQuery(query);
-    }        
+    }
 
     public static List<StudyObjectCollection> findStudyObjectCollectionsByStudy(String studyUri) {
         if (studyUri == null) {
             return null;
         }
-        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + 
-                "SELECT ?uri WHERE { \n" + 
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                "SELECT ?uri WHERE { \n" +
                 "   ?socType rdfs:subClassOf* hasco:StudyObjectCollection . \n" +
                 "   ?uri a ?socType . \n" +
                 "   ?uri hasco:isMemberOf <" + studyUri + "> . \n" +
@@ -1031,9 +1035,9 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         if (studyUri == null) {
             return null;
         }
-        
-        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + 
-                "SELECT ?uri ?label WHERE { \n" + 
+
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                "SELECT ?uri ?label WHERE { \n" +
                 "   ?ocType rdfs:subClassOf+ hasco:StudyObjectCollection . \n" +
                 "   ?uri a ?ocType . \n" +
                 "   ?uri hasco:isMemberOf <" + studyUri + "> . \n" +
@@ -1205,7 +1209,7 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
 
         return true;
     }
- 
+
     public void saveRoleLabel(String label) {
         if (uri == null || uri.isEmpty()) {
             return;
@@ -1218,7 +1222,7 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         role.setLabel(label);
         if(role.getNamedGraph().isEmpty()){
             role.setNamedGraph(Constants.DEFAULT_REPOSITORY);
-        } 
+        }
         role.save();
     }
 
@@ -1231,7 +1235,7 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
     public void deleteFromTripleStore() {
         if(getNamedGraph().isEmpty()){
             setNamedGraph(Constants.DEFAULT_REPOSITORY);
-        } 
+        }
         List<StudyObject> listObj = getObjects();
         int totObj = listObj.size();
         if (listObj.size() > 0) {
@@ -1256,7 +1260,7 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
                     allList.add(receivedSOC);
                     inspectedList.add(receivedSOC);
                 }
-            } 
+            }
             return traverseRouteLabel(socList, allList, inspectedList);
         }
     }
@@ -1301,6 +1305,6 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
 
     public String toString() {
         return this.getUri();
-    } 
+    }
 
 }

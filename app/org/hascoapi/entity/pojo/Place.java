@@ -269,24 +269,10 @@ public class Place extends HADatAcThing implements Comparable<Place> {
 		}
 	}
 
-	private static String retrieveHASCOTypeUri(String uri) {
-        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                " SELECT ?type WHERE { " +
-                " <" + uri + "> hasco:hascoType ?type ." +
-                "} ";
-        ResultSetRewindable resultsrw = SPARQLUtils.select(
-                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
-        if (resultsrw.hasNext()) {
-            QuerySolution soln = resultsrw.next();
-            return soln.getResource("type").getURI();
-        }
-		return null;
-    }
-
 	public static Place find(String uri) {
 		//System.out.println("Place.find(): uri = [" + uri + "]");
 		Place place;
-		String hascoTypeUri = retrieveHASCOTypeUri(uri);
+		String hascoTypeUri = Utils.retrieveHASCOTypeUri(uri);
 		if (hascoTypeUri == null) {
 			System.out.println("[ERROR] Place.java: URI [" + uri + "] has no HASCO TYPE.");
 			return null;
@@ -324,6 +310,10 @@ public class Place extends HADatAcThing implements Comparable<Place> {
 					place.setComment(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
 					place.setHascoTypeUri(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+					place.setHasImageUri(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
+					place.setHasWebDocument(str);
 				} else if (statement.getPredicate().getURI().equals(FOAF.NAME)) {
 					place.setName(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {

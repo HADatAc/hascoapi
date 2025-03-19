@@ -4,38 +4,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
-import org.apache.jena.query.QuerySolution;
-import org.apache.jena.query.ResultSetRewindable;
+import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.hascoapi.annotations.PropertyField;
 import org.hascoapi.utils.SPARQLUtils;
+import org.hascoapi.utils.URIUtils;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.vocabularies.*;
 
 @JsonFilter("detectorFilter")
-public class Detector extends DetectorStem {
+public class Detector extends Component  {
 
     @PropertyField(uri="vstoi:hasDetectorStem")
     private String hasDetectorStem;
-
-    @PropertyField(uri="vstoi:hasCodebook")
-    private String hasCodebook;
-
-    /* 
-    public String getHasSerialNumber() {
-        return hasSerialNumber;
-    }
-    */
-
-    /* 
-    public void setHasSerialNumber(String hasSerialNumber) {
-        this.hasSerialNumber = hasSerialNumber;
-    }
-    */
 
     public String getHasDetectorStem() {
         return hasDetectorStem;
@@ -53,48 +38,6 @@ public class Detector extends DetectorStem {
         this.hasDetectorStem = hasDetectorStem;
     }
 
-    public String getHasCodebook() {
-        return hasCodebook;
-    }
-
-    public void setHasCodebook(String hasCodebook) {
-        this.hasCodebook = hasCodebook;
-    }
-
-    public Codebook getCodebook() {
-        if (hasCodebook == null || hasCodebook.equals("")) {
-            return null;
-        }
-        Codebook codebook = Codebook.find(hasCodebook);
-        return codebook;
-    }
-
-    /* 
-    public String getSuperLabel() {
-        DetectorStem detStem = DetectorStem.find(getSuperUri());
-        if (detStemType == null || detStemType.getLabel() == null) {
-            return "";
-        }
-        return detStemType.getLabel();
-    }
-
-    public String getSuperUri() {
-        DetectorStemType detStemType = DetectorStemType.find(getTypeUri());
-        if (detStemType == null || detStemType.getLabel() == null) {
-            return "";
-        }
-        return detStemType.getURL();
-    }
-    */
-
-    public Detector() {
-    }
-
-    public Detector(String className) {
-		super(className);
-    }
-
-    /** 
     public static List<Detector> findDetectors() {
         List<Detector> detectors = new ArrayList<Detector>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
@@ -111,6 +54,7 @@ public class Detector extends DetectorStem {
         return findDetectorsByQuery(queryString);
     }
 
+    /*
     public static int getNumberDetectors() {
         String queryString = "";
         queryString += NameSpaces.getInstance().printSparqlNameSpaceList();
@@ -120,7 +64,7 @@ public class Detector extends DetectorStem {
                 "}";
 
         return findTotalDetectorsByQuery(queryString);
-    }
+    }*/
 
     public static List<Detector> findDetectorsWithPages(int pageSize, int offset) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
@@ -184,30 +128,6 @@ public class Detector extends DetectorStem {
         return findDetectorsByQuery(queryString);
     }
 
-    public static int findTotalDetectorsByKeywordAndLanguage(String keyword, String language) {
-        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
-        queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
-                " ?detModel rdfs:subClassOf* vstoi:Detector . " +
-                " ?uri a ?detModel . " +
-                " ?uri vstoi:hasDetectorStem ?stem . ";
-        if (!language.isEmpty()) {
-            queryString += " ?stem vstoi:hasLanguage ?language . ";
-        }
-        if (!keyword.isEmpty()) {
-            queryString += " ?stem vstoi:hasContent ?content . ";
-        }
-        if (!keyword.isEmpty() && !language.isEmpty()) {
-            queryString += "   FILTER (regex(?content, \"" + keyword + "\", \"i\") && (?language = \"" + language + "\")) ";
-        } else if (!keyword.isEmpty()) {
-            queryString += "   FILTER (regex(?content, \"" + keyword + "\", \"i\")) ";
-        } else if (!language.isEmpty()) {
-            queryString += "   FILTER ((?language = \"" + language + "\")) ";
-        }
-        queryString += "}";
-
-        return findTotalDetectorsByQuery(queryString);
-    }
-
     public static List<Detector> findDetectorsByManagerEmailWithPages(String managerEmail, int pageSize, int offset) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
@@ -225,18 +145,6 @@ public class Detector extends DetectorStem {
         return findDetectorsByQuery(queryString);
     }
 
-    public static int findTotalDetectorsByManagerEmail(String managerEmail) {
-        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
-        queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
-                " ?detModel rdfs:subClassOf* vstoi:Detector . " +
-                " ?uri a ?detModel ." +
-                " ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
-                "   FILTER (?managerEmail = \"" + managerEmail + "\") " +
-                "}";
-
-        return findTotalDetectorsByQuery(queryString);
-    }
-
     public static List<Detector> findDetectorsByManagerEmail(String managerEmail) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
@@ -251,7 +159,6 @@ public class Detector extends DetectorStem {
 
         return findDetectorsByQuery(queryString);
     }
-    **/
 
     public static List<Detector> findDetectorsByContainer(String containerUri) {
         //System.out.println("findByContainer: [" + containerUri + "]");
@@ -291,78 +198,101 @@ public class Detector extends DetectorStem {
 
         while (resultsrw.hasNext()) {
             QuerySolution soln = resultsrw.next();
-            Detector detector = findDetector(soln.getResource("uri").getURI());
+            Detector detector = find(soln.getResource("uri").getURI());
             detectors.add(detector);
         }
 
-        java.util.Collections.sort((List<Detector>) detectors);
+        //java.util.Collections.sort((List<Detector>) detectors);
         return detectors;
 
     }
 
-    public static Detector findDetector(String uri) {
-        Detector detector = null;
-        Statement statement;
-        RDFNode object;
+    public static Detector find(String uri) {
+ 		if (uri == null || uri.isEmpty()) {
+			return null;
+		}
+		Detector detector = null;
+		// Construct the SELECT query to retrieve named graphs
+		String queryString = "SELECT DISTINCT ?graph ?p ?o WHERE { GRAPH ?graph { <" + uri + "> ?p ?o } }";
+		ResultSet resultSet = SPARQLUtils.select(CollectionUtil.getCollectionPath(
+        	CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
-        String queryString = "DESCRIBE <" + uri + ">";
-        Model model = SPARQLUtils.describe(CollectionUtil.getCollectionPath(
-                CollectionUtil.Collection.SPARQL_QUERY), queryString);
+		if (!resultSet.hasNext()) {
+			return null;
+		} else {
+            detector = new Detector();
+		}
 
-        StmtIterator stmtIterator = model.listStatements();
+		// Iterate over results
+		while (resultSet.hasNext()) {
+			QuerySolution qs = resultSet.next();
+			
+			// Retrieve the named graph URI
+			if (qs.contains("graph")) {
+				detector.setNamedGraph(qs.get("graph").toString());
+				//System.out.println("Graph: " + graphURI);
+			}
+			
+			// Retrieve predicate and object (optional)
+			if (qs.contains("p") && qs.contains("o")) {
+				String predicate = qs.get("p").toString();
+				String object = qs.get("o").toString();
+				//System.out.println("Predicate: " + predicate + " | Object: " + object);
 
-        if (!stmtIterator.hasNext()) {
-            return null;
-        }
-
-        detector = new Detector(VSTOI.DETECTOR);
-
-        while (stmtIterator.hasNext()) {
-            statement = stmtIterator.next();
-            object = statement.getObject();
-            if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-                detector.setLabel(object.asLiteral().getString());
-//            } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
-//                detector.setTypeUri(object.asResource().getURI());
-            } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
-                detector.setComment(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
-                detector.setHascoTypeUri(object.asResource().getURI());
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
-                detector.setHasStatus(object.asLiteral().getString());
-            //} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
-            //    detector.setHasSerialNumber(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
-                detector.setImage(object.asLiteral().getString());
-//            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_CONTENT)) {
-//                detector.setHasContent(object.asLiteral().getString());
-//            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
-//                detector.setHasLanguage(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
-                detector.setHasVersion(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals(PROV.WAS_DERIVED_FROM)) {
-                try {
-                    detector.setWasDerivedFrom(object.asResource().getURI());
-                } catch (Exception e) {
-                }
-            } else if (statement.getPredicate().getURI().equals(PROV.WAS_GENERATED_BY)) {
-                try {
-                    detector.setWasGeneratedBy(object.asResource().getURI());
-                } catch (Exception e) {
-                }
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
-                detector.setHasSIRManagerEmail(object.asLiteral().getString());
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_DETECTOR_STEM)) {
-                try {
-                    detector.setHasDetectorStem(object.asResource().getURI());
-                } catch (Exception e) {
-                    detector.setHasDetectorStem(null);
-                }
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_CODEBOOK)) {
-                try {
-                    detector.setHasCodebook(object.asResource().getURI());
-                } catch (Exception e) {
-                    detector.setHasCodebook(null);
+                if (predicate.equals(RDFS.LABEL)) {
+                    detector.setLabel(object);
+                } else if (predicate.equals(RDF.TYPE)) {
+                    detector.setTypeUri(object);
+                } else if (predicate.equals(RDFS.COMMENT)) {
+                    detector.setComment(object);
+                } else if (predicate.equals(HASCO.HASCO_TYPE)) {
+                    detector.setHascoTypeUri(object);
+				} else if (predicate.equals(HASCO.HAS_IMAGE)) {
+					detector.setHasImageUri(object);
+				} else if (predicate.equals(HASCO.HAS_WEB_DOCUMENT)) {
+					detector.setHasWebDocument(object);
+                } else if (predicate.equals(VSTOI.HAS_STATUS)) {
+                    detector.setHasStatus(object);
+                } else if (predicate.equals(VSTOI.HAS_CONTENT)) {
+                    detector.setHasContent(object);
+                } else if (predicate.equals(VSTOI.HAS_LANGUAGE)) {
+                    detector.setHasLanguage(object);
+                } else if (predicate.equals(VSTOI.HAS_VERSION)) {
+                    detector.setHasVersion(object);
+                } else if (predicate.equals(PROV.WAS_DERIVED_FROM)) {
+                    try {
+                        detector.setWasDerivedFrom(object);
+                    } catch (Exception e) {
+                    }
+                } else if (predicate.equals(PROV.WAS_GENERATED_BY)) {
+                    try {
+                        detector.setWasGeneratedBy(object);
+                    } catch (Exception e) {
+                    }
+				} else if (predicate.equals(VSTOI.HAS_REVIEW_NOTE)) {
+					detector.setHasReviewNote(object);
+				} else if (predicate.equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
+					detector.setHasSIRManagerEmail(object);
+				} else if (predicate.equals(VSTOI.HAS_EDITOR_EMAIL)) {
+				    detector.setHasEditorEmail(object);
+                } else if (predicate.equals(VSTOI.HAS_DETECTOR_STEM)) {
+                    try {
+                        detector.setHasDetectorStem(object);
+                    } catch (Exception e) {
+                        detector.setHasDetectorStem(null);
+                    }
+                } else if (predicate.equals(VSTOI.HAS_CODEBOOK)) {
+                    try {
+                        detector.setHasCodebook(object);
+                    } catch (Exception e) {
+                        detector.setHasCodebook(null);
+                    }
+                } else if (predicate.equals(VSTOI.IS_ATTRIBUTE_OF)) {
+                    try {
+                        detector.setIsAttributeOf(object);
+                    } catch (Exception e) {
+                        detector.setIsAttributeOf(null);
+                    }
                 }
             }
         }
@@ -421,23 +351,6 @@ public class Detector extends DetectorStem {
         //System.out.println("Query: " + queryString);
 
         return findDetectorsByQuery(queryString);
-    }
-
-    public static boolean attach(ContainerSlot containerSlot, Detector detector) {
-        System.out.println("called Detector.attach()");
-        if (containerSlot == null) {
-            System.out.println("A valid container slot is required to attach a detector");
-            return false;
-        }
-        return containerSlot.updateContainerSlotDetector(detector);
-    }
-
-    public static boolean detach(ContainerSlot containerSlot) {
-        System.out.println("called Detector.detach()");
-        if (containerSlot == null) {
-            return false;
-        }
-        return containerSlot.updateContainerSlotDetector(null);
     }
 
     @Override public void save() {
