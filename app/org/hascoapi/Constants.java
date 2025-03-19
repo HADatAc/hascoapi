@@ -63,6 +63,7 @@ public class Constants {
     public static final String PREFIX_DETECTOR                   = "DTC";
     public static final String PREFIX_DETECTOR_INSTANCE          = "DTI";
     public static final String PREFIX_DSG                        = "DSG";
+    public static final String PREFIX_FUNDING_SCHEME             = "FSC";
     public static final String PREFIX_INSTRUMENT                 = "INS";
     public static final String PREFIX_INSTRUMENT_INSTANCE        = "IN0";
     public static final String PREFIX_INS                        = "INS";
@@ -75,6 +76,7 @@ public class Constants {
     public static final String PREFIX_POSTAL_ADDRESS             = "PAD";
     public static final String PREFIX_PROCESS                    = "PC0";
     public static final String PREFIX_PROCESS_STEM               = "PST";
+    public static final String PREFIX_PROJECT                    = "PJT";
     public static final String PREFIX_REQUIRED_INSTRUMENTATION   = "RIN";
     public static final String PREFIX_RESPONSE_OPTION            = "ROP";
     public static final String PREFIX_SDD                        = "SDD";

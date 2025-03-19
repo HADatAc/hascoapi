@@ -67,6 +67,8 @@ public class GenericFind<T> {
             return DSG.class;
         } else if (elementType.equals("entity")) {
             return Entity.class;
+        } else if (elementType.equals("fundingscheme")) {
+            return FundingScheme.class;
         } else if (elementType.equals("ins")) {
             return INS.class;
         } else if (elementType.equals("instrument")) {
@@ -95,6 +97,8 @@ public class GenericFind<T> {
             return Process.class;
         } else if (elementType.equals("processstem")) {
             return ProcessStem.class;
+        } else if (elementType.equals("project")) {
+            return Project.class;
         } else if (elementType.equals("responseoption")) {
             return ResponseOption.class;
         } else if (elementType.equals("sdd")) {
@@ -209,6 +213,10 @@ public class GenericFind<T> {
             return URIUtils.replaceNameSpace(VSTOI.PROCESS_STEM);
         } else if (clazz == KGR.class) {
             return URIUtils.replaceNameSpace(HASCO.KNOWLEDGE_GRAPH);
+        } else if (clazz == FundingScheme.class) {
+            return URIUtils.replaceNameSpace(SCHEMA.FUNDING_SCHEME);
+        } else if (clazz == Project.class) {
+            return URIUtils.replaceNameSpace(SCHEMA.PROJECT);
         }
         return null;
     }
@@ -759,7 +767,7 @@ public class GenericFind<T> {
      */
 
 	public List<T> findByManagerEmailWithPages(Class clazz, String managerEmail, int pageSize, int offset) {
-        //System.out.println("findByManagerEmailWithPages: Clazz=[" + clazz + "]");
+        System.out.println("findByManagerEmailWithPages: Clazz=[" + clazz + "]");
         String hascoTypeStr = classNameWithNamespace(clazz);
         if (hascoTypeStr == null || hascoTypeStr.isEmpty()) {
             hascoTypeStr = superclassNameWithNamespace(clazz);
@@ -767,7 +775,7 @@ public class GenericFind<T> {
         if (hascoTypeStr == null || hascoTypeStr.isEmpty()) {
             return null;
         }
-        //System.out.println("findByManagerEmailWithPages: hascoTypeStr=[" + hascoTypeStr + "]");
+        System.out.println("findByManagerEmailWithPages: hascoTypeStr=[" + hascoTypeStr + "]");
         //if (clazz == Detector.class) {
         //    return findDetectorInstancesByManagerEmailWithPages(clazz, hascoTypeStr, managerEmail, pageSize, offset);
         //} else 
@@ -831,7 +839,7 @@ public class GenericFind<T> {
 
 	public List<T> findElementsByManagerEmailWithPages(Class clazz, String hascoTypeStr, String managerEmail, int pageSize, int offset) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
-		queryString += " SELECT ?uri WHERE { " +
+        queryString += " SELECT ?uri WHERE { " +
 				//" ?model rdfs:subClassOf* " + className + " . " +
 				//" ?uri a ?model ." +
 				" ?uri hasco:hascoType " + hascoTypeStr + " . " +
@@ -842,7 +850,7 @@ public class GenericFind<T> {
 				" ORDER BY ASC(?label) " +
 				" LIMIT " + pageSize +
 				" OFFSET " + offset;
-        //System.out.println(queryString);
+        System.out.println(queryString);
 		return findByQuery(clazz, queryString);
 	}
 
@@ -990,7 +998,7 @@ public class GenericFind<T> {
      */
 
     public static <T> List<T> findByQuery(Class clazz,String queryString) {
-        //System.out.println("FindByQuery: query = [" + queryString + "]");
+        System.out.println("FindByQuery: query = [" + queryString + "]");
         List<T> list = new ArrayList<T>();
         ResultSetRewindable resultsrw = SPARQLUtils.select(
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
@@ -1004,7 +1012,7 @@ public class GenericFind<T> {
             if (soln != null) {
                 if (soln.getResource("uri") != null && soln.getResource("uri").getURI() != null) {
                     String uri = soln.getResource("uri").getURI();
-                    //System.out.println("FindByQuery: retrieved uri = [" + uri + "]");
+                    System.out.println("FindByQuery: retrieved uri = [" + uri + "]");
                     T element = findElement(clazz, uri);
                     if (element != null) {                        
                       list.add(element);
@@ -1014,6 +1022,7 @@ public class GenericFind<T> {
                 }
             }
         }
+        System.out.println("FindByQuery: total size of list = [" + list.size() + "]");
         return list;
     }
 
@@ -1118,6 +1127,10 @@ public class GenericFind<T> {
             return (T)Process.find(uri);
         } else if (clazz == KGR.class) {
             return (T)KGR.find(uri);
+        } else if (clazz == FundingScheme.class) {
+            return (T)FundingScheme.find(uri);
+        } else if (clazz == Project.class) {
+            return (T)Project.find(uri);
         }
         return null;
     
