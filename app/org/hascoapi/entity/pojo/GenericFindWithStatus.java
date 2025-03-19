@@ -147,6 +147,10 @@ public class GenericFindWithStatus<T> {
      *     FIND ELEMENTS BY STATUS AND MANAGER (AND THEIR TOTALS)
      */
 
+    /* 
+     *   When withCurrent=TRUE it means retrieving all the elements of the requested status PLUS the current ones.
+     *   When withCurrent=FALSE it means retrieving just the elements of the requested status.
+     */ 
 	public List<T> findByStatusManagerEmailWithPages(Class clazz, String hasStatus, String managerEmail, boolean withCurrent, int pageSize, int offset) {
         //System.out.println("findByStatusManagerEmailWithPages: Clazz=[" + clazz + "]");
         String hascoTypeStr = GenericFind.classNameWithNamespace(clazz);
@@ -269,6 +273,8 @@ public class GenericFindWithStatus<T> {
 	}
 
 	public List<T> findElementsByStatusManagerEmailWithPages(Class clazz, String hascoTypeStr, String hasStatus, String managerEmail, boolean withCurrent, int pageSize, int offset) {
+        //System.out.println("findElementsByStatusManagerEmailWithPages: Status=[" + hasStatus + "]   email=[" + managerEmail + 
+        //    "]   withCurrent=[" + withCurrent + "]    hascoTypeStr=[" + hascoTypeStr + "]");
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
         if (withCurrent) {
             queryString += " SELECT ?uri WHERE { " +

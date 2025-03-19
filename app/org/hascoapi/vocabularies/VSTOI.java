@@ -30,7 +30,6 @@ public class VSTOI {
     public static final String IS_INSTRUMENT_ATTACHMENT     = VSTOI + "isInstrumentContainerSlot";
     public static final String HAS_PLATFORM_INSTANCE        = VSTOI + "hasPlatformInstance";
     public static final String HAS_SERIAL_NUMBER            = VSTOI + "hasSerialNumber";
-    public static final String HAS_WEB_DOCUMENTATION        = VSTOI + "hasWebDocumentation";
 
     /**************************************************************************************************
      * NEW ADDITIONS TO VSTOI IN SUPPORT OF QUESTIONNAIRES
@@ -40,10 +39,14 @@ public class VSTOI {
      * CLASSES
      */
 
+    public static final String ACTUATOR                     = VSTOI + "Actuator";
+    public static final String ACTUATOR_STEM                = VSTOI + "ActuatorStem";
+    public static final String ACTUATOR_INSTANCE            = VSTOI + "ActuatorInstance";
     public static final String ANNOTATION_STEM              = VSTOI + "AnnotationStem";
     public static final String ANNOTATION                   = VSTOI + "Annotation";
     public static final String CODEBOOK                     = VSTOI + "Codebook";
     public static final String CODEBOOK_SLOT                = VSTOI + "CodebookSlot";
+    public static final String COMPONENT                    = VSTOI + "Component";
     public static final String CONTAINER_SLOT               = VSTOI + "ContainerSlot";
     public static final String DETECTOR_STEM                = VSTOI + "DetectorStem";
     public static final String DETECTOR_INSTANCE            = VSTOI + "DetectorInstance";
@@ -58,6 +61,7 @@ public class VSTOI {
     public static final String REQUIRED_INSTRUMENTATION     = VSTOI + "RequiredInstrumentation";
     public static final String RESPONSE_OPTION              = VSTOI + "ResponseOption";
     public static final String TABLE                        = VSTOI + "Table";
+    public static final String TASK                         = VSTOI + "Task";
     public static final String VSTOI_INSTANCE               = VSTOI + "VSTOIInstance";
 
     /*
@@ -67,8 +71,12 @@ public class VSTOI {
     public static final String BELONGS_TO                   = VSTOI + "belongsTo";
     public static final String DESIGNED_AT_TIME             = VSTOI + "designedAtTime";
     public static final String HAS_ACQUISITION_DATE         = VSTOI + "hasAcquisitionDate";    
+    public static final String HAS_ACTUATOR                 = VSTOI + "hasActuator";
+    public static final String HAS_ACTUATOR_INSTANCE        = VSTOI + "hasActuatorInstance";
+    public static final String HAS_ACTUATOR_STEM            = VSTOI + "hasActuatorStem";
     public static final String HAS_ANNOTATION_STEM          = VSTOI + "hasAnnotationStem";
     public static final String HAS_CODEBOOK                 = VSTOI + "hasCodebook";
+    public static final String HAS_COMPONENT                = VSTOI + "hasComponent";
     public static final String HAS_CONTENT                  = VSTOI + "hasContent";
     public static final String HAS_CONTENT_WITH_STYLE       = VSTOI + "hasContentWithStyle";
     public static final String HAS_DAMAGE_DATE              = VSTOI + "hasDamageDate";
@@ -92,6 +100,10 @@ public class VSTOI {
     public static final String HAS_STATUS                   = VSTOI + "hasStatus";
     public static final String HAS_SIR_MANAGER_EMAIL        = VSTOI + "hasSIRManagerEmail";
     public static final String HAS_SUBCONTAINER             = VSTOI + "hasSubcontainer";
+    public static final String HAS_SUBTASK                  = VSTOI + "hasSubtask";
+    public static final String HAS_SUPERTASK                = VSTOI + "hasSupertask";
+    public static final String HAS_TASK_TYPE                = VSTOI + "hasTaskType";
+    public static final String HAS_TOP_TASK                 = VSTOI + "hasTopTask";
     public static final String HAS_VERSION                  = VSTOI + "hasVersion";
     public static final String HOST_TYPE                    = VSTOI + "hostType";
     public static final String IS_ATTRIBUTE_OF              = VSTOI + "isAttributeOf";
@@ -131,6 +143,14 @@ public class VSTOI {
     public static final String PAGE_BOTTOM_RIGHT            = VSTOI + "PageBottomRight";
     public static final String PAGE_LINE_ABOVE_BOTTOM       = VSTOI + "PageLineAboveBottom";
 
+    /*
+     * TYPE TYPES
+     */
+
+     public static final String AUTOMATED                   = VSTOI + "Automated";
+     public static final String INTERACTIVE                 = VSTOI + "Interactive";
+     public static final String MANUAL                      = VSTOI + "Manual";
+
     /**
      * INSTANCES
      */
@@ -156,6 +176,15 @@ public class VSTOI {
         informant.put(VSTOI + "Caregiver", "Caregiver");
         informant.put(VSTOI + "HouseholdReferencePerson", "HouseholdReferencePerson");
         informant.put(VSTOI + "PhysicalWorld", "PhysicalWorld");
+    }
+
+    public static final String DEFAULT_HAS_TASK_TYPE = VSTOI + "Automated";
+    public static Map<String, String> hasTaskType;
+    static {
+        wasGeneratedBy = new HashMap<>();
+        wasGeneratedBy.put(DEFAULT_HAS_TASK_TYPE, "Automated");
+        wasGeneratedBy.put(VSTOI + "Interactive", "Interactive");
+        wasGeneratedBy.put(VSTOI + "Manual", "Manual");
     }
 
     public static final String DEFAULT_CONTAINER_POSITION = TOP_CENTER;

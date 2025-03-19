@@ -151,6 +151,12 @@ public class Utils {
             case "project":
                 shortPrefix = Constants.PREFIX_PROJECT;
                 break;
+            case "actuatorstem":
+                shortPrefix = Constants.PREFIX_ACTUATOR_STEM;
+                break;
+            case "actuator":
+                shortPrefix = Constants.PREFIX_ACTUATOR;
+                break;
             default:
                 shortPrefix = null;
         }

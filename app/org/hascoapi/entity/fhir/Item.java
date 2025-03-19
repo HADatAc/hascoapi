@@ -11,14 +11,14 @@ import org.hascoapi.entity.pojo.*;
 
 public class Item {
 
-    private Detector detector;
+    private Component component;
     private List<AnswerOption> answerOptions;
 
-    public Item(Detector detector) {
-        this.detector = detector;
-        if (this.detector != null) {
+    public Item(Component component) {
+        this.component = component;
+        if (this.component != null) {
             answerOptions = new ArrayList<AnswerOption>();
-            Codebook codebook = detector.getCodebook();
+            Codebook codebook = component.getCodebook();
             if (codebook != null) {
                 List<CodebookSlot> slots = codebook.getCodebookSlots();
                 if (slots != null) {
@@ -35,8 +35,8 @@ public class Item {
     public QuestionnaireItemComponent getFHIRObject() {
         QuestionnaireItemComponent item = new QuestionnaireItemComponent();
 
-        item.setDefinition(detector.getUri());
-        item.setText(detector.getHasContent());
+        item.setDefinition(component.getUri());
+        item.setText(component.getHasContent());
         item.setType(QuestionnaireItemType.CHOICE);
 
         for (AnswerOption answerOption : answerOptions) {

@@ -1,0 +1,105 @@
+package org.hascoapi.ingestion;
+
+import java.lang.String;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.hascoapi.entity.pojo.DataFile;
+import org.hascoapi.vocabularies.VSTOI;
+
+public class SlotElementGenerator extends BaseGenerator {
+
+	/*
+	protected String instrumentUri = "";
+
+	protected String firstSlotUri = "";
+
+	public String getInstrumentUri() {
+		return this.instrumentUri;
+	}
+    
+	public void setInstrumentUri(String instrumentUri) {
+		this.instrumentUri = instrumentUri;
+	}
+
+	public String getFirstSlotUri() {
+		return this.firstSlotUri;
+	}
+    
+	public void setFirstSlotUri(String firstSlotUri) {
+		this.firstSlotUri = firstSlotUri;
+	}
+	*/
+
+	public SlotElementGenerator(DataFile dataFile) {
+		super(dataFile);
+	}
+
+	@Override
+    public void createRows() throws Exception {    		
+
+		if (records == null) {
+			System.out.println("[ERROR] ContainerSlotGenerator: no records to process.");
+            return;
+        }
+
+		System.out.println("inside of ContainerSlotGenerator's createRows");
+		System.out.println("inside of ContainerSlotGenerator's: total of records=" + records.size());
+
+		Map<String, Object> row = new HashMap<String, Object>();
+		
+		for (String header : file.getHeaders()) {
+		    if (!header.trim().isEmpty()) {
+		        String value = rec.getValueByColumnName(header);
+		        if (value != null && !value.isEmpty()) {
+					//System.out.println("Header: [" + header + "] Value: [" + value + "]");
+		            row.put(header, value);
+		        }
+		    }
+		}
+		if (row.containsKey("hasURI") && !row.get("hasURI").toString().trim().isEmpty()) {
+		    return row;
+		}
+		
+		return null;
+    }
+	
+	@Override
+	public Map<String, Object> createRow(Record rec, int rowNumber) throws Exception {
+		Map<String, Object> row = new HashMap<String, Object>();
+		
+		for (String header : file.getHeaders()) {
+			//System.out.println("Header: [" + header + "]");
+			if (!header.trim().isEmpty()) {
+		        String value = rec.getValueByColumnName(header);
+		        if (value != null && !value.isEmpty()) {
+					if (!header.equals("instrument")) {
+						//System.out.println("CreateRow: Header=[" + header + "]  Value=[" + value + "]");
+						row.put(header, value);
+					}
+		        }
+		    }
+		}
+
+		row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
+
+		return row;
+	}
+
+	@Override
+    public Map<String,String> postprocessuris() throws Exception {
+		Map<String,String> uris = new HashMap<String,String>();
+		return uris;
+	}
+
+	@Override
+	public String getTableName() {
+		return "SlotElement";
+	}
+
+	@Override
+	public String getErrorMsg(Exception e) {
+		e.printStackTrace();
+		return "Error in SlotElementGenerator: " + e.getMessage();
+	}
+}

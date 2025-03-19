@@ -6,6 +6,7 @@ import java.util.List;
 import org.hascoapi.entity.pojo.ContainerSlot;
 import org.hascoapi.entity.pojo.SlotElement;
 import org.hascoapi.entity.pojo.Detector;
+import org.hascoapi.entity.pojo.Component;
 import org.hascoapi.entity.pojo.Container;
 
 public class Questionnaire {
@@ -19,8 +20,8 @@ public class Questionnaire {
         List<SlotElement> slots = container.getSlotElements();
 		for (SlotElement slot : slots) {
 			if (slot instanceof ContainerSlot) {
-				Detector detector = ((ContainerSlot)slot).getDetector();
-            	Item item = new Item(detector);
+				Component component = ((ContainerSlot)slot).getComponent();
+            	Item item = new Item(component);
             	items.add(item);
 			}
 		}

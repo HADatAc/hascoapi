@@ -51,6 +51,9 @@ public class Constants {
     public static final String TEST_ATTRIBUTE2_URI = TEST_KB + "TestAttribute2";
     public static final String TEST_UNIT_URI = TEST_KB + "TestUnit";
 
+    public static final String PREFIX_ACTUATOR                   = "ACT";
+    public static final String PREFIX_ACTUATOR_STEM              = "ACS";
+    public static final String PREFIX_ACTUATOR_INSTANCE          = "ACI";
     public static final String PREFIX_ANNOTATION                 = "ANN";
     public static final String PREFIX_ANNOTATION_STEM            = "ASM";
     public static final String PREFIX_CODEBOOK                   = "CBK";

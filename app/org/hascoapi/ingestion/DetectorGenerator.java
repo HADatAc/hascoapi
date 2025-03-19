@@ -54,8 +54,6 @@ public class DetectorGenerator extends BaseGenerator {
 					if (this.getHasStatus() != null && !this.getHasStatus().equals("_")) {
 						tempRow.put("vstoi:hasStatus", this.getHasStatus());
 					}
-					tempRow.put("rdfs:label", "Detector" );
-					tempRow.put("rdfs:comment", "Detector");
 					rows.add(tempRow);
         		}
         	}

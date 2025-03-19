@@ -48,17 +48,26 @@ public class Renderings {
 			for (SlotElement slotElement : instr.getSlotElements()) {
 				if (slotElement instanceof ContainerSlot) {
 					ContainerSlot containerSlot = (ContainerSlot)slotElement;
-					Detector detector = containerSlot.getDetector();
-					if (detector == null) {
+					Component component = containerSlot.getComponent();
+					if (component == null) {
 						str += " " + containerSlot.getHasPriority() + ".  \n  ";
 					} else {
 						String content = "";
 						//System.out.println(detector.toString());
-						if (detector != null && detector.getDetectorStem() != null && detector.getDetectorStem().getHasContent() != null) {
-							content = detector.getDetectorStem().getHasContent();
+						if (component.getHascoTypeUri().equals(VSTOI.DETECTOR)) {
+							Detector detector = (Detector)component; 
+							if (detector != null && detector.getDetectorStem() != null && detector.getDetectorStem().getHasContent() != null) {
+								content = detector.getDetectorStem().getHasContent();
+							}
+						}
+						if (component.getHascoTypeUri().equals(VSTOI.ACTUATOR)) {
+							Actuator actuator = (Actuator)component; 
+							if (actuator != null && actuator.getActuatorStem() != null && actuator.getActuatorStem().getHasContent() != null) {
+								content = actuator.getActuatorStem().getHasContent();
+							}
 						}
 						str += " " + containerSlot.getHasPriority() + ". " + content + " ";
-						Codebook codebook = detector.getCodebook();
+						Codebook codebook = component.getCodebook();
 						if (codebook != null && codebook.getCodebookSlots() != null) {
 							List<CodebookSlot> slots = codebook.getCodebookSlots();
 							if (slots != null && slots.size() > 0) {
@@ -379,20 +388,29 @@ public class Renderings {
 				SlotElement slotElement = slots.get(element);
 				if (slotElement instanceof ContainerSlot) {
 					ContainerSlot containerSlot = (ContainerSlot)slotElement;
-					Detector detector = containerSlot.getDetector();
-					if (detector == null) {
+					Component component = containerSlot.getComponent();
+					if (component == null) {
 						if (containerSlot.getHasPriority() != null) {
 							html += "<tr><td>" + containerSlot.getHasPriority() + ".</tr></td>\n";
 						}
 					} else {
 						String content = "";
 						//System.out.println(detector.toString());
-						if (detector != null && detector.getDetectorStem() != null && detector.getDetectorStem().getHasContent() != null) {
-							content = detector.getDetectorStem().getHasContent();
+						if (component.getHascoTypeUri().equals(VSTOI.DETECTOR)) {
+							Detector detector = (Detector)component; 
+							if (detector != null && detector.getDetectorStem() != null && detector.getDetectorStem().getHasContent() != null) {
+								content = detector.getDetectorStem().getHasContent();
+							}
+						}
+						if (component.getHascoTypeUri().equals(VSTOI.ACTUATOR)) {
+							Actuator actuator = (Actuator)component; 
+							if (actuator != null && actuator.getActuatorStem() != null && actuator.getActuatorStem().getHasContent() != null) {
+								content = actuator.getActuatorStem().getHasContent();
+							}
 						}
 						html += "<tr>";
 						html += "<td>" + containerSlot.getHasPriority() + ". " + content + "</td>";
-						Codebook codebook = detector.getCodebook();
+						Codebook codebook = component.getCodebook();
 						if (codebook != null) {
 							List<CodebookSlot> cbslots = codebook.getCodebookSlots();
 							if (cbslots != null && cbslots.size() > 0) {

@@ -140,7 +140,11 @@ public class URIPage extends Controller {
              * }
              */
 
-            if (result.getHascoTypeUri().equals(VSTOI.ANNOTATION)) {
+            if (result.getHascoTypeUri().equals(VSTOI.ACTUATOR)) {
+                finalResult = Actuator.find(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.ACTUATOR_STEM)) {
+                finalResult = ActuatorStem.find(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.ANNOTATION)) {
                 finalResult = Annotation.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.ANNOTATION_STEM)) {
                 finalResult = AnnotationStem.find(uri);
@@ -230,6 +234,8 @@ public class URIPage extends Controller {
                 finalResult = StudyRole.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.SUBCONTAINER)) {
                 finalResult = Subcontainer.find(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.TASK)) {
+                finalResult = Task.find(uri);
             } else if (result.getHascoTypeUri().equals(SIO.UNIT)) {
                 finalResult = Unit.find(uri);
             } else if (result.getHascoTypeUri().equals(HASCO.VIRTUAL_COLUMN)) {

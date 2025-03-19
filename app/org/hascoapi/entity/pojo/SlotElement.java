@@ -10,6 +10,8 @@ public interface SlotElement {
 
     public String getHascoTypeUri();
 
+    public String getLabel();
+
     public String getHasNext();
 
     public void setHasNext(String hasPriority);

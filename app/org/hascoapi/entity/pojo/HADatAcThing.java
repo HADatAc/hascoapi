@@ -642,8 +642,8 @@ public abstract class HADatAcThing {
         }
 
         //System.out.println("Default named graph: " + RepositoryInstance.getInstance().getHasDefaultNamespaceURL());
-        //System.out.println("Deleting thing with namedGraph [" + this.getNamedGraph() + "]");
-        //System.out.println("Deleting <" + getUri() + "> from triple store");
+        System.out.println("Deleting thing with namedGraph [" + this.getNamedGraph() + "]");
+        System.out.println("Deleting <" + getUri() + "> from triple store");
 
         query += NameSpaces.getInstance().printSparqlNameSpaceList();
         //System.out.println("Deleting query namespaces [" + query + "]");

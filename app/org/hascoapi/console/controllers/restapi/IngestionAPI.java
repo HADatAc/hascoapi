@@ -16,7 +16,8 @@ import org.hascoapi.entity.pojo.KGR;
 import org.hascoapi.entity.pojo.SDD;
 import org.hascoapi.entity.pojo.STR;
 import org.hascoapi.entity.pojo.Study;
-//import org.hascoapi.ingestion.IngestDSG;
+import org.hascoapi.entity.pojo.Instrument;
+import org.hascoapi.transform.mt.ins.INSGen;
 import org.hascoapi.ingestion.IngestKGR;
 import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.ConfigProp;
@@ -206,7 +207,7 @@ public class IngestionAPI extends Controller {
     }
 
     /**
-     * Copies a temporary file to a permanent file named "test.csv".
+     * Copies a temporary file to a permanent file
      *
      * @param tempFile The temporary file to be copied.
      * @param fileName Name of permanent copy 
@@ -496,6 +497,106 @@ public class IngestionAPI extends Controller {
         System.out.println(errorMsg);
         return ok(ApiUtil.createResponse(errorMsg,false));
     
+    }
+
+    public Result mtGenByStatus(String elementtype, String status, String filename) {
+        if (elementtype == null || elementtype.isEmpty()) {
+            String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() requires elementtype";
+            System.out.println(errorMsg);
+            return ok(ApiUtil.createResponse(errorMsg,false));
+        }
+        if (status == null || status.isEmpty()) {
+            String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() requires status";
+            System.out.println(errorMsg);
+            return ok(ApiUtil.createResponse(errorMsg,false));
+        }
+        if (filename == null || filename.isEmpty()) {
+            String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() requires filename";
+            System.out.println(errorMsg);
+            return ok(ApiUtil.createResponse(errorMsg,false));
+        }
+        switch (elementtype) {
+            case "ins":
+                INSGen.genByStatus(status,filename);
+                break;
+            default:
+                String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() invalid elementtype=[" + elementtype + "]";
+                System.out.println(errorMsg);
+                return ok(ApiUtil.createResponse(errorMsg,false));
+        }
+        return ok(ApiUtil.createResponse("", true));
+    }
+
+    public Result mtGenByInstrument(String elementtype, String instrumenturi, String filename) {
+        if (elementtype == null || elementtype.isEmpty()) {
+            String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() requires elementtype";
+            System.out.println(errorMsg);
+            return ok(ApiUtil.createResponse(errorMsg,false));
+        }
+        if (instrumenturi == null || instrumenturi.isEmpty()) {
+            String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() requires instrumenturi";
+            System.out.println(errorMsg);
+            return ok(ApiUtil.createResponse(errorMsg,false));
+        }
+        Instrument instrument = Instrument.find(instrumenturi);
+        if (instrument == null) {
+            String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() cannot retrieve instrument with uri=[" + instrumenturi + "]";
+            System.out.println(errorMsg);
+            return ok(ApiUtil.createResponse(errorMsg,false));
+        }
+        if (filename == null || filename.isEmpty()) {
+            String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() requires filename";
+            System.out.println(errorMsg);
+            return ok(ApiUtil.createResponse(errorMsg,false));
+        }
+        String resp = "";
+        switch (elementtype) {
+            case "ins":
+                resp = INSGen.genByInstrument(instrument,filename);
+                break;
+            default:
+                String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() invalid elementtype=[" + elementtype + "]";
+                System.out.println(errorMsg);
+                return ok(ApiUtil.createResponse(errorMsg,false));
+        }
+        if (resp.equals("")) {
+            return ok(ApiUtil.createResponse(resp, true));
+        } else {
+            return ok(ApiUtil.createResponse(resp, false));
+        }
+    }
+
+    public Result mtGenByManager(String elementtype, String useremail, String status, String filename) {
+        if (elementtype == null || elementtype.isEmpty()) {
+            String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() requires elementtype";
+            System.out.println(errorMsg);
+            return ok(ApiUtil.createResponse(errorMsg,false));
+        }
+        if (useremail == null || useremail.isEmpty()) {
+            String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() requires useremail";
+            System.out.println(errorMsg);
+            return ok(ApiUtil.createResponse(errorMsg,false));
+        }
+        if (status == null || status.isEmpty()) {
+            String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() requires status";
+            System.out.println(errorMsg);
+            return ok(ApiUtil.createResponse(errorMsg,false));
+        }
+        if (filename == null || filename.isEmpty()) {
+            String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() requires filename";
+            System.out.println(errorMsg);
+            return ok(ApiUtil.createResponse(errorMsg,false));
+        }
+        switch (elementtype) {
+            case "ins":
+                INSGen.genByManager(useremail, status, filename);
+                break;
+            default:
+                String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() invalid elementtype=[" + elementtype + "]";
+                System.out.println(errorMsg);
+                return ok(ApiUtil.createResponse(errorMsg,false));
+        }
+        return ok(ApiUtil.createResponse("", true));
     }
 
     public Result getLog(String dataFileUri){

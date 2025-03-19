@@ -10,8 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.apache.jena.query.QuerySolution;
-import org.apache.jena.query.ResultSetRewindable;
+import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
@@ -59,65 +58,76 @@ public class Subcontainer extends Container implements SlotElement {
 	}
 
 	public static Subcontainer find(String uri) {
-	    Subcontainer subcontainer = null;
-	    Statement statement;
-	    RDFNode object;
-	    
-	    String queryString = "DESCRIBE <" + uri + ">";
-	    Model model = SPARQLUtils.describe(CollectionUtil.getCollectionPath(
-                CollectionUtil.Collection.SPARQL_QUERY), queryString);
-		
-		StmtIterator stmtIterator = model.listStatements();
+		if (uri == null || uri.isEmpty()) {
+			return null;
+		}
+		Subcontainer subcontainer = null;
 
-		if (!stmtIterator.hasNext()) {
+		// Construct the SELECT query to retrieve named graphs
+		String queryString = "SELECT DISTINCT ?graph ?p ?o WHERE { GRAPH ?graph { <" + uri + "> ?p ?o } }";
+		ResultSet resultSet = SPARQLUtils.select(CollectionUtil.getCollectionPath(
+        	CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+		if (!resultSet.hasNext()) {
 			return null;
 		} else {
 			subcontainer = new Subcontainer(VSTOI.SUBCONTAINER);
 		}
-		
-		while (stmtIterator.hasNext()) {
-		    statement = stmtIterator.next();
-		    object = statement.getObject();
-			String str = URIUtils.objectRDFToString(object);
-			if (uri != null && !uri.isEmpty()) {
-				if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-					subcontainer.setLabel(str);
-				} else if (statement.getPredicate().getURI().equals(RDFS.SUBCLASS_OF)) {
-					subcontainer.setSuperUri(str); 
-				} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
-					subcontainer.setHascoTypeUri(str);
-				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
-					subcontainer.setHasImageUri(str);
-				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
-					subcontainer.setHasWebDocument(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
-					subcontainer.setHasStatus(str);
-				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
-					subcontainer.setComment(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.BELONGS_TO)) {
-					subcontainer.setBelongsTo(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_FIRST)) {
-					subcontainer.setHasFirst(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_NEXT)) {
-					subcontainer.setHasNext(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PREVIOUS)) {
-					subcontainer.setHasPrevious(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PRIORITY)) {
-					subcontainer.setHasPriority(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_INFORMANT)) {
-					subcontainer.setHasInformant(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SHORT_NAME)) {
-					subcontainer.setHasShortName(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_LANGUAGE)) {
-					subcontainer.setHasLanguage(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
-					subcontainer.setHasVersion(str);
-				} else if (statement.getPredicate().getURI().equals(PROV.WAS_DERIVED_FROM)) {
-					subcontainer.setWasDerivedFrom(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
-					subcontainer.setHasSIRManagerEmail(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_EDITOR_EMAIL)) {
-					subcontainer.setHasEditorEmail(str);
+
+		// Iterate over results
+		while (resultSet.hasNext()) {
+			QuerySolution qs = resultSet.next();
+			
+			// Retrieve the named graph URI
+			if (qs.contains("graph")) {
+				subcontainer.setNamedGraph(qs.get("graph").toString());
+				//System.out.println("Graph: " + graphURI);
+			}
+			
+			// Retrieve predicate and object (optional)
+			if (qs.contains("p") && qs.contains("o")) {
+				String predicate = qs.get("p").toString();
+				String object = qs.get("o").toString();
+				//System.out.println("Predicate: " + predicate + " | Object: " + object);
+
+				if (predicate.equals(RDFS.LABEL)) {
+					subcontainer.setLabel(object);
+				} else if (predicate.equals(RDFS.SUBCLASS_OF)) {
+					subcontainer.setSuperUri(object); 
+				} else if (predicate.equals(HASCO.HASCO_TYPE)) {
+					subcontainer.setHascoTypeUri(object);
+				} else if (predicate.equals(HASCO.HAS_IMAGE)) {
+					subcontainer.setHasImageUri(object);
+				} else if (predicate.equals(HASCO.HAS_WEB_DOCUMENT)) {
+					subcontainer.setHasWebDocument(object);
+				} else if (predicate.equals(VSTOI.HAS_STATUS)) {
+					subcontainer.setHasStatus(object);
+				} else if (predicate.equals(RDFS.COMMENT)) {
+					subcontainer.setComment(object);
+				} else if (predicate.equals(VSTOI.BELONGS_TO)) {
+					subcontainer.setBelongsTo(object);
+				} else if (predicate.equals(VSTOI.HAS_FIRST)) {
+					subcontainer.setHasFirst(object);
+				} else if (predicate.equals(VSTOI.HAS_NEXT)) {
+					subcontainer.setHasNext(object);
+				} else if (predicate.equals(VSTOI.HAS_PREVIOUS)) {
+					subcontainer.setHasPrevious(object);
+				} else if (predicate.equals(VSTOI.HAS_PRIORITY)) {
+					subcontainer.setHasPriority(object);
+				} else if (predicate.equals(VSTOI.HAS_INFORMANT)) {
+					subcontainer.setHasInformant(object);
+				} else if (predicate.equals(VSTOI.HAS_SHORT_NAME)) {
+					subcontainer.setHasShortName(object);
+				} else if (predicate.equals(VSTOI.HAS_LANGUAGE)) {
+					subcontainer.setHasLanguage(object);
+				} else if (predicate.equals(VSTOI.HAS_VERSION)) {
+					subcontainer.setHasVersion(object);
+				} else if (predicate.equals(PROV.WAS_DERIVED_FROM)) {
+					subcontainer.setWasDerivedFrom(object);
+				} else if (predicate.equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
+					subcontainer.setHasSIRManagerEmail(object);
+				} else if (predicate.equals(VSTOI.HAS_EDITOR_EMAIL)) {
+					subcontainer.setHasEditorEmail(object);
 				}
 			}
 		}

@@ -1,4 +1,4 @@
-# Routes
+# Routesf
 # This file defines all applicatƒion routes (Higher priority routes first)
 # ~~~~
 
@@ -98,7 +98,7 @@ GET     /hascoapi/api/instrument/totext/html/:uri           org.hascoapi.console
 GET     /hascoapi/api/instrument/totext/pdf/:uri            org.hascoapi.console.controllers.restapi.InstrumentAPI.toTextPDF(uri: String)
 GET     /hascoapi/api/instrument/tordf/:uri                 org.hascoapi.console.controllers.restapi.InstrumentAPI.toRDF(uri: String)
 GET     /hascoapi/api/instrument/tofhir/:uri                org.hascoapi.console.controllers.restapi.InstrumentAPI.toFHIR(uri: String)
-GET     /hascoapi/api/instrument/detectors/:instrumentUri   org.hascoapi.console.controllers.restapi.InstrumentAPI.retrieveInstrumentDetectors(instrumentUri: String)
+GET     /hascoapi/api/instrument/components/:instrumentUri  org.hascoapi.console.controllers.restapi.InstrumentAPI.retrieveInstrumentComponents(instrumentUri: String)
 
 # CONCEPT-SPECIFIC METHODS
 
@@ -134,19 +134,25 @@ GET     /hascoapi/api/stream/total/:state/:email/:deploymentUri                 
 GET     /hascoapi/api/platforminstance/byplatform/:platformUri/:pageSize/:offset    org.hascoapi.console.controllers.restapi.VSTOIInstanceAPI.findPlatformInstancesByPlatformWithPage(platformUri: String, pageSize: Integer, offset: Integer)
 GET     /hascoapi/api/platforminstance/byplatform/total/:platformUri                org.hascoapi.console.controllers.restapi.VSTOIInstanceAPI.findTotalPlatformInstancesByPlatform(platformUri: String)
 
-POST    /hascoapi/api/process/instrumentation                                       org.hascoapi.console.controllers.restapi.ProcessAPI.setRequiredInstrumentation(request: play.mvc.Http.Request)
+POST    /hascoapi/api/task/instrumentation                                          org.hascoapi.console.controllers.restapi.TaskAPI.setRequiredInstrumentation(request: play.mvc.Http.Request)
 
 # INGESTION METHODS
 
-POST    /hascoapi/api/ingest/:status/:elementType/:elementUri                     org.hascoapi.console.controllers.restapi.IngestionAPI.ingest(status: String, elementType: String, elementUri: String, request: play.mvc.Http.Request)
-GET     /hascoapi/api/uningest/:dataFileUri                 org.hascoapi.console.controllers.restapi.IngestionAPI.uningestDataFile(dataFileUri: String)
-GET     /hascoapi/api/uningest/mt/:metadataTemplateUri      org.hascoapi.console.controllers.restapi.IngestionAPI.uningestMetadataTemplate(metadataTemplateUri: String)
-GET     /hascoapi/api/ingestion/:dataFileUri/log            org.hascoapi.console.controllers.restapi.IngestionAPI.getLog(dataFileUri : String)
+POST    /hascoapi/api/ingest/:status/:elementType/:elementUri                       org.hascoapi.console.controllers.restapi.IngestionAPI.ingest(status: String, elementType: String, elementUri: String, request: play.mvc.Http.Request)
+GET     /hascoapi/api/uningest/:dataFileUri                                         org.hascoapi.console.controllers.restapi.IngestionAPI.uningestDataFile(dataFileUri: String)
+GET     /hascoapi/api/uningest/mt/:metadataTemplateUri                              org.hascoapi.console.controllers.restapi.IngestionAPI.uningestMetadataTemplate(metadataTemplateUri: String)
+GET     /hascoapi/api/ingestion/:dataFileUri/log                                    org.hascoapi.console.controllers.restapi.IngestionAPI.getLog(dataFileUri : String)
+
+# MT GENERATION METHODS
+
+GET     /hascoapi/api/mt/gen/perstatus/:elementtype/:status/:filename               org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenByStatus(elementtype : String, status: String, filename: String)
+GET     /hascoapi/api/mt/gen/perinstrument/:elementtype/:instrumenturi/:filename    org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenByInstrument(elementtype : String, instrumenturi: String, filename: String)
+GET     /hascoapi/api/mt/gen/peruser/:elementtype/:useremail/:status/:filename      org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenByManager(elementtype : String, useremail: String, status: String, filename: String)
 
 # REVIEWING METHODS 
 
-GET     /hascoapi/api/review/pending                        org.hascoapi.console.controllers.restapi.SIRElementAPI.pendingReviews
-POST    /hascoapi/api/review/recursive/:instrumentUri       org.hascoapi.console.controllers.restapi.InstrumentAPI.updateReviewsRecursive(instrumentUri: String)
+GET     /hascoapi/api/review/pending                                                org.hascoapi.console.controllers.restapi.SIRElementAPI.pendingReviews
+POST    /hascoapi/api/review/recursive/:instrumentUri/:status                       org.hascoapi.console.controllers.restapi.InstrumentAPI.updateReviewsRecursive(instrumentUri: String, status: String)
 
 # TESTING METHODS
 
