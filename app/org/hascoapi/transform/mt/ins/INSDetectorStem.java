@@ -61,7 +61,7 @@ public class INSDetectorStem {
         Cell cell10 = newRow.createCell(9);
         cell10.setCellValue(detectorStem.getHasImageUri());
 
-        // "vstoi:hasWebDocumentation"};
+        // "hasco:hasWebDocument"};
         Cell cell11 = newRow.createCell(10);
         cell11.setCellValue(detectorStem.getHasWebDocument());
 

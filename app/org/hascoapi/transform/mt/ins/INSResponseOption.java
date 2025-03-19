@@ -21,7 +21,7 @@ public class INSResponseOption {
         // Create the new row
         Row newRow = responseOptionSheet.createRow(rowIndex);
 
-        // 0 "hasURI"
+        // "hasURI"
         Cell cell1 = newRow.createCell(0);
         cell1.setCellValue(URIUtils.replaceNameSpaceEx(responseOption.getUri()));
 
@@ -61,7 +61,7 @@ public class INSResponseOption {
         Cell cell10 = newRow.createCell(9);
         cell10.setCellValue(responseOption.getHasImageUri());
 
-        // "vstoi:hasWebDocumentation"};
+        // "hasco:hasWebDocument"};
         Cell cell11 = newRow.createCell(10);
         cell11.setCellValue(responseOption.getHasWebDocument());
 

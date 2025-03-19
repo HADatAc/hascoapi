@@ -30,7 +30,6 @@ public class VSTOI {
     public static final String IS_INSTRUMENT_ATTACHMENT     = VSTOI + "isInstrumentContainerSlot";
     public static final String HAS_PLATFORM_INSTANCE        = VSTOI + "hasPlatformInstance";
     public static final String HAS_SERIAL_NUMBER            = VSTOI + "hasSerialNumber";
-    public static final String HAS_WEB_DOCUMENTATION        = VSTOI + "hasWebDocumentation";
 
     /**************************************************************************************************
      * NEW ADDITIONS TO VSTOI IN SUPPORT OF QUESTIONNAIRES

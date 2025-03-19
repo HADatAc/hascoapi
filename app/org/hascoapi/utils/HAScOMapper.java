@@ -228,6 +228,7 @@ public class HAScOMapper {
         }
 
         // DETECTOR_STEM_TYPE
+        /*
         filterProvider.addFilter("detectorStemTypeFilter", 
             SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "className", "superUri", "superLabel", "comment"));
 
@@ -239,6 +240,7 @@ public class HAScOMapper {
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
                             "hascoTypeLabel", "comment", "hasDataFileUri", "hasDataFile"));
         }
+        */
 
         // ENTITY
         if (mode.equals(FULL) && typeResult.equals(SIO.ENTITY)) {
@@ -291,6 +293,7 @@ public class HAScOMapper {
         }
 
         // INSTRUMENT_TYPE
+        /*
         filterProvider.addFilter("instrumentTypeFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "className", "superUri", "superLabel", "comment"));
 
@@ -302,6 +305,7 @@ public class HAScOMapper {
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
                             "hascoTypeLabel", "comment", "hasDataFile", "dataFile"));
         }
+        */
 
         // ORGANIZATION
         if (mode.equals(FULL) && typeResult.equals(FOAF.ORGANIZATION)) {

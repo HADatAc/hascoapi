@@ -602,12 +602,14 @@ public class SIRElementAPI extends Controller {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
+        /*
         } else if (clazz == DetectorStemType.class) {
             DetectorStemType object = DetectorStemType.find(uri);
             if (object == null) {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
+        */
         } else if (clazz == DP2.class) {
             DP2 object = DP2.find(uri);
             if (object == null) {
@@ -644,12 +646,14 @@ public class SIRElementAPI extends Controller {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
+        /*
         } else if (clazz == InstrumentType.class) {
             InstrumentType object = InstrumentType.find(uri);
             if (object == null) {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
+        */
         } else if (clazz == KGR.class) {
             KGR object = KGR.find(uri);
             if (object == null) {

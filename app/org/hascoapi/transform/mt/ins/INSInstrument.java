@@ -79,7 +79,7 @@ public class INSInstrument {
         Cell cell14 = newRow.createCell(13);
         cell14.setCellValue("");
 
-        // "vstoi:hasWebDocumentation"};
+        // "hasco:hasWebDocument"};
         Cell cell15 = newRow.createCell(14);
         cell15.setCellValue(inst.getHasWebDocument());
 

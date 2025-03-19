@@ -186,19 +186,25 @@ public abstract class Container extends HADatAcClass implements SIRElement, Comp
     }
 
 	public String getTypeLabel() {
+		/*
     	InstrumentType insType = InstrumentType.find(getTypeUri());
     	if (insType == null || insType.getLabel() == null) {
     		return "";
     	}
     	return insType.getLabel();
+		*/
+		return getLabel();
     }
 
     public String getTypeURL() {
+		/*
     	InstrumentType insType = InstrumentType.find(getTypeUri());
     	if (insType == null || insType.getLabel() == null) {
     		return "";
     	}
     	return insType.getURL();
+		*/
+		return getUri();
     }
 
 	@JsonIgnore

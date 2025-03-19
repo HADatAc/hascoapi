@@ -67,7 +67,7 @@ public class INSAnnotationStem {
         Cell cell9 = newRow.createCell(8);
         cell9.setCellValue(annotationStem.getHasImageUri());
 
-        // "vstoi:hasWebDocumentation"};
+        // "hasco:hasWebDocument"};
         Cell cell10 = newRow.createCell(9);
         cell10.setCellValue(annotationStem.getHasWebDocument());
 

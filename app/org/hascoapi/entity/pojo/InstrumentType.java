@@ -17,11 +17,12 @@ import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.SPARQLUtils;
 import org.hascoapi.utils.URIUtils;
 import org.hascoapi.vocabularies.RDFS;
-import org.hascoapi.vocabularies.VSTOI;
+//import org.hascoapi.vocabularies.VSTOI;
 
-@JsonFilter("instrumentTypeFilter")
-public class InstrumentType extends HADatAcClass implements Comparable<InstrumentType> {
+//@JsonFilter("instrumentTypeFilter")
+public class InstrumentType extends HADatAcClass /* implements Comparable<InstrumentType> */ {
 
+	/*
 	static String className = "vstoi:Instrument";
 	
 	private String url;
@@ -134,5 +135,6 @@ public class InstrumentType extends HADatAcClass implements Comparable<Instrumen
 		}
 		return this.getLocalName().compareTo(another.getLocalName());
 	}
+	*/
 
 }

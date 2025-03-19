@@ -333,7 +333,7 @@ public class INSGen {
         Sheet instrumentSheet = workbook.createSheet(INSGen.INSTRUMENTS);
         String[] instrumentHeaders = { "hasURI", "hasco:hascoType", "rdfs:subClassOf", "rdfs:label", "vstoi:hasShortName", "vstoi:hasLanguage",
         	"vstoi:hasVersion", "hasco:hasMaker", "rdfs:comment", "hasco:hasImage", "vstoi:maxLoggedMeasurements", "vstoi:minOperatingTemperature", 
-            "vstoi:maxOperatingTemperature", "hasco:hasOperatingTemperatureUnit", "vstoi:hasWebDocumentation", "vstoi:hasFirst"};
+            "vstoi:maxOperatingTemperature", "hasco:hasOperatingTemperatureUnit", "hasco:hasWebDocument", "vstoi:hasFirst"};
 
         // Create header row
         Row instrumentHeaderRow = instrumentSheet.createRow(0);
@@ -364,7 +364,7 @@ public class INSGen {
         // Create sheet named 'DetectorStem'
         Sheet detectorStemSheet = workbook.createSheet(INSGen.DETECTOR_STEMS);
         String[] detectorStemHeaders = { "hasURI", "hasco:hascoType", "rdfs:subClassOf", "rdfs:label",	"vstoi:hasContent", "vstoi:hasLanguage",	
-            "vstoi:hasVersion", "hasco:hasMaker", "rdfs:comment:", "hasco:hasImage", "vstoi:hasWebDocumentation" };
+            "vstoi:hasVersion", "hasco:hasMaker", "rdfs:comment:", "hasco:hasImage", "hasco:hasWebDocument" };
 
         // Create header row
         Row detectorStemHeaderRow = detectorStemSheet.createRow(0);
@@ -378,7 +378,8 @@ public class INSGen {
 
         // Create sheet named 'Detector'
         Sheet detectorSheet = workbook.createSheet(INSGen.DETECTORS);
-        String[] detectorHeaders = { "hasURI", "hasco:hascoType", "rdf:type", "rdfs:label", "vstoi:hasDetectorStem", "vstoi:hasCodebook", "vstoi:isAttributeOf" };
+        String[] detectorHeaders = { "hasURI", "hasco:hascoType", "rdf:type", "rdfs:label", "vstoi:hasDetectorStem", "vstoi:hasCodebook", 
+            "vstoi:isAttributeOf" , "hasco:hasWebDocument"};
 
         // Create header row
         Row detectorHeaderRow = detectorSheet.createRow(0);
@@ -393,7 +394,7 @@ public class INSGen {
         // Create sheet named 'ActuatorStem'
         Sheet actuatorStemSheet = workbook.createSheet(INSGen.ACTUATOR_STEMS);
         String[] actuatorStemHeaders = { "hasURI", "hasco:hascoType", "rdfs:subClassOf", "rdfs:label",	"vstoi:hasContent", "vstoi:hasLanguage",	
-            "vstoi:hasVersion", "hasco:hasMaker", "rdfs:comment:", "hasco:hasImage", "vstoi:hasWebDocumentation" };
+            "vstoi:hasVersion", "hasco:hasMaker", "rdfs:comment:", "hasco:hasImage", "hasco:hasWebDocument" };
 
         // Create header row
         Row actuatorStemHeaderRow = actuatorStemSheet.createRow(0);
@@ -407,7 +408,8 @@ public class INSGen {
 
         // Create sheet named 'Actuator'
         Sheet actuatorSheet = workbook.createSheet(INSGen.ACTUATORS);
-        String[] actuatorHeaders = { "hasURI", "hasco:hascoType", "rdf:type", "rdfs:label", "vstoi:hasActuatorStem", "vstoi:hasCodebook", "vstoi:isAttributeOf" };
+        String[] actuatorHeaders = { "hasURI", "hasco:hascoType", "rdf:type", "rdfs:label", "vstoi:hasActuatorStem", "vstoi:hasCodebook", 
+            "vstoi:isAttributeOf", "hasco:hasWebDocument" };
 
         // Create header row
         Row actuatorHeaderRow = actuatorSheet.createRow(0);
@@ -422,7 +424,7 @@ public class INSGen {
         // Create sheet named 'CodeBook'
         Sheet codeBookSheet = workbook.createSheet(INSGen.CODEBOOKS);
         String[] codeBookHeaders = { "hasURI", "hasco:hascoType", "rdf:type", "rdfs:label", "vstoi:hasContent", "vstoi:hasLanguage", 	
-            "vstoi:hasVersion", "rdfs:comment", "hasco:hasImage", "vstoi:hasWebDocumentation" };
+            "vstoi:hasVersion", "rdfs:comment", "hasco:hasImage", "hasco:hasWebDocument" };
 
         // Create header row
         Row codeBookHeaderRow = codeBookSheet.createRow(0);
@@ -451,7 +453,7 @@ public class INSGen {
         // Create sheet named 'ResponseOption'
         Sheet responseOptionSheet = workbook.createSheet(INSGen.RESPONSE_OPTIONS);
         String[] responseOptionHeaders = { "hasURI", "hasco:hascoType", "rdf:type", "rdfs:label", "vstoi:hasContent", "vstoi:hasLanguage", "vstoi:hasVersion", 	
-            "rdfs:comment", "hasco:hasImage", "vstoi:hasWebDocumentation" };
+            "hasco:hasMaker", "rdfs:comment", "hasco:hasImage", "hasco:hasWebDocument" };
 
         // Create header row
         Row responseOptionHeaderRow = responseOptionSheet.createRow(0);
@@ -466,7 +468,7 @@ public class INSGen {
         // Create sheet named 'Annotation'
         Sheet annotationSheet = workbook.createSheet(INSGen.ANNOTATIONS);
         String[] annotationHeaders = { "hasURI", "hasco:hascoType", "rdf:type", "rdfs:label", "vstoi:belongsTo", "vstoi:hasAnnotationStem", "vstoi:hasPosition", 
-        	"vstoi:hasContentWithStyle", "rdfs:comment", "hasco:hasImage", "vstoi:hasWebDocumentation" };
+        	"vstoi:hasContentWithStyle", "rdfs:comment", "hasco:hasImage", "hasco:hasWebDocument" };
 
         // Create header row
         Row annotationHeaderRow = annotationSheet.createRow(0);
@@ -481,7 +483,7 @@ public class INSGen {
         // Create sheet named 'AnnotationStem'
         Sheet annotationStemSheet = workbook.createSheet(INSGen.ANNOTATION_STEMS);
         String[] annotationStemHeaders = { "hasURI", "hasco:hascoType", "rdf:type", "rdfs:label", "vstoi:hasContent", "vstoi:hasLanguage", 	
-            "vstoi:hasVersion", "rdfs:comment", "hasco:hasImage", "vstoi:hasWebDocumentation" };
+            "vstoi:hasVersion", "rdfs:comment", "hasco:hasImage", "hasco:hasWebDocument" };
 
         // Create header row
         Row annotationStemHeaderRow = annotationStemSheet.createRow(0);
