@@ -201,6 +201,16 @@ public class SIRElementAPI extends Controller {
                 message = e.getMessage();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
+        } else if (clazz == FundingScheme.class) {
+            try {
+                FundingScheme object;
+                System.out.println("FUNDING SCHEME: " + json);
+                object = (FundingScheme)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
         } else if (clazz == INS.class) {
             try {
                 INS object;
@@ -333,6 +343,16 @@ public class SIRElementAPI extends Controller {
             try {
                 ProcessStem object;
                 object = (ProcessStem)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                System.out.println("Error processing ProcessStem: " + e.getMessage());
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == Project.class) {
+            try {
+                Project object;
+                object = (Project)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
                 System.out.println("Error processing ProcessStem: " + e.getMessage());
@@ -628,6 +648,12 @@ public class SIRElementAPI extends Controller {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
+        } else if (clazz == FundingScheme.class) {
+            FundingScheme object = FundingScheme.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
         } else if (clazz == INS.class) {
             INS object = INS.find(uri);
             if (object == null) {
@@ -710,6 +736,12 @@ public class SIRElementAPI extends Controller {
             object.delete();
         } else if (clazz == ProcessStem.class) {
             ProcessStem object = ProcessStem.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == Project.class) {
+            Project object = Project.find(uri);
             if (object == null) {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
@@ -1031,6 +1063,14 @@ public class SIRElementAPI extends Controller {
             GenericFind<KGR> query = new GenericFind<KGR>();
             List<KGR> results = query.findByKeywordWithPages(KGR.class,keyword, pageSize, offset);
             return KGRAPI.getKGRs(results);
+        }  else if (elementType.equals("fundingscheme")) {
+            GenericFind<FundingScheme> query = new GenericFind<FundingScheme>();
+            List<FundingScheme> results = query.findByKeywordWithPages(FundingScheme.class,keyword, pageSize, offset);
+            return FundingSchemeAPI.getFundingSchemes(results);
+        }  else if (elementType.equals("project")) {
+            GenericFind<Project> query = new GenericFind<Project>();
+            List<Project> results = query.findByKeywordWithPages(Project.class,keyword, pageSize, offset);
+            return ProjectAPI.getProjects(results);
         }  else if (elementType.equals("actuator")) {
             GenericFind<Actuator> query = new GenericFind<Actuator>();
             List<Actuator> results = query.findByKeywordWithPages(Actuator.class,keyword, pageSize, offset);
@@ -1386,6 +1426,14 @@ public class SIRElementAPI extends Controller {
             GenericFind<KGR> query = new GenericFind<KGR>();
             List<KGR> results = query.findByManagerEmailWithPages(KGR.class, managerEmail, pageSize, offset);
             return KGRAPI.getKGRs(results);
+        }  else if (elementType.equals("fundingscheme")) {
+            GenericFind<FundingScheme> query = new GenericFind<FundingScheme>();
+            List<FundingScheme> results = query.findByManagerEmailWithPages(FundingScheme.class, managerEmail, pageSize, offset);
+            return FundingSchemeAPI.getFundingSchemes(results);
+        }  else if (elementType.equals("project")) {
+            GenericFind<Project> query = new GenericFind<Project>();
+            List<Project> results = query.findByManagerEmailWithPages(Project.class, managerEmail, pageSize, offset);
+            return ProjectAPI.getProjects(results);
         }  else if (elementType.equals("actuatorstem")) {
             GenericFind<ActuatorStem> query = new GenericFind<ActuatorStem>();
             List<ActuatorStem> results = query.findByManagerEmailWithPages(ActuatorStem.class, managerEmail, pageSize, offset);
@@ -1570,6 +1618,14 @@ public class SIRElementAPI extends Controller {
             GenericFindWithStatus<KGR> query = new GenericFindWithStatus<KGR>();
             List<KGR> results = query.findByStatusWithPages(KGR.class, hasStatus, pageSize, offset);
             return KGRAPI.getKGRs(results);
+        }  else if (elementType.equals("fundingscheme")) {
+            GenericFindWithStatus<FundingScheme> query = new GenericFindWithStatus<FundingScheme>();
+            List<FundingScheme> results = query.findByStatusWithPages(FundingScheme.class, hasStatus, pageSize, offset);
+            return FundingSchemeAPI.getFundingSchemes(results);
+        }  else if (elementType.equals("project")) {
+            GenericFindWithStatus<Project> query = new GenericFindWithStatus<Project>();
+            List<Project> results = query.findByStatusWithPages(Project.class, hasStatus, pageSize, offset);
+            return ProjectAPI.getProjects(results);
         }  else if (elementType.equals("actuatorstem")) {
             GenericFindWithStatus<ActuatorStem> query = new GenericFindWithStatus<ActuatorStem>();
             List<ActuatorStem> results = query.findByStatusWithPages(ActuatorStem.class, hasStatus, pageSize, offset);
@@ -1754,6 +1810,14 @@ public class SIRElementAPI extends Controller {
             GenericFindWithStatus<KGR> query = new GenericFindWithStatus<KGR>();
             List<KGR> results = query.findByStatusManagerEmailWithPages(KGR.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return KGRAPI.getKGRs(results);
+        }  else if (elementType.equals("fundingscheme")) {
+            GenericFindWithStatus<FundingScheme> query = new GenericFindWithStatus<FundingScheme>();
+            List<FundingScheme> results = query.findByStatusManagerEmailWithPages(FundingScheme.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
+            return FundingSchemeAPI.getFundingSchemes(results);
+        }  else if (elementType.equals("project")) {
+            GenericFindWithStatus<Project> query = new GenericFindWithStatus<Project>();
+            List<Project> results = query.findByStatusManagerEmailWithPages(Project.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
+            return ProjectAPI.getProjects(results);
         }  else if (elementType.equals("actuatorstem")) {
             GenericFindWithStatus<ActuatorStem> query = new GenericFindWithStatus<ActuatorStem>();
             List<ActuatorStem> results = query.findByStatusManagerEmailWithPages(ActuatorStem.class, hasStatus, managerEmail, withCurrent, pageSize, offset);

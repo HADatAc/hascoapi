@@ -145,8 +145,11 @@ public class Utils {
             case "process":
                 shortPrefix = Constants.PREFIX_PROCESS;
                 break;
-            case "processstem":
-                shortPrefix = Constants.PREFIX_PROCESS_STEM;
+            case "fundingscheme":
+                shortPrefix = Constants.PREFIX_FUNDING_SCHEME;
+                break;
+            case "project":
+                shortPrefix = Constants.PREFIX_PROJECT;
                 break;
             case "actuatorstem":
                 shortPrefix = Constants.PREFIX_ACTUATOR_STEM;

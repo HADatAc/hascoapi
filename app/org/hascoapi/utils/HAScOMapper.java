@@ -252,6 +252,16 @@ public class HAScOMapper {
                             "hascoTypeLabel", "comment"));
         }
 
+        // FUNDING_SCHEME
+        if (mode.equals(FULL) && typeResult.equals(SCHEMA.FUNDING_SCHEME)) {
+            filterProvider.addFilter("fundingSchemeFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("fundingSchemeFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
+                            "hasImageUri", "hasWebDocument", "hascoTypeLabel", "comment", 
+                            "funderUri", "sponsorUri", "startDate", "endDate", "amount", "hasSIRManagerEmail"));
+        }
+
         // HASCO_CLASS
         if (mode.equals(FULL) && typeResult.equals(HASCO.HASCO_CLASS)) {
             filterProvider.addFilter("hascoClassFilter", SimpleBeanPropertyFilter.serializeAll());
@@ -403,7 +413,17 @@ public class HAScOMapper {
                             "hascoTypeLabel", "comment", "hasContent", "hasLanguage", "hasVersion",
                             "wasDerivedFrom", "wasGeneratedBy", "hasSIRManagerEmail", "hasEditorEmail"));
         }
- 
+         
+        // PROJECT
+        if (mode.equals(FULL) && typeResult.equals(SCHEMA.PROJECT)) {
+            filterProvider.addFilter("projectFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("projectFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
+                            "hasImageUri", "hasWebDocument", "hascoTypeLabel", "comment", 
+                            "fundingUri", "contributorUri", "startDate", "endDate", "hasSIRManagerEmail"));
+        }
+
         // REQUIRED_INSTRUMENTATION
         if (mode.equals(FULL) && typeResult.equals(VSTOI.REQUIRED_INSTRUMENTATION)) {
             filterProvider.addFilter("requiredInstrumentationFilter", SimpleBeanPropertyFilter.serializeAll());

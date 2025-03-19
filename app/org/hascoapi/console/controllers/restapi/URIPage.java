@@ -176,6 +176,8 @@ public class URIPage extends Controller {
                 finalResult = DSG.find(uri);
             } else if (result.getHascoTypeUri().equals(SIO.ENTITY)) {
                 finalResult = Entity.find(uri);
+            } else if (result.getHascoTypeUri().equals(SCHEMA.FUNDING_SCHEME)) {
+                finalResult = FundingScheme.find(uri);
             } else if (result.getHascoTypeUri().equals(HASCO.INS)) {
                 finalResult = INS.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.INSTRUMENT)) {
@@ -202,6 +204,8 @@ public class URIPage extends Controller {
                 finalResult = org.hascoapi.entity.pojo.Process.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.PROCESS_STEM)) {
                 finalResult = ProcessStem.find(uri);
+            } else if (result.getHascoTypeUri().equals(SCHEMA.PROJECT)) {
+                finalResult = Project.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.REQUIRED_INSTRUMENTATION)) {
                 finalResult = RequiredInstrumentation.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.RESPONSE_OPTION)) {
