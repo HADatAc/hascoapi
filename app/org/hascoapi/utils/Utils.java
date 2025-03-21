@@ -270,8 +270,9 @@ public class Utils {
             repoUri += "/";
         }
 
-        return repoUri + shortPrefix + '_' + identifier;
+        String finalUri = repoUri + shortPrefix + '_' + identifier;
 
+        return finalUri;
     }
 
     public static String retrieveHASCOTypeUri(String uri) {
