@@ -231,6 +231,7 @@ public class HAScOMapper {
         /*
         filterProvider.addFilter("detectorStemTypeFilter", 
             SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "className", "superUri", "superLabel", "comment"));
+        */
 
         // DSG
         if (mode.equals(FULL) && typeResult.equals(HASCO.DSG)) {
@@ -240,7 +241,6 @@ public class HAScOMapper {
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
                             "hascoTypeLabel", "comment", "hasDataFileUri", "hasDataFile"));
         }
-        */
 
         // ENTITY
         if (mode.equals(FULL) && typeResult.equals(SIO.ENTITY)) {
