@@ -107,6 +107,7 @@ public class IngestionAPI extends Controller {
         if (elementType.equals("dp2") || 
             elementType.equals("dsg") ||
             elementType.equals("ins") ||
+            elementType.equals("kgr") ||
             elementType.equals("sdd") || 
             elementType.equals("str")) {
             System.out.println("IngestionAPI.ingest(): inside elementType=[" + elementType + "]");
@@ -129,6 +130,12 @@ public class IngestionAPI extends Controller {
                     return ok(ApiUtil.createResponse("IngestionAPI.ingest(): File FAILED to be ingested: could not retrieve " + elementType + ". ",false));
                 }
                 dataFile = DataFile.find(ins.getHasDataFileUri());
+            } else if (elementType.equals("kgr")) {
+                KGR kgr = KGR.find(elementUri);
+                if (kgr == null) {
+                    return ok(ApiUtil.createResponse("IngestionAPI.ingest(): File FAILED to be ingested: could not retrieve " + elementType + ". ",false));
+                }
+                dataFile = DataFile.find(kgr.getHasDataFileUri());
             } else if (elementType.equals("sdd")) {
                 SDD sdd = SDD.find(elementUri);
                 if (sdd == null) {
@@ -169,6 +176,7 @@ public class IngestionAPI extends Controller {
         /*
          *  KGR
          */
+        /* 
         } else if (elementType.equals("kgr")) {
             System.out.println("IngestionAPI.ingest(): inside elementType=[" + elementType + "]");
             KGR kgr = KGR.find(elementUri);
@@ -194,6 +202,7 @@ public class IngestionAPI extends Controller {
             } else {
                 return ok(ApiUtil.createResponse("Could not prepare ingestion for element type " + elementType,false));
             }
+        */
 
         /*
          *  UNKNOWN MT's TYPE
@@ -301,8 +310,8 @@ public class IngestionAPI extends Controller {
             System.out.println(errorMsg);
             return ok(ApiUtil.createResponse(errorMsg,false));
         } else {
-            if (mtRaw.getHascoTypeUri().equals(HASCO.KNOWLEDGE_GRAPH)) {
-                mtType = HASCO.KNOWLEDGE_GRAPH;
+            if (mtRaw.getHascoTypeUri().equals(HASCO.KGR)) {
+                mtType = HASCO.KGR;
                 System.out.println("IngestionAPI.uningestMetadataTemplate() read KGR");
             } else if (mtRaw.getHascoTypeUri().equals(HASCO.SDD)) {
                 mtType = HASCO.SDD;
@@ -329,7 +338,7 @@ public class IngestionAPI extends Controller {
             return ok(ApiUtil.createResponse(errorMsg,false));
         }
 
-        if (mtType.equals(HASCO.KNOWLEDGE_GRAPH)) {
+        if (mtType.equals(HASCO.KGR)) {
             KGR kgr = KGR.find(metadataTemplateUri);
             if (kgr == null) {
                 String errorMsg = "[ERROR] IngestionAPI.uningestMetadataTemplate() unable to retrieve KGR with metadataTemplateUri = " + metadataTemplateUri;

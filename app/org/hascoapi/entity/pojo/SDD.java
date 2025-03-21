@@ -179,13 +179,10 @@ public class SDD extends MetadataTemplate {
     }
 
     public SDD(DataFile dataFile, String templateFile) {
-        this.uri = dataFile.getUri().replace("DF","SD");
+        this.uri = dataFile.getUri().replace("DFL","SDD");
         this.label = "";
         this.setTemplates(templateFile);
         isRefreshed = false;
-        //SDD.getCache();
-        //getAttributes();
-        //getObjects();
     }
 
     public SDD(String uri, String label) {

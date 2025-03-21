@@ -218,7 +218,7 @@ public class GenericFind<T> {
         } else if (clazz == ProcessStem.class) {
             return URIUtils.replaceNameSpace(VSTOI.PROCESS_STEM);
         } else if (clazz == KGR.class) {
-            return URIUtils.replaceNameSpace(HASCO.KNOWLEDGE_GRAPH);
+            return URIUtils.replaceNameSpace(HASCO.KGR);
         } else if (clazz == FundingScheme.class) {
             return URIUtils.replaceNameSpace(SCHEMA.FUNDING_SCHEME);
         } else if (clazz == Project.class) {

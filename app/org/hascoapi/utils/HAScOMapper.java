@@ -306,16 +306,16 @@ public class HAScOMapper {
         /*
         filterProvider.addFilter("instrumentTypeFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "className", "superUri", "superLabel", "comment"));
+        */
 
         // KGR
-        if (mode.equals(FULL) && typeResult.equals(HASCO.KNOWLEDGE_GRAPH)) {
+        if (mode.equals(FULL) && typeResult.equals(HASCO.KGR)) {
             filterProvider.addFilter("kgrFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("kgrFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
                             "hascoTypeLabel", "comment", "hasDataFile", "dataFile"));
         }
-        */
 
         // ORGANIZATION
         if (mode.equals(FULL) && typeResult.equals(FOAF.ORGANIZATION)) {
@@ -645,7 +645,7 @@ public class HAScOMapper {
         } else if (clazz == InstrumentType.class) {
             return getFiltered(mode, VSTOI.INSTRUMENT);  // INSTRUMENT_TYPE == INSTRUMENT
         } else if (clazz == KGR.class) {
-            return getFiltered(mode, HASCO.KNOWLEDGE_GRAPH);
+            return getFiltered(mode, HASCO.KGR);
         } else if (clazz == Organization.class) {
             return getFiltered(mode, FOAF.ORGANIZATION);
         } else if (clazz == Person.class) {

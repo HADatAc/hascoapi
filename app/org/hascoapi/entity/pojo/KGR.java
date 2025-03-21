@@ -39,7 +39,7 @@ import org.hascoapi.vocabularies.VSTOI;
 @JsonFilter("kgrFilter")
 public class KGR extends MetadataTemplate {
 
-    public String className = "hasco:KnowledgeGraph";
+    public String className = "hasco:KGR";
 
     //private Map<String, String> mapCatalog = new HashMap<String, String>();
     private Map<String, Map<String, String>> postalAddresses = new HashMap<String, Map<String, String>>();
@@ -94,6 +94,15 @@ public class KGR extends MetadataTemplate {
         this.templates = new Templates(templateFile);
     }
     */
+
+    public KGR() {
+    }
+
+    public KGR(DataFile dataFile, String templateFile) {
+        this.uri = dataFile.getUri().replace("DFL","KGR");
+        this.label = "";
+        this.setTemplates(templateFile);
+    }
 
     public static KGR find(String uri) {
             
