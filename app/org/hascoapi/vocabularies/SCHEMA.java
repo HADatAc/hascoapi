@@ -20,6 +20,7 @@ public class SCHEMA {
     public static final String ADDRESS_COUNTRY     =  SCHEMA + "addressCountry";
     public static final String ADDRESS_LOCALITY    =  SCHEMA + "addressLocality";
     public static final String ADDRESS_REGION      =  SCHEMA + "addressRegion";
+    public static final String ALTERNATE_NAME      =  SCHEMA + "alternateName";
     public static final String AMOUNT              =  SCHEMA + "amount";
     public static final String CHILDREN            =  SCHEMA + "children"; // Persons
     public static final String CONTAINED_IN_PLACE  =  SCHEMA + "containedInPlace"; // Place

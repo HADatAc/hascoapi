@@ -257,9 +257,11 @@ public class HAScOMapper {
             filterProvider.addFilter("fundingSchemeFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("fundingSchemeFilter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hasImageUri", "hasWebDocument", "hascoTypeLabel", "comment", 
-                            "funderUri", "sponsorUri", "startDate", "endDate", "amount", "hasSIRManagerEmail"));
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", 
+                            "typeLabel", "hascoTypeUri", "hasStatus", "hasShortName", "hasImageUri", 
+                            "hasWebDocument", "hascoTypeLabel", "comment", "funderUri", 
+                            "hasVersion", "hasReviewNote", "hasEditorEmail",  
+                            "sponsorUri", "startDate", "endDate", "amount", "hasSIRManagerEmail"));
         }
 
         // HASCO_CLASS
@@ -419,9 +421,12 @@ public class HAScOMapper {
             filterProvider.addFilter("projectFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("projectFilter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hasImageUri", "hasWebDocument", "hascoTypeLabel", "comment", 
-                            "fundingUri", "contributorUri", "startDate", "endDate", "hasSIRManagerEmail"));
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", 
+                            "hascoTypeUri", "hasStatus", "hasShortName", "hasImageUri", "hasWebDocument", 
+                            "hascoTypeLabel", "comment", "fundingUri", "contributorUri", 
+                            "hasVersion", "hasReviewNote", "hasEditorEmail",  
+                            "fundingUri", "funding",
+                            "startDate", "endDate", "hasSIRManagerEmail", "contributors"));
         }
 
         // REQUIRED_INSTRUMENTATION

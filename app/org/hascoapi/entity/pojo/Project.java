@@ -24,6 +24,21 @@ public class Project extends HADatAcThing implements Comparable<Project> {
 
     private static final Logger log = LoggerFactory.getLogger(Project.class);
 
+	@PropertyField(uri="vstoi:hasStatus")
+	private String hasStatus;
+
+    @PropertyField(uri = "vstoi:hasVersion")
+    private String hasVersion;
+
+    @PropertyField(uri = "vstoi:hasReviewNote")
+    String hasReviewNote;
+
+    @PropertyField(uri = "vstoi:hasEditorEmail")
+    private String hasEditorEmail;
+
+    @PropertyField(uri="schema:alternateName")
+    private String hasShortName;
+
     @PropertyField(uri="schema:startDate")
     private String startDate;
 
@@ -38,6 +53,46 @@ public class Project extends HADatAcThing implements Comparable<Project> {
 
     @PropertyField(uri="vstoi:hasSIRManagerEmail")
     private String hasSIRManagerEmail;
+
+    public String getHasStatus() {
+        return hasStatus;
+    }
+
+    public void setHasStatus(String hasStatus) {
+        this.hasStatus = hasStatus;
+    }
+
+    public String getHasVersion() {
+        return hasVersion;
+    }
+
+    public void setHasVersion(String hasVersion) {
+        this.hasVersion = hasVersion;
+    }
+
+    public String getHasReviewNote() {      
+        return hasReviewNote;
+    }
+
+    public void setHasReviewNote(String hasReviewNote) {
+        this.hasReviewNote = hasReviewNote;
+    }
+
+    public String getHasEditorEmail() {
+        return hasEditorEmail;
+    }
+
+    public void setHasEditorEmail(String hasEditorEmail) {
+        this.hasEditorEmail = hasEditorEmail;
+    }
+
+    public String getHasShortName() {
+        return hasShortName;
+    }
+
+    public void setHasShortName(String hasShortName) {
+        this.hasShortName = hasShortName;
+    }
 
     public String getStartDate() {
         return startDate;
@@ -55,8 +110,17 @@ public class Project extends HADatAcThing implements Comparable<Project> {
         this.endDate = endDate;
     }
 
+    /* 
     public String getFundingUri() {
         return fundingUri;
+    }
+        */
+
+    public FundingScheme getFunding() {
+        if (fundingUri == null || fundingUri.isEmpty()) {
+            return null;
+        }
+        return FundingScheme.find(fundingUri);
     }
 
     public void setFundingUri(String fundingUri) {
@@ -65,6 +129,21 @@ public class Project extends HADatAcThing implements Comparable<Project> {
 
     public List<String> getContributorUris() {
         return contributorUris;
+    }
+
+    public List<Organization> getContributors() {
+        List<Organization> contributors = new ArrayList<Organization>();
+        if (contributorUris != null && contributorUris.size() > 0) {
+            for (String contributorUri : contributorUris) {
+                if (contributorUri != null && !contributorUri.isEmpty()) {
+                    Organization contributor = Organization.find(contributorUri);
+                    if (contributor != null) {
+                        contributors.add(contributor);
+                    }
+                }
+            }
+        }
+        return contributors;
     }
 
     public void setContributorUris(List<String> contributorUris) {
@@ -138,6 +217,16 @@ public class Project extends HADatAcThing implements Comparable<Project> {
                 project.setHasImageUri(objectValue);
             } else if (predicateUri.equals(HASCO.HAS_WEB_DOCUMENT)) {
                 project.setHasWebDocument(objectValue);
+            } else if (predicateUri.equals(VSTOI.HAS_STATUS)) {
+                project.setHasStatus(objectValue);
+            } else if (predicateUri.equals(VSTOI.HAS_VERSION)) {
+                project.setHasVersion(objectValue);
+            } else if (predicateUri.equals(VSTOI.HAS_REVIEW_NOTE)) {
+                project.setHasReviewNote(objectValue);
+            } else if (predicateUri.equals(VSTOI.HAS_EDITOR_EMAIL)) {
+                project.setHasEditorEmail(objectValue);
+            } else if (predicateUri.equals(SCHEMA.ALTERNATE_NAME)) {
+                project.setHasShortName(objectValue);
             } else if (predicateUri.equals(SCHEMA.FUNDING)) {
                 project.setFundingUri(objectValue);
             } else if (predicateUri.equals(SCHEMA.START_DATE)) {

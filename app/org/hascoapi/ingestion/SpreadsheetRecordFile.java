@@ -53,9 +53,9 @@ public class SpreadsheetRecordFile implements RecordFile {
             sb.deleteCharAt(0);
             sheetName = sb.toString();
         }
-        //System.out.println("SpreadsheetRecordFile: file's filename is [" + file.getName() + "]");
-        //System.out.println("SpreadsheetRecordFile: RecordFile's filename is [" + fileName + "]");
-        //System.out.println("SpreadsheetRecordFile: RecordFile's sheetname is [" + sheetName + "]");
+        System.out.println("SpreadsheetRecordFile: file's filename is [" + file.getName() + "]");
+        System.out.println("SpreadsheetRecordFile: RecordFile's filename is [" + fileName + "]");
+        System.out.println("SpreadsheetRecordFile: RecordFile's sheetname is [" + sheetName + "]");
 
         if (file == null || file.getName() == null || file.getName().isEmpty()) {
             System.out.println("[ERROR] SpreadsheetRecordFile.init() failed: file is null of file.getName() is null.");
@@ -70,6 +70,12 @@ public class SpreadsheetRecordFile implements RecordFile {
             Workbook workbook = WorkbookFactory.create(new FileInputStream(file));
             numberOfSheets = workbook.getNumberOfSheets();
             
+            if (numberOfSheets > 0) {
+                for (int aux = 0; aux < numberOfSheets; aux++) {
+                    Sheet sheet = workbook.getSheetAt(aux);
+                    System.out.println("Sheet " + aux + ": " + sheet.getSheetName());
+                }
+            }
             Sheet sheet = null;
             if (sheetName.isEmpty()) {
                 sheet = workbook.getSheetAt(0);

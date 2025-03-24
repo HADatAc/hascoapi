@@ -433,7 +433,7 @@ public class DataFile extends HADatAcThing implements Cloneable {
             return;
         }
         if (!uri.isEmpty()) {
-            System.out.println("[WARNING] (DataFile.java) Using Datafile's URI as named graph's name.");
+            // System.out.println("[WARNING] (DataFile.java) Using Datafile's URI as named graph's name.");
             this.setNamedGraph(uri);
         }
         saveToTripleStore();

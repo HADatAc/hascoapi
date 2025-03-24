@@ -1,12 +1,10 @@
 package org.hascoapi.ingestion;
 
-import java.io.File;
 import java.lang.String;
 import java.util.*;
 
 import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.entity.pojo.KGR;
-import org.hascoapi.entity.pojo.SDD;
 
 public class AnnotateKGR {
 
@@ -28,10 +26,13 @@ public class AnnotateKGR {
         Map<String, String> mapCatalog = new HashMap<String, String>();
         for (Record record : dataFile.getRecordFile().getRecords()) {
             mapCatalog.put(record.getValueByColumnIndex(0), record.getValueByColumnIndex(1));
-            //System.out.println(record.getValueByColumnIndex(0) + ":" + record.getValueByColumnIndex(1));
+            System.out.println(record.getValueByColumnIndex(0) + ":" + record.getValueByColumnIndex(1));
         }
         
         KGR kgr = new KGR(dataFile, templateFile);
+        kgr.setHasDataFileUri(dataFile.getUri());
+        System.out.println("DataFileUri: [" + dataFile.getUri() + "]");
+        System.out.println("DataFileUri: [" + kgr.getHasDataFileUri() + "]");
 
         // the template is needed to process individual sheets
         kgr.setTemplates(templateFile);
@@ -51,28 +52,28 @@ public class AnnotateKGR {
 
             if (mapCatalog.get("PostalAddress") != null) {
                 System.out.print("Extracting PostalAddress sheet from spreadsheet... ");
-                postalAddressRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), mapCatalog.get("PostalAddress"));
+                postalAddressRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), "#" + mapCatalog.get("PostalAddress"));
                 System.out.println(postalAddressRecordFile.getSheetName());
                 postalAddressOkay = true;
             }
             
             if (mapCatalog.get("Place") != null) {
                 System.out.print("Extracting place sheet from spreadsheet... ");
-                placeRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), mapCatalog.get("Place"));
+                placeRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), "#" + mapCatalog.get("Place"));
                 System.out.println(placeRecordFile.getSheetName());
                 placeOkay = true;
             }
             
             if (mapCatalog.get("Organization") != null) { 
                 System.out.print("Extrating organization sheet from spreadsheet... ");
-                organizationRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), mapCatalog.get("Organization"));
+                organizationRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), "#" + mapCatalog.get("Organization"));
                 System.out.println(organizationRecordFile.getSheetName());
                 organizationOkay = true;
             }
             
             if (mapCatalog.get("Person") != null) {
                 System.out.print("Extracting person sheet from spreadsheet... ");
-                personRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), mapCatalog.get("Person"));
+                personRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), mapCatalog.get("Person").replace("#", ""));
                 //replace("#","")
                 System.out.println(personRecordFile.getSheetName());
                 personOkay = true;
