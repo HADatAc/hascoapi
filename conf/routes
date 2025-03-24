@@ -136,6 +136,8 @@ GET     /hascoapi/api/platforminstance/byplatform/total/:platformUri            
 
 POST    /hascoapi/api/task/instrumentation                                          org.hascoapi.console.controllers.restapi.TaskAPI.setRequiredInstrumentation(request: play.mvc.Http.Request)
 
+POST    /hascoapi/api/project/member                                                org.hascoapi.console.controllers.restapi.ProjectAPI.setMembers(request: play.mvc.Http.Request)
+
 # INGESTION METHODS
 
 POST    /hascoapi/api/ingest/:status/:elementType/:elementUri                       org.hascoapi.console.controllers.restapi.IngestionAPI.ingest(status: String, elementType: String, elementUri: String, request: play.mvc.Http.Request)

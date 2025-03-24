@@ -25,6 +25,21 @@ public class FundingScheme extends HADatAcThing implements Comparable<FundingSch
 
     private static final Logger log = LoggerFactory.getLogger(FundingScheme.class);
 
+	@PropertyField(uri="vstoi:hasStatus")
+	private String hasStatus;
+
+    @PropertyField(uri = "vstoi:hasVersion")
+    private String hasVersion;
+
+    @PropertyField(uri = "vstoi:hasReviewNote")
+    String hasReviewNote;
+
+    @PropertyField(uri = "vstoi:hasEditorEmail")
+    private String hasEditorEmail;
+
+    @PropertyField(uri="schema:alternateName")
+    private String hasShortName;
+
     @PropertyField(uri="schema:funder")
     private String funderUri;
 
@@ -42,6 +57,46 @@ public class FundingScheme extends HADatAcThing implements Comparable<FundingSch
 
     @PropertyField(uri="vstoi:hasSIRManagerEmail")
     private String hasSIRManagerEmail;
+
+    public String getHasStatus() {
+        return hasStatus;
+    }
+
+    public void setHasStatus(String hasStatus) {
+        this.hasStatus = hasStatus;
+    }
+
+    public String getHasVersion() {
+        return hasVersion;
+    }
+
+    public void setHasVersion(String hasVersion) {
+        this.hasVersion = hasVersion;
+    }
+
+    public String getHasReviewNote() {      
+        return hasReviewNote;
+    }
+
+    public void setHasReviewNote(String hasReviewNote) {
+        this.hasReviewNote = hasReviewNote;
+    }
+
+    public String getHasEditorEmail() {
+        return hasEditorEmail;
+    }
+
+    public void setHasEditorEmail(String hasEditorEmail) {
+        this.hasEditorEmail = hasEditorEmail;
+    }
+
+    public String getHasShortName() {
+        return hasShortName;
+    }
+
+    public void setHasShortName(String hasShortName) {
+        this.hasShortName = hasShortName;
+    }
 
     public String getFunderUri() {
         return funderUri;
@@ -149,6 +204,16 @@ public class FundingScheme extends HADatAcThing implements Comparable<FundingSch
                 scheme.setHasImageUri(objectValue);
             } else if (predicateUri.equals(HASCO.HAS_WEB_DOCUMENT)) {
                 scheme.setHasWebDocument(objectValue);
+            } else if (predicateUri.equals(VSTOI.HAS_STATUS)) {
+                scheme.setHasStatus(objectValue);
+            } else if (predicateUri.equals(VSTOI.HAS_VERSION)) {
+                scheme.setHasVersion(objectValue);
+            } else if (predicateUri.equals(VSTOI.HAS_REVIEW_NOTE)) {
+                scheme.setHasReviewNote(objectValue);
+            } else if (predicateUri.equals(VSTOI.HAS_EDITOR_EMAIL)) {
+                scheme.setHasEditorEmail(objectValue);
+            } else if (predicateUri.equals(SCHEMA.ALTERNATE_NAME)) {
+                scheme.setHasShortName(objectValue);
             } else if (predicateUri.equals(SCHEMA.FUNDER)) {
                 scheme.setFunderUri(objectValue);
             } else if (predicateUri.equals(SCHEMA.SPONSOR)) {

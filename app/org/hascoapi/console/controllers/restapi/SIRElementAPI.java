@@ -355,7 +355,7 @@ public class SIRElementAPI extends Controller {
                 object = (Project)objectMapper.readValue(json, clazz);
                 object.save();
             } catch (JsonProcessingException e) {
-                System.out.println("Error processing ProcessStem: " + e.getMessage());
+                System.out.println("Error processing Project: " + e.getMessage());
                 message = e.getMessage();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
