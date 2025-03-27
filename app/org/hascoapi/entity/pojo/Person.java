@@ -22,6 +22,7 @@ import org.hascoapi.vocabularies.RDFS;
 import org.hascoapi.vocabularies.SCHEMA;
 import org.hascoapi.vocabularies.VSTOI;
 
+
 @JsonFilter("personFilter")
 public class Person extends Agent {
 
@@ -152,38 +153,43 @@ public class Person extends Agent {
         while (stmtIterator.hasNext()) {
             statement = stmtIterator.next();
             object = statement.getObject();
+            String predicateUri = statement.getPredicate().getURI();
             String str = URIUtils.objectRDFToString(object);
-             if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
+             if (predicateUri.equals(RDFS.LABEL)) {
                 person.setLabel(str);
-            } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
+            } else if (predicateUri.equals(RDF.TYPE)) {
                 person.setTypeUri(str);
-            } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
+            } else if (predicateUri.equals(RDFS.COMMENT)) {
                 person.setComment(str);
-            } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
+            } else if (predicateUri.equals(HASCO.HASCO_TYPE)) {
                 person.setHascoTypeUri(str);
-            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+            } else if (predicateUri.equals(HASCO.HAS_IMAGE)) {
                 person.setHasImageUri(str);
-            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
+            } else if (predicateUri.equals(HASCO.HAS_WEB_DOCUMENT)) {
                 person.setHasWebDocument(str);
-            } else if (statement.getPredicate().getURI().equals(FOAF.NAME)) {
+            } else if (predicateUri.equals(VSTOI.HAS_STATUS)) {
+                person.setHasStatus(str);
+            } else if (predicateUri.equals(SCHEMA.ALTERNATE_NAME)) {
+                person.setHasShortName(str);
+            } else if (predicateUri.equals(FOAF.NAME)) {
                 person.setName(str);
-            } else if (statement.getPredicate().getURI().equals(FOAF.FAMILY_NAME)) {
+            } else if (predicateUri.equals(FOAF.FAMILY_NAME)) {
                 person.setFamilyName(str);
-            } else if (statement.getPredicate().getURI().equals(FOAF.GIVEN_NAME)) {
+            } else if (predicateUri.equals(FOAF.GIVEN_NAME)) {
                 person.setGivenName(str);
-            } else if (statement.getPredicate().getURI().equals(FOAF.MBOX)) {
+            } else if (predicateUri.equals(FOAF.MBOX)) {
                 person.setMbox(str);
-            } else if (statement.getPredicate().getURI().equals(SCHEMA.TELEPHONE)) {
+            } else if (predicateUri.equals(SCHEMA.TELEPHONE)) {
                 person.setTelephone(str);
-            } else if (statement.getPredicate().getURI().equals(FOAF.MEMBER)) {
+            } else if (predicateUri.equals(FOAF.MEMBER)) {
                 person.setHasAffiliationUri(str);
-            } else if (statement.getPredicate().getURI().equals(SCHEMA.ADDRESS)) {
+            } else if (predicateUri.equals(SCHEMA.ADDRESS)) {
                 person.setHasAddressUri(str);
-            } else if (statement.getPredicate().getURI().equals(SCHEMA.URL)) {
+            } else if (predicateUri.equals(SCHEMA.URL)) {
                 person.setHasUrl(str);
-            } else if (statement.getPredicate().getURI().equals(SCHEMA.JOB_TITLE)) {
+            } else if (predicateUri.equals(SCHEMA.JOB_TITLE)) {
                 person.setJobTitle(str);
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
+            } else if (predicateUri.equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
                 person.setHasSIRManagerEmail(str);
             }
         }

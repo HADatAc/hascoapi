@@ -6,7 +6,7 @@ import org.hascoapi.entity.pojo.PostalAddress;
 import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.entity.pojo.NameSpace;
 import org.hascoapi.utils.URIUtils;
-import org.hascoapi.vocabularies.FOAF;
+import org.hascoapi.vocabularies.SCHEMA;
 import org.hascoapi.vocabularies.VSTOI;
 import org.hascoapi.utils.ConfigProp;
 import org.hascoapi.utils.IngestionLogger;
@@ -31,12 +31,14 @@ public class OrganizationGenerator extends BaseGenerator {
 	private static final Logger log = LoggerFactory.getLogger(PVGenerator.class);
     private long timestamp;
 	private String managerEmail;
+	private String status;
 	final String kbPrefix = ConfigProp.getKbPrefix();
 	String startTime = "";
     protected IngestionLogger logger = null;
 
-	public OrganizationGenerator(DataFile dataFile, String templateFile, String managerEmail) {
+	public OrganizationGenerator(DataFile dataFile, String status,  String templateFile, String managerEmail) {
 		super(dataFile, null, templateFile);
+		this.status = status;
 		this.logger = dataFile.getLogger();
 		this.managerEmail = managerEmail;
 	}
@@ -141,7 +143,7 @@ public class OrganizationGenerator extends BaseGenerator {
 		Map<String, Object> row = new HashMap<String, Object>();
 		row.put("hasURI", createOrganizationUri());
 		row.put("hasco:hasOriginalID", URIUtils.replaceNameSpaceEx(getOriginalID(rec)));
-		row.put("hasco:hascoType", FOAF.ORGANIZATION);
+		row.put("hasco:hascoType",SCHEMA.ORGANIZATION);
 		row.put("a", URIUtils.replaceNameSpaceEx(getType(rec)));		
 		row.put("rdfs:label", getShortName(rec));
 		row.put("foaf:name", getName(rec));
@@ -149,7 +151,8 @@ public class OrganizationGenerator extends BaseGenerator {
 		row.put("schema:telephone", getTelephone(rec));
 		row.put("schema:url", getUrl(rec));
 		row.put("schema:parentOrganization", getParentOrganization(rec));
-		row.put("schema:address", getAddress(rec));
+		row.put("schema:address", getAddress(rec));		
+		row.put("vstoi:hasStatus", URIUtils.replaceNameSpaceEx(status));		
 		row.put("vstoi:hasSIRManagerEmail", managerEmail);
 		return row;
 	}

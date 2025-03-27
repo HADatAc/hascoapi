@@ -206,9 +206,9 @@ public class GenericFind<T> {
         } else if (clazz == Deployment.class) {
             return URIUtils.replaceNameSpace(VSTOI.DEPLOYMENT);
         } else if (clazz == Person.class) {
-            return URIUtils.replaceNameSpace(FOAF.PERSON);
+            return URIUtils.replaceNameSpace(SCHEMA.PERSON);
         } else if (clazz == Organization.class) {
-            return URIUtils.replaceNameSpace(FOAF.ORGANIZATION);
+            return URIUtils.replaceNameSpace(SCHEMA.ORGANIZATION);
         } else if (clazz == Place.class) {
             return URIUtils.replaceNameSpace(SCHEMA.PLACE);
         } else if (clazz == PostalAddress.class) {

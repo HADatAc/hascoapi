@@ -197,32 +197,37 @@ public class Organization extends Agent {
         while (stmtIterator.hasNext()) {
             statement = stmtIterator.next();
             object = statement.getObject();
+            String predicateUri = statement.getPredicate().getURI();
             String str = URIUtils.objectRDFToString(object);
-            if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
+            if (predicateUri.equals(RDFS.LABEL)) {
                 organization.setLabel(str);
-            } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
+            } else if (predicateUri.equals(RDF.TYPE)) {
                 organization.setTypeUri(str);
-            } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
+            } else if (predicateUri.equals(RDFS.COMMENT)) {
                 organization.setComment(str);
-            } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
+            } else if (predicateUri.equals(HASCO.HASCO_TYPE)) {
                 organization.setHascoTypeUri(str);
-            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+            } else if (predicateUri.equals(HASCO.HAS_IMAGE)) {
                 organization.setHasImageUri(str);
-            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
+            } else if (predicateUri.equals(HASCO.HAS_WEB_DOCUMENT)) {
                 organization.setHasWebDocument(str);
-            } else if (statement.getPredicate().getURI().equals(FOAF.NAME)) {
+            } else if (predicateUri.equals(VSTOI.HAS_STATUS)) {
+                organization.setHasStatus(str);
+            } else if (predicateUri.equals(SCHEMA.ALTERNATE_NAME)) {
+                organization.setHasShortName(str);
+            } else if (predicateUri.equals(FOAF.NAME)) {
                 organization.setName(str);
-            } else if (statement.getPredicate().getURI().equals(FOAF.MBOX)) {
+            } else if (predicateUri.equals(FOAF.MBOX)) {
                 organization.setMbox(str);
-            } else if (statement.getPredicate().getURI().equals(SCHEMA.TELEPHONE)) {
+            } else if (predicateUri.equals(SCHEMA.TELEPHONE)) {
                 organization.setTelephone(str);
-            } else if (statement.getPredicate().getURI().equals(SCHEMA.PARENT_ORGANIZATION)) {
+            } else if (predicateUri.equals(SCHEMA.PARENT_ORGANIZATION)) {
                 organization.setParentOrganizationUri(str);
-            } else if (statement.getPredicate().getURI().equals(SCHEMA.ADDRESS)) {
+            } else if (predicateUri.equals(SCHEMA.ADDRESS)) {
                 organization.setHasAddressUri(str);
-            } else if (statement.getPredicate().getURI().equals(SCHEMA.URL)) {
+            } else if (predicateUri.equals(SCHEMA.URL)) {
                 organization.setHasUrl(str);
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
+            } else if (predicateUri.equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
                 organization.setHasSIRManagerEmail(str);
             }
         }

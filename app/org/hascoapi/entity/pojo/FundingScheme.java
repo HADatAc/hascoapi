@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @JsonFilter("fundingSchemeFilter")
 public class FundingScheme extends HADatAcThing implements Comparable<FundingScheme> {
 

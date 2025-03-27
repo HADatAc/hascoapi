@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.utils.Utils;
-import org.hascoapi.vocabularies.FOAF;
+import org.hascoapi.vocabularies.SCHEMA;
 
 public class AgentGenerator extends BaseGenerator {
 
@@ -265,8 +265,8 @@ public class AgentGenerator extends BaseGenerator {
     	Map<String, Object> row = new HashMap<String, Object>();
 		if (getPIFullName(rec) != null && !getPIFullName(rec).isEmpty()) {
 			row.put("hasURI", createPIUri());
-			row.put("a", FOAF.PERSON);
-			row.put("hasco:hascoType", FOAF.PERSON);
+			row.put("a", SCHEMA.PERSON);
+			row.put("hasco:hascoType", SCHEMA.PERSON);
 			row.put("rdfs:label", getPIFullName(rec));
 			row.put("foaf:name", getPIFullName(rec));
 			row.put("rdfs:comment", "PI from " + getInstitutionName(rec));
@@ -286,8 +286,8 @@ public class AgentGenerator extends BaseGenerator {
     	Map<String, Object> row = new HashMap<String, Object>();
 		if (getCPI1FullName(rec) != null && !getCPI1FullName(rec).isEmpty()) {
 			row.put("hasURI", createCPI1Uri());
-			row.put("a", FOAF.PERSON);
-			row.put("hasco:hascoType", FOAF.PERSON);
+			row.put("a", SCHEMA.PERSON);
+			row.put("hasco:hascoType", SCHEMA.PERSON);
 			row.put("rdfs:label", getCPI1FullName(rec));
 			row.put("foaf:name", getCPI1FullName(rec));
 			row.put("rdfs:comment", "Co-PI from " + getInstitutionName(rec));
@@ -308,8 +308,8 @@ public class AgentGenerator extends BaseGenerator {
     	Map<String, Object> row = new HashMap<String, Object>();
 		if (getCPI2FullName(rec) != null && !getCPI2FullName(rec).isEmpty()) {
 			row.put("hasURI", createCPI2Uri());
-			row.put("a", FOAF.PERSON);
-			row.put("hasco:hascoType", FOAF.PERSON);
+			row.put("a", SCHEMA.PERSON);
+			row.put("hasco:hascoType", SCHEMA.PERSON);
 			row.put("rdfs:label", getCPI2FullName(rec));
 			row.put("foaf:name", getCPI2FullName(rec));
 			row.put("rdfs:comment", "Co-PI from " + getInstitutionName(rec));
@@ -330,8 +330,8 @@ public class AgentGenerator extends BaseGenerator {
     	Map<String, Object> row = new HashMap<String, Object>();
 		if (getContactFullName(rec) != null && !getContactFullName(rec).isEmpty()) {
 			row.put("hasURI", createContactUri());
-			row.put("a", FOAF.PERSON);
-			row.put("hasco:hascoType", FOAF.PERSON);
+			row.put("a", SCHEMA.PERSON);
+			row.put("hasco:hascoType", SCHEMA.PERSON);
 			row.put("rdfs:label", getContactFullName(rec));
 			row.put("foaf:name", getContactFullName(rec));
 			row.put("rdfs:comment", "Co-PI from " + getInstitutionName(rec));
@@ -352,8 +352,8 @@ public class AgentGenerator extends BaseGenerator {
     	Map<String, Object> row = new HashMap<String, Object>();
 		if (getInstitutionName(rec) != null && !getInstitutionName(rec).isEmpty()) {
 			row.put("hasURI", createPIInstitutionUri());
-			row.put("a", FOAF.ORGANIZATION);
-			row.put("hasco:hascoType", FOAF.ORGANIZATION);
+			row.put("a", SCHEMA.ORGANIZATION);
+			row.put("hasco:hascoType", SCHEMA.ORGANIZATION);
 			row.put("rdfs:label", getInstitutionName(rec));
 			row.put("foaf:name", getInstitutionName(rec));
 			row.put("rdfs:comment", getInstitutionName(rec) + " Institution");
@@ -368,8 +368,8 @@ public class AgentGenerator extends BaseGenerator {
     	Map<String, Object> row = new HashMap<String, Object>();
 		if (getCPI1InstitutionName(rec) != null && !getCPI1InstitutionName(rec).isEmpty()) {
 			row.put("hasURI", createCPI1InstitutionUri());
-			row.put("a", FOAF.ORGANIZATION);
-			row.put("hasco:hascoType", FOAF.ORGANIZATION);
+			row.put("a", SCHEMA.ORGANIZATION);
+			row.put("hasco:hascoType", SCHEMA.ORGANIZATION);
 			row.put("rdfs:label", getCPI1InstitutionName(rec));
 			row.put("foaf:name", getCPI1InstitutionName(rec));
 			row.put("rdfs:comment", getCPI1InstitutionName(rec) + " Institution");
@@ -384,8 +384,8 @@ public class AgentGenerator extends BaseGenerator {
     	Map<String, Object> row = new HashMap<String, Object>();
 		if (getCPI2InstitutionName(rec) != null && !getCPI2InstitutionName(rec).isEmpty()) {
 			row.put("hasURI", createCPI2InstitutionUri());
-			row.put("a", FOAF.ORGANIZATION);
-			row.put("hasco:hascoType", FOAF.ORGANIZATION);
+			row.put("a", SCHEMA.ORGANIZATION);
+			row.put("hasco:hascoType", SCHEMA.ORGANIZATION);
 			row.put("rdfs:label", getCPI2InstitutionName(rec));
 			row.put("foaf:name", getCPI2InstitutionName(rec));
 			row.put("rdfs:comment", getCPI2InstitutionName(rec) + " Institution");

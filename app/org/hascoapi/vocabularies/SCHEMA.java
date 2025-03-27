@@ -10,6 +10,8 @@ public class SCHEMA {
     public static final String CITY                =  SCHEMA + "City";
     public static final String COUNTRY             =  SCHEMA + "Country";
     public static final String FUNDING_SCHEME      =  SCHEMA + "FundingScheme";
+    public static final String ORGANIZATION        =  SCHEMA + "Organization";
+    public static final String PERSON              =  SCHEMA + "Person";
     public static final String PLACE               =  SCHEMA + "Place";
     public static final String POSTAL_ADDRESS      =  SCHEMA + "PostalAddress";
     public static final String PRODUCT             =  SCHEMA + "Product";

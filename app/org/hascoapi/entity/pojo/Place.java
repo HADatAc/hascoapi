@@ -28,10 +28,17 @@ import org.slf4j.LoggerFactory;
 
 import static org.hascoapi.Constants.*;
 
+
 @JsonFilter("placeFilter")
 public class Place extends HADatAcThing implements Comparable<Place> {
 
 	private static final Logger log = LoggerFactory.getLogger(Place.class);
+
+    @PropertyField(uri="vstoi:hasStatus")
+    private String hasStatus;
+    
+	@PropertyField(uri="schema:alternaName")
+    protected String hasShortName;
 
 	@PropertyField(uri="foaf:name")
     protected String name;
@@ -65,6 +72,22 @@ public class Place extends HADatAcThing implements Comparable<Place> {
 
 	@PropertyField(uri="vstoi:hasSIRManagerEmail")
 	private String hasSIRManagerEmail;
+
+	public String getHasStatus() {
+		return hasStatus;
+	}
+	
+	public void setHasStatus(String hasStatus) {
+		this.hasStatus = hasStatus;
+	}
+	
+	public String getHasShortName() {
+		return hasShortName;
+	}
+
+	public void setHasShortName(String hasShortName) {
+		this.hasShortName = hasShortName;
+	}
 
 	public String getName() {
 		return name;
@@ -300,41 +323,46 @@ public class Place extends HADatAcThing implements Comparable<Place> {
 		while (stmtIterator.hasNext()) {
 		    statement = stmtIterator.next();
 		    object = statement.getObject();
+			String predicateUri = statement.getPredicate().getURI();
 			String str = URIUtils.objectRDFToString(object);
 			if (uri != null && !uri.isEmpty()) {
-				if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
+				if (predicateUri.equals(RDFS.LABEL)) {
 					place.setLabel(str);
-				} else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
+				} else if (predicateUri.equals(RDF.TYPE)) {
 					place.setTypeUri(str); 
-				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
+				} else if (predicateUri.equals(RDFS.COMMENT)) {
 					place.setComment(str);
-				} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
+				} else if (predicateUri.equals(HASCO.HASCO_TYPE)) {
 					place.setHascoTypeUri(str);
-				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+				} else if (predicateUri.equals(HASCO.HAS_IMAGE)) {
 					place.setHasImageUri(str);
-				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
+				} else if (predicateUri.equals(HASCO.HAS_WEB_DOCUMENT)) {
 					place.setHasWebDocument(str);
-				} else if (statement.getPredicate().getURI().equals(FOAF.NAME)) {
+				} else if (predicateUri.equals(VSTOI.HAS_STATUS)) {
+					place.setHasStatus(str);				
+				} else if (predicateUri.equals(SCHEMA.ALTERNATE_NAME)) {
+					place.setHasShortName(str);
+				} else if (predicateUri.equals(FOAF.NAME)) {
 					place.setName(str);
-				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+				} else if (predicateUri.equals(HASCO.HAS_IMAGE)) {
 					place.setHasImage(str);
-				} else if (statement.getPredicate().getURI().equals(SCHEMA.ADDRESS)) {
+				} else if (predicateUri.equals(SCHEMA.ADDRESS)) {
 					place.setHasAddress(str);
-				} else if (statement.getPredicate().getURI().equals(SCHEMA.CONTAINED_IN_PLACE)) {
+				} else if (predicateUri.equals(SCHEMA.CONTAINED_IN_PLACE)) {
 					place.setContainedInPlace(str);
-				} else if (statement.getPredicate().getURI().equals(SCHEMA.CONTAINS_PLACE)) {
+				} else if (predicateUri.equals(SCHEMA.CONTAINS_PLACE)) {
 					place.setContainsPlace(str);
-				} else if (statement.getPredicate().getURI().equals(SCHEMA.IDENTIFIER)) {
+				} else if (predicateUri.equals(SCHEMA.IDENTIFIER)) {
 					place.setHasIdentifier(str);
-				} else if (statement.getPredicate().getURI().equals(SCHEMA.GEO)) {
+				} else if (predicateUri.equals(SCHEMA.GEO)) {
 					place.setHasGeo(str);
-				} else if (statement.getPredicate().getURI().equals(SCHEMA.LATITUDE)) {
+				} else if (predicateUri.equals(SCHEMA.LATITUDE)) {
 					place.setHasLatitude(str);
-				} else if (statement.getPredicate().getURI().equals(SCHEMA.LONGITUDE)) {
+				} else if (predicateUri.equals(SCHEMA.LONGITUDE)) {
 					place.setHasLongitude(str);
-				} else if (statement.getPredicate().getURI().equals(SCHEMA.URL)) {
+				} else if (predicateUri.equals(SCHEMA.URL)) {
 					place.setHasUrl(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
+				} else if (predicateUri.equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
 					place.setHasSIRManagerEmail(str);
 				}
 			}
