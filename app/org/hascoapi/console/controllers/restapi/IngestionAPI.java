@@ -36,6 +36,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
+import java.util.logging.Level;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.CopyOption;
@@ -219,37 +220,45 @@ public class IngestionAPI extends Controller {
      * Copies a temporary file to a permanent file
      *
      * @param tempFile The temporary file to be copied.
-     * @param fileName Name of permanent copy 
+     * @param fileName Name of the permanent copy.
      * @return The permanent file if the copy is successful, null otherwise.
      */
     public static File saveFileAsPermanent(File tempFile, String fileName) {
-        if (tempFile == null) {
+        if (tempFile == null || fileName == null || fileName.trim().isEmpty()) {
+            System.out.println("[ERROR] Invalid input: tempFile or fileName is null/empty.");
             return null;
         }
 
-        // Define the permanent file path
-        String pathString = ConfigProp.getPathIngestion() + fileName;
-        Path permanentPath = Paths.get(pathString);
+        String destinationDir = ConfigProp.getPathIngestion();
+        if (destinationDir == null || destinationDir.trim().isEmpty()) {
+            System.out.println("[ERROR] ConfigProp.getPathIngestion() returned an invalid path.");
+            return null;
+        }
+
+        Path permanentPath = Paths.get(destinationDir, fileName);
 
         try {
-            // Ensure the temporary file is deleted on exit
-            tempFile.deleteOnExit();
+            // Ensure the destination directory exists
+            Files.createDirectories(permanentPath.getParent());
 
-            // Define options for file copy (to overwrite if exists)
-            CopyOption[] options = new CopyOption[]{
-                StandardCopyOption.REPLACE_EXISTING, // Option to replace the existing file
-                StandardCopyOption.COPY_ATTRIBUTES // Option to copy file attributes
-            };            
-        
-            // Copy the file to the permanent location
+            // Define file copy options
+            CopyOption[] options = {
+                StandardCopyOption.REPLACE_EXISTING,
+                StandardCopyOption.COPY_ATTRIBUTES
+            };
+
+            // Copy the file
             Files.copy(tempFile.toPath(), permanentPath, options);
+            //System.out.println("File successfully saved to: " + permanentPath);
 
-            System.out.println("Temporary file has been successfully saved as " + pathString);
+            // Optionally delete temp file manually
+            if (!tempFile.delete()) {
+                System.out.println("[ERROR] Failed to delete temporary file: " + tempFile.getAbsolutePath());
+            }
 
-            // Return the permanent file
             return permanentPath.toFile();
         } catch (IOException e) {
-            System.err.println("[ERROR] IngestionAPI.saveFileAsPermanent(): Error saving file " + e.getMessage());
+            System.out.println("[ERROR] While saving file: " + e.getMessage());
             return null;
         }
     }

@@ -135,7 +135,10 @@ public class Constants {
     public static final String PREFIX_SUBCONTAINER               = "SC";
     public static final String PREFIX_VIRTUAL_COLUMN             = "VC";
     */
-  
+
+    public static final String RESOURCE_FOLDER = "resources/";
+
+
     public static final String DEFAULT_KB = "http://hadatac.org/kb/default/";
     public static final String DEFAULT_REPOSITORY = DEFAULT_KB + "repository";
     /**
