@@ -45,9 +45,13 @@ public class DataFileAPI extends Controller {
     /**
      * Handles file upload and saves it permanently.
      */
-    public Result uploadFile(String elementUri, Http.Request request) {
+    public Result uploadFile(String elementUri, String filename, Http.Request request) {
         if (elementUri == null || elementUri.trim().isEmpty()) {
             return ok(ApiUtil.createResponse("[ERROR] DataFileAPI.uploadFile(): No elementUri value has been provided.", false));
+        }
+    
+        if (filename == null || filename.trim().isEmpty()) {
+            return ok(ApiUtil.createResponse("[ERROR] DataFileAPI.uploadFile(): No value for filename has been provided.", false));
         }
     
         GenericInstance instance = GenericInstance.find(elementUri);
@@ -71,7 +75,7 @@ public class DataFileAPI extends Controller {
         Path destinationDir = Paths.get(basePath, Constants.RESOURCE_FOLDER, uriTerm);
     
         // Generate the permanent file path
-        Path permanentPath = destinationDir.resolve(tempFile.getName());
+        Path permanentPath = destinationDir.resolve(filename);
     
         // Save file asynchronously to avoid blocking request handling
         CompletableFuture.runAsync(() -> saveFile(tempFile, permanentPath));
