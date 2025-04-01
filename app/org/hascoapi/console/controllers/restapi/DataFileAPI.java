@@ -14,9 +14,13 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.*;
+import java.util.zip.*;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
@@ -112,7 +116,7 @@ public class DataFileAPI extends Controller {
         Path permanentPath = destinationDir.resolve(filename);
     
         // Save file asynchronously to avoid blocking request handling
-        CompletableFuture.runAsync(() -> saveFile(tempFile, permanentPath));
+        CompletableFuture.runAsync(() -> unzipAndSave(tempFile, permanentPath));
     
         return ok(ApiUtil.createResponse("File upload in progress. It will be saved shortly.", true));
     }
@@ -164,6 +168,39 @@ public class DataFileAPI extends Controller {
         } finally {
             if (tempFile.exists() && !tempFile.delete()) {
                 System.out.println("Failed to delete temporary file: " + tempFile.getAbsolutePath());
+            }
+        }
+    }
+
+    /**
+     * Extracts a zip file and saves its contents permanently.
+     */
+    public void unzipAndSave(File zipFile, Path destinationDir) {
+        try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile))) {
+            ZipEntry entry;
+            while ((entry = zis.getNextEntry()) != null) {
+                Path filePath = destinationDir.resolve(entry.getName());
+                if (entry.isDirectory()) {
+                    Files.createDirectories(filePath);
+                } else {
+                    Files.createDirectories(filePath.getParent());
+                    try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath.toFile()))) {
+                        byte[] buffer = new byte[1024];
+                        int bytesRead;
+                        while ((bytesRead = zis.read(buffer)) != -1) {
+                            bos.write(buffer, 0, bytesRead);
+                        }
+                    }
+                }
+                zis.closeEntry();
+                System.out.println("Extracted: " + filePath);
+            }
+            System.out.println("Extraction complete.");
+        } catch (IOException e) {
+            System.out.println("Error extracting zip file: " + e.getMessage());
+        } finally {
+            if (zipFile.exists() && !zipFile.delete()) {
+                System.out.println("Failed to delete zip file: " + zipFile.getAbsolutePath());
             }
         }
     }
