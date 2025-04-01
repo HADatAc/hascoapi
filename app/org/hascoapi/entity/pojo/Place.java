@@ -33,6 +33,9 @@ public class Place extends HADatAcThing implements Comparable<Place> {
 
 	private static final Logger log = LoggerFactory.getLogger(Place.class);
 
+	@PropertyField(uri="vstoi:hasStatus")
+	private String hasStatus;
+
 	@PropertyField(uri="foaf:name")
     protected String name;
 
@@ -65,6 +68,14 @@ public class Place extends HADatAcThing implements Comparable<Place> {
 
 	@PropertyField(uri="vstoi:hasSIRManagerEmail")
 	private String hasSIRManagerEmail;
+
+	public String getHasStatus() {
+		return hasStatus;
+	}
+
+	public void setHasStatus(String hasStatus) {
+		this.hasStatus = hasStatus;
+	}
 
 	public String getName() {
 		return name;
@@ -314,6 +325,8 @@ public class Place extends HADatAcThing implements Comparable<Place> {
 					place.setHasImageUri(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
 					place.setHasWebDocument(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
+					place.setHasStatus(str);
 				} else if (statement.getPredicate().getURI().equals(FOAF.NAME)) {
 					place.setName(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
