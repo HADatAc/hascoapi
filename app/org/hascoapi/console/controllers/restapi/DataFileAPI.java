@@ -84,6 +84,40 @@ public class DataFileAPI extends Controller {
     }
 
     /**
+     * Handles media upload and saves it permanently.
+     */
+    public Result uploadMedia(String foldername, String filename, Http.Request request) {
+        if (foldername == null || foldername.trim().isEmpty()) {
+            return ok(ApiUtil.createResponse("[ERROR] DataFileAPI.uploadMedia(): No foldername value has been provided.", false));
+        }
+    
+        if (filename == null || filename.trim().isEmpty()) {
+            return ok(ApiUtil.createResponse("[ERROR] DataFileAPI.uploadMedia(): No value for filename has been provided.", false));
+        }
+    
+        File tempFile = request.body().asRaw().asFile();
+        if (tempFile == null) {
+            return ok(ApiUtil.createResponse("[ERROR] DataFileAPI.uploadMedia(): No media has been provided for ingestion.", false));
+        }
+    
+        String basePath = ConfigProp.getPathIngestion();
+        if (basePath == null || basePath.trim().isEmpty()) {
+            System.out.println("[ERROR] DataFileAPI.uploadMedia(): Invalid file storage path from ConfigProp.getPathIngestion()");
+            return internalServerError(ApiUtil.createResponse("[ERROR] DataFileAPI.uploadMedia(): Invalid file storage path.", false));
+        }
+    
+        Path destinationDir = Paths.get(basePath, Constants.MEDIA_FOLDER, foldername);
+    
+        // Generate the permanent file path
+        Path permanentPath = destinationDir.resolve(filename);
+    
+        // Save file asynchronously to avoid blocking request handling
+        CompletableFuture.runAsync(() -> saveFile(tempFile, permanentPath));
+    
+        return ok(ApiUtil.createResponse("File upload in progress. It will be saved shortly.", true));
+    }
+
+    /**
      * Handles file download for a given URI.
      */
     public Result downloadFile(String elementUri, String filename) {
