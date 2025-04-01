@@ -113,10 +113,10 @@ public class DataFileAPI extends Controller {
         Path destinationDir = Paths.get(basePath, Constants.MEDIA_FOLDER, foldername);
     
         // Generate the permanent file path
-        Path permanentPath = destinationDir.resolve(filename);
+        //Path permanentPath = destinationDir.resolve(filename);
     
         // Save file asynchronously to avoid blocking request handling
-        CompletableFuture.runAsync(() -> unzipAndSave(tempFile, permanentPath));
+        CompletableFuture.runAsync(() -> unzipAndSave(tempFile, destinationDir));
     
         return ok(ApiUtil.createResponse("File upload in progress. It will be saved shortly.", true));
     }
@@ -179,17 +179,17 @@ public class DataFileAPI extends Controller {
         try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile))) {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
-                Path filePath = destinationDir.resolve(entry.getName());
                 if (entry.isDirectory()) {
-                    Files.createDirectories(filePath);
-                } else {
-                    Files.createDirectories(filePath.getParent());
-                    try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath.toFile()))) {
-                        byte[] buffer = new byte[1024];
-                        int bytesRead;
-                        while ((bytesRead = zis.read(buffer)) != -1) {
-                            bos.write(buffer, 0, bytesRead);
-                        }
+                    System.out.println("Skipping directory: " + entry.getName());
+                    continue; // Skip directories
+                }
+                Path filePath = destinationDir.resolve(entry.getName());
+                Files.createDirectories(filePath.getParent());
+                try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath.toFile()))) {
+                    byte[] buffer = new byte[1024];
+                    int bytesRead;
+                    while ((bytesRead = zis.read(buffer)) != -1) {
+                        bos.write(buffer, 0, bytesRead);
                     }
                 }
                 zis.closeEntry();
