@@ -57,7 +57,7 @@ public class DataFileAPI extends Controller {
         GenericInstance instance = GenericInstance.find(elementUri);
         if (instance == null) {
             System.out.println("[ERROR] DataFileAPI.uploadFile(): No generic instance found for uri [" + elementUri + "]");
-            return null;
+            return ok(ApiUtil.createResponse("[ERROR] DataFileAPI.uploadFile(): No generic instance found for uri [" + elementUri + "]", false));
         }
 
         File tempFile = request.body().asRaw().asFile();
