@@ -320,7 +320,7 @@ public class HAScOMapper {
         }
 
         // ORGANIZATION
-        if (mode.equals(FULL) && typeResult.equals(FOAF.ORGANIZATION)) {
+        if (mode.equals(FULL) && typeResult.equals(SCHEMA.ORGANIZATION)) {
             filterProvider.addFilter("organizationFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("organizationFilter",
@@ -330,7 +330,7 @@ public class HAScOMapper {
         }
 
         // PERSON
-        if (mode.equals(FULL) && typeResult.equals(FOAF.PERSON)) {
+        if (mode.equals(FULL) && typeResult.equals(SCHEMA.PERSON)) {
             filterProvider.addFilter("personFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("personFilter",
@@ -652,9 +652,9 @@ public class HAScOMapper {
         } else if (clazz == KGR.class) {
             return getFiltered(mode, HASCO.KGR);
         } else if (clazz == Organization.class) {
-            return getFiltered(mode, FOAF.ORGANIZATION);
+            return getFiltered(mode, SCHEMA.ORGANIZATION);
         } else if (clazz == Person.class) {
-            return getFiltered(mode, FOAF.PERSON);
+            return getFiltered(mode, SCHEMA.PERSON);
         } else if (clazz == Place.class) {
             return getFiltered(mode, SCHEMA.PLACE);
         } else if (clazz == Platform.class) {

@@ -209,9 +209,9 @@ public class PostalAddress extends HADatAcThing implements Comparable<PostalAddr
 		}
 		String elementTypeUri = null;
 		if (elementtype.equals("person")) {
-			elementTypeUri = FOAF.PERSON;
+			elementTypeUri = SCHEMA.PERSON;
 		} else if (elementtype.equals("organization")) {
-			elementTypeUri = FOAF.ORGANIZATION;
+			elementTypeUri = SCHEMA.ORGANIZATION;
 		}
 		if (elementTypeUri == null) {
 			return 0;
@@ -247,9 +247,9 @@ public class PostalAddress extends HADatAcThing implements Comparable<PostalAddr
 		}
 		String elementTypeUri = null;
 		if (elementtype.equals("person")) {
-			elementTypeUri = FOAF.PERSON;
+			elementTypeUri = SCHEMA.PERSON;
 		} else if (elementtype.equals("organization")) {
-			elementTypeUri = FOAF.ORGANIZATION;
+			elementTypeUri = SCHEMA.ORGANIZATION;
 		}
 		if (elementTypeUri == null) {
 			return new ArrayList<T>();
@@ -276,9 +276,9 @@ public class PostalAddress extends HADatAcThing implements Comparable<PostalAddr
                 " ORDER BY ASC(?label) " +
                 " LIMIT " + pageSize +
                 " OFFSET " + offset;
-		if (elementTypeUri.equals(FOAF.PERSON)) {
+		if (elementTypeUri.equals(SCHEMA.PERSON)) {
         	return (List<T>)PostalAddress.findManyElementsByQuery(query, Person.class);
-		} else if (elementTypeUri.equals(FOAF.ORGANIZATION)) {
+		} else if (elementTypeUri.equals(SCHEMA.ORGANIZATION)) {
         	return (List<T>)PostalAddress.<Organization>findManyElementsByQuery(query, Organization.class);
 		}
 		return new ArrayList<T>();

@@ -186,9 +186,9 @@ public class URIPage extends Controller {
                 finalResult = InstrumentInstance.find(uri);
             } else if (result.getHascoTypeUri().equals(HASCO.KGR)) {
                 finalResult = KGR.find(uri);
-            } else if (result.getHascoTypeUri().equals(FOAF.ORGANIZATION)) {
+            } else if (result.getHascoTypeUri().equals(SCHEMA.ORGANIZATION)) {
                 finalResult = Organization.find(uri);
-            } else if (result.getHascoTypeUri().equals(FOAF.PERSON)) {
+            } else if (result.getHascoTypeUri().equals(SCHEMA.PERSON)) {
                 finalResult = Person.find(uri);
             } else if (result.getHascoTypeUri().equals(SCHEMA.PLACE)) {
                 finalResult = Place.find(uri);
