@@ -210,6 +210,8 @@ public class Organization extends Agent {
                 organization.setHasImageUri(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
                 organization.setHasWebDocument(str);
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
+                organization.setHasStatus(str);
             } else if (statement.getPredicate().getURI().equals(FOAF.NAME)) {
                 organization.setName(str);
             } else if (statement.getPredicate().getURI().equals(FOAF.MBOX)) {

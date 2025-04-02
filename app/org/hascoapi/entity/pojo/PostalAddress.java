@@ -33,6 +33,9 @@ public class PostalAddress extends HADatAcThing implements Comparable<PostalAddr
 
 	private static final Logger log = LoggerFactory.getLogger(PostalAddress.class);
 
+	@PropertyField(uri="vstoi:hasStatus")
+	private String hasStatus;
+
 	@PropertyField(uri="schema:streetAddress")
     protected String hasStreetAddress;
 
@@ -50,6 +53,14 @@ public class PostalAddress extends HADatAcThing implements Comparable<PostalAddr
 
 	@PropertyField(uri="vstoi:hasSIRManagerEmail")
 	private String hasSIRManagerEmail;
+
+	public String getHasStatus() {
+		return hasStatus;
+	}
+
+	public void setHasStatus(String hasStatus) {
+		this.hasStatus = hasStatus;
+	}
 
 	public String getHasStreetAddress() {
 		return hasStreetAddress;
@@ -391,6 +402,8 @@ public class PostalAddress extends HADatAcThing implements Comparable<PostalAddr
 					postalAddress.setHasImageUri(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
 					postalAddress.setHasWebDocument(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
+					postalAddress.setHasStatus(str);
 				} else if (statement.getPredicate().getURI().equals(SCHEMA.STREET_ADDRESS)) {
 					postalAddress.setHasStreetAddress(str);
 				} else if (statement.getPredicate().getURI().equals(SCHEMA.ADDRESS_LOCALITY)) {

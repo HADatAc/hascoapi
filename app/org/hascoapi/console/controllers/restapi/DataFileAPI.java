@@ -14,9 +14,13 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.*;
+import java.util.zip.*;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
@@ -84,6 +88,40 @@ public class DataFileAPI extends Controller {
     }
 
     /**
+     * Handles media upload and saves it permanently.
+     */
+    public Result uploadMedia(String foldername, String filename, Http.Request request) {
+        if (foldername == null || foldername.trim().isEmpty()) {
+            return ok(ApiUtil.createResponse("[ERROR] DataFileAPI.uploadMedia(): No foldername value has been provided.", false));
+        }
+    
+        if (filename == null || filename.trim().isEmpty()) {
+            return ok(ApiUtil.createResponse("[ERROR] DataFileAPI.uploadMedia(): No value for filename has been provided.", false));
+        }
+    
+        File tempFile = request.body().asRaw().asFile();
+        if (tempFile == null) {
+            return ok(ApiUtil.createResponse("[ERROR] DataFileAPI.uploadMedia(): No media has been provided for ingestion.", false));
+        }
+    
+        String basePath = ConfigProp.getPathIngestion();
+        if (basePath == null || basePath.trim().isEmpty()) {
+            System.out.println("[ERROR] DataFileAPI.uploadMedia(): Invalid file storage path from ConfigProp.getPathIngestion()");
+            return internalServerError(ApiUtil.createResponse("[ERROR] DataFileAPI.uploadMedia(): Invalid file storage path.", false));
+        }
+    
+        Path destinationDir = Paths.get(basePath, Constants.MEDIA_FOLDER, foldername);
+    
+        // Generate the permanent file path
+        //Path permanentPath = destinationDir.resolve(filename);
+    
+        // Save file asynchronously to avoid blocking request handling
+        CompletableFuture.runAsync(() -> unzipAndSave(tempFile, destinationDir));
+    
+        return ok(ApiUtil.createResponse("File upload in progress. It will be saved shortly.", true));
+    }
+
+    /**
      * Handles file download for a given URI.
      */
     public Result downloadFile(String elementUri, String filename) {
@@ -130,6 +168,39 @@ public class DataFileAPI extends Controller {
         } finally {
             if (tempFile.exists() && !tempFile.delete()) {
                 System.out.println("Failed to delete temporary file: " + tempFile.getAbsolutePath());
+            }
+        }
+    }
+
+    /**
+     * Extracts a zip file and saves its contents permanently.
+     */
+    public void unzipAndSave(File zipFile, Path destinationDir) {
+        try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile))) {
+            ZipEntry entry;
+            while ((entry = zis.getNextEntry()) != null) {
+                if (entry.isDirectory()) {
+                    System.out.println("Skipping directory: " + entry.getName());
+                    continue; // Skip directories
+                }
+                Path filePath = destinationDir.resolve(entry.getName());
+                Files.createDirectories(filePath.getParent());
+                try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath.toFile()))) {
+                    byte[] buffer = new byte[1024];
+                    int bytesRead;
+                    while ((bytesRead = zis.read(buffer)) != -1) {
+                        bos.write(buffer, 0, bytesRead);
+                    }
+                }
+                zis.closeEntry();
+                System.out.println("Extracted: " + filePath);
+            }
+            System.out.println("Extraction complete.");
+        } catch (IOException e) {
+            System.out.println("Error extracting zip file: " + e.getMessage());
+        } finally {
+            if (zipFile.exists() && !zipFile.delete()) {
+                System.out.println("Failed to delete zip file: " + zipFile.getAbsolutePath());
             }
         }
     }

@@ -159,6 +159,7 @@ POST    /hascoapi/api/review/recursive/:instrumentUri/:status                   
 # BLOB MANAGEMENT
 
 POST    /hascoapi/api/uploadFile/:elementuri/:filename                              org.hascoapi.console.controllers.restapi.DataFileAPI.uploadFile(elementuri: String, filename: String, request: play.mvc.Http.Request)
+POST    /hascoapi/api/uploadMedia/:foldername/:filename                             org.hascoapi.console.controllers.restapi.DataFileAPI.uploadMedia(foldername: String, filename: String, request: play.mvc.Http.Request)
 POST    /hascoapi/api/downloadFile/:elementuri/:filename                            org.hascoapi.console.controllers.restapi.DataFileAPI.downloadFile(elementuri: String, filename: String)
 
 # TESTING METHODS

@@ -137,7 +137,7 @@ public class Constants {
     */
 
     public static final String RESOURCE_FOLDER = "resources/";
-
+    public static final String MEDIA_FOLDER = "media/";
 
     public static final String DEFAULT_KB = "http://hadatac.org/kb/default/";
     public static final String DEFAULT_REPOSITORY = DEFAULT_KB + "repository";
