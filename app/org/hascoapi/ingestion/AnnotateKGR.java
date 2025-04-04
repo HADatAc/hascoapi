@@ -31,6 +31,7 @@ public class AnnotateKGR {
         
         KGR kgr = new KGR(dataFile, templateFile);
         kgr.setHasDataFileUri(dataFile.getUri());
+        kgr.setHasSIRManagerEmail(dataFile.getHasSIRManagerEmail());
         System.out.println("DataFileUri: [" + dataFile.getUri() + "]");
         System.out.println("DataFileUri: [" + kgr.getHasDataFileUri() + "]");
 
