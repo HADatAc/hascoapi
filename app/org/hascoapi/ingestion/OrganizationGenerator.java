@@ -31,14 +31,16 @@ public class OrganizationGenerator extends BaseGenerator {
 	private static final Logger log = LoggerFactory.getLogger(PVGenerator.class);
     private long timestamp;
 	private String managerEmail;
+	private String status;
 	final String kbPrefix = ConfigProp.getKbPrefix();
 	String startTime = "";
     protected IngestionLogger logger = null;
 
-	public OrganizationGenerator(DataFile dataFile, String templateFile, String managerEmail) {
+	public OrganizationGenerator(DataFile dataFile, String templateFile, String managerEmail, String status) {
 		super(dataFile, null, templateFile);
 		this.logger = dataFile.getLogger();
 		this.managerEmail = managerEmail;
+		this.status = status;
 	}
 
 	@Override
@@ -151,6 +153,7 @@ public class OrganizationGenerator extends BaseGenerator {
 		row.put("schema:parentOrganization", getParentOrganization(rec));
 		row.put("schema:address", getAddress(rec));
 		row.put("vstoi:hasSIRManagerEmail", managerEmail);
+		row.put("vstoi:hasStatus", status);
 		return row;
 	}
 

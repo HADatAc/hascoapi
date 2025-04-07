@@ -32,14 +32,16 @@ public class PlaceGenerator extends BaseGenerator {
 	private static final Logger log = LoggerFactory.getLogger(PlaceGenerator.class);
     private long timestamp;
 	private String managerEmail;
+	private String status;
 	final String kbPrefix = ConfigProp.getKbPrefix();
 	String startTime = "";
     protected IngestionLogger logger = null;
 
-	public PlaceGenerator(DataFile dataFile, String templateFile, String managerEmail) {
+	public PlaceGenerator(DataFile dataFile, String templateFile, String managerEmail, String status) {
 		super(dataFile, null, templateFile);
 		this.logger = dataFile.getLogger();
 		this.managerEmail = managerEmail;
+		this.status = status;
 	}
 
 	@Override
@@ -142,6 +144,7 @@ public class PlaceGenerator extends BaseGenerator {
 		row.put("schema:longitude", getPlaceLongitude(rec));
 		row.put("schema:url", getPlaceUrl(rec));
 		row.put("vstoi:hasSIRManagerEmail", managerEmail);
+		row.put("vstoi:hasStatus", status);
 		return row;
 	}
 

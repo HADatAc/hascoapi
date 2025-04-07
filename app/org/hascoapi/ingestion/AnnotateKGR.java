@@ -122,7 +122,7 @@ public class AnnotateKGR {
             try {
                 postalAddressFile = (DataFile)dataFile.clone();
                 postalAddressFile.setRecordFile(postalAddressRecordFile);
-                PostalAddressGenerator postalAddressGen = new PostalAddressGenerator(postalAddressFile, templateFile, kgr.getHasSIRManagerEmail());
+                PostalAddressGenerator postalAddressGen = new PostalAddressGenerator(postalAddressFile, templateFile, kgr.getHasSIRManagerEmail(), status);
                 postalAddressGen.setNamedGraphUri(kgr.getHasDataFileUri());
                 chain.addGenerator(postalAddressGen);
                 System.out.println("Adding PostalAddressGenerator into generation chain...");
@@ -140,7 +140,7 @@ public class AnnotateKGR {
             try {
                 placeFile = (DataFile)dataFile.clone();
                 placeFile.setRecordFile(placeRecordFile);
-                PlaceGenerator placeGen = new PlaceGenerator(placeFile, templateFile, kgr.getHasSIRManagerEmail());
+                PlaceGenerator placeGen = new PlaceGenerator(placeFile, templateFile, kgr.getHasSIRManagerEmail(), status);
                 placeGen.setNamedGraphUri(kgr.getHasDataFileUri());
                 chain.addGenerator(placeGen);
                 System.out.println("Adding PlaceGenerator into generation chain...");
@@ -158,7 +158,7 @@ public class AnnotateKGR {
             try {
                 organizationFile = (DataFile)dataFile.clone();
                 organizationFile.setRecordFile(organizationRecordFile);
-                OrganizationGenerator orgGen = new OrganizationGenerator(organizationFile, templateFile, kgr.getHasSIRManagerEmail());
+                OrganizationGenerator orgGen = new OrganizationGenerator(organizationFile, templateFile, kgr.getHasSIRManagerEmail(), status);
                 orgGen.setNamedGraphUri(kgr.getHasDataFileUri());
                 chain.addGenerator(orgGen);
                 System.out.println("Adding OrganizationGenerator into generation chain...");
@@ -179,7 +179,7 @@ public class AnnotateKGR {
             try {
                 personFile = (DataFile)dataFile.clone();
                 personFile.setRecordFile(personRecordFile);
-                PersonGenerator perGen = new PersonGenerator(personFile, templateFile, kgr.getHasSIRManagerEmail());
+                PersonGenerator perGen = new PersonGenerator(personFile, templateFile, kgr.getHasSIRManagerEmail(), status);
                 perGen.setNamedGraphUri(kgr.getHasDataFileUri());
                 chain.addGenerator(perGen);
                 System.out.println("Adding PersonGenerator into generation chain...");
