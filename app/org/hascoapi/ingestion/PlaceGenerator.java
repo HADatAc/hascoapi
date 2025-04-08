@@ -42,6 +42,7 @@ public class PlaceGenerator extends BaseGenerator {
 		this.status = status;
 		this.logger = dataFile.getLogger();
 		this.managerEmail = managerEmail;
+		this.status = status;
 	}
 
 	@Override
@@ -145,6 +146,7 @@ public class PlaceGenerator extends BaseGenerator {
 		row.put("schema:url", getPlaceUrl(rec));
 		row.put("vstoi:hasStatus", URIUtils.replaceNameSpaceEx(status));
 		row.put("vstoi:hasSIRManagerEmail", managerEmail);
+		row.put("vstoi:hasStatus", status);
 		return row;
 	}
 

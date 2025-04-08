@@ -23,8 +23,8 @@ import org.hascoapi.vocabularies.FOAF;
 
 public class Agent extends HADatAcThing implements Comparable<Agent> {
 
-	@PropertyField(uri="vstoi:hasStatus")
-	private String hasStatus;
+  	@PropertyField(uri="vstoi:hasStatus")
+  	private String hasStatus;
 
     @PropertyField(uri="schema:alternateName")
     private String hasShortName;

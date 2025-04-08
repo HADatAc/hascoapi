@@ -45,6 +45,7 @@ public class PostalAddressGenerator extends BaseGenerator {
 		this.status = status;
 		this.logger = dataFile.getLogger();
 		this.managerEmail = managerEmail;
+		this.status = status;
 	}
 
 	@Override
@@ -157,6 +158,7 @@ public class PostalAddressGenerator extends BaseGenerator {
 		row.put("schema:addressCountry", getPostalAddressCountry(rec));
 		row.put("vstoi:hasStatus", URIUtils.replaceNameSpaceEx(status));
 		row.put("vstoi:hasSIRManagerEmail", managerEmail);
+		row.put("vstoi:hasStatus", status);
 		return row;
 	}
 

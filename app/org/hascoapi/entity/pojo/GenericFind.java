@@ -862,7 +862,7 @@ public class GenericFind<T> {
 				" ORDER BY ASC(?label) " +
 				" LIMIT " + pageSize +
 				" OFFSET " + offset;
-        //System.out.println(queryString);
+        System.out.println(queryString);
 		return findByQuery(clazz, queryString);
 	}
 

@@ -34,14 +34,14 @@ public class Place extends HADatAcThing implements Comparable<Place> {
 
 	private static final Logger log = LoggerFactory.getLogger(Place.class);
 
-    @PropertyField(uri="vstoi:hasStatus")
-    private String hasStatus;
+  @PropertyField(uri="vstoi:hasStatus")
+  private String hasStatus;
     
 	@PropertyField(uri="schema:alternaName")
-    protected String hasShortName;
+  protected String hasShortName;
 
 	@PropertyField(uri="foaf:name")
-    protected String name;
+  protected String name;
 
 	@PropertyField(uri="hasco:hasImage")
 	private String hasImage;
