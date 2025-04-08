@@ -9,11 +9,11 @@ import org.hascoapi.entity.pojo.KGR;
 public class AnnotateKGR {
 
     public static GeneratorChain exec(DataFile dataFile, String templateFile, String status) {
-        System.out.println("IngestKGR.buildChain(): Processing KGR file ...");
+        System.out.println("AnnotateKGR.buildChain(): Processing KGR file ...");
  
         String fileName = dataFile.getFilename();
         
-        System.out.println("IngestKGR.buildChain(): Build chain 1 of 10 - Reading catalog and template");
+        System.out.println("AnnotateKGR.buildChain(): Build chain 1 of 10 - Reading catalog and template");
 
         RecordFile recordFile = new SpreadsheetRecordFile(dataFile.getFile(), "InfoSheet");
         if (!recordFile.isValid()) {
@@ -38,7 +38,7 @@ public class AnnotateKGR {
         // the template is needed to process individual sheets
         kgr.setTemplates(templateFile);
 
-        System.out.println("IngestKGR.buildChain(): Build chain 2 of 10 - Separating sheets apart");
+        System.out.println("AnnotateKGR.buildChain(): Build chain 2 of 10 - Separating sheets apart");
 
         RecordFile postalAddressRecordFile = null;
         RecordFile placeRecordFile = null;
@@ -75,35 +75,34 @@ public class AnnotateKGR {
             if (mapCatalog.get("Person") != null) {
                 System.out.print("Extracting person sheet from spreadsheet... ");
                 personRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), mapCatalog.get("Person").replace("#", ""));
-                //replace("#","")
                 System.out.println(personRecordFile.getSheetName());
                 personOkay = true;
             }
             
         }
 
-        System.out.println("IngestKGR.buildChain(): Build chain 3 of 10 - Processing PostalAddress Sheet");
+        System.out.println("AnnotateKGR.buildChain(): Build chain 3 of 10 - Processing PostalAddress Sheet");
 
         if (postalAddressOkay && !kgr.readPostalAddresses(postalAddressRecordFile)) {
             System.out.println("[ERROR] failed KGR's read postal addresses");
             postalAddressOkay = false;
         }
 
-        System.out.println("IngestKGR.buildChain(): Build chain 3 of 10 - Processing Place Sheet");
+        System.out.println("AnnotateKGR.buildChain(): Build chain 4 of 10 - Processing Place Sheet");
 
         if (placeOkay && !kgr.readPlaces(placeRecordFile)) {
             System.out.println("[ERROR] failed KGR's read places");
             placeOkay = false;
         }
 
-        System.out.println("IngestKGR.buildChain(): Build chain 4 of 10 - Processing Organization Sheet");
+        System.out.println("AnnotateKGR.buildChain(): Build chain 5 of 10 - Processing Organization Sheet");
 
         if (organizationOkay && !kgr.readOrganizations(organizationRecordFile)) {
             System.out.println("[ERROR] failed KGR's read organizations");
             organizationOkay = false;
         }
 
-        System.out.println("IngestKGR.buildChain(): Build chain 5 of 10 - Processing Person Sheet");
+        System.out.println("AnnotateKGR.buildChain(): Build chain 6 of 10 - Processing Person Sheet");
 
         if (personOkay && !kgr.readPersons(personRecordFile)) {
             dataFile.getLogger().printWarningById("SDD_00005");
@@ -111,11 +110,11 @@ public class AnnotateKGR {
             personOkay = false;
         }
 
-        System.out.println("IngestKGR.buildChain(): Build chain 6 of 10 - Creating empty generator chain");
+        System.out.println("AnnotateKGR.buildChain(): Build chain 7 of 10 - Creating empty generator chain");
 
         GeneratorChain chain = new GeneratorChain();
         
-        System.out.println("IngestKGR.buildChain(): Build chain 7 of 10 - Adding PostalAddressGenerator into generation chain");
+        System.out.println("AnnotateKGR.buildChain(): Build chain 8 of 10 - Adding PostalAddressGenerator into generation chain");
 
         if (postalAddressOkay && postalAddressRecordFile != null && postalAddressRecordFile.isValid()) {
             DataFile postalAddressFile;
@@ -133,7 +132,11 @@ public class AnnotateKGR {
             }
         } 
  
-        System.out.println("IngestSDD.buildChain(): Build chain 8 of 10 - Adding PlaceGenerator into generation chain");
+        if (!postalAddressOkay) {
+            System.out.println("[WARNING] failed KGR's PostalAddress generation");
+        }
+
+        System.out.println("AnnotateKGR.buildChain(): Build chain 8 of 10 - Adding PlaceGenerator into generation chain");
 
         if (placeOkay && placeRecordFile != null && placeRecordFile.isValid()) {
             DataFile placeFile;
@@ -151,7 +154,11 @@ public class AnnotateKGR {
             }
         }
 
-        System.out.println("IngestSDD.buildChain(): Build chain 9 of 10 - Adding OrganizationGenerator into generation chain");
+        if (!placeOkay) {
+            System.out.println("[WARNING] failed KGR's Place generation");
+        }
+
+        System.out.println("AnnotateKGR.buildChain(): Build chain 9 of 10 - Adding OrganizationGenerator into generation chain");
 
         if (organizationOkay && organizationRecordFile != null && organizationRecordFile.isValid()) {
             DataFile organizationFile;
@@ -169,7 +176,11 @@ public class AnnotateKGR {
             }
         }
 
-        System.out.println("IngestSDD.buildChain(): Build chain 10 of 10 - Adding PersonGenerator into generation chain");
+        if (!personOkay) {
+            System.out.println("[WARNING] failed KGR's Organization generation");
+        }
+
+        System.out.println("AnnotateKGR.buildChain(): Build chain 10 of 10 - Adding PersonGenerator into generation chain");
 
         // persons needs to be processed after data organizations because or persons 
         // need to be assigned members of organizations
@@ -190,20 +201,46 @@ public class AnnotateKGR {
             }
         }
 
-        if (!postalAddressOkay) {
-            System.out.println("[ERROR] failed KGR's PostalAddress generation");
-        }
-
-        if (!placeOkay) {
-            System.out.println("[ERROR] failed KGR's Place generation");
-        }
-
         if (!personOkay) {
-            System.out.println("[ERROR] failed KGR's Organization generation");
+            System.out.println("[WARNING] failed KGR's Person generation");
         }
 
-        if (!personOkay) {
-            System.out.println("[ERROR] failed KGR's Person generation");
+        RecordFile sheet = null;
+
+        String projectSheet = mapCatalog.get("Projects");
+        if (projectSheet == null) {
+            System.out.println("[WARNING] 'Projects' sheet is missing.");
+            dataFile.getLogger().println("[WARNING] 'Projects' sheet is missing.");
+        } else {
+            projectSheet.replace("#", "");
+            sheet = new SpreadsheetRecordFile(dataFile.getFile(), projectSheet);
+            try {
+                DataFile dataFileForSheet = (DataFile)dataFile.clone();
+                dataFileForSheet.setRecordFile(sheet);
+                KGRGenerator projectGen = new KGRGenerator("project", status, dataFileForSheet);
+                projectGen.setNamedGraphUri(dataFileForSheet.getUri());
+                chain.addGenerator(projectGen);
+            } catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        String fundingSchemeSheet = mapCatalog.get("Projects");
+        if (fundingSchemeSheet == null) {
+            System.out.println("[WARNING] 'FundingSchemes' sheet is missing.");
+            dataFile.getLogger().println("[WARNING] 'FundingSchemes' sheet is missing.");
+        } else {
+            fundingSchemeSheet.replace("#", "");
+            sheet = new SpreadsheetRecordFile(dataFile.getFile(), fundingSchemeSheet);
+            try {
+                DataFile dataFileForSheet = (DataFile)dataFile.clone();
+                dataFileForSheet.setRecordFile(sheet);
+                KGRGenerator fundingSchemeGen = new KGRGenerator("fundingscheme", status, dataFileForSheet);
+                fundingSchemeGen.setNamedGraphUri(dataFileForSheet.getUri());
+                chain.addGenerator(fundingSchemeGen);
+            } catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+            }
         }
 
         return chain;

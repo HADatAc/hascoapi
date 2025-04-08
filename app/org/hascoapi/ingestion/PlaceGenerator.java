@@ -42,7 +42,6 @@ public class PlaceGenerator extends BaseGenerator {
 		this.status = status;
 		this.logger = dataFile.getLogger();
 		this.managerEmail = managerEmail;
-		this.status = status;
 	}
 
 	@Override
