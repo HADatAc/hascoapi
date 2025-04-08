@@ -40,8 +40,9 @@ public class PostalAddressGenerator extends BaseGenerator {
 	String startTime = "";
     protected IngestionLogger logger = null;
 
-	public PostalAddressGenerator(DataFile dataFile, String templateFile, String managerEmail, String status) {
+	public PostalAddressGenerator(DataFile dataFile, String status, String templateFile, String managerEmail) {
 		super(dataFile, null, templateFile);
+		this.status = status;
 		this.logger = dataFile.getLogger();
 		this.managerEmail = managerEmail;
 		this.status = status;
@@ -155,6 +156,7 @@ public class PostalAddressGenerator extends BaseGenerator {
 		row.put("schema:addressLocality", getPostalAddressLocality(rec));
 		row.put("schema:addressRegion", getPostalAddressRegion(rec));
 		row.put("schema:addressCountry", getPostalAddressCountry(rec));
+		row.put("vstoi:hasStatus", URIUtils.replaceNameSpaceEx(status));
 		row.put("vstoi:hasSIRManagerEmail", managerEmail);
 		row.put("vstoi:hasStatus", status);
 		return row;

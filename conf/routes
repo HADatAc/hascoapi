@@ -149,6 +149,7 @@ GET     /hascoapi/api/ingestion/:dataFileUri/log                                
 
 GET     /hascoapi/api/mt/gen/perstatus/:elementtype/:status/:filename               org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenByStatus(elementtype : String, status: String, filename: String)
 GET     /hascoapi/api/mt/gen/perinstrument/:elementtype/:instrumenturi/:filename    org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenByInstrument(elementtype : String, instrumenturi: String, filename: String)
+GET     /hascoapi/api/mt/gen/perproject/:elementtype/:projecturi/:filename          org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenByProject(elementtype : String, projecturi: String, filename: String)
 GET     /hascoapi/api/mt/gen/peruser/:elementtype/:useremail/:status/:filename      org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenByManager(elementtype : String, useremail: String, status: String, filename: String)
 
 # REVIEWING METHODS 

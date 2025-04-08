@@ -36,8 +36,9 @@ public class OrganizationGenerator extends BaseGenerator {
 	String startTime = "";
     protected IngestionLogger logger = null;
 
-	public OrganizationGenerator(DataFile dataFile, String templateFile, String managerEmail, String status) {
+	public OrganizationGenerator(DataFile dataFile, String status,  String templateFile, String managerEmail) {
 		super(dataFile, null, templateFile);
+		this.status = status;
 		this.logger = dataFile.getLogger();
 		this.managerEmail = managerEmail;
 		this.status = status;
@@ -143,7 +144,7 @@ public class OrganizationGenerator extends BaseGenerator {
 		Map<String, Object> row = new HashMap<String, Object>();
 		row.put("hasURI", createOrganizationUri());
 		row.put("hasco:hasOriginalID", URIUtils.replaceNameSpaceEx(getOriginalID(rec)));
-		row.put("hasco:hascoType", SCHEMA.ORGANIZATION);
+		row.put("hasco:hascoType",SCHEMA.ORGANIZATION);
 		row.put("a", URIUtils.replaceNameSpaceEx(getType(rec)));		
 		row.put("rdfs:label", getShortName(rec));
 		row.put("foaf:name", getName(rec));
@@ -151,7 +152,8 @@ public class OrganizationGenerator extends BaseGenerator {
 		row.put("schema:telephone", getTelephone(rec));
 		row.put("schema:url", getUrl(rec));
 		row.put("schema:parentOrganization", getParentOrganization(rec));
-		row.put("schema:address", getAddress(rec));
+		row.put("schema:address", getAddress(rec));		
+		row.put("vstoi:hasStatus", URIUtils.replaceNameSpaceEx(status));		
 		row.put("vstoi:hasSIRManagerEmail", managerEmail);
 		row.put("vstoi:hasStatus", status);
 		return row;

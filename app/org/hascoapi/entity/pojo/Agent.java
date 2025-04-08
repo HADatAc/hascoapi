@@ -20,10 +20,14 @@ import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.VSTOI;
 import org.hascoapi.vocabularies.FOAF;
 
+
 public class Agent extends HADatAcThing implements Comparable<Agent> {
 
-	@PropertyField(uri="vstoi:hasStatus")
-	private String hasStatus;
+  	@PropertyField(uri="vstoi:hasStatus")
+  	private String hasStatus;
+
+    @PropertyField(uri="schema:alternateName")
+    private String hasShortName;
 
     @PropertyField(uri="foaf:name")
     protected String name;
@@ -46,8 +50,16 @@ public class Agent extends HADatAcThing implements Comparable<Agent> {
     public String getHasStatus() {
         return hasStatus;
     }
+
     public void setHasStatus(String hasStatus) {
         this.hasStatus = hasStatus;
+    }
+
+    public String getHasShortName() {
+        return hasShortName;
+    }
+    public void setHasShortName(String hasShortName) {
+        this.hasShortName = hasShortName;
     }
 
     public String getName() {

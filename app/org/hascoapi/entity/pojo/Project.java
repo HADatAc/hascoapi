@@ -110,11 +110,9 @@ public class Project extends HADatAcThing implements Comparable<Project> {
         this.endDate = endDate;
     }
 
-    /* 
     public String getFundingUri() {
         return fundingUri;
     }
-        */
 
     public FundingScheme getFunding() {
         if (fundingUri == null || fundingUri.isEmpty()) {

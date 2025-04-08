@@ -54,13 +54,13 @@ public class PostalAddress extends HADatAcThing implements Comparable<PostalAddr
 	@PropertyField(uri="vstoi:hasSIRManagerEmail")
 	private String hasSIRManagerEmail;
 
-	public String getHasStatus() {
-		return hasStatus;
-	}
+    public String getHasStatus() {
+        return hasStatus;
+    }
 
-	public void setHasStatus(String hasStatus) {
-		this.hasStatus = hasStatus;
-	}
+    public void setHasStatus(String hasStatus) {
+        this.hasStatus = hasStatus;
+    }
 
 	public String getHasStreetAddress() {
 		return hasStreetAddress;
@@ -388,33 +388,34 @@ public class PostalAddress extends HADatAcThing implements Comparable<PostalAddr
 		while (stmtIterator.hasNext()) {
 		    statement = stmtIterator.next();
 		    object = statement.getObject();
+            String predicateUri = statement.getPredicate().getURI();
 			String str = URIUtils.objectRDFToString(object);
 			if (uri != null && !uri.isEmpty()) {
-				if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
+				if (predicateUri.equals(RDFS.LABEL)) {
 					postalAddress.setLabel(str);
-				} else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
+				} else if (predicateUri.equals(RDF.TYPE)) {
 					postalAddress.setTypeUri(str); 
-				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
+				} else if (predicateUri.equals(RDFS.COMMENT)) {
 					postalAddress.setComment(str);
-				} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
+				} else if (predicateUri.equals(HASCO.HASCO_TYPE)) {
 					postalAddress.setHascoTypeUri(str);
-				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
+				} else if (predicateUri.equals(HASCO.HAS_IMAGE)) {
 					postalAddress.setHasImageUri(str);
-				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
+				} else if (predicateUri.equals(HASCO.HAS_WEB_DOCUMENT)) {
 					postalAddress.setHasWebDocument(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
+				} else if (predicateUri.equals(VSTOI.HAS_STATUS)) {
 					postalAddress.setHasStatus(str);
-				} else if (statement.getPredicate().getURI().equals(SCHEMA.STREET_ADDRESS)) {
+				} else if (predicateUri.equals(SCHEMA.STREET_ADDRESS)) {
 					postalAddress.setHasStreetAddress(str);
-				} else if (statement.getPredicate().getURI().equals(SCHEMA.ADDRESS_LOCALITY)) {
+				} else if (predicateUri.equals(SCHEMA.ADDRESS_LOCALITY)) {
 					postalAddress.setHasAddressLocalityUri(str);
-				} else if (statement.getPredicate().getURI().equals(SCHEMA.ADDRESS_REGION)) {
+				} else if (predicateUri.equals(SCHEMA.ADDRESS_REGION)) {
 					postalAddress.setHasAddressRegionUri(str);
-				} else if (statement.getPredicate().getURI().equals(SCHEMA.POSTAL_CODE)) {
+				} else if (predicateUri.equals(SCHEMA.POSTAL_CODE)) {
 					postalAddress.setHasPostalCode(str);
-				} else if (statement.getPredicate().getURI().equals(SCHEMA.ADDRESS_COUNTRY)) {
+				} else if (predicateUri.equals(SCHEMA.ADDRESS_COUNTRY)) {
 					postalAddress.setHasAddressCountryUri(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
+				} else if (predicateUri.equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
 					postalAddress.setHasSIRManagerEmail(str);
 				}
 			}

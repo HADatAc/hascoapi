@@ -36,8 +36,9 @@ public class PersonGenerator extends BaseGenerator {
 	String startTime = "";
     protected IngestionLogger logger = null;
 
-	public PersonGenerator(DataFile dataFile, String templateFile, String managerEmail, String status) {
+	public PersonGenerator(DataFile dataFile, String status, String templateFile, String managerEmail) {
 		super(dataFile, null, templateFile);
+		this.status = status;
 		this.logger = dataFile.getLogger();
 		this.managerEmail = managerEmail;
 		this.status = status;
@@ -152,6 +153,7 @@ public class PersonGenerator extends BaseGenerator {
 		row.put("schema:jobTitle", getJobTitle(rec));
 		row.put("foaf:member", getHasAffiliationUri(rec));
 		row.put("schema:address", getAddress(rec));
+		row.put("vstoi:hasStatus", URIUtils.replaceNameSpaceEx(status));
 		row.put("vstoi:hasSIRManagerEmail", managerEmail);
 		row.put("vstoi:hasStatus", status);
 		return row;

@@ -37,8 +37,9 @@ public class PlaceGenerator extends BaseGenerator {
 	String startTime = "";
     protected IngestionLogger logger = null;
 
-	public PlaceGenerator(DataFile dataFile, String templateFile, String managerEmail, String status) {
+	public PlaceGenerator(DataFile dataFile, String status, String templateFile, String managerEmail) {
 		super(dataFile, null, templateFile);
+		this.status = status;
 		this.logger = dataFile.getLogger();
 		this.managerEmail = managerEmail;
 		this.status = status;
@@ -143,6 +144,7 @@ public class PlaceGenerator extends BaseGenerator {
 		row.put("schema:latitude", getPlaceLatitude(rec));
 		row.put("schema:longitude", getPlaceLongitude(rec));
 		row.put("schema:url", getPlaceUrl(rec));
+		row.put("vstoi:hasStatus", URIUtils.replaceNameSpaceEx(status));
 		row.put("vstoi:hasSIRManagerEmail", managerEmail);
 		row.put("vstoi:hasStatus", status);
 		return row;
