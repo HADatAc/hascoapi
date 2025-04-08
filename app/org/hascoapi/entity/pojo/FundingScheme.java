@@ -1,8 +1,7 @@
 package org.hascoapi.entity.pojo;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
-import org.apache.jena.query.QuerySolution;
-import org.apache.jena.query.ResultSetRewindable;
+import org.apache.jena.query.*;
 import org.hascoapi.annotations.PropertyField;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.NameSpaces;
@@ -182,54 +181,82 @@ public class FundingScheme extends HADatAcThing implements Comparable<FundingSch
 
     public static FundingScheme find(String uri) {
         FundingScheme scheme = new FundingScheme();
-        scheme.setUri(uri);
 
-        String queryString = "DESCRIBE <" + uri + ">";
-        org.apache.jena.rdf.model.Model model = SPARQLUtils.describe(
-                org.hascoapi.utils.CollectionUtil.getCollectionPath(
-                        org.hascoapi.utils.CollectionUtil.Collection.SPARQL_QUERY), queryString);
+        // SELECT query used to retrieve named graphs
+		String queryString = "SELECT DISTINCT ?graph ?p ?o WHERE { GRAPH ?graph { <" + uri + "> ?p ?o } }";
+		ResultSet resultSet = SPARQLUtils.select(CollectionUtil.getCollectionPath(
+        	CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
-        model.listStatements().forEachRemaining(statement -> {
-            String predicateUri = statement.getPredicate().getURI();
-            String objectValue = URIUtils.objectRDFToString(statement.getObject());
+		if (!resultSet.hasNext()) {
+			return null;
+		} else {
+			scheme = new FundingScheme();
+		}
 
-            if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-                scheme.setLabel(objectValue);
-            } else if (predicateUri.equals(RDF.TYPE)) {
-                scheme.setTypeUri(objectValue);
-            } else if (predicateUri.equals(RDFS.COMMENT)) {
-                scheme.setComment(objectValue);
-            } else if (predicateUri.equals(HASCO.HASCO_TYPE)) {
-                scheme.setHascoTypeUri(objectValue);
-            } else if (predicateUri.equals(HASCO.HAS_IMAGE)) {
-                scheme.setHasImageUri(objectValue);
-            } else if (predicateUri.equals(HASCO.HAS_WEB_DOCUMENT)) {
-                scheme.setHasWebDocument(objectValue);
-            } else if (predicateUri.equals(VSTOI.HAS_STATUS)) {
-                scheme.setHasStatus(objectValue);
-            } else if (predicateUri.equals(VSTOI.HAS_VERSION)) {
-                scheme.setHasVersion(objectValue);
-            } else if (predicateUri.equals(VSTOI.HAS_REVIEW_NOTE)) {
-                scheme.setHasReviewNote(objectValue);
-            } else if (predicateUri.equals(VSTOI.HAS_EDITOR_EMAIL)) {
-                scheme.setHasEditorEmail(objectValue);
-            } else if (predicateUri.equals(SCHEMA.ALTERNATE_NAME)) {
-                scheme.setHasShortName(objectValue);
-            } else if (predicateUri.equals(SCHEMA.FUNDER)) {
-                scheme.setFunderUri(objectValue);
-            } else if (predicateUri.equals(SCHEMA.SPONSOR)) {
-                scheme.setSponsorUri(objectValue);
-            } else if (predicateUri.equals(SCHEMA.START_DATE)) {
-                scheme.setStartDate(objectValue);
-            } else if (predicateUri.equals(SCHEMA.END_DATE)) {
-                scheme.setEndDate(objectValue);
-            } else if (predicateUri.equals(SCHEMA.AMOUNT)) {
-                scheme.setAmount(objectValue);
-            } else if (predicateUri.equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
-                scheme.setHasSIRManagerEmail(objectValue);
+		// Iterate over results
+		while (resultSet.hasNext()) {
+			QuerySolution qs = resultSet.next();
+			
+			// Retrieve the named graph URI
+			if (qs.contains("graph")) {
+				scheme.setNamedGraph(qs.get("graph").toString());
+				//System.out.println("Graph: " + graphURI);
+			}
+			
+			// Retrieve predicate and object (optional)
+			if (qs.contains("p") && qs.contains("o")) {
+				String predicate = qs.get("p").toString();
+				String object = qs.get("o").toString();
+				//System.out.println("Predicate: " + predicate + " | Object: " + object); 
+
+                if (predicate.equals(RDFS.LABEL)) {
+                    scheme.setLabel(object);
+                } else if (predicate.equals(RDF.TYPE)) {
+                    scheme.setTypeUri(object);
+                } else if (predicate.equals(RDFS.COMMENT)) {
+                    scheme.setComment(object);
+                } else if (predicate.equals(HASCO.HASCO_TYPE)) {
+                    scheme.setHascoTypeUri(object);
+                } else if (predicate.equals(HASCO.HAS_IMAGE)) {
+                    scheme.setHasImageUri(object);
+                } else if (predicate.equals(HASCO.HAS_WEB_DOCUMENT)) {
+                    scheme.setHasWebDocument(object);
+                } else if (predicate.equals(VSTOI.HAS_STATUS)) {
+                    scheme.setHasStatus(object);
+                } else if (predicate.equals(VSTOI.HAS_VERSION)) {
+                    scheme.setHasVersion(object);
+                } else if (predicate.equals(VSTOI.HAS_REVIEW_NOTE)) {
+                    scheme.setHasReviewNote(object);
+                } else if (predicate.equals(VSTOI.HAS_EDITOR_EMAIL)) {
+                    scheme.setHasEditorEmail(object);
+                } else if (predicate.equals(SCHEMA.ALTERNATE_NAME)) {
+                    scheme.setHasShortName(object);
+                } else if (predicate.equals(SCHEMA.FUNDER)) {
+                    scheme.setFunderUri(object);
+                } else if (predicate.equals(SCHEMA.SPONSOR)) {
+                    scheme.setSponsorUri(object);
+                } else if (predicate.equals(SCHEMA.START_DATE)) {
+                    scheme.setStartDate(object);
+                } else if (predicate.equals(SCHEMA.END_DATE)) {
+                    scheme.setEndDate(object);
+                } else if (predicate.equals(SCHEMA.AMOUNT)) {
+                    scheme.setAmount(object);
+                } else if (predicate.equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
+                    scheme.setHasSIRManagerEmail(object);
+                }
             }
-        });
+        }
 
+		if (scheme.getHascoTypeUri() == null || scheme.getHascoTypeUri().isEmpty()) { 
+			System.out.println("[ERROR] Place.java: URI [" + uri + "] has no HASCO TYPE.");
+			return null;
+		} else if (!scheme.getHascoTypeUri().equals(SCHEMA.FUNDING_SCHEME)) {
+			System.out.println("[ERROR] Place.java: URI [" + uri + "] HASCO TYPE is not " + SCHEMA.FUNDING_SCHEME);
+			return null;
+		}
+
+		scheme.setUri(uri);
+		
         return scheme;
     }
 

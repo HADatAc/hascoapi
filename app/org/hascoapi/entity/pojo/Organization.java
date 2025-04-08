@@ -4,8 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
-import org.apache.jena.query.QuerySolution;
-import org.apache.jena.query.ResultSetRewindable;
+import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
@@ -124,7 +123,7 @@ public class Organization extends Agent {
                 " WHERE {  ?subUri rdfs:subClassOf* foaf:Organization . " +
                 "          ?uri a ?subUri . " +
                 "          ?uri hasco:hasOriginalId ?id .  " +
-                "        FILTER (?id=\"" + originalID + "\"^^xsd:string)  . " +
+                "        FILTER (?id=\"" + originalID + "\"^^xsd:objecting)  . " +
                 " }";
         return findOneByQuery(query);
     }        
@@ -138,7 +137,7 @@ public class Organization extends Agent {
                 " WHERE {  ?subUri rdfs:subClassOf* foaf:Organization . " +
                 "          ?uri a ?subUri . " +
                 "          ?uri foaf:mbox ?email .  " +
-                "        FILTER (?email=\"" + email + "\"^^xsd:string)  . " +
+                "        FILTER (?email=\"" + email + "\"^^xsd:objecting)  . " +
                 " }";
         return findOneByQuery(query);
     }        
@@ -152,7 +151,7 @@ public class Organization extends Agent {
                 " WHERE {  ?subUri rdfs:subClassOf* foaf:Organization . " +
                 "          ?uri a ?subUri . " +
                 "          ?uri foaf:name ?name .  " +
-                "        FILTER (?name=\"" + name + "\"^^xsd:string)  . " +
+                "        FILTER (?name=\"" + name + "\"^^xsd:objecting)  . " +
                 " }";
         return findOneByQuery(query);
     }        
@@ -178,57 +177,65 @@ public class Organization extends Agent {
 
     public static Organization find(String uri) {
         Organization organization = null;
-        Statement statement;
-        RDFNode object;
-        String queryString;
 
-        if (uri.startsWith("<")) {
-            queryString = "DESCRIBE " + uri + " ";
-        } else {
-            queryString = "DESCRIBE <" + uri + ">";
-        }
+		// Conobjectuct the SELECT query to retrieve named graphs
+		String queryString = "SELECT DISTINCT ?graph ?p ?o WHERE { GRAPH ?graph { <" + uri + "> ?p ?o } }";
+		ResultSet resultSet = SPARQLUtils.select(CollectionUtil.getCollectionPath(
+        	CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
-        Model model = SPARQLUtils.describe(CollectionUtil.getCollectionPath(
-                CollectionUtil.Collection.SPARQL_QUERY), queryString);
+		if (!resultSet.hasNext()) {
+			return null;
+		} else {
+			organization = new Organization();
+		}
 
-        organization = new Organization();
-        StmtIterator stmtIterator = model.listStatements();
-
-        while (stmtIterator.hasNext()) {
-            statement = stmtIterator.next();
-            object = statement.getObject();
-            String predicateUri = statement.getPredicate().getURI();
-            String str = URIUtils.objectRDFToString(object);
-            if (predicateUri.equals(RDFS.LABEL)) {
-                organization.setLabel(str);
-            } else if (predicateUri.equals(RDF.TYPE)) {
-                organization.setTypeUri(str);
-            } else if (predicateUri.equals(RDFS.COMMENT)) {
-                organization.setComment(str);
-            } else if (predicateUri.equals(HASCO.HASCO_TYPE)) {
-                organization.setHascoTypeUri(str);
-            } else if (predicateUri.equals(HASCO.HAS_IMAGE)) {
-                organization.setHasImageUri(str);
-            } else if (predicateUri.equals(HASCO.HAS_WEB_DOCUMENT)) {
-                organization.setHasWebDocument(str);
-            } else if (predicateUri.equals(VSTOI.HAS_STATUS)) {
-                organization.setHasStatus(str);
-            } else if (predicateUri.equals(SCHEMA.ALTERNATE_NAME)) {
-                organization.setHasShortName(str);
-            } else if (predicateUri.equals(FOAF.NAME)) {
-                organization.setName(str);
-            } else if (predicateUri.equals(FOAF.MBOX)) {
-                organization.setMbox(str);
-            } else if (predicateUri.equals(SCHEMA.TELEPHONE)) {
-                organization.setTelephone(str);
-            } else if (predicateUri.equals(SCHEMA.PARENT_ORGANIZATION)) {
-                organization.setParentOrganizationUri(str);
-            } else if (predicateUri.equals(SCHEMA.ADDRESS)) {
-                organization.setHasAddressUri(str);
-            } else if (predicateUri.equals(SCHEMA.URL)) {
-                organization.setHasUrl(str);
-            } else if (predicateUri.equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
-                organization.setHasSIRManagerEmail(str);
+		// Iterate over results
+		while (resultSet.hasNext()) {
+			QuerySolution qs = resultSet.next();
+			
+			// Retrieve the named graph URI
+			if (qs.contains("graph")) {
+				organization.setNamedGraph(qs.get("graph").toString());
+				//System.out.println("Graph: " + graphURI);
+			}
+			
+			// Retrieve predicate and object (optional)
+			if (qs.contains("p") && qs.contains("o")) {
+				String predicate = qs.get("p").toString();
+				String object = qs.get("o").toString();
+				//System.out.println("Predicate: " + predicate + " | Object: " + object);
+            
+                if (predicate.equals(RDFS.LABEL)) {
+                    organization.setLabel(object);
+                } else if (predicate.equals(RDF.TYPE)) {
+                    organization.setTypeUri(object);
+                } else if (predicate.equals(RDFS.COMMENT)) {
+                    organization.setComment(object);
+                } else if (predicate.equals(HASCO.HASCO_TYPE)) {
+                    organization.setHascoTypeUri(object);
+                } else if (predicate.equals(HASCO.HAS_IMAGE)) {
+                    organization.setHasImageUri(object);
+                } else if (predicate.equals(HASCO.HAS_WEB_DOCUMENT)) {
+                    organization.setHasWebDocument(object);
+                } else if (predicate.equals(VSTOI.HAS_STATUS)) {
+                    organization.setHasStatus(object);
+                } else if (predicate.equals(SCHEMA.ALTERNATE_NAME)) {
+                    organization.setHasShortName(object);
+                } else if (predicate.equals(FOAF.NAME)) {
+                    organization.setName(object);
+                } else if (predicate.equals(FOAF.MBOX)) {
+                    organization.setMbox(object);
+                } else if (predicate.equals(SCHEMA.TELEPHONE)) {
+                    organization.setTelephone(object);
+                } else if (predicate.equals(SCHEMA.PARENT_ORGANIZATION)) {
+                    organization.setParentOrganizationUri(object);
+                } else if (predicate.equals(SCHEMA.ADDRESS)) {
+                    organization.setHasAddressUri(object);
+                } else if (predicate.equals(SCHEMA.URL)) {
+                    organization.setHasUrl(object);
+                } else if (predicate.equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
+                    organization.setHasSIRManagerEmail(object);
+                }
             }
         }
 
