@@ -33,17 +33,14 @@ public class Place extends HADatAcThing implements Comparable<Place> {
 
 	private static final Logger log = LoggerFactory.getLogger(Place.class);
 
-  @PropertyField(uri="vstoi:hasStatus")
-  private String hasStatus;
+    @PropertyField(uri="vstoi:hasStatus")
+    private String hasStatus;
     
 	@PropertyField(uri="schema:alternaName")
-  protected String hasShortName;
+    protected String hasShortName;
 
 	@PropertyField(uri="foaf:name")
-  protected String name;
-
-	@PropertyField(uri="hasco:hasImage")
-	private String hasImage;
+    protected String name;
 
  	@PropertyField(uri="schema:address")
 	private String hasAddress;
@@ -94,14 +91,6 @@ public class Place extends HADatAcThing implements Comparable<Place> {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public String getHasImage() {
-		return hasImage;
-	}
-
-	public void setHasImage(String hasImage) {
-		this.hasImage = hasImage;
 	}
 
 	public String getHasAddress() {
@@ -342,7 +331,7 @@ public class Place extends HADatAcThing implements Comparable<Place> {
 					} else if (predicate.equals(FOAF.NAME)) {
 						place.setName(object);
 					} else if (predicate.equals(HASCO.HAS_IMAGE)) {
-						place.setHasImage(object);
+						place.setHasImageUri(object);
 					} else if (predicate.equals(SCHEMA.ADDRESS)) {
 						place.setHasAddress(object);
 					} else if (predicate.equals(SCHEMA.CONTAINED_IN_PLACE)) {
@@ -357,8 +346,6 @@ public class Place extends HADatAcThing implements Comparable<Place> {
 						place.setHasLatitude(object);
 					} else if (predicate.equals(SCHEMA.LONGITUDE)) {
 						place.setHasLongitude(object);
-					} else if (predicate.equals(SCHEMA.URL)) {
-						place.setHasUrl(object);
 					} else if (predicate.equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
 						place.setHasSIRManagerEmail(object);
 					}

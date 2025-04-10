@@ -46,7 +46,7 @@ public class SCHEMA {
     public static final String STREET_ADDRESS      =  SCHEMA + "streetAddress";
     public static final String SUB_ORGANIZATION    =  SCHEMA + "subOrganization";
     public static final String TELEPHONE           =  SCHEMA + "telephone";
-    public static final String URL                 =  SCHEMA + "url";
+    //public static final String URL                 =  SCHEMA + "url";
 
 
 }

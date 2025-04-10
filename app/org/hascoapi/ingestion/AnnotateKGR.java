@@ -11,9 +11,7 @@ public class AnnotateKGR {
     public static GeneratorChain exec(DataFile dataFile, String templateFile, String status) {
         System.out.println("AnnotateKGR.buildChain(): Processing KGR file ...");
  
-        String fileName = dataFile.getFilename();
-        
-        System.out.println("AnnotateKGR.buildChain(): Build chain 1 of 10 - Reading catalog and template");
+        System.out.println("AnnotateKGR.buildChain(): Build chain 1 of 8 - Reading catalog and template");
 
         RecordFile recordFile = new SpreadsheetRecordFile(dataFile.getFile(), "InfoSheet");
         if (!recordFile.isValid()) {
@@ -38,175 +36,94 @@ public class AnnotateKGR {
         // the template is needed to process individual sheets
         kgr.setTemplates(templateFile);
 
-        System.out.println("AnnotateKGR.buildChain(): Build chain 2 of 10 - Separating sheets apart");
-
-        RecordFile postalAddressRecordFile = null;
-        RecordFile placeRecordFile = null;
-        RecordFile organizationRecordFile = null;
-        RecordFile personRecordFile = null;
-        boolean postalAddressOkay = false;
-        boolean placeOkay = false;
-        boolean organizationOkay = false;
-        boolean personOkay = false;
-
-        if (fileName.endsWith(".xlsx")) {
-
-            if (mapCatalog.get("PostalAddress") != null) {
-                System.out.print("Extracting PostalAddress sheet from spreadsheet... ");
-                postalAddressRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), "#" + mapCatalog.get("PostalAddress"));
-                System.out.println(postalAddressRecordFile.getSheetName());
-                postalAddressOkay = true;
-            }
-            
-            if (mapCatalog.get("Place") != null) {
-                System.out.print("Extracting place sheet from spreadsheet... ");
-                placeRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), "#" + mapCatalog.get("Place"));
-                System.out.println(placeRecordFile.getSheetName());
-                placeOkay = true;
-            }
-            
-            if (mapCatalog.get("Organization") != null) { 
-                System.out.print("Extrating organization sheet from spreadsheet... ");
-                organizationRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), "#" + mapCatalog.get("Organization"));
-                System.out.println(organizationRecordFile.getSheetName());
-                organizationOkay = true;
-            }
-            
-            if (mapCatalog.get("Person") != null) {
-                System.out.print("Extracting person sheet from spreadsheet... ");
-                personRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), mapCatalog.get("Person").replace("#", ""));
-                System.out.println(personRecordFile.getSheetName());
-                personOkay = true;
-            }
-            
+        String hasMediaFolder = null;
+        if (mapCatalog.get("hasMediaFolder") != null) {
+            hasMediaFolder = mapCatalog.get("hasMediaFolder");
         }
 
-        System.out.println("AnnotateKGR.buildChain(): Build chain 3 of 10 - Processing PostalAddress Sheet");
-
-        if (postalAddressOkay && !kgr.readPostalAddresses(postalAddressRecordFile)) {
-            System.out.println("[ERROR] failed KGR's read postal addresses");
-            postalAddressOkay = false;
-        }
-
-        System.out.println("AnnotateKGR.buildChain(): Build chain 4 of 10 - Processing Place Sheet");
-
-        if (placeOkay && !kgr.readPlaces(placeRecordFile)) {
-            System.out.println("[ERROR] failed KGR's read places");
-            placeOkay = false;
-        }
-
-        System.out.println("AnnotateKGR.buildChain(): Build chain 5 of 10 - Processing Organization Sheet");
-
-        if (organizationOkay && !kgr.readOrganizations(organizationRecordFile)) {
-            System.out.println("[ERROR] failed KGR's read organizations");
-            organizationOkay = false;
-        }
-
-        System.out.println("AnnotateKGR.buildChain(): Build chain 6 of 10 - Processing Person Sheet");
-
-        if (personOkay && !kgr.readPersons(personRecordFile)) {
-            dataFile.getLogger().printWarningById("SDD_00005");
-            System.out.println("[ERROR] failed KGR's read persons");
-            personOkay = false;
-        }
-
-        System.out.println("AnnotateKGR.buildChain(): Build chain 7 of 10 - Creating empty generator chain");
+        System.out.println("AnnotateKGR.buildChain(): Build chain 2 of 8 - Creating empty generator chain");
 
         GeneratorChain chain = new GeneratorChain();
         
-        System.out.println("AnnotateKGR.buildChain(): Build chain 8 of 10 - Adding PostalAddressGenerator into generation chain");
-
-        if (postalAddressOkay && postalAddressRecordFile != null && postalAddressRecordFile.isValid()) {
-            DataFile postalAddressFile;
-            try {
-                postalAddressFile = (DataFile)dataFile.clone();
-                postalAddressFile.setRecordFile(postalAddressRecordFile);
-                PostalAddressGenerator postalAddressGen = new PostalAddressGenerator(postalAddressFile, status, templateFile, kgr.getHasSIRManagerEmail());
-                postalAddressGen.setNamedGraphUri(kgr.getHasDataFileUri());
-                chain.addGenerator(postalAddressGen);
-                System.out.println("Adding PostalAddressGenerator into generation chain...");
-            } catch (CloneNotSupportedException e) {
-                e.printStackTrace();
-                System.out.println("[ERROR] failed KGR's adding PostalAddressGenerator into generation chain ");
-                postalAddressOkay = false;
-            }
-        } 
- 
-        if (!postalAddressOkay) {
-            System.out.println("[WARNING] failed KGR's PostalAddress generation");
-        }
-
-        System.out.println("AnnotateKGR.buildChain(): Build chain 8 of 10 - Adding PlaceGenerator into generation chain");
-
-        if (placeOkay && placeRecordFile != null && placeRecordFile.isValid()) {
-            DataFile placeFile;
-            try {
-                placeFile = (DataFile)dataFile.clone();
-                placeFile.setRecordFile(placeRecordFile);
-                PlaceGenerator placeGen = new PlaceGenerator(placeFile, status, templateFile, kgr.getHasSIRManagerEmail());
-                placeGen.setNamedGraphUri(kgr.getHasDataFileUri());
-                chain.addGenerator(placeGen);
-                System.out.println("Adding PlaceGenerator into generation chain...");
-            } catch (CloneNotSupportedException e) {
-                e.printStackTrace();
-                System.out.println("[ERROR] failed KGR's adding PlaceGenerator into generation chain ");
-                placeOkay = false;
-            }
-        }
-
-        if (!placeOkay) {
-            System.out.println("[WARNING] failed KGR's Place generation");
-        }
-
-        System.out.println("AnnotateKGR.buildChain(): Build chain 9 of 10 - Adding OrganizationGenerator into generation chain");
-
-        if (organizationOkay && organizationRecordFile != null && organizationRecordFile.isValid()) {
-            DataFile organizationFile;
-            try {
-                organizationFile = (DataFile)dataFile.clone();
-                organizationFile.setRecordFile(organizationRecordFile);
-                OrganizationGenerator orgGen = new OrganizationGenerator(organizationFile, status, templateFile, kgr.getHasSIRManagerEmail());
-                orgGen.setNamedGraphUri(kgr.getHasDataFileUri());
-                chain.addGenerator(orgGen);
-                System.out.println("Adding OrganizationGenerator into generation chain...");
-            } catch (CloneNotSupportedException e) {
-                e.printStackTrace();
-                System.out.println("[ERROR] failed KGR's adding OrganizationGenerator into generation chain ");
-                organizationOkay = false;
-            }
-        }
-
-        if (!personOkay) {
-            System.out.println("[WARNING] failed KGR's Organization generation");
-        }
-
-        System.out.println("AnnotateKGR.buildChain(): Build chain 10 of 10 - Adding PersonGenerator into generation chain");
-
-        // persons needs to be processed after data organizations because or persons 
-        // need to be assigned members of organizations
-                
-        if (personOkay && personRecordFile != null && personRecordFile.isValid()) {
-            DataFile personFile;
-            try {
-                personFile = (DataFile)dataFile.clone();
-                personFile.setRecordFile(personRecordFile);
-                PersonGenerator perGen = new PersonGenerator(personFile, status, templateFile, kgr.getHasSIRManagerEmail());
-                perGen.setNamedGraphUri(kgr.getHasDataFileUri());
-                chain.addGenerator(perGen);
-                System.out.println("Adding PersonGenerator into generation chain...");
-            } catch (CloneNotSupportedException e) {
-                e.printStackTrace();
-                System.out.println("[ERROR] failed KGR's adding PersonGenerator into generation chain ");
-                personOkay = false;
-            }
-        }
-
-        if (!personOkay) {
-            System.out.println("[WARNING] failed KGR's Person generation");
-        }
-
         RecordFile sheet = null;
 
+        System.out.println("AnnotateKGR.buildChain(): Build chain 3 of 8 - Adding place into generation chain");
+        String placeSheet = mapCatalog.get("Places");
+        if (placeSheet == null) {
+            System.out.println("[WARNING] 'Places' sheet is missing.");
+            dataFile.getLogger().println("[WARNING] 'Places' sheet is missing.");
+        } else {
+            placeSheet.replace("#", "");
+            sheet = new SpreadsheetRecordFile(dataFile.getFile(), placeSheet);
+            try {
+                DataFile dataFileForSheet = (DataFile)dataFile.clone();
+                dataFileForSheet.setRecordFile(sheet);
+                KGRGenerator placeGen = new KGRGenerator("place", status, dataFileForSheet, hasMediaFolder);
+                placeGen.setNamedGraphUri(dataFileForSheet.getUri());
+                chain.addGenerator(placeGen);
+            } catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        System.out.println("AnnotateKGR.buildChain(): Build chain 4 of 8 - Adding postal address into generation chain");
+        String postalAddressSheet = mapCatalog.get("PostalAddresses");
+        if (postalAddressSheet == null) {
+            System.out.println("[WARNING] 'PostalAddresses' sheet is missing.");
+            dataFile.getLogger().println("[WARNING] 'PostalAddresses' sheet is missing.");
+        } else {
+            postalAddressSheet.replace("#", "");
+            sheet = new SpreadsheetRecordFile(dataFile.getFile(), postalAddressSheet);
+            try {
+                DataFile dataFileForSheet = (DataFile)dataFile.clone();
+                dataFileForSheet.setRecordFile(sheet);
+                KGRGenerator postalAddressGen = new KGRGenerator("postaladdress", status, dataFileForSheet, hasMediaFolder);
+                postalAddressGen.setNamedGraphUri(dataFileForSheet.getUri());
+                chain.addGenerator(postalAddressGen);
+            } catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        System.out.println("AnnotateKGR.buildChain(): Build chain 5 of 8 - Adding organization into generation chain");
+        String organizationSheet = mapCatalog.get("Organizations");
+        if (organizationSheet == null) {
+            System.out.println("[WARNING] 'Organizations' sheet is missing.");
+            dataFile.getLogger().println("[WARNING] 'Organizations' sheet is missing.");
+        } else {
+            organizationSheet.replace("#", "");
+            sheet = new SpreadsheetRecordFile(dataFile.getFile(), organizationSheet);
+            try {
+                DataFile dataFileForSheet = (DataFile)dataFile.clone();
+                dataFileForSheet.setRecordFile(sheet);
+                KGRGenerator organizationGen = new KGRGenerator("organization", status, dataFileForSheet, hasMediaFolder);
+                organizationGen.setNamedGraphUri(dataFileForSheet.getUri());
+                chain.addGenerator(organizationGen);
+            } catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        System.out.println("AnnotateKGR.buildChain(): Build chain 6 of 8 - Adding person into generation chain");
+        String personSheet = mapCatalog.get("Persons");
+        if (personSheet == null) {
+            System.out.println("[WARNING] 'Persons' sheet is missing.");
+            dataFile.getLogger().println("[WARNING] 'Persons' sheet is missing.");
+        } else {
+            personSheet.replace("#", "");
+            sheet = new SpreadsheetRecordFile(dataFile.getFile(), personSheet);
+            try {
+                DataFile dataFileForSheet = (DataFile)dataFile.clone();
+                dataFileForSheet.setRecordFile(sheet);
+                KGRGenerator personGen = new KGRGenerator("person", status, dataFileForSheet, hasMediaFolder);
+                personGen.setNamedGraphUri(dataFileForSheet.getUri());
+                chain.addGenerator(personGen);
+            } catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        System.out.println("AnnotateKGR.buildChain(): Build chain 7 of 8 - Adding project into generation chain");
         String projectSheet = mapCatalog.get("Projects");
         if (projectSheet == null) {
             System.out.println("[WARNING] 'Projects' sheet is missing.");
@@ -217,7 +134,7 @@ public class AnnotateKGR {
             try {
                 DataFile dataFileForSheet = (DataFile)dataFile.clone();
                 dataFileForSheet.setRecordFile(sheet);
-                KGRGenerator projectGen = new KGRGenerator("project", status, dataFileForSheet);
+                KGRGenerator projectGen = new KGRGenerator("project", status, dataFileForSheet, hasMediaFolder);
                 projectGen.setNamedGraphUri(dataFileForSheet.getUri());
                 chain.addGenerator(projectGen);
             } catch (CloneNotSupportedException e) {
@@ -225,7 +142,8 @@ public class AnnotateKGR {
             }
         }
 
-        String fundingSchemeSheet = mapCatalog.get("Projects");
+        System.out.println("AnnotateKGR.buildChain(): Build chain 8 of 8 - Adding funding scheme into generation chain");
+        String fundingSchemeSheet = mapCatalog.get("FundingSchemes");
         if (fundingSchemeSheet == null) {
             System.out.println("[WARNING] 'FundingSchemes' sheet is missing.");
             dataFile.getLogger().println("[WARNING] 'FundingSchemes' sheet is missing.");
@@ -235,7 +153,7 @@ public class AnnotateKGR {
             try {
                 DataFile dataFileForSheet = (DataFile)dataFile.clone();
                 dataFileForSheet.setRecordFile(sheet);
-                KGRGenerator fundingSchemeGen = new KGRGenerator("fundingscheme", status, dataFileForSheet);
+                KGRGenerator fundingSchemeGen = new KGRGenerator("fundingscheme", status, dataFileForSheet, hasMediaFolder);
                 fundingSchemeGen.setNamedGraphUri(dataFileForSheet.getUri());
                 chain.addGenerator(fundingSchemeGen);
             } catch (CloneNotSupportedException e) {

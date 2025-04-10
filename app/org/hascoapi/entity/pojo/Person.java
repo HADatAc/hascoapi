@@ -191,8 +191,6 @@ public class Person extends Agent {
                     person.setHasAffiliationUri(object);
                 } else if (predicate.equals(SCHEMA.ADDRESS)) {
                     person.setHasAddressUri(object);
-                } else if (predicate.equals(SCHEMA.URL)) {
-                    person.setHasUrl(object);
                 } else if (predicate.equals(SCHEMA.JOB_TITLE)) {
                     person.setJobTitle(object);
                 } else if (predicate.equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {

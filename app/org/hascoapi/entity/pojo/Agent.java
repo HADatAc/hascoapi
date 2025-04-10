@@ -41,9 +41,6 @@ public class Agent extends HADatAcThing implements Comparable<Agent> {
     @PropertyField(uri="schema:address")
     protected String hasAddressUri;
 
-    @PropertyField(uri="schema:url")
-    protected String hasUrl;
-
     @PropertyField(uri="vstoi:hasSIRManagerEmail")
     protected String hasSIRManagerEmail;
 
@@ -94,13 +91,6 @@ public class Agent extends HADatAcThing implements Comparable<Agent> {
             return null;
         }
         return PostalAddress.find(this.hasAddressUri);
-    }
-
-    public String getHasUrl() {
-        return hasUrl;
-    }
-    public void setHasUrl(String hasUrl) {
-        this.hasUrl = hasUrl;
     }
 
     public String getHasSIRManagerEmail() {
