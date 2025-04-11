@@ -137,7 +137,7 @@ public class IngestionAPI extends Controller {
             dataFile.save();
             System.out.println("IngestionAPI.ingest(): API has read DataFile from triplestore");
         } 
-        File filePerm = IngestionAPI.saveFileAsPermanent(file,dataFile.getFilename());
+        File filePerm = this.saveFileAsPermanent(file,dataFile.getFilename());
         if (dataFile != null & filePerm != null) {
             final DataFile finalDataFile = dataFile; 
             CompletableFuture.runAsync(() -> {
@@ -160,13 +160,13 @@ public class IngestionAPI extends Controller {
      * @param fileName Name of the permanent copy.
      * @return The permanent file if the copy is successful, null otherwise.
      */
-    public static File saveFileAsPermanent(File tempFile, String fileName) {
+    public File saveFileAsPermanent(File tempFile, String fileName) {
         if (tempFile == null || fileName == null || fileName.trim().isEmpty()) {
             System.out.println("[ERROR] Invalid input: tempFile or fileName is null/empty.");
             return null;
         }
 
-        String destinationDir = ConfigProp.getPathIngestion();
+        String destinationDir = config.getString("hascoapi.paths.ingestion");
         if (destinationDir == null || destinationDir.trim().isEmpty()) {
             System.out.println("[ERROR] ConfigProp.getPathIngestion() returned an invalid path.");
             return null;
@@ -206,7 +206,7 @@ public class IngestionAPI extends Controller {
      * @param fileName The name of the file to be deleted.
      * @return true if the file was successfully deleted, false otherwise.
      */
-    public static boolean deletePermanentFile(String fileName) {
+    public boolean deletePermanentFile(String fileName) {
 
         // Define the permanent file path
         String pathString = ConfigProp.getPathIngestion() + fileName;
@@ -301,7 +301,7 @@ public class IngestionAPI extends Controller {
             System.out.println("IngestionAPI.ingest(): API has able to retrieve KGR from triplestore");
 
             // Delete API copy of metadata template
-            boolean deletedFile = IngestionAPI.deletePermanentFile(dataFile.getFilename());
+            boolean deletedFile = this.deletePermanentFile(dataFile.getFilename());
 
             // Uningest Datafile content
             dataFile.delete();
@@ -328,7 +328,7 @@ public class IngestionAPI extends Controller {
             System.out.println("IngestionAPI.ingest(): API has able to retrieve DSG from triplestore");
 
             // Delete API copy of metadata template
-            boolean deletedFile = IngestionAPI.deletePermanentFile(dataFile.getFilename());
+            boolean deletedFile = this.deletePermanentFile(dataFile.getFilename());
 
             // Uningest Datafile content
             dataFile.delete();
@@ -355,7 +355,7 @@ public class IngestionAPI extends Controller {
             System.out.println("IngestionAPI.ingest(): API has able to retrieve DP2 from triplestore");
 
             // Delete API copy of metadata template
-            boolean deletedFile = IngestionAPI.deletePermanentFile(dataFile.getFilename());
+            boolean deletedFile = this.deletePermanentFile(dataFile.getFilename());
 
             // Uningest Datafile content
             dataFile.delete();
@@ -382,7 +382,7 @@ public class IngestionAPI extends Controller {
             System.out.println("IngestionAPI.ingest(): API has able to retrieve DSG from triplestore");
 
             // Delete API copy of metadata template
-            boolean deletedFile = IngestionAPI.deletePermanentFile(dataFile.getFilename());
+            boolean deletedFile = this.deletePermanentFile(dataFile.getFilename());
 
             // Uningest Datafile content
             dataFile.delete();
@@ -409,7 +409,7 @@ public class IngestionAPI extends Controller {
             System.out.println("IngestionAPI.ingest(): API has able to retrieve SDD from triplestore");
 
             // Delete API copy of metadata template
-            boolean deletedFile = IngestionAPI.deletePermanentFile(dataFile.getFilename());
+            boolean deletedFile = this.deletePermanentFile(dataFile.getFilename());
 
             // Uningest Datafile content
             dataFile.delete();
@@ -436,7 +436,7 @@ public class IngestionAPI extends Controller {
             System.out.println("IngestionAPI.ingest(): API has able to retrieve STR from triplestore");
 
             // Delete API copy of metadata template
-            boolean deletedFile = IngestionAPI.deletePermanentFile(dataFile.getFilename());
+            boolean deletedFile = this.deletePermanentFile(dataFile.getFilename());
 
             // Uningest Datafile content
             dataFile.delete();

@@ -305,5 +305,28 @@ public class URIUtils {
  		return null;
 	}
 
-
+    public static String uriLastSegment(String uri) {
+        if (uri == null || uri.isEmpty()) {
+            return uri;
+        }
+    
+        // Remove trailing slashes or hashes
+        uri = uri.replaceAll("[/#]+$", "");
+    
+        // Find the last occurrence of "/" or "#"
+        int lastSlash = uri.lastIndexOf("/");
+        int lastHash = uri.lastIndexOf("#");
+    
+        // Determine the actual last segment position
+        int lastIndex = Math.max(lastSlash, lastHash);
+    
+        // If no delimiter is found, return unchanged
+        if (lastIndex == -1) {
+            return uri;
+        }
+    
+        // Return the last segment
+        return uri.substring(lastIndex + 1);
+    }
+    
 }

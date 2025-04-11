@@ -275,8 +275,8 @@ public class KGRGen {
         // Create sheet named 'Organization'
         Sheet organizationSheet = workbook.createSheet(KGRGen.ORGANIZATIONS);
         String[] organizationHeaders = { "hasURI", "hasco:hascoType", "rdfs:label", 
-            "originalID", 	"rdf:type", "foaf:name", "foaf:mbox", 
-        	"schema:telephone", "schema:url", "schema:parentOrganization" };
+            "hasco:originalID", 	"rdf:type", "foaf:name", "foaf:mbox", 
+        	"schema:telephone", "hasco:hasWebDocument", "schema:parentOrganization" };
 
         // Create header row
         Row organizationHeaderRow = organizationSheet.createRow(0);
@@ -291,7 +291,7 @@ public class KGRGen {
         // Create sheet named 'Person'
         Sheet personSheet = workbook.createSheet(KGRGen.PERSONS);
         String[] personHeaders = { "hasURI", "hasco:hascoType", "rdfs:label", 
-            "originalID", "rdf:type", "foaf:givenName", "foaf:familyName", 
+            "hasco:originalID", "rdf:type", "foaf:givenName", "foaf:familyName", 
         	"foaf:mbox", "foaf:member" };
 
         // Create header row
@@ -307,9 +307,9 @@ public class KGRGen {
         // Create sheet named 'Place'
         Sheet placeSheet = workbook.createSheet(KGRGen.PLACES);
         String[] placeHeaders = { "hasURI", "hasco:hascoType", "rdfs:label", 
-            "originalID", "rdf:type", "foaf:name", "hasco:hasImage", 	
+            "hasco:originalID", "rdf:type", "foaf:name", "hasco:hasImage", 	
             "schema:containedInPlace", 	"schema:identifier", "schema:geo",	"schema:latitude", 
-            "schema:longitude",	"schema:url" };
+            "schema:longitude",	"hasco:hasWebDocument" };
 
         // Create header row
         Row placeHeaderRow = placeSheet.createRow(0);

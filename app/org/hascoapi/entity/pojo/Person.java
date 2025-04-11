@@ -4,8 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
-import org.apache.jena.query.QuerySolution;
-import org.apache.jena.query.ResultSetRewindable;
+import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
@@ -82,7 +81,7 @@ public class Person extends Agent {
                 " WHERE {  ?subUri rdfs:subClassOf* foaf:Person . " +
                 "          ?uri a ?subUri . " +
                 "          ?uri foaf:mbox ?email .  " +
-                "        FILTER (?email=\"" + email + "\"^^xsd:string)  . " +
+                "        FILTER (?email=\"" + email + "\"^^xsd:objecting)  . " +
                 " }";
         return findOneByQuery(query);
     }        
@@ -134,63 +133,69 @@ public class Person extends Agent {
 
     public static Person find(String uri) {
         Person person = null;
-        Statement statement;
-        RDFNode object;
-        String queryString;
 
-        if (uri.startsWith("<")) {
-            queryString = "DESCRIBE " + uri + " ";
-        } else {
-            queryString = "DESCRIBE <" + uri + ">";
-        }
+		// Conobjectuct the SELECT query to retrieve named graphs
+		String queryString = "SELECT DISTINCT ?graph ?p ?o WHERE { GRAPH ?graph { <" + uri + "> ?p ?o } }";
+		ResultSet resultSet = SPARQLUtils.select(CollectionUtil.getCollectionPath(
+        	CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
-        Model model = SPARQLUtils.describe(CollectionUtil.getCollectionPath(
-                CollectionUtil.Collection.SPARQL_QUERY), queryString);
+		if (!resultSet.hasNext()) {
+			return null;
+		} else {
+			person = new Person();
+		}
 
-        person = new Person();
-        StmtIterator stmtIterator = model.listStatements();
+		// Iterate over results
+		while (resultSet.hasNext()) {
+			QuerySolution qs = resultSet.next();
+			
+			// Retrieve the named graph URI
+			if (qs.contains("graph")) {
+				person.setNamedGraph(qs.get("graph").toString());
+				//System.out.println("Graph: " + graphURI);
+			}
+			
+			// Retrieve predicate and object (optional)
+			if (qs.contains("p") && qs.contains("o")) {
+				String predicate = qs.get("p").toString();
+				String object = qs.get("o").toString();
+				//System.out.println("Predicate: " + predicate + " | Object: " + object);
 
-        while (stmtIterator.hasNext()) {
-            statement = stmtIterator.next();
-            object = statement.getObject();
-            String predicateUri = statement.getPredicate().getURI();
-            String str = URIUtils.objectRDFToString(object);
-             if (predicateUri.equals(RDFS.LABEL)) {
-                person.setLabel(str);
-            } else if (predicateUri.equals(RDF.TYPE)) {
-                person.setTypeUri(str);
-            } else if (predicateUri.equals(RDFS.COMMENT)) {
-                person.setComment(str);
-            } else if (predicateUri.equals(HASCO.HASCO_TYPE)) {
-                person.setHascoTypeUri(str);
-            } else if (predicateUri.equals(HASCO.HAS_IMAGE)) {
-                person.setHasImageUri(str);
-            } else if (predicateUri.equals(HASCO.HAS_WEB_DOCUMENT)) {
-                person.setHasWebDocument(str);
-            } else if (predicateUri.equals(VSTOI.HAS_STATUS)) {
-                person.setHasStatus(str);
-            } else if (predicateUri.equals(SCHEMA.ALTERNATE_NAME)) {
-                person.setHasShortName(str);
-            } else if (predicateUri.equals(FOAF.NAME)) {
-                person.setName(str);
-            } else if (predicateUri.equals(FOAF.FAMILY_NAME)) {
-                person.setFamilyName(str);
-            } else if (predicateUri.equals(FOAF.GIVEN_NAME)) {
-                person.setGivenName(str);
-            } else if (predicateUri.equals(FOAF.MBOX)) {
-                person.setMbox(str);
-            } else if (predicateUri.equals(SCHEMA.TELEPHONE)) {
-                person.setTelephone(str);
-            } else if (predicateUri.equals(FOAF.MEMBER)) {
-                person.setHasAffiliationUri(str);
-            } else if (predicateUri.equals(SCHEMA.ADDRESS)) {
-                person.setHasAddressUri(str);
-            } else if (predicateUri.equals(SCHEMA.URL)) {
-                person.setHasUrl(str);
-            } else if (predicateUri.equals(SCHEMA.JOB_TITLE)) {
-                person.setJobTitle(str);
-            } else if (predicateUri.equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
-                person.setHasSIRManagerEmail(str);
+                if (predicate.equals(RDFS.LABEL)) {
+                    person.setLabel(object);
+                } else if (predicate.equals(RDF.TYPE)) {
+                    person.setTypeUri(object);
+                } else if (predicate.equals(RDFS.COMMENT)) {
+                    person.setComment(object);
+                } else if (predicate.equals(HASCO.HASCO_TYPE)) {
+                    person.setHascoTypeUri(object);
+                } else if (predicate.equals(HASCO.HAS_IMAGE)) {
+                    person.setHasImageUri(object);
+                } else if (predicate.equals(HASCO.HAS_WEB_DOCUMENT)) {
+                    person.setHasWebDocument(object);
+                } else if (predicate.equals(VSTOI.HAS_STATUS)) {
+                    person.setHasStatus(object);
+                } else if (predicate.equals(SCHEMA.ALTERNATE_NAME)) {
+                    person.setHasShortName(object);
+                } else if (predicate.equals(FOAF.NAME)) {
+                    person.setName(object);
+                } else if (predicate.equals(FOAF.FAMILY_NAME)) {
+                    person.setFamilyName(object);
+                } else if (predicate.equals(FOAF.GIVEN_NAME)) {
+                    person.setGivenName(object);
+                } else if (predicate.equals(FOAF.MBOX)) {
+                    person.setMbox(object);
+                } else if (predicate.equals(SCHEMA.TELEPHONE)) {
+                    person.setTelephone(object);
+                } else if (predicate.equals(FOAF.MEMBER)) {
+                    person.setHasAffiliationUri(object);
+                } else if (predicate.equals(SCHEMA.ADDRESS)) {
+                    person.setHasAddressUri(object);
+                } else if (predicate.equals(SCHEMA.JOB_TITLE)) {
+                    person.setJobTitle(object);
+                } else if (predicate.equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
+                    person.setHasSIRManagerEmail(object);
+                }
             }
         }
 

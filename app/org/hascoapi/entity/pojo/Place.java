@@ -5,8 +5,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.apache.jena.query.QuerySolution;
-import org.apache.jena.query.ResultSetRewindable;
+import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
@@ -34,17 +33,14 @@ public class Place extends HADatAcThing implements Comparable<Place> {
 
 	private static final Logger log = LoggerFactory.getLogger(Place.class);
 
-  @PropertyField(uri="vstoi:hasStatus")
-  private String hasStatus;
+    @PropertyField(uri="vstoi:hasStatus")
+    private String hasStatus;
     
 	@PropertyField(uri="schema:alternaName")
-  protected String hasShortName;
+    protected String hasShortName;
 
 	@PropertyField(uri="foaf:name")
-  protected String name;
-
-	@PropertyField(uri="hasco:hasImage")
-	private String hasImage;
+    protected String name;
 
  	@PropertyField(uri="schema:address")
 	private String hasAddress;
@@ -95,14 +91,6 @@ public class Place extends HADatAcThing implements Comparable<Place> {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public String getHasImage() {
-		return hasImage;
-	}
-
-	public void setHasImage(String hasImage) {
-		this.hasImage = hasImage;
 	}
 
 	public String getHasAddress() {
@@ -295,77 +283,82 @@ public class Place extends HADatAcThing implements Comparable<Place> {
 	public static Place find(String uri) {
 		//System.out.println("Place.find(): uri = [" + uri + "]");
 		Place place;
-		String hascoTypeUri = Utils.retrieveHASCOTypeUri(uri);
-		if (hascoTypeUri == null) {
-			System.out.println("[ERROR] Place.java: URI [" + uri + "] has no HASCO TYPE.");
+
+		// SELECT query used to retrieve named graphs
+		String queryString = "SELECT DISTINCT ?graph ?p ?o WHERE { GRAPH ?graph { <" + uri + "> ?p ?o } }";
+		ResultSet resultSet = SPARQLUtils.select(CollectionUtil.getCollectionPath(
+        	CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+		if (!resultSet.hasNext()) {
 			return null;
-		}
-		//System.out.println("Place.find(): typeUri = [" + typeUri + "]");
-		if (hascoTypeUri.equals(SCHEMA.PLACE)) {
-			place = new Place();
 		} else {
-			return null;
+			place = new Place();
 		}
 
-	    Statement statement;
-	    RDFNode object;
-	    
-	    String queryString = "DESCRIBE <" + uri + ">";
-	    Model model = SPARQLUtils.describe(CollectionUtil.getCollectionPath(
-                CollectionUtil.Collection.SPARQL_QUERY), queryString);
-		
-		StmtIterator stmtIterator = model.listStatements();
+		// Iterate over results
+		while (resultSet.hasNext()) {
+			QuerySolution qs = resultSet.next();
+			
+			// Retrieve the named graph URI
+			if (qs.contains("graph")) {
+				place.setNamedGraph(qs.get("graph").toString());
+				//System.out.println("Graph: " + graphURI);
+			}
+			
+			// Retrieve predicate and object (optional)
+			if (qs.contains("p") && qs.contains("o")) {
+				String predicate = qs.get("p").toString();
+				String object = qs.get("o").toString();
+				//System.out.println("Predicate: " + predicate + " | Object: " + object); 
 
-		if (!stmtIterator.hasNext()) {
-			return null;
-		} 
-		
-		while (stmtIterator.hasNext()) {
-		    statement = stmtIterator.next();
-		    object = statement.getObject();
-			String predicateUri = statement.getPredicate().getURI();
-			String str = URIUtils.objectRDFToString(object);
-			if (uri != null && !uri.isEmpty()) {
-				if (predicateUri.equals(RDFS.LABEL)) {
-					place.setLabel(str);
-				} else if (predicateUri.equals(RDF.TYPE)) {
-					place.setTypeUri(str); 
-				} else if (predicateUri.equals(RDFS.COMMENT)) {
-					place.setComment(str);
-				} else if (predicateUri.equals(HASCO.HASCO_TYPE)) {
-					place.setHascoTypeUri(str);
-				} else if (predicateUri.equals(HASCO.HAS_IMAGE)) {
-					place.setHasImageUri(str);
-				} else if (predicateUri.equals(HASCO.HAS_WEB_DOCUMENT)) {
-					place.setHasWebDocument(str);
-				} else if (predicateUri.equals(VSTOI.HAS_STATUS)) {
-					place.setHasStatus(str);				
-				} else if (predicateUri.equals(SCHEMA.ALTERNATE_NAME)) {
-					place.setHasShortName(str);
-				} else if (predicateUri.equals(FOAF.NAME)) {
-					place.setName(str);
-				} else if (predicateUri.equals(HASCO.HAS_IMAGE)) {
-					place.setHasImage(str);
-				} else if (predicateUri.equals(SCHEMA.ADDRESS)) {
-					place.setHasAddress(str);
-				} else if (predicateUri.equals(SCHEMA.CONTAINED_IN_PLACE)) {
-					place.setContainedInPlace(str);
-				} else if (predicateUri.equals(SCHEMA.CONTAINS_PLACE)) {
-					place.setContainsPlace(str);
-				} else if (predicateUri.equals(SCHEMA.IDENTIFIER)) {
-					place.setHasIdentifier(str);
-				} else if (predicateUri.equals(SCHEMA.GEO)) {
-					place.setHasGeo(str);
-				} else if (predicateUri.equals(SCHEMA.LATITUDE)) {
-					place.setHasLatitude(str);
-				} else if (predicateUri.equals(SCHEMA.LONGITUDE)) {
-					place.setHasLongitude(str);
-				} else if (predicateUri.equals(SCHEMA.URL)) {
-					place.setHasUrl(str);
-				} else if (predicateUri.equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
-					place.setHasSIRManagerEmail(str);
+				if (uri != null && !uri.isEmpty()) {
+					if (predicate.equals(RDFS.LABEL)) {
+						place.setLabel(object);
+					} else if (predicate.equals(RDF.TYPE)) {
+						place.setTypeUri(object); 
+					} else if (predicate.equals(RDFS.COMMENT)) {
+						place.setComment(object);
+					} else if (predicate.equals(HASCO.HASCO_TYPE)) {
+						place.setHascoTypeUri(object);
+					} else if (predicate.equals(HASCO.HAS_IMAGE)) {
+						place.setHasImageUri(object);
+					} else if (predicate.equals(HASCO.HAS_WEB_DOCUMENT)) {
+						place.setHasWebDocument(object);
+					} else if (predicate.equals(VSTOI.HAS_STATUS)) {
+						place.setHasStatus(object);				
+					} else if (predicate.equals(SCHEMA.ALTERNATE_NAME)) {
+						place.setHasShortName(object);
+					} else if (predicate.equals(FOAF.NAME)) {
+						place.setName(object);
+					} else if (predicate.equals(HASCO.HAS_IMAGE)) {
+						place.setHasImageUri(object);
+					} else if (predicate.equals(SCHEMA.ADDRESS)) {
+						place.setHasAddress(object);
+					} else if (predicate.equals(SCHEMA.CONTAINED_IN_PLACE)) {
+						place.setContainedInPlace(object);
+					} else if (predicate.equals(SCHEMA.CONTAINS_PLACE)) {
+						place.setContainsPlace(object);
+					} else if (predicate.equals(SCHEMA.IDENTIFIER)) {
+						place.setHasIdentifier(object);
+					} else if (predicate.equals(SCHEMA.GEO)) {
+						place.setHasGeo(object);
+					} else if (predicate.equals(SCHEMA.LATITUDE)) {
+						place.setHasLatitude(object);
+					} else if (predicate.equals(SCHEMA.LONGITUDE)) {
+						place.setHasLongitude(object);
+					} else if (predicate.equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
+						place.setHasSIRManagerEmail(object);
+					}
 				}
 			}
+		}
+
+		if (place.getHascoTypeUri() == null || place.getHascoTypeUri().isEmpty()) { 
+			System.out.println("[ERROR] Place.java: URI [" + uri + "] has no HASCO TYPE.");
+			return null;
+		} else if (!place.getHascoTypeUri().equals(SCHEMA.PLACE)) {
+			System.out.println("[ERROR] Place.java: URI [" + uri + "] HASCO TYPE is not " + SCHEMA.PLACE);
+			return null;
 		}
 
 		place.setUri(uri);

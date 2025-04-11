@@ -9,6 +9,7 @@ import org.hascoapi.entity.pojo.GenericInstance;
 import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.ConfigProp;
 import org.hascoapi.utils.HAScOMapper;
+import org.hascoapi.utils.URIUtils;
 import org.hascoapi.vocabularies.HASCO;
 import play.mvc.Controller;
 import play.mvc.Http;
@@ -75,7 +76,7 @@ public class DataFileAPI extends Controller {
             return internalServerError(ApiUtil.createResponse("[ERROR] DataFileAPI.uploadFile(): Invalid file storage path.", false));
         }
     
-        String uriTerm = DataFileAPI.uriLastSegment(elementUri);
+        String uriTerm = URIUtils.uriLastSegment(elementUri);
         Path destinationDir = Paths.get(basePath, Constants.RESOURCE_FOLDER, uriTerm);
     
         // Generate the permanent file path
@@ -140,7 +141,7 @@ public class DataFileAPI extends Controller {
         }
     
         // Extract the last segment of the elementUri to determine the folder name
-        String uriTerm = uriLastSegment(elementUri);
+        String uriTerm = URIUtils.uriLastSegment(elementUri);
         Path filePath = Paths.get(basePath, Constants.RESOURCE_FOLDER, uriTerm, filename);
         File file = filePath.toFile();
     
@@ -204,31 +205,5 @@ public class DataFileAPI extends Controller {
             }
         }
     }
-
-    private static String uriLastSegment(String uri) {
-        if (uri == null || uri.isEmpty()) {
-            return uri;
-        }
-    
-        // Remove trailing slashes or hashes
-        uri = uri.replaceAll("[/#]+$", "");
-    
-        // Find the last occurrence of "/" or "#"
-        int lastSlash = uri.lastIndexOf("/");
-        int lastHash = uri.lastIndexOf("#");
-    
-        // Determine the actual last segment position
-        int lastIndex = Math.max(lastSlash, lastHash);
-    
-        // If no delimiter is found, return unchanged
-        if (lastIndex == -1) {
-            return uri;
-        }
-    
-        // Return the last segment
-        return uri.substring(lastIndex + 1);
-    }
-    
-    
 
 }

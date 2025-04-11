@@ -46,7 +46,7 @@ public class KGRPlace {
         
         // "hasco:hasImage"
         Cell cell7 = newRow.createCell(6);
-        cell7.setCellValue(place.getHasImage() != null ? place.getHasImage() : "");
+        cell7.setCellValue(place.getHasImageUri() != null ? place.getHasImageUri() : "");
         
         // "schema:containedInPlace"
         Cell cell8 = newRow.createCell(7);

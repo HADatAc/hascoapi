@@ -1,8 +1,7 @@
 package org.hascoapi.entity.pojo;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
-import org.apache.jena.query.QuerySolution;
-import org.apache.jena.query.ResultSetRewindable;
+import org.apache.jena.query.*;
 import org.hascoapi.annotations.PropertyField;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.NameSpaces;
@@ -192,52 +191,81 @@ public class Project extends HADatAcThing implements Comparable<Project> {
     }
 
     public static Project find(String uri) {
-        Project project = new Project();
-        project.setUri(uri);
+        Project project;
 
-        String queryString = "DESCRIBE <" + uri + ">";
-        org.apache.jena.rdf.model.Model model = SPARQLUtils.describe(
-                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+		// SELECT query used to retrieve named graphs
+		String queryString = "SELECT DISTINCT ?graph ?p ?o WHERE { GRAPH ?graph { <" + uri + "> ?p ?o } }";
+		ResultSet resultSet = SPARQLUtils.select(CollectionUtil.getCollectionPath(
+        	CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
-        model.listStatements().forEachRemaining(statement -> {
-            String predicateUri = statement.getPredicate().getURI();
-            String objectValue = URIUtils.objectRDFToString(statement.getObject());
+		if (!resultSet.hasNext()) {
+			return null;
+		} else {
+			project = new Project();
+		}
 
-            if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-                project.setLabel(objectValue);
-            } else if (predicateUri.equals(RDF.TYPE)) {
-                project.setTypeUri(objectValue);
-            } else if (predicateUri.equals(RDFS.COMMENT)) {
-                project.setComment(objectValue);
-            } else if (predicateUri.equals(HASCO.HASCO_TYPE)) {
-                project.setHascoTypeUri(objectValue);
-            } else if (predicateUri.equals(HASCO.HAS_IMAGE)) {
-                project.setHasImageUri(objectValue);
-            } else if (predicateUri.equals(HASCO.HAS_WEB_DOCUMENT)) {
-                project.setHasWebDocument(objectValue);
-            } else if (predicateUri.equals(VSTOI.HAS_STATUS)) {
-                project.setHasStatus(objectValue);
-            } else if (predicateUri.equals(VSTOI.HAS_VERSION)) {
-                project.setHasVersion(objectValue);
-            } else if (predicateUri.equals(VSTOI.HAS_REVIEW_NOTE)) {
-                project.setHasReviewNote(objectValue);
-            } else if (predicateUri.equals(VSTOI.HAS_EDITOR_EMAIL)) {
-                project.setHasEditorEmail(objectValue);
-            } else if (predicateUri.equals(SCHEMA.ALTERNATE_NAME)) {
-                project.setHasShortName(objectValue);
-            } else if (predicateUri.equals(SCHEMA.FUNDING)) {
-                project.setFundingUri(objectValue);
-            } else if (predicateUri.equals(SCHEMA.START_DATE)) {
-                project.setStartDate(objectValue);
-            } else if (predicateUri.equals(SCHEMA.END_DATE)) {
-                project.setEndDate(objectValue);
-            } else if (predicateUri.equals(SCHEMA.CONTRIBUTOR)) {
-                project.addContributorUri(objectValue);
-            } else if (predicateUri.equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
-                project.setHasSIRManagerEmail(objectValue);
+		// Iterate over results
+		while (resultSet.hasNext()) {
+			QuerySolution qs = resultSet.next();
+			
+			// Retrieve the named graph URI
+			if (qs.contains("graph")) {
+				project.setNamedGraph(qs.get("graph").toString());
+				//System.out.println("Graph: " + graphURI);
+			}
+			
+			// Retrieve predicate and object (optional)
+			if (qs.contains("p") && qs.contains("o")) {
+				String predicate = qs.get("p").toString();
+				String object = qs.get("o").toString();
+				//System.out.println("Predicate: " + predicate + " | Object: " + object); 
+
+                if (predicate.equals(RDFS.LABEL)) {
+                    project.setLabel(object);
+                } else if (predicate.equals(RDF.TYPE)) {
+                    project.setTypeUri(object);
+                } else if (predicate.equals(RDFS.COMMENT)) {
+                    project.setComment(object);
+                } else if (predicate.equals(HASCO.HASCO_TYPE)) {
+                    project.setHascoTypeUri(object);
+                } else if (predicate.equals(HASCO.HAS_IMAGE)) {
+                    project.setHasImageUri(object);
+                } else if (predicate.equals(HASCO.HAS_WEB_DOCUMENT)) {
+                    project.setHasWebDocument(object);
+                } else if (predicate.equals(VSTOI.HAS_STATUS)) {
+                    project.setHasStatus(object);
+                } else if (predicate.equals(VSTOI.HAS_VERSION)) {
+                    project.setHasVersion(object);
+                } else if (predicate.equals(VSTOI.HAS_REVIEW_NOTE)) {
+                    project.setHasReviewNote(object);
+                } else if (predicate.equals(VSTOI.HAS_EDITOR_EMAIL)) {
+                    project.setHasEditorEmail(object);
+                } else if (predicate.equals(SCHEMA.ALTERNATE_NAME)) {
+                    project.setHasShortName(object);
+                } else if (predicate.equals(SCHEMA.FUNDING)) {
+                    project.setFundingUri(object);
+                } else if (predicate.equals(SCHEMA.START_DATE)) {
+                    project.setStartDate(object);
+                } else if (predicate.equals(SCHEMA.END_DATE)) {
+                    project.setEndDate(object);
+                } else if (predicate.equals(SCHEMA.CONTRIBUTOR)) {
+                    project.addContributorUri(object);
+                } else if (predicate.equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
+                    project.setHasSIRManagerEmail(object);
+                }
             }
-        });
+        }
 
+		if (project.getHascoTypeUri() == null || project.getHascoTypeUri().isEmpty()) { 
+			System.out.println("[ERROR] Place.java: URI [" + uri + "] has no HASCO TYPE.");
+			return null;
+		} else if (!project.getHascoTypeUri().equals(SCHEMA.PROJECT)) {
+			System.out.println("[ERROR] Place.java: URI [" + uri + "] HASCO TYPE is not " + SCHEMA.PROJECT);
+			return null;
+		}
+
+		project.setUri(uri);
+		
         return project;
     }
 
