@@ -244,6 +244,7 @@ public class KGRGenerator extends BaseGenerator {
 				if (place != null && place.getUri() != null) {
 					return place.getUri();
 				}
+				System.out.println("[WARNING] KGRGenerator: Could not find containedInPlace(Country) " + label + " for place.");
 				return null;
 		
 			} else if (hint.equals("schema:State")) {
@@ -251,6 +252,7 @@ public class KGRGenerator extends BaseGenerator {
 				if (place != null && place.getUri() != null) {
 					return place.getUri();
 				}
+				System.out.println("[WARNING] KGRGenerator: Could not find containedInPlace(State) " + label + " for place.");
 				return null;
 		
 			} else if (hint.equals("schema:City")) {
@@ -258,10 +260,70 @@ public class KGRGenerator extends BaseGenerator {
 				if (place != null && place.getUri() != null) {
 					return place.getUri();
 				}
+				System.out.println("[WARNING] KGRGenerator: Could not find containedInPlace(City) " + label + " for place.");
 				return null;
 
 			}
 			return null; 
+
+		} else if (predicate.equals("schema:parentOrganization")) {
+			if (hint.equals("schema:Organization")) {
+				//System.out.println("Organization.findByName() with label=[" + label + "]");
+				Organization parent = Organization.findByName(label);
+				if (parent != null && parent.getUri() != null) {
+					return parent.getUri();
+				}
+				System.out.println("[WARNING] KGRGenerator: Could not find parent " + label + " for organization.");
+				return null;
+			}
+			return null;
+
+		} else if (predicate.equals("schema:address")) {
+			if (hint.equals("schema:PostalAddress")) {
+
+				String[] parts = label.split("\\|", 2);
+				PostalAddress postalAddress = PostalAddress.findByAddress(parts[0].trim(), parts[1].trim());
+				if (postalAddress != null && postalAddress.getUri() != null) {
+					return postalAddress.getUri();
+				}
+				System.out.println("[WARNING] KGRGenerator: Could not find address " + label + " for organization/person.");
+				return null;
+			}
+			return null;
+
+		} else if (predicate.equals("schema:addressLocality")) {
+			if (hint.equals("schema:City")) {
+				Place place = Place.findByName(label);
+				if (place != null && place.getUri() != null) {
+					return place.getUri();
+				}
+				System.out.println("[WARNING] KGRGenerator: Could not find addressLocality " + label + " for postalAddress.");
+				return null;
+			}
+			return null;
+
+		} else if (predicate.equals("schema:addressRegion")) {
+			if (hint.equals("schema:State")) {
+				Place place = Place.findByName(label);
+				if (place != null && place.getUri() != null) {
+					return place.getUri();
+				}
+				System.out.println("[WARNING] KGRGenerator: Could not find addressRegion " + label + " for postalAddress.");
+				return null;
+			}
+			return null;
+
+		} else if (predicate.equals("schema:addressCountry")) {
+			if (hint.equals("schema:Country")) {
+				Place place = Place.findByName(label);
+				if (place != null && place.getUri() != null) {
+					return place.getUri();
+				}
+				System.out.println("[WARNING] KGRGenerator: Could not find addressCountry " + label + " for postalAddress.");
+				return null;
+			}
+			return null;
+
 		}
 
 		return null;
