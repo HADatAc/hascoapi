@@ -174,7 +174,7 @@ public class Place extends HADatAcThing implements Comparable<Place> {
                 " WHERE {  ?subUri rdfs:subClassOf* schema:Place . " +
                 "          ?uri a ?subUri . " +
                 "          ?uri hasco:hasOriginalId ?id .  " +
-                "        FILTER (?id=\"" + originalID + "\"^^xsd:objecting)  . " +
+                "        FILTER (?id=\"" + originalID + "\"^^xsd:string)  . " +
                 " }";
         return findOneByQuery(query);
     }        
@@ -188,7 +188,7 @@ public class Place extends HADatAcThing implements Comparable<Place> {
                 " WHERE {  ?subUri rdfs:subClassOf* schema:Place . " +
                 "          ?uri a ?subUri . " +
                 "          ?uri foaf:name ?id .  " +
-                "        FILTER (?id=\"" + name + "\"^^xsd:objecting)  . " +
+                "        FILTER (?id=\"" + name + "\"^^xsd:string)  . " +
                 " }";
         return findOneByQuery(query);
     }        
@@ -203,7 +203,7 @@ public class Place extends HADatAcThing implements Comparable<Place> {
                 " WHERE {  ?subUri rdfs:subClassOf* <" + subclass + "> . " +
                 "          ?uri a ?subUri . " +
                 "          ?uri foaf:name ?id .  " +
-                "        FILTER (?id=\"" + name + "\"^^xsd:objecting)  . " +
+                "        FILTER (?id=\"" + name + "\"^^xsd:string)  . " +
                 " }";
         return findOneByQuery(query);
     }        

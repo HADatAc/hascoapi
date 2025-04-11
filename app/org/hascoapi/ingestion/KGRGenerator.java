@@ -8,6 +8,9 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.hascoapi.Constants;
 import org.hascoapi.entity.pojo.DataFile;
@@ -24,6 +27,10 @@ public class KGRGenerator extends BaseGenerator {
 	protected String hasStatus = "";
 
 	protected String hasMediaFolder = "";
+
+    private long timestamp;
+
+	final String kbPrefix = ConfigProp.getKbPrefix();
 
 	public String getHasStatus() {
 		return this.hasStatus;
@@ -46,6 +53,9 @@ public class KGRGenerator extends BaseGenerator {
 		this.setElementType(elementType);
 		this.setHasStatus(hasStatus);
 		this.setHasMediaFolder(hasMediaFolder);
+		System.out.println("KGRGenerator: mediaFolder [" + hasMediaFolder + "] for element type [" + elementType + "]");
+		this.timestamp = System.currentTimeMillis();
+
 	}
 
 	@Override
@@ -58,12 +68,34 @@ public class KGRGenerator extends BaseGenerator {
 		        String value = rec.getValueByColumnName(header);
 		        if (value != null && !value.isEmpty()) {
 					//System.out.println("Header: [" + header + "] Value: [" + value + "]");
-					if (this.isUri(header, value)) {
-						String fullUri = URIUtils.replacePrefixEx(value);
-						System.out.println("Value: [" + value + "]    FullUri: [" + fullUri + "]");
-						if (this.uriExists(header,fullUri)) {
-							row.put(header, fullUri);
+					UriHint uriHint = this.extractUriAndHint(header);
+					String possibleObjectProperty = uriHint.uri;
+					String hint = uriHint.hint;
+					//System.out.println("PossibleObjectProperty: [" + possibleObjectProperty + "]   Hint: [" + hint + "]");
+
+					// the property is an URI
+					if (this.isHeaderOfUri(possibleObjectProperty)) {
+
+						// the value is URI
+						if (value != null && URIUtils.isValidURI(value)) {
+							String fullUri = URIUtils.replacePrefixEx(value);
+							//System.out.println("Value: [" + value + "]    FullUri: [" + fullUri + "]");
+							if (this.uriExists(possibleObjectProperty,fullUri)) {
+								row.put(possibleObjectProperty, fullUri);
+							}
+	
+						// the value is not an URI and needs to be retrieved from given value (and provided hint)
+						} else {
+							//System.out.println("Hint: [" + hint + "]    Value: [" + value + "]");
+							String uri = this.uriFromLabel(possibleObjectProperty, hint, value);
+							//System.out.println("Found uri: [" + uri + "]");
+							if (uri != null) {
+								row.put(possibleObjectProperty,uri);
+							}
+
 						}
+
+					// the property is not an URI
 					} else {
 		            	row.put(header, value);
 					}
@@ -92,22 +124,30 @@ public class KGRGenerator extends BaseGenerator {
 			row.put("hasco:hascoType", SCHEMA.POSTAL_ADDRESS);
 		}
 
-		if (row.containsKey("hasURI") && !row.get("hasURI").toString().trim().isEmpty()) {
+		String uri = null;
 
-			if (row.containsKey("hasco:hasImage") && !row.get("hasco:hasImage").toString().trim().isEmpty()) {
-				String uri = row.get("hasURI").toString().trim();
-				String image = row.get("hasco:hasImage").toString().trim();
-				this.copyMediaToUri(hasMediaFolder, uri, image);
+		// Creates an URI if no URI (hasURI) is provided in the KGR MT. 
+		if (!row.containsKey("hasURI") || row.get("hasURI").toString().trim().isEmpty()) {
+			uri = URIUtils.replacePrefixEx(this.createUri());
+			if (uri == null) {
+				return null;
 			}
-
-			return row;
+			row.put("hasURI", uri);
 		}
-		
-		return null;
+	
+		// If image is provided, it is copied into the resource folder.
+		if (row.containsKey("hasco:hasImage") && !row.get("hasco:hasImage").toString().trim().isEmpty()) {
+			uri = row.get("hasURI").toString().trim();
+			String image = row.get("hasco:hasImage").toString().trim();
+			this.copyMediaToUri(hasMediaFolder, uri, image);
+		}
+
+		return row;
+
 	}
 
 
-	public boolean isUri(String predicate, String value) {
+	public boolean isHeaderOfUri(String predicate) {
 		if (predicate == null || predicate.isEmpty()) {
 			return false;
 		}
@@ -135,66 +175,96 @@ public class KGRGenerator extends BaseGenerator {
 		return false;
 	}
 
-	public boolean uriExists(String predicate, String value) {
+	public boolean uriExists(String predicate, String uri) {
 		if (predicate.equals("schema:containedInPlace")) {
-			System.out.println("uriExists: checking value=[" + value + "]");
-			Place place = Place.find(value);
+			Place place = Place.find(uri);
 			if (place == null) {
-				System.out.println("KGRGenerator: Ingesting PLACE -> there is no schema:containedInPlace with URI=[" + value + "]");
+				System.out.println("KGRGenerator: Ingesting PLACE -> there is no schema:containedInPlace with URI=[" + uri + "]");
 				return false;
 			}
 			return true;
 		}
 		if (predicate.equals("schema:parentOrganization")) {
-			Organization organization = Organization.find(value);
+			Organization organization = Organization.find(uri);
 			if (organization == null) {
-				System.out.println("KGRGenerator: Ingesting ORGANIZATION -> there is no schema:parentOrganization with URI=[" + value + "]");
+				System.out.println("KGRGenerator: Ingesting ORGANIZATION -> there is no schema:parentOrganization with URI=[" + uri + "]");
 				return false;
 			}
 			return true;
 		}
 		if (predicate.equals("schema:address")) {
-			PostalAddress postalAddress = PostalAddress.find(value);
+			PostalAddress postalAddress = PostalAddress.find(uri);
 			if (postalAddress == null) {
-				System.out.println("KGRGenerator: Ingesting ORGANIZATION/PERSON -> there is no schema:address with URI=[" + value + "]");
+				System.out.println("KGRGenerator: Ingesting ORGANIZATION/PERSON -> there is no schema:address with URI=[" + uri + "]");
 				return false;
 			}
 			return true;
 		}
 		if (predicate.equals("foaf:member")) {
-			Organization organization = Organization.find(value);
+			Organization organization = Organization.find(uri);
 			if (organization == null) {
-				System.out.println("KGRGenerator: Ingesting PERSON -> there is no foaf:member with URI=[" + value + "]");
+				System.out.println("KGRGenerator: Ingesting PERSON -> there is no foaf:member with URI=[" + uri + "]");
 				return false;
 			}
 			return true;
 		}
 		if (predicate.equals("schema:addressLocality")) {
-			Place place = Place.find(value);
+			Place place = Place.find(uri);
 			if (place == null) {
-				System.out.println("KGRGenerator: Ingesting POSTAL_ADDRESS -> there is no schema:addressLocality with URI=[" + value + "]");
+				System.out.println("KGRGenerator: Ingesting POSTAL_ADDRESS -> there is no schema:addressLocality with URI=[" + uri + "]");
 				return false;
 			}
 			return true;
 		}
 		if (predicate.equals("schema:addressRegion")) {
-			Place place = Place.find(value);
+			Place place = Place.find(uri);
 			if (place == null) {
-				System.out.println("KGRGenerator: Ingesting POSTAL_ADDRESS -> there is no schema:addressRegion with URI=[" + value + "]");
+				System.out.println("KGRGenerator: Ingesting POSTAL_ADDRESS -> there is no schema:addressRegion with URI=[" + uri + "]");
 				return false;
 			}
 			return true;
 		}
 		if (predicate.equals("schema:addressCountry")) {
-			Place place = Place.find(value);
+			Place place = Place.find(uri);
 			if (place == null) {
-				System.out.println("KGRGenerator: Ingesting POSTAL_ADDRESS -> there is no schema:addressCountry with URI=[" + value + "]");
+				System.out.println("KGRGenerator: Ingesting POSTAL_ADDRESS -> there is no schema:addressCountry with URI=[" + uri + "]");
 				return false;
 			}
 			return true;
 		}
 		return true;  
 
+	}
+
+	public String uriFromLabel(String predicate, String hint, String label) {
+		if (predicate.equals("schema:containedInPlace")) {
+			if (hint.equals("schema:Country")) {
+				//System.out.println("Place.findByName() with label=[" + label + "]");
+				Place place = Place.findByName(label);
+				if (place != null && place.getUri() != null) {
+					return place.getUri();
+				}
+				return null;
+		
+			} else if (hint.equals("schema:State")) {
+				Place place = Place.findByName(label);
+				if (place != null && place.getUri() != null) {
+					return place.getUri();
+				}
+				return null;
+		
+			} else if (hint.equals("schema:City")) {
+				Place place = Place.findByName(label);
+				if (place != null && place.getUri() != null) {
+					return place.getUri();
+				}
+				return null;
+
+			}
+			return null; 
+		}
+
+		return null;
 	}
 
 	/**
@@ -252,6 +322,73 @@ public class KGRGenerator extends BaseGenerator {
             }
         } catch (IOException e) {
             System.out.println("[ERROR] Failed to copy file: " + e.getMessage());
+        }
+    }
+
+	public String createUri() throws Exception {
+
+        // Generate a random integer between 10000 and 99999
+        Random random = new Random();
+        int randomNumber = random.nextInt(99999 - 10000 + 1) + 10000;
+
+		String prefix = null;
+		if (this.getElementType().equals("fundingscheme")) {
+			prefix = Constants.PREFIX_FUNDING_SCHEME;
+		} else if (this.getElementType().equals("project")) {
+			prefix = Constants.PREFIX_PROJECT;
+		} else if (this.getElementType().equals("organization")) {
+			prefix = Constants.PREFIX_ORGANIZATION;
+		} else if (this.getElementType().equals("person")) {
+			prefix = Constants.PREFIX_PERSON;
+		} else if (this.getElementType().equals("place")) {
+			prefix = Constants.PREFIX_PLACE;
+		} else if (this.getElementType().equals("postaladdress")) {
+			prefix = Constants.PREFIX_POSTAL_ADDRESS;
+		}
+
+		if (prefix == null) {
+            System.out.println("[ERROR] Failed to create URI for element type [" + this.getElementType() + "]");
+			return null;
+		}
+		String newUri = kbPrefix + prefix + timestamp + randomNumber;
+		//System.out.println("Created new URI [" + newUri + "]");
+		return newUri;
+	}
+
+	// Method to extract URI and hint from the given string
+    protected UriHint extractUriAndHint(String input) {
+        // Regular expression for extracting URI and hint
+        String uriPattern = "^[^\\(]+";
+        String hintPattern = "\\(([^\\)]+)\\)"; // Text inside parentheses
+
+        String uri = "";
+        String hint = "";
+
+        // Extract URI
+        Pattern uriRegex = Pattern.compile(uriPattern);
+        Matcher uriMatcher = uriRegex.matcher(input);
+        if (uriMatcher.find()) {
+            uri = uriMatcher.group(0);  // Get the URI part before any parentheses
+        }
+
+        // Extract hint (if available)
+        Pattern hintRegex = Pattern.compile(hintPattern);
+        Matcher hintMatcher = hintRegex.matcher(input);
+        if (hintMatcher.find()) {
+            hint = hintMatcher.group(1);  // Get the hint inside parentheses
+        }
+
+        return new UriHint(uri, hint);
+    }
+
+    // Helper class to store URI and hint
+    protected class UriHint {
+        String uri;
+        String hint;
+
+        UriHint(String uri, String hint) {
+            this.uri = uri;
+            this.hint = hint;
         }
     }
 
