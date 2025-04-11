@@ -72,7 +72,8 @@ public class StudyGenerator extends BaseGenerator {
     }
 
     private String getUri() {
-        return this.getDataFile().getUri().replace("DF","ST");
+        //return this.getDataFile().getUri().replace("DF","ST");
+        return studyUri;
     }
 
     private String getType() {

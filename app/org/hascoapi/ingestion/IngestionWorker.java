@@ -51,11 +51,6 @@ public class IngestionWorker {
         System.out.println("Processing file with filename: " + dataFile.getFilename());
         System.out.println("Processing file with URI: " + dataFile.getUri());
 
-        String studyUri = "";
-        if (dataFile.getFilename().contains("DSG-")) {
-            studyUri = dataFile.getUri().replace("DF","ST");
-        }
-
         dataFile.setLastProcessTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
         dataFile.getLogger().resetLog();
         dataFile.save();
@@ -83,6 +78,18 @@ public class IngestionWorker {
         }
 
         dataFile.setRecordFile(recordFile);
+
+        // Setting study URI from dataFile
+        String studyUri = "";
+        if (dataFile.getFilename().contains("DSG-")) {
+            // Getting study URI from InfoSheet
+            studyUri = getStudyUri(dataFile);
+
+            // Getting study URI from InfoSheet
+            if (studyUri == "" || studyUri == null) {
+                studyUri = dataFile.getUri().replace("DF", "ST");
+            }
+        }
 
         boolean bSucceed = false;
         GeneratorChain chain = getGeneratorChain(dataFile, templateFile, status);
@@ -193,9 +200,9 @@ public class IngestionWorker {
     }
     */
 
-    /*===========================================================================================*
-     *                                  METADATA TEMPLATE ANNOTATORS                             *
-     *===========================================================================================*/
+    /*========================================================================*
+     *                       METADATA TEMPLATE ANNOTATORS                     *
+     *========================================================================*/
 
     /****************************
      *    DSG                   *
@@ -241,8 +248,15 @@ public class IngestionWorker {
             return null;
         }
 
-        chain.addGenerator(new AgentGenerator(dataFile,null,templateFile));
-        chain.addGenerator(new StudyGenerator(dataFile,null,templateFile));
+        // Getting study URI from InfoSheet
+        String studyUri = "";
+        if (mapCatalog.get("hasStudyURI") != null) {
+            studyUri = mapCatalog.get("hasStudyURI");
+        }
+
+        // Create Agent and Study instances and append to chain
+        chain.addGenerator(new AgentGenerator(dataFile,studyUri,templateFile));
+        chain.addGenerator(new StudyGenerator(dataFile,studyUri,templateFile));
 
         return chain;
     }
@@ -252,7 +266,11 @@ public class IngestionWorker {
      ****************************/
 
      public static GeneratorChain annotateSSDFile(DataFile dataFile, String templateFile) {
-        String studyUri = dataFile.getUri().replaceAll("DF", "ST");
+        // Set study URI
+        String studyUri = getStudyUri(dataFile);
+        if (studyUri.equals("")) {
+            studyUri = dataFile.getUri().replaceAll("DF", "ST");
+        }
         System.out.println("Processing SSD file of " + studyUri + "...");
 
         Map<String, String> mapCatalog = new HashMap<String, String>();
@@ -921,4 +939,23 @@ public class IngestionWorker {
         return isSuccess;
     }
 
+    public static String getStudyUri(DataFile dataFile) {
+        String studyUri = "";
+        if (dataFile.getRecordFile() != null) {
+            for (Record record : dataFile.getRecordFile().getRecords()) {
+                if (record.getValueByColumnIndex(0).equals("hasStudyURI")) {
+                    if (record.getValueByColumnIndex(1) != null){
+                        studyUri = record.getValueByColumnIndex(1);
+                    }
+                }
+            }
+        }
+
+        // Replace prefix
+        if (!studyUri.equals("")) {
+            studyUri = URIUtils.replacePrefixEx(studyUri);
+        }
+
+        return studyUri;
+    }
 }
