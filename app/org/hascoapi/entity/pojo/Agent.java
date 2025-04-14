@@ -26,6 +26,9 @@ public class Agent extends HADatAcThing implements Comparable<Agent> {
   	@PropertyField(uri="vstoi:hasStatus")
   	private String hasStatus;
 
+  	@PropertyField(uri="hasco:originalID")
+  	private String originalID;
+
     @PropertyField(uri="schema:alternateName")
     private String hasShortName;
 
@@ -50,6 +53,14 @@ public class Agent extends HADatAcThing implements Comparable<Agent> {
 
     public void setHasStatus(String hasStatus) {
         this.hasStatus = hasStatus;
+    }
+
+    public String getOriginalID() {
+        return originalID;
+    }
+
+    public void setOriginalID(String originalID) {
+        this.originalID = originalID;
     }
 
     public String getHasShortName() {

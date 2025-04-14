@@ -36,6 +36,9 @@ public class Place extends HADatAcThing implements Comparable<Place> {
     @PropertyField(uri="vstoi:hasStatus")
     private String hasStatus;
     
+    @PropertyField(uri="hasco:originalID")
+    private String originalID;
+    
 	@PropertyField(uri="schema:alternaName")
     protected String hasShortName;
 
@@ -75,6 +78,14 @@ public class Place extends HADatAcThing implements Comparable<Place> {
 	
 	public void setHasStatus(String hasStatus) {
 		this.hasStatus = hasStatus;
+	}
+	
+	public String getOriginalID() {
+		return originalID;
+	}
+	
+	public void setOriginalID(String originalID) {
+		this.originalID = originalID;
 	}
 	
 	public String getHasShortName() {
@@ -326,6 +337,8 @@ public class Place extends HADatAcThing implements Comparable<Place> {
 						place.setHasWebDocument(object);
 					} else if (predicate.equals(VSTOI.HAS_STATUS)) {
 						place.setHasStatus(object);				
+					} else if (predicate.equals(HASCO.ORIGINAL_ID)) {
+						place.setOriginalID(object);				
 					} else if (predicate.equals(SCHEMA.ALTERNATE_NAME)) {
 						place.setHasShortName(object);
 					} else if (predicate.equals(FOAF.NAME)) {

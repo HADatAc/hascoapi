@@ -274,9 +274,9 @@ public class KGRGen {
 
         // Create sheet named 'Organization'
         Sheet organizationSheet = workbook.createSheet(KGRGen.ORGANIZATIONS);
-        String[] organizationHeaders = { "hasURI", "hasco:hascoType", "rdfs:label", 
-            "hasco:originalID", 	"rdf:type", "foaf:name", "foaf:mbox", 
-        	"schema:telephone", "hasco:hasWebDocument", "schema:parentOrganization" };
+        String[] organizationHeaders = { "hasURI", "hasco:originalID",	"hasco:hascoType", "rdf:type", 
+            "rdfs:label", "foaf:name", "foaf:mbox", "hasco:hasImage", "schema:telephone", "hasco:hasWebDocument", 
+            "schema:parentOrganization", "schema:address"};
 
         // Create header row
         Row organizationHeaderRow = organizationSheet.createRow(0);

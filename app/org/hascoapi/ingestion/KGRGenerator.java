@@ -53,7 +53,7 @@ public class KGRGenerator extends BaseGenerator {
 		this.setElementType(elementType);
 		this.setHasStatus(hasStatus);
 		this.setHasMediaFolder(hasMediaFolder);
-		System.out.println("KGRGenerator: mediaFolder [" + hasMediaFolder + "] for element type [" + elementType + "]");
+		//System.out.println("KGRGenerator: mediaFolder [" + hasMediaFolder + "] for element type [" + elementType + "]");
 		this.timestamp = System.currentTimeMillis();
 
 	}
@@ -179,7 +179,7 @@ public class KGRGenerator extends BaseGenerator {
 		if (predicate.equals("schema:containedInPlace")) {
 			Place place = Place.find(uri);
 			if (place == null) {
-				System.out.println("KGRGenerator: Ingesting PLACE -> there is no schema:containedInPlace with URI=[" + uri + "]");
+				System.out.println("[WARNING] KGRGenerator: Ingesting PLACE -> there is no schema:containedInPlace with URI=[" + uri + "]");
 				return false;
 			}
 			return true;
@@ -187,7 +187,7 @@ public class KGRGenerator extends BaseGenerator {
 		if (predicate.equals("schema:parentOrganization")) {
 			Organization organization = Organization.find(uri);
 			if (organization == null) {
-				System.out.println("KGRGenerator: Ingesting ORGANIZATION -> there is no schema:parentOrganization with URI=[" + uri + "]");
+				System.out.println("[WARNING] KGRGenerator: Ingesting ORGANIZATION -> there is no schema:parentOrganization with URI=[" + uri + "]");
 				return false;
 			}
 			return true;
@@ -195,7 +195,7 @@ public class KGRGenerator extends BaseGenerator {
 		if (predicate.equals("schema:address")) {
 			PostalAddress postalAddress = PostalAddress.find(uri);
 			if (postalAddress == null) {
-				System.out.println("KGRGenerator: Ingesting ORGANIZATION/PERSON -> there is no schema:address with URI=[" + uri + "]");
+				System.out.println("[WARNING] KGRGenerator: Ingesting ORGANIZATION/PERSON -> there is no schema:address with URI=[" + uri + "]");
 				return false;
 			}
 			return true;
@@ -203,7 +203,7 @@ public class KGRGenerator extends BaseGenerator {
 		if (predicate.equals("foaf:member")) {
 			Organization organization = Organization.find(uri);
 			if (organization == null) {
-				System.out.println("KGRGenerator: Ingesting PERSON -> there is no foaf:member with URI=[" + uri + "]");
+				System.out.println("[WARNING] KGRGenerator: Ingesting PERSON -> there is no foaf:member with URI=[" + uri + "]");
 				return false;
 			}
 			return true;
@@ -211,7 +211,7 @@ public class KGRGenerator extends BaseGenerator {
 		if (predicate.equals("schema:addressLocality")) {
 			Place place = Place.find(uri);
 			if (place == null) {
-				System.out.println("KGRGenerator: Ingesting POSTAL_ADDRESS -> there is no schema:addressLocality with URI=[" + uri + "]");
+				System.out.println("[WARNING] KGRGenerator: Ingesting POSTAL_ADDRESS -> there is no schema:addressLocality with URI=[" + uri + "]");
 				return false;
 			}
 			return true;
@@ -219,7 +219,7 @@ public class KGRGenerator extends BaseGenerator {
 		if (predicate.equals("schema:addressRegion")) {
 			Place place = Place.find(uri);
 			if (place == null) {
-				System.out.println("KGRGenerator: Ingesting POSTAL_ADDRESS -> there is no schema:addressRegion with URI=[" + uri + "]");
+				System.out.println("[WARNING] KGRGenerator: Ingesting POSTAL_ADDRESS -> there is no schema:addressRegion with URI=[" + uri + "]");
 				return false;
 			}
 			return true;
@@ -227,7 +227,7 @@ public class KGRGenerator extends BaseGenerator {
 		if (predicate.equals("schema:addressCountry")) {
 			Place place = Place.find(uri);
 			if (place == null) {
-				System.out.println("KGRGenerator: Ingesting POSTAL_ADDRESS -> there is no schema:addressCountry with URI=[" + uri + "]");
+				System.out.println("[WARNING] KGRGenerator: Ingesting POSTAL_ADDRESS -> there is no schema:addressCountry with URI=[" + uri + "]");
 				return false;
 			}
 			return true;
@@ -285,6 +285,11 @@ public class KGRGenerator extends BaseGenerator {
 				PostalAddress postalAddress = PostalAddress.findByAddress(parts[0].trim(), parts[1].trim());
 				if (postalAddress != null && postalAddress.getUri() != null) {
 					return postalAddress.getUri();
+				} else {
+					postalAddress = PostalAddress.findByPostalCode(parts[1].trim());
+					if (postalAddress != null && postalAddress.getUri() != null) {
+						return postalAddress.getUri();
+					} 	
 				}
 				System.out.println("[WARNING] KGRGenerator: Could not find address " + label + " for organization/person.");
 				return null;
@@ -378,7 +383,7 @@ public class KGRGenerator extends BaseGenerator {
         try {
             if (Files.exists(sourcePath)) {
                 Files.copy(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
-                System.out.println("File successfully copied to: " + destinationPath.toString());
+                //System.out.println("File successfully copied to: " + destinationPath.toString());
             } else {
                 System.out.println("[ERROR] File not found at source path: " + sourcePath.toString());
             }

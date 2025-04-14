@@ -35,7 +35,7 @@ public class PostalAddress extends HADatAcThing implements Comparable<PostalAddr
 	@PropertyField(uri="vstoi:hasStatus")
 	private String hasStatus;
 
-	@PropertyField(uri="schema:objecteetAddress")
+	@PropertyField(uri="schema:streetAddress")
     protected String hasStreetAddress;
 
  	@PropertyField(uri="schema:addressLocality")
@@ -121,8 +121,22 @@ public class PostalAddress extends HADatAcThing implements Comparable<PostalAddr
 		this.hasSIRManagerEmail = hasSIRManagerEmail;
 	}
 
-    public static PostalAddress findByAddress(String objecteet, String postalCode) {
-        if (objecteet == null || objecteet.isEmpty() ||
+    public static PostalAddress findByPostalCode(String postalCode) {
+        if (postalCode == null || postalCode.isEmpty()) {
+            return null;
+        }
+        String query = 
+                " SELECT ?uri " +
+                " WHERE {  ?subUri rdfs:subClassOf* schema:PostalAddress . " +
+                "          ?uri a ?subUri . " +
+                "          ?uri schema:postalCode ?postalCode .  " +
+                "        FILTER (?postalCode=\"" + postalCode + "\"^^xsd:string)  . " +
+                " }";
+        return findOneByQuery(query);
+	}
+
+    public static PostalAddress findByAddress(String street, String postalCode) {
+        if (street == null || street.isEmpty() ||
 		    postalCode == null || postalCode.isEmpty()) {
             return null;
         }
@@ -130,10 +144,10 @@ public class PostalAddress extends HADatAcThing implements Comparable<PostalAddr
                 "SELECT ?uri " +
                 " WHERE {  ?subUri rdfs:subClassOf* schema:PostalAddress . " +
                 "          ?uri a ?subUri . " +
-                "          ?uri schema:objecteetAddress ?objecteet .  " +
+                "          ?uri schema:streetAddress ?street .  " +
                 "          ?uri schema:postalCode ?postalCode .  " +
-                "        FILTER (?objecteet=\"" + objecteet + "\"^^xsd:objecting)  . " +
-                "        FILTER (?postalCode=\"" + postalCode + "\"^^xsd:objecting)  . " +
+                "        FILTER (?street=\"" + street + "\"^^xsd:string)  . " +
+                "        FILTER (?postalCode=\"" + postalCode + "\"^^xsd:string)  . " +
                 " }";
         return findOneByQuery(query);
     }        
@@ -158,7 +172,7 @@ public class PostalAddress extends HADatAcThing implements Comparable<PostalAddr
 			return 0;
 		}
 		String query = NameSpaces.getInstance().printSparqlNameSpaceList() + 
-			" SELECT (count(?uri) as ?tot)  " +
+			" SELECT (count(DISTINCT ?uri) as ?tot)  " +
 			" WHERE {  ?subUri rdfs:subClassOf* schema:PostalAddress . " +
 			"          ?uri a ?subUri . " +
 			"          ?uri " + searchPredicate + " <" + placeuri + "> . " +
@@ -186,7 +200,7 @@ public class PostalAddress extends HADatAcThing implements Comparable<PostalAddr
 			return new ArrayList<PostalAddress>();
 		}
 		String query = NameSpaces.getInstance().printSparqlNameSpaceList() + 
-				"SELECT ?uri " +
+				"SELECT DISTINCT ?uri " +
 				" WHERE {  ?subUri rdfs:subClassOf* schema:PostalAddress . " +
 				"          ?uri a ?subUri . " +
 				"          ?uri " + searchPredicate + " <" + placeuri + "> . " +
@@ -315,7 +329,7 @@ public class PostalAddress extends HADatAcThing implements Comparable<PostalAddr
             QuerySolution soln = resultsrw.next();
 			if (soln != null && soln.getResource("uri") != null) {
 				PostalAddress postalAddress = PostalAddress.find(soln.getResource("uri").getURI());
-				if (postalAddress != null) {
+				if (postalAddress != null && !postalAddresses.contains(postalAddress)) {
 					postalAddresses.add(postalAddress);
 				}
 			}

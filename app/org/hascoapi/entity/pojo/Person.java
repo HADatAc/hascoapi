@@ -78,10 +78,10 @@ public class Person extends Agent {
         }
         String query = 
                 "SELECT ?uri " +
-                " WHERE {  ?subUri rdfs:subClassOf* foaf:Person . " +
+                " WHERE {  ?subUri rdfs:subClassOf* schema:Person . " +
                 "          ?uri a ?subUri . " +
                 "          ?uri foaf:mbox ?email .  " +
-                "        FILTER (?email=\"" + email + "\"^^xsd:objecting)  . " +
+                "        FILTER (?email=\"" + email + "\"^^xsd:string)  . " +
                 " }";
         return findOneByQuery(query);
     }        
@@ -108,7 +108,7 @@ public class Person extends Agent {
     public static List<Person> find() {
         String query =
             " SELECT ?uri WHERE { " +
-            " ?uri a foaf:Person ." +
+            " ?uri a schema:Person ." +
             "} ";
         return findManyByQuery(query);
     }
@@ -175,6 +175,8 @@ public class Person extends Agent {
                     person.setHasWebDocument(object);
                 } else if (predicate.equals(VSTOI.HAS_STATUS)) {
                     person.setHasStatus(object);
+                } else if (predicate.equals(HASCO.ORIGINAL_ID)) {
+                    person.setOriginalID(object);
                 } else if (predicate.equals(SCHEMA.ALTERNATE_NAME)) {
                     person.setHasShortName(object);
                 } else if (predicate.equals(FOAF.NAME)) {

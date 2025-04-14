@@ -37,7 +37,7 @@ public class Organization extends Agent {
     public static List<Organization> find() {
         String query =
             " SELECT ?uri WHERE { " +
-            " ?uri a foaf:Organization ." +
+            " ?uri a schema:Organization ." +
             "} ";
         return findManyByQuery(query);
     }
@@ -120,10 +120,10 @@ public class Organization extends Agent {
         }
         String query = 
                 "SELECT ?uri " +
-                " WHERE {  ?subUri rdfs:subClassOf* foaf:Organization . " +
+                " WHERE {  ?subUri rdfs:subClassOf* schema:Organization . " +
                 "          ?uri a ?subUri . " +
                 "          ?uri hasco:hasOriginalId ?id .  " +
-                "        FILTER (?id=\"" + originalID + "\"^^xsd:objecting)  . " +
+                "        FILTER (?id=\"" + originalID + "\"^^xsd:string)  . " +
                 " }";
         return findOneByQuery(query);
     }        
@@ -134,10 +134,10 @@ public class Organization extends Agent {
         }
         String query = 
                 "SELECT ?uri " +
-                " WHERE {  ?subUri rdfs:subClassOf* foaf:Organization . " +
+                " WHERE {  ?subUri rdfs:subClassOf* schema:Organization . " +
                 "          ?uri a ?subUri . " +
                 "          ?uri foaf:mbox ?email .  " +
-                "        FILTER (?email=\"" + email + "\"^^xsd:objecting)  . " +
+                "        FILTER (?email=\"" + email + "\"^^xsd:string)  . " +
                 " }";
         return findOneByQuery(query);
     }        
@@ -147,17 +147,18 @@ public class Organization extends Agent {
             return null;
         }
         String query = 
-                "SELECT ?uri " +
-                " WHERE {  ?subUri rdfs:subClassOf* foaf:Organization . " +
-                "          ?uri a ?subUri . " +
-                "          ?uri foaf:name ?name .  " +
-                "        FILTER (?name=\"" + name + "\"^^xsd:objecting)  . " +
-                " }";
-        return findOneByQuery(query);
+            " SELECT ?uri " +
+            "   WHERE {  ?subUri rdfs:subClassOf* schema:Organization . " +
+            "          ?uri a ?subUri . " +
+            "          ?uri foaf:name ?name .  " +
+            "        FILTER (?name=\"" + name + "\"^^xsd:string)  . " +
+            " }";
+        return Organization.findOneByQuery(query);
     }        
 
     private static Organization findOneByQuery(String requestedQuery) {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + requestedQuery;
+        //System.out.println("Organization.findOneByQuery() with query=[" + queryString + "]");
         
         ResultSetRewindable resultsrw = SPARQLUtils.select(
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
@@ -180,7 +181,7 @@ public class Organization extends Agent {
 
 		// Conobjectuct the SELECT query to retrieve named graphs
 		String queryString = "SELECT DISTINCT ?graph ?p ?o WHERE { GRAPH ?graph { <" + uri + "> ?p ?o } }";
-		ResultSet resultSet = SPARQLUtils.select(CollectionUtil.getCollectionPath(
+		org.apache.jena.query.ResultSet resultSet = SPARQLUtils.select(CollectionUtil.getCollectionPath(
         	CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
 		if (!resultSet.hasNext()) {
@@ -219,6 +220,8 @@ public class Organization extends Agent {
                     organization.setHasWebDocument(object);
                 } else if (predicate.equals(VSTOI.HAS_STATUS)) {
                     organization.setHasStatus(object);
+                } else if (predicate.equals(HASCO.ORIGINAL_ID)) {
+                    organization.setOriginalID(object);
                 } else if (predicate.equals(SCHEMA.ALTERNATE_NAME)) {
                     organization.setHasShortName(object);
                 } else if (predicate.equals(FOAF.NAME)) {
