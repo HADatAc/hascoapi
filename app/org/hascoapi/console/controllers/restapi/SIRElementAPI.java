@@ -1799,16 +1799,16 @@ public class SIRElementAPI extends Controller {
             status = "";
         }
         if (elementType.equals("organization")) {
-            GenericFind<Organization> query = new GenericFind<>();
+            GenericFindSocial<Organization> query = new GenericFindSocial<Organization>();
             List<Organization> results = query.findByKeywordTypeManagerEmailandStatusWithPages(Organization.class, keyword, type, managerEmail, status, pageSize, offset);
             return OrganizationAPI.getOrganizations(results);
         } else if (elementType.equals("person")) {
-            GenericFind<Person> query = new GenericFind<Person>();
-            List<Person> results = query.findByKeywordTypeManagerEmailandStatusWithPages(Person.class, keyword, type, managerEmail, status, pageSize, pageSize, offset);
-            return PersonAPI.getPersons(results);
+            GenericFindSocial<Person> query = new GenericFindSocial<Person>();
+            List<Person> results = query.findByKeywordTypeManagerEmailandStatusWithPages(Person.class, keyword, type, managerEmail, status, pageSize, offset);
+            return PersonAPI.getPeople(results);
         } else if (elementType.equals("place")) {
-            GenericFind<Place> query = new GenericFind<Detector>();
-            List<Place> results = query.findByKeywordTypeManagerEmailandStatusWithPages(Place.class, keyword, type, managerEmail, status, pageSize, pageSize, offset);
+            GenericFindSocial<Place> query = new GenericFindSocial<Place>();
+            List<Place> results = query.findByKeywordTypeManagerEmailandStatusWithPages(Place.class, keyword, type, managerEmail, status, pageSize, offset);
             return PlaceAPI.getPlaces(results);
         } 
         return ok("[getElementsByKeywordTypeManagerEmailAnStatusWithPage] No valid element type.");
@@ -1834,7 +1834,7 @@ public class SIRElementAPI extends Controller {
         if (clazz == null) {        
             return ok(ApiUtil.createResponse("[" + elementType + "] is not a valid elementType", false));
         }
-        int totalElements = GenericFind.findTotalByKeywordTypeManagerEmailAndStatus(clazz, keyword, type, managerEmail, status);
+        int totalElements = GenericFindSocial.findTotalByKeywordTypeManagerEmailAndStatus(clazz, keyword, type, managerEmail, status);
         if (totalElements >= 0) {
             String totalElementsJSON = "{\"total\":" + totalElements + "}";
             return ok(ApiUtil.createResponse(totalElementsJSON, true));

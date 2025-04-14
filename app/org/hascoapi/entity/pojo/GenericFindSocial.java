@@ -64,7 +64,7 @@ public class GenericFindSocial<T> {
 		return GenericFind.findByQuery(clazz, queryString);
 	}
 
-	public static int findTotalByKeywordAndLanguage(Class clazz, String keyword, String type, String managerEmail, String status) {
+	public static int findTotalByKeywordTypeManagerEmailAndStatus(Class clazz, String keyword, String type, String managerEmail, String status) {
         String hascoType = GenericFind.classNameWithNamespace(clazz);
         if (hascoType == null) {
             return -1;
