@@ -259,9 +259,9 @@ public class HAScOMapper {
             filterProvider.addFilter("fundingSchemeFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", 
                             "typeLabel", "hascoTypeUri", "hasStatus", "hasShortName", "hasImageUri", 
-                            "hasWebDocument", "hascoTypeLabel", "comment", "funderUri", 
+                            "hasWebDocument", "hascoTypeLabel", "comment", "funderUri", "funder", 
                             "hasVersion", "hasReviewNote", "hasEditorEmail",  
-                            "sponsorUri", "startDate", "endDate", "amount", "hasSIRManagerEmail"));
+                            "sponsorUri", "sponsor", "startDate", "endDate", "amount", "hasSIRManagerEmail"));
         }
 
         // HASCO_CLASS

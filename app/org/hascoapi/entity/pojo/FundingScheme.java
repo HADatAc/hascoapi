@@ -102,12 +102,26 @@ public class FundingScheme extends HADatAcThing implements Comparable<FundingSch
         return funderUri;
     }
 
+    public FundingScheme getFunder() {
+        if (funderUri == null || funderUri.isEmpty()) {
+            return null;
+        }
+        return FundingScheme.find(funderUri);
+    }
+
     public void setFunderUri(String funderUri) {
         this.funderUri = funderUri;
     }
 
     public String getSponsorUri() {
         return sponsorUri;
+    }
+
+    public Organization getSponsor() {
+        if (sponsorUri == null || sponsorUri.isEmpty()) {
+            return null;
+        }
+        return Organization.find(sponsorUri);
     }
 
     public void setSponsorUri(String sponsorUri) {
