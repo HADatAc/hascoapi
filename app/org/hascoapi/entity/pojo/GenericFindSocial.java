@@ -38,11 +38,12 @@ public class GenericFindSocial<T> {
     }
 
     public static <T> List<T> findElementsByKeywordTypeManagerEmailAndStatusWithPages(Class clazz, String hascoType, String keyword, String type, String managerEmail, String status, int pageSize, int offset) {
+		//System.out.println("GenericFindSocial.findElementsByKeywordType: hascoType: [" + hascoType + "]  keyword: [" + keyword + "]   type : [" + type + "]");
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
 		queryString += " SELECT ?uri WHERE { " +
                 " ?uri hasco:hascoType " + hascoType + " . ";
 		if (type != null && !type.isEmpty()) {
-			queryString += " ?uri rdfs:type <" + type + "> . ";
+			queryString += " ?uri rdf:type <" + type + "> . ";
 		}
         if (managerEmail != null && !managerEmail.isEmpty()) {
 			queryString += " ?uri vstoi:hasSIRManagerEmail ?managerEmail . ";
@@ -61,6 +62,7 @@ public class GenericFindSocial<T> {
                 " ORDER BY ASC(?label) " +
 				" LIMIT " + pageSize +
 				" OFFSET " + offset;
+
 		return GenericFind.findByQuery(clazz, queryString);
 	}
 
