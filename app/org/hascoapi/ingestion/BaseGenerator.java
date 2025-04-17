@@ -523,7 +523,8 @@ public abstract class BaseGenerator {
         // Looping through the query list
         for (String query_i : queries) {
             // Update respective query into the triple store
-            updateTripleStore(query_i);
+            //updateTripleStore(query_i);
+            System.out.println("\n\n" + query_i + "\n ");
         }
 
         // Show the total URI
@@ -539,8 +540,6 @@ public abstract class BaseGenerator {
     public void updateTripleStore(String query){
         // Create a request
         UpdateRequest request = UpdateFactory.create(query);
-
-        // System.out.println("\n\n(updateTripleStore) Query: " + query + "\n\n ");
 
         // Create a processor to execute the request
         UpdateProcessor processor = UpdateExecutionFactory.createRemote(

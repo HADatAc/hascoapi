@@ -150,6 +150,9 @@ public class IngestionWorker {
         } else if (fileName.startsWith("DP2-")) {
             chain = annotateDP2File(dataFile, templateFile);
 
+        } else if (fileName.startsWith("INS-CLR-")) {
+            chain = AnnotateINSCleaner.exec(dataFile, templateFile, status);
+
         } else if (fileName.startsWith("INS-")) {
             chain = AnnotateINS.exec(dataFile, templateFile, status);
 
