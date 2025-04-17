@@ -75,7 +75,7 @@ public class GenericFindSocial<T> {
 		queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
             " ?uri hasco:hascoType " + hascoType + " . ";
 		if (type != null && !type.isEmpty()) {
-			queryString += " ?uri rdfs:type <" + type + "> . ";
+			queryString += " ?uri rdf:type <" + type + "> . ";
 		}
         if (managerEmail != null && !managerEmail.isEmpty()) {
 			queryString += " ?uri vstoi:hasSIRManagerEmail ?managerEmail . ";
