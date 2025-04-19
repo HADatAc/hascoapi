@@ -29,23 +29,37 @@ import org.hascoapi.vocabularies.VSTOI;
 
 public class GenericFindSocial<T> {
 
-    public static <T> List<T> findByKeywordTypeManagerEmailandStatusWithPages(Class clazz, String keyword, String type, String managerEmail, String status, int pageSize, int offset) {
+    public static <T> List<T> findByKeywordTypeManagerEmailandStatusWithPages(Class clazz, String project, String keyword, String type, String managerEmail, String status, int pageSize, int offset) {
         if (clazz == null) {
             return null;
         }
         String hascoType = GenericFind.classNameWithNamespace(clazz);
-        return findElementsByKeywordTypeManagerEmailAndStatusWithPages(clazz, hascoType, keyword, type, managerEmail, status, pageSize, offset);
+        return findElementsByKeywordTypeManagerEmailAndStatusWithPages(clazz, hascoType, project, keyword, type, managerEmail, status, pageSize, offset);
     }
 
-    public static <T> List<T> findElementsByKeywordTypeManagerEmailAndStatusWithPages(Class clazz, String hascoType, String keyword, String type, String managerEmail, String status, int pageSize, int offset) {
-		//System.out.println("GenericFindSocial.findElementsByKeywordType: hascoType: [" + hascoType + "]  keyword: [" + keyword + "]   type : [" + type + "]");
+    public static <T> List<T> findElementsByKeywordTypeManagerEmailAndStatusWithPages(Class clazz, String hascoType, String project, String keyword, String type, String managerEmail, String status, int pageSize, int offset) {
+		System.out.println("GenericFindSocial.findElementsByKeywordType: hascoType: [" + hascoType + "]  project: [" + project + "]  keyword: [" + keyword + "]   type : [" + type + "]");
+		if (project != null && (project.equals("_") || project.equals("all"))) {
+			project = null;
+		}
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
-		queryString += " SELECT ?uri WHERE { " +
+		queryString += " SELECT DISTINCT ?uri WHERE { " +
                 " ?uri hasco:hascoType " + hascoType + " . ";
 		if (type != null && !type.isEmpty()) {
 			queryString += " ?uri rdf:type <" + type + "> . ";
 		}
-        if (managerEmail != null && !managerEmail.isEmpty()) {
+		if (project != null && hascoType.equals("schema:Organization") && !project.isEmpty()) {
+			queryString += " <" + project + "> schema:contributor ?uri . ";
+		} else if (project != null && hascoType.equals("schema:PostalAddress") && !project.isEmpty()) {
+			queryString += " <" + project + "> schema:contributor ?org . ";
+			queryString += " ?org schema:address ?uri . ";
+		} else if (project != null && hascoType.equals("schema:Place") && !project.isEmpty()) {
+			queryString += " <" + project + "> schema:contributor ?org . ";
+			queryString += " ?org schema:address ?pa . ";
+			queryString += " ?pa schema:addressLocality ?city ; schema:addressRegion ?state ; schema:addressCountry ?country . ";		
+			queryString += "  FILTER(?uri IN (?city, ?state, ?country)) ";
+		}
+		if (managerEmail != null && !managerEmail.isEmpty()) {
 			queryString += " ?uri vstoi:hasSIRManagerEmail ?managerEmail . ";
         }
         if (status != null && !status.isEmpty()) {
@@ -66,17 +80,33 @@ public class GenericFindSocial<T> {
 		return GenericFind.findByQuery(clazz, queryString);
 	}
 
-	public static int findTotalByKeywordTypeManagerEmailAndStatus(Class clazz, String keyword, String type, String managerEmail, String status) {
-        String hascoType = GenericFind.classNameWithNamespace(clazz);
+	public static int findTotalByKeywordTypeManagerEmailAndStatus(Class clazz, String project, String keyword, String type, String managerEmail, String status) {
+		if (project != null && (project.equals("_") || project.equals("all"))) {
+			project = null;
+		}
+		String hascoType = GenericFind.classNameWithNamespace(clazz);
         if (hascoType == null) {
             return -1;
         }
+		System.out.println("GenericFindSocial.findTotalElementsByKeywordType: hascoType: [" + hascoType + "]  project: [" + project + "]  keyword: [" + keyword + "]   type : [" + type + "]");
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
-		queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
+		queryString += " SELECT (count(DISTINCT ?uri) as ?tot) WHERE { " +
             " ?uri hasco:hascoType " + hascoType + " . ";
 		if (type != null && !type.isEmpty()) {
 			queryString += " ?uri rdf:type <" + type + "> . ";
 		}
+		if (project != null && hascoType.equals("schema:Organization") && !project.isEmpty()) {
+			queryString += " <" + project + "> schema:contributor ?uri . ";
+		} else if (project != null && hascoType.equals("schema:PostalAddress") && !project.isEmpty()) {
+			queryString += " <" + project + "> schema:contributor ?org . ";
+			queryString += " ?org schema:address ?uri . ";
+		} else if (project != null && hascoType.equals("schema:Place") && !project.isEmpty()) {
+			queryString += " <" + project + "> schema:contributor ?org . ";
+			queryString += " ?org schema:address ?pa . ";
+			queryString += " ?pa schema:addressLocality ?city ; schema:addressRegion ?state ; schema:addressCountry ?country . ";		
+			queryString += "  FILTER(?uri IN (?city, ?state, ?country)) ";
+		}
+
         if (managerEmail != null && !managerEmail.isEmpty()) {
 			queryString += " ?uri vstoi:hasSIRManagerEmail ?managerEmail . ";
         }
@@ -90,7 +120,10 @@ public class GenericFindSocial<T> {
 	        queryString += "   FILTER (?managerEmail = \"" + managerEmail + "\") ";
         }
         queryString += "}";
-        return GenericFind.findTotalByQuery(queryString);
+
+		System.out.println("GenericFindSocial: query is...\n" + queryString);
+
+		return GenericFind.findTotalByQuery(queryString);
 	}
 
 

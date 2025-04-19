@@ -1785,7 +1785,11 @@ public class SIRElementAPI extends Controller {
      *   GET ELEMENTS BY KEYWORD, TYPE, MANAGER EMAIL AND STATUS PAGE
      */
                 
-     public Result getElementsByKeywordTypeManagerEmailAndStatusWithPage(String elementType, String keyword, String type, String managerEmail, String status, int pageSize, int offset) {
+     public Result getElementsByKeywordTypeManagerEmailAndStatusWithPage(String elementType, String project, String keyword, String type, String managerEmail, String status, int pageSize, int offset) {
+
+        if (project.equals("_")) {
+            project = "";
+        }
         if (keyword.equals("_")) {
             keyword = "";
         }
@@ -1800,21 +1804,32 @@ public class SIRElementAPI extends Controller {
         }
         if (elementType.equals("organization")) {
             GenericFindSocial<Organization> query = new GenericFindSocial<Organization>();
-            List<Organization> results = query.findByKeywordTypeManagerEmailandStatusWithPages(Organization.class, keyword, type, managerEmail, status, pageSize, offset);
+            List<Organization> results = query.findByKeywordTypeManagerEmailandStatusWithPages(Organization.class, project, keyword, type, managerEmail, status, pageSize, offset);
             return OrganizationAPI.getOrganizations(results);
         } else if (elementType.equals("person")) {
             GenericFindSocial<Person> query = new GenericFindSocial<Person>();
-            List<Person> results = query.findByKeywordTypeManagerEmailandStatusWithPages(Person.class, keyword, type, managerEmail, status, pageSize, offset);
+            List<Person> results = query.findByKeywordTypeManagerEmailandStatusWithPages(Person.class, project, keyword, type, managerEmail, status, pageSize, offset);
             return PersonAPI.getPeople(results);
         } else if (elementType.equals("place")) {
             GenericFindSocial<Place> query = new GenericFindSocial<Place>();
-            List<Place> results = query.findByKeywordTypeManagerEmailandStatusWithPages(Place.class, keyword, type, managerEmail, status, pageSize, offset);
+            List<Place> results = query.findByKeywordTypeManagerEmailandStatusWithPages(Place.class, project, keyword, type, managerEmail, status, pageSize, offset);
             return PlaceAPI.getPlaces(results);
+        } else if (elementType.equals("postaladdress")) {
+            GenericFindSocial<PostalAddress> query = new GenericFindSocial<PostalAddress>();
+            List<PostalAddress> results = query.findByKeywordTypeManagerEmailandStatusWithPages(PostalAddress.class, project, keyword, type, managerEmail, status, pageSize, offset);
+            return PostalAddressAPI.getPostalAddresses(results);
         } 
         return ok("[getElementsByKeywordTypeManagerEmailAnStatusWithPage] No valid element type.");
     }
 
-    public Result getTotalElementsByKeywordTypeManagerEmailAndStatus(String elementType, String keyword, String type, String managerEmail, String status) {
+    public Result getTotalElementsByKeywordTypeManagerEmailAndStatus(String elementType, String project, String keyword, String type, String managerEmail, String status) {
+
+        System.out.println("SIRElementAPI: getTotalElementsByKeywordType: project=[" + project + "]");
+
+
+        if (project.equals("_")) {
+            project = "";
+        }
         if (keyword.equals("_")) {
             keyword = "";
         }
@@ -1834,7 +1849,7 @@ public class SIRElementAPI extends Controller {
         if (clazz == null) {        
             return ok(ApiUtil.createResponse("[" + elementType + "] is not a valid elementType", false));
         }
-        int totalElements = GenericFindSocial.findTotalByKeywordTypeManagerEmailAndStatus(clazz, keyword, type, managerEmail, status);
+        int totalElements = GenericFindSocial.findTotalByKeywordTypeManagerEmailAndStatus(clazz, project, keyword, type, managerEmail, status);
         if (totalElements >= 0) {
             String totalElementsJSON = "{\"total\":" + totalElements + "}";
             return ok(ApiUtil.createResponse(totalElementsJSON, true));
