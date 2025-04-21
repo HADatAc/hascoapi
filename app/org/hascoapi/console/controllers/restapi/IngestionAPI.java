@@ -17,7 +17,9 @@ import org.hascoapi.entity.pojo.SDD;
 import org.hascoapi.entity.pojo.STR;
 import org.hascoapi.entity.pojo.Study;
 import org.hascoapi.entity.pojo.Instrument;
+import org.hascoapi.entity.pojo.FundingScheme;
 import org.hascoapi.entity.pojo.Project;
+import org.hascoapi.entity.pojo.Organization;
 import org.hascoapi.transform.mt.ins.INSGen;
 import org.hascoapi.transform.mt.kgr.KGRGen;
 import org.hascoapi.utils.ApiUtil;
@@ -524,7 +526,47 @@ public class IngestionAPI extends Controller {
         }
     }
 
-    public Result mtGenByProject(String elementtype, String projecturi, String filename) {
+    public Result mtGenByOrganization(String elementtype, String organizationuri, String filename) {
+        System.out.println("IngestionAPI.mtGenByOrganization() with organizationUri = " + organizationuri);
+        if (elementtype == null || elementtype.isEmpty()) {
+             String errorMsg = "[ERROR] IngestionAPI.mtGenByOrganization() requires elementtype";
+             System.out.println(errorMsg);
+             return ok(ApiUtil.createResponse(errorMsg,false));
+         }
+         if (organizationuri == null || organizationuri.isEmpty()) {
+             String errorMsg = "[ERROR] IngestionAPI.mtGenByOrganization() requires organizationuri";
+             System.out.println(errorMsg);
+             return ok(ApiUtil.createResponse(errorMsg,false));
+         }
+         Organization organization = Organization.find(organizationuri);
+         if (organization == null) {
+             String errorMsg = "[ERROR] IngestionAPI.mtGenByorganization() cannot retrieve organization with uri=[" + organizationuri + "]";
+             System.out.println(errorMsg);
+             return ok(ApiUtil.createResponse(errorMsg,false));
+         }
+         if (filename == null || filename.isEmpty()) {
+             String errorMsg = "[ERROR] IngestionAPI.mtGenByOrganization() requires filename";
+             System.out.println(errorMsg);
+             return ok(ApiUtil.createResponse(errorMsg,false));
+         }
+         String resp = "";
+         switch (elementtype) {
+             case "kgr":
+                 resp = KGRGen.genByOrganization(organization,filename);
+                 break;
+             default:
+                 String errorMsg = "[ERROR] IngestionAPI.mtGenByOrganization() invalid elementtype=[" + elementtype + "]";
+                 System.out.println(errorMsg);
+                 return ok(ApiUtil.createResponse(errorMsg,false));
+         }
+         if (resp.equals("")) {
+             return ok(ApiUtil.createResponse(resp, true));
+         } else {
+             return ok(ApiUtil.createResponse(resp, false));
+         }
+     }
+ 
+     public Result mtGenByProject(String elementtype, String projecturi, String filename) {
        System.out.println("IngestionAPI.mtGenByProject() with projectUri = " + projecturi);
        if (elementtype == null || elementtype.isEmpty()) {
             String errorMsg = "[ERROR] IngestionAPI.mtGenByProject() requires elementtype";
@@ -564,7 +606,47 @@ public class IngestionAPI extends Controller {
         }
     }
 
-    public Result mtGenByManager(String elementtype, String useremail, String status, String filename) {
+    public Result mtGenByFundingScheme(String elementtype, String fundingschemeuri, String filename) {
+        System.out.println("IngestionAPI.mtGenByFundingScheme() with fundingschemeUri = " + fundingschemeuri);
+        if (elementtype == null || elementtype.isEmpty()) {
+             String errorMsg = "[ERROR] IngestionAPI.mtGenByFundingScheme() requires elementtype";
+             System.out.println(errorMsg);
+             return ok(ApiUtil.createResponse(errorMsg,false));
+         }
+         if (fundingschemeuri == null || fundingschemeuri.isEmpty()) {
+             String errorMsg = "[ERROR] IngestionAPI.mtGenByFundingScheme() requires fundingschemeuri";
+             System.out.println(errorMsg);
+             return ok(ApiUtil.createResponse(errorMsg,false));
+         }
+         FundingScheme fundingScheme = FundingScheme.find(fundingschemeuri);
+         if (fundingScheme == null) {
+             String errorMsg = "[ERROR] IngestionAPI.mtGenByFundingScheme() cannot retrieve fundingScheme with uri=[" + fundingschemeuri + "]";
+             System.out.println(errorMsg);
+             return ok(ApiUtil.createResponse(errorMsg,false));
+         }
+         if (filename == null || filename.isEmpty()) {
+             String errorMsg = "[ERROR] IngestionAPI.mtGenByFundingScheme() requires filename";
+             System.out.println(errorMsg);
+             return ok(ApiUtil.createResponse(errorMsg,false));
+         }
+         String resp = "";
+         switch (elementtype) {
+             case "kgr":
+                 resp = KGRGen.genByFundingScheme(fundingScheme,filename);
+                 break;
+             default:
+                 String errorMsg = "[ERROR] IngestionAPI.mtGenByFundingSchme() invalid elementtype=[" + elementtype + "]";
+                 System.out.println(errorMsg);
+                 return ok(ApiUtil.createResponse(errorMsg,false));
+         }
+         if (resp.equals("")) {
+             return ok(ApiUtil.createResponse(resp, true));
+         } else {
+             return ok(ApiUtil.createResponse(resp, false));
+         }
+     }
+ 
+     public Result mtGenByManager(String elementtype, String useremail, String status, String filename) {
         if (elementtype == null || elementtype.isEmpty()) {
             String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() requires elementtype";
             System.out.println(errorMsg);

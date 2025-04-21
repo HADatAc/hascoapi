@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 import org.hascoapi.Constants;
 import org.hascoapi.entity.pojo.FundingScheme;
+import org.hascoapi.entity.pojo.Organization;
 import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.HAScOMapper;
 import org.hascoapi.vocabularies.SCHEMA;
@@ -27,5 +28,23 @@ public class FundingSchemeAPI extends Controller {
             return ok(ApiUtil.createResponse(jsonObject, true));
         }
     }
+
+    public Result findFunds(String uri, int pageSize, int offset) {
+        List<FundingScheme> results = FundingScheme.findFunds(uri, pageSize, offset);
+        return FundingSchemeAPI.getFundingSchemes(results);
+       
+    }
+
+    public Result findTotalFunds(String uri) {
+        int totalElements = FundingScheme.findTotalFunds(uri);
+        if (totalElements >= 0) {
+            String totalElementsJSON = "{\"total\":" + totalElements + "}";
+            return ok(ApiUtil.createResponse(totalElementsJSON, true));
+        }     
+        return ok(ApiUtil.createResponse("Query method findTotalFunds() failed to retrieve total number of element", false));   
+    }
+
+
+
 
 }

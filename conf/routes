@@ -55,7 +55,9 @@ GET     /hascoapi/api/organization/suborganizations/:uri/:pageSize/:offset      
 GET     /hascoapi/api/organization/suborganizations/total/:uri                            org.hascoapi.console.controllers.restapi.OrganizationAPI.findTotalSubOrganizations(uri: String)
 GET     /hascoapi/api/organization/affiliations/:uri/:pageSize/:offset                    org.hascoapi.console.controllers.restapi.OrganizationAPI.findAffiliations(uri: String, pageSize : Integer, offset : Integer)
 GET     /hascoapi/api/organization/affiliations/total/:uri                                org.hascoapi.console.controllers.restapi.OrganizationAPI.findTotalAffiliations(uri: String)
-GET     /hascoapi/api/study/dataacquiinsectsitions/total/:uri                                   org.hascoapi.console.controllers.restapi.StudyAPI.findTotalDAs(uri: String)
+GET     /hascoapi/api/fundingscheme/funds/:uri/:pageSize/:offset                          org.hascoapi.console.controllers.restapi.FundingSchemeAPI.findFunds(uri: String, pageSize : Integer, offset : Integer)
+GET     /hascoapi/api/fundingscheme/funds/total/:uri                                      org.hascoapi.console.controllers.restapi.FundingSchemeAPI.findTotalFunds(uri: String)
+GET     /hascoapi/api/study/dataacquiinsectsitions/total/:uri                             org.hascoapi.console.controllers.restapi.StudyAPI.findTotalDAs(uri: String)
 GET     /hascoapi/api/study/studyroles/total/:uri                                         org.hascoapi.console.controllers.restapi.StudyAPI.findTotalRoles(uri: String)
 GET     /hascoapi/api/study/socs/:uri/:pageSize/:offset                                   org.hascoapi.console.controllers.restapi.StudyAPI.findSOCs(uri: String, pageSize : Integer, offset : Integer)
 GET     /hascoapi/api/study/socs/total/:uri                                               org.hascoapi.console.controllers.restapi.StudyAPI.findTotalSOCs(uri: String)
@@ -151,7 +153,9 @@ GET     /hascoapi/api/ingestion/:dataFileUri/log                                
 
 GET     /hascoapi/api/mt/gen/perstatus/:elementtype/:status/:filename               org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenByStatus(elementtype : String, status: String, filename: String)
 GET     /hascoapi/api/mt/gen/perinstrument/:elementtype/:instrumenturi/:filename    org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenByInstrument(elementtype : String, instrumenturi: String, filename: String)
+GET     /hascoapi/api/mt/gen/perfundingscheme/:elementtype/:fundingschemeuri/:filename          org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenByFundingScheme(elementtype : String, fundingschemeuri: String, filename: String)
 GET     /hascoapi/api/mt/gen/perproject/:elementtype/:projecturi/:filename          org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenByProject(elementtype : String, projecturi: String, filename: String)
+GET     /hascoapi/api/mt/gen/perorganization/:elementtype/:organizationuri/:filename            org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenByOrganization(elementtype : String, organizationuri: String, filename: String)
 GET     /hascoapi/api/mt/gen/peruser/:elementtype/:useremail/:status/:filename      org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenByManager(elementtype : String, useremail: String, status: String, filename: String)
 
 # REVIEWING METHODS 

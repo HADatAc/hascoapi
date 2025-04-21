@@ -80,6 +80,56 @@ public class KGRGen {
         return KGRGen.save(helper,filename);
     }
 
+    private static KGRGenHelper addSubFundingScheme(KGRGenHelper helper, FundingScheme fundingScheme) {
+        List<FundingScheme> subFunds = FundingScheme.findFunds(fundingScheme.getUri(),100,0);
+        for (FundingScheme subFund : subFunds) {
+            helper.addFundingScheme(subFund);
+            helper = KGRGen.addSubFundingScheme(helper, subFund);
+        } 
+        return helper;
+    }
+
+    public static String genByFundingScheme(FundingScheme fundingScheme, String filename) {
+        if (fundingScheme == null) {
+            return "";
+        }
+        System.out.println("KGRGen: genByFundingScheme with fundingScheme=[" + fundingScheme.getLabel() + "]");
+        KGRGenHelper helper = new KGRGenHelper();
+        helper.workbook = KGRGen.create(filename);
+        System.out.println("KGRGen: genByFundingSchme created file with filename=[" + filename + "]");
+        
+        helper.addFundingScheme(fundingScheme);
+        helper = KGRGen.addSubFundingScheme(helper, fundingScheme);
+ 
+        /* 
+
+        if (fundingScheme.getSponsor() != null) {
+            Organization sponsor = fundingScheme.getSponsor();
+            helper = KGROrganization.add(helper,sponsor);
+            PostalAddress pa = sponsor.getHasAddress();
+            if (pa != null) {
+                helper = KGRPostalAddress.add(helper,pa);
+                if (pa.getHasAddressLocality() != null) {
+                    helper = KGRPlace.add(helper,pa.getHasAddressLocality());
+                }
+                if (pa.getHasAddressRegion() != null) {
+                    helper = KGRPlace.add(helper,pa.getHasAddressRegion());
+                }
+                if (pa.getHasAddressCountry() != null) {
+                    helper = KGRPlace.add(helper,pa.getHasAddressCountry());
+                }
+            }
+        }
+        */
+        if (helper.fundingSchemes.size() > 0) {
+            for (FundingScheme funding : helper.fundingSchemes.values()) {
+                helper = KGRFundingScheme.add(helper,funding);
+            }
+        }
+
+        return KGRGen.save(helper, filename);
+    }
+
     public static String genByProject(Project project, String filename) {
         if (project == null) {
             return "";
@@ -98,6 +148,66 @@ public class KGRGen {
         if (helper.organizations.size() > 0) {
             for (Organization organization : helper.organizations.values()) {
                 helper = KGROrganization.add(helper,organization);
+            }
+        }
+        if (helper.persons.size() > 0) {
+            for (Person person : helper.persons.values()) {
+                helper = KGRPerson.add(helper,person);
+            }
+        }
+        if (helper.places.size() > 0) {
+            for (Place place : helper.places.values()) {
+                helper = KGRPlace.add(helper,place);
+            }            
+        }
+        if (helper.postalAddresses.size() > 0) {
+            for (PostalAddress postalAddress : helper.postalAddresses.values()) {
+                helper = KGRPostalAddress.add(helper,postalAddress);
+            }            
+        }
+
+        return KGRGen.save(helper, filename);
+    }
+
+    private static KGRGenHelper addSuborganization(KGRGenHelper helper, Organization organization) {
+        List<Organization> subOrgs = Organization.findSubOrganizations(organization.getUri(),1000,0);
+        for (Organization subOrg : subOrgs) {
+            helper.addOrganization(subOrg);
+            if (subOrg.getHasAddress() != null) {
+                PostalAddress pa = subOrg.getHasAddress();
+                helper.addPostalAddress(pa);
+                if (pa != null) {
+                    if (pa.getHasAddressLocality() != null) {
+                        helper.addPlace(pa.getHasAddressLocality());
+                    }
+                    if (pa.getHasAddressRegion() != null) {
+                        helper.addPlace(pa.getHasAddressRegion());
+                    }
+                    if (pa.getHasAddressCountry() != null) {
+                        helper.addPlace(pa.getHasAddressCountry());
+                    }
+                }
+            }
+            helper = KGRGen.addSuborganization(helper, subOrg);
+        } 
+        return helper;
+    }
+
+    public static String genByOrganization(Organization organization, String filename) {
+        if (organization == null) {
+            return "";
+        }
+        System.out.println("KGRGen: genByOrganization with organization=[" + organization.getLabel() + "]");
+        KGRGenHelper helper = new KGRGenHelper();
+        helper.workbook = KGRGen.create(filename);
+        System.out.println("KGRGen: genByOrganization created file with filename=[" + filename + "]");
+        
+        helper.addOrganization(organization);
+        helper = KGRGen.addSuborganization(helper, organization);
+ 
+        if (helper.organizations.size() > 0) {
+            for (Organization org : helper.organizations.values()) {
+                helper = KGROrganization.add(helper,org);
             }
         }
         if (helper.persons.size() > 0) {

@@ -191,7 +191,50 @@ public class FundingScheme extends HADatAcThing implements Comparable<FundingSch
         return fundingScheme;
     }
 
+    public static int findTotalFunds(String uri) {
+        if (uri == null || uri.isEmpty()) {
+            return 0;
+        }
+        String query = NameSpaces.getInstance().printSparqlNameSpaceList() + 
+                " SELECT (count(?uri) as ?tot)  " +
+                " WHERE { " +   
+                "    ?uri schema:funder <" + uri + "> .  " +
+                " }";
+        return GenericFind.findTotalByQuery(query);
+    }        
 
+    public static List<FundingScheme> findFunds(String uri, int pageSize, int offset) {
+        if (uri == null || uri.isEmpty()) {
+            return new ArrayList<FundingScheme>();
+        }
+        String query = 
+                "SELECT ?uri " +
+                " WHERE {  ?uri schema:funder <" + uri + ">.  " +
+				"          ?uri rdfs:label ?label . " +
+                " } " +
+                " ORDER BY ASC(?label) " +
+                " LIMIT " + pageSize +
+                " OFFSET " + offset;
+        return FundingScheme.findManyByQuery(query);
+    }        
+
+    private static List<FundingScheme> findManyByQuery(String requestedQuery) {
+        List<FundingScheme> fundingSchemes = new ArrayList<FundingScheme>();
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + requestedQuery;
+
+        ResultSetRewindable resultsrw = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+        while (resultsrw.hasNext()) {
+            QuerySolution soln = resultsrw.next();
+            String uri = soln.getResource("uri").getURI();
+            FundingScheme fundingScheme = FundingScheme.find(uri);
+            fundingSchemes.add(fundingScheme);
+        }
+
+        //java.util.Collections.sort((List<FundingScheme>) fundingSchemes);
+        return fundingSchemes;
+    }
 
     public static FundingScheme find(String uri) {
         FundingScheme scheme = new FundingScheme();
