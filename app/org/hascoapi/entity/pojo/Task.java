@@ -19,6 +19,7 @@ import org.hascoapi.vocabularies.RDF;
 import org.hascoapi.vocabularies.RDFS;
 import org.hascoapi.vocabularies.VSTOI;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +30,9 @@ public class Task extends HADatAcThing implements Comparable<Task> {
 
     @PropertyField(uri = "vstoi:hasStatus")
     private String hasStatus;
+
+	@PropertyField(uri="vstoi:hasLanguage")
+	private String hasLanguage;
 
     @PropertyField(uri = "vstoi:hasVersion")
     private String hasVersion;
@@ -63,6 +67,14 @@ public class Task extends HADatAcThing implements Comparable<Task> {
 
     public void setHasStatus(String hasStatus) {
         this.hasStatus = hasStatus;
+    }
+
+    public String getHasLanguage() {
+        return hasLanguage;
+    }
+
+    public void setHasLanguage(String hasLanguage) {
+        this.hasLanguage = hasLanguage;
     }
 
     public String getHasVersion() {
@@ -215,6 +227,8 @@ public class Task extends HADatAcThing implements Comparable<Task> {
                     task.setHasWebDocument(object);
                 } else if (predicate.equals(VSTOI.HAS_STATUS)) {
                     task.setHasStatus(object);
+                } else if (predicate.equals(VSTOI.HAS_LANGUAGE)) {
+                    task.setHasLanguage(object);
                 } else if (predicate.equals(VSTOI.HAS_VERSION)) {
                     task.setHasVersion(object);
                 } else if (predicate.equals(VSTOI.HAS_REVIEW_NOTE)) {
