@@ -39,11 +39,11 @@ public class KGRFundingScheme {
         
         // "schema:funder"
         Cell cell5 = newRow.createCell(4);
-        cell5.setCellValue(scheme.getFunderUri() != null ? scheme.getFunderUri() : "");
+        cell5.setCellValue(scheme.getFunderUri() != null ? URIUtils.replaceNameSpaceEx(scheme.getFunderUri()) : "");
         
         // "schema:sponsor"
         Cell cell6 = newRow.createCell(5);
-        cell6.setCellValue(scheme.getSponsorUri() != null ? scheme.getSponsorUri() : "");
+        cell6.setCellValue(scheme.getSponsorUri() != null ? URIUtils.replaceNameSpaceEx(scheme.getSponsorUri()) : "");
         
         // "schema:startDate"
         Cell cell7 = newRow.createCell(6);
@@ -56,6 +56,18 @@ public class KGRFundingScheme {
         // "schema:amount"
         Cell cell9 = newRow.createCell(8);
         cell9.setCellValue(scheme.getAmount() != null ? scheme.getAmount() : "");
+
+        // "rdfs:comment"
+        Cell cell10 = newRow.createCell(9);
+        cell10.setCellValue(scheme.getComment() != null ? scheme.getComment() : "");
+
+        // "hasco:hasImage"
+        Cell cell11 = newRow.createCell(10);
+        cell11.setCellValue(scheme.getHasImageUri() != null ? scheme.getHasImageUri() : "");
+
+        // "hasco:hasWebDocument"
+        Cell cell12 = newRow.createCell(11);
+        cell12.setCellValue(scheme.getHasWebDocument() != null ? scheme.getHasWebDocument() : "");
 
         return helper;
     }

@@ -18,17 +18,18 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class KGRGen {
 
-    public static final String INFOSHEET            = "InfoSheet";
-    public static final String NAMESPACES           = "Namespaces";
-    public static final String FUNDING_SCHEMES      = "FundingSchemes";
-    public static final String PROJECTS             = "Projects";
-    public static final String ORGANIZATIONS        = "Organizations";
-    public static final String PERSONS              = "Persons";
-    public static final String PLACES               = "Places";
-    public static final String POSTAL_ADDRESSES     = "PostalAddresses";
+    public static final String INFOSHEET                = "InfoSheet";
+    public static final String NAMESPACES               = "Namespaces";
+    public static final String FUNDING_SCHEMES          = "FundingSchemes";
+    public static final String PROJECTS                 = "Projects";
+    public static final String PROJECT_ORGANIZATIONS    = "ProjectOrganizations";
+    public static final String ORGANIZATIONS            = "Organizations";
+    public static final String PERSONS                  = "Persons";
+    public static final String PLACES                   = "Places";
+    public static final String POSTAL_ADDRESSES         = "PostalAddresses";
 
-    public static final int PAGESIZE                = 20000;
-    public static final int OFFSET                  = 0;
+    public static final int PAGESIZE                    = 20000;
+    public static final int OFFSET                      = 0;
 
     public static String genByStatus(String status, String filename) {
         KGRGenHelper helper = new KGRGenHelper();
@@ -47,6 +48,7 @@ public class KGRGen {
         if (projects != null) {
             for (Project project: projects) {
                 helper = KGRProject.add(helper,project);
+                helper = KGRProjectOrganization.add(helper,project);
             }
         }
         GenericFindWithStatus<Organization> organizationQuery = new GenericFindWithStatus<Organization>();
@@ -140,6 +142,8 @@ public class KGRGen {
         System.out.println("KGRGen: genByProject created file with filename=[" + filename + "]");
         
         helper = KGRProject.add(helper,project);
+        helper = KGRProjectOrganization.add(helper,project);
+
         if (helper.fundingSchemes.size() > 0) {
             for (FundingScheme fundingScheme : helper.fundingSchemes.values()) {
                 helper = KGRFundingScheme.add(helper,fundingScheme);
@@ -246,6 +250,7 @@ public class KGRGen {
         if (projects != null) {
             for (Project project: projects) {
                 KGRProject.add(helper,project);
+                KGRProjectOrganization.add(helper,project);
             }
         }
         GenericFindWithStatus<Organization> organizationQuery = new GenericFindWithStatus<Organization>();
@@ -314,27 +319,33 @@ public class KGRGen {
 
         Row isDataRow4 = infoSheet.createRow(4);
         Cell isDataCell4_1 = isDataRow4.createCell(0);
-        isDataCell4_1.setCellValue("Organizations");
+        isDataCell4_1.setCellValue("ProjectOrganizations");
         Cell isDataCell4_2 = isDataRow4.createCell(1);
-        isDataCell4_2.setCellValue("#" + KGRGen.ORGANIZATIONS);
+        isDataCell4_2.setCellValue("#" + KGRGen.PROJECT_ORGANIZATIONS);
 
         Row isDataRow5 = infoSheet.createRow(5);
         Cell isDataCell5_1 = isDataRow5.createCell(0);
-        isDataCell5_1.setCellValue("Persons");
+        isDataCell5_1.setCellValue("Organizations");
         Cell isDataCell5_2 = isDataRow5.createCell(1);
-        isDataCell5_2.setCellValue("#" + KGRGen.PERSONS);
+        isDataCell5_2.setCellValue("#" + KGRGen.ORGANIZATIONS);
 
         Row isDataRow6 = infoSheet.createRow(6);
         Cell isDataCell6_1 = isDataRow6.createCell(0);
-        isDataCell6_1.setCellValue("Places");
+        isDataCell6_1.setCellValue("Persons");
         Cell isDataCell6_2 = isDataRow6.createCell(1);
-        isDataCell6_2.setCellValue("#" + KGRGen.PLACES);
+        isDataCell6_2.setCellValue("#" + KGRGen.PERSONS);
 
         Row isDataRow7 = infoSheet.createRow(7);
         Cell isDataCell7_1 = isDataRow7.createCell(0);
-        isDataCell7_1.setCellValue("PostalAddresses");
+        isDataCell7_1.setCellValue("Places");
         Cell isDataCell7_2 = isDataRow7.createCell(1);
-        isDataCell7_2.setCellValue("#" + KGRGen.POSTAL_ADDRESSES);
+        isDataCell7_2.setCellValue("#" + KGRGen.PLACES);
+
+        Row isDataRow8 = infoSheet.createRow(8);
+        Cell isDataCell8_1 = isDataRow8.createCell(0);
+        isDataCell8_1.setCellValue("PostalAddresses");
+        Cell isDataCell8_2 = isDataRow8.createCell(1);
+        isDataCell8_2.setCellValue("#" + KGRGen.POSTAL_ADDRESSES);
 
           // Create sheet named 'Namespaces'
         Sheet nsSheet = workbook.createSheet(KGRGen.NAMESPACES);
@@ -354,7 +365,8 @@ public class KGRGen {
         Sheet fundingSchemeSheet = workbook.createSheet(KGRGen.FUNDING_SCHEMES);
         String[] fundingSchemeHeaders = { "hasURI", "hasco:hascoType", "rdfs:label",     
             "schema:alternateName", "schema:funder", "schema:sponsor", "schema:startDate", 
-            "schema:endDate", "schema:amount" };
+            "schema:endDate", "schema:amount" , "rdfs:comment", "hasco:hasImage", 
+            "hasco:hasWebDocument" };
 
         // Create header row
         Row fundingSchemeHeaderRow = fundingSchemeSheet.createRow(0);
@@ -369,8 +381,8 @@ public class KGRGen {
         // Create sheet named 'Projects'
         Sheet projectSheet = workbook.createSheet(KGRGen.PROJECTS);
         String[] projectHeaders = { "hasURI", "hasco:hascoType",  "schema:alternateName", 
-            "rdfs:label", "schema:url",  "rdfs:comment", 
-            "schema:funding", "schema:startDate", "schema:endDate" };
+            "rdfs:label", "hasco:hasWebDocument",  "rdfs:comment", "schema:funding", 
+            "schema:startDate", "schema:endDate" , "hasco:hasImage"};
 
         // Create header row
         Row projectHeaderRow = projectSheet.createRow(0);
@@ -380,6 +392,20 @@ public class KGRGen {
         }
         for (int i = 0; i < projectHeaders.length; i++) {
             projectSheet.autoSizeColumn(i);
+        }
+
+        // Create sheet named 'ProjectOrganizations'
+        Sheet projectOrganizationSheet = workbook.createSheet(KGRGen.PROJECT_ORGANIZATIONS);
+        String[] projectOrganizationHeaders = { "hasURI", "schema:contributor" };
+
+        // Create header row
+        Row projectOrganizationHeaderRow = projectOrganizationSheet.createRow(0);
+        for (int i = 0; i < projectOrganizationHeaders.length; i++) {
+            Cell cell = projectOrganizationHeaderRow.createCell(i);
+            cell.setCellValue(projectOrganizationHeaders[i]);
+        }
+        for (int i = 0; i < projectOrganizationHeaders.length; i++) {
+            projectOrganizationSheet.autoSizeColumn(i);
         }
 
         // Create sheet named 'Organization'
@@ -402,7 +428,8 @@ public class KGRGen {
         Sheet personSheet = workbook.createSheet(KGRGen.PERSONS);
         String[] personHeaders = { "hasURI", "hasco:hascoType", "rdfs:label", 
             "hasco:originalID", "rdf:type", "foaf:givenName", "foaf:familyName", 
-        	"foaf:mbox", "foaf:member" };
+        	"foaf:mbox", "foaf:member", "hasco:hasImage", "hasco:hasWebDocument", 
+            "rdfs:comment" };
 
         // Create header row
         Row personHeaderRow = personSheet.createRow(0);

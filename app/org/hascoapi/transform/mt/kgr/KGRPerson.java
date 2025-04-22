@@ -57,6 +57,18 @@ public class KGRPerson {
         Cell cell9 = newRow.createCell(8);
         cell9.setCellValue(person.getHasAffiliationUri() != null ? URIUtils.replaceNameSpaceEx(person.getHasAffiliationUri()) : "");
 
+        // "hasco:hasImage"
+        Cell cell10 = newRow.createCell(9);
+        cell10.setCellValue(person.getHasImageUri() != null ? person.getHasImageUri() : "");
+
+        // "hasco:hasWebDocument"
+        Cell cell11 = newRow.createCell(10);
+        cell11.setCellValue(person.getHasWebDocument() != null ? person.getHasWebDocument() : "");
+
+        // "rdfs:comment"
+        Cell cell12 = newRow.createCell(11);
+        cell12.setCellValue(person.getComment() != null ? person.getComment() : "");
+
         return helper;
     }
 }

@@ -56,6 +56,10 @@ public class KGRProject {
         Cell cell9 = newRow.createCell(8);
         cell9.setCellValue(project.getEndDate() != null ? project.getEndDate() : "");
 
+        // "hasco:hasImage"
+        Cell cell10 = newRow.createCell(9);
+        cell10.setCellValue(project.getHasImageUri() != null ? project.getHasImageUri() : "");
+
         return helper;
     }
 }
