@@ -11,7 +11,7 @@ public class AnnotateKGR {
     public static GeneratorChain exec(DataFile dataFile, String templateFile, String status) {
         System.out.println("AnnotateKGR.buildChain(): Processing KGR file ...");
  
-        System.out.println("AnnotateKGR.buildChain(): Build chain 1 of 8 - Reading catalog and template");
+        System.out.println("AnnotateKGR.buildChain(): Build chain 1 of 9 - Reading catalog and template");
 
         RecordFile recordFile = new SpreadsheetRecordFile(dataFile.getFile(), "InfoSheet");
         if (!recordFile.isValid()) {
@@ -41,13 +41,13 @@ public class AnnotateKGR {
             hasMediaFolder = mapCatalog.get("hasMediaFolder");
         }
 
-        System.out.println("AnnotateKGR.buildChain(): Build chain 2 of 8 - Creating empty generator chain");
+        System.out.println("AnnotateKGR.buildChain(): Build chain 2 of 9 - Creating empty generator chain");
 
         GeneratorChain chain = new GeneratorChain();
         
         RecordFile sheet = null;
 
-        System.out.println("AnnotateKGR.buildChain(): Build chain 3 of 8 - Adding place into generation chain");
+        System.out.println("AnnotateKGR.buildChain(): Build chain 3 of 9 - Adding place into generation chain");
         String placeSheet = mapCatalog.get("Places");
         if (placeSheet == null) {
             System.out.println("[WARNING] 'Places' sheet is missing.");
@@ -66,7 +66,7 @@ public class AnnotateKGR {
             }
         }
 
-        System.out.println("AnnotateKGR.buildChain(): Build chain 4 of 8 - Adding postal address into generation chain");
+        System.out.println("AnnotateKGR.buildChain(): Build chain 4 of 9 - Adding postal address into generation chain");
         String postalAddressSheet = mapCatalog.get("PostalAddresses");
         if (postalAddressSheet == null) {
             System.out.println("[WARNING] 'PostalAddresses' sheet is missing.");
@@ -85,7 +85,7 @@ public class AnnotateKGR {
             }
         }
 
-        System.out.println("AnnotateKGR.buildChain(): Build chain 5 of 8 - Adding organization into generation chain");
+        System.out.println("AnnotateKGR.buildChain(): Build chain 5 of 9 - Adding organization into generation chain");
         String organizationSheet = mapCatalog.get("Organizations");
         if (organizationSheet == null) {
             System.out.println("[WARNING] 'Organizations' sheet is missing.");
@@ -104,7 +104,7 @@ public class AnnotateKGR {
             }
         }
 
-        System.out.println("AnnotateKGR.buildChain(): Build chain 6 of 8 - Adding person into generation chain");
+        System.out.println("AnnotateKGR.buildChain(): Build chain 6 of 9 - Adding person into generation chain");
         String personSheet = mapCatalog.get("Persons");
         if (personSheet == null) {
             System.out.println("[WARNING] 'Persons' sheet is missing.");
@@ -123,7 +123,7 @@ public class AnnotateKGR {
             }
         }
 
-        System.out.println("AnnotateKGR.buildChain(): Build chain 7 of 8 - Adding project into generation chain");
+        System.out.println("AnnotateKGR.buildChain(): Build chain 7 of 9 - Adding project into generation chain");
         String projectSheet = mapCatalog.get("Projects");
         if (projectSheet == null) {
             System.out.println("[WARNING] 'Projects' sheet is missing.");
@@ -142,9 +142,9 @@ public class AnnotateKGR {
             }
         }
 
-        System.out.println("AnnotateKGR.buildChain(): Build chain 7 of 8 - Adding project into generation chain");
+        System.out.println("AnnotateKGR.buildChain(): Build chain 8 of 9 - Adding project organization into generation chain");
         String projectOrganizationSheet = mapCatalog.get("ProjectOrganizations");
-        if (projectSheet == null) {
+        if (projectOrganizationSheet == null) {
             System.out.println("[WARNING] 'ProjectOrganizations' sheet is missing.");
             dataFile.getLogger().println("[WARNING] 'ProjectOrganizations' sheet is missing.");
         } else {
@@ -161,8 +161,7 @@ public class AnnotateKGR {
             }
         }
 
-
-        System.out.println("AnnotateKGR.buildChain(): Build chain 8 of 8 - Adding funding scheme into generation chain");
+        System.out.println("AnnotateKGR.buildChain(): Build chain 9 of 9 - Adding funding scheme into generation chain");
         String fundingSchemeSheet = mapCatalog.get("FundingSchemes");
         if (fundingSchemeSheet == null) {
             System.out.println("[WARNING] 'FundingSchemes' sheet is missing.");

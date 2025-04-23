@@ -53,7 +53,7 @@ public class KGRGenerator extends BaseGenerator {
 		this.setElementType(elementType);
 		this.setHasStatus(hasStatus);
 		this.setHasMediaFolder(hasMediaFolder);
-		//System.out.println("KGRGenerator: mediaFolder [" + hasMediaFolder + "] for element type [" + elementType + "]");
+		System.out.println("KGRGenerator: mediaFolder [" + hasMediaFolder + "] for element type [" + elementType + "]");
 		this.timestamp = System.currentTimeMillis();
 
 	}
@@ -67,11 +67,11 @@ public class KGRGenerator extends BaseGenerator {
 		    if (!header.trim().isEmpty()) {
 		        String value = rec.getValueByColumnName(header);
 		        if (value != null && !value.isEmpty()) {
-					//System.out.println("Header: [" + header + "] Value: [" + value + "]");
+					System.out.println("Header: [" + header + "] Value: [" + value + "]");
 					UriHint uriHint = this.extractUriAndHint(header);
 					String possibleObjectProperty = uriHint.uri;
 					String hint = uriHint.hint;
-					//System.out.println("PossibleObjectProperty: [" + possibleObjectProperty + "]   Hint: [" + hint + "]");
+					System.out.println("PossibleObjectProperty: [" + possibleObjectProperty + "]   Hint: [" + hint + "]");
 
 					// the property is an URI
 					if (this.isHeaderOfUri(possibleObjectProperty)) {
@@ -86,11 +86,15 @@ public class KGRGenerator extends BaseGenerator {
 	
 						// the value is not an URI and needs to be retrieved from given value (and provided hint)
 						} else {
-							//System.out.println("Hint: [" + hint + "]    Value: [" + value + "]");
-							String uri = this.uriFromLabel(possibleObjectProperty, hint, value);
-							//System.out.println("Found uri: [" + uri + "]");
-							if (uri != null) {
-								row.put(possibleObjectProperty,uri);
+							if (hint == null || hint.trim().isEmpty()) {
+								row.put(possibleObjectProperty,value);
+							} else {
+								//System.out.println("Hint: [" + hint + "]    Value: [" + value + "]");
+								String uri = this.uriFromLabel(possibleObjectProperty, hint, value);
+								//System.out.println("Found uri: [" + uri + "]");
+								if (uri != null) {
+									row.put(possibleObjectProperty,uri);
+								}
 							}
 
 						}
