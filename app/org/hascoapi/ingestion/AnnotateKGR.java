@@ -33,6 +33,8 @@ public class AnnotateKGR {
         System.out.println("DataFileUri: [" + dataFile.getUri() + "]");
         System.out.println("DataFileUri: [" + kgr.getHasDataFileUri() + "]");
 
+        IngestionWorker.nameSpaceGen(dataFile, mapCatalog,templateFile);
+        
         // the template is needed to process individual sheets
         kgr.setTemplates(templateFile);
 
