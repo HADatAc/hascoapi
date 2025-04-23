@@ -112,7 +112,8 @@ public class KGRGenerator extends BaseGenerator {
 		// From ElementType
 		if (this.getElementType().equals("fundingscheme")) {
 			row.put("hasco:hascoType", SCHEMA.FUNDING_SCHEME);
-		} else if (this.getElementType().equals("project")) {
+		} else if (this.getElementType().equals("project") ||
+				   this.getElementType().equals("projectorganization")) {
 			row.put("hasco:hascoType", SCHEMA.PROJECT);
 		} else if (this.getElementType().equals("organization")) {
 			row.put("hasco:hascoType", SCHEMA.ORGANIZATION);
@@ -168,7 +169,11 @@ public class KGRGenerator extends BaseGenerator {
 			// POSTAL_ADDRESS
 			predicate.equals("schema:addressLocality") ||
 			predicate.equals("schema:addressRegion") || 
-			predicate.equals("schema:addressCountry")
+			predicate.equals("schema:addressCountry") ||
+
+			// PROJECT
+			predicate.equals("schema:contributor")
+
 		) {
 			return true;
 		}  

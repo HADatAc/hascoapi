@@ -142,6 +142,26 @@ public class AnnotateKGR {
             }
         }
 
+        System.out.println("AnnotateKGR.buildChain(): Build chain 7 of 8 - Adding project into generation chain");
+        String projectOrganizationSheet = mapCatalog.get("ProjectOrganizations");
+        if (projectSheet == null) {
+            System.out.println("[WARNING] 'ProjectOrganizations' sheet is missing.");
+            dataFile.getLogger().println("[WARNING] 'ProjectOrganizations' sheet is missing.");
+        } else {
+            projectOrganizationSheet.replace("#", "");
+            sheet = new SpreadsheetRecordFile(dataFile.getFile(), projectOrganizationSheet);
+            try {
+                DataFile dataFileForSheet = (DataFile)dataFile.clone();
+                dataFileForSheet.setRecordFile(sheet);
+                KGRGenerator projectOrganizationGen = new KGRGenerator("projectorganization", status, dataFileForSheet, hasMediaFolder);
+                projectOrganizationGen.setNamedGraphUri(dataFileForSheet.getUri());
+                chain.addGenerator(projectOrganizationGen);
+            } catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+            }
+        }
+
+
         System.out.println("AnnotateKGR.buildChain(): Build chain 8 of 8 - Adding funding scheme into generation chain");
         String fundingSchemeSheet = mapCatalog.get("FundingSchemes");
         if (fundingSchemeSheet == null) {
