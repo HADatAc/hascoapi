@@ -456,7 +456,7 @@ public class IngestionAPI extends Controller {
     
     }
 
-    public Result mtGenByStatus(String elementtype, String status, String filename) {
+    public Result mtGenByStatus(String elementtype, String status, String filename, String mediaFolder, String verifyUri) {
         if (elementtype == null || elementtype.isEmpty()) {
             String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() requires elementtype";
             System.out.println(errorMsg);
@@ -487,7 +487,7 @@ public class IngestionAPI extends Controller {
         return ok(ApiUtil.createResponse("", true));
     }
 
-    public Result mtGenByInstrument(String elementtype, String instrumenturi, String filename) {
+    public Result mtGenByInstrument(String elementtype, String instrumenturi, String filename, String mediaFolder, String verifyUri) {
         if (elementtype == null || elementtype.isEmpty()) {
             String errorMsg = "[ERROR] IngestionAPI.mtGenByInstrument() requires elementtype";
             System.out.println(errorMsg);
@@ -526,7 +526,7 @@ public class IngestionAPI extends Controller {
         }
     }
 
-    public Result mtGenByOrganization(String elementtype, String organizationuri, String filename) {
+    public Result mtGenByOrganization(String elementtype, String organizationuri, String filename, String mediaFolder, String verifyUri) {
         System.out.println("IngestionAPI.mtGenByOrganization() with organizationUri = " + organizationuri);
         if (elementtype == null || elementtype.isEmpty()) {
              String errorMsg = "[ERROR] IngestionAPI.mtGenByOrganization() requires elementtype";
@@ -566,7 +566,7 @@ public class IngestionAPI extends Controller {
          }
      }
  
-     public Result mtGenByProject(String elementtype, String projecturi, String filename) {
+     public Result mtGenByProject(String elementtype, String projecturi, String filename, String mediaFolder, String verifyUri) {
        System.out.println("IngestionAPI.mtGenByProject() with projectUri = " + projecturi);
        if (elementtype == null || elementtype.isEmpty()) {
             String errorMsg = "[ERROR] IngestionAPI.mtGenByProject() requires elementtype";
@@ -606,7 +606,7 @@ public class IngestionAPI extends Controller {
         }
     }
 
-    public Result mtGenByFundingScheme(String elementtype, String fundingschemeuri, String filename) {
+    public Result mtGenByFundingScheme(String elementtype, String fundingschemeuri, String filename, String mediaFolder, String verifyUri) {
         System.out.println("IngestionAPI.mtGenByFundingScheme() with fundingschemeUri = " + fundingschemeuri);
         if (elementtype == null || elementtype.isEmpty()) {
              String errorMsg = "[ERROR] IngestionAPI.mtGenByFundingScheme() requires elementtype";
@@ -646,7 +646,7 @@ public class IngestionAPI extends Controller {
          }
      }
  
-     public Result mtGenByManager(String elementtype, String useremail, String status, String filename) {
+     public Result mtGenByManager(String elementtype, String useremail, String status, String filename, String mediaFolder, String verifyUri) {
         if (elementtype == null || elementtype.isEmpty()) {
             String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() requires elementtype";
             System.out.println(errorMsg);

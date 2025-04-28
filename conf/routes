@@ -151,12 +151,12 @@ GET     /hascoapi/api/ingestion/:dataFileUri/log                                
 
 # MT GENERATION METHODS
 
-GET     /hascoapi/api/mt/gen/perstatus/:elementtype/:status/:filename               org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenByStatus(elementtype : String, status: String, filename: String)
-GET     /hascoapi/api/mt/gen/perinstrument/:elementtype/:instrumenturi/:filename    org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenByInstrument(elementtype : String, instrumenturi: String, filename: String)
-GET     /hascoapi/api/mt/gen/perfundingscheme/:elementtype/:fundingschemeuri/:filename          org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenByFundingScheme(elementtype : String, fundingschemeuri: String, filename: String)
-GET     /hascoapi/api/mt/gen/perproject/:elementtype/:projecturi/:filename          org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenByProject(elementtype : String, projecturi: String, filename: String)
-GET     /hascoapi/api/mt/gen/perorganization/:elementtype/:organizationuri/:filename            org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenByOrganization(elementtype : String, organizationuri: String, filename: String)
-GET     /hascoapi/api/mt/gen/peruser/:elementtype/:useremail/:status/:filename      org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenByManager(elementtype : String, useremail: String, status: String, filename: String)
+GET     /hascoapi/api/mt/gen/perstatus/:elementtype/:status/:filename/:mediafolder/:verifyuri               org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenByStatus(elementtype : String, status: String, filename: String, mediafolder : String, verifyuri : String)
+GET     /hascoapi/api/mt/gen/perinstrument/:elementtype/:instrumenturi/:filename/:mediafolder/:verifyuri    org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenByInstrument(elementtype : String, instrumenturi: String, filename: String, mediafolder : String, verifyuri : String)
+GET     /hascoapi/api/mt/gen/perfundingscheme/:elementtype/:fundingschemeuri/:filename/:mediafolder/:verifyuri          org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenByFundingScheme(elementtype : String, fundingschemeuri: String, filename: String, mediafolder : String, verifyuri : String)
+GET     /hascoapi/api/mt/gen/perproject/:elementtype/:projecturi/:filename/:mediafolder/:verifyuri          org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenByProject(elementtype : String, projecturi: String, filename: String, mediafolder : String, verifyuri : String)
+GET     /hascoapi/api/mt/gen/perorganization/:elementtype/:organizationuri/:filename/:mediafolder/:verifyuri            org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenByOrganization(elementtype : String, organizationuri: String, filename: String, mediafolder : String, verifyuri : String)
+GET     /hascoapi/api/mt/gen/peruser/:elementtype/:useremail/:status/:filename/:mediafolder/:verifyuri      org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenByManager(elementtype : String, useremail: String, status: String, filename: String, mediafolder : String, verifyuri : String)
 
 # REVIEWING METHODS 
 

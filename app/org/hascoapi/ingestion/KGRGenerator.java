@@ -28,6 +28,8 @@ public class KGRGenerator extends BaseGenerator {
 
 	protected String hasMediaFolder = "";
 
+	protected boolean verifyUri = false;
+
     private long timestamp;
 
 	final String kbPrefix = ConfigProp.getKbPrefix();
@@ -48,12 +50,21 @@ public class KGRGenerator extends BaseGenerator {
 		this.hasMediaFolder = hasMediaFolder;
 	}
 
-	public KGRGenerator(String elementType, String hasStatus, DataFile dataFile, String hasMediaFolder) {
+	public boolean getVerifyUri() {
+		return this.verifyUri;
+	}
+    
+	public void setVerifyUri(boolean verifyUri) {
+		this.verifyUri = verifyUri;
+	}
+
+	public KGRGenerator(String elementType, String hasStatus, DataFile dataFile, String hasMediaFolder, boolean verifyUri) {
 		super(dataFile);
 		this.setElementType(elementType);
 		this.setHasStatus(hasStatus);
 		this.setHasMediaFolder(hasMediaFolder);
-		System.out.println("KGRGenerator: mediaFolder [" + hasMediaFolder + "] for element type [" + elementType + "]");
+		this.setVerifyUri(verifyUri);
+		//System.out.println("KGRGenerator: mediaFolder [" + hasMediaFolder + "] for element type [" + elementType + "]");
 		this.timestamp = System.currentTimeMillis();
 
 	}
@@ -67,11 +78,11 @@ public class KGRGenerator extends BaseGenerator {
 		    if (!header.trim().isEmpty()) {
 		        String value = rec.getValueByColumnName(header);
 		        if (value != null && !value.isEmpty()) {
-					System.out.println("Header: [" + header + "] Value: [" + value + "]");
+					//System.out.println("Header: [" + header + "] Value: [" + value + "]");
 					UriHint uriHint = this.extractUriAndHint(header);
 					String possibleObjectProperty = uriHint.uri;
 					String hint = uriHint.hint;
-					System.out.println("PossibleObjectProperty: [" + possibleObjectProperty + "]   Hint: [" + hint + "]");
+					//System.out.println("PossibleObjectProperty: [" + possibleObjectProperty + "]   Hint: [" + hint + "]");
 
 					// the property is an URI
 					if (this.isHeaderOfUri(possibleObjectProperty)) {
@@ -80,7 +91,7 @@ public class KGRGenerator extends BaseGenerator {
 						if (value != null && URIUtils.isValidURI(value)) {
 							String fullUri = URIUtils.replacePrefixEx(value);
 							//System.out.println("Value: [" + value + "]    FullUri: [" + fullUri + "]");
-							if (this.uriExists(possibleObjectProperty,fullUri)) {
+							if (!this.getVerifyUri() || this.uriExists(possibleObjectProperty,fullUri)) {
 								row.put(possibleObjectProperty, fullUri);
 							}
 	

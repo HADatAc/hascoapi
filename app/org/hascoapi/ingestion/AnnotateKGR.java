@@ -43,6 +43,23 @@ public class AnnotateKGR {
             hasMediaFolder = mapCatalog.get("hasMediaFolder");
         }
 
+        String rawVerifyUri = null;
+        boolean verifyUri = true;
+        if (mapCatalog.get("verifyUri") != null) {
+            rawVerifyUri = mapCatalog.get("verifyUri").toLowerCase();
+            if (rawVerifyUri.equals("true")) {
+                verifyUri = true;
+            } else if (rawVerifyUri.equals("false")) {
+                verifyUri = false;
+            } else {
+                dataFile.getLogger().printException("VerifyUri parameter in KGR must be `true` or `false`.");
+                return null;
+            }
+        } else {
+            dataFile.getLogger().printException("KGR file is missing verifyUri parameter.");
+            return null;
+        }
+
         System.out.println("AnnotateKGR.buildChain(): Build chain 2 of 9 - Creating empty generator chain");
 
         GeneratorChain chain = new GeneratorChain();
@@ -60,7 +77,7 @@ public class AnnotateKGR {
             try {
                 DataFile dataFileForSheet = (DataFile)dataFile.clone();
                 dataFileForSheet.setRecordFile(sheet);
-                KGRGenerator placeGen = new KGRGenerator("place", status, dataFileForSheet, hasMediaFolder);
+                KGRGenerator placeGen = new KGRGenerator("place", status, dataFileForSheet, hasMediaFolder, verifyUri);
                 placeGen.setNamedGraphUri(dataFileForSheet.getUri());
                 chain.addGenerator(placeGen);
             } catch (CloneNotSupportedException e) {
@@ -79,7 +96,7 @@ public class AnnotateKGR {
             try {
                 DataFile dataFileForSheet = (DataFile)dataFile.clone();
                 dataFileForSheet.setRecordFile(sheet);
-                KGRGenerator postalAddressGen = new KGRGenerator("postaladdress", status, dataFileForSheet, hasMediaFolder);
+                KGRGenerator postalAddressGen = new KGRGenerator("postaladdress", status, dataFileForSheet, hasMediaFolder, verifyUri);
                 postalAddressGen.setNamedGraphUri(dataFileForSheet.getUri());
                 chain.addGenerator(postalAddressGen);
             } catch (CloneNotSupportedException e) {
@@ -98,7 +115,7 @@ public class AnnotateKGR {
             try {
                 DataFile dataFileForSheet = (DataFile)dataFile.clone();
                 dataFileForSheet.setRecordFile(sheet);
-                KGRGenerator organizationGen = new KGRGenerator("organization", status, dataFileForSheet, hasMediaFolder);
+                KGRGenerator organizationGen = new KGRGenerator("organization", status, dataFileForSheet, hasMediaFolder, verifyUri);
                 organizationGen.setNamedGraphUri(dataFileForSheet.getUri());
                 chain.addGenerator(organizationGen);
             } catch (CloneNotSupportedException e) {
@@ -117,7 +134,7 @@ public class AnnotateKGR {
             try {
                 DataFile dataFileForSheet = (DataFile)dataFile.clone();
                 dataFileForSheet.setRecordFile(sheet);
-                KGRGenerator personGen = new KGRGenerator("person", status, dataFileForSheet, hasMediaFolder);
+                KGRGenerator personGen = new KGRGenerator("person", status, dataFileForSheet, hasMediaFolder, verifyUri);
                 personGen.setNamedGraphUri(dataFileForSheet.getUri());
                 chain.addGenerator(personGen);
             } catch (CloneNotSupportedException e) {
@@ -136,7 +153,7 @@ public class AnnotateKGR {
             try {
                 DataFile dataFileForSheet = (DataFile)dataFile.clone();
                 dataFileForSheet.setRecordFile(sheet);
-                KGRGenerator projectGen = new KGRGenerator("project", status, dataFileForSheet, hasMediaFolder);
+                KGRGenerator projectGen = new KGRGenerator("project", status, dataFileForSheet, hasMediaFolder, verifyUri);
                 projectGen.setNamedGraphUri(dataFileForSheet.getUri());
                 chain.addGenerator(projectGen);
             } catch (CloneNotSupportedException e) {
@@ -155,7 +172,7 @@ public class AnnotateKGR {
             try {
                 DataFile dataFileForSheet = (DataFile)dataFile.clone();
                 dataFileForSheet.setRecordFile(sheet);
-                KGRGenerator projectOrganizationGen = new KGRGenerator("projectorganization", status, dataFileForSheet, hasMediaFolder);
+                KGRGenerator projectOrganizationGen = new KGRGenerator("projectorganization", status, dataFileForSheet, hasMediaFolder, verifyUri);
                 projectOrganizationGen.setNamedGraphUri(dataFileForSheet.getUri());
                 chain.addGenerator(projectOrganizationGen);
             } catch (CloneNotSupportedException e) {
@@ -174,7 +191,7 @@ public class AnnotateKGR {
             try {
                 DataFile dataFileForSheet = (DataFile)dataFile.clone();
                 dataFileForSheet.setRecordFile(sheet);
-                KGRGenerator fundingSchemeGen = new KGRGenerator("fundingscheme", status, dataFileForSheet, hasMediaFolder);
+                KGRGenerator fundingSchemeGen = new KGRGenerator("fundingscheme", status, dataFileForSheet, hasMediaFolder, verifyUri);
                 fundingSchemeGen.setNamedGraphUri(dataFileForSheet.getUri());
                 chain.addGenerator(fundingSchemeGen);
             } catch (CloneNotSupportedException e) {
