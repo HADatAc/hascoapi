@@ -171,7 +171,8 @@ public class Task extends HADatAcThing implements Comparable<Task> {
         return this.hasSubtaskUris;
     }
 
-    public List<Task> getSubtask() {
+    /* 
+    public List<Task> getSubtasks() {
         List<Task> resp = new ArrayList<Task>();
         if (hasSubtaskUris == null || hasSubtaskUris.size() <= 0) {
             return resp;
@@ -184,6 +185,7 @@ public class Task extends HADatAcThing implements Comparable<Task> {
         }
         return resp;
     }
+    */
 
     public static Task find(String uri) {
  		if (uri == null || uri.isEmpty()) {
