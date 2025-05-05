@@ -167,6 +167,10 @@ public class Task extends HADatAcThing implements Comparable<Task> {
         this.hasSubtaskUris.add(hasSubtaskUri);
     }
 
+    public List<String> getHasSubtaskUris() {
+        return this.hasSubtaskUris;
+    }
+
     public List<Task> getSubtask() {
         List<Task> resp = new ArrayList<Task>();
         if (hasSubtaskUris == null || hasSubtaskUris.size() <= 0) {
@@ -264,6 +268,13 @@ public class Task extends HADatAcThing implements Comparable<Task> {
     @Override
     public void save() {
         saveToTripleStore();
+        if (this.hasSupertaskUri != null && !this.hasSupertaskUri.isEmpty()) {
+            Task superTask = Task.find(this.hasSupertaskUri);
+            if (superTask != null && !superTask.getHasSubtaskUris().contains(this.uri)) {
+                superTask.addHasSubtaskUri(this.uri);
+                superTask.save();
+            }
+        }
     }
 
     @Override
