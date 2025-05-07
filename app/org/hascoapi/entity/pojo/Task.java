@@ -293,6 +293,10 @@ public class Task extends HADatAcThing implements Comparable<Task> {
 
     @Override
     public void delete() {
+        deleteFromTripleStore();
+    }
+
+    public void deleteWithSubtasks() {
         if (this.getHasSubtaskUris() != null && this.getHasSubtaskUris().size() > 0) {
             for (String subtaskUri : this.getHasSubtaskUris()) {
                 Task subtask = Task.find(subtaskUri);
