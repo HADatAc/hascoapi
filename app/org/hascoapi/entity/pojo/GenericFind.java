@@ -623,7 +623,7 @@ public class GenericFind<T> {
      *     FIND ELEMENTS BY KEYWORD AND LANGUAGE (AND THEIR TOTALS) WITH PAHES
      */
 
-    public static <T> List<T> findByKeywordAndLanguageWithPages(Class clazz, String keyword, String language, int pageSize, int offset) {
+    public static <T> List<T> findByKeywordAndLanguageWithPages(Class clazz, String keyword, String language, String type, String manageremail, String status, int pageSize, int offset) {
         if (clazz == null) {
             return null;
         }
@@ -638,9 +638,9 @@ public class GenericFind<T> {
         //    return findDetectorInstancesByKeywordAndLanguageWithPages(clazz, hascoType, keyword, language, pageSize, offset);
         //} else 
         if (isSIR(clazz)) {
-            return findSIRElementsByKeywordAndLanguageWithPages(clazz, hascoType, keyword, language, pageSize, offset);
+            return findSIRElementsByKeywordAndLanguageWithPages(clazz, hascoType, keyword, language, type, manageremail, status, pageSize, offset);
         } else {
-            return findElementsByKeywordAndLanguageWithPages(clazz, hascoType, keyword, language, pageSize, offset);
+            return findElementsByKeywordAndLanguageWithPages(clazz, hascoType, keyword, language, type, manageremail, status, pageSize, offset);
         }
     }
 
@@ -671,7 +671,7 @@ public class GenericFind<T> {
 	}
     */
 
-	public static <T> List<T> findSIRElementsByKeywordAndLanguageWithPages(Class clazz, String hascoType, String keyword, String language, int pageSize, int offset) {
+	public static <T> List<T> findSIRElementsByKeywordAndLanguageWithPages(Class clazz, String hascoType, String keyword, String language, String type, String manageremail, String status, int pageSize, int offset) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
 		queryString += " SELECT ?uri WHERE { " +
 				//" ?type rdfs:subClassOf* " + className + " . " +
@@ -680,6 +680,15 @@ public class GenericFind<T> {
 		if (!language.isEmpty()) {
 			queryString += " ?uri vstoi:hasLanguage ?language . ";
 		}
+		if (type != null && !type.isEmpty()) {
+			queryString += " ?uri rdf:type <" + type + "> . ";
+		}
+		if (manageremail != null && !manageremail.isEmpty()) {
+			queryString += " ?uri vstoi:hasSIRManagerEmail ?managerEmail . ";
+        }
+        if (status != null && !status.isEmpty()) {
+			queryString += "  ?uri vstoi:hasStatus <" + status + "> . ";
+        }
 		queryString += " OPTIONAL { ?uri vstoi:hasContent ?content . } ";
 		if (!keyword.isEmpty() && !language.isEmpty()) {
 			queryString += "   FILTER (regex(?content, \"" + keyword + "\", \"i\") && (?language = \"" + language + "\")) ";
@@ -688,6 +697,9 @@ public class GenericFind<T> {
 		} else if (!language.isEmpty()) {
 			queryString += "   FILTER ((?language = \"" + language + "\")) ";
 		}
+        if (manageremail != null && !manageremail.isEmpty()) {
+	        queryString += "   FILTER (?managerEmail = \"" + manageremail + "\") ";
+        }
 		queryString += "} " +
                 " ORDER BY ASC(?content) " +
 				" LIMIT " + pageSize +
@@ -696,7 +708,7 @@ public class GenericFind<T> {
 		return findByQuery(clazz, queryString);
 	}
 
-	public static <T> List<T> findElementsByKeywordAndLanguageWithPages(Class clazz, String hascoType, String keyword, String language, int pageSize, int offset) {
+	public static <T> List<T> findElementsByKeywordAndLanguageWithPages(Class clazz, String hascoType, String keyword, String language, String type, String manageremail, String status, int pageSize, int offset) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
 		queryString += " SELECT ?uri WHERE { " +
 				//" ?type rdfs:subClassOf* " + className + " . " +
@@ -705,6 +717,15 @@ public class GenericFind<T> {
 		if (!language.isEmpty()) {
 			queryString += " ?uri vstoi:hasLanguage ?language . ";
 		}
+		if (type != null && !type.isEmpty()) {
+			queryString += " ?uri rdf:type <" + type + "> . ";
+		}
+		if (manageremail != null && !manageremail.isEmpty()) {
+			queryString += " ?uri vstoi:hasSIRManagerEmail ?managerEmail . ";
+        }
+        if (status != null && !status.isEmpty()) {
+			queryString += "  ?uri vstoi:hasStatus <" + status + "> . ";
+        }
 		queryString += " OPTIONAL { ?uri rdfs:label ?label . } ";
 		if (!keyword.isEmpty() && !language.isEmpty()) {
 			queryString += "   FILTER (regex(?label, \"" + keyword + "\", \"i\") && (?language = \"" + language + "\")) ";
@@ -713,6 +734,9 @@ public class GenericFind<T> {
 		} else if (!language.isEmpty()) {
 			queryString += "   FILTER ((?language = \"" + language + "\")) ";
 		}
+        if (manageremail != null && !manageremail.isEmpty()) {
+	        queryString += "   FILTER (?managerEmail = \"" + manageremail + "\") ";
+        }
 		queryString += "} " +
                 " ORDER BY ASC(?label) " +
 				" LIMIT " + pageSize +
@@ -744,7 +768,7 @@ public class GenericFind<T> {
 	}
     */
 
-	public static int findTotalByKeywordAndLanguage(Class clazz, String keyword, String language) {
+	public static int findTotalByKeywordAndLanguage(Class clazz, String keyword, String language, String type, String manageremail, String status) {
         String hascoType = classNameWithNamespace(clazz);
         if (hascoType == null) {
             hascoType = superclassNameWithNamespace(clazz);
@@ -763,6 +787,15 @@ public class GenericFind<T> {
 		if (!keyword.isEmpty()) {
 			queryString += " ?uri rdfs:label ?label . ";
 		}
+		if (type != null && !type.isEmpty()) {
+			queryString += " ?uri rdf:type <" + type + "> . ";
+		}
+		if (manageremail != null && !manageremail.isEmpty()) {
+			queryString += " ?uri vstoi:hasSIRManagerEmail ?managerEmail . ";
+        }
+        if (status != null && !status.isEmpty()) {
+			queryString += "  ?uri vstoi:hasStatus <" + status + "> . ";
+        }
 		if (!keyword.isEmpty() && !language.isEmpty()) {
 			queryString += "   FILTER (regex(?label, \"" + keyword + "\", \"i\") && (?language = \"" + language + "\")) ";
 		} else if (!keyword.isEmpty()) {
@@ -770,6 +803,9 @@ public class GenericFind<T> {
 		} else if (!language.isEmpty()) {
 			queryString += "   FILTER ((?language = \"" + language + "\")) ";
 		}
+        if (manageremail != null && !manageremail.isEmpty()) {
+	        queryString += "   FILTER (?managerEmail = \"" + manageremail + "\") ";
+        }
 		queryString += "}";
         return findTotalByQuery(queryString);
 	}

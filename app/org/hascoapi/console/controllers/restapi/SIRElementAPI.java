@@ -1110,84 +1110,102 @@ public class SIRElementAPI extends Controller {
      *   GET ELEMENTS BY KEYWORD AND LANGUAGE WITH PAGE
      */
                 
-    public Result getElementsByKeywordAndLanguageWithPage(String elementType, String keyword, String language, int pageSize, int offset) {
+    public Result getElementsByKeywordAndLanguageWithPage(String elementType, String keyword, String language, String type, String manageremail, String status, int pageSize, int offset) {
         if (keyword.equals("_")) {
             keyword = "";
         }
         if (language.equals("_")) {
             language = "";
         }
-        if (elementType.equals("instrument")) {
-            GenericFind<Instrument> query = new GenericFind<Instrument>();
-            List<Instrument> results = query.findByKeywordAndLanguageWithPages(Instrument.class, keyword, language, pageSize, offset);
-            return InstrumentAPI.getInstruments(results);
-        } else if (elementType.equals("detectorstem")) {
-            GenericFind<DetectorStem> query = new GenericFind<DetectorStem>();
-            List<DetectorStem> results = query.findByKeywordAndLanguageWithPages(DetectorStem.class, keyword, language, pageSize, offset);
-            return DetectorStemAPI.getDetectorStems(results);
-        } else if (elementType.equals("detector")) {
-            GenericFind<Detector> query = new GenericFind<Detector>();
-            List<Detector> results = query.findByKeywordAndLanguageWithPages(Detector.class, keyword, language, pageSize, offset);
-            return DetectorAPI.getDetectors(results);
-        } else if (elementType.equals("codebook")) {
-            GenericFind<Codebook> query = new GenericFind<Codebook>();
-            List<Codebook> results = query.findByKeywordAndLanguageWithPages(Codebook.class, keyword, language, pageSize, offset);
-            return CodebookAPI.getCodebooks(results);
-        } else if (elementType.equals("responseoption")) {
-            GenericFind<ResponseOption> query = new GenericFind<ResponseOption>();
-            List<ResponseOption> results = query.findByKeywordAndLanguageWithPages(ResponseOption.class, keyword, language, pageSize, offset);
-            return ResponseOptionAPI.getResponseOptions(results);
-        } else if (elementType.equals("annotationstem")) {
-            GenericFind<AnnotationStem> query = new GenericFind<AnnotationStem>();
-            List<AnnotationStem> results = query.findByKeywordAndLanguageWithPages(AnnotationStem.class, keyword, language, pageSize, offset);
-            return AnnotationStemAPI.getAnnotationStems(results);
+        if (type.equals("_")) {
+            type = "";
+        }
+        if (manageremail.equals("_")) {
+            manageremail = "";
+        }
+        if (status.equals("_")) {
+            status = "";
+        }
+        if (elementType.equals("actuator")) {
+            GenericFind<Actuator> query = new GenericFind<Actuator>();
+            List<Actuator> results = query.findByKeywordAndLanguageWithPages(Actuator.class, keyword, language, type, manageremail, status, pageSize, offset);
+            return ActuatorAPI.getActuators(results);
+        } else if (elementType.equals("actuatorstem")) {
+            GenericFind<ActuatorStem> query = new GenericFind<ActuatorStem>();
+            List<ActuatorStem> results = query.findByKeywordAndLanguageWithPages(ActuatorStem.class, keyword, language, type, manageremail, status, pageSize, offset);
+            return ActuatorStemAPI.getActuatorStems(results);
         } else if (elementType.equals("annotation")) {
             GenericFind<Annotation> query = new GenericFind<Annotation>();
-            List<Annotation> results = query.findByKeywordAndLanguageWithPages(Annotation.class, keyword, language, pageSize, offset);
+            List<Annotation> results = query.findByKeywordAndLanguageWithPages(Annotation.class, keyword, language, type, manageremail, status, pageSize, offset);
             return AnnotationAPI.getAnnotations(results);
-        } else if (elementType.equals("semanticvariable")) {
-            GenericFind<SemanticVariable> query = new GenericFind<SemanticVariable>();
-            List<SemanticVariable> results = query.findByKeywordAndLanguageWithPages(SemanticVariable.class, keyword, language, pageSize, offset);
-            return SemanticVariableAPI.getSemanticVariables(results);
-        } else if (elementType.equals("entity")) {
-            GenericFind<Entity> query = new GenericFind<Entity>();
-            List<Entity> results = query.findByKeywordAndLanguageWithPages(Entity.class, keyword, language, pageSize, offset);
-            return EntityAPI.getEntities(results);
+        } else if (elementType.equals("annotationstem")) {
+            GenericFind<AnnotationStem> query = new GenericFind<AnnotationStem>();
+            List<AnnotationStem> results = query.findByKeywordAndLanguageWithPages(AnnotationStem.class, keyword, language, type, manageremail, status, pageSize, offset);
+            return AnnotationStemAPI.getAnnotationStems(results);
         }  else if (elementType.equals("attribute")) {
             GenericFind<Attribute> query = new GenericFind<Attribute>();
-            List<Attribute> results = query.findByKeywordAndLanguageWithPages(Attribute.class, keyword, language, pageSize, offset);
+            List<Attribute> results = query.findByKeywordAndLanguageWithPages(Attribute.class, keyword, language, type, manageremail, status, pageSize, offset);
             return AttributeAPI.getAttributes(results);
-        }  else if (elementType.equals("unit")) {
-            GenericFind<Unit> query = new GenericFind<Unit>();
-            List<Unit> results = query.findByKeywordAndLanguageWithPages(Unit.class, keyword, language, pageSize, offset);
-            return UnitAPI.getUnits(results);
+        } else if (elementType.equals("codebook")) {
+            GenericFind<Codebook> query = new GenericFind<Codebook>();
+            List<Codebook> results = query.findByKeywordAndLanguageWithPages(Codebook.class, keyword, language, type, manageremail, status, pageSize, offset);
+            return CodebookAPI.getCodebooks(results);
+        } else if (elementType.equals("detector")) {
+            GenericFind<Detector> query = new GenericFind<Detector>();
+            List<Detector> results = query.findByKeywordAndLanguageWithPages(Detector.class, keyword, language, type, manageremail, status, pageSize, offset);
+            return DetectorAPI.getDetectors(results);
+        } else if (elementType.equals("detectorstem")) {
+            GenericFind<DetectorStem> query = new GenericFind<DetectorStem>();
+            List<DetectorStem> results = query.findByKeywordAndLanguageWithPages(DetectorStem.class, keyword, language, type, manageremail, status, pageSize, offset);
+            return DetectorStemAPI.getDetectorStems(results);
+        } else if (elementType.equals("entity")) {
+            GenericFind<Entity> query = new GenericFind<Entity>();
+            List<Entity> results = query.findByKeywordAndLanguageWithPages(Entity.class, keyword, language, type, manageremail, status, pageSize, offset);
+            return EntityAPI.getEntities(results);
+        } else if (elementType.equals("instrument")) {
+            GenericFind<Instrument> query = new GenericFind<Instrument>();
+            List<Instrument> results = query.findByKeywordAndLanguageWithPages(Instrument.class, keyword, language, type, manageremail, status, pageSize, offset);
+            return InstrumentAPI.getInstruments(results);
         }  else if (elementType.equals("process")) {
             GenericFind<org.hascoapi.entity.pojo.Process> query = new GenericFind<org.hascoapi.entity.pojo.Process>();
-            List<org.hascoapi.entity.pojo.Process> results = query.findByKeywordAndLanguageWithPages(org.hascoapi.entity.pojo.Process.class, keyword, language, pageSize, offset);
+            List<org.hascoapi.entity.pojo.Process> results = query.findByKeywordAndLanguageWithPages(org.hascoapi.entity.pojo.Process.class, keyword, language, type, manageremail, status, pageSize, offset);
             return ProcessAPI.getProcesses(results);
         }  else if (elementType.equals("processstem")) {
             GenericFind<ProcessStem> query = new GenericFind<ProcessStem>();
-            List<ProcessStem> results = query.findByKeywordAndLanguageWithPages(ProcessStem.class, keyword, language, pageSize, offset);
+            List<ProcessStem> results = query.findByKeywordAndLanguageWithPages(ProcessStem.class, keyword, language, type, manageremail, status, pageSize, offset);
             return ProcessAPI.getProcessStems(results);
-        } else if (elementType.equals("actuatorstem")) {
-            GenericFind<ActuatorStem> query = new GenericFind<ActuatorStem>();
-            List<ActuatorStem> results = query.findByKeywordAndLanguageWithPages(ActuatorStem.class, keyword, language, pageSize, offset);
-            return ActuatorStemAPI.getActuatorStems(results);
-        } else if (elementType.equals("actuator")) {
-            GenericFind<Actuator> query = new GenericFind<Actuator>();
-            List<Actuator> results = query.findByKeywordAndLanguageWithPages(Actuator.class, keyword, language, pageSize, offset);
-            return ActuatorAPI.getActuators(results);
+        } else if (elementType.equals("responseoption")) {
+            GenericFind<ResponseOption> query = new GenericFind<ResponseOption>();
+            List<ResponseOption> results = query.findByKeywordAndLanguageWithPages(ResponseOption.class, keyword, language, type, manageremail, status, pageSize, offset);
+            return ResponseOptionAPI.getResponseOptions(results);
+        } else if (elementType.equals("semanticvariable")) {
+            GenericFind<SemanticVariable> query = new GenericFind<SemanticVariable>();
+            List<SemanticVariable> results = query.findByKeywordAndLanguageWithPages(SemanticVariable.class, keyword, language, type, manageremail, status, pageSize, offset);
+            return SemanticVariableAPI.getSemanticVariables(results);
+        }  else if (elementType.equals("unit")) {
+            GenericFind<Unit> query = new GenericFind<Unit>();
+            List<Unit> results = query.findByKeywordAndLanguageWithPages(Unit.class, keyword, language, type, manageremail, status, pageSize, offset);
+            return UnitAPI.getUnits(results);
         } 
         return ok("[getElementsByKeywordAndLanguageWithPage] No valid element type.");
     }
 
-    public Result getTotalElementsByKeywordAndLanguage(String elementType, String keyword, String language) {
+    public Result getTotalElementsByKeywordAndLanguage(String elementType, String keyword, String language, String type, String manageremail, String status) {
         //System.out.println("ElementType: " + elementType);
         if (keyword.equals("_")) {
             keyword = "";
         }
         if (language.equals("_")) {
             language = "";
+        }
+        if (type.equals("_")) {
+            type = "";
+        }
+        if (manageremail.equals("_")) {
+            manageremail = "";
+        }
+        if (status.equals("_")) {
+            status = "";
         }
         if (elementType == null || elementType.isEmpty()) {
             return ok(ApiUtil.createResponse("No elementType has been provided", false));
@@ -1196,7 +1214,7 @@ public class SIRElementAPI extends Controller {
         if (clazz == null) {        
             return ok(ApiUtil.createResponse("[" + elementType + "] is not a valid elementType", false));
         }
-        int totalElements = GenericFind.findTotalByKeywordAndLanguage(clazz, keyword, language);
+        int totalElements = GenericFind.findTotalByKeywordAndLanguage(clazz, keyword, language, type, manageremail, status);
         if (totalElements >= 0) {
             String totalElementsJSON = "{\"total\":" + totalElements + "}";
             return ok(ApiUtil.createResponse(totalElementsJSON, true));
