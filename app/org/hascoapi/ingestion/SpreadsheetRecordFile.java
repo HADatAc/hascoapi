@@ -70,6 +70,12 @@ public class SpreadsheetRecordFile implements RecordFile {
             Workbook workbook = WorkbookFactory.create(new FileInputStream(file));
             numberOfSheets = workbook.getNumberOfSheets();
             
+            //if (numberOfSheets > 0) {
+            //    for (int aux = 0; aux < numberOfSheets; aux++) {
+            //        Sheet sheet = workbook.getSheetAt(aux);
+            //        System.out.println("Sheet " + aux + ": " + sheet.getSheetName());
+            //    }
+            //}
             Sheet sheet = null;
             if (sheetName.isEmpty()) {
                 sheet = workbook.getSheetAt(0);

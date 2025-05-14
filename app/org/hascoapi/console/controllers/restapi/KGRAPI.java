@@ -22,7 +22,7 @@ public class KGRAPI extends Controller {
         if (results == null) {
             return ok(ApiUtil.createResponse("No KGR has been found", false));
         } else {
-            ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL,HASCO.KNOWLEDGE_GRAPH);
+            ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL,HASCO.KGR);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));
         }

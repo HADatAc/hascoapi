@@ -271,6 +271,8 @@ public class Detector extends Component  {
                     }
 				} else if (predicate.equals(VSTOI.HAS_REVIEW_NOTE)) {
 					detector.setHasReviewNote(object);
+				} else if (predicate.equals(VSTOI.HAS_MAKER)) {
+					detector.setHasMakerUri(object);
 				} else if (predicate.equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
 					detector.setHasSIRManagerEmail(object);
 				} else if (predicate.equals(VSTOI.HAS_EDITOR_EMAIL)) {

@@ -6,7 +6,7 @@ import org.hascoapi.entity.pojo.PostalAddress;
 import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.entity.pojo.NameSpace;
 import org.hascoapi.utils.URIUtils;
-import org.hascoapi.vocabularies.FOAF;
+import org.hascoapi.vocabularies.SCHEMA;
 import org.hascoapi.vocabularies.VSTOI;
 import org.hascoapi.utils.ConfigProp;
 import org.hascoapi.utils.IngestionLogger;
@@ -31,12 +31,14 @@ public class PersonGenerator extends BaseGenerator {
 	private static final Logger log = LoggerFactory.getLogger(PVGenerator.class);
     private long timestamp;
 	private String managerEmail;
+	private String status;
 	final String kbPrefix = ConfigProp.getKbPrefix();
 	String startTime = "";
     protected IngestionLogger logger = null;
 
-	public PersonGenerator(DataFile dataFile, String templateFile, String managerEmail) {
+	public PersonGenerator(DataFile dataFile, String status, String templateFile, String managerEmail) {
 		super(dataFile, null, templateFile);
+		this.status = status;
 		this.logger = dataFile.getLogger();
 		this.managerEmail = managerEmail;
 	}
@@ -138,7 +140,7 @@ public class PersonGenerator extends BaseGenerator {
 		Map<String, Object> row = new HashMap<String, Object>();
 		row.put("hasURI", createPersonUri());
 		row.put("hasco:hasOriginalID", URIUtils.replaceNameSpaceEx(getOriginalID(rec)));
-		row.put("hasco:hascoType", FOAF.PERSON);
+		row.put("hasco:hascoType", SCHEMA.PERSON);
 		row.put("a", URIUtils.replaceNameSpaceEx(getType(rec)));		
 		row.put("rdfs:label", getGivenName(rec) + " " + getFamilyName(rec));
 		row.put("foaf:name", getGivenName(rec) + " " + getFamilyName(rec));
@@ -150,7 +152,9 @@ public class PersonGenerator extends BaseGenerator {
 		row.put("schema:jobTitle", getJobTitle(rec));
 		row.put("foaf:member", getHasAffiliationUri(rec));
 		row.put("schema:address", getAddress(rec));
+		row.put("vstoi:hasStatus", URIUtils.replaceNameSpaceEx(status));
 		row.put("vstoi:hasSIRManagerEmail", managerEmail);
+		row.put("vstoi:hasStatus", status);
 		return row;
 	}
 

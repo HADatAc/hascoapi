@@ -88,7 +88,10 @@ public class VSTOI {
     public static final String HAS_INFORMANT                = VSTOI + "hasInformant";
     public static final String HAS_INSTRUMENT_INSTANCE      = VSTOI + "hasInstrumentInstance";
     public static final String HAS_LANGUAGE                 = VSTOI + "hasLanguage";
+    public static final String HAS_MAINTAINER               = VSTOI + "hasMaintainer";
+    public static final String HAS_MAKER                    = VSTOI + "hasMaker";
     public static final String HAS_NEXT                     = VSTOI + "hasNext";
+    public static final String HAS_OWNER                    = VSTOI + "hasOwner";
     public static final String HAS_PREVIOUS                 = VSTOI + "hasPrevious";
     public static final String HAS_POSITION                 = VSTOI + "hasPosition";
     public static final String HAS_PRIORITY                 = VSTOI + "hasPriority";

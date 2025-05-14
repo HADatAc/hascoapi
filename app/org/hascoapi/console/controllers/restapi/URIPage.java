@@ -176,17 +176,19 @@ public class URIPage extends Controller {
                 finalResult = DSG.find(uri);
             } else if (result.getHascoTypeUri().equals(SIO.ENTITY)) {
                 finalResult = Entity.find(uri);
+            } else if (result.getHascoTypeUri().equals(SCHEMA.FUNDING_SCHEME)) {
+                finalResult = FundingScheme.find(uri);
             } else if (result.getHascoTypeUri().equals(HASCO.INS)) {
                 finalResult = INS.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.INSTRUMENT)) {
                 finalResult = Instrument.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.INSTRUMENT_INSTANCE)) {
                 finalResult = InstrumentInstance.find(uri);
-            } else if (result.getHascoTypeUri().equals(HASCO.KNOWLEDGE_GRAPH)) {
+            } else if (result.getHascoTypeUri().equals(HASCO.KGR)) {
                 finalResult = KGR.find(uri);
-            } else if (result.getHascoTypeUri().equals(FOAF.ORGANIZATION)) {
+            } else if (result.getHascoTypeUri().equals(SCHEMA.ORGANIZATION)) {
                 finalResult = Organization.find(uri);
-            } else if (result.getHascoTypeUri().equals(FOAF.PERSON)) {
+            } else if (result.getHascoTypeUri().equals(SCHEMA.PERSON)) {
                 finalResult = Person.find(uri);
             } else if (result.getHascoTypeUri().equals(SCHEMA.PLACE)) {
                 finalResult = Place.find(uri);
@@ -202,6 +204,8 @@ public class URIPage extends Controller {
                 finalResult = org.hascoapi.entity.pojo.Process.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.PROCESS_STEM)) {
                 finalResult = ProcessStem.find(uri);
+            } else if (result.getHascoTypeUri().equals(SCHEMA.PROJECT)) {
+                finalResult = Project.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.REQUIRED_INSTRUMENTATION)) {
                 finalResult = RequiredInstrumentation.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.RESPONSE_OPTION)) {

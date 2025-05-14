@@ -16,7 +16,7 @@ public class HASCO {
     public static final String DSG                                    = "http://hadatac.org/ont/hasco/DSG";
     public static final String HASCO_CLASS                            = "http://hadatac.org/ont/hasco/HascoClass";
     public static final String INS                                    = "http://hadatac.org/ont/hasco/INS";
-    public static final String KNOWLEDGE_GRAPH                        = "http://hadatac.org/ont/hasco/KnowledgeGraph";
+    public static final String KGR                                    = "http://hadatac.org/ont/hasco/KGR";
     public static final String LOCATION_COLLECTION                    = "http://hadatac.org/ont/hasco/LocationCollection";
     public static final String MANAGED_ONTOLOGY                       = "http://hadatac.org/ont/hasco/ManagedOntology";
     public static final String MATCHING_COLLECTION                    = "http://hadatac.org/ont/hasco/MatchingCollection";

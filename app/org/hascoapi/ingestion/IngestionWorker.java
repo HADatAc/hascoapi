@@ -51,11 +51,6 @@ public class IngestionWorker {
         System.out.println("Processing file with filename: " + dataFile.getFilename());
         System.out.println("Processing file with URI: " + dataFile.getUri());
 
-        String studyUri = "";
-        if (dataFile.getFilename().contains("DSG-")) {
-            studyUri = dataFile.getUri().replace("DF","ST");
-        }
-
         dataFile.setLastProcessTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
         dataFile.getLogger().resetLog();
         dataFile.save();
@@ -83,6 +78,18 @@ public class IngestionWorker {
         }
 
         dataFile.setRecordFile(recordFile);
+
+        // Setting study URI from dataFile
+        String studyUri = "";
+        if (dataFile.getFilename().contains("DSG-")) {
+            // Getting study URI from InfoSheet
+            studyUri = getStudyUri(dataFile);
+
+            // Getting study URI from InfoSheet
+            if (studyUri == "" || studyUri == null) {
+                studyUri = dataFile.getUri().replace("DF", "ST");
+            }
+        }
 
         boolean bSucceed = false;
         GeneratorChain chain = getGeneratorChain(dataFile, templateFile, status);
@@ -144,14 +151,16 @@ public class IngestionWorker {
             chain = annotateDP2File(dataFile, templateFile);
 
         } else if (fileName.startsWith("INS-")) {
-            chain = annotateINSFile(dataFile, templateFile, status);
+            chain = AnnotateINS.exec(dataFile, templateFile, status);
+
+        } else if (fileName.startsWith("KGR-")) {
+            chain = AnnotateKGR.exec(dataFile, templateFile, status);
 
         } else if (fileName.startsWith("STR-")) {
-            //checkSTRFile(dataFile);
-            chain = annotateSTRFile(dataFile, templateFile);
+            chain = AnnotateSTR.exec(dataFile, templateFile);
 
         } else if (fileName.startsWith("SDD-")) {
-            chain = annotateSDDFile(dataFile, templateFile);
+            chain = AnnotateSDD.exec(dataFile, templateFile);
 
         } else if (fileName.startsWith("DOI-")) {
             chain = annotateDOIFile(dataFile);
@@ -191,9 +200,9 @@ public class IngestionWorker {
     }
     */
 
-    /*===========================================================================================*
-     *                                  METADATA TEMPLATE ANNOTATORS                             *
-     *===========================================================================================*/
+    /*========================================================================*
+     *                       METADATA TEMPLATE ANNOTATORS                     *
+     *========================================================================*/
 
     /****************************
      *    DSG                   *
@@ -239,8 +248,15 @@ public class IngestionWorker {
             return null;
         }
 
-        chain.addGenerator(new AgentGenerator(dataFile,null,templateFile));
-        chain.addGenerator(new StudyGenerator(dataFile,null,templateFile));
+        // Getting study URI from InfoSheet
+        String studyUri = "";
+        if (mapCatalog.get("hasStudyURI") != null) {
+            studyUri = mapCatalog.get("hasStudyURI");
+        }
+
+        // Create Agent and Study instances and append to chain
+        chain.addGenerator(new AgentGenerator(dataFile,studyUri,templateFile));
+        chain.addGenerator(new StudyGenerator(dataFile,studyUri,templateFile));
 
         return chain;
     }
@@ -250,7 +266,11 @@ public class IngestionWorker {
      ****************************/
 
      public static GeneratorChain annotateSSDFile(DataFile dataFile, String templateFile) {
-        String studyUri = dataFile.getUri().replaceAll("DF", "ST");
+        // Set study URI
+        String studyUri = getStudyUri(dataFile);
+        if (studyUri.equals("")) {
+            studyUri = dataFile.getUri().replaceAll("DF", "ST");
+        }
         System.out.println("Processing SSD file of " + studyUri + "...");
 
         Map<String, String> mapCatalog = new HashMap<String, String>();
@@ -581,467 +601,6 @@ public class IngestionWorker {
 
         return chain;
 
-    }
-
-    /****************************
-     *    INS                   *
-     ****************************/
-
-     public static GeneratorChain annotateINSFile(DataFile dataFile, String templateFile, String status) {
-        RecordFile recordFile = new SpreadsheetRecordFile(dataFile.getFile(), "InfoSheet");
-        if (!recordFile.isValid()) {
-            dataFile.getLogger().printExceptionById("DPL_00001");
-            return null;
-        } else {
-            dataFile.setRecordFile(recordFile);
-        }
-
-        Map<String, String> mapCatalog = new HashMap<String, String>();
-        for (Record record : dataFile.getRecordFile().getRecords()) {
-            mapCatalog.put(record.getValueByColumnIndex(0), record.getValueByColumnIndex(1));
-            //System.out.println(record.getValueByColumnIndex(0) + ":" + record.getValueByColumnIndex(1));
-        }
-
-        nameSpaceGen(dataFile, mapCatalog,templateFile);
-
-        annotationGen(dataFile, mapCatalog, templateFile, status);
-
-        GeneratorChain chain = new GeneratorChain();
-        RecordFile sheet = null;
-
-        try {
-
-            chain.setNamedGraphUri(dataFile.getUri());
-
-            String responseOptionSheet = mapCatalog.get("ResponseOptions");
-            if (responseOptionSheet == null) {
-                System.out.println("[WARNING] 'ResponseOptions' sheet is missing.");
-                dataFile.getLogger().println("[WARNING] 'ResponseOptions' sheet is missing.");
-            } else {
-                responseOptionSheet.replace("#", "");
-                sheet = new SpreadsheetRecordFile(dataFile.getFile(), responseOptionSheet);
-                try {
-                    DataFile dataFileForSheet = (DataFile)dataFile.clone();
-                    dataFileForSheet.setRecordFile(sheet);
-                    INSGenerator respOptionGen = new INSGenerator("responseoption",dataFileForSheet, status);
-                    respOptionGen.setNamedGraphUri(dataFileForSheet.getUri());
-                    chain.addGenerator(respOptionGen);
-                } catch (CloneNotSupportedException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            String codeBookSheet = mapCatalog.get("CodeBooks");
-            if (codeBookSheet == null) {
-                System.out.println("[WARNING] 'CodeBooks' sheet is missing.");
-                dataFile.getLogger().println("[WARNING] 'CodeBooks' sheet is missing.");
-            } else {
-                codeBookSheet.replace("#", "");
-                sheet = new SpreadsheetRecordFile(dataFile.getFile(), codeBookSheet);
-                try {
-                    DataFile dataFileForSheet = (DataFile)dataFile.clone();
-                    dataFileForSheet.setRecordFile(sheet);
-                    INSGenerator codeBookGen = new INSGenerator("codebook",dataFileForSheet, status);
-                    codeBookGen.setNamedGraphUri(dataFileForSheet.getUri());
-                    chain.addGenerator(codeBookGen);
-                } catch (CloneNotSupportedException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            String codeBookSlotSheet = mapCatalog.get("CodeBookSlots");
-            if (codeBookSlotSheet == null) {
-                System.out.println("[WARNING] 'CodeBookSlots' sheet is missing.");
-                dataFile.getLogger().println("[WARNING] 'CodeBookSlots' sheet is missing.");
-            } else {
-                codeBookSlotSheet.replace("#", "");
-                sheet = new SpreadsheetRecordFile(dataFile.getFile(), codeBookSlotSheet);
-                try {
-                    DataFile dataFileForSheet = (DataFile)dataFile.clone();
-                    dataFileForSheet.setRecordFile(sheet);
-                    CodeBookSlotGenerator cbSlotGen = new CodeBookSlotGenerator(dataFileForSheet);
-                    cbSlotGen.setNamedGraphUri(dataFileForSheet.getUri());
-                    chain.addGenerator(cbSlotGen);
-                } catch (CloneNotSupportedException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            String actuatorStemSheet = mapCatalog.get("ActuatorStems");
-            if (actuatorStemSheet == null) {
-                System.out.println("[WARNING] 'ActuatorStems' sheet is missing.");
-                dataFile.getLogger().println("[WARNING] 'ActuatorStems' sheet is missing.");
-            } else {
-                actuatorStemSheet.replace("#", "");
-                sheet = new SpreadsheetRecordFile(dataFile.getFile(), actuatorStemSheet);
-                try {
-                    DataFile dataFileForSheet = (DataFile)dataFile.clone();
-                    dataFileForSheet.setRecordFile(sheet);
-                    INSGenerator actStemGen = new INSGenerator("actuatorstem",dataFileForSheet, status);
-                    actStemGen.setNamedGraphUri(dataFileForSheet.getUri());
-                    chain.addGenerator(actStemGen);
-                } catch (CloneNotSupportedException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            String actuatorSheet = mapCatalog.get("Actuators");
-            if (actuatorSheet == null) {
-                System.out.println("[WARNING] 'Actuators' sheet is missing.");
-                dataFile.getLogger().println("[WARNING] 'Actuators' sheet is missing.");
-            } else {
-                actuatorSheet.replace("#", "");
-                sheet = new SpreadsheetRecordFile(dataFile.getFile(), actuatorSheet);
-                try {
-                    DataFile dataFileForSheet = (DataFile)dataFile.clone();
-                    dataFileForSheet.setRecordFile(sheet);
-                    ActuatorGenerator actGen = new ActuatorGenerator(dataFileForSheet, status);
-                    actGen.setNamedGraphUri(dataFileForSheet.getUri());
-                    chain.addGenerator(actGen);
-                } catch (CloneNotSupportedException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            String detectorStemSheet = mapCatalog.get("DetectorStems");
-            if (detectorStemSheet == null) {
-                System.out.println("[WARNING] 'DetectorStems' sheet is missing.");
-                dataFile.getLogger().println("[WARNING] 'DetectorStems' sheet is missing.");
-            } else {
-                detectorStemSheet.replace("#", "");
-                sheet = new SpreadsheetRecordFile(dataFile.getFile(), detectorStemSheet);
-                try {
-                    DataFile dataFileForSheet = (DataFile)dataFile.clone();
-                    dataFileForSheet.setRecordFile(sheet);
-                    INSGenerator detStemGen = new INSGenerator("detectorstem",dataFileForSheet, status);
-                    detStemGen.setNamedGraphUri(dataFileForSheet.getUri());
-                    chain.addGenerator(detStemGen);
-                } catch (CloneNotSupportedException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            String detectorSheet = mapCatalog.get("Detectors");
-            if (detectorSheet == null) {
-                System.out.println("[WARNING] 'Detectors' sheet is missing.");
-                dataFile.getLogger().println("[WARNING] 'Detectors' sheet is missing.");
-            } else {
-                detectorSheet.replace("#", "");
-                sheet = new SpreadsheetRecordFile(dataFile.getFile(), detectorSheet);
-                try {
-                    DataFile dataFileForSheet = (DataFile)dataFile.clone();
-                    dataFileForSheet.setRecordFile(sheet);
-                    DetectorGenerator detGen = new DetectorGenerator(dataFileForSheet, status);
-                    detGen.setNamedGraphUri(dataFileForSheet.getUri());
-                    chain.addGenerator(detGen);
-                } catch (CloneNotSupportedException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            String slotElementSheet = mapCatalog.get("SlotElements");
-            if (slotElementSheet == null) {
-                System.out.println("[WARNING] 'SlotElements' sheet is missing.");
-                dataFile.getLogger().println("[WARNING] 'SlotElements' sheet is missing.");
-            } else {
-                slotElementSheet.replace("#", "");
-                sheet = new SpreadsheetRecordFile(dataFile.getFile(), slotElementSheet);
-                try {
-                    DataFile dataFileForSheet = (DataFile)dataFile.clone();
-                    dataFileForSheet.setRecordFile(sheet);
-                    INSGenerator seGen = new INSGenerator("slotelement",dataFileForSheet, status);
-                    seGen.setNamedGraphUri(dataFileForSheet.getUri());
-                    chain.addGenerator(seGen);
-                } catch (CloneNotSupportedException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            /*
-            String containerSlotSheet = mapCatalog.get("ContainerSlots");
-            if (containerSlotSheet == null) {
-                System.out.println("[WARNING] 'ContainerSlots' sheet is missing.");
-                dataFile.getLogger().println("[WARNING] 'ContainerSlots' sheet is missing.");
-            } else {
-                containerSlotSheet.replace("#", "");
-                sheet = new SpreadsheetRecordFile(dataFile.getFile(), containerSlotSheet);
-                try {
-                    DataFile dataFileForSheet = (DataFile)dataFile.clone();
-                    dataFileForSheet.setRecordFile(sheet);
-                    ContainerSlotGenerator slotGen = new ContainerSlotGenerator(dataFileForSheet);
-                    slotGen.setNamedGraphUri(dataFileForSheet.getUri());
-                    chain.addGenerator(slotGen);
-                } catch (CloneNotSupportedException e) {
-                    e.printStackTrace();
-                }
-            }
-            */
-
-            String instrumentSheet = mapCatalog.get("Instruments");
-            if (instrumentSheet == null) {
-                System.out.println("[WARNING] 'Instruments' sheet is missing.");
-                dataFile.getLogger().println("[WARNING] 'Instruments' sheet is missing.");
-            } else {
-                instrumentSheet.replace("#", "");
-                sheet = new SpreadsheetRecordFile(dataFile.getFile(), instrumentSheet);
-                try {
-                    DataFile dataFileForSheet = (DataFile)dataFile.clone();
-                    dataFileForSheet.setRecordFile(sheet);
-                    INSGenerator ins = new INSGenerator("instrument",dataFileForSheet, status);
-                    ins.setNamedGraphUri(dataFileForSheet.getUri());
-                    chain.addGenerator(ins);
-                } catch (CloneNotSupportedException e) {
-                    e.printStackTrace();
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return chain;
-    }
-
-    /****************************
-     *    STR                   *
-     ****************************/
-
-    public static GeneratorChain annotateSTRFile(DataFile dataFile, String templateFile) {
-        // System.out.println("Processing STR file ...");
-
-        // // verifies if data file is an Excel spreadsheet
-        // String fileName = dataFile.getFilename();
-        // if (!fileName.endsWith(".xlsx")) {
-        //     dataFile.getLogger().printExceptionById("STR_00004");
-        //     return null;
-        // }
-
-        // verifies if data file contains an InfoSheet sheet
-        RecordFile recordFile = new SpreadsheetRecordFile(dataFile.getFile(), "InfoSheet");
-        if (!recordFile.isValid()) {
-            dataFile.getLogger().printExceptionById("STR_00001");
-            return null;
-        } else {
-            dataFile.setRecordFile(recordFile);
-        }
-
-        STRInfoGenerator strInfo = new STRInfoGenerator(dataFile);
-        Study strStudy = strInfo.getStudy();
-        String strVersion = strInfo.getVersion();
-
-        // verifies if study is specified
-        if (strStudy == null) {
-            dataFile.getLogger().printExceptionByIdWithArgs("STR_00002", strInfo.getStudyUri());
-            return null;
-        }
-        // verifies if version is specified
-        if (strVersion == "") {
-            dataFile.getLogger().printExceptionById("STR_00003");
-            return null;
-        }
-        Map<String, String> mapCatalog = strInfo.getCatalog();
-
-        RecordFile fileStreamRecordFile = null;
-        RecordFile messageStreamRecordFile = null;
-        RecordFile messageTopicRecordFile = null;
-
-        // verifies if filestream sheet is available, even if no file stream is specified
-        if (mapCatalog.get(STRInfoGenerator.FILESTREAM) == null) {
-        	dataFile.getLogger().printExceptionById("STR_00005");
-        	return null;
-        }
-        fileStreamRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), mapCatalog.get(STRInfoGenerator.FILESTREAM).replace("#", ""));
-
-        // verifies if messagestream sheet is available, even if no message stream is specified
-        if (mapCatalog.get(STRInfoGenerator.MESSAGESTREAM) == null) {
-    		dataFile.getLogger().printExceptionById("STR_00006");
-    		return null;
-        }
-        messageStreamRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), mapCatalog.get(STRInfoGenerator.MESSAGESTREAM).replace("#", ""));
-
-        // verifies if messagetopic sheet is available, even if no message topic is specified
-        if (mapCatalog.get(STRInfoGenerator.MESSAGETOPIC) == null) {
-    		dataFile.getLogger().printExceptionById("STR_00016");
-    		return null;
-        }
-        messageTopicRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), mapCatalog.get(STRInfoGenerator.MESSAGETOPIC).replace("#", ""));
-
-        // verifies if not both fileStream sheet and messageStream sheet are empty
-        if (fileStreamRecordFile.getNumberOfRows() <= 0 && messageStreamRecordFile.getNumberOfRows() <= 0) {
-    		dataFile.getLogger().printExceptionById("STR_00007");
-    		return null;
-        }
-        // verifies that there is info in messageTopics in case messageStream is not empty
-        if ((messageStreamRecordFile.getNumberOfRows() <= 0 && messageTopicRecordFile.getNumberOfRows() > 0) ||
-            (messageStreamRecordFile.getNumberOfRows() > 0 && messageTopicRecordFile.getNumberOfRows() <= 0)) {
-    		dataFile.getLogger().printExceptionById("STR_00010");
-    		return null;
-        }
-
-        GeneratorChain chain = new GeneratorChain();
-        chain.setStudyUri(strStudy.getUri());
-
-        DateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        String startTime = isoFormat.format(new Date());
-        if (fileStreamRecordFile.getNumberOfRows() > 1 && fileStreamRecordFile.getRecords().size() > 0) {
-        	// TODO
-            chain.addGenerator(new STRFileGenerator(dataFile, strStudy, fileStreamRecordFile, startTime, templateFile));
-        }
-        if (messageStreamRecordFile.getNumberOfRows() > 1 && messageStreamRecordFile.getRecords().size() > 0) {
-        	STRMessageGenerator messageGen = new STRMessageGenerator(dataFile, strStudy, messageStreamRecordFile, startTime);
-        	if (!messageGen.isValid()) {
-        		dataFile.getLogger().printExceptionByIdWithArgs(messageGen.getErrorMessage(),messageGen.getErrorArgument());
-            	return null;
-        	}
-        	chain.addGenerator(messageGen);
-        }
-        if (messageTopicRecordFile.getNumberOfRows() > 1 && messageTopicRecordFile.getRecords().size() > 0) {
-        	STRTopicGenerator topicGen = new STRTopicGenerator(dataFile, messageTopicRecordFile, startTime);
-        	if (!topicGen.isValid()) {
-        		dataFile.getLogger().printExceptionByIdWithArgs(topicGen.getErrorMessage(),topicGen.getErrorArgument());
-            	return null;
-        	}
-        	chain.addGenerator(topicGen);
-        }
-        return chain;
-    }
-
-    /****************************
-     *    SDD                   *
-     ****************************/
-
-    public static GeneratorChain annotateSDDFile(DataFile dataFile, String templateFile) {
-        System.out.println("Processing SDD file ...");
-
-        RecordFile recordFile = new SpreadsheetRecordFile(dataFile.getFile(), "InfoSheet");
-        if (!recordFile.isValid()) {
-            dataFile.getLogger().printExceptionById("SDD_00001");
-            return null;
-        } else {
-            dataFile.setRecordFile(recordFile);
-        }
-
-        String sddUri = dataFile.getUri().replace("DFL","SDDICT");
-
-        Map<String, String> mapCatalog = new HashMap<String, String>();
-        for (Record record : dataFile.getRecordFile().getRecords()) {
-            mapCatalog.put(record.getValueByColumnIndex(0), record.getValueByColumnIndex(1));
-            //System.out.println(record.getValueByColumnIndex(0) + ":" + record.getValueByColumnIndex(1));
-            if (record.getValueByColumnIndex(0).isEmpty() && record.getValueByColumnIndex(1).isEmpty()) {
-                break;
-            }
-        }
-
-        nameSpaceGen(dataFile, mapCatalog, templateFile);
-
-        SDD sdd = new SDD(dataFile, templateFile);
-        String fileName = dataFile.getFilename();
-        if (mapCatalog.get("SDD_ID") == "") {
-            dataFile.getLogger().printExceptionById("SDD_00003");
-            return null;
-        }
-        String sddId = mapCatalog.get("SDD_ID");
-        if (mapCatalog.get("Version") == "") {
-            dataFile.getLogger().printExceptionById("SDD_00018");
-            return null;
-        }
-        String sddVersion = mapCatalog.get("Version");
-
-        RecordFile codeMappingRecordFile = null;
-        RecordFile dictionaryRecordFile = null;
-        RecordFile codeBookRecordFile = null;
-        //RecordFile timelineRecordFile = null;
-
-        File codeMappingFile = null;
-        if (fileName.endsWith(".xlsx")) {
-            codeMappingFile = sdd.downloadFile(mapCatalog.get("Code_Mappings"),
-                    "sddtmp/" + fileName.replace(".xlsx", "") + "-code-mappings.csv");
-
-            if (mapCatalog.get("Codebook") != null) {
-                codeBookRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), mapCatalog.get("Codebook").replace("#", ""));
-                System.out.println("IngestionWorker: read codeBookRecordFile with " + codeBookRecordFile.getRecords().size() + " records.");
-            }
-
-            if (mapCatalog.get("Data_Dictionary") != null) {
-                dictionaryRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), mapCatalog.get("Data_Dictionary").replace("#", ""));
-                System.out.println("IngestionWorker: read dictionaryRecordFile with " + dictionaryRecordFile.getRecords().size() + " records.");
-            }
-
-            //if (mapCatalog.get("Timeline") != null) {
-            //    timelineRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), mapCatalog.get("Timeline").replace("#", ""));
-            //}
-        }
-
-        if (codeMappingFile != null) {
-            codeMappingRecordFile = new CSVRecordFile(codeMappingFile);
-            if (!sdd.readCodeMapping(codeMappingRecordFile)) {
-                dataFile.getLogger().printWarningById("SDD_00016");
-            } else {
-                dataFile.getLogger().println(String.format("Codemappings: " + sdd.getCodeMapping().get("U"), fileName));
-            }
-        } else {
-            dataFile.getLogger().printWarningById("SDD_00017");
-        }
-
-        if (!sdd.readDataDictionary(dictionaryRecordFile, dataFile)) {
-            dataFile.getLogger().printExceptionById("SDD_00004");
-            //return null;
-        }
-        if (codeBookRecordFile == null || !sdd.readCodebook(codeBookRecordFile)) {
-            dataFile.getLogger().printWarningById("SDD_00005");
-        }
-        //if (timelineRecordFile == null || !sdd.readTimeline(timelineRecordFile)) {
-        //    dataFile.getLogger().printWarningById("SDD_00006");
-        //}
-
-        GeneratorChain chain = new GeneratorChain();
-        chain.setNamedGraphUri(dataFile.getUri());
-        chain.setPV(true);
-
-        System.out.println("DictionaryRecordFile: " + dictionaryRecordFile.isValid());
-        if (dictionaryRecordFile != null && dictionaryRecordFile.isValid()) {
-            DataFile dictionaryFile;
-            try {
-                dictionaryFile = (DataFile)dataFile.clone();
-                dictionaryFile.setRecordFile(dictionaryRecordFile);
-                chain.addGenerator(new SDDAttributeGenerator(dictionaryFile, sddUri, sddId, sdd.getCodeMapping(), sdd.readDDforEAmerge(dictionaryRecordFile), templateFile));
-                chain.addGenerator(new SDDObjectGenerator(dictionaryFile, sddUri, sddId, sdd.getCodeMapping()));
-            } catch (CloneNotSupportedException e) {
-                e.printStackTrace();
-            }
-        }
-
-        // codebook needs to be processed after data dictionary because codebook relies on
-        // data dictionary's attributes (DASAs) to group codes for categorical variables
-
-        System.out.println("CodeBookRecordFile: " + codeBookRecordFile.isValid());
-        if (codeBookRecordFile != null && codeBookRecordFile.isValid()) {
-            DataFile codeBookFile;
-            try {
-                codeBookFile = (DataFile)dataFile.clone();
-                codeBookFile.setRecordFile(codeBookRecordFile);
-                chain.setCodebookFile(codeBookFile);
-                chain.setSddName(URIUtils.replacePrefixEx(sddUri));
-                chain.addGenerator(new PVGenerator(codeBookFile, sddUri, sddId, sdd.getMapAttrObj(), sdd.getCodeMapping()));
-            } catch (CloneNotSupportedException e) {
-                e.printStackTrace();
-            }
-        }
-
-        GeneralGenerator generalGenerator = new GeneralGenerator(dataFile, "SemanticDataDictionary");
-        Map<String, Object> row = new HashMap<String, Object>();
-        row.put("hasURI", sddUri);
-        row.put("a", "hasco:SemanticDataDictionary");
-        row.put("hasco:hascoType", "hasco:SemanticDataDictionary");
-        row.put("rdfs:label", sddId);
-        row.put("rdfs:comment", "Generated from SDD file [" + dataFile.getFilename() + "]");
-        row.put("vstoi:hasVersion", sddVersion);
-        row.put("vstoi:hasSIRManagerEmail", dataFile.getHasSIRManagerEmail());
-        generalGenerator.addRow(row);
-        chain.setNamedGraphUri(URIUtils.replacePrefixEx(dataFile.getUri()));
-        chain.addGenerator(generalGenerator);
-        dataFile.getLogger().println("This SDD is assigned with uri: " + sddUri + " and is of type hasco:SemanticDataDictionary");
-
-        return chain;
     }
 
     /****************************
@@ -1380,4 +939,23 @@ public class IngestionWorker {
         return isSuccess;
     }
 
+    public static String getStudyUri(DataFile dataFile) {
+        String studyUri = "";
+        if (dataFile.getRecordFile() != null) {
+            for (Record record : dataFile.getRecordFile().getRecords()) {
+                if (record.getValueByColumnIndex(0).equals("hasStudyURI")) {
+                    if (record.getValueByColumnIndex(1) != null){
+                        studyUri = record.getValueByColumnIndex(1);
+                    }
+                }
+            }
+        }
+
+        // Replace prefix
+        if (!studyUri.equals("")) {
+            studyUri = URIUtils.replacePrefixEx(studyUri);
+        }
+
+        return studyUri;
+    }
 }

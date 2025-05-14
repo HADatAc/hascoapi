@@ -19,6 +19,7 @@ import org.hascoapi.vocabularies.RDF;
 import org.hascoapi.vocabularies.RDFS;
 import org.hascoapi.vocabularies.VSTOI;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +30,9 @@ public class Task extends HADatAcThing implements Comparable<Task> {
 
     @PropertyField(uri = "vstoi:hasStatus")
     private String hasStatus;
+
+	@PropertyField(uri="vstoi:hasLanguage")
+	private String hasLanguage;
 
     @PropertyField(uri = "vstoi:hasVersion")
     private String hasVersion;
@@ -63,6 +67,14 @@ public class Task extends HADatAcThing implements Comparable<Task> {
 
     public void setHasStatus(String hasStatus) {
         this.hasStatus = hasStatus;
+    }
+
+    public String getHasLanguage() {
+        return hasLanguage;
+    }
+
+    public void setHasLanguage(String hasLanguage) {
+        this.hasLanguage = hasLanguage;
     }
 
     public String getHasVersion() {
@@ -155,7 +167,12 @@ public class Task extends HADatAcThing implements Comparable<Task> {
         this.hasSubtaskUris.add(hasSubtaskUri);
     }
 
-    public List<Task> getSubtask() {
+    public List<String> getHasSubtaskUris() {
+        return this.hasSubtaskUris;
+    }
+
+    /* 
+    public List<Task> getSubtasks() {
         List<Task> resp = new ArrayList<Task>();
         if (hasSubtaskUris == null || hasSubtaskUris.size() <= 0) {
             return resp;
@@ -168,6 +185,7 @@ public class Task extends HADatAcThing implements Comparable<Task> {
         }
         return resp;
     }
+    */
 
     public static Task find(String uri) {
  		if (uri == null || uri.isEmpty()) {
@@ -215,6 +233,8 @@ public class Task extends HADatAcThing implements Comparable<Task> {
                     task.setHasWebDocument(object);
                 } else if (predicate.equals(VSTOI.HAS_STATUS)) {
                     task.setHasStatus(object);
+                } else if (predicate.equals(VSTOI.HAS_LANGUAGE)) {
+                    task.setHasLanguage(object);
                 } else if (predicate.equals(VSTOI.HAS_VERSION)) {
                     task.setHasVersion(object);
                 } else if (predicate.equals(VSTOI.HAS_REVIEW_NOTE)) {
@@ -250,10 +270,41 @@ public class Task extends HADatAcThing implements Comparable<Task> {
     @Override
     public void save() {
         saveToTripleStore();
+        if (this.hasSupertaskUri != null && !this.hasSupertaskUri.isEmpty()) {
+            Task superTask = Task.find(this.hasSupertaskUri);
+            if (superTask != null && !superTask.getHasSubtaskUris().contains(this.uri)) {
+                superTask.addHasSubtaskUri(this.uri);
+                superTask.save();
+            }
+        }
+    }
+
+    private void deleteSubtasks(Task task) {
+        if (task.getHasSubtaskUris() != null && task.getHasSubtaskUris().size() > 0) {
+            for (String subtaskUri : task.getHasSubtaskUris()) {
+                Task subtask = Task.find(subtaskUri);
+                if (subtask != null) {
+                    this.deleteSubtasks(subtask);
+                }
+            }
+        }
+        task.delete();
     }
 
     @Override
     public void delete() {
+        deleteFromTripleStore();
+    }
+
+    public void deleteWithSubtasks() {
+        if (this.getHasSubtaskUris() != null && this.getHasSubtaskUris().size() > 0) {
+            for (String subtaskUri : this.getHasSubtaskUris()) {
+                Task subtask = Task.find(subtaskUri);
+                if (subtask != null) {
+                    this.deleteSubtasks(subtask);
+                }
+            }
+        }
         deleteFromTripleStore();
     }
 

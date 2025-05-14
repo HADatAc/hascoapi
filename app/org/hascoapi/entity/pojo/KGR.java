@@ -39,61 +39,21 @@ import org.hascoapi.vocabularies.VSTOI;
 @JsonFilter("kgrFilter")
 public class KGR extends MetadataTemplate {
 
-    public String className = "hasco:KnowledgeGraph";
+    public String className = "hasco:KGR";
 
-    //private Map<String, String> mapCatalog = new HashMap<String, String>();
     private Map<String, Map<String, String>> postalAddresses = new HashMap<String, Map<String, String>>();
     private Map<String, Map<String, String>> places = new HashMap<String, Map<String, String>>();
     private Map<String, Map<String, String>> organizations = new HashMap<String, Map<String, String>>();
     private Map<String, Map<String, String>> persons = new HashMap<String, Map<String, String>>();
-    //private Templates templates = null;
 
-    /* 
-    @PropertyField(uri = "vstoi:hasStatus")
-    private String hasStatus;
-
-    @PropertyField(uri = "hasco:hasDataFile")
-    private String hasDataFileUri;
-
-    @PropertyField(uri="vstoi:hasSIRManagerEmail")
-    private String hasSIRManagerEmail;
-
-    public String getHasStatus() {
-        return hasStatus;
-    }
-    public void setHasStatus(String hasStatus) {
-        this.hasStatus = hasStatus;
+    public KGR() {
     }
 
-    public String getHasDataFile() {
-        return hasDataFileUri;
+    public KGR(DataFile dataFile, String templateFile) {
+        this.uri = dataFile.getUri().replace("DFL","KGR");
+        this.label = "";
+        this.setTemplates(templateFile);
     }
-    public void setHasDataFile(String hasDataFileUri) {
-        this.hasDataFileUri = hasDataFileUri;
-        this.setNamedGraph(hasDataFileUri);
-    }
-    public DataFile getDataFile() {
-        if (this.hasDataFileUri == null) {
-            return null;
-        }
-        return DataFile.find(this.hasDataFileUri);
-    }
-
-    public String getHasSIRManagerEmail() {
-        return hasSIRManagerEmail;
-    }
-    public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
-        this.hasSIRManagerEmail = hasSIRManagerEmail;
-    }
-
-    public Map<String, String> getCatalog() {
-        return mapCatalog;
-    }
-
-    public void setTemplates(String templateFile) {
-        this.templates = new Templates(templateFile);
-    }
-    */
 
     public static KGR find(String uri) {
             

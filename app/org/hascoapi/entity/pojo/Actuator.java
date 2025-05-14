@@ -259,6 +259,8 @@ public class Actuator extends Component {
                     }
 				} else if (predicate.equals(VSTOI.HAS_REVIEW_NOTE)) {
 					actuator.setHasReviewNote(object);
+				} else if (predicate.equals(VSTOI.HAS_MAKER)) {
+					actuator.setHasMakerUri(object);
 				} else if (predicate.equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
 					actuator.setHasSIRManagerEmail(object);
 				} else if (predicate.equals(VSTOI.HAS_EDITOR_EMAIL)) {

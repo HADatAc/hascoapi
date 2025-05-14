@@ -5,8 +5,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.apache.jena.query.QuerySolution;
-import org.apache.jena.query.ResultSetRewindable;
+import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
@@ -33,6 +32,9 @@ public class PostalAddress extends HADatAcThing implements Comparable<PostalAddr
 
 	private static final Logger log = LoggerFactory.getLogger(PostalAddress.class);
 
+	@PropertyField(uri="vstoi:hasStatus")
+	private String hasStatus;
+
 	@PropertyField(uri="schema:streetAddress")
     protected String hasStreetAddress;
 
@@ -50,6 +52,14 @@ public class PostalAddress extends HADatAcThing implements Comparable<PostalAddr
 
 	@PropertyField(uri="vstoi:hasSIRManagerEmail")
 	private String hasSIRManagerEmail;
+
+    public String getHasStatus() {
+        return hasStatus;
+    }
+
+    public void setHasStatus(String hasStatus) {
+        this.hasStatus = hasStatus;
+    }
 
 	public String getHasStreetAddress() {
 		return hasStreetAddress;
@@ -111,6 +121,20 @@ public class PostalAddress extends HADatAcThing implements Comparable<PostalAddr
 		this.hasSIRManagerEmail = hasSIRManagerEmail;
 	}
 
+    public static PostalAddress findByPostalCode(String postalCode) {
+        if (postalCode == null || postalCode.isEmpty()) {
+            return null;
+        }
+        String query = 
+                " SELECT ?uri " +
+                " WHERE {  ?subUri rdfs:subClassOf* schema:PostalAddress . " +
+                "          ?uri a ?subUri . " +
+                "          ?uri schema:postalCode ?postalCode .  " +
+                "        FILTER (?postalCode=\"" + postalCode + "\"^^xsd:string)  . " +
+                " }";
+        return findOneByQuery(query);
+	}
+
     public static PostalAddress findByAddress(String street, String postalCode) {
         if (street == null || street.isEmpty() ||
 		    postalCode == null || postalCode.isEmpty()) {
@@ -148,7 +172,7 @@ public class PostalAddress extends HADatAcThing implements Comparable<PostalAddr
 			return 0;
 		}
 		String query = NameSpaces.getInstance().printSparqlNameSpaceList() + 
-			" SELECT (count(?uri) as ?tot)  " +
+			" SELECT (count(DISTINCT ?uri) as ?tot)  " +
 			" WHERE {  ?subUri rdfs:subClassOf* schema:PostalAddress . " +
 			"          ?uri a ?subUri . " +
 			"          ?uri " + searchPredicate + " <" + placeuri + "> . " +
@@ -176,7 +200,7 @@ public class PostalAddress extends HADatAcThing implements Comparable<PostalAddr
 			return new ArrayList<PostalAddress>();
 		}
 		String query = NameSpaces.getInstance().printSparqlNameSpaceList() + 
-				"SELECT ?uri " +
+				"SELECT DISTINCT ?uri " +
 				" WHERE {  ?subUri rdfs:subClassOf* schema:PostalAddress . " +
 				"          ?uri a ?subUri . " +
 				"          ?uri " + searchPredicate + " <" + placeuri + "> . " +
@@ -198,9 +222,9 @@ public class PostalAddress extends HADatAcThing implements Comparable<PostalAddr
 		}
 		String elementTypeUri = null;
 		if (elementtype.equals("person")) {
-			elementTypeUri = FOAF.PERSON;
+			elementTypeUri = SCHEMA.PERSON;
 		} else if (elementtype.equals("organization")) {
-			elementTypeUri = FOAF.ORGANIZATION;
+			elementTypeUri = SCHEMA.ORGANIZATION;
 		}
 		if (elementTypeUri == null) {
 			return 0;
@@ -236,9 +260,9 @@ public class PostalAddress extends HADatAcThing implements Comparable<PostalAddr
 		}
 		String elementTypeUri = null;
 		if (elementtype.equals("person")) {
-			elementTypeUri = FOAF.PERSON;
+			elementTypeUri = SCHEMA.PERSON;
 		} else if (elementtype.equals("organization")) {
-			elementTypeUri = FOAF.ORGANIZATION;
+			elementTypeUri = SCHEMA.ORGANIZATION;
 		}
 		if (elementTypeUri == null) {
 			return new ArrayList<T>();
@@ -265,9 +289,9 @@ public class PostalAddress extends HADatAcThing implements Comparable<PostalAddr
                 " ORDER BY ASC(?label) " +
                 " LIMIT " + pageSize +
                 " OFFSET " + offset;
-		if (elementTypeUri.equals(FOAF.PERSON)) {
+		if (elementTypeUri.equals(SCHEMA.PERSON)) {
         	return (List<T>)PostalAddress.findManyElementsByQuery(query, Person.class);
-		} else if (elementTypeUri.equals(FOAF.ORGANIZATION)) {
+		} else if (elementTypeUri.equals(SCHEMA.ORGANIZATION)) {
         	return (List<T>)PostalAddress.<Organization>findManyElementsByQuery(query, Organization.class);
 		}
 		return new ArrayList<T>();
@@ -305,7 +329,7 @@ public class PostalAddress extends HADatAcThing implements Comparable<PostalAddr
             QuerySolution soln = resultsrw.next();
 			if (soln != null && soln.getResource("uri") != null) {
 				PostalAddress postalAddress = PostalAddress.find(soln.getResource("uri").getURI());
-				if (postalAddress != null) {
+				if (postalAddress != null && !postalAddresses.contains(postalAddress)) {
 					postalAddresses.add(postalAddress);
 				}
 			}
@@ -354,57 +378,70 @@ public class PostalAddress extends HADatAcThing implements Comparable<PostalAddr
 
 	public static PostalAddress find(String uri) {
 		PostalAddress postalAddress;
-		String hascoTypeUri = Utils.retrieveHASCOTypeUri(uri);
-		if (hascoTypeUri.equals(SCHEMA.POSTAL_ADDRESS)) {
-			postalAddress = new PostalAddress();
-		} else {
+
+		// Conobjectuct the SELECT query to retrieve named graphs
+		String queryString = "SELECT DISTINCT ?graph ?p ?o WHERE { GRAPH ?graph { <" + uri + "> ?p ?o } }";
+		ResultSet resultSet = SPARQLUtils.select(CollectionUtil.getCollectionPath(
+        	CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+		if (!resultSet.hasNext()) {
 			return null;
+		} else {
+			postalAddress = new PostalAddress();
 		}
 
-	    Statement statement;
-	    RDFNode object;
-	    
-	    String queryString = "DESCRIBE <" + uri + ">";
-	    Model model = SPARQLUtils.describe(CollectionUtil.getCollectionPath(
-                CollectionUtil.Collection.SPARQL_QUERY), queryString);
-		
-		StmtIterator stmtIterator = model.listStatements();
+		// Iterate over results
+		while (resultSet.hasNext()) {
+			QuerySolution qs = resultSet.next();
+			
+			// Retrieve the named graph URI
+			if (qs.contains("graph")) {
+				postalAddress.setNamedGraph(qs.get("graph").toString());
+				//System.out.println("Graph: " + graphURI);
+			}
+			
+			// Retrieve predicate and object (optional)
+			if (qs.contains("p") && qs.contains("o")) {
+				String predicate = qs.get("p").toString();
+				String object = qs.get("o").toString();
+				//System.out.println("Predicate: " + predicate + " | Object: " + object); 
 
-		if (!stmtIterator.hasNext()) {
-			return null;
-		} 
-
-		while (stmtIterator.hasNext()) {
-		    statement = stmtIterator.next();
-		    object = statement.getObject();
-			String str = URIUtils.objectRDFToString(object);
-			if (uri != null && !uri.isEmpty()) {
-				if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-					postalAddress.setLabel(str);
-				} else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
-					postalAddress.setTypeUri(str); 
-				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
-					postalAddress.setComment(str);
-				} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
-					postalAddress.setHascoTypeUri(str);
-				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
-					postalAddress.setHasImageUri(str);
-				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
-					postalAddress.setHasWebDocument(str);
-				} else if (statement.getPredicate().getURI().equals(SCHEMA.STREET_ADDRESS)) {
-					postalAddress.setHasStreetAddress(str);
-				} else if (statement.getPredicate().getURI().equals(SCHEMA.ADDRESS_LOCALITY)) {
-					postalAddress.setHasAddressLocalityUri(str);
-				} else if (statement.getPredicate().getURI().equals(SCHEMA.ADDRESS_REGION)) {
-					postalAddress.setHasAddressRegionUri(str);
-				} else if (statement.getPredicate().getURI().equals(SCHEMA.POSTAL_CODE)) {
-					postalAddress.setHasPostalCode(str);
-				} else if (statement.getPredicate().getURI().equals(SCHEMA.ADDRESS_COUNTRY)) {
-					postalAddress.setHasAddressCountryUri(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
-					postalAddress.setHasSIRManagerEmail(str);
+				if (predicate.equals(RDFS.LABEL)) {
+					postalAddress.setLabel(object);
+				} else if (predicate.equals(RDF.TYPE)) {
+					postalAddress.setTypeUri(object); 
+				} else if (predicate.equals(RDFS.COMMENT)) {
+					postalAddress.setComment(object);
+				} else if (predicate.equals(HASCO.HASCO_TYPE)) {
+					postalAddress.setHascoTypeUri(object);
+				} else if (predicate.equals(HASCO.HAS_IMAGE)) {
+					postalAddress.setHasImageUri(object);
+				} else if (predicate.equals(HASCO.HAS_WEB_DOCUMENT)) {
+					postalAddress.setHasWebDocument(object);
+				} else if (predicate.equals(VSTOI.HAS_STATUS)) {
+					postalAddress.setHasStatus(object);
+				} else if (predicate.equals(SCHEMA.STREET_ADDRESS)) {
+					postalAddress.setHasStreetAddress(object);
+				} else if (predicate.equals(SCHEMA.ADDRESS_LOCALITY)) {
+					postalAddress.setHasAddressLocalityUri(object);
+				} else if (predicate.equals(SCHEMA.ADDRESS_REGION)) {
+					postalAddress.setHasAddressRegionUri(object);
+				} else if (predicate.equals(SCHEMA.POSTAL_CODE)) {
+					postalAddress.setHasPostalCode(object);
+				} else if (predicate.equals(SCHEMA.ADDRESS_COUNTRY)) {
+					postalAddress.setHasAddressCountryUri(object);
+				} else if (predicate.equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
+					postalAddress.setHasSIRManagerEmail(object);
 				}
 			}
+		}
+
+		if (postalAddress.getHascoTypeUri() == null || postalAddress.getHascoTypeUri().isEmpty()) { 
+			System.out.println("[ERROR] Place.java: URI [" + uri + "] has no HASCO TYPE.");
+			return null;
+		} else if (!postalAddress.getHascoTypeUri().equals(SCHEMA.POSTAL_ADDRESS)) {
+			System.out.println("[ERROR] Place.java: URI [" + uri + "] HASCO TYPE is not " + SCHEMA.POSTAL_ADDRESS);
+			return null;
 		}
 
 		postalAddress.setUri(uri);
