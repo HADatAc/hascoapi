@@ -52,7 +52,7 @@ public class AnnotateKGR {
             } else if (rawVerifyUri.equals("false")) {
                 verifyUri = false;
             } else {
-                dataFile.getLogger().printException("VerifyUri parameter in KGR must be `true` or `false`.");
+                dataFile.getLogger().printException("verifyUri parameter in KGR must be `true` or `false`.");
                 return null;
             }
         } else {

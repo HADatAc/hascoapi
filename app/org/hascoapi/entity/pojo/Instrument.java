@@ -102,6 +102,8 @@ public class Instrument extends Container {
 					instrument.setComment(object);
 				} else if (predicate.equals(VSTOI.HAS_SHORT_NAME)) {
 					instrument.setHasShortName(object);
+				} else if (predicate.equals(VSTOI.HAS_MAKER)) {
+					instrument.setHasMakerUri(object);
 				} else if (predicate.equals(VSTOI.HAS_LANGUAGE)) {
 					instrument.setHasLanguage(object);
 				} else if (predicate.equals(VSTOI.HAS_VERSION)) {

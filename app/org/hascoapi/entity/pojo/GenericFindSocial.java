@@ -38,7 +38,7 @@ public class GenericFindSocial<T> {
     }
 
     public static <T> List<T> findElementsByKeywordTypeManagerEmailAndStatusWithPages(Class clazz, String hascoType, String project, String keyword, String type, String managerEmail, String status, int pageSize, int offset) {
-		System.out.println("GenericFindSocial.findElementsByKeywordType: hascoType: [" + hascoType + "]  project: [" + project + "]  keyword: [" + keyword + "]   type : [" + type + "]");
+		//System.out.println("GenericFindSocial.findElementsByKeywordType: hascoType: [" + hascoType + "]  project: [" + project + "]  keyword: [" + keyword + "]   type : [" + type + "]");
 		if (project != null && (project.equals("_") || project.equals("all"))) {
 			project = null;
 		}
@@ -88,7 +88,7 @@ public class GenericFindSocial<T> {
         if (hascoType == null) {
             return -1;
         }
-		System.out.println("GenericFindSocial.findTotalElementsByKeywordType: hascoType: [" + hascoType + "]  project: [" + project + "]  keyword: [" + keyword + "]   type : [" + type + "]");
+		//System.out.println("GenericFindSocial.findTotalElementsByKeywordType: hascoType: [" + hascoType + "]  project: [" + project + "]  keyword: [" + keyword + "]   type : [" + type + "]");
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
 		queryString += " SELECT (count(DISTINCT ?uri) as ?tot) WHERE { " +
             " ?uri hasco:hascoType " + hascoType + " . ";
@@ -121,7 +121,7 @@ public class GenericFindSocial<T> {
         }
         queryString += "}";
 
-		System.out.println("GenericFindSocial: query is...\n" + queryString);
+		//System.out.println("GenericFindSocial: query is...\n" + queryString);
 
 		return GenericFind.findTotalByQuery(queryString);
 	}
