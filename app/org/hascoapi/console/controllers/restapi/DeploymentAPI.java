@@ -12,7 +12,6 @@ import org.hascoapi.entity.pojo.PlatformInstance;
 import org.hascoapi.entity.pojo.PostalAddress;
 import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.HAScOMapper;
-import org.hascoapi.utils.State;
 import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.VSTOI;
 import play.mvc.Controller;
@@ -40,20 +39,16 @@ public class DeploymentAPI extends Controller {
         if (userEmail == null || userEmail.isEmpty()) {
             return ok(ApiUtil.createResponse("No user email has been provided to retrieve deployments", false));
         }
-        state = state.toLowerCase();
-        State stateObject = null;
-        if (state.equals("design")) {
-            stateObject = new State(State.DESIGN);
-        } else if (state.equals("active")) {
-            stateObject = new State(State.ACTIVE);
-        } else if (state.equals("closed")) {
-            stateObject = new State(State.CLOSED);
-        } else if (state.equals("all")) {
-            stateObject = new State(State.ALL);
+        if (state == null) {
+            state = "";
         } else {
-            return ok(ApiUtil.createResponse("No state has been provided to retrieve deployments", false));
+            if (!state.equals(HASCO.DRAFT) && 
+                !state.equals(HASCO.ACTIVE) &&
+                !state.equals(HASCO.CLOSED)) { 
+                    return ok(ApiUtil.createResponse("No valid state has been provided to retrieve deployments", false));
+                }
         }
-        return DeploymentAPI.getDeployments(Deployment.findCanUpdateWithPages(stateObject,userEmail,pageSize,offset));
+        return DeploymentAPI.getDeployments(Deployment.findCanUpdateWithPages(state,userEmail,pageSize,offset));
     }
 
     public Result findTotalCanUpdateWithPages(String state, String userEmail) {
@@ -63,20 +58,16 @@ public class DeploymentAPI extends Controller {
         if (userEmail == null || userEmail.isEmpty()) {
             return ok(ApiUtil.createResponse("No user email has been provided to retrieve deployments", false));
         }
-        state = state.toLowerCase();
-        State stateObject = null;
-        if (state.equals("design")) {
-            stateObject = new State(State.DESIGN);
-        } else if (state.equals("active")) {
-            stateObject = new State(State.ACTIVE);
-        } else if (state.equals("closed")) {
-            stateObject = new State(State.CLOSED);
-        } else if (state.equals("all")) {
-            stateObject = new State(State.ALL);
+        if (state == null) {
+            state = "";
         } else {
-            return ok(ApiUtil.createResponse("No state has been provided to retrieve deployments", false));
+            if (!state.equals(HASCO.DRAFT) && 
+                !state.equals(HASCO.ACTIVE) &&
+                !state.equals(HASCO.CLOSED)) { 
+                    return ok(ApiUtil.createResponse("No valid state has been provided to retrieve deployments", false));
+                }
         }
-        int totalElements = Deployment.findTotalCanUpdateWithPages(stateObject,userEmail);
+        int totalElements = Deployment.findTotalCanUpdateWithPages(state,userEmail);
         if (totalElements >= 0) {
             String totalElementsJSON = "{\"total\":" + totalElements + "}";
             return ok(ApiUtil.createResponse(totalElementsJSON, true));

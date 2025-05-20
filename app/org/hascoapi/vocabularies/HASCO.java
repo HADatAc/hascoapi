@@ -134,6 +134,7 @@ public class HASCO {
     public static final String HAS_SOC_TYPE                           = "http://hadatac.org/ont/hasco/hasSOCType";
     public static final String HAS_SPACE_OBJECT_SCOPE                 = "http://hadatac.org/ont/hasco/hasSpaceObjectScope";
     public static final String HAS_STREAM                             = "http://hadatac.org/ont/hasco/hasStream";
+    public static final String HAS_STREAM_STATUS                      = "http://hadatac.org/ont/hasco/hasStreamStatus";
     public static final String HAS_STUDY                              = "http://hadatac.org/ont/hasco/hasStudy";
     public static final String HAS_STUDY_OBJECT                       = "http://hadatac.org/ont/hasco/hasStudyObject";
     public static final String HAS_STUDY_OBJECT_TYPE                  = "http://hadatac.org/ont/hasco/hasStudyObjectType";
@@ -162,5 +163,21 @@ public class HASCO {
     public static final String PART_OF                                = "http://hadatac.org/ont/hasco/partOf";
     public static final String PART_OF_SCHEMA                         = "http://hadatac.org/ont/hasco/partOfSchema";
 
-}
 
+    /*
+     * STREAM STATUS
+     */
+
+    public static final String DRAFT                                  = "http://hadatac.org/ont/hasco/Draft";        
+    public static final String ACTIVE                                 = "http://hadatac.org/ont/hasco/Active";          
+    public static final String SUSPENDED                              = "http://hadatac.org/ont/hasco/Suspended";       
+    public static final String CLOSED                                 = "http://hadatac.org/ont/hasco/Closed";      
+
+    /*
+     * PERMISSION URI
+     */
+
+    public static final String PUBLIC                                 = "http://hadatac.org/ont/hasco/Public";        
+    public static final String PRIVATE                                = "http://hadatac.org/ont/hasco/Private";          
+ 
+}

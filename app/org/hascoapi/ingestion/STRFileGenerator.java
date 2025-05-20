@@ -257,7 +257,7 @@ public class STRFileGenerator extends BaseGenerator {
         //System.out.println("\n\nschema: " + URIUtils.replacePrefixEx((String)row.get("hasco:hasSchema")));
         SDD schema = SDD.find(str.getSemanticDataDictionaryUri());
         if (schema != null) {
-            str.setStatus(9999);
+            str.setStreamStatus(9999);
         } else {
             dataFile.getLogger().printExceptionByIdWithArgs("STR_00035", str.getSemanticDataDictionaryUri());
             throw new Exception();

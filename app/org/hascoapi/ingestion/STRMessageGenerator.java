@@ -19,6 +19,7 @@ import org.hascoapi.entity.pojo.Stream;
 import org.hascoapi.utils.URIUtils;
 import org.hascoapi.utils.ConfigProp;
 import org.hascoapi.utils.Templates;
+import org.hascoapi.vocabularies.HASCO;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 
@@ -179,7 +180,7 @@ public class STRMessageGenerator extends BaseGenerator {
 		row.put("hasco:hasPort", getPort(rec));
 		row.put("hasco:isDataAcquisitionOf", study.getUri());
 		row.put("hasco:hasSchemaSpec", URIUtils.replacePrefixEx(getSdd(rec)));
-        row.put("hasco:hasMessageStatus", Stream.SUSPENDED);
+        row.put("hasco:hasMessageStatus", HASCO.SUSPENDED);
 		if (startTime.isEmpty()) {
 			row.put("prov:startedAtTime", (new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")).format(new Date()));
 		} else {
@@ -269,7 +270,7 @@ public class STRMessageGenerator extends BaseGenerator {
         }
         */
 
-        str.setStatus(9999);
+        str.setStreamStatus(9999);
 
         return str;
     }

@@ -10,7 +10,6 @@ import org.hascoapi.entity.pojo.Deployment;
 import org.hascoapi.entity.pojo.Stream;
 import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.HAScOMapper;
-import org.hascoapi.utils.State;
 import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.VSTOI;
 import play.mvc.Controller;
@@ -41,20 +40,16 @@ public class StreamAPI extends Controller {
         if (deploymentUri == null || deploymentUri.isEmpty()) {
             return ok(ApiUtil.createResponse("No deploymnent uri has been provided to retrieve streams", false));
         }
-        state = state.toLowerCase();
-        State stateObject = null;
-        if (state.equals("design")) {
-            stateObject = new State(State.DESIGN);
-        } else if (state.equals("active")) {
-            stateObject = new State(State.ACTIVE);
-        } else if (state.equals("closed")) {
-            stateObject = new State(State.CLOSED);
-        } else if (state.equals("all")) {
-            stateObject = new State(State.ALL);
+        if (state == null) {
+            state = "";
         } else {
-            return ok(ApiUtil.createResponse("No state has been provided to retrieve streams", false));
+            if (!state.equals(HASCO.DRAFT) && 
+                !state.equals(HASCO.ACTIVE) &&
+                !state.equals(HASCO.CLOSED)) { 
+                    return ok(ApiUtil.createResponse("No valid state has been provided to retrieve streams", false));
+                }
         }
-        return StreamAPI.getStreams(Stream.findCanUpdateByDeploymentWithPages(stateObject,userEmail,deploymentUri,pageSize,offset));
+        return StreamAPI.getStreams(Stream.findCanUpdateByDeploymentWithPages(state,userEmail,deploymentUri,pageSize,offset));
     }
 
     public Result findTotalCanUpdateByDeploymentWithPages(String state, String userEmail, String deploymentUri) {
@@ -67,20 +62,16 @@ public class StreamAPI extends Controller {
         if (deploymentUri == null || deploymentUri.isEmpty()) {
             return ok(ApiUtil.createResponse("No deploymnent uri has been provided to retrieve streams", false));
         }
-        state = state.toLowerCase();
-        State stateObject = null;
-        if (state.equals("design")) {
-            stateObject = new State(State.DESIGN);
-        } else if (state.equals("active")) {
-            stateObject = new State(State.ACTIVE);
-        } else if (state.equals("closed")) {
-            stateObject = new State(State.CLOSED);
-        } else if (state.equals("all")) {
-            stateObject = new State(State.ALL);
+        if (state == null) {
+            state = "";
         } else {
-            return ok(ApiUtil.createResponse("No state has been provided to retrieve streams", false));
+            if (!state.equals(HASCO.DRAFT) && 
+                !state.equals(HASCO.ACTIVE) &&
+                !state.equals(HASCO.CLOSED)) { 
+                    return ok(ApiUtil.createResponse("No valid state has been provided to retrieve streams", false));
+                }
         }
-        int totalElements = Stream.findTotalCanUpdateByDeploymentWithPages(stateObject,userEmail,deploymentUri);
+        int totalElements = Stream.findTotalCanUpdateByDeploymentWithPages(state,userEmail,deploymentUri);
         if (totalElements >= 0) {
             String totalElementsJSON = "{\"total\":" + totalElements + "}";
             return ok(ApiUtil.createResponse(totalElementsJSON, true));

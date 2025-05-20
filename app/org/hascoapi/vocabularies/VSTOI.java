@@ -116,13 +116,15 @@ public class VSTOI {
     public static final String USES_INSTRUMENT              = VSTOI + "usesInstrument";
 
     /*
-     * STATUS
+     * SIR/DPL STATUS
      */
 
-     public static final String DRAFT                       = VSTOI + "Draft";
-     public static final String UNDER_REVIEW                = VSTOI + "UnderReview";
-     public static final String CURRENT                     = VSTOI + "Current";
-     public static final String DEPRECATED                  = VSTOI + "Deprecated";
+    public static final String DRAFT                        = VSTOI + "Draft";
+    public static final String UNDER_REVIEW                 = VSTOI + "UnderReview";
+    public static final String CURRENT                      = VSTOI + "Current";
+    public static final String DEPRECATED                   = VSTOI + "Deprecated";
+    public static final String DAMAGED                      = VSTOI + "Current";
+    public static final String DEPLOYED                     = VSTOI + "Deprecated";
 
      /*
      * POSITIONS
