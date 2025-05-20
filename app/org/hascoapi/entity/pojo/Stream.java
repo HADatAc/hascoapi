@@ -1364,7 +1364,11 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
         //} else if (endedAt.toString().startsWith("9999")) {
         //    endedAt = "9999-12-31T23:59:59.999Z";
         //}
-        saveToTripleStore();
+        try {
+            saveToTripleStore();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

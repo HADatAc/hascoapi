@@ -528,7 +528,7 @@ public class HAScOMapper {
             filterProvider.addFilter("streamFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
                             "hasImageUri", "hasWebDocument", 
-                            "hascoTypeLabel", "hasVersion",  "comment", "hasDeployment", "hasStudy", "hasSDD",
+                            "hascoTypeLabel", "hasVersion",  "comment", "hasDeployment", "hasStudy", "hasSDD", "permissionUri", 
                             "designedAt", "startedAt", "endedAt", "method", "messageProtocol", "messageIP", "messagePort"));
         }
 
