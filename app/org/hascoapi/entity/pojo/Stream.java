@@ -388,7 +388,7 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
                 throw new IllegalArgumentException("Date-time string is not in a valid format: " + endedAtString, ex);
             }
         }
-        this.startedAt = endedAtRaw.toString(formatterISO);
+        this.endedAt = endedAtRaw.toString(formatterISO);
     }
     public void setEndedAtXsd(DateTime endedAtRaw) {
         DateTimeFormatter formatterNoMillis = ISODateTimeFormat.dateTimeNoMillis();

@@ -185,7 +185,7 @@ public class Deployment extends HADatAcThing {
                 throw new IllegalArgumentException("Date-time string is not in a valid format: " + endedAtString, ex);
             }
         }
-        this.startedAt = endedAtRaw.toString(formatterISO);
+        this.endedAt = endedAtRaw.toString(formatterISO);
     }
     public void setEndedAtXsd(DateTime endedAtRaw) {
         DateTimeFormatter formatterNoMillis = ISODateTimeFormat.dateTimeNoMillis();
@@ -250,7 +250,7 @@ public class Deployment extends HADatAcThing {
         this.canUpdate = canUpdate;
     }
     public void addCanUpdate(String canUpdateEmail) {
-        if (canUpdate != null) {
+        if (canUpdate != null) {          
             if (!canUpdate.contains(canUpdateEmail)) {
                 this.canUpdate.add(canUpdateEmail);
             }
@@ -341,7 +341,7 @@ public class Deployment extends HADatAcThing {
             Statement statement = stmtIterator.next();
             RDFNode object = statement.getObject();
             String str = URIUtils.objectRDFToString(object);
-            //System.out.println("Str [" + str + "] Predicate [" + statement.getPredicate().getURI() + "]");
+            System.out.println("Str [" + str + "] Predicate [" + statement.getPredicate().getURI() + "]");
             if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
                 deployment.setLabel(str);
             } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
@@ -351,11 +351,11 @@ public class Deployment extends HADatAcThing {
             } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
                 deployment.setComment(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_IMAGE)) {
-                deployment.setHasImageUri(str);
+                deployment.setHasImageUri(str);            
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
                 deployment.setHasWebDocument(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_INSTRUMENT_INSTANCE)) {
-                deployment.setInstrumentInstanceUri(str);
+                deployment.setInstrumentInstanceUri(str);                
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PLATFORM_INSTANCE)) {
                 deployment.setPlatformInstanceUri(str);;
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_DETECTOR_INSTANCE)) {

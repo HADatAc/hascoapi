@@ -796,6 +796,7 @@ public class SIRElementAPI extends Controller {
             object.delete();
         } else if (clazz == Stream.class) {
             Stream object = Stream.find(uri);
+            System.out.println("Ended at: "+ object.getEndedAt());
             if (object == null) {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
