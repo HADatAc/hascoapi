@@ -39,14 +39,11 @@ public class DeploymentAPI extends Controller {
         if (userEmail == null || userEmail.isEmpty()) {
             return ok(ApiUtil.createResponse("No user email has been provided to retrieve deployments", false));
         }
-        if (state == null) {
-            state = "";
-        } else {
-            if (!state.equals(HASCO.DRAFT) && 
-                !state.equals(HASCO.ACTIVE) &&
-                !state.equals(HASCO.CLOSED)) { 
-                    return ok(ApiUtil.createResponse("No valid state has been provided to retrieve deployments", false));
-                }
+        if (!state.equals(HASCO.DRAFT) && 
+            !state.equals(HASCO.ACTIVE) &&
+            !state.equals(HASCO.CLOSED) && 
+            !state.equals(HASCO.ALL_STATUSES)) { 
+            return ok(ApiUtil.createResponse("No valid state has been provided to retrieve deployments", false));
         }
         return DeploymentAPI.getDeployments(Deployment.findCanUpdateWithPages(state,userEmail,pageSize,offset));
     }
@@ -58,14 +55,11 @@ public class DeploymentAPI extends Controller {
         if (userEmail == null || userEmail.isEmpty()) {
             return ok(ApiUtil.createResponse("No user email has been provided to retrieve deployments", false));
         }
-        if (state == null) {
-            state = "";
-        } else {
-            if (!state.equals(HASCO.DRAFT) && 
-                !state.equals(HASCO.ACTIVE) &&
-                !state.equals(HASCO.CLOSED)) { 
-                    return ok(ApiUtil.createResponse("No valid state has been provided to retrieve deployments", false));
-                }
+        if (!state.equals(HASCO.DRAFT) && 
+            !state.equals(HASCO.ACTIVE) &&
+            !state.equals(HASCO.CLOSED) && 
+            !state.equals(HASCO.ALL_STATUSES)) { 
+            return ok(ApiUtil.createResponse("No valid state has been provided to retrieve deployments", false));
         }
         int totalElements = Deployment.findTotalCanUpdateWithPages(state,userEmail);
         if (totalElements >= 0) {

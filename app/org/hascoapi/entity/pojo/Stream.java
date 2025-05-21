@@ -837,7 +837,7 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
                     "   ?uri prov:endedAtTime ?enddatetime .  " +
                     "} " +
                     " ORDER BY DESC(?startedattime)";
-        } else if (state == null || state.isEmpty()) {
+        } else if (state.equals(HASCO.ALL_STATUSES)) {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                     "SELECT ?uri WHERE { " +
                     "   ?uri a hasco:Stream . " +
@@ -893,7 +893,7 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
                     " ORDER BY DESC(?startedattime) " +
                     " LIMIT " + pageSize +
                     " OFFSET " + offset;
-        } else if (state == null || state.isEmpty()) {
+        } else if (state.equals(HASCO.ALL_STATUSES)) {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                     "SELECT ?uri WHERE { " +
                     "   ?uri a hasco:Stream . " +
@@ -943,7 +943,7 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
                 "   ?uri prov:endedAtTime ?enddatetime .  " +
                 "   FILTER (?userEmail = \"" + userEmail + "\") " +
                 "} ";
-        } else if (state == null || state.isEmpty()) {
+        } else if (state.equals(HASCO.ALL_STATUSES)) {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 "SELECT (count(?uri) as ?tot) WHERE { " +
                 "   ?uri a hasco:Stream . " +
@@ -1110,128 +1110,6 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
 
         return builder.toString();
     }
-
-    /* 
-    @Override
-    //@SuppressWarnings("unchecked")
-    public boolean saveToTripleStore(boolean withValidation, boolean withDeletion, org.eclipse.rdf4j.model.Model model, List<String> query) {
-        String insert = "";
-
-        if (query == null || query.isEmpty()) {
-            insert += NameSpaces.getInstance().printSparqlNameSpaceList();
-            insert += INSERT_LINE1;
-        } else {
-            insert = query.get(0);
-        }
-
-        String streamUri = "";
-        if (this.getUri().startsWith("<")) {
-            streamUri = this.getUri();
-        } else {
-            streamUri = "<" + this.getUri() + ">";
-        }
-
-        if (!getNamedGraph().isEmpty()) {
-            insert += " GRAPH <" + getNamedGraph() + "> { ";
-        } else {
-            insert += " GRAPH <" + Constants.DEFAULT_REPOSITORY + "> { ";
-        }
-
-        insert += streamUri + " a <" + typeUri + "> . ";
-        insert += streamUri + " hasco:hascoType <" + hascoTypeUri + "> . ";
-        insert += streamUri + " rdfs:label  \"" + this.getLabel() + "\" . ";
-        if (this.getStudyUri().startsWith("http")) {
-            insert += streamUri + " hasco:hasStudy  <" + this.getStudyUri() + "> . ";
-        } else {
-            insert += streamUri + " hasco:hasStudy  " + this.getStudyUri() + " . ";
-        }
-        if (this.getSemanticDataDictionaryUri().startsWith("http")) {
-            insert += streamUri + " hasco:hasSDD  <" + this.getSemanticDataDictionaryUri() + "> . ";
-        } else {
-            insert += streamUri + " hasco:hasSDD  " + this.getSemanticDataDictionaryUri() + " . ";
-        }
-        if (this.getDeploymentUri().startsWith("http")) {
-            insert += streamUri + " hasco:hasDeployment  <" + this.getDeploymentUri() + "> . ";
-        } else {
-            insert += streamUri + " hasco:hasDeployment  " + this.getDeploymentUri() + " . ";
-        }
-        if (this.getPermissionUri().startsWith("http")) {
-            insert += streamUri + " hasco:hasPermissionUri  <" + this.getPermissionUri() + "> . ";
-        } else {
-            insert += streamUri + " hasco:hasPermissionUri  " + this.getPermissionUri() + " . ";
-        }
-        if (this.getHasSIRManagerEmail() != null && !this.getHasSIRManagerEmail().equals("")) {
-            insert += streamUri + " vstoi:hasSIRManagerEmail  \"" + this.getHasSIRManagerEmail() + "\" . ";
-        }
-        // insert += streamUri + " hasco:hasLastCounter  \"" + this.hasLastCounter + "\" . ";
-        // if (this.getSpaceScopeUris() != null && this.getSpaceScopeUris().size() > 0) {
-        //     for (String spaceScope : this.getSpaceScopeUris()) {
-        //         if (spaceScope != null && !spaceScope.isEmpty()){
-        //             if (spaceScope.startsWith("http")) {
-        //                 insert += streamUri + " hasco:hasSpaceScope  <" + spaceScope + "> . ";
-        //             } else {
-        //                 insert += streamUri + " hasco:hasSpaceScope  " + spaceScope + " . ";
-        //             }
-        //         }
-        //     }
-        // }
-        // if (this.getTimeScopeUris() != null && this.getTimeScopeUris().size() > 0) {
-        //     for (String timeScope : this.getTimeScopeUris()) {
-        //         if (timeScope != null && !timeScope.isEmpty()){
-        //             if (timeScope.startsWith("http")) {
-        //                 insert += streamUri + " hasco:hasTimeScope  <" + timeScope + "> . ";
-        //             } else {
-        //                 insert += streamUri + " hasco:hasTimeScope  " + timeScope + " . ";
-        //                 //System.out.println(streamUri + " hasco:hasTimeScope  " + timeScope + " . ");
-        //             }
-        //         }
-        //     }
-        // }
-        // if (this.getGroupUris() != null && this.getGroupUris().size() > 0) {
-        //     for (String group : this.getGroupUris()) {
-        //         if (group.length() > 0){
-        //             if (group.startsWith("http")) {
-        //                 insert += streamUri + " hasco:hasGroup  <" + group + "> . ";
-        //             } else {
-        //                 insert += streamUri + " hasco:hasGroup  " + group + " . ";
-        //                 //System.out.println(streamUri + " hasco:hasGroup  " + group + " . ");
-        //             }
-        //         }
-        //     }
-        // }
-
-        // NAMEDGRAPH CLOSING
-        insert += " } ";
-
-        //System.out.println("\n\nsave to TS: insert = " + insert + "\n ");
-
-        if (query == null){
-            // INSERT CLOSING
-            insert += LINE_LAST;
-
-            try {
-                UpdateRequest request = UpdateFactory.create(insert);
-                UpdateProcessor processor = UpdateExecutionFactory.createRemote(
-                        request, CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
-                processor.execute();
-            } catch (QueryParseException e) {
-                System.out.println("QueryParseException due to update query: " + insert);
-                throw e;
-            }
-        } else {
-            // Update query
-            if (query.isEmpty()){
-                query.add(insert);
-            } else {
-                query.set(0, insert);
-            }
-        }
-
-        //saveObjectUris(streamUri);
-
-        return true;
-    }
-    */
 
     @Override
     public void save() {

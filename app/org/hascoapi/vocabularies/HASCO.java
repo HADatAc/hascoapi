@@ -172,6 +172,7 @@ public class HASCO {
     public static final String ACTIVE                                 = "http://hadatac.org/ont/hasco/Active";          
     public static final String SUSPENDED                              = "http://hadatac.org/ont/hasco/Suspended";       
     public static final String CLOSED                                 = "http://hadatac.org/ont/hasco/Closed";      
+    public static final String ALL_STATUSES                           = "http://hadatac.org/ont/hasco/AllStatuses";      
 
     /*
      * PERMISSION URI

@@ -40,14 +40,11 @@ public class StreamAPI extends Controller {
         if (deploymentUri == null || deploymentUri.isEmpty()) {
             return ok(ApiUtil.createResponse("No deploymnent uri has been provided to retrieve streams", false));
         }
-        if (state == null) {
-            state = "";
-        } else {
-            if (!state.equals(HASCO.DRAFT) && 
-                !state.equals(HASCO.ACTIVE) &&
-                !state.equals(HASCO.CLOSED)) { 
-                    return ok(ApiUtil.createResponse("No valid state has been provided to retrieve streams", false));
-                }
+        if (!state.equals(HASCO.DRAFT) && 
+            !state.equals(HASCO.ACTIVE) &&
+            !state.equals(HASCO.CLOSED) && 
+            !state.equals(HASCO.ALL_STATUSES)) { 
+            return ok(ApiUtil.createResponse("No valid state has been provided to retrieve streams", false));
         }
         return StreamAPI.getStreams(Stream.findCanUpdateByDeploymentWithPages(state,userEmail,deploymentUri,pageSize,offset));
     }
@@ -62,14 +59,11 @@ public class StreamAPI extends Controller {
         if (deploymentUri == null || deploymentUri.isEmpty()) {
             return ok(ApiUtil.createResponse("No deploymnent uri has been provided to retrieve streams", false));
         }
-        if (state == null) {
-            state = "";
-        } else {
-            if (!state.equals(HASCO.DRAFT) && 
-                !state.equals(HASCO.ACTIVE) &&
-                !state.equals(HASCO.CLOSED)) { 
-                    return ok(ApiUtil.createResponse("No valid state has been provided to retrieve streams", false));
-                }
+        if (!state.equals(HASCO.DRAFT) && 
+            !state.equals(HASCO.ACTIVE) &&
+            !state.equals(HASCO.CLOSED) && 
+            !state.equals(HASCO.ALL_STATUSES)) { 
+            return ok(ApiUtil.createResponse("No valid state has been provided to retrieve streams", false));
         }
         int totalElements = Stream.findTotalCanUpdateByDeploymentWithPages(state,userEmail,deploymentUri);
         if (totalElements >= 0) {

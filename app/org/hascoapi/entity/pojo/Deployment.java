@@ -406,7 +406,7 @@ public class Deployment extends HADatAcThing {
                     "   ?uri prov:endedAtTime ?enddatetime .  " + 
                     "} " +
                     "ORDER BY DESC(?datetime) ";
-        } else if (state == null || state.isEmpty()) {
+        } else if (state.equals(HASCO.ALL_STATUSES)) {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                     "SELECT ?uri WHERE { " + 
                     "   ?uri a vstoi:Deployment . " + 
@@ -451,7 +451,7 @@ public class Deployment extends HADatAcThing {
                     " ORDER BY DESC(?datetime) " +
                     " LIMIT " + pageSize + 
                     " OFFSET " + offset;
-        } else if (state == null || state.isEmpty()) {
+        } else if (state.equals(HASCO.ALL_STATUSES)) {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                     "SELECT ?uri WHERE { " + 
                     "   ?uri a vstoi:Deployment . " + 
@@ -505,7 +505,7 @@ public class Deployment extends HADatAcThing {
                     " ORDER BY DESC(?startedattime) " +
                     " LIMIT " + pageSize + 
                     " OFFSET " + offset;
-        } else if (state == null || state.isEmpty()) {
+        } else if (state.equals(HASCO.ALL_STATUSES)) {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                     "SELECT ?uri WHERE { " + 
                     "   ?uri a vstoi:Deployment . " + 
@@ -551,7 +551,7 @@ public class Deployment extends HADatAcThing {
                 "   ?uri prov:endedAtTime ?enddatetime .  " + 
                 "   FILTER (?userEmail = \"" + userEmail + "\") " +
                 "} ";
-        } else if (state == null || state.isEmpty()) {
+        } else if (state.equals(HASCO.ALL_STATUSES)) {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 "SELECT (count(?uri) as ?tot) WHERE { " + 
                 "   ?uri a vstoi:Deployment . " + 
@@ -588,7 +588,7 @@ public class Deployment extends HADatAcThing {
                     "   ?uri prov:startedAtTime ?startdatetime .  " + 
                     "   ?uri prov:endedAtTime ?enddatetime .  " + 
                     "} ";
-        } else if (state == null || state.isEmpty()) {
+        } else if (state.equals(HASCO.ALL_STATUSES)) {
             query = NameSpaces.getInstance().printSparqlNameSpaceList() +
                     "SELECT (count(?uri) as ?tot) WHERE { " + 
                     "   ?uri a vstoi:Deployment . " + 
@@ -651,7 +651,7 @@ public class Deployment extends HADatAcThing {
                     "   ?uri prov:endedAtTime ?enddatetime .  " + 
                     "} " +
                     "ORDER BY DESC(?datetime) ";
-        } else if (state == null || state.isEmpty()) {
+        } else if (state.equals(HASCO.ALL_STATUSES)) {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                     "SELECT ?uri WHERE { " + 
                     "   ?uri a vstoi:Deployment . " + 
@@ -704,7 +704,7 @@ public class Deployment extends HADatAcThing {
                     "   ?uri prov:endedAtTime ?enddatetime .  " + 
                     "} " +
                     "ORDER BY DESC(?datetime) ";
-        } else if (state == null || state.isEmpty()) {
+        } else if (state.equals(HASCO.ALL_STATUSES)) {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                     "SELECT ?uri WHERE { " + 
                     "   ?uri a vstoi:Deployment . " + 
