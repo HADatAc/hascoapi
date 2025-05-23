@@ -136,6 +136,8 @@ GET     /hascoapi/api/deploymentbyplatforminstance/total/:platforminstanceUri   
 
 GET     /hascoapi/api/stream/:state/:email/:deploymentUri/:pageSize/:offset         org.hascoapi.console.controllers.restapi.StreamAPI.findCanUpdateByDeploymentWithPages(state: String, email: String, deploymentUri: String, pageSize: Integer, offset: Integer)
 GET     /hascoapi/api/stream/total/:state/:email/:deploymentUri                     org.hascoapi.console.controllers.restapi.StreamAPI.findTotalCanUpdateByDeploymentWithPages(state: String, email: String, deploymentUri: String)
+GET     /hascoapi/api/stream/bystudy/:studyUri/:state/:pageSize/:offset             org.hascoapi.console.controllers.restapi.StreamAPI.findByStudyWithPages(studyUri: String, state: String, pageSize: Integer, offset: Integer)
+GET     /hascoapi/api/stream/bystudy/total/:studyUri/:state                         org.hascoapi.console.controllers.restapi.StreamAPI.findByStudyTotal(studyUri: String, state: String)
 
 GET     /hascoapi/api/platforminstance/byplatform/:platformUri/:pageSize/:offset    org.hascoapi.console.controllers.restapi.VSTOIInstanceAPI.findPlatformInstancesByPlatformWithPage(platformUri: String, pageSize: Integer, offset: Integer)
 GET     /hascoapi/api/platforminstance/byplatform/total/:platformUri                org.hascoapi.console.controllers.restapi.VSTOIInstanceAPI.findTotalPlatformInstancesByPlatform(platformUri: String)

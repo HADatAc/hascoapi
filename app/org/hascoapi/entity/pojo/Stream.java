@@ -784,12 +784,36 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
 		return str;
 	}
 
+    public static List<Stream> findByStudyWithPages(Study study,String state,int pageSize, int offset) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+            "SELECT ?uri WHERE { \n" +
+            "   ?uri hasco:hasStudy <" + study.getUri() + "> . \n" +
+            "   ?uri hasco:hascoType hasco:Stream . \n";
+        if (!state.equals(HASCO.ALL_STATUSES)) {
+            queryString += "   ?uri hasco:hasStreamStatus <" + state + "> . \n";
+        }
+        queryString += " } " + 
+            " LIMIT " + pageSize +
+            " OFFSET " + offset;
+        return findManyByQuery(queryString);
+    } 
+
+    public static int findByStudyTotal(Study study, String state) {
+		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+		queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
+            "   ?uri hasco:hasStudy <" + study.getUri() + "> . \n" +
+            "   ?uri hasco:hascoType hasco:Stream . \n";
+        if (!state.equals(HASCO.ALL_STATUSES)) {
+            queryString += "   ?uri hasco:hasStreamStatus <" + state + "> . \n";
+        }
+        queryString += " } ";
+        return GenericFind.findTotalByQuery(queryString);
+    } 
+
     public static List<Stream> findStreamsByStudy(String studyUri) {
         if (studyUri == null) {
             return null;
         }
-        List<Stream> streamList = new ArrayList<Stream>();
-
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 "SELECT ?uri WHERE { \n" +
                 "   ?uri hasco:hasStudy <" + studyUri + "> . \n" +
