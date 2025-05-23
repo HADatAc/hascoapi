@@ -75,6 +75,7 @@ public class StreamAPI extends Controller {
     }
 
     public Result findByStudyWithPages(String studyUri, String state, int pageSize, int offset) {
+        System.out.println("StreamAPI: value of state is [" + state + "]");
         if (studyUri == null || studyUri.isEmpty()) {
             return ok(ApiUtil.createResponse("No studyUri has been provided to retrieve streams", false));
         }
