@@ -1095,11 +1095,38 @@ public class SIRElementAPI extends Controller {
         if (elementType == null || elementType.isEmpty()) {
             return ok(ApiUtil.createResponse("No elementType has been provided", false));
         }
-        Class clazz = GenericFind.getElementClass(elementType);
-        if (clazz == null) {        
-            return ok(ApiUtil.createResponse("[" + elementType + "] is not a valid elementType", false));
+        int totalElements = -1;
+        if (elementType.equals("component")) {
+            Class clazz = GenericFind.getElementClass("detector");
+            int totalDetectors = GenericFind.findTotalByKeyword(clazz, keyword);
+            if (totalDetectors < 0) {
+                totalDetectors = 0;
+            }
+            clazz = GenericFind.getElementClass("actuator");
+            int totalActuators = GenericFind.findTotalByKeyword(clazz, keyword);
+            if (totalActuators < 0) {
+                totalActuators = 0;
+            }
+            totalElements = totalDetectors + totalActuators;
+        } else if (elementType.equals("componentinstance")) {
+            Class clazz = GenericFind.getElementClass("detectorinstance");
+            int totalDetectorInstances = GenericFind.findTotalByKeyword(clazz, keyword);
+            if (totalDetectorInstances < 0) {
+                totalDetectorInstances = 0;
+            }
+            clazz = GenericFind.getElementClass("actuatorinstance");
+            int totalActuatorInstances = GenericFind.findTotalByKeyword(clazz, keyword);
+            if (totalActuatorInstances < 0) {
+                totalActuatorInstances = 0;
+            }
+            totalElements = totalDetectorInstances + totalActuatorInstances;
+        } else {
+            Class clazz = GenericFind.getElementClass(elementType);
+            if (clazz == null) {        
+                return ok(ApiUtil.createResponse("[" + elementType + "] is not a valid elementType", false));
+            }
+            totalElements = GenericFind.findTotalByKeyword(clazz, keyword);
         }
-        int totalElements = GenericFind.findTotalByKeyword(clazz, keyword);
         if (totalElements >= 0) {
             String totalElementsJSON = "{\"total\":" + totalElements + "}";
             return ok(ApiUtil.createResponse(totalElementsJSON, true));
