@@ -115,6 +115,7 @@ public class HASCO {
     public static final String HAS_OBJECT_SCOPE                       = "http://hadatac.org/ont/hasco/hasObjectScope";
     public static final String HAS_ORIGINAL_VALUE                     = "http://hadatac.org/ont/hasco/hasOriginalValue";
     public static final String HAS_OTHER_FOR                          = "http://hadatac.org/ont/hasco/otherFor";
+    public static final String HAS_PERMISSION_URI                     = "http://hadatac.org/ont/hasco/hasPermissionUri";
     public static final String HAS_PI                                 = "http://hadatac.org/ont/hasco/hasPI";
     public static final String HAS_PROJECT                            = "http://hadatac.org/ont/hasco/hasProject";
     public static final String HAS_REFERENCE_LAYOUT                   = "http://hadatac.org/ont/hasco/hasReferenceLayout";

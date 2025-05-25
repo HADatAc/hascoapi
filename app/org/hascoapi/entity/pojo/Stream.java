@@ -753,6 +753,12 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
 					str.setDatasetPattern(string);
 				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
 					str.setComment(string);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_STREAM_STATUS)) {
+					str.setStreamStatus(Integer.parseInt(string));
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_PERMISSION_URI)) {
+					str.setPermissionUri(string);
+				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
+					str.setComment(string);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.DESIGNED_AT_TIME)) {
                     str.setDesignedAt(string);
                 } else if (statement.getPredicate().getURI().equals(PROV.STARTED_AT_TIME)) {

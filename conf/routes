@@ -134,8 +134,8 @@ GET     /hascoapi/api/deployment/total/:state/:email                            
 GET     /hascoapi/api/deploymentbyplatforminstance/:platforminstanceUri/:pageSize/:offset  org.hascoapi.console.controllers.restapi.DeploymentAPI.findDeploymentsByPlatformInstanceWithPage(platforminstanceUri: String, pageSize: Integer, offset: Integer)
 GET     /hascoapi/api/deploymentbyplatforminstance/total/:platforminstanceUri       org.hascoapi.console.controllers.restapi.DeploymentAPI.findTotalDeploymentsByPlatformInstance(platforminstanceUri: String)
 
-GET     /hascoapi/api/stream/:state/:email/:deploymentUri/:pageSize/:offset         org.hascoapi.console.controllers.restapi.StreamAPI.findCanUpdateByDeploymentWithPages(state: String, email: String, deploymentUri: String, pageSize: Integer, offset: Integer)
-GET     /hascoapi/api/stream/total/:state/:email/:deploymentUri                     org.hascoapi.console.controllers.restapi.StreamAPI.findTotalCanUpdateByDeploymentWithPages(state: String, email: String, deploymentUri: String)
+GET     /hascoapi/api/stream/bydeployment/:state/:email/:deploymentUri/:pageSize/:offset         org.hascoapi.console.controllers.restapi.StreamAPI.findCanUpdateByDeploymentWithPages(state: String, email: String, deploymentUri: String, pageSize: Integer, offset: Integer)
+GET     /hascoapi/api/stream/bydeployment/total/:state/:email/:deploymentUri                     org.hascoapi.console.controllers.restapi.StreamAPI.findTotalCanUpdateByDeploymentWithPages(state: String, email: String, deploymentUri: String)
 GET     /hascoapi/api/stream/bystudy/:studyUri/:state/:pageSize/:offset             org.hascoapi.console.controllers.restapi.StreamAPI.findByStudyWithPages(studyUri: String, state: String, pageSize: Integer, offset: Integer)
 GET     /hascoapi/api/stream/bystudy/total/:studyUri/:state                         org.hascoapi.console.controllers.restapi.StreamAPI.findByStudyTotal(studyUri: String, state: String)
 
