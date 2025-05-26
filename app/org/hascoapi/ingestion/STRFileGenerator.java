@@ -36,6 +36,7 @@ import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.Templates;
 import org.hascoapi.utils.SPARQLUtils;
 import org.hascoapi.utils.URIUtils;
+import org.hascoapi.vocabularies.HASCO;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 
@@ -257,7 +258,7 @@ public class STRFileGenerator extends BaseGenerator {
         //System.out.println("\n\nschema: " + URIUtils.replacePrefixEx((String)row.get("hasco:hasSchema")));
         SDD schema = SDD.find(str.getSemanticDataDictionaryUri());
         if (schema != null) {
-            str.setStreamStatus(9999);
+            str.setHasStreamStatus(HASCO.DRAFT);
         } else {
             dataFile.getLogger().printExceptionByIdWithArgs("STR_00035", str.getSemanticDataDictionaryUri());
             throw new Exception();

@@ -136,7 +136,7 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
      *
      */
     @PropertyField(uri="hasco:hasStreamStatus")
-    private int streamStatus;
+    private String hasStreamStatus;
 
     @PropertyField(uri = "hasco:canView")
     private List<String> canView;
@@ -147,7 +147,6 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
 	@PropertyField(uri="vstoi:hasSIRManagerEmail")
 	private String hasSIRManagerEmail;
 
-    private boolean isComplete;
     private String localName;
     private Map<String,MessageTopic> topicsMap;
     private List<String> headers;
@@ -164,7 +163,6 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
         startedAt = null;
         endedAt = null;
         numberDataPoints = 0;
-        isComplete = false;
         datasetURIs = new ArrayList<String>();
         totalMessages = 0;
         ingestedMessages = 0;
@@ -263,14 +261,6 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
 
     public void setPermissionUri(String permissionUri) {
         this.permissionUri = permissionUri;
-    }
-
-    public boolean getIsComplete() {
-        return isComplete;
-    }
-
-    public void setIsComplete(boolean isComplete) {
-        this.isComplete = isComplete;
     }
 
     public int getTriggeringEvent() {
@@ -471,16 +461,12 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
         this.messageStatus = messageStatus;
     }
 
-    public int getStreamStatus() {
-        return streamStatus;
+    public String getHasStreamStatus() {
+        return hasStreamStatus;
     }
 
-    public void setStreamStatus(int streamStatus) {
-        this.streamStatus = streamStatus;
-    }
-
-    public boolean isComplete() {
-        return streamStatus == 9999;
+    public void setHasStreamStatus(String hasStreamStatus) {
+        this.hasStreamStatus = hasStreamStatus;
     }
 
     public String getParameter() {
@@ -754,7 +740,7 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
 				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
 					str.setComment(string);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_STREAM_STATUS)) {
-					str.setStreamStatus(Integer.parseInt(string));
+					str.setHasStreamStatus(string);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_PERMISSION_URI)) {
 					str.setPermissionUri(string);
 				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {

@@ -27,13 +27,7 @@ public class AnnotateDA {
             stream_uri = URIUtils.replacePrefixEx(dataFile.getStreamUri());
             stream = Stream.find(stream_uri);
             if (stream != null) {
-                if (!stream.isComplete()) {
-                    dataFile.getLogger().printWarningByIdWithArgs("DA_00003", stream_uri);
-                    chain.setInvalid();
-                    return chain;
-                } else {
-                    dataFile.getLogger().println(String.format("Stream <%s> has been located", stream_uri));
-                }
+                dataFile.getLogger().println(String.format("Stream <%s> has been located", stream_uri));
                 study_uri = stream.getStudy().getUri();
                 deployment_uri = stream.getDeploymentUri();
                 semanticdatadictionary_uri = stream.getSemanticDataDictionaryUri();

@@ -270,7 +270,7 @@ public class STRMessageGenerator extends BaseGenerator {
         }
         */
 
-        str.setStreamStatus(9999);
+        str.setHasStreamStatus(HASCO.DRAFT);
 
         return str;
     }
