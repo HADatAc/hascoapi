@@ -2,6 +2,14 @@ package org.hascoapi.entity.pojo;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 
+import java.util.ArrayList;
+import java.util.List;
+
+
+import org.apache.jena.query.QueryParseException;
+import org.apache.jena.query.QuerySolution;
+import org.apache.jena.query.ResultSetRewindable;
+import org.apache.jena.query.ResultSetFormatter;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Property;
@@ -11,6 +19,7 @@ import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.hascoapi.annotations.PropertyField;
 import org.hascoapi.utils.CollectionUtil;
+import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.SPARQLUtils;
 import org.hascoapi.utils.URIUtils;
 import org.hascoapi.vocabularies.HASCO;
@@ -19,7 +28,7 @@ import org.hascoapi.vocabularies.RDFS;
 import org.hascoapi.vocabularies.VSTOI;
 
 @JsonFilter("daFilter")
-public class DA extends MetadataTemplate {
+public class DA extends MetadataTemplate implements Comparable<DA>  {
 
     public String className = "hasco:DataAcquisition";
 
@@ -70,6 +79,83 @@ public class DA extends MetadataTemplate {
         }
         return Study.find(isMemberOfUri);
     }	
+
+    public static List<DA> findByStudy(Study study, int pageSize, int offset) {
+        if (study == null) {
+            return new ArrayList<DA>();
+        }
+        String query = NameSpaces.getInstance().printSparqlNameSpaceList() + 
+                " SELECT uri " +
+                " WHERE {  ?uri hasco:isMemberOf <" + study.getUri() + "> .  " +
+				"          ?uri hasco:hascoType <" + HASCO.DATA_ACQUISITION + "> . " +
+				"          ?uri rdfs:label ?label . " +
+                " } " +
+                " ORDER BY ASC(?label) " +
+                " LIMIT " + pageSize +
+                " OFFSET " + offset;
+        return DA.findManyByQuery(query);
+    }        
+    
+    public static int findTotalByStudy(Study study) {
+        if (study == null) {
+            return 0;
+        }
+        String query = NameSpaces.getInstance().printSparqlNameSpaceList() + 
+                " SELECT (count(?uri) as ?tot)  " +
+                " WHERE {  ?uri hasco:isMemberOf <" + study.getUri() + "> .  " +
+				"          ?uri hasco:hascoType <" + HASCO.DATA_ACQUISITION + "> . " +
+                " }";
+        return GenericFind.findTotalByQuery(query);
+    }        
+    
+    public static List<DA> findByStream(Stream stream, int pageSize, int offset) {
+        if (stream == null) {
+            return new ArrayList<DA>();
+        }
+        String query = NameSpaces.getInstance().printSparqlNameSpaceList() + 
+                " SELECT uri " +
+                " WHERE {  ?uri hasco:hascoType <" + HASCO.DATA_ACQUISITION + "> . " +
+				"          ?uri hasco:hasDataFile ?datafile . " +
+                "          ?datafile hasco:hasStream <" + stream.getUri() + "> .  " +
+                " } " +
+                " ORDER BY ASC(?label) " +
+                " LIMIT " + pageSize +
+                " OFFSET " + offset;
+        return DA.findManyByQuery(query);
+    }        
+    
+    public static int findTotalByStream(Stream stream) {
+        if (stream == null) {
+            return 0;
+        }
+        String query = NameSpaces.getInstance().printSparqlNameSpaceList() + 
+                " SELECT (count(?uri) as ?tot)  " +
+                " WHERE {  ?uri hasco:hascoType <" + HASCO.DATA_ACQUISITION + "> . " +
+				"          ?uri hasco:hasDataFile ?datafile . " +
+                "          ?datafile hasco:hasStream <" + stream.getUri() + "> .  " +
+                " }";
+        return GenericFind.findTotalByQuery(query);
+    }        
+    
+    public static List<DA> findManyByQuery(String requestedQuery) {
+        List<DA> das = new ArrayList<DA>();
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + requestedQuery;
+
+        ResultSetRewindable resultsrw = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+        while (resultsrw.hasNext()) {
+            QuerySolution soln = resultsrw.next();
+            String uri = soln.getResource("uri").getURI();
+            DA da = DA.find(uri);
+            das.add(da);
+        }
+
+        if (das != null && !das.contains(null) &&  das.size() > 0) {
+            java.util.Collections.sort((List<DA>) das);
+        }
+        return das;
+    }
 
     public static DA find(String uri) {
             
@@ -128,6 +214,14 @@ public class DA extends MetadataTemplate {
         da.setUri(uri);
         
         return da;
+    }
+
+    @Override
+    public int compareTo(DA another) {
+        if (this.getUri() == null || another.getUri() == null) {
+            return 0;
+        }
+        return this.getUri().compareTo(another.getUri());
     }
 
 }

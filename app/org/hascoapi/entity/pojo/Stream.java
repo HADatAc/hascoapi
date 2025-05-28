@@ -113,30 +113,37 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
 
 
     /*
-     * Possible values for message status:
-     * ACTIVE:     It is not closed and it is collecting data
-     * SUSPENDED:  It is not closed but it is not collecting data
-     * CLOSED:     It is not collecting data. It is no longer available
-     *             for data collection
-     */
-    @PropertyField(uri="hasco:hasMessageStatus")
-    private String messageStatus;
-
-    /*
-     * 0 - DataAcquisition is a new one, its details on the preamble It should
-     * not exist inside the KB Preamble must contain deployment link and
-     * deployment must exists on the KB 1 - DataAcquisition already exists, only
-     * a reference present on the preamble It should exist inside the KB as not
-     * finished yet 2 - DataAcquisition already exists, the preamble states its
-     * termination with endedAtTime information It should exist inside the KB as
-     * not finished yet
-     *
-     * 9999 - Stream Specification is complete (anything else diferent
-     * than 9999 is considered incomplete
-     *
+     *  A Stream can have one of these status (hasStremStatus): 
+     *     DRAFT: Designed but not being executed. Data cannot be collected from the stream.
+     *     ACTIVE: Being executed. Data may be collected from the stream.
+     *     CLOSED: Stream cannot be used anymore to collect data. It is used to preserve
+     *             provenance about the stream
+     * 
+     * For method execution purpose, there is a ALL_STATUSES that indicates that we want to
+     * retrieve all streams regardless of their status.
+     * 
+     * These statuses are valid for both datafile streams and message streams
+     *     
      */
     @PropertyField(uri="hasco:hasStreamStatus")
     private String hasStreamStatus;
+
+    /*
+     * A Message stream has a hasMessageStatus is to be used for MESSAGE STREAMS. 
+     * Possible values for message status:
+     *    INACTIVE: The message stream is either DRAFT or CLOSED.
+     *    RECORDING:  The message stream is active and its content is being recorded into a datafile.
+     *    INGESTING:  The message stream is active, its content is being recorded into a datafile, and, at the same time, the content is 
+     *       being ingested into a knowledge graph.  
+     *    SUSPENDED: The message stream is active but no content is being recorded or ingested.
+     * 
+     * The hasMessageStatus is a property of the stream itself, and it is not a property of a datafile 
+     * the stream may be recording. This means that if the stream's content is being saved into a datafile now to be ingested later, 
+     * the stream will not be in INGESTION mode when the recorded datafile is ingested later.
+     * 
+     */
+    @PropertyField(uri="hasco:hasMessageStatus")
+    private String hasMessageStatus;
 
     @PropertyField(uri = "hasco:canView")
     private List<String> canView;
@@ -453,20 +460,20 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
         return label + "_at_" + messageIP + "_" + messagePort;
     }
 
-    public String getMessageStatus() {
-        return messageStatus;
-    }
-
-    public void setMessageStatus(String messageStatus) {
-        this.messageStatus = messageStatus;
-    }
-
     public String getHasStreamStatus() {
         return hasStreamStatus;
     }
 
     public void setHasStreamStatus(String hasStreamStatus) {
         this.hasStreamStatus = hasStreamStatus;
+    }
+
+    public String getHasMessageStatus() {
+        return hasMessageStatus;
+    }
+
+    public void setHasMessageStatus(String hasMessageStatus) {
+        this.hasMessageStatus = hasMessageStatus;
     }
 
     public String getParameter() {
@@ -741,6 +748,8 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
 					str.setComment(string);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_STREAM_STATUS)) {
 					str.setHasStreamStatus(string);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_MESSAGE_STATUS)) {
+					str.setHasMessageStatus(string);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_PERMISSION_URI)) {
 					str.setPermissionUri(string);
 				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
@@ -753,13 +762,13 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
                     str.setEndedAt(string);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
                     str.setHasVersion(string);
-                } else if (statement.getPredicate().getURI().equals(HASCO.HAS_MESSSAGE_ARCHIVE_ID)) {
+                } else if (statement.getPredicate().getURI().equals(HASCO.HAS_MESSAGE_ARCHIVE_ID)) {
                     str.setMessageArchiveId(string);
-                } else if (statement.getPredicate().getURI().equals(HASCO.HAS_MESSSAGE_IP)) {
+                } else if (statement.getPredicate().getURI().equals(HASCO.HAS_MESSAGE_IP)) {
                     str.setMessageIP(string);
-                } else if (statement.getPredicate().getURI().equals(HASCO.HAS_MESSSAGE_PORT)) {
+                } else if (statement.getPredicate().getURI().equals(HASCO.HAS_MESSAGE_PORT)) {
                     str.setMessagePort(string);
-                } else if (statement.getPredicate().getURI().equals(HASCO.HAS_MESSSAGE_PROTOCOL)) {
+                } else if (statement.getPredicate().getURI().equals(HASCO.HAS_MESSAGE_PROTOCOL)) {
                     str.setMessageProtocol(string);
                 } else if (statement.getPredicate().getURI().equals(HASCO.CAN_UPDATE)) {
                     str.addCanUpdate(string);

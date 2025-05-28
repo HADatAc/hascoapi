@@ -543,18 +543,6 @@ public class Study extends HADatAcThing {
         return GenericFind.findTotalByQuery(query);
     }        
     
-    public static int findTotalStudyDAs(String uri) {
-        if (uri == null || uri.isEmpty()) {
-            return 0;
-        }
-        String query = NameSpaces.getInstance().printSparqlNameSpaceList() + 
-                " SELECT (count(?uri) as ?tot)  " +
-                " WHERE {  ?uri hasco:isMemberOf <" + uri + "> .  " +
-				"          ?uri hasco:hascoType <" + HASCO.DATA_ACQUISITION + "> . " +
-                " }";
-        return GenericFind.findTotalByQuery(query);
-    }        
-    
     public static int findTotalStudyRoles(String uri) {
         if (uri == null || uri.isEmpty()) {
             return 0;

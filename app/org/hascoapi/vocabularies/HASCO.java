@@ -102,11 +102,12 @@ public class HASCO {
     public static final String HAS_LOG                                = "http://hadatac.org/ont/hasco/hasLog";
     public static final String HAS_MANAGER                            = "http://hadatac.org/ont/hasco/hasManager";
     public static final String HAS_MANAGER_EMAIL                      = "http://hadatac.org/ont/hasco/hasManagerEmail";
-    public static final String HAS_MESSSAGE_ARCHIVE_ID                = "http://hadatac.org/ont/hasco/hasMessageArchiveID";
-    public static final String HAS_MESSSAGE_HEADER                    = "http://hadatac.org/ont/hasco/hasMessageHeader";
-    public static final String HAS_MESSSAGE_IP                        = "http://hadatac.org/ont/hasco/hasMessageIP";
-    public static final String HAS_MESSSAGE_PORT                      = "http://hadatac.org/ont/hasco/hasMessagePort";
-    public static final String HAS_MESSSAGE_PROTOCOL                  = "http://hadatac.org/ont/hasco/hasMessageProtocol";
+    public static final String HAS_MESSAGE_ARCHIVE_ID                 = "http://hadatac.org/ont/hasco/hasMessageArchiveID";
+    public static final String HAS_MESSAGE_HEADER                     = "http://hadatac.org/ont/hasco/hasMessageHeader";
+    public static final String HAS_MESSAGE_IP                         = "http://hadatac.org/ont/hasco/hasMessageIP";
+    public static final String HAS_MESSAGE_PORT                       = "http://hadatac.org/ont/hasco/hasMessagePort";
+    public static final String HAS_MESSAGE_PROTOCOL                   = "http://hadatac.org/ont/hasco/hasMessageProtocol";
+    public static final String HAS_MESSAGE_STATUS                     = "http://hadatac.org/ont/hasco/hasMessageStatus";
     public static final String HAS_METHOD                             = "http://hadatac.org/ont/hasco/hasMethod";
     public static final String HAS_NAMESPACE_ABBREVIATION             = "http://hadatac.org/ont/hasco/hasNamespaceAbbreviation";
     public static final String HAS_NAMESPACE_URL                      = "http://hadatac.org/ont/hasco/hasNamespaceURL";
@@ -164,17 +165,24 @@ public class HASCO {
     public static final String PART_OF                                = "http://hadatac.org/ont/hasco/partOf";
     public static final String PART_OF_SCHEMA                         = "http://hadatac.org/ont/hasco/partOfSchema";
 
-
     /*
      * STREAM STATUS
      */
 
     public static final String DRAFT                                  = "http://hadatac.org/ont/hasco/Draft";        
     public static final String ACTIVE                                 = "http://hadatac.org/ont/hasco/Active";          
-    public static final String SUSPENDED                              = "http://hadatac.org/ont/hasco/Suspended";       
     public static final String CLOSED                                 = "http://hadatac.org/ont/hasco/Closed";      
     public static final String ALL_STATUSES                           = "http://hadatac.org/ont/hasco/AllStatuses";      
 
+    /*
+     * MESSAGE STATUS
+     */
+
+    public static final String INACTIVE                               = "http://hadatac.org/ont/hasco/Inactive";
+    public static final String RECORDING                              = "http://hadatac.org/ont/hasco/Recording";
+    public static final String INGESTING                              = "http://hadatac.org/ont/hasco/Ingesting";
+    public static final String SUSPENDED                              = "http://hadatac.org/ont/hasco/Suspended";
+    
     /*
      * PERMISSION URI
      */
