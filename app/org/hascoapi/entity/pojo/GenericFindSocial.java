@@ -126,7 +126,7 @@ public class GenericFindSocial<T> {
         }
         queryString += "}";
 
-		System.out.println("GenericFindSocial: query is...\n" + queryString);
+		//System.out.println("GenericFindSocial: query is...\n" + queryString);
 
 		return GenericFind.findTotalByQuery(queryString);
 	}
