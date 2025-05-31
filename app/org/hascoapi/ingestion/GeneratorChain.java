@@ -137,7 +137,9 @@ public class GeneratorChain {
 
         // Commit if no errors occurred
         for (BaseGenerator generator : chain) {
-            System.out.println("GeneratorChain: Started commit of generator of type [" + generator.getClass().getSimpleName() + "]");
+            String elementType = generator.getElementType();
+            System.out.println("GeneratorChain: Started commit of generator of type [" + generator.getClass().getSimpleName() + " " + elementType + "]");
+            System.out.println("GeneratorChain: Number of Rows [" + generator.getRows().size() + "]");
             if (!getNamedGraphUri().isEmpty()) {
                 generator.setNamedGraphUri(getNamedGraphUri());
             }
@@ -163,7 +165,7 @@ public class GeneratorChain {
                 generator.getLogger().printException(generator.getErrorMsg(e));
                 return false;
             }
-            System.out.println("GeneratorChain: Finished commit of generator of type [" + generator.getClass().getSimpleName() + "]");
+            System.out.println("GeneratorChain: Finished commit of generator of type [" + generator.getClass().getSimpleName() + " " + elementType + "]");
         }
 
         for (BaseGenerator generator : chain) {

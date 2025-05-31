@@ -56,8 +56,11 @@ public class GenericFindSocial<T> {
 		} else if (project != null && hascoType.equals("schema:Place") && !project.isEmpty()) {
 			queryString += " <" + project + "> schema:contributor ?org . ";
 			queryString += " ?org schema:address ?pa . ";
-			queryString += " ?pa schema:addressLocality ?city ; schema:addressRegion ?state ; schema:addressCountry ?country . ";		
-			queryString += "  FILTER(?uri IN (?city, ?state, ?country)) ";
+			queryString += " ?pa schema:addressLocality ?city ; schema:addressCountry ?country . ";		
+			queryString += "  OPTIONAL { ?pa schema:addressRegion ?state . } ";
+			queryString += "  FILTER (?uri = ?city || (BOUND(?state) && ?uri = ?state) || ?uri = ?country) ";
+			//queryString += " ?pa schema:addressLocality ?city ; schema:addressRegion ?state ; schema:addressCountry ?country . ";		
+			//queryString += "  FILTER(?uri IN (?city, ?state, ?country)) ";
 		}
 		if (managerEmail != null && !managerEmail.isEmpty()) {
 			queryString += " ?uri vstoi:hasSIRManagerEmail ?managerEmail . ";
@@ -123,7 +126,7 @@ public class GenericFindSocial<T> {
         }
         queryString += "}";
 
-		//System.out.println("GenericFindSocial: query is...\n" + queryString);
+		System.out.println("GenericFindSocial: query is...\n" + queryString);
 
 		return GenericFind.findTotalByQuery(queryString);
 	}

@@ -13,6 +13,8 @@ import java.util.stream.StreamSupport;
 
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -88,16 +90,29 @@ public class SpreadsheetRecordFile implements RecordFile {
                 return false;
             }
             
-            numberOfRows = sheet.getLastRowNum() + 1;
+            //numberOfRows = sheet.getLastRowNum() + 1;
 
             Iterator<Row> rows = sheet.iterator();
+            int nonEmptyRowCount = 0;
+            boolean headerFound = false;
+            
             while (rows.hasNext()) {
-                Row header = rows.next();
-                if (!isEmptyRow(header)) {
-                    headers = getRowValues(header);
+                Row row = rows.next();
+            
+                if (isEmptyRow(row)) {
+                    // Stop processing at the first empty row
                     break;
                 }
+            
+                if (!headerFound) {
+                    headers = getRowValues(row);  // First non-empty row is treated as header
+                    headerFound = true;
+                }
+            
+                nonEmptyRowCount++;
             }
+            
+            numberOfRows = nonEmptyRowCount;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             return false;
@@ -223,15 +238,24 @@ public class SpreadsheetRecordFile implements RecordFile {
     }
 
     private boolean isEmptyRow(Row row) {
-        if (row == null || row.getFirstCellNum() < 0 || row.getLastCellNum() < 0) {
-            return false;
+        //if (row == null || row.getFirstCellNum() < 0 || row.getLastCellNum() < 0) {
+        if (row == null) {
+            return true;
         }
 
-        for (int i = row.getFirstCellNum(); i <= row.getLastCellNum(); i++) {
-            if (row.getCell(i) != null && !row.getCell(i).toString().trim().isEmpty()) {
+        for (Cell cell : row) {
+            if (cell != null && cell.getCellType() != CellType.BLANK &&
+                cell.getCellType() != CellType._NONE &&
+                !cell.toString().trim().isEmpty()) {
                 return false;
             }
         }
+
+        //for (int i = row.getFirstCellNum(); i <= row.getLastCellNum(); i++) {
+        //    if (row.getCell(i) != null && !row.getCell(i).toString().trim().isEmpty()) {
+        //        return false;
+        //    }
+        //}
 
         return true;
     }

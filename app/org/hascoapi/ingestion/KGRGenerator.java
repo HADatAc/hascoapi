@@ -144,11 +144,13 @@ public class KGRGenerator extends BaseGenerator {
 
 		// Creates an URI if no URI (hasURI) is provided in the KGR MT. 
 		if (!row.containsKey("hasURI") || row.get("hasURI").toString().trim().isEmpty()) {
-			uri = URIUtils.replacePrefixEx(this.createUri());
-			if (uri == null) {
-				return null;
+			if (!elementType.equals("projectorganization")) {
+				uri = URIUtils.replacePrefixEx(this.createUri());
+				if (uri == null) {
+					return null;
+				}
+				row.put("hasURI", uri);
 			}
-			row.put("hasURI", uri);
 		}
 	
 		// If image is provided, it is copied into the resource folder.
