@@ -117,9 +117,9 @@ public class DA extends MetadataTemplate implements Comparable<DA>  {
                 " SELECT ?uri " +
                 " WHERE {  ?uri hasco:hascoType <" + HASCO.DATA_ACQUISITION + "> . " +
 				"          ?uri hasco:hasDataFile ?datafile . " +
-                "          ?datafile hasco:hasStream <" + stream.getUri() + "> .  " +
+                //"          ?datafile hasco:hasStream <" + stream.getUri() + "> .  " +
                 " } " +
-                " ORDER BY ASC(?label) " +
+                //" ORDER BY ASC(?label) " +
                 " LIMIT " + pageSize +
                 " OFFSET " + offset;
         return DA.findManyByQuery(query);
@@ -147,9 +147,18 @@ public class DA extends MetadataTemplate implements Comparable<DA>  {
 
         while (resultsrw.hasNext()) {
             QuerySolution soln = resultsrw.next();
-            String uri = soln.getResource("uri").getURI();
-            DA da = DA.find(uri);
-            das.add(da);
+            String uri = null;
+            DA da = null;
+            if (soln != null && soln.getResource("uri") != null) {
+                uri = soln.getResource("uri").getURI();
+            }
+            if (uri != null) {
+                da = DA.find(uri);
+            }
+            if (da != null) {
+                das.add(da);
+            }
+
         }
 
         if (das != null && !das.contains(null) &&  das.size() > 0) {
