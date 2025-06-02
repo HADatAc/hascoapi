@@ -85,7 +85,7 @@ public class DA extends MetadataTemplate implements Comparable<DA>  {
             return new ArrayList<DA>();
         }
         String query = NameSpaces.getInstance().printSparqlNameSpaceList() + 
-                " SELECT uri " +
+                " SELECT ?uri " +
                 " WHERE {  ?uri hasco:isMemberOf <" + study.getUri() + "> .  " +
 				"          ?uri hasco:hascoType <" + HASCO.DATA_ACQUISITION + "> . " +
 				"          ?uri rdfs:label ?label . " +
@@ -93,6 +93,7 @@ public class DA extends MetadataTemplate implements Comparable<DA>  {
                 " ORDER BY ASC(?label) " +
                 " LIMIT " + pageSize +
                 " OFFSET " + offset;
+        //System.out.println(query);
         return DA.findManyByQuery(query);
     }        
     
@@ -113,7 +114,7 @@ public class DA extends MetadataTemplate implements Comparable<DA>  {
             return new ArrayList<DA>();
         }
         String query = NameSpaces.getInstance().printSparqlNameSpaceList() + 
-                " SELECT uri " +
+                " SELECT ?uri " +
                 " WHERE {  ?uri hasco:hascoType <" + HASCO.DATA_ACQUISITION + "> . " +
 				"          ?uri hasco:hasDataFile ?datafile . " +
                 "          ?datafile hasco:hasStream <" + stream.getUri() + "> .  " +

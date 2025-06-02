@@ -367,7 +367,7 @@ public class HAScOMapper {
             filterProvider.addFilter("platformFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("platformFilter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "superUri", "typeLabel", "hasStatus", "hascoTypeUri",
                             "hasImageUri", "hasWebDocument", 
                             "hascoTypeLabel", "comment", "hasVersion"));
         }
