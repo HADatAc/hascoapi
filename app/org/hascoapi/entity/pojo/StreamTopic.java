@@ -391,10 +391,14 @@ public class StreamTopic extends HADatAcThing implements Comparable<StreamTopic>
 	}
 
     public static List<StreamTopic> findByStream(String streamUri) {
+        if (streamUri == null || streamUri.isEmpty()) {
+            return new ArrayList<StreamTopic>();
+        }
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
             "SELECT ?uri WHERE { \n" +
             "   ?uri hasco:hasStream <" + streamUri + "> . \n" +
-            "   ?uri hasco:hascoType hasco:StreamTopic . \n";
+            "   ?uri hasco:hascoType hasco:StreamTopic . \n" + 
+            " }";
         return findManyByQuery(queryString);
     } 
 

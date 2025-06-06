@@ -394,6 +394,7 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
     }
 
     public List<StreamTopic> getTopics() {
+        //return new ArrayList<StreamTopic>();
         if (this.getUri() == null) {
             return new ArrayList<StreamTopic>();
         }
