@@ -393,7 +393,7 @@ public abstract class HADatAcThing {
                                 List<String> elements = new ArrayList<String>();
                                 for (String element : (List<String>)list) {
                                     if (element != null && !element.isEmpty()) {
-                                        System.out.println("in List assigned [" + element + "] to [" + propertyUri + "]");
+                                        //System.out.println("in List assigned [" + element + "] to [" + propertyUri + "]");
                                         elements.add(element);
                                     }
                                 }

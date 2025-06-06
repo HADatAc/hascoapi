@@ -121,6 +121,8 @@ public class GenericFind<T> {
             return STR.class;
         } else if (elementType.equals("stream")) {
             return Stream.class;
+        } else if (elementType.equals("streamtopic")) {
+            return StreamTopic.class;
         } else if (elementType.equals("study")) {
             return Study.class;
         } else if (elementType.equals("studyobjectcollection")) {

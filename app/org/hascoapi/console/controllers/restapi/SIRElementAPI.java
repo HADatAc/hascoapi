@@ -436,6 +436,16 @@ public class SIRElementAPI extends Controller {
                 message = e.getMessage();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
+        } else if (clazz == StreamTopic.class) {
+            try {
+                StreamTopic object;
+                object = (StreamTopic)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                System.out.println("Error processing StreamTopic: " + e.getMessage());
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
         } else if (clazz == Study.class) {
             try {
                 Study object;
@@ -622,14 +632,6 @@ public class SIRElementAPI extends Controller {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
-        /*
-        } else if (clazz == DetectorStemType.class) {
-            DetectorStemType object = DetectorStemType.find(uri);
-            if (object == null) {
-                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
-            }
-            object.delete();
-        */
         } else if (clazz == DP2.class) {
             DP2 object = DP2.find(uri);
             if (object == null) {
@@ -672,14 +674,6 @@ public class SIRElementAPI extends Controller {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
-        /*
-        } else if (clazz == InstrumentType.class) {
-            InstrumentType object = InstrumentType.find(uri);
-            if (object == null) {
-                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
-            }
-            object.delete();
-        */
         } else if (clazz == KGR.class) {
             KGR object = KGR.find(uri);
             if (object == null) {
@@ -797,6 +791,12 @@ public class SIRElementAPI extends Controller {
         } else if (clazz == Stream.class) {
             Stream object = Stream.find(uri);
             System.out.println("Ended at: "+ object.getEndedAt());
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == StreamTopic.class) {
+            StreamTopic object = StreamTopic.find(uri);
             if (object == null) {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }

@@ -78,7 +78,7 @@ public class ValueGenerator extends BaseGenerator {
         this.mode = mode;
         if (mode == MSGMODE) {
         	this.logger = str.getMessageLogger();
-        	this.totalCount = str.getIngestedMessages();
+        	//this.totalCount = str.getIngestedMessages();
         }
         if (mode == FILEMODE) {
             this.dataFile = dataFile;
@@ -127,7 +127,7 @@ public class ValueGenerator extends BaseGenerator {
         if (mode == FILEMODE) {
         	unknownHeaders = schema.defineTemporaryPositions(file.getHeaders());
         } else {
-        	unknownHeaders = schema.defineTemporaryPositions(str.getHeaders());
+        	//unknownHeaders = schema.defineTemporaryPositions(str.getHeaders());
         }
 
         //System.out.println("DASA after defineTemporaryPositions]");
@@ -135,11 +135,11 @@ public class ValueGenerator extends BaseGenerator {
             //System.out.println("DASA URI: [" + dasa.getUri() + "]   Position: [" + dasa.getTempPositionInt() + "]");
     	}
 
-        if (!unknownHeaders.isEmpty()) {
-            logger.addLine(Feedback.println(Feedback.WEB,
-                    "[WARNING] Failed to match the following "
-                            + unknownHeaders.size() + " headers: " + unknownHeaders));
-        }
+        //if (!unknownHeaders.isEmpty()) {
+        //    logger.addLine(Feedback.println(Feedback.WEB,
+        //            "[WARNING] Failed to match the following "
+        //                    + unknownHeaders.size() + " headers: " + unknownHeaders));
+        //}
 
         // if (!schema.getTimestampLabel().equals("")) {
         //     posTimestamp = schema.tempPositionOfLabel(schema.getTimestampLabel());
@@ -215,16 +215,16 @@ public class ValueGenerator extends BaseGenerator {
         	if (selector == null) {
         		return null;
         	}
-        	cellObject = str.getTopicsMap().get(selector).getStudyObject();
-        	objUri = cellObject.getUri();
-        	if (objUri == null) {
-        		return null;
-        	}
-        	cellSoc = str.getTopicsMap().get(selector).getSOC();
-        	socUri = cellSoc.getUri();
-        	if (socUri == null) {
-        		return null;
-        	}
+        	//cellObject = str.getTopicsMap().get(selector).getStudyObject();
+        	//objUri = cellObject.getUri();
+        	//if (objUri == null) {
+        	//	return null;
+        	//}
+        	//cellSoc = str.getTopicsMap().get(selector).getSOC();
+        	//socUri = cellSoc.getUri();
+        	//if (socUri == null) {
+        	//	return null;
+        	//}
             //socUri = cellScopeSOC.getUri();
             //objUri = cellScopeObject.getUri();
         } else {

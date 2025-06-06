@@ -185,7 +185,6 @@ public class STRFileGenerator extends BaseGenerator {
         stream.setTriggeringEvent(TriggeringEvent.INITIAL_DEPLOYMENT);
         stream.setNumberDataPoints(0);
         stream.setHasStreamStatus(HASCO.DRAFT);
-        stream.setHasMessageStatus(HASCO.SUSPENDED);
         if (version == null && !version.isEmpty()) {
             stream.setHasVersion(version);
         }

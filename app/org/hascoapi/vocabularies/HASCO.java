@@ -33,6 +33,7 @@ public class HASCO {
     public static final String SEMANTIC_VARIABLE                      = "http://hadatac.org/ont/hasco/SemanticVariable";
     public static final String STR                                    = "http://hadatac.org/ont/hasco/STR";
     public static final String STREAM                                 = "http://hadatac.org/ont/hasco/Stream";
+    public static final String STREAM_TOPIC                           = "http://hadatac.org/ont/hasco/StreamTopic";
     public static final String STUDY                                  = "http://hadatac.org/ont/hasco/Study";
     public static final String STUDY_OBJECT                           = "http://hadatac.org/ont/hasco/StudyObject";
     public static final String STUDY_OBJECT_COLLECTION                = "http://hadatac.org/ont/hasco/StudyObjectCollection";
@@ -107,7 +108,6 @@ public class HASCO {
     public static final String HAS_MESSAGE_IP                         = "http://hadatac.org/ont/hasco/hasMessageIP";
     public static final String HAS_MESSAGE_PORT                       = "http://hadatac.org/ont/hasco/hasMessagePort";
     public static final String HAS_MESSAGE_PROTOCOL                   = "http://hadatac.org/ont/hasco/hasMessageProtocol";
-    public static final String HAS_MESSAGE_STATUS                     = "http://hadatac.org/ont/hasco/hasMessageStatus";
     public static final String HAS_METHOD                             = "http://hadatac.org/ont/hasco/hasMethod";
     public static final String HAS_NAMESPACE_ABBREVIATION             = "http://hadatac.org/ont/hasco/hasNamespaceAbbreviation";
     public static final String HAS_NAMESPACE_URL                      = "http://hadatac.org/ont/hasco/hasNamespaceURL";
@@ -141,11 +141,12 @@ public class HASCO {
     public static final String HAS_STUDY_OBJECT                       = "http://hadatac.org/ont/hasco/hasStudyObject";
     public static final String HAS_STUDY_OBJECT_TYPE                  = "http://hadatac.org/ont/hasco/hasStudyObjectType";
     public static final String HAS_SUBMISSION_TIME                    = "http://hadatac.org/ont/hasco/hasSumissionTime";
-    public static final String HAS_TIME_OBJECT_SCOPE                  = "http://hadatac.org/ont/hasco/hasTimeObjectScope";
     public static final String HAS_THIRD_COORDINATE                   = "http://hadatac.org/ont/hasco/hasThirdCoordinate";
     public static final String HAS_THIRD_COORDINATE_UNIT              = "http://hadatac.org/ont/hasco/hasThirdCoordinateUnit";
     public static final String HAS_THIRD_COORDINATE_CHARACTERISTIC    = "http://hadatac.org/ont/hasco/hasThirdCoordinateCharacteristic";
+    public static final String HAS_TIME_OBJECT_SCOPE                  = "http://hadatac.org/ont/hasco/hasTimeObjectScope";
     public static final String HAS_TITLE                              = "http://hadatac.org/ont/hasco/hasTitle";
+    public static final String HAS_TOPIC_STATUS                       = "http://hadatac.org/ont/hasco/hasTopicStatus";
     public static final String HAS_UNIT                               = "http://hadatac.org/ont/hasco/hasUnit";
     public static final String HAS_URL                                = "http://hadatac.org/ont/hasco/hasURL";
     public static final String HAS_VALUE                              = "http://hadatac.org/ont/hasco/hasValue";

@@ -527,10 +527,21 @@ public class HAScOMapper {
         } else {
             filterProvider.addFilter("streamFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri", 
-                            "hasStreamStatus", "hasMessageStatus",                             
+                            "hasStreamStatus", "topics",                             
                             "hasImageUri", "hasWebDocument", 
                             "hascoTypeLabel", "hasVersion",  "comment", "hasDeployment", "hasStudy", "hasSDD", "permissionUri", 
                             "designedAt", "startedAt", "endedAt", "method", "messageProtocol", "messageIP", "messagePort"));
+        }
+
+        // STREAM_TOPIC
+        if (mode.equals(FULL) && typeResult.equals(HASCO.STREAM_TOPIC)) {
+            filterProvider.addFilter("streamTopicFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("streamTopicFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri", 
+                            "streamUri", "hasTopicStatus",                             
+                            "hasImageUri", "hasWebDocument", 
+                            "hascoTypeLabel", "hasVersion",  "comment", "hasDeployment", "hasSDD"));
         }
 
         // STUDY
