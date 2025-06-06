@@ -248,7 +248,7 @@ public class STRMessageGenerator extends BaseGenerator {
         str.setMessageProtocol((String)row.get("hasco:hasProtocol"));
         str.setMessageIP((String)row.get("hasco:hasIP"));
         str.setMessagePort((String)row.get("hasco:hasPort"));
-        str.setMessageStatus((String)row.get("hasco:hasMessageStatus"));
+        str.setHasMessageStatus((String)row.get("hasco:hasMessageStatus"));
         str.addCellScopeName("STREAM");
         str.addCellScopeUri("STREAM");
         String pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
@@ -270,7 +270,7 @@ public class STRMessageGenerator extends BaseGenerator {
         }
         */
 
-        str.setStreamStatus(9999);
+        str.setHasStreamStatus(HASCO.DRAFT);
 
         return str;
     }

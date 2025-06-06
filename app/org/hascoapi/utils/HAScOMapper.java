@@ -367,7 +367,7 @@ public class HAScOMapper {
             filterProvider.addFilter("platformFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("platformFilter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "superUri", "typeLabel", "hasStatus", "hascoTypeUri",
                             "hasImageUri", "hasWebDocument", 
                             "hascoTypeLabel", "comment", "hasVersion"));
         }
@@ -526,7 +526,8 @@ public class HAScOMapper {
             filterProvider.addFilter("streamFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("streamFilter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri", 
+                            "hasStreamStatus", "hasMessageStatus",                             
                             "hasImageUri", "hasWebDocument", 
                             "hascoTypeLabel", "hasVersion",  "comment", "hasDeployment", "hasStudy", "hasSDD", "permissionUri", 
                             "designedAt", "startedAt", "endedAt", "method", "messageProtocol", "messageIP", "messagePort"));

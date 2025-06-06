@@ -89,7 +89,9 @@ public class AnnotateSTR {
         String startTime = isoFormat.format(new Date());
         if (fileStreamRecordFile.getNumberOfRows() > 1 && fileStreamRecordFile.getRecords().size() > 0) {
         	// TODO
-            chain.addGenerator(new STRFileGenerator(dataFile, strStudy, fileStreamRecordFile, startTime, templateFile));
+          STRFileGenerator fileGen = new STRFileGenerator(dataFile, strStudy, fileStreamRecordFile, startTime, strVersion, templateFile);
+          fileGen.setNamedGraphUri(dataFile.getUri());
+          chain.addGenerator(fileGen);
         }
         if (messageStreamRecordFile.getNumberOfRows() > 1 && messageStreamRecordFile.getRecords().size() > 0) {
         	STRMessageGenerator messageGen = new STRMessageGenerator(dataFile, strStudy, messageStreamRecordFile, startTime);

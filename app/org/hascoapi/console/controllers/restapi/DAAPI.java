@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 import org.hascoapi.Constants;
 import org.hascoapi.entity.pojo.DA;
+import org.hascoapi.entity.pojo.Stream;
+import org.hascoapi.entity.pojo.Study;
 import org.hascoapi.transform.Renderings;
 import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.HAScOMapper;
@@ -53,6 +55,62 @@ public class DAAPI extends Controller {
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));
         }
+    }
+
+    public Result findDAsByStudy(String uri, int pagesize, int offset) {
+        if (uri == null || uri.isEmpty()) {
+            return ok(ApiUtil.createResponse("DAAPI: No study uri has been provided to retrieve data acquisitions", false));
+        }
+        Study study = Study.find(uri);
+        if (study == null) {
+            return ok(ApiUtil.createResponse("DAAPI: No study has been retrieved with URI=[" + uri + "]", false));
+        }
+        List<DA> das = DA.findByStudy(study, pagesize, offset);
+        return DAAPI.getDAs(das);
+    }
+
+    public Result findTotalDAsByStudy(String uri) {
+        if (uri == null || uri.isEmpty()) {
+            return ok(ApiUtil.createResponse("DAAPI: No study uri has been provided to retrieve data acquisitions", false));
+        }
+        Study study = Study.find(uri);
+        if (study == null) {
+            return ok(ApiUtil.createResponse("DAAPI: No study has been retrieved with URI=[" + uri + "]", false));
+        }
+        int totalElements = DA.findTotalByStudy(study);
+        if (totalElements >= 0) {
+            String totalElementsJSON = "{\"total\":" + totalElements + "}";
+            return ok(ApiUtil.createResponse(totalElementsJSON, true));
+        }     
+        return ok(ApiUtil.createResponse("DAAPI: Query method findTotalDAsByStudy() failed to retrieve total number of element", false));   
+    }
+
+    public Result findDAsByStream(String uri, int pagesize, int offset) {
+        if (uri == null || uri.isEmpty()) {
+            return ok(ApiUtil.createResponse("DAAPI: No stream uri has been provided to retrieve data acquisitions", false));
+        }
+        Stream stream = Stream.find(uri);
+        if (stream == null) {
+            return ok(ApiUtil.createResponse("DAAPI: No stream has been retrieved with URI=[" + uri + "]", false));
+        }
+        List<DA> das = DA.findByStream(stream, pagesize, offset);
+        return DAAPI.getDAs(das);
+    }
+
+    public Result findTotalDAsByStream(String uri) {
+        if (uri == null || uri.isEmpty()) {
+            return ok(ApiUtil.createResponse("DAAPI: No study uri has been provided to retrieve data acquisitions", false));
+        }
+        Stream stream = Stream.find(uri);
+        if (stream == null) {
+            return ok(ApiUtil.createResponse("DAAPI: No stream has been retrieved with URI=[" + uri + "]", false));
+        }
+        int totalElements = DA.findTotalByStream(stream);
+        if (totalElements >= 0) {
+            String totalElementsJSON = "{\"total\":" + totalElements + "}";
+            return ok(ApiUtil.createResponse(totalElementsJSON, true));
+        }     
+        return ok(ApiUtil.createResponse("DAAPI: Query method findTotalDAsByStream() failed to retrieve total number of element", false));   
     }
 
 }

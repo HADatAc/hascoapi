@@ -32,6 +32,7 @@ public class StreamAPI extends Controller {
     }
 
     public Result findCanUpdateByDeploymentWithPages(String state, String userEmail, String deploymentUri, int pageSize, int offset) {
+        //System.out.println("StreamAPI.findCanUpdateByDeploymentWithPages: value of state is [" + state + "]");
         if (state == null || state.isEmpty()) {
             return ok(ApiUtil.createResponse("No state has been provided to retrieve streams", false));
         }
@@ -51,6 +52,7 @@ public class StreamAPI extends Controller {
     }
 
     public Result findTotalCanUpdateByDeploymentWithPages(String state, String userEmail, String deploymentUri) {
+        //System.out.println("StreamAPI.findTotalCanUpdateByDeploymentWithPages: value of state is [" + state + "]");
         if (state == null || state.isEmpty()) {
             return ok(ApiUtil.createResponse("No state has been provided to retrieve streams", false));
         }
@@ -75,7 +77,7 @@ public class StreamAPI extends Controller {
     }
 
     public Result findByStudyWithPages(String studyUri, String state, int pageSize, int offset) {
-        System.out.println("StreamAPI: value of state is [" + state + "]");
+        //System.out.println("StreamAPI.findByStudyWithPages: value of state is [" + state + "]");
         if (studyUri == null || studyUri.isEmpty()) {
             return ok(ApiUtil.createResponse("No studyUri has been provided to retrieve streams", false));
         }
@@ -96,6 +98,7 @@ public class StreamAPI extends Controller {
     }
 
     public Result findByStudyTotal(String studyUri, String state) {
+        //System.out.println("StreamAPI.findByStudyTotal: value of state is [" + state + "]");
         if (studyUri == null || studyUri.isEmpty()) {
             return ok(ApiUtil.createResponse("No studyUri has been provided to retrieve streams", false));
         }

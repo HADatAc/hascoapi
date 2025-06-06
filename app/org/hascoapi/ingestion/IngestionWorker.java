@@ -134,12 +134,10 @@ public class IngestionWorker {
         GeneratorChain chain = null;
         String fileName = FilenameUtils.getBaseName(dataFile.getFilename());
 
-        //if (fileName.startsWith("DA-")) {
-        //    chain = annotateDAFile(dataFile);
-        //
-        //} else
+        if (fileName.startsWith("DA-")) {
+            chain = AnnotateDA.exec(dataFile);
 
-        if (fileName.startsWith("DSG-") &&
+        } else if (fileName.startsWith("DSG-") &&
             dataFile.getFileStatus().equals(DataFile.WORKING_STD)) {
             chain = annotateSTDFile(dataFile, templateFile);
 
@@ -600,112 +598,7 @@ public class IngestionWorker {
         }
 
         return chain;
-
     }
-
-    /****************************
-     *    DA                    *
-     ****************************/
-
-    /*
-    public static GeneratorChain annotateDAFile(DataFile dataFile) {
-        System.out.println("Processing DA file " + dataFile.getFilename());
-
-        GeneratorChain chain = new GeneratorChain();
-
-        STR str = null;
-        String str_uri = null;
-        String deployment_uri = null;
-        String schema_uri = null;
-        String study_uri = null;
-
-        if (dataFile != null) {
-            str_uri = URIUtils.replacePrefixEx(dataFile.getDataAcquisitionUri());
-            str = STR.findByUri(str_uri);
-            if (str != null) {
-                if (!str.isComplete()) {
-                    dataFile.getLogger().printWarningByIdWithArgs("DA_00003", str_uri);
-                    chain.setInvalid();
-                    return chain;
-                } else {
-                    dataFile.getLogger().println(String.format("STR <%s> has been located", str_uri));
-                }
-                study_uri = str.getStudy().getUri();
-                deployment_uri = str.getDeploymentUri();
-                schema_uri = str.getSchemaUri();
-            } else {
-                dataFile.getLogger().printWarningByIdWithArgs("DA_00004", str_uri);
-                chain.setInvalid();
-                return chain;
-            }
-        }
-
-        if (study_uri == null || study_uri.isEmpty()) {
-            dataFile.getLogger().printExceptionByIdWithArgs("DA_00008", str_uri);
-            chain.setInvalid();
-            return chain;
-        } else {
-            try {
-                study_uri = URLDecoder.decode(study_uri, "UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                dataFile.getLogger().printException(String.format("URL decoding error for study uri <%s>", study_uri));
-                chain.setInvalid();
-                return chain;
-            }
-            dataFile.getLogger().println(String.format("Study <%s> specified for data acquisition <%s>", study_uri, str_uri));
-        }
-
-        if (schema_uri == null || schema_uri.isEmpty()) {
-            dataFile.getLogger().printExceptionByIdWithArgs("DA_00005", str_uri);
-            chain.setInvalid();
-            return chain;
-        } else {
-            dataFile.getLogger().println(String.format("Schema <%s> specified for data acquisition: <%s>", schema_uri, str_uri));
-        }
-
-        if (deployment_uri == null || deployment_uri.isEmpty()) {
-            dataFile.getLogger().printExceptionByIdWithArgs("DA_00006", str_uri);
-            chain.setInvalid();
-            return chain;
-        } else {
-            try {
-                deployment_uri = URLDecoder.decode(deployment_uri, "UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                dataFile.getLogger().printException(String.format("URL decoding error for deployment uri <%s>", deployment_uri));
-                chain.setInvalid();
-                return chain;
-            }
-            dataFile.getLogger().println(String.format("Deployment <%s> specified for data acquisition <%s>", deployment_uri, str_uri));
-        }
-
-        if (str != null) {
-            dataFile.setStudyUri(str.getStudy().getUri());
-            // TODO
-            //dataFile.setDatasetUri(DataFactory.getNextDatasetURI(str.getUri()));
-            str.addDatasetUri(dataFile.getDatasetUri());
-
-            SDD schema = SDD.find(str.getSchemaUri());
-            if (schema == null) {
-                dataFile.getLogger().printExceptionByIdWithArgs("DA_00007", str.getSchemaUri());
-                chain.setInvalid();
-                return chain;
-            }
-
-            if (!str.hasCellScope()) {
-            	// Need to be fixed here by getting codeMap and codebook from sparql query
-            	DASOInstanceGenerator dasoInstanceGen = new DASOInstanceGenerator(
-            			dataFile, str, dataFile.getFileName());
-            	chain.addGenerator(dasoInstanceGen);
-            	chain.addGenerator(new MeasurementGenerator(MeasurementGenerator.FILEMODE, dataFile, str, schema, dasoInstanceGen));
-            } else {
-                chain.addGenerator(new MeasurementGenerator(MeasurementGenerator.FILEMODE, dataFile, str, schema, null));
-            }
-            chain.setNamedGraphUri(URIUtils.replacePrefixEx(dataFile.getDataAcquisitionUri()));
-        }
-
-        return chain;
-    }
-    */
 
     public static boolean nameSpaceGen(DataFile dataFile, Map<String, String> mapCatalog, String templateFile) {
         RecordFile nameSpaceRecordFile = null;

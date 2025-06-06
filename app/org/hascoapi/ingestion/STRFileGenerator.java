@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.apache.jena.query.QueryParseException;
 import org.apache.jena.query.QuerySolution;
@@ -21,6 +22,7 @@ import org.hascoapi.entity.pojo.Study;
 import org.hascoapi.entity.pojo.SDD;
 import org.hascoapi.entity.pojo.SDDAttribute;
 import org.hascoapi.entity.pojo.SDDObject;
+import org.hascoapi.Constants;
 import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.entity.pojo.Deployment;
 import org.hascoapi.entity.pojo.HADatAcThing;
@@ -36,6 +38,7 @@ import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.Templates;
 import org.hascoapi.utils.SPARQLUtils;
 import org.hascoapi.utils.URIUtils;
+import org.hascoapi.vocabularies.HASCO;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 
@@ -44,15 +47,18 @@ import java.lang.Exception;
 public class STRFileGenerator extends BaseGenerator {
 
     final String kbPrefix = ConfigProp.getKbPrefix();
+    private long timestamp;
     String startTime = "";
     Study study = null;
+    String version = "";
     RecordFile specRecordFile = null;
 
-    public STRFileGenerator(DataFile dataFile, Study study, RecordFile specRecordFile, String startTime, String templateFile) {
+    public STRFileGenerator(DataFile dataFile, Study study, RecordFile specRecordFile, String startTime, String version, String templateFile) {
         super(dataFile);
 		this.file = specRecordFile;
 		this.records = file.getRecords();
         this.study = study;
+        this.version = version;
         this.specRecordFile = specRecordFile;
         this.startTime = startTime;
         this.templates = new Templates(templateFile);
@@ -60,7 +66,10 @@ public class STRFileGenerator extends BaseGenerator {
     }
 
     @Override
-    public void initMapping() {}
+    public void initMapping() {
+        // Get the current timestamp (in milliseconds)
+        timestamp = System.currentTimeMillis();
+    }
 
     private String getSTRName(Record rec) {
     	System.out.println("getSTRName: " + templates.getDATAACQUISITIONNAME() + "  [" + rec.getValueByColumnName(templates.getDATAACQUISITIONNAME()) + "]");
@@ -97,22 +106,67 @@ public class STRFileGenerator extends BaseGenerator {
         return rec.getValueByColumnName(URIUtils.replacePrefixEx(templates.getPERMISSIONURI()));
     }
 
+    /** 
+    $uri = Utils::uriGen('stream');
+
+    $stream = [
+      'uri'                       => $uri,
+      'typeUri'                   => HASCO::STREAM,
+      'hascoTypeUri'              => HASCO::STREAM,
+      'label'                     => 'Stream',
+      'method'                    => $form_state->getValue('stream_method'),
+      'permissionUri'             => $form_state->getValue('permission_uri'),
+      'deploymentUri'             => $deployment,
+      'hasVersion'                => $form_state->getValue('stream_version') ?? 1,
+      'comment'                   => $form_state->getValue('stream_description'),
+      'canUpdate'                 => [$email],
+      'designedAt'                => $timestamp,
+      'studyUri'                  => Utils::uriFromAutocomplete($form_state->getValue('stream_study')),
+      'semanticDataDictionaryUri' => Utils::uriFromAutocomplete($form_state->getValue('stream_semanticdatadictionary')),
+      'hasSIRManagerEmail'        => $email,
+      'hasStreamStatus'           => HASCO::DRAFT,
+    ];
+
+    if ($method === 'files') {
+      $stream['datasetPattern'] = $form_state->getValue('stream_datafile_pattern');
+      $stream['cellScopeUri']    = [$form_state->getValue('stream_cell_scope_uri')];
+      $stream['cellScopeName']   = [$form_state->getValue('stream_cell_scope_name')];
+      $stream['messageProtocol']  = '';
+      $stream['messageIP']        = '';
+      $stream['messagePort']      = '';
+      $stream['messageArchiveId'] = '';
+      // $stream['messageHeader']    = '';
+    */
+
+    public String createStreamUri() throws Exception {
+
+        // Generate a random integer between 10000 and 99999
+        Random random = new Random();
+        int randomNumber = random.nextInt(99999 - 10000 + 1) + 10000;
+
+		return kbPrefix + "/" + Constants.PREFIX_STREAM + timestamp + randomNumber;
+	}
+
     @Override
     public Map<String, Object> createRow(Record rec, int rowNumber) throws Exception {
     	Map<String, Object> row = new HashMap<String, Object>();
 		//dataFile.getLogger().println("STRFileGenerator: At createRow. Row Number " + rowNumber + "  record size: " + rec.size());
-		row.put("hasURI", kbPrefix + "DA-" + getSTRName(rec));
-		row.put("a", "hasco:DataAcquisition");
+		//row.put("hasURI", kbPrefix + "DA-" + getSTRName(rec));
+		row.put("hasURI", createStreamUri());
+		row.put("a", "hasco:Stream");
+		row.put("hasco:hascoType", "hasco:Stream");
+		row.put("hasco:hasMethod", "files");
 		row.put("rdfs:label", getSTRName(rec));
 		row.put("hasco:hasDeployment", getDeployment(rec));
-		row.put("hasco:isDataAcquisitionOf", study.getUri());
+		row.put("hasco:hasStudy", study.getUri());
+        row.put("hasco:designedAtTime", (new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")).format(new Date()));
 		if (startTime.isEmpty()) {
 			row.put("prov:startedAtTime", (new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")).format(new Date()));
 		} else {
 			row.put("prov:startedAtTime", startTime);
 		}
 		//row.put("hasco:hasSchema", kbPrefix + "DAS-" + getSDDName(rec));
-        row.put("hasco:hasSchema", getSDDName(rec));
+        row.put("hasco:hasSDD", getSDDName(rec));
     	return row;
     }
 
@@ -123,35 +177,40 @@ public class STRFileGenerator extends BaseGenerator {
     		return null;
     	}
 
-        Stream str = new Stream();
+        Stream stream = new Stream();
 
-        str.setUri(URIUtils.replacePrefixEx((String)row.get("hasURI")));
-        str.setStudyUri(URIUtils.replacePrefixEx((String)row.get("hasco:isDataAcquisitionOf")));
-        setStudyUri(URIUtils.replacePrefixEx((String)row.get("hasco:isDataAcquisitionOf")));
-        str.setTriggeringEvent(TriggeringEvent.INITIAL_DEPLOYMENT);
-        // TODO
-        //str.setNumberDataPoints(Measurement.getNumByDataAcquisition(str));
-        str.setNumberDataPoints(0);
-        String pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
-        if (startTime.isEmpty()) {
-            //str.setStartedAt(new DateTime(new Date()));
-        } else {
-            //str.setStartedAt(DateTimeFormat.forPattern(pattern).parseDateTime(startTime));
+        // CONSTANT PROPERTIES
+        stream.setTypeUri(HASCO.STREAM);
+        stream.setHascoTypeUri(HASCO.STREAM);
+        stream.setTriggeringEvent(TriggeringEvent.INITIAL_DEPLOYMENT);
+        stream.setNumberDataPoints(0);
+        stream.setHasStreamStatus(HASCO.DRAFT);
+        stream.setHasMessageStatus(HASCO.SUSPENDED);
+        if (version == null && !version.isEmpty()) {
+            stream.setHasVersion(version);
         }
 
-        // process STREAM NAME (i.e., the DA NAME)
+        //String pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+        if (startTime.isEmpty()) {
+            //stream.setStartedAt(new DateTime(new Date()));
+        } else {
+            //stream.setStartedAt(DateTimeFormat.forPattern(pattern).parseDateTime(startTime));
+        }
+
+        // DESIGN PATTERN (and LABEL)
         if (getSTRName(rec) == null || getSTRName(rec).isEmpty()) {
             dataFile.getLogger().printExceptionByIdWithArgs("STR_00020");
             //throw new Exception();
             return null;
     	}
+        stream.setLabel((String)row.get("rdfs:label"));
+        stream.setDatasetPattern((String)row.get("rdfs:label"));
 
-        // str.setLabel(URIUtils.replacePrefixEx((String)row.get("rdfs:label")));
-        str.setLabel((String)row.get("rdfs:label"));
+        // URI
+        stream.setUri(URIUtils.replacePrefixEx((String)row.get("hasURI")));
+        dataFile.getLogger().println("createStr [1/7] - assigned URI: [" + stream.getUri() + "]");
 
-        dataFile.getLogger().println("createStr [1/6] - assigned URI: [" + str.getUri() + "]");
-
-        // process CELL SCOPE
+        // CELL SCOPE
         String cellScopeStr = getCellScope(rec);
         String[] cellList = null;
         String[] elementList = null;
@@ -180,94 +239,58 @@ public class STRFileGenerator extends BaseGenerator {
                             dataFile.getLogger().printExceptionByIdWithArgs("STR_00026", cellSpec);
                             throw new Exception();
                         }
-                        str.addCellScopeName(elementList[0]);
-                        str.addCellScopeUri(URIUtils.replacePrefixEx((String)elementList[1]));
+                        stream.addCellScopeName(elementList[0]);
+                        stream.addCellScopeUri(URIUtils.replacePrefixEx((String)elementList[1]));
                     }
                 }
             }
         }
-        dataFile.getLogger().println("createStr [2/6] - Specified CellScope: [" + cellScopeStr + "]");
+        dataFile.getLogger().println("createStr [2/7] - Specified CellScope: [" + cellScopeStr + "]");
 
-        // process OWNER EMAIL
+        // OWNER EMAIL
         String ownerEmail = getOwnerEmail(rec);
-        /* TODO
-        SysUser user = SysUser.findByEmail(ownerEmail);
-        if (null == user) {
-            dataFile.getLogger().printExceptionByIdWithArgs("STR_00028", ownerEmail);
-            throw new Exception();
-        } else {
-            str.setOwnerUri(user.getUri());
-        }
-	    if (ownerEmail.isEmpty()) {
-	        if (null != dataFile) {
-	            ownerEmail = dataFile.getOwnerEmail();
-	            if (ownerEmail.isEmpty()) {
-	                dataFile.getLogger().printExceptionById("STR_00029");
-	                throw new Exception();
-	            }
-	        } else {
-	            dataFile.getLogger().printExceptionByIdWithArgs("STR_00030", rowNumber);
-	            throw new Exception();
-	        }
-	    }
-        */
-        dataFile.getLogger().println("createStr [3/6] - Specified owner email: [" + ownerEmail + "]");
+        dataFile.getLogger().println("createStr [3/7] - Specified owner email: [" + ownerEmail + "]");
+        stream.addCanUpdate(ownerEmail);
 
-	    // process PERMISSION URI
-	    String permissionUri = getPermissionUri(rec);
-        /* TODO
-	    if (permissionUri.isEmpty()) {
-	        user = SysUser.findByEmail(ownerEmail);
-	        if (null != user) {
-	            permissionUri = user.getUri();
-	            if (permissionUri.isEmpty()) {
-		            dataFile.getLogger().printExceptionByIdWithArgs("STR_00031", ownerEmail);
-		            throw new Exception();
-	            }
-	        } else {
-	            dataFile.getLogger().printExceptionByIdWithArgs("STR_00032", rowNumber);
-	            throw new Exception();
-	        }
-	    }
-        */
+	    // PERMISSION URI
+	    String permissionUri = URIUtils.replacePrefixEx(getPermissionUri(rec));
+	    stream.setPermissionUri(permissionUri);
+        dataFile.getLogger().println("createStr [4/7] - Specified permission: [" + permissionUri + "]");
 
-	    str.setPermissionUri("\"" + permissionUri + "\"");
-        dataFile.getLogger().println("createStr [4/6] - Specified permission: [" + permissionUri + "]");
+        // STUDY 
+        stream.setStudyUri(URIUtils.replacePrefixEx((String)row.get("hasco:hasStudy")));
+        dataFile.getLogger().println("createStr [5/7] - Specified study: [" + stream.getStudyUri() + "]");
 
-        // process DEPLOYMENT
+        // DEPLOYMENT
         if (row.get("hasco:hasDeployment") == null || ((String)row.get("hasco:hasDeployment")).isEmpty()) {
             dataFile.getLogger().printExceptionByIdWithArgs("STR_00022");
             throw new Exception();
         }
-        str.setDeploymentUri(URIUtils.replacePrefixEx((String)row.get("hasco:hasDeployment")));
-        Deployment deployment = Deployment.find(str.getDeploymentUri());
-        //System.out.println("\n\ndeployment: " + str.getDeploymentUri());
+        stream.setDeploymentUri(URIUtils.replacePrefixEx((String)row.get("hasco:hasDeployment")));
+        Deployment deployment = Deployment.find(stream.getDeploymentUri());
         if (deployment == null) {
             dataFile.getLogger().printExceptionByIdWithArgs("STR_00022");
             throw new Exception();
         }
-        dataFile.getLogger().println("createStr [5/6] - Specified deployment: [" + str.getDeploymentUri() + "]");
+        dataFile.getLogger().println("createStr [6/7] - Specified deployment: [" + stream.getDeploymentUri() + "]");
 
-        // process SDD
+        // SDD
 	    if (getSDDName(rec) == null || getSDDName(rec).isEmpty()) {
             dataFile.getLogger().printExceptionById("STR_00021");
             throw new Exception();
 	    }
-        str.setSemanticDataDictionaryUri(URIUtils.replacePrefixEx((String)row.get("hasco:hasSchema")));
-        //System.out.println("\n\nschema: " + URIUtils.replacePrefixEx((String)row.get("hasco:hasSchema")));
-        SDD schema = SDD.find(str.getSemanticDataDictionaryUri());
-        if (schema != null) {
-            str.setStreamStatus(9999);
-        } else {
-            dataFile.getLogger().printExceptionByIdWithArgs("STR_00035", str.getSemanticDataDictionaryUri());
+        stream.setSemanticDataDictionaryUri(URIUtils.replacePrefixEx((String)row.get("hasco:hasSDD")));
+        SDD schema = SDD.find(stream.getSemanticDataDictionaryUri());
+        if (schema == null) {
+            dataFile.getLogger().printExceptionByIdWithArgs("STR_00035", stream.getSemanticDataDictionaryUri());
             throw new Exception();
         }
-        dataFile.getLogger().println("createStr [6/6] - Specified SDD: [" + str.getSemanticDataDictionaryUri() + "]");
+        dataFile.getLogger().println("createStr [7/7] - Specified SDD: [" + stream.getSemanticDataDictionaryUri() + "]");
 
-	    if (!isFileStreamValid(str)) {
+	    if (!isFileStreamValid(stream)) {
             throw new Exception();
 	    }
-        return str;
+        return stream;
     }
 
     public boolean isFileStreamValid(Stream str) {

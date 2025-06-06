@@ -439,8 +439,8 @@ public class Platform extends HADatAcClass implements Comparable<Platform> {
             String str = URIUtils.objectRDFToString(object);
             if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
                 platform.setLabel(str);
-            } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
-                platform.setTypeUri(str);
+            } else if (statement.getPredicate().getURI().equals(RDFS.SUBCLASS_OF)) {
+                platform.setSuperUri(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
                 platform.setHascoTypeUri(str);
             } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {

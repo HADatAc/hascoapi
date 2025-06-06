@@ -313,6 +313,9 @@ public class Deployment extends HADatAcThing {
     }
 
     public static Deployment find(String deployment_uri) {
+        if (deployment_uri == null || deployment_uri.isEmpty()) {
+            return null;
+        }
         if (Deployment.getCache().get(deployment_uri) != null) {
             return Deployment.getCache().get(deployment_uri);
         }
@@ -341,7 +344,7 @@ public class Deployment extends HADatAcThing {
             Statement statement = stmtIterator.next();
             RDFNode object = statement.getObject();
             String str = URIUtils.objectRDFToString(object);
-            System.out.println("Str [" + str + "] Predicate [" + statement.getPredicate().getURI() + "]");
+            //System.out.println("Str [" + str + "] Predicate [" + statement.getPredicate().getURI() + "]");
             if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
                 deployment.setLabel(str);
             } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
