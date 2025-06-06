@@ -876,13 +876,12 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
         return findManyByQuery(queryString);
     }
 
-    public static List<Stream> findCanUpdateByDeploymentWithPages(String state, String userEmail, String deploymentUri, int pageSize, int offset) {
+    public static List<Stream> findCanUpdateByStateEmailWithPages(String state, String userEmail, int pageSize, int offset) {
         String queryString = "";
         if (state.equals(HASCO.DRAFT)) {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
             		"SELECT ?uri WHERE { " +
                     "   ?uri a hasco:Stream . " +
-                    "   ?uri hasco:hasDeployment <" + deploymentUri + "> . " +
                     "   ?uri hasco:canUpdate ?userEmail . " +
                     //"   ?uri vstoi:designedAtTime ?datetime . " +
                     "   FILTER (?userEmail = \"" + userEmail + "\") " +
@@ -896,7 +895,6 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                     "SELECT ?uri WHERE { " +
                     "   ?uri a hasco:Stream . " +
-                    "   ?uri hasco:hasDeployment <" + deploymentUri + "> . " +
                     "   ?uri hasco:canUpdate ?userEmail . " +
                     "   ?uri prov:startedAtTime ?startedattime . " +
                     "   FILTER (?userEmail = \"" + userEmail + "\") " +
@@ -909,7 +907,6 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                     "SELECT ?uri WHERE { " +
                     "   ?uri a hasco:Stream . " +
-                    "   ?uri hasco:hasDeployment <" + deploymentUri + "> . " +
                     "   ?uri hasco:canUpdate ?userEmail . " +
                     "   ?uri prov:startedAtTime ?startedattime .  " +
                     "   ?uri prov:endedAtTime ?enddatetime .  " +
@@ -922,7 +919,6 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                     "SELECT ?uri WHERE { " +
                     "   ?uri a hasco:Stream . " +
-                    "   ?uri hasco:hasDeployment <" + deploymentUri + "> . " +
                     "   ?uri hasco:canUpdate ?userEmail . " +
                     "   FILTER (?userEmail = \"" + userEmail + "\") " +
                     "} " +
@@ -936,13 +932,12 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
         return findManyByQuery(queryString);
     }
 
-    public static int findTotalCanUpdateByDeploymentWithPages(String state, String userEmail, String deploymentUri) {
+    public static int findTotalCanUpdateByStateEmailWithPages(String state, String userEmail) {
         String queryString = "";
         if (state.equals(HASCO.DRAFT)) {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 "SELECT (count(?uri) as ?tot) WHERE { " +
                 "   ?uri a hasco:Stream . " +
-                "   ?uri hasco:hasDeployment <" + deploymentUri + "> . " +
                 "   ?uri hasco:canUpdate ?userEmail . " +
                 "   FILTER (?userEmail = \"" + userEmail + "\") " +
                 "   FILTER NOT EXISTS { ?uri prov:startedAtTime ?startdatetime . } " +
@@ -952,7 +947,6 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 "SELECT (count(?uri) as ?tot) WHERE { " +
                 "   ?uri a hasco:Stream . " +
-                "   ?uri hasco:hasDeployment <" + deploymentUri + "> . " +
                 "   ?uri hasco:canUpdate ?userEmail . " +
                 "   ?uri prov:startedAtTime ?startdatetime . " +
                 "   FILTER (?userEmail = \"" + userEmail + "\") " +
@@ -962,7 +956,6 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 "SELECT (count(?uri) as ?tot) WHERE { " +
                 "   ?uri a hasco:Stream . " +
-                "   ?uri hasco:hasDeployment <" + deploymentUri + "> . " +
                 "   ?uri hasco:canUpdate ?userEmail . " +
                 "   ?uri prov:startedAtTime ?startdatetime .  " +
                 "   ?uri prov:endedAtTime ?enddatetime .  " +
@@ -972,7 +965,6 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 "SELECT (count(?uri) as ?tot) WHERE { " +
                 "   ?uri a hasco:Stream . " +
-                "   ?uri hasco:hasDeployment <" + deploymentUri + "> . " +
                 "   ?uri hasco:canUpdate ?userEmail . " +
                 "   FILTER (?userEmail = \"" + userEmail + "\") " +
                 "} ";

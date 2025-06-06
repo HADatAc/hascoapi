@@ -138,8 +138,8 @@ GET     /hascoapi/api/dataacquisition/bystream/total/:uri                       
 GET     /hascoapi/api/dataacquisition/bystudy/:uri/:pageSize/:offset                org.hascoapi.console.controllers.restapi.DAAPI.findDAsByStudy(uri: String, pageSize : Integer, offset : Integer)
 GET     /hascoapi/api/dataacquisition/bystudy/total/:uri                            org.hascoapi.console.controllers.restapi.DAAPI.findTotalDAsByStudy(uri: String)
 
-GET     /hascoapi/api/stream/bydeployment/:state/:email/:deploymentUri/:pageSize/:offset         org.hascoapi.console.controllers.restapi.StreamAPI.findCanUpdateByDeploymentWithPages(state: String, email: String, deploymentUri: String, pageSize: Integer, offset: Integer)
-GET     /hascoapi/api/stream/bydeployment/total/:state/:email/:deploymentUri                     org.hascoapi.console.controllers.restapi.StreamAPI.findTotalCanUpdateByDeploymentWithPages(state: String, email: String, deploymentUri: String)
+GET     /hascoapi/api/stream/bystateemail/:state/:email/:pageSize/:offset           org.hascoapi.console.controllers.restapi.StreamAPI.findCanUpdateByStateEmailWithPages(state: String, email: String, pageSize: Integer, offset: Integer)
+GET     /hascoapi/api/stream/bystateemail/total/:state/:email                       org.hascoapi.console.controllers.restapi.StreamAPI.findTotalCanUpdateByStateEmailWithPages(state: String, email: String)
 GET     /hascoapi/api/stream/bystudy/:studyUri/:state/:pageSize/:offset             org.hascoapi.console.controllers.restapi.StreamAPI.findByStudyWithPages(studyUri: String, state: String, pageSize: Integer, offset: Integer)
 GET     /hascoapi/api/stream/bystudy/total/:studyUri/:state                         org.hascoapi.console.controllers.restapi.StreamAPI.findByStudyTotal(studyUri: String, state: String)
 
