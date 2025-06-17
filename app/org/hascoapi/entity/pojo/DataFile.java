@@ -470,7 +470,6 @@ public class DataFile extends HADatAcThing implements Cloneable {
         setCompletionTime("");
     }
 
-    /** 
     public static DataFile create(String id, String filename, String hasSIRManagerEmail, String status) {
         DataFile dataFile = new DataFile(id, filename);
         dataFile.setHasSIRManagerEmail(hasSIRManagerEmail);
@@ -486,7 +485,6 @@ public class DataFile extends HADatAcThing implements Cloneable {
 
         return dataFile;
     }
-    */
 
     public static DataFile find(String uri) {
         DataFile dataFile = null;

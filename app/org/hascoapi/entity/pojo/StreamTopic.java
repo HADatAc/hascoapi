@@ -390,6 +390,17 @@ public class StreamTopic extends HADatAcThing implements Comparable<StreamTopic>
 		return topic;
 	}
 
+    /* Open streams are those with ended_at_date =  9999-12-31T23:59:59.999Z */
+    public static List<StreamTopic> findOpenStreamTopics() {
+        String query = NameSpaces.getInstance().printSparqlNameSpaceList() +
+            "SELECT ?uri WHERE { " +
+            "   ?uri a hasco:StreamTopic . " +
+            "   ?uri hasco:hasTopicStatus ?status . " +
+            "   FILTER (?status != hasco:Inactive) " +
+            "} ";
+        return findManyByQuery(query);
+    }
+
     public static List<StreamTopic> findByStream(String streamUri) {
         if (streamUri == null || streamUri.isEmpty()) {
             return new ArrayList<StreamTopic>();
