@@ -263,15 +263,15 @@ public class Repository extends HADatAcThing {
     }
 
     public static boolean newNamespace(String json) {
+        System.out.println("Adding new namespace: [" + json + "]");
         ObjectMapper objectMapper = new ObjectMapper(); 
         NameSpace namespace;
         try {
             namespace = (NameSpace)objectMapper.readValue(json, NameSpace.class);
 
             if (namespace != null) {
-                // save in triple-store
+                System.out.println("Namespace [" + namespace.getLabel() + "] sucessfully parsed.");
                 namespace.save();
-                // add it into in-memory list of namespaces
                 NameSpaces.getInstance().addNamespace(namespace);
             }
             return true;
