@@ -267,7 +267,13 @@ public class Repository extends HADatAcThing {
         NameSpace namespace;
         try {
             namespace = (NameSpace)objectMapper.readValue(json, NameSpace.class);
-            namespace.save();
+
+            if (namespace != null) {
+                // save in triple-store
+                namespace.save();
+                // add it into in-memory list of namespaces
+                NameSpaces.getInstance().addNamespace(namespace);
+            }
             return true;
         } catch (JsonProcessingException e) {
             e.printStackTrace();
