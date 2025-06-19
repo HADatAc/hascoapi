@@ -36,15 +36,15 @@ public class StreamTopicAPI extends Controller {
         return getStreamTopics(streamTopics);
     }
 
-    public Result subscribe() {
-        if (MqttMessageWorker.getInstance().addStreamTopicToWorker()) {
+    public Result subscribe(String topicUri) {
+        if (MqttMessageWorker.getInstance().addStreamTopicToWorker(topicUri)) {
             return ok(ApiUtil.createResponse("StreamTopic has been subscribed", true));
         }     
         return ok(ApiUtil.createResponse("Failed to subscribe to StreamTopic", false));   
     }
 
-    public Result unsubscribe() {
-        if (MqttMessageWorker.getInstance().removeStreamTopicFromWorker()) {
+    public Result unsubscribe(String topicUri) {
+        if (MqttMessageWorker.getInstance().removeStreamTopicFromWorker(topicUri)) {
             return ok(ApiUtil.createResponse("StreamTopic has been unsubscribed", true));
         }     
         return ok(ApiUtil.createResponse("Failed to unsubscribe requested StreamTopic", false));   

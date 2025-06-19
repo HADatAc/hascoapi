@@ -44,8 +44,9 @@ public class MqttMessageWorker {
     }
 
     //public boolean addStreamTopic(StreamTopic streamTopic) {
-    public boolean addStreamTopicToWorker() {
-        StreamTopic streamTopic = StreamTopic.find("http://cienciapt.org/kg/STP1750214669419661");
+    public boolean addStreamTopicToWorker(String topicUri) {
+        topicUri = "http://cienciapt.org/kg/STP1750214669419661";
+        StreamTopic streamTopic = StreamTopic.find(topicUri);
         if (streamTopics.containsKey(streamTopic.getUri())) {
             return false;
         }
@@ -59,9 +60,10 @@ public class MqttMessageWorker {
     }
 
     //public boolean deleteStreamTopic(StreamTopic streamTopic) {
-    public boolean removeStreamTopicFromWorker() {
+    public boolean removeStreamTopicFromWorker(String topicUri) {
+        topicUri = "http://cienciapt.org/kg/STP1750214669419661";
         System.out.println("MqttMessageWorker.removeStreamTopicFromWorker() has been called");
-        StreamTopic streamTopic = StreamTopic.find("http://cienciapt.org/kg/STP1750214669419661");
+        StreamTopic streamTopic = StreamTopic.find(topicUri);
         if (!streamTopics.containsKey(streamTopic.getUri())) {
             return false;
         }
