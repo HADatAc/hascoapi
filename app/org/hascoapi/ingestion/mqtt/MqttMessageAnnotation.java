@@ -6,7 +6,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.CompletableFuture;
 
-import org.hascoapi.utils.StreamTopicStore;
 import org.hascoapi.ingestion.ValueGenerator;
 import org.hascoapi.entity.pojo.Stream;
 import org.hascoapi.entity.pojo.StreamTopic;
@@ -85,7 +84,7 @@ public class MqttMessageAnnotation {
         if (!MqttMessageWorker.getInstance().containsExecutor(streamTopic)) {
             streamTopic.getMessageLogger().printWarning("CurrentClient for the following stream is missing [" + streamTopic.getUri() + "]");
         } else {
-            MqttMessageWorker.getInstance().stopStream(streamTopic.getUri());
+            MqttMessageWorker.getInstance().stopStream(streamTopic);
         }
         streamTopic.setHasTopicStatus(HASCO.SUSPENDED);
         streamTopic.getMessageLogger().println(String.format("Suspended processing of message stream [%s]", streamTopic.getUri()));
@@ -102,7 +101,7 @@ public class MqttMessageAnnotation {
         if (!MqttMessageWorker.getInstance().containsExecutor(streamTopic)) {
             streamTopic.getMessageLogger().printWarning("CurrentClient for the following stream is missing [" + streamTopic.getUri() + "]");
         } else {
-            MqttMessageWorker.getInstance().stopStream(streamTopic.getUri());
+            MqttMessageWorker.getInstance().stopStream(streamTopic);
         }
         streamTopic.setHasTopicStatus(HASCO.INACTIVE);
         DateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
@@ -110,7 +109,7 @@ public class MqttMessageAnnotation {
         //streamTopic.setEndedAtXsdWithMillis(endTime);
         streamTopic.getMessageLogger().println(String.format("Closed message stream [%s]", streamTopic.getUri()));
         streamTopic.save();
-        StreamTopicStore.getInstance().refreshStore();
+        MqttMessageWorker.getInstance().listStreamTopics().remove(streamTopic);
     }
 
 }

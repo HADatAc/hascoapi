@@ -30,7 +30,6 @@ import org.apache.jena.sparql.engine.http.QueryExceptionHTTP;
 import org.hascoapi.utils.IngestionLogger;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.SPARQLUtils;
-import org.hascoapi.utils.StreamTopicStore;
 import org.hascoapi.utils.URIUtils;
 import org.hascoapi.utils.Utils;
 import org.hascoapi.Constants;
@@ -43,6 +42,7 @@ import org.hascoapi.vocabularies.VSTOI;
 import org.hascoapi.annotations.PropertyField;
 import org.hascoapi.ingestion.mqtt.MqttMessageWorker;
 import org.hascoapi.utils.CollectionUtil;
+import org.hascoapi.utils.IngestionLogger;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -112,6 +112,7 @@ public class StreamTopic extends HADatAcThing implements Comparable<StreamTopic>
         cellScopeName = new ArrayList<String>();
         canView = new ArrayList<String>();
         canUpdate = new ArrayList<String>();
+        logger = new IngestionLogger(this);
     }
 
     @Override
@@ -234,7 +235,6 @@ public class StreamTopic extends HADatAcThing implements Comparable<StreamTopic>
         this.log = log;
     }
 
-    @JsonIgnore
     public IngestionLogger getMessageLogger() {
         return logger;
     }
@@ -367,6 +367,8 @@ public class StreamTopic extends HADatAcThing implements Comparable<StreamTopic>
 					topic.setTypeUri(string);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
 					topic.setHascoTypeUri(string);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_STREAM)) {
+					topic.setStreamUri(string);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_DEPLOYMENT)) {
 					topic.setDeploymentUri(string);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_SDD)) {

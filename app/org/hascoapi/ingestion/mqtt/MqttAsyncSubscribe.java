@@ -23,6 +23,7 @@ import org.hascoapi.entity.pojo.StreamTopic;
 public class MqttAsyncSubscribe implements MqttCallback {
 
     private MqttAsyncClient      client;
+    private Stream               stream;
     private StreamTopic          streamTopic;
     private String 				 brokerUrl;
     private boolean 			 quietMode;
@@ -51,6 +52,10 @@ public class MqttAsyncSubscribe implements MqttCallback {
     }
 
     public static void exec(StreamTopic streamTopic, ValueGenerator generator) {
+
+        if (streamTopic == null || streamTopic.getStreamUri() == null || streamTopic.getStreamUri().isEmpty()) {
+            return;
+        }
 
         // retrieve stream of streamTopic
         Stream stream = Stream.find(streamTopic.getStreamUri());
@@ -95,12 +100,12 @@ public class MqttAsyncSubscribe implements MqttCallback {
 
     public MqttAsyncSubscribe(StreamTopic streamTopic, ValueGenerator generator, String brokerUrl, String userName, String password) throws MqttException {
         this.streamTopic    = streamTopic;
-        this.brokerUrl = brokerUrl;
-        this.quietMode = false;
-        this.clean 	   = true;
-        this.password  = password;
-        this.userName  = userName;
-        this.qos       = 0;
+        this.brokerUrl      = brokerUrl;
+        this.quietMode      = false;
+        this.clean 	        = true;
+        this.password       = password;
+        this.userName       = userName;
+        this.qos            = 0;
 
         String clientId = UUID.randomUUID().toString();
 
@@ -138,15 +143,21 @@ public class MqttAsyncSubscribe implements MqttCallback {
             }
         }
 
-        MqttMessageWorker.getInstance().addStreamGenerator(streamTopic.getUri(), generator);
-        this.gen = generator;
+        if (generator == null) {
+            System.out.println("[WARNING] MqttAsyncSubscribe: no generator object provided when subscribing streamTopic " + streamTopic.getUri());
+        } else {
+            MqttMessageWorker.getInstance().addStreamGenerator(streamTopic.getUri(), generator);
+            this.gen = generator;
+        }
 
         // Connect to the MQTT server
         IMqttToken token = client.connect(conOpt);
         token.waitForCompletion();
         log("Connected to " + brokerUrl + " with client ID " + client.getClientId());
+        System.out.println("Connected to " + brokerUrl + " with client ID " + client.getClientId());
 
         log("Subscribing to topic \"" + streamTopic.getLabel() + "\" qos " + qos);
+        System.out.println("Subscribing to topic \"" + streamTopic.getLabel() + "\" qos " + qos);
 
         client.subscribe(streamTopic.getLabel() + "/#", qos);
 
@@ -232,7 +243,7 @@ public class MqttAsyncSubscribe implements MqttCallback {
          *   Ingest message content
          */
         try {
-            if (MqttMessageWorker.processMessage(streamTopic.getUri(), topic, plainPayload, ingestedMessages) != null) {
+            if (MqttMessageWorker.processMessage(streamTopic, topic, plainPayload, ingestedMessages) != null) {
                 ingestedMessages = ingestedMessages + 1;
                 streamTopic.setIngestedMessages(ingestedMessages);
             }

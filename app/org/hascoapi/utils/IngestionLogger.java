@@ -6,6 +6,7 @@ import java.util.Date;
 import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.entity.pojo.MessageTopic;
 import org.hascoapi.entity.pojo.Stream;
+import org.hascoapi.entity.pojo.StreamTopic;
 import org.hascoapi.utils.Feedback;
 
 
@@ -14,6 +15,7 @@ public class IngestionLogger {
     private String log = "";
     private DataFile parent = null;
     private Stream stream = null;
+    private StreamTopic streamTopic = null;
     private MessageTopic topic = null;
 
     public IngestionLogger(DataFile parent) {
@@ -22,6 +24,10 @@ public class IngestionLogger {
 
     public IngestionLogger(Stream stream) {
         this.stream = stream;
+    }
+
+    public IngestionLogger(StreamTopic streamTopic) {
+        this.streamTopic = streamTopic;
     }
 
     public IngestionLogger(MessageTopic topic) {
@@ -82,6 +88,9 @@ public class IngestionLogger {
         }
         if (stream != null) {
             stream.save();
+        }
+        if (streamTopic != null) {
+            streamTopic.save();
         }
         if (topic != null) {
             topic.save();

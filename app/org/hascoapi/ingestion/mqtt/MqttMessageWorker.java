@@ -8,7 +8,6 @@ import java.util.concurrent.ExecutorService;
 
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
-import org.hascoapi.utils.StreamTopicStore;
 import org.hascoapi.ingestion.JSONRecord;
 import org.hascoapi.ingestion.ValueGenerator;
 import org.hascoapi.ingestion.Record;
@@ -19,13 +18,13 @@ public class MqttMessageWorker {
     private static MqttMessageWorker single_instance = null;
 
     // public variables
-    final private List<StreamTopic> streamTopics;
+    final private Map<String,StreamTopic> streamTopics;
     final private Map<String,ExecutorService> executorsMap;
     final private Map<String,MqttAsyncClient> clientsMap;
     final private Map<String,ValueGenerator> streamGenMap;
 
     private MqttMessageWorker() {
-        streamTopics = new ArrayList<StreamTopic>();
+        streamTopics = new HashMap<String,StreamTopic>();
         executorsMap = new HashMap<String,ExecutorService>();
         clientsMap = new HashMap<String,MqttAsyncClient>();
         streamGenMap = new HashMap<String,ValueGenerator>();
@@ -41,26 +40,32 @@ public class MqttMessageWorker {
     }
 
     public List<StreamTopic> listStreamTopics() {
-        return streamTopics;
+        return new ArrayList<StreamTopic>(streamTopics.values());
     }
 
     //public boolean addStreamTopic(StreamTopic streamTopic) {
     public boolean addStreamTopicToWorker() {
         StreamTopic streamTopic = StreamTopic.find("http://cienciapt.org/kg/STP1750214669419661");
-        if (streamTopics.contains(streamTopic)) {
+        if (streamTopics.containsKey(streamTopic.getUri())) {
             return false;
         }
-        streamTopics.add(streamTopic);
+        System.out.println("Subscribing streamTopic [" + streamTopic.getUri() + "]");
+        streamTopics.put(streamTopic.getUri(),streamTopic);
+        System.out.println("  - creating generator [" + streamTopic.getUri() + "]");
+        //ValueGenerator generator = new ValueGenerator(0, null, null, null, null);
+        System.out.println("  - creating executor [" + streamTopic.getUri() + "]");
+        MqttAsyncSubscribe.exec(streamTopic, null);
         return true;
     }
 
     //public boolean deleteStreamTopic(StreamTopic streamTopic) {
     public boolean removeStreamTopicFromWorker() {
+        System.out.println("MqttMessageWorker.removeStreamTopicFromWorker() has been called");
         StreamTopic streamTopic = StreamTopic.find("http://cienciapt.org/kg/STP1750214669419661");
-        if (!streamTopics.contains(streamTopic)) {
+        if (!streamTopics.containsKey(streamTopic.getUri())) {
             return false;
         }
-        streamTopics.remove(streamTopic);
+        this.stopStream(streamTopic);
         return true;
     }
 
@@ -85,7 +90,10 @@ public class MqttMessageWorker {
     }
 
     public void addClient(StreamTopic streamTopic, MqttAsyncClient client) {
+        System.out.println("Added client " + client.getClientId() + " to topic " + streamTopic.getLabel() + " (" + streamTopic.getUri() + ")");
         this.clientsMap.put(streamTopic.getUri(), client);
+        System.out.println("Total number of clients is " + this.clientsMap.size());
+        System.out.println("Total number of executors is " + this.executorsMap.size());
     }
 
     public ValueGenerator getStreamGenerator(String streamTopicUri) {
@@ -96,11 +104,10 @@ public class MqttMessageWorker {
         this.streamGenMap.put(streamTopicUri, streamGen);
     }
 
-    public static Record processMessage(String streamTopicUri, String topicStr, String message, int currentRow) {
+    public static Record processMessage(StreamTopic streamTopic, String topicStr, String message, int currentRow) {
         System.out.println("TopicStr: [" + topicStr + "]   Message: [" + message + "]");
 
-        StreamTopic streamTopic = StreamTopicStore.getInstance().findCachedByUri(streamTopicUri);
-        ValueGenerator generator = MqttMessageWorker.getInstance().getStreamGenerator(streamTopicUri);
+        ValueGenerator generator = MqttMessageWorker.getInstance().getStreamGenerator(streamTopic.getUri());
         Record record = new JSONRecord(message, streamTopic.getHeaders());
         if (generator == null) {
             System.out.println("MessageWorker: stream generator is missing in processMessage");
@@ -116,22 +123,27 @@ public class MqttMessageWorker {
         return record;
     }
 
-    public void stopStream(String streamUri) {
+    protected void stopStream(StreamTopic streamTopic) {
 
-        StreamTopic streamTopic = StreamTopicStore.getInstance().findCachedByUri(streamUri);
+        if (streamTopic == null) {
+            System.out.println("[ERROR] MsqqMessageWorker: asking to stop a null stream");
+            return;
+        }
         streamTopic.getMessageLogger().println("MessageWorker: stopping stream " + streamTopic.getUri());
+        System.out.println("MessageWorker: stopping stream " + streamTopic.getUri());
         try {
             if (clientsMap != null && streamTopic != null && clientsMap.get(streamTopic.getUri()) != null) {
                 clientsMap.get(streamTopic.getUri()).unsubscribe(streamTopic.getLabel() + "/#");
                 clientsMap.get(streamTopic.getUri()).disconnectForcibly();
                 clientsMap.put(streamTopic.getUri(),null);
                 streamTopic.getMessageLogger().println("Unsubscribed mqtt stream [" + streamTopic.getUri() + "]");
+                System.out.println("Unsubscribed mqtt topic [" + streamTopic.getUri() + "]");
             }
-        } catch (MqttException e) {
             if (executorsMap != null && streamTopic != null && executorsMap.get(streamTopic.getUri()) != null) {
                 executorsMap.get(streamTopic.getUri()).shutdownNow();
                 executorsMap.put(streamTopic.getUri(),null);
                 streamTopic.getMessageLogger().println("Stopped stream thread [" + streamTopic.getUri() + "]");
+                System.out.println("Stopped topic thread [" + streamTopic.getUri() + "]");
             }
         } catch (Exception e) {
             // TODO Auto-generated catch block
@@ -140,13 +152,21 @@ public class MqttMessageWorker {
         if (clientsMap != null && streamTopic != null && streamTopic.getUri() != null) {
             clientsMap.remove(streamTopic.getUri());
             streamTopic.getMessageLogger().println("Removed stream MQTT client");
+            System.out.println("Removed stream MQTT client");
         }
         if (executorsMap != null && streamTopic != null && streamTopic.getUri() != null) {
             executorsMap.remove(streamTopic.getUri());
             streamTopic.getMessageLogger().println("Removed service executor");
+            System.out.println("Removed service executor");
         }
         MqttMessageWorker.getInstance().streamGenMap.remove(streamTopic.getUri());
+
+        // Remove the streamTopic itself
+        MqttMessageWorker.getInstance().streamTopics.remove(streamTopic.getUri());
         streamTopic.getMessageLogger().println("Removed value generator");
+        System.out.println("Removed value generator");
+        System.out.println("Total number of clients is " + this.clientsMap.size());
+        System.out.println("Total number of executors is " + this.executorsMap.size());
     }
 
 }
