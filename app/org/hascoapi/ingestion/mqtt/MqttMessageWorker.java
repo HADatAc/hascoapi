@@ -1,6 +1,8 @@
 package org.hascoapi.ingestion.mqtt;
 
 import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
@@ -17,11 +19,13 @@ public class MqttMessageWorker {
     private static MqttMessageWorker single_instance = null;
 
     // public variables
+    final private List<StreamTopic> streamTopics;
     final private Map<String,ExecutorService> executorsMap;
     final private Map<String,MqttAsyncClient> clientsMap;
     final private Map<String,ValueGenerator> streamGenMap;
 
     private MqttMessageWorker() {
+        streamTopics = new ArrayList<StreamTopic>();
         executorsMap = new HashMap<String,ExecutorService>();
         clientsMap = new HashMap<String,MqttAsyncClient>();
         streamGenMap = new HashMap<String,ValueGenerator>();
@@ -34,6 +38,30 @@ public class MqttMessageWorker {
             single_instance = new MqttMessageWorker();
 
         return single_instance;
+    }
+
+    public List<StreamTopic> listStreamTopics() {
+        return streamTopics;
+    }
+
+    //public boolean addStreamTopic(StreamTopic streamTopic) {
+    public boolean addStreamTopicToWorker() {
+        StreamTopic streamTopic = StreamTopic.find("http://cienciapt.org/kg/STP1750214669419661");
+        if (streamTopics.contains(streamTopic)) {
+            return false;
+        }
+        streamTopics.add(streamTopic);
+        return true;
+    }
+
+    //public boolean deleteStreamTopic(StreamTopic streamTopic) {
+    public boolean removeStreamTopicFromWorker() {
+        StreamTopic streamTopic = StreamTopic.find("http://cienciapt.org/kg/STP1750214669419661");
+        if (!streamTopics.contains(streamTopic)) {
+            return false;
+        }
+        streamTopics.remove(streamTopic);
+        return true;
     }
 
     public ExecutorService getExecutor(String streamTopicUri) {
@@ -118,7 +146,7 @@ public class MqttMessageWorker {
             streamTopic.getMessageLogger().println("Removed service executor");
         }
         MqttMessageWorker.getInstance().streamGenMap.remove(streamTopic.getUri());
-        streamTopic.getMessageLogger().println("Removed measurement generator");
+        streamTopic.getMessageLogger().println("Removed value generator");
     }
 
 }
