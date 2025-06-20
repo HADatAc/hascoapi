@@ -37,6 +37,9 @@ public class StreamTopicAPI extends Controller {
     }
 
     public Result subscribe(String topicUri) {
+        if (topicUri == null || topicUri.isEmpty()) {
+            return ok(ApiUtil.createResponse("No valid topicUri has been provided", false));
+        }
         if (MqttMessageWorker.getInstance().addStreamTopicToWorker(topicUri)) {
             return ok(ApiUtil.createResponse("StreamTopic has been subscribed", true));
         }     
@@ -44,10 +47,28 @@ public class StreamTopicAPI extends Controller {
     }
 
     public Result unsubscribe(String topicUri) {
+        if (topicUri == null || topicUri.isEmpty()) {
+            return ok(ApiUtil.createResponse("No valid topicUri has been provided", false));
+        }
         if (MqttMessageWorker.getInstance().removeStreamTopicFromWorker(topicUri)) {
             return ok(ApiUtil.createResponse("StreamTopic has been unsubscribed", true));
         }     
         return ok(ApiUtil.createResponse("Failed to unsubscribe requested StreamTopic", false));   
     }
+
+    public Result setStatus(String topicUri, String status) {
+        if (topicUri == null || topicUri.isEmpty()) {
+            return ok(ApiUtil.createResponse("No valid topicUri has been provided", false));
+        }
+        if (status == null || status.isEmpty()) {
+            return ok(ApiUtil.createResponse("No valid status has been provided", false));
+        }
+        if (MqttMessageWorker.getInstance().setStatus(topicUri, status)) {
+            return ok(ApiUtil.createResponse("StreamTopic " + topicUri + " has set to status " + status, true));
+        }     
+        return ok(ApiUtil.createResponse("Failed to unsubscribe requested StreamTopic", false));   
+    }
+
+
 
 }

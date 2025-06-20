@@ -10,6 +10,7 @@ import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.hascoapi.ingestion.JSONRecord;
 import org.hascoapi.ingestion.ValueGenerator;
+import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.ingestion.Record;
 import org.hascoapi.entity.pojo.StreamTopic;
 
@@ -50,6 +51,7 @@ public class MqttMessageWorker {
         if (streamTopics.containsKey(streamTopic.getUri())) {
             return false;
         }
+        streamTopic.setHasTopicStatus(HASCO.SUSPENDED);
         System.out.println("Subscribing streamTopic [" + streamTopic.getUri() + "]");
         streamTopics.put(streamTopic.getUri(),streamTopic);
         System.out.println("  - creating generator [" + streamTopic.getUri() + "]");
@@ -106,20 +108,77 @@ public class MqttMessageWorker {
         this.streamGenMap.put(streamTopicUri, streamGen);
     }
 
+    public boolean setStatus(String streamTopicUri, String status) {
+        StreamTopic streamTopic = streamTopics.get(streamTopicUri);
+        if (streamTopic == null) {
+            System.out.println("[ERROR] MqttMessageWorker: there is no subscribed stream topic with URI " + streamTopicUri);
+            return false;
+        }
+        if (status.equals(HASCO.INACTIVE)) {
+            System.out.println("[ERROR] MqttMessageWorker: Cannot change the status of StreamTopic " + streamTopicUri + " since it is INACTIVE");
+            return false;
+        } else if (status.equals(HASCO.SUSPENDED)) {
+            if (streamTopic.getHasTopicStatus().equals(HASCO.RECORDING) || streamTopic.getHasTopicStatus().equals(HASCO.INGESTING)) {
+                if (streamTopic.getHasTopicStatus().equals(HASCO.RECORDING)) {
+                    /* TIAGO */
+                    MqttMessageAnnotation.stopRecordingMessageStreamTopic(streamTopic);
+                }
+                streamTopic.setHasTopicStatus(status);
+                streamTopic.save();
+                System.out.println("MqttMessageWorker: Status of " + streamTopicUri + " has changed to " + status);
+                return true;
+            } else {
+                System.out.println("MqttMessageWorker: StreamTopic " + streamTopicUri + " needs to be RECORDING or INGESTING to be SUSPENDED");
+                return false;
+            }
+        } else if (status.equals(HASCO.RECORDING)) {
+            if (streamTopic.getHasTopicStatus().equals(HASCO.SUSPENDED)) {
+                /* TIAGO */
+                MqttMessageAnnotation.startRecordingMessageStreamTopic(streamTopic);
+                streamTopic.setHasTopicStatus(status);
+                streamTopic.save();
+                System.out.println("MqttMessageWorker: Status of " + streamTopicUri + " has changed to " + status);
+                return true;
+            } else {
+                System.out.println("MqttMessageWorker: StreamTopic " + streamTopicUri + " needs to be SUSPENDED to change to RECORDING");
+                return false;
+            }
+        } else if (status.equals(HASCO.INGESTING)) {
+            if (streamTopic.getHasTopicStatus().equals(HASCO.SUSPENDED)) {
+                streamTopic.setHasTopicStatus(status);
+                streamTopic.save();
+                System.out.println("MqttMessageWorker: Status of " + streamTopicUri + " has changed to " + status);
+                return true;
+            } else {
+                System.out.println("MqttMessageWorker: StreamTopic " + streamTopicUri + " needs to be SUSPENDED to change to INGESTING");
+                return false;
+            }
+        } 
+        System.out.println("[ERROR] MqttMessageWorker: invalid status " + status);
+        return false;
+        
+    }
+
     public static Record processMessage(StreamTopic streamTopic, String topicStr, String message, int currentRow) {
         System.out.println("TopicStr: [" + topicStr + "]   Message: [" + message + "]");
-
-        ValueGenerator generator = MqttMessageWorker.getInstance().getStreamGenerator(streamTopic.getUri());
         Record record = new JSONRecord(message, streamTopic.getHeaders());
-        if (generator == null) {
-            System.out.println("MessageWorker: stream generator is missing in processMessage");
-        } else {
-            try {
-                generator.createObject(record, currentRow, topicStr);
-                //generator.postprocess();
 
-            } catch (Exception e) {
-                e.printStackTrace();
+        if (streamTopic.getHasTopicStatus().equals(HASCO.RECORDING)) {
+            /* TIAGO */
+            /* POR AQUI O CODIGO QUE GRAVA O CONTEUDO NOS ARQUIVOS */
+            /* ATUALIZAR O CODIGO EM MQTTMESSAGEANNOTATION PARA CRIAR/GERENCIAR ARQUIVOS GERADOS */
+        } else if (streamTopic.getHasTopicStatus().equals(HASCO.RECORDING)) {
+            ValueGenerator generator = MqttMessageWorker.getInstance().getStreamGenerator(streamTopic.getUri());
+            if (generator == null) {
+                System.out.println("MessageWorker: stream generator is missing in processMessage");
+            } else {
+                try {
+                    generator.createObject(record, currentRow, topicStr);
+                    //generator.postprocess();
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
         return record;
@@ -166,6 +225,7 @@ public class MqttMessageWorker {
         // Remove the streamTopic itself
         MqttMessageWorker.getInstance().streamTopics.remove(streamTopic.getUri());
         streamTopic.getMessageLogger().println("Removed value generator");
+        streamTopic.setHasTopicStatus(HASCO.INACTIVE);
         System.out.println("Removed value generator");
         System.out.println("Total number of clients is " + this.clientsMap.size());
         System.out.println("Total number of executors is " + this.executorsMap.size());

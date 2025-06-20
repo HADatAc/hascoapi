@@ -16,6 +16,7 @@ public class MqttMessageAnnotation {
 
     public MqttMessageAnnotation() {}
 
+    /* TIAGO */
     public static void startRecordingMessageStreamTopic(StreamTopic streamTopic) {
         if (streamTopic == null || !streamTopic.getHasTopicStatus().equals(HASCO.SUSPENDED)) {
             return;
@@ -76,6 +77,7 @@ public class MqttMessageAnnotation {
 
     }
 
+    /* TIAGO */
     public static void stopRecordingMessageStreamTopic(StreamTopic streamTopic) {
         if (streamTopic == null || !streamTopic.getHasTopicStatus().equals(HASCO.RECORDING)) {
             return;
