@@ -16,7 +16,7 @@ public class MqttMessageAnnotation {
 
     public MqttMessageAnnotation() {}
 
-    public static void subscribeMessageStream(StreamTopic streamTopic) {
+    public static void startRecordingMessageStreamTopic(StreamTopic streamTopic) {
         if (streamTopic == null || !streamTopic.getHasTopicStatus().equals(HASCO.SUSPENDED)) {
             return;
         }
@@ -28,7 +28,7 @@ public class MqttMessageAnnotation {
             return;
         }
         streamTopic.getMessageLogger().resetLog();
-        streamTopic.getMessageLogger().println(String.format("Subscribing message stream: %s", streamTopic.getLabel()));
+        streamTopic.getMessageLogger().println(String.format("Start recording message stream: %s", streamTopic.getLabel()));
         DataFile archive;
         if (stream.getMessageArchiveId() == null || stream.getMessageArchiveId().isEmpty()) {
             Date date = new Date();
@@ -46,6 +46,7 @@ public class MqttMessageAnnotation {
 
         streamTopic.getMessageLogger().println(String.format("Message stream <%s> has labels <%s>", stream.getLabel(), streamTopic.getHeaders().toString()));
 
+        /* 
         ValueGenerator gen = new ValueGenerator(ValueGenerator.MSGMODE, null, stream, streamTopic.getSemanticDataDictionary(), null);
         if (!gen.getStudyUri().isEmpty()) {
             gen.setNamedGraphUri(gen.getStudyUri());
@@ -67,6 +68,7 @@ public class MqttMessageAnnotation {
             e.printStackTrace();
             return;
         }
+        */
 
         streamTopic.setHasTopicStatus(HASCO.RECORDING);
         streamTopic.getMessageLogger().println(String.format("Message stream [%s] is active.", streamTopic.getLabel()));
@@ -74,7 +76,7 @@ public class MqttMessageAnnotation {
 
     }
 
-    public static void unsubscribeMessageStream(StreamTopic streamTopic) {
+    public static void stopRecordingMessageStreamTopic(StreamTopic streamTopic) {
         if (streamTopic == null || !streamTopic.getHasTopicStatus().equals(HASCO.RECORDING)) {
             return;
         }
@@ -91,6 +93,7 @@ public class MqttMessageAnnotation {
         streamTopic.save();
     }
 
+    /* 
     public static void closeMessageStream(StreamTopic streamTopic) {
         if (streamTopic == null || streamTopic.getHasTopicStatus().equals(HASCO.INACTIVE)) {
             return;
@@ -111,5 +114,6 @@ public class MqttMessageAnnotation {
         streamTopic.save();
         MqttMessageWorker.getInstance().listStreamTopics().remove(streamTopic);
     }
+    */
 
 }
