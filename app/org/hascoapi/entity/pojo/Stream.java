@@ -588,7 +588,7 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
     }
 
     public static Stream find(String uri) {
-        System.out.println("inside Stream.find(uri): " + uri);
+        //System.out.println("inside Stream.find(uri): " + uri);
 		Stream str;
 		String hascoTypeUri = Utils.retrieveHASCOTypeUri(uri);
 		if (hascoTypeUri.equals(HASCO.STREAM)) {
