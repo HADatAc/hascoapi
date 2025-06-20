@@ -46,7 +46,7 @@ public class MqttMessageWorker {
 
     //public boolean addStreamTopic(StreamTopic streamTopic) {
     public boolean addStreamTopicToWorker(String topicUri) {
-        topicUri = "http://cienciapt.org/kg/STP1750214669419661";
+        //topicUri = "http://cienciapt.org/kg/STP1750214669419661";
         StreamTopic streamTopic = StreamTopic.find(topicUri);
         if (streamTopics.containsKey(streamTopic.getUri())) {
             return false;
@@ -63,7 +63,7 @@ public class MqttMessageWorker {
 
     //public boolean deleteStreamTopic(StreamTopic streamTopic) {
     public boolean removeStreamTopicFromWorker(String topicUri) {
-        topicUri = "http://cienciapt.org/kg/STP1750214669419661";
+        //topicUri = "http://cienciapt.org/kg/STP1750214669419661";
         System.out.println("MqttMessageWorker.removeStreamTopicFromWorker() has been called");
         StreamTopic streamTopic = StreamTopic.find(topicUri);
         if (!streamTopics.containsKey(streamTopic.getUri())) {
@@ -167,7 +167,7 @@ public class MqttMessageWorker {
             /* TIAGO */
             /* POR AQUI O CODIGO QUE GRAVA O CONTEUDO NOS ARQUIVOS */
             /* ATUALIZAR O CODIGO EM MQTTMESSAGEANNOTATION PARA CRIAR/GERENCIAR ARQUIVOS GERADOS */
-        } else if (streamTopic.getHasTopicStatus().equals(HASCO.RECORDING)) {
+        } else if (streamTopic.getHasTopicStatus().equals(HASCO.INGESTING)) {
             ValueGenerator generator = MqttMessageWorker.getInstance().getStreamGenerator(streamTopic.getUri());
             if (generator == null) {
                 System.out.println("MessageWorker: stream generator is missing in processMessage");

@@ -224,6 +224,8 @@ public class URIPage extends Controller {
                 finalResult = STR.find(uri);
             } else if (result.getHascoTypeUri().equals(HASCO.STREAM)) {
                 finalResult = Stream.find(uri);
+            } else if (result.getHascoTypeUri().equals(HASCO.STREAM_TOPIC)) {
+                finalResult = StreamTopic.find(uri);
             } else if (result.getHascoTypeUri().equals(HASCO.STUDY)) {
                 finalResult = Study.find(uri);
             } else if (result.getHascoTypeUri().equals(HASCO.STUDY_OBJECT)) {
