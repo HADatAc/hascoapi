@@ -52,6 +52,7 @@ public class MqttMessageWorker {
             return false;
         }
         streamTopic.setHasTopicStatus(HASCO.SUSPENDED);
+        streamTopic.save();
         System.out.println("Subscribing streamTopic [" + streamTopic.getUri() + "]");
         streamTopics.put(streamTopic.getUri(),streamTopic);
         System.out.println("  - creating generator [" + streamTopic.getUri() + "]");
