@@ -1,6 +1,8 @@
 package org.hascoapi.ingestion.mqtt;
 
 import java.util.HashMap;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -164,10 +166,21 @@ public class MqttMessageWorker {
         Record record = new JSONRecord(message, streamTopic.getHeaders());
 
         if (streamTopic.getHasTopicStatus().equals(HASCO.RECORDING)) {
-            /* TIAGO */
-            /* POR AQUI O CODIGO QUE GRAVA O CONTEUDO NOS ARQUIVOS */
-            /* ATUALIZAR O CODIGO EM MQTTMESSAGEANNOTATION PARA CRIAR/GERENCIAR ARQUIVOS GERADOS */
-        } else if (streamTopic.getHasTopicStatus().equals(HASCO.RECORDING)) {
+            String topicUri = streamTopic.getUri();
+            FileWriter writer = MqttMessageAnnotation.topicWriters.get(topicUri);
+            if (writer != null) {
+                try {
+                    writer.write(message);
+                    writer.write("\n");
+                    writer.flush();
+                } catch (IOException e) {
+                    System.err.println("Erro ao escrever mensagem no ficheiro para tópico: " + topicUri);
+                    e.printStackTrace();
+                }
+            } else {
+                System.err.println("Nenhum FileWriter encontrado para tópico: " + topicUri);
+            }
+        } else if (streamTopic.getHasTopicStatus().equals(HASCO.INGESTING)) {
             ValueGenerator generator = MqttMessageWorker.getInstance().getStreamGenerator(streamTopic.getUri());
             if (generator == null) {
                 System.out.println("MessageWorker: stream generator is missing in processMessage");

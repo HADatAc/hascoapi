@@ -336,6 +336,7 @@ public class StreamTopic extends HADatAcThing implements Comparable<StreamTopic>
         //System.out.println("inside StreamTopic.find(uri): " + uri);
 		StreamTopic topic;
 		String hascoTypeUri = Utils.retrieveHASCOTypeUri(uri);
+        
 		if (hascoTypeUri.equals(HASCO.STREAM_TOPIC)) {
 			topic = new StreamTopic();
 		} else {

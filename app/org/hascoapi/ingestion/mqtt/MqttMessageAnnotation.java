@@ -6,13 +6,23 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.CompletableFuture;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.io.FileWriter;
+import java.io.File;
+import java.io.IOException;
+
 import org.hascoapi.ingestion.ValueGenerator;
 import org.hascoapi.entity.pojo.Stream;
 import org.hascoapi.entity.pojo.StreamTopic;
+import org.hascoapi.entity.pojo.Study;
+import org.hascoapi.entity.pojo.DA;
 import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.vocabularies.HASCO;
 
 public class MqttMessageAnnotation {
+
+    public static final ConcurrentHashMap<String, FileWriter> topicWriters = new ConcurrentHashMap<>();
+    public static final ConcurrentHashMap<String, Integer> topicFileIndexes = new ConcurrentHashMap<>();
 
     public MqttMessageAnnotation() {}
 
@@ -30,24 +40,43 @@ public class MqttMessageAnnotation {
         }
         streamTopic.getMessageLogger().resetLog();
         streamTopic.getMessageLogger().println(String.format("Start recording message stream: %s", streamTopic.getLabel()));
-        DataFile archive;
-        if (stream.getMessageArchiveId() == null || stream.getMessageArchiveId().isEmpty()) {
-            Date date = new Date();
-            String fileName = "DA-" + stream.getMessageName().replaceAll("/","_").replaceAll(".", "_") + ".json";
-            archive = DataFile.create(fileName, "" , "", DataFile.PROCESSED);
-            archive.setSubmissionTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(date));
-            archive.save();
-            stream.setMessageArchiveId(archive.getId());
-            stream.getMessageLogger().println(String.format("Creating archive datafile " + fileName + " with id " + archive.getId()));
-            stream.save();
-        } else {
-            archive = DataFile.findById(stream.getMessageArchiveId());
-            streamTopic.getMessageLogger().println("Reusing archive datafile with id " + stream.getMessageArchiveId());
+
+        String topicUri = streamTopic.getUri();
+        int index = topicFileIndexes.getOrDefault(topicUri, 0);
+        topicFileIndexes.put(topicUri, index + 1);
+    
+        // Gerar nome seguro para o arquivo
+        String safeFileNameBase = stream.getMessageName().replaceAll("[^a-zA-Z0-9_\\-]", "_");
+        String fileName = String.format("DA-%s_%d.json", safeFileNameBase, index);
+    
+        // Criar o DataFile novo, sempre sequencial
+        Date date = new Date();
+        DataFile archive = DataFile.create(fileName, "" , "", DataFile.PROCESSED);
+        archive.setSubmissionTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(date));
+        archive.save();
+    
+        stream.setMessageArchiveId(archive.getId());
+        stream.getMessageLogger().println(String.format("Creating archive datafile %s with id %s", fileName, archive.getId()));
+        stream.save();
+    
+        // Criar diretório para gravação, se não existir
+        String directoryPath = "/var/hascoapi/stream/files";
+        new File(directoryPath).mkdirs();
+    
+        // Full path para gravação (deve ser igual ao nome do DataFile)
+        String fullPath = directoryPath + File.separator + fileName;
+    
+        // Criar FileWriter e armazenar para gravação
+        try {
+            FileWriter writer = new FileWriter(fullPath, true);
+            topicWriters.put(topicUri, writer);
+            streamTopic.getMessageLogger().println("Gravação iniciada no ficheiro: " + fullPath);
+        } catch (IOException e) {
+            streamTopic.getMessageLogger().printException("Erro ao criar ficheiro de gravação: " + e.getMessage());
+            return;
         }
 
-        streamTopic.getMessageLogger().println(String.format("Message stream <%s> has labels <%s>", stream.getLabel(), streamTopic.getHeaders().toString()));
-
-        /* 
+        /*
         ValueGenerator gen = new ValueGenerator(ValueGenerator.MSGMODE, null, stream, streamTopic.getSemanticDataDictionary(), null);
         if (!gen.getStudyUri().isEmpty()) {
             gen.setNamedGraphUri(gen.getStudyUri());
@@ -71,10 +100,23 @@ public class MqttMessageAnnotation {
         }
         */
 
+        DA da = new DA();
+        da.setLabel("Data Acquisition for " + fileName);
+        da.setHasDataFileUri(archive.getId());
+
+        Study study = stream.getStudy();
+        if (study != null) {
+            da.setIsMemberOfUri(study.getUri());
+        } else {
+            streamTopic.getMessageLogger().println("Warning: No Study linked to Stream for DA creation.");
+        }
+
+        da.save();
+        streamTopic.getMessageLogger().println("DataAcquisition object created with URI: " + da.getUri());
+
         streamTopic.setHasTopicStatus(HASCO.RECORDING);
         streamTopic.getMessageLogger().println(String.format("Message stream [%s] is active.", streamTopic.getLabel()));
         streamTopic.save();
-
     }
 
     /* TIAGO */
@@ -90,6 +132,24 @@ public class MqttMessageAnnotation {
         } else {
             MqttMessageWorker.getInstance().stopStream(streamTopic);
         }
+
+        String topicUri = streamTopic.getUri();
+
+        FileWriter writer = topicWriters.get(topicUri);
+        if (writer != null) {
+            try {
+                writer.flush();
+                writer.close();
+                topicWriters.remove(topicUri);
+                streamTopic.getMessageLogger().println("Ficheiro de gravação fechado com sucesso.");
+            } catch (IOException e) {
+                streamTopic.getMessageLogger().printException("Erro ao fechar ficheiro de gravação: " + e.getMessage());
+            }
+        } else {
+            streamTopic.getMessageLogger().println("Nenhum ficheiro ativo de gravação encontrado para este tópico.");
+        }
+
+
         streamTopic.setHasTopicStatus(HASCO.SUSPENDED);
         streamTopic.getMessageLogger().println(String.format("Suspended processing of message stream [%s]", streamTopic.getUri()));
         streamTopic.save();
