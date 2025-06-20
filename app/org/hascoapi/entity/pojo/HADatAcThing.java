@@ -156,6 +156,9 @@ public abstract class HADatAcThing {
     }
 
     public String getLabel() {
+        if (label == null || label.isEmpty()) {
+            return HADatAcThing.getLocalName(this.getUri()); 
+        }
         return label;
     }
 
@@ -284,6 +287,21 @@ public abstract class HADatAcThing {
         }
 
         return "";
+    }
+
+    public static String getLocalName(String uri) {
+        if (uri == null) return null;
+
+        int hashIndex = uri.lastIndexOf('#');
+        int slashIndex = uri.lastIndexOf('/');
+
+        int index = Math.max(hashIndex, slashIndex);  // Use the later of the two
+
+        if (index == -1 || index == uri.length() - 1) {
+            return uri; // URI has no separator or ends with one
+        }
+
+        return uri.substring(index + 1);
     }
 
     public static int getNumberInstances() {

@@ -270,7 +270,9 @@ public class Repository extends HADatAcThing {
             namespace = (NameSpace)objectMapper.readValue(json, NameSpace.class);
 
             if (namespace != null) {
-                System.out.println("Namespace [" + namespace.getLabel() + "] sucessfully parsed.");
+                System.out.println("Namespace [" + namespace.getLabel() + "] successfully parsed.");
+                namespace.setTypeUri(HASCO.ONTOLOGY);
+                namespace.setHascoTypeUri(HASCO.ONTOLOGY);
                 namespace.save();
                 NameSpaces.getInstance().addNamespace(namespace);
             }
