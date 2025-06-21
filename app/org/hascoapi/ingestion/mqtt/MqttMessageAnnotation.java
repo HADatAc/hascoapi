@@ -124,13 +124,15 @@ public class MqttMessageAnnotation {
     
     
         String fullPath = directoryPath + File.separator + fileName;
-    
+        System.out.println("Caminho do ficheiro: " + fullPath);
         // Criar FileWriter e armazenar para gravação
         try {
             FileWriter writer = new FileWriter(fullPath, true);
             topicWriters.put(topicUri, writer);
+            System.out.println("Gravação iniciada no ficheiro: " + fullPath);
             streamTopic.getMessageLogger().println("Gravação iniciada no ficheiro: " + fullPath);
         } catch (IOException e) {
+            System.out.println("Erro ao criar ficheiro de gravação" + e.getMessage());
             streamTopic.getMessageLogger().printException("Erro ao criar ficheiro de gravação: " + e.getMessage());
             return;
         }
