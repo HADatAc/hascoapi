@@ -90,7 +90,9 @@ public class MqttMessageAnnotation {
 
         // Criar o DataFile novo, sempre sequencial
         Date date = new Date();
-        DataFile archive = DataFile.create(fileName, "" , "", DataFile.PROCESSED);
+        String archiveUri = "http://hadatac.org/datafile/" + fileName;
+        DataFile archive = new DataFile(archiveUri, fileName);
+        archive.setFileStatus(DataFile.PROCESSED);
         archive.setSubmissionTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(date));
         archive.save();
     
