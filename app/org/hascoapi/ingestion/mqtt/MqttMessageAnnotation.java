@@ -118,11 +118,6 @@ public class MqttMessageAnnotation {
         archive.setSubmissionTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(date));
         archive.save();
     
-        stream.setMessageArchiveId(archive.getId());
-        stream.getMessageLogger().println(String.format("Creating archive datafile %s with id %s", fileName, archive.getId()));
-        stream.save();
-    
-    
         String fullPath = directoryPath + File.separator + fileName;
         System.out.println("Caminho do ficheiro: " + fullPath);
         // Criar FileWriter e armazenar para gravação
