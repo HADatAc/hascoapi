@@ -108,6 +108,7 @@ public class MqttMessageAnnotation {
         archive.setId(fileId);
         archive.setStudyUri(studyUri);
         archive.setStreamUri(streamUri);
+        archive.setNamedGraph(fileName);
         archive.setFileStatus(DataFile.PROCESSED);
         Date date = new Date();
         
