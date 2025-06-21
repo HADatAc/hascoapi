@@ -11,6 +11,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.hascoapi.ingestion.ValueGenerator;
+import org.hascoapi.utils.Utils;
 import org.hascoapi.entity.pojo.Stream;
 import org.hascoapi.entity.pojo.StreamTopic;
 import org.hascoapi.entity.pojo.Study;
@@ -88,10 +89,8 @@ public class MqttMessageAnnotation {
         String fileName = String.format("DA-%s_%d.json", safeFileNameBase, index);
 
 
-        // Criar o DataFile novo, sempre sequencial
+        String dataFileUri = Utils.uriGen("datafile");
 
-        String baseUri = HASCO.DATAFILE;
-        String dataFileUri = baseUri + fileName;
         String fileId = fileName;
 
         String studyUri = "";
