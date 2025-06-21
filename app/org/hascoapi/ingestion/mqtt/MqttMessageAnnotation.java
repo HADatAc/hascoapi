@@ -90,6 +90,7 @@ public class MqttMessageAnnotation {
 
 
         String dataFileUri = Utils.uriGen("datafile");
+        System.out.println("[DEBUG] Generated DataFile URI: " + dataFileUri);
 
         String fileId = fileName;
 
@@ -99,9 +100,10 @@ public class MqttMessageAnnotation {
         }
         String streamUri = stream.getUri();
 
-        DataFile archive = new DataFile(dataFileUri, fileName);
+        DataFile archive = new DataFile(fileId, fileName);
         archive.setTypeUri(HASCO.DATAFILE);
         archive.setHascoTypeUri(HASCO.DATAFILE);
+        archive.setUri(dataFileUri);
         archive.setLabel(fileName);
         archive.setFilename(fileName);
         archive.setId(fileId);
