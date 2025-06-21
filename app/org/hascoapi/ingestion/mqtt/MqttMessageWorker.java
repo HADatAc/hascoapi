@@ -1,6 +1,8 @@
 package org.hascoapi.ingestion.mqtt;
 
 import java.util.HashMap;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -110,74 +112,94 @@ public class MqttMessageWorker {
     }
 
     public boolean setStatus(String streamTopicUri, String status) {
+        System.out.println("[DEBUG] setStatus called with streamTopicUri=" + streamTopicUri + ", status=" + status);
         StreamTopic streamTopic = streamTopics.get(streamTopicUri);
         if (streamTopic == null) {
             System.out.println("[ERROR] MqttMessageWorker: there is no subscribed stream topic with URI " + streamTopicUri);
             return false;
         }
+    
+        System.out.println("[DEBUG] Current StreamTopic status: " + streamTopic.getHasTopicStatus());
+    
         if (status.equals(HASCO.INACTIVE)) {
-            System.out.println("[ERROR] MqttMessageWorker: Cannot change the status of StreamTopic " + streamTopicUri + " since it is INACTIVE");
+            System.out.println("[ERROR] MqttMessageWorker: Cannot change the status of StreamTopic " + streamTopicUri + " to INACTIVE");
             return false;
         } else if (status.equals(HASCO.SUSPENDED)) {
             if (streamTopic.getHasTopicStatus().equals(HASCO.RECORDING) || streamTopic.getHasTopicStatus().equals(HASCO.INGESTING)) {
                 if (streamTopic.getHasTopicStatus().equals(HASCO.RECORDING)) {
-                    /* TIAGO */
+                    System.out.println("[DEBUG] Calling stopRecordingMessageStreamTopic...");
                     MqttMessageAnnotation.stopRecordingMessageStreamTopic(streamTopic);
                 }
                 streamTopic.setHasTopicStatus(status);
                 streamTopic.save();
-                System.out.println("MqttMessageWorker: Status of " + streamTopicUri + " has changed to " + status);
+                System.out.println("[INFO] MqttMessageWorker: Status of " + streamTopicUri + " has changed to " + status);
                 return true;
             } else {
-                System.out.println("MqttMessageWorker: StreamTopic " + streamTopicUri + " needs to be RECORDING or INGESTING to be SUSPENDED");
+                System.out.println("[WARN] MqttMessageWorker: StreamTopic " + streamTopicUri + " is not RECORDING or INGESTING, cannot suspend");
                 return false;
             }
         } else if (status.equals(HASCO.RECORDING)) {
             if (streamTopic.getHasTopicStatus().equals(HASCO.SUSPENDED)) {
-                /* TIAGO */
+                System.out.println("[DEBUG] Calling startRecordingMessageStreamTopic...");
                 MqttMessageAnnotation.startRecordingMessageStreamTopic(streamTopic);
                 streamTopic.setHasTopicStatus(status);
                 streamTopic.save();
-                System.out.println("MqttMessageWorker: Status of " + streamTopicUri + " has changed to " + status);
+                System.out.println("[INFO] MqttMessageWorker: Status of " + streamTopicUri + " has changed to " + status);
                 return true;
             } else {
-                System.out.println("MqttMessageWorker: StreamTopic " + streamTopicUri + " needs to be SUSPENDED to change to RECORDING");
+                System.out.println("[WARN] MqttMessageWorker: StreamTopic " + streamTopicUri + " is not SUSPENDED, cannot change to RECORDING");
                 return false;
             }
         } else if (status.equals(HASCO.INGESTING)) {
             if (streamTopic.getHasTopicStatus().equals(HASCO.SUSPENDED)) {
                 streamTopic.setHasTopicStatus(status);
                 streamTopic.save();
-                System.out.println("MqttMessageWorker: Status of " + streamTopicUri + " has changed to " + status);
+                System.out.println("[INFO] MqttMessageWorker: Status of " + streamTopicUri + " has changed to " + status);
                 return true;
             } else {
-                System.out.println("MqttMessageWorker: StreamTopic " + streamTopicUri + " needs to be SUSPENDED to change to INGESTING");
+                System.out.println("[WARN] MqttMessageWorker: StreamTopic " + streamTopicUri + " is not SUSPENDED, cannot change to INGESTING");
                 return false;
             }
-        } 
+        }
         System.out.println("[ERROR] MqttMessageWorker: invalid status " + status);
         return false;
-        
     }
 
     public static Record processMessage(StreamTopic streamTopic, String topicStr, String message, int currentRow) {
-        System.out.println("TopicStr: [" + topicStr + "]   Message: [" + message + "]");
+        System.out.println("[DEBUG] processMessage called");
+        System.out.println("[INFO] TopicStr: [" + topicStr + "]   Message: [" + message + "]");
         Record record = new JSONRecord(message, streamTopic.getHeaders());
-
-        if (streamTopic.getHasTopicStatus().equals(HASCO.RECORDING)) {
-            /* TIAGO */
-            /* POR AQUI O CODIGO QUE GRAVA O CONTEUDO NOS ARQUIVOS */
-            /* ATUALIZAR O CODIGO EM MQTTMESSAGEANNOTATION PARA CRIAR/GERENCIAR ARQUIVOS GERADOS */
-        } else if (streamTopic.getHasTopicStatus().equals(HASCO.INGESTING)) {
+    
+        String status = streamTopic.getHasTopicStatus();
+        System.out.println("[DEBUG] Current topic status: " + status);
+    
+        if (status.equals(HASCO.RECORDING)) {
+            String topicUri = streamTopic.getUri();
+            System.out.println("[DEBUG] Attempting to record message for topicUri: " + topicUri);
+            FileWriter writer = MqttMessageAnnotation.topicWriters.get(topicUri);
+            if (writer != null) {
+                try {
+                    writer.write(message);
+                    writer.write("\n");
+                    System.out.println("[INFO] Message written to file for topicUri: " + topicUri);
+                } catch (IOException e) {
+                    System.err.println("[ERROR] Erro ao escrever mensagem no ficheiro para tópico: " + topicUri);
+                    e.printStackTrace();
+                }
+            } else {
+                System.err.println("[ERROR] Nenhum FileWriter encontrado para tópico: " + topicUri);
+            }
+        } else if (status.equals(HASCO.INGESTING)) {
+            System.out.println("[DEBUG] Topic in INGESTING mode, attempting to generate object...");
             ValueGenerator generator = MqttMessageWorker.getInstance().getStreamGenerator(streamTopic.getUri());
             if (generator == null) {
-                System.out.println("MessageWorker: stream generator is missing in processMessage");
+                System.out.println("[ERROR] MessageWorker: stream generator is missing in processMessage");
             } else {
                 try {
                     generator.createObject(record, currentRow, topicStr);
-                    //generator.postprocess();
-
+                    System.out.println("[INFO] Object generated successfully.");
                 } catch (Exception e) {
+                    System.err.println("[ERROR] Exception while creating object:");
                     e.printStackTrace();
                 }
             }
