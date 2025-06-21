@@ -142,8 +142,8 @@ public class MqttMessageWorker {
             if (streamTopic.getHasTopicStatus().equals(HASCO.SUSPENDED)) {
                 System.out.println("[DEBUG] Calling startRecordingMessageStreamTopic...");
                 MqttMessageAnnotation.startRecordingMessageStreamTopic(streamTopic);
-                streamTopic.setHasTopicStatus(status);
-                streamTopic.save();
+                // streamTopic.setHasTopicStatus(status);
+                // streamTopic.save();
                 System.out.println("[INFO] MqttMessageWorker: Status of " + streamTopicUri + " has changed to " + status);
                 return true;
             } else {
@@ -171,7 +171,7 @@ public class MqttMessageWorker {
         Record record = new JSONRecord(message, streamTopic.getHeaders());
     
         String status = streamTopic.getHasTopicStatus();
-        System.out.println("[DEBUG] Current topic status: " + status);
+        System.out.println("[DEBUG] Current topic in processMessage status: " + status);
     
         if (status.equals(HASCO.RECORDING)) {
             String topicUri = streamTopic.getUri();
