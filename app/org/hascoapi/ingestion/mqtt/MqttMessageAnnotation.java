@@ -82,40 +82,11 @@ public class MqttMessageAnnotation {
         if (streamTopic == null || !streamTopic.getHasTopicStatus().equals(HASCO.RECORDING)) {
             return;
         }
-        System.out.println("Unsubscribing message stream: " + streamTopic.getLabel());
+        System.out.println("Stop recording stream topic: " + streamTopic.getLabel());
+        /* TIAGO EH AQUI QUE TEM DE FICAR A LOGICA DE PARAR A GRAVACAO, SE EH QUE ALGO TEM DE OCORRER */
         streamTopic.getMessageLogger().resetLog();
-        streamTopic.getMessageLogger().println(String.format("Unsubscribing message stream [%s]", streamTopic.getLabel()));
-        if (!MqttMessageWorker.getInstance().containsExecutor(streamTopic)) {
-            streamTopic.getMessageLogger().printWarning("CurrentClient for the following stream is missing [" + streamTopic.getUri() + "]");
-        } else {
-            MqttMessageWorker.getInstance().stopStream(streamTopic);
-        }
-        streamTopic.setHasTopicStatus(HASCO.SUSPENDED);
-        streamTopic.getMessageLogger().println(String.format("Suspended processing of message stream [%s]", streamTopic.getUri()));
+        streamTopic.getMessageLogger().println(String.format("Stopped recording of stream topic [%s]", streamTopic.getLabel()));
         streamTopic.save();
     }
-
-    /* 
-    public static void closeMessageStream(StreamTopic streamTopic) {
-        if (streamTopic == null || streamTopic.getHasTopicStatus().equals(HASCO.INACTIVE)) {
-            return;
-        }
-        System.out.println("closing message stream: " + streamTopic.getLabel());
-        streamTopic.getMessageLogger().resetLog();
-        streamTopic.getMessageLogger().println(String.format("Closing message stream [%s]", streamTopic.getLabel()));
-        if (!MqttMessageWorker.getInstance().containsExecutor(streamTopic)) {
-            streamTopic.getMessageLogger().printWarning("CurrentClient for the following stream is missing [" + streamTopic.getUri() + "]");
-        } else {
-            MqttMessageWorker.getInstance().stopStream(streamTopic);
-        }
-        streamTopic.setHasTopicStatus(HASCO.INACTIVE);
-        DateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        String endTime = isoFormat.format(new Date());
-        //streamTopic.setEndedAtXsdWithMillis(endTime);
-        streamTopic.getMessageLogger().println(String.format("Closed message stream [%s]", streamTopic.getUri()));
-        streamTopic.save();
-        MqttMessageWorker.getInstance().listStreamTopics().remove(streamTopic);
-    }
-    */
 
 }
