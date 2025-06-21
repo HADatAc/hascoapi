@@ -23,12 +23,15 @@ public class MqttMessageWorker {
     final private Map<String,ExecutorService> executorsMap;
     final private Map<String,MqttAsyncClient> clientsMap;
     final private Map<String,ValueGenerator> streamGenMap;
+    final private MqttMonitor monitor;
 
     private MqttMessageWorker() {
         streamTopics = new HashMap<String,StreamTopic>();
         executorsMap = new HashMap<String,ExecutorService>();
         clientsMap = new HashMap<String,MqttAsyncClient>();
         streamGenMap = new HashMap<String,ValueGenerator>();
+        monitor = new MqttMonitor();
+
     }
 
     // static method to create instance of Singleton class
@@ -59,6 +62,7 @@ public class MqttMessageWorker {
         //ValueGenerator generator = new ValueGenerator(0, null, null, null, null);
         System.out.println("  - creating executor [" + streamTopic.getUri() + "]");
         MqttAsyncSubscribe.exec(streamTopic, null);
+        monitor.addStreamTopic(topicUri);
         return true;
     }
 
@@ -70,8 +74,13 @@ public class MqttMessageWorker {
         if (!streamTopics.containsKey(streamTopic.getUri())) {
             return false;
         }
+        monitor.stopStreamTopic(topicUri);
         this.stopStream(streamTopic);
         return true;
+    }
+
+    public MqttMonitor getMonitor() {
+        return monitor;
     }
 
     public ExecutorService getExecutor(String streamTopicUri) {
@@ -162,6 +171,8 @@ public class MqttMessageWorker {
 
     public static Record processMessage(StreamTopic streamTopic, String topicStr, String message, int currentRow) {
         System.out.println("TopicStr: [" + topicStr + "]   Message: [" + message + "]");
+        MqttMessageWorker.getInstance().monitor.updateLatestValue(streamTopic.getUri(), message);
+
         Record record = new JSONRecord(message, streamTopic.getHeaders());
 
         if (streamTopic.getHasTopicStatus().equals(HASCO.RECORDING)) {

@@ -69,6 +69,11 @@ public class StreamTopicAPI extends Controller {
         return ok(ApiUtil.createResponse("Failed to unsubscribe requested StreamTopic", false));   
     }
 
-
+    public Result getLatestValue(String topicUri) {
+        if (topicUri == null || topicUri.isEmpty()) {
+            return ok(ApiUtil.createResponse("No valid topicUri has been provided", false));
+        }
+        return ok(ApiUtil.createResponse(MqttMessageWorker.getInstance().getMonitor().getLatestValue(topicUri), true));
+    }
 
 }
