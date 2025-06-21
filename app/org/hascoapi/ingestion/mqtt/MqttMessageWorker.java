@@ -227,6 +227,7 @@ public class MqttMessageWorker {
         MqttMessageWorker.getInstance().streamTopics.remove(streamTopic.getUri());
         streamTopic.getMessageLogger().println("Removed value generator");
         streamTopic.setHasTopicStatus(HASCO.INACTIVE);
+        streamTopic.save();
         System.out.println("Removed value generator");
         System.out.println("Total number of clients is " + this.clientsMap.size());
         System.out.println("Total number of executors is " + this.executorsMap.size());
