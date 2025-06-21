@@ -12,7 +12,7 @@ public class MqttMonitor {
     public void addStreamTopic(String streamTopicUri) {
         StreamTopicMonitor monitor = new StreamTopicMonitor(streamTopicUri);
         streamTopicMonitors.put(streamTopicUri, monitor);
-        monitor.start("initiated");
+        monitor.start();
     }
 
     public void stopStreamTopic(String streamTopicUri) {
@@ -63,7 +63,11 @@ public class MqttMonitor {
             latestValue.set(message);
         }
         
-        void start(String message) {
+        String getLatestValue() {
+            return latestValue.get();
+        }
+
+        void start() {
             // Stop existing task if running
             if (dataProducerTask != null && !dataProducerTask.isDone()) {
                 dataProducerTask.cancel(true);
@@ -73,8 +77,7 @@ public class MqttMonitor {
                 try {
                     while (!Thread.currentThread().isInterrupted()) {
                         TimeUnit.SECONDS.sleep((long) (Math.random() * 60));
-                        latestValue.set(message);
-                        System.out.printf("[%s] Updated value: %s%n", streamTopicUri, message);
+                        //System.out.printf("[%s] Updated value: %s%n", streamTopicUri, latestValue.get());
                     }
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -88,9 +91,6 @@ public class MqttMonitor {
             }
         }
 
-        String getLatestValue() {
-            return latestValue.get();
-        }
     }
 
     /* 
