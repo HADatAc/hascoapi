@@ -10,6 +10,8 @@ import java.util.Date;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.management.modelmbean.DescriptorSupport;
+
 import org.hascoapi.ingestion.ValueGenerator;
 import org.hascoapi.utils.Utils;
 import org.hascoapi.entity.pojo.Stream;
@@ -156,19 +158,33 @@ public class MqttMessageAnnotation {
             return;
         }
         */
-
+        String daUri = dataFileUri.replace("DFL", Utils.shortPrefix("da"));
+        System.out.println("[DEBUG] DA URI: " + daUri);
         DA da = new DA();
-        da.setLabel("Data Acquisition for " + fileName);
-        da.setHasDataFileUri(archive.getId());
-
-        Study study = stream.getStudy();
-        if (study != null) {
-            da.setIsMemberOfUri(study.getUri());
-        } else {
-            streamTopic.getMessageLogger().println("Warning: No Study linked to Stream for DA creation.");
-        }
-
+        da.setUri(daUri);
+        da.setTypeUri(HASCO.DATA_ACQUISITION);
+        da.setHascoTypeUri(HASCO.DATA_ACQUISITION);
+        da.setIsMemberOfUri(studyUri);
+        da.setLabel(fileName);
+        da.setHasDataFileUri(dataFileUri);
+        da.setHasVersion("");
+        da.setComment("");
         da.save();
+        streamTopic.getMessageLogger().println("DataAcquisition object created with URI: " + da.getUri());
+        System.out.println("[DEBUG] DA URI FINAL: " + da.getUri());
+
+        // DA da = new DA();
+        // da.setLabel("Data Acquisition for " + fileName);
+        // da.setHasDataFileUri(archive.getId());
+
+        // Study study = stream.getStudy();
+        // if (study != null) {
+        //     da.setIsMemberOfUri(study.getUri());
+        // } else {
+        //     streamTopic.getMessageLogger().println("Warning: No Study linked to Stream for DA creation.");
+        // }
+
+        // da.save();
         streamTopic.getMessageLogger().println("DataAcquisition object created with URI: " + da.getUri());
 
         streamTopic.setHasTopicStatus(HASCO.RECORDING);
