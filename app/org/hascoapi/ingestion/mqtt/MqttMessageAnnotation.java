@@ -89,9 +89,28 @@ public class MqttMessageAnnotation {
 
 
         // Criar o DataFile novo, sempre sequencial
+
+        String baseUri = HASCO.DATAFILE;
+        String dataFileUri = baseUri + fileName;
+        String fileId = fileName;
+
+        String studyUri = "";
+        if (stream.getStudy() != null) {
+            studyUri = stream.getStudy().getUri();
+        }
+        String streamUri = stream.getUri();
+
+        DataFile archive = new DataFile(dataFileUri, fileName);
+        archive.setTypeUri(HASCO.DATAFILE);
+        archive.setHascoTypeUri(HASCO.DATAFILE);
+        archive.setLabel(fileName);
+        archive.setFilename(fileName);
+        archive.setId(fileId);
+        archive.setStudyUri(studyUri);
+        archive.setStreamUri(streamUri);
+        archive.setFileStatus(DataFile.PROCESSED);
         Date date = new Date();
         
-        DataFile archive = DataFile.create(fileName, fileName  , "", DataFile.PROCESSED);
         archive.setSubmissionTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(date));
         archive.save();
     
