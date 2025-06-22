@@ -111,6 +111,7 @@ public class HASCO {
     public static final String HAS_METHOD                             = "http://hadatac.org/ont/hasco/hasMethod";
     public static final String HAS_NAMESPACE_ABBREVIATION             = "http://hadatac.org/ont/hasco/hasNamespaceAbbreviation";
     public static final String HAS_NAMESPACE_URL                      = "http://hadatac.org/ont/hasco/hasNamespaceURL";
+    public static final String HAS_NUMBER_DATA_POINTS                 = "http://hadatac.org/ont/hasco/hasNumberDataPoints";    
     public static final String HAS_NUMBER_LOADED_TRIPLES              = "http://hadatac.org/ont/hasco/hasNumberLoadedTriples";
     public static final String HAS_OBJECT                             = "http://hadatac.org/ont/hasco/hasObject";
     public static final String HAS_OBJECT_SCOPE                       = "http://hadatac.org/ont/hasco/hasObjectScope";
@@ -136,6 +137,7 @@ public class HASCO {
     public static final String HAS_SOC_TYPE                           = "http://hadatac.org/ont/hasco/hasSOCType";
     public static final String HAS_SPACE_OBJECT_SCOPE                 = "http://hadatac.org/ont/hasco/hasSpaceObjectScope";
     public static final String HAS_STREAM                             = "http://hadatac.org/ont/hasco/hasStream";
+    public static final String HAS_STREAM_TOPIC                       = "http://hadatac.org/ont/hasco/hasStreamTopic";
     public static final String HAS_STREAM_STATUS                      = "http://hadatac.org/ont/hasco/hasStreamStatus";
     public static final String HAS_STUDY                              = "http://hadatac.org/ont/hasco/hasStudy";
     public static final String HAS_STUDY_OBJECT                       = "http://hadatac.org/ont/hasco/hasStudyObject";
@@ -147,6 +149,8 @@ public class HASCO {
     public static final String HAS_TIME_OBJECT_SCOPE                  = "http://hadatac.org/ont/hasco/hasTimeObjectScope";
     public static final String HAS_TITLE                              = "http://hadatac.org/ont/hasco/hasTitle";
     public static final String HAS_TOPIC_STATUS                       = "http://hadatac.org/ont/hasco/hasTopicStatus";
+    public static final String HAS_TOTAL_RECEIVED_MESSAGES            = "http://hadatac.org/ont/hasco/hasTotalReceivedMessages";
+    public static final String HAS_TOTAL_RECORDED_MESSAGES            = "http://hadatac.org/ont/hasco/hasTotalRecordedMessages";
     public static final String HAS_UNIT                               = "http://hadatac.org/ont/hasco/hasUnit";
     public static final String HAS_URL                                = "http://hadatac.org/ont/hasco/hasURL";
     public static final String HAS_VALUE                              = "http://hadatac.org/ont/hasco/hasValue";

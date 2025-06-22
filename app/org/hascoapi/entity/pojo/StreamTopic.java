@@ -55,8 +55,6 @@ public class StreamTopic extends HADatAcThing implements Comparable<StreamTopic>
      */
     @PropertyField(uri="hasco:hasStream")
     private String streamUri;
-    @PropertyField(uri="hasco:hasNumberDataPoints")
-    private long numberDataPoints;
     @PropertyField(uri="hasco:hasSDD")
     private String semanticDataDictionaryUri;
     @PropertyField(uri="hasco:hasDeployment")
@@ -65,10 +63,8 @@ public class StreamTopic extends HADatAcThing implements Comparable<StreamTopic>
     private List<String> cellScopeUri;
     @PropertyField(uri="hasco:hasCellScopeName")
     private List<String> cellScopeName;
-    @PropertyField(uri="hasco:hasTotalMessages")
-    private long totalMessages;
-    @PropertyField(uri="hasco:hasIngestedMessages")
-    private long ingestedMessages;
+    @PropertyField(uri="hasco:hasTotalReceivedMessages")
+    private long totalReceivedMessages;
     @PropertyField(uri="hasco:hasMessageHeader")
     private String messageHeaders;
 
@@ -105,9 +101,7 @@ public class StreamTopic extends HADatAcThing implements Comparable<StreamTopic>
     private IngestionLogger logger = null;
 
     public StreamTopic() {
-        numberDataPoints = 0;
-        totalMessages = 0;
-        ingestedMessages = 0;
+        totalReceivedMessages = 0;
         cellScopeUri = new ArrayList<String>();
         cellScopeName = new ArrayList<String>();
         canView = new ArrayList<String>();
@@ -196,26 +190,11 @@ public class StreamTopic extends HADatAcThing implements Comparable<StreamTopic>
         getHeaders();
     }
 
-    public long getNumberDataPoints() {
-        return numberDataPoints;
+    public long getTotalReceivedMessages() {
+        return totalReceivedMessages;
     }
-
-    public void setNumberDataPoints(long numberDataPoints) {
-        this.numberDataPoints = numberDataPoints;
-    }
-
-    public long getTotalMessages() {
-        return totalMessages;
-    }
-    public void setTotalMessages(long totalMessages) {
-        this.totalMessages = totalMessages;
-    }
-
-    public long getIngestedMessages() {
-        return totalMessages;
-    }
-    public void setIngestedMessages(long totalMessages) {
-        this.totalMessages = totalMessages;
+    public void setTotalReceivedMessages(long totalReceivedMessages) {
+        this.totalReceivedMessages = totalReceivedMessages;
     }
 
     public String getHasTopicStatus() {
@@ -291,10 +270,6 @@ public class StreamTopic extends HADatAcThing implements Comparable<StreamTopic>
 
     public void addCellScopeName(String cellScopeName) {
         this.cellScopeName.add(cellScopeName);
-    }
-
-    public void addNumberDataPoints(long number) {
-        numberDataPoints += number;
     }
 
     public List<String> getCanUpdate() {
@@ -379,6 +354,8 @@ public class StreamTopic extends HADatAcThing implements Comparable<StreamTopic>
 					topic.setHasTopicStatus(string);
 				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
 					topic.setComment(string);
+                } else if (statement.getPredicate().getURI().equals(HASCO.HAS_TOTAL_RECEIVED_MESSAGES)) {
+                    topic.setTotalReceivedMessages(Long.valueOf(string));
                 } else if (statement.getPredicate().getURI().equals(HASCO.CAN_UPDATE)) {
                     topic.addCanUpdate(string);
                 } else if (statement.getPredicate().getURI().equals(HASCO.CAN_VIEW)) {
