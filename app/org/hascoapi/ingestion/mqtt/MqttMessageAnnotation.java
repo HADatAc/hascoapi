@@ -182,6 +182,7 @@ public class MqttMessageAnnotation {
         // }
 
         // da.save();
+        //novo branch temporário
         streamTopic.getMessageLogger().println("DataAcquisition object created with URI: " + da.getUri());
 
         streamTopic.setHasTopicStatus(HASCO.RECORDING);
