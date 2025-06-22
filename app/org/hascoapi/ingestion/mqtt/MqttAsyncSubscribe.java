@@ -239,14 +239,15 @@ public class MqttAsyncSubscribe implements MqttCallback {
         /*
          *   Ingest message content
          */
-        /* 
+
         try {
-            if (MqttMessageWorker.processMessage(streamTopic, topic, plainPayload, totalMessages) != null) {
+            int temp = (int) totalMessages;
+            if (MqttMessageWorker.processMessage(streamTopic, topic, plainPayload, temp) != null) {
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        */
+ 
 
         if (Thread.currentThread().isInterrupted()) {
             //System.out.println("Thread INTERRUPTED");
