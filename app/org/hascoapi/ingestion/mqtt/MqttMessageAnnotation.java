@@ -112,7 +112,7 @@ public class MqttMessageAnnotation {
         archive.setStudyUri(studyUri);
         archive.setStreamUri(streamUri);
         archive.setNamedGraph(dataFileUri);
-        archive.setFileStatus(DataFile.PROCESSED);
+        archive.setFileStatus(DataFile.UNPROCESSED);
         Date date = new Date();
         
         archive.setSubmissionTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(date));
