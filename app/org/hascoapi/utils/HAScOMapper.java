@@ -164,6 +164,7 @@ public class HAScOMapper {
             filterProvider.addFilter("daFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
                             "hascoTypeLabel", "hasVersion",  "isMemberOf", "hasDD", "hasSDD", "comment", 
+                            "hasTotalRecordedMessages", "hasNumberDataPoints", 
                             "hasDataFileUri", "hasDataFile", "hasDD", "hasDDUri", "hasSDD", "hasSDDUri"));
         }
 
@@ -172,8 +173,10 @@ public class HAScOMapper {
             filterProvider.addFilter("dataFileFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("dataFileFilter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "id", "label", "typeUri", "typeLabel", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "filename", "fileStatus", "lastProcessTime", "file"));
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "id", "label", "typeUri", 
+                            "typeLabel", "hascoTypeUri", "hascoTypeLabel",
+                            "streamUri", "streamTopicUri", 
+                            "comment", "filename", "fileStatus", "lastProcessTime", "file"));
         }
 
         // DD
@@ -541,7 +544,7 @@ public class HAScOMapper {
             filterProvider.addFilter("streamTopicFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri", 
                             "streamUri", "hasTopicStatus", "deploymentUri", "semanticDataDictionaryUri",                             
-                            "hasImageUri", "hasWebDocument", 
+                            "hasImageUri", "hasWebDocument", "hasTotalReceivedMessages", 
                             "hascoTypeLabel", "hasVersion",  "comment", "hasDeployment", "hasSDD"));
         }
 

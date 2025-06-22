@@ -190,10 +190,10 @@ public class StreamTopic extends HADatAcThing implements Comparable<StreamTopic>
         getHeaders();
     }
 
-    public long getTotalReceivedMessages() {
+    public long getHasTotalReceivedMessages() {
         return totalReceivedMessages;
     }
-    public void setTotalReceivedMessages(long totalReceivedMessages) {
+    public void setHasTotalReceivedMessages(long totalReceivedMessages) {
         this.totalReceivedMessages = totalReceivedMessages;
     }
 
@@ -355,7 +355,7 @@ public class StreamTopic extends HADatAcThing implements Comparable<StreamTopic>
 				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
 					topic.setComment(string);
                 } else if (statement.getPredicate().getURI().equals(HASCO.HAS_TOTAL_RECEIVED_MESSAGES)) {
-                    topic.setTotalReceivedMessages(Long.valueOf(string));
+                    topic.setHasTotalReceivedMessages(Long.valueOf(string));
                 } else if (statement.getPredicate().getURI().equals(HASCO.CAN_UPDATE)) {
                     topic.addCanUpdate(string);
                 } else if (statement.getPredicate().getURI().equals(HASCO.CAN_VIEW)) {
