@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import org.hascoapi.Constants;
 import org.hascoapi.entity.pojo.DA;
 import org.hascoapi.entity.pojo.Stream;
+import org.hascoapi.entity.pojo.StreamTopic;
 import org.hascoapi.entity.pojo.Study;
 import org.hascoapi.transform.Renderings;
 import org.hascoapi.utils.ApiUtil;
@@ -99,7 +100,7 @@ public class DAAPI extends Controller {
 
     public Result findTotalDAsByStream(String uri) {
         if (uri == null || uri.isEmpty()) {
-            return ok(ApiUtil.createResponse("DAAPI: No study uri has been provided to retrieve data acquisitions", false));
+            return ok(ApiUtil.createResponse("DAAPI: No stream uri has been provided to retrieve data acquisitions", false));
         }
         Stream stream = Stream.find(uri);
         if (stream == null) {
@@ -111,6 +112,34 @@ public class DAAPI extends Controller {
             return ok(ApiUtil.createResponse(totalElementsJSON, true));
         }     
         return ok(ApiUtil.createResponse("DAAPI: Query method findTotalDAsByStream() failed to retrieve total number of element", false));   
+    }
+
+    public Result findDAsByStreamTopic(String uri, int pagesize, int offset) {
+        if (uri == null || uri.isEmpty()) {
+            return ok(ApiUtil.createResponse("DAAPI: No stream topic uri has been provided to retrieve data acquisitions", false));
+        }
+        StreamTopic streamTopic = StreamTopic.find(uri);
+        if (streamTopic == null) {
+            return ok(ApiUtil.createResponse("DAAPI: No stream topic has been retrieved with URI=[" + uri + "]", false));
+        }
+        List<DA> das = DA.findByStreamTopic(streamTopic, pagesize, offset);
+        return DAAPI.getDAs(das);
+    }
+
+    public Result findTotalDAsByStreamTopic(String uri) {
+        if (uri == null || uri.isEmpty()) {
+            return ok(ApiUtil.createResponse("DAAPI: No stream topic uri has been provided to retrieve data acquisitions", false));
+        }
+        StreamTopic streamTopic = StreamTopic.find(uri);
+        if (streamTopic == null) {
+            return ok(ApiUtil.createResponse("DAAPI: No stream topic has been retrieved with URI=[" + uri + "]", false));
+        }
+        int totalElements = DA.findTotalByStreamTopic(streamTopic);
+        if (totalElements >= 0) {
+            String totalElementsJSON = "{\"total\":" + totalElements + "}";
+            return ok(ApiUtil.createResponse(totalElementsJSON, true));
+        }     
+        return ok(ApiUtil.createResponse("DAAPI: Query method findTotalDAsByStreamTopic() failed to retrieve total number of element", false));   
     }
 
 }

@@ -135,6 +135,8 @@ GET     /hascoapi/api/deploymentbyplatforminstance/total/:platforminstanceUri   
 
 GET     /hascoapi/api/dataacquisition/bystream/:uri/:pageSize/:offset               org.hascoapi.console.controllers.restapi.DAAPI.findDAsByStream(uri: String, pageSize : Integer, offset : Integer)
 GET     /hascoapi/api/dataacquisition/bystream/total/:uri                           org.hascoapi.console.controllers.restapi.DAAPI.findTotalDAsByStream(uri: String)
+GET     /hascoapi/api/dataacquisition/bytopic/:uri/:pageSize/:offset                org.hascoapi.console.controllers.restapi.DAAPI.findDAsByStreamTopic(uri: String, pageSize : Integer, offset : Integer)
+GET     /hascoapi/api/dataacquisition/bytopic/total/:uri                            org.hascoapi.console.controllers.restapi.DAAPI.findTotalDAsByStreamTopic(uri: String)
 GET     /hascoapi/api/dataacquisition/bystudy/:uri/:pageSize/:offset                org.hascoapi.console.controllers.restapi.DAAPI.findDAsByStudy(uri: String, pageSize : Integer, offset : Integer)
 GET     /hascoapi/api/dataacquisition/bystudy/total/:uri                            org.hascoapi.console.controllers.restapi.DAAPI.findTotalDAsByStudy(uri: String)
 

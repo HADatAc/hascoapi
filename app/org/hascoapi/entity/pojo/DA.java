@@ -137,9 +137,8 @@ public class DA extends MetadataTemplate implements Comparable<DA>  {
                 " SELECT ?uri " +
                 " WHERE {  ?uri hasco:hascoType <" + HASCO.DATA_ACQUISITION + "> . " +
 				"          ?uri hasco:hasDataFile ?datafile . " +
-                //"          ?datafile hasco:hasStream <" + stream.getUri() + "> .  " +
+                "          ?datafile hasco:hasStream <" + stream.getUri() + "> .  " +
                 " } " +
-                //" ORDER BY ASC(?label) " +
                 " LIMIT " + pageSize +
                 " OFFSET " + offset;
         return DA.findManyByQuery(query);
@@ -154,6 +153,35 @@ public class DA extends MetadataTemplate implements Comparable<DA>  {
                 " WHERE {  ?uri hasco:hascoType <" + HASCO.DATA_ACQUISITION + "> . " +
 				"          ?uri hasco:hasDataFile ?datafile . " +
                 "          ?datafile hasco:hasStream <" + stream.getUri() + "> .  " +
+                " }";
+        return GenericFind.findTotalByQuery(query);
+    }        
+    
+    public static List<DA> findByStreamTopic(StreamTopic streamTopic, int pageSize, int offset) {
+        if (streamTopic == null) {
+            return new ArrayList<DA>();
+        }
+        String query = NameSpaces.getInstance().printSparqlNameSpaceList() + 
+                " SELECT ?uri " +
+                " WHERE {  ?uri hasco:hascoType <" + HASCO.DATA_ACQUISITION + "> . " +
+				"          ?uri hasco:hasDataFile ?datafile . " +
+                "          ?datafile hasco:hasStreamTopic <" + streamTopic.getUri() + "> .  " +
+                " } " +
+                //" ORDER BY ASC(?label) " +
+                " LIMIT " + pageSize +
+                " OFFSET " + offset;
+        return DA.findManyByQuery(query);
+    }        
+    
+    public static int findTotalByStreamTopic(StreamTopic streamTopic) {
+        if (streamTopic == null) {
+            return 0;
+        }
+        String query = NameSpaces.getInstance().printSparqlNameSpaceList() + 
+                " SELECT (count(?uri) as ?tot)  " +
+                " WHERE {  ?uri hasco:hascoType <" + HASCO.DATA_ACQUISITION + "> . " +
+				"          ?uri hasco:hasDataFile ?datafile . " +
+                "          ?datafile hasco:hasStreamTopic <" + streamTopic.getUri() + "> .  " +
                 " }";
         return GenericFind.findTotalByQuery(query);
     }        
