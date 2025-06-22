@@ -7,6 +7,8 @@ import java.lang.String;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -24,6 +26,8 @@ import org.hascoapi.vocabularies.HASCO;
 public class MqttMessageAnnotation {
 
     public static final ConcurrentHashMap<String, FileWriter> topicWriters = new ConcurrentHashMap<>();
+    public static Map<String, DA> topicDA = new HashMap<>();
+
 
     public MqttMessageAnnotation() {}
 
@@ -171,6 +175,7 @@ public class MqttMessageAnnotation {
         da.setHasVersion("");
         da.setComment("");
         da.save();
+        topicDA.put(topicUri, da);
         streamTopic.getMessageLogger().println("DataAcquisition object created with URI: " + da.getUri());
         System.out.println("[DEBUG] DA URI FINAL: " + da.getUri());
 

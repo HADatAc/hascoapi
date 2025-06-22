@@ -208,6 +208,7 @@ public class MqttAsyncSubscribe implements MqttCallback {
          */
         totalMessages = totalMessages + 1;
         streamTopic.setTotalReceivedMessages(totalMessages);
+        streamTopic.save();
         partialCounter = partialCounter + 1;
         if (partialCounter >= 300) {
             partialCounter = 0;
