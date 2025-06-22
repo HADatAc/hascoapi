@@ -35,7 +35,6 @@ public class MqttAsyncSubscribe implements MqttCallback {
     private List<String>         respPayload;
     private String               plainPayload;
     private long                 totalMessages;
-    private int                  ingestedMessages;
     private int					 partialCounter;
     private File                 file;
     private ValueGenerator       gen;
@@ -161,8 +160,7 @@ public class MqttAsyncSubscribe implements MqttCallback {
 
         client.subscribe(streamTopic.getLabel() + "/#", qos);
 
-        totalMessages = streamTopic.getTotalMessages();
-        ingestedMessages = Math.toIntExact(streamTopic.getIngestedMessages());
+        totalMessages = streamTopic.getTotalReceivedMessages();
         partialCounter = 0;
 
     }
@@ -209,12 +207,11 @@ public class MqttAsyncSubscribe implements MqttCallback {
          *    Compute totals. Save ingested content after reading 500 messages
          */
         totalMessages = totalMessages + 1;
-        streamTopic.setTotalMessages(totalMessages);
-        streamTopic.setIngestedMessages(ingestedMessages);
+        streamTopic.setTotalReceivedMessages(totalMessages);
         partialCounter = partialCounter + 1;
         if (partialCounter >= 300) {
             partialCounter = 0;
-            System.out.println("Received " + totalMessages + " messages. Ingested " + ingestedMessages + " messages.");
+            System.out.println("Received " + totalMessages + " messages.");
 
             try {
                 // ************>>>>>>>>>>> TO DO
@@ -242,14 +239,14 @@ public class MqttAsyncSubscribe implements MqttCallback {
         /*
          *   Ingest message content
          */
+        /* 
         try {
-            if (MqttMessageWorker.processMessage(streamTopic, topic, plainPayload, ingestedMessages) != null) {
-                ingestedMessages = ingestedMessages + 1;
-                streamTopic.setIngestedMessages(ingestedMessages);
+            if (MqttMessageWorker.processMessage(streamTopic, topic, plainPayload, totalMessages) != null) {
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+        */
 
         if (Thread.currentThread().isInterrupted()) {
             //System.out.println("Thread INTERRUPTED");

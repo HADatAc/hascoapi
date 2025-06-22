@@ -656,6 +656,8 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
                     str.setMessagePort(string);
                 } else if (statement.getPredicate().getURI().equals(HASCO.HAS_MESSAGE_PROTOCOL)) {
                     str.setMessageProtocol(string);
+                } else if (statement.getPredicate().getURI().equals(HASCO.HAS_NUMBER_DATA_POINTS)) {
+                    str.setNumberDataPoints(Long.valueOf(string));
                 } else if (statement.getPredicate().getURI().equals(HASCO.CAN_UPDATE)) {
                     str.addCanUpdate(string);
                 } else if (statement.getPredicate().getURI().equals(HASCO.CAN_VIEW)) {

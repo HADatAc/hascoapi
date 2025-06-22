@@ -41,6 +41,12 @@ public class DA extends MetadataTemplate implements Comparable<DA>  {
     @PropertyField(uri = "hasco:isMemberOf")
     private String isMemberOfUri;
     
+    @PropertyField(uri="hasco:hasNumberDataPoints")
+    private long numberDataPoints;
+
+    @PropertyField(uri="hasco:hasTotalRecordedMessages")
+    private long totalRecordedMessages;
+
     public String getHasDDUri() {
         return hasDDUri;
     }
@@ -79,6 +85,20 @@ public class DA extends MetadataTemplate implements Comparable<DA>  {
         }
         return Study.find(isMemberOfUri);
     }	
+
+    public Long getHasNumberDataPoints() {
+        return numberDataPoints;
+    }
+    public void setHasNumberDataPoints(Long numberDataPoints) {
+        this.numberDataPoints = numberDataPoints;
+    }
+
+    public Long getHasTotalRecordedMessages() {
+        return totalRecordedMessages;
+    }
+    public void setHasTotalRecordedMessages(Long totalRecordedMessages) {
+        this.totalRecordedMessages = totalRecordedMessages;
+    }
 
     public static List<DA> findByStudy(Study study, int pageSize, int offset) {
         if (study == null) {
@@ -213,6 +233,10 @@ public class DA extends MetadataTemplate implements Comparable<DA>  {
                     da.setHasSDDUri(str);
                 } else if (statement.getPredicate().getURI().equals(HASCO.IS_MEMBER_OF)) {
                     da.setIsMemberOfUri(str);
+                } else if (statement.getPredicate().getURI().equals(HASCO.HAS_NUMBER_DATA_POINTS)) {
+                    da.setHasNumberDataPoints(Long.valueOf(str));
+                } else if (statement.getPredicate().getURI().equals(HASCO.HAS_TOTAL_RECORDED_MESSAGES)) {
+                    da.setHasTotalRecordedMessages(Long.valueOf(str));
                 } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
                     da.setComment(str);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
