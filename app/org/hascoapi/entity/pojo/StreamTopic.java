@@ -394,6 +394,23 @@ public class StreamTopic extends HADatAcThing implements Comparable<StreamTopic>
 		return topic;
 	}
 
+    /* 
+     *   This method needs to be called every time a hascoapi instance is initiated.
+     *   Non-inactive topics at hascoapi instance initialization means that 
+     *   something wrong happened with the instance. To recover from this situation,
+     *   topics that are not inactive are set to be inactive,
+     */
+    public static void initiateStreamTopics() {
+        List<StreamTopic> openTopics = StreamTopic.findOpenStreamTopics();
+        if (openTopics != null && openTopics.size() > 0) {
+            System.out.println("StreamTopic.initiateStreamTopics() called to fix " + openTopics.size() + " topics.");
+            for (StreamTopic topic : openTopics) {
+                topic.setHasTopicStatus(HASCO.INACTIVE);
+                topic.save();
+            }
+        }
+    }
+
     /* Open streams are those with ended_at_date =  9999-12-31T23:59:59.999Z */
     public static List<StreamTopic> findOpenStreamTopics() {
         String query = NameSpaces.getInstance().printSparqlNameSpaceList() +
