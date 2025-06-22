@@ -53,6 +53,7 @@ public class MqttMessageAnnotation {
         File dir = new File(directoryPath);
 
         String topicUri = streamTopic.getUri();
+        String topicLabel = streamTopic.getLabel();
 
         if (!dir.exists()) {
             boolean created = dir.mkdirs();
@@ -66,6 +67,8 @@ public class MqttMessageAnnotation {
         
         // Gerar nome seguro base
         String safeFileNameBase = stream.getMessageName().replaceAll("[^a-zA-Z0-9_\\-]", "_");
+        String safeTopicLabel = topicLabel.replaceAll("[^a-zA-Z0-9_\\-]", "_");  // sanitizar o nome do tópico
+
         
         // Encontrar o maior índice já usado
         int maxIndex = -1;
@@ -88,7 +91,7 @@ public class MqttMessageAnnotation {
         }
         
         int index = maxIndex + 1;
-        String fileName = String.format("DA-%s_%d.json", safeFileNameBase, index);
+        String fileName = String.format("DA-%s_%s_%d.json", safeFileNameBase, safeTopicLabel, index);
 
 
         String dataFileUri = Utils.uriGen("datafile");
