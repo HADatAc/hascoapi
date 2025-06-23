@@ -265,7 +265,6 @@ public class DA extends MetadataTemplate implements Comparable<DA>  {
                     da.setHasNumberDataPoints(Long.valueOf(str));
                 } else if (statement.getPredicate().getURI().equals(HASCO.HAS_TOTAL_RECORDED_MESSAGES)) {
                     da.setHasTotalRecordedMessages(Long.valueOf(str));
-                    System.out.println("Has Total Recorded Messages" + da.getHasTotalRecordedMessages());
                 } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
                     da.setComment(str);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
