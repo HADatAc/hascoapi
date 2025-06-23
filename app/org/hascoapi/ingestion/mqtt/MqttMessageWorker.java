@@ -201,6 +201,8 @@ public class MqttMessageWorker {
                         da.setHasTotalRecordedMessages(total + 1);
                         da.save();
                         System.out.println("[INFO] DA totalRecordedMessages updated: " + (total + 1));
+                        System.out.println("[INFO] DA totalRecordedMessages updated: " + da.getHasTotalRecordedMessages());
+                        System.out.println("DA URI:" + da.getUri());
                     } else {
                         System.err.println("[WARN] DA not found for topicUri: " + topicUri);
                     }                    
