@@ -42,10 +42,10 @@ public class DA extends MetadataTemplate implements Comparable<DA>  {
     private String isMemberOfUri;
     
     @PropertyField(uri="hasco:hasNumberDataPoints")
-    private long numberDataPoints;
+    private Long numberDataPoints;
 
     @PropertyField(uri="hasco:hasTotalRecordedMessages")
-    private long totalRecordedMessages;
+    private Long totalRecordedMessages;
 
     public String getHasDDUri() {
         return hasDDUri;
