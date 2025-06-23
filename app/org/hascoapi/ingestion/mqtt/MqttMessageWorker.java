@@ -197,10 +197,7 @@ public class MqttMessageWorker {
 
                     DA da = MqttMessageAnnotation.topicDA.get(topicUri);
                     if (da != null) {
-                        Long total = da.getHasTotalRecordedMessages();
-                        if (total == null) {
-                            total = 0L;
-                        }
+                        long total = da.getHasTotalRecordedMessages();
                         da.setHasTotalRecordedMessages(total + 1);
                         da.save();
                         DA reloaded = DA.find(da.getUri());
@@ -209,11 +206,11 @@ public class MqttMessageWorker {
                         System.err.println("[WARN] DA not found for topicUri: " + topicUri);
                     }                    
                 } catch (IOException e) {
-                    System.err.println("[ERROR] Erro ao escrever mensagem no ficheiro para tópico: " + topicUri);
+                    System.err.println("[ERROR] Error writing message on file for topic: " + topicUri);
                     e.printStackTrace();
                 }
             } else {
-                System.err.println("[ERROR] Nenhum FileWriter encontrado para tópico: " + topicUri);
+                System.err.println("[ERROR] File not found for topic: " + topicUri);
             }
         } else if (status.equals(HASCO.INGESTING)) {
             System.out.println("[DEBUG] Topic in INGESTING mode, attempting to generate object...");

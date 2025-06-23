@@ -132,11 +132,11 @@ public class MqttMessageAnnotation {
         try {
             FileWriter writer = new FileWriter(fullPath, true);
             topicWriters.put(topicUri, writer);
-            System.out.println("Gravação iniciada no ficheiro: " + fullPath);
-            streamTopic.getMessageLogger().println("Gravação iniciada no ficheiro: " + fullPath);
+            System.out.println("Recording started to file: " + fullPath);
+            streamTopic.getMessageLogger().println("Recorded started to file: " + fullPath);
         } catch (IOException e) {
-            System.out.println("Erro ao criar ficheiro de gravação" + e.getMessage());
-            streamTopic.getMessageLogger().printException("Erro ao criar ficheiro de gravação: " + e.getMessage());
+            System.out.println("Error trying to create file" + e.getMessage());
+            streamTopic.getMessageLogger().printException("Error trying to create file: " + e.getMessage());
             return;
         }
 
