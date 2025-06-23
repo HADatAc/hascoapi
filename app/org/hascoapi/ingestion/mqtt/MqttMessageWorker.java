@@ -197,7 +197,7 @@ public class MqttMessageWorker {
 
                     DA da = MqttMessageAnnotation.topicDA.get(topicUri);
                     if (da != null) {
-                        long total = da.getHasTotalRecordedMessages();
+                        Long total = da.getHasTotalRecordedMessages();
                         da.setHasTotalRecordedMessages(total + 1);
                         da.save();
                         DA reloaded = DA.find(da.getUri());
