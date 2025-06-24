@@ -73,12 +73,16 @@ public class MqttMessageWorker {
     public boolean removeStreamTopicFromWorker(String topicUri) {
         //topicUri = "http://cienciapt.org/kg/STP1750214669419661";
         System.out.println("MqttMessageWorker.removeStreamTopicFromWorker() has been called");
-        StreamTopic streamTopic = StreamTopic.find(topicUri);
-        if (!streamTopics.containsKey(streamTopic.getUri())) {
-            return false;
+        try {
+            StreamTopic streamTopic = StreamTopic.find(topicUri);
+            if (!streamTopics.containsKey(streamTopic.getUri())) {
+                return false;
+            }
+            monitor.stopStreamTopic(topicUri);
+            this.stopStream(streamTopic);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        monitor.stopStreamTopic(topicUri);
-        this.stopStream(streamTopic);
         return true;
     }
 
@@ -197,8 +201,9 @@ public class MqttMessageWorker {
 
                     DA da = MqttMessageAnnotation.topicDA.get(topicUri);
                     if (da != null) {
-                        long total = da.getHasTotalRecordedMessages();
-                        da.setHasTotalRecordedMessages(total + 1);
+                        long total = Long.valueOf(da.getHasTotalRecordedMessages());
+                        total = total + 1;
+                        da.setHasTotalRecordedMessages(Long.toString(total));
                         da.save();
                         DA reloaded = DA.find(da.getUri());
                         System.out.println("Reloaded DA hasTotalRecordedMessages = " + reloaded.getHasTotalRecordedMessages());

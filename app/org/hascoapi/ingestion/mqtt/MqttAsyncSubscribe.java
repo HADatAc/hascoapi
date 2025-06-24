@@ -160,7 +160,7 @@ public class MqttAsyncSubscribe implements MqttCallback {
 
         client.subscribe(streamTopic.getLabel() + "/#", qos);
 
-        totalMessages = streamTopic.getHasTotalReceivedMessages();
+        totalMessages = Long.valueOf(streamTopic.getHasTotalReceivedMessages());
         partialCounter = 0;
 
     }
@@ -196,6 +196,7 @@ public class MqttAsyncSubscribe implements MqttCallback {
      * @see MqttCallback#messageArrived(String, MqttMessage)
      */
     public void messageArrived(String topic, MqttMessage message) throws MqttException {
+        System.out.println("MqttAsync: message arrived");
         String time = new Timestamp(System.currentTimeMillis()).toString();
         plainPayload = new String(message.getPayload());
         String resp = "  Time:\t" +time +
@@ -207,7 +208,8 @@ public class MqttAsyncSubscribe implements MqttCallback {
          *    Compute totals. Save ingested content after reading 500 messages
          */
         totalMessages = totalMessages + 1;
-        streamTopic.setHasTotalReceivedMessages(totalMessages);
+        streamTopic.setHasTotalReceivedMessages(Long.toString(totalMessages));
+        System.out.println("MqttAsync: added received message " + totalMessages);
         streamTopic.save();
         partialCounter = partialCounter + 1;
         if (partialCounter >= 300) {

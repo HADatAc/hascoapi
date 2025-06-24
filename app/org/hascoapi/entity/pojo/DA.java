@@ -42,10 +42,10 @@ public class DA extends MetadataTemplate implements Comparable<DA>  {
     private String isMemberOfUri;
     
     @PropertyField(uri="hasco:hasNumberDataPoints")
-    private long numberDataPoints;
+    private String numberDataPoints;
 
     @PropertyField(uri="hasco:hasTotalRecordedMessages")
-    private long totalRecordedMessages;
+    private String totalRecordedMessages;
 
     public String getHasDDUri() {
         return hasDDUri;
@@ -86,17 +86,17 @@ public class DA extends MetadataTemplate implements Comparable<DA>  {
         return Study.find(isMemberOfUri);
     }	
 
-    public Long getHasNumberDataPoints() {
+    public String getHasNumberDataPoints() {
         return numberDataPoints;
     }
-    public void setHasNumberDataPoints(Long numberDataPoints) {
+    public void setHasNumberDataPoints(String numberDataPoints) {
         this.numberDataPoints = numberDataPoints;
     }
 
-    public Long getHasTotalRecordedMessages() {
+    public String getHasTotalRecordedMessages() {
         return totalRecordedMessages;
     }
-    public void setHasTotalRecordedMessages(Long totalRecordedMessages) {
+    public void setHasTotalRecordedMessages(String totalRecordedMessages) {
         this.totalRecordedMessages = totalRecordedMessages;
     }
 
@@ -262,9 +262,9 @@ public class DA extends MetadataTemplate implements Comparable<DA>  {
                 } else if (statement.getPredicate().getURI().equals(HASCO.IS_MEMBER_OF)) {
                     da.setIsMemberOfUri(str);
                 } else if (statement.getPredicate().getURI().equals(HASCO.HAS_NUMBER_DATA_POINTS)) {
-                    da.setHasNumberDataPoints(Long.valueOf(str));
+                    da.setHasNumberDataPoints(str);
                 } else if (statement.getPredicate().getURI().equals(HASCO.HAS_TOTAL_RECORDED_MESSAGES)) {
-                    da.setHasTotalRecordedMessages(Long.valueOf(str));
+                    da.setHasTotalRecordedMessages(str);
                 } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
                     da.setComment(str);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {

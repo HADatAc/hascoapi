@@ -64,7 +64,7 @@ public class StreamTopic extends HADatAcThing implements Comparable<StreamTopic>
     @PropertyField(uri="hasco:hasCellScopeName")
     private List<String> cellScopeName;
     @PropertyField(uri="hasco:hasTotalReceivedMessages")
-    private long totalReceivedMessages;
+    private String totalReceivedMessages;
     @PropertyField(uri="hasco:hasMessageHeader")
     private String messageHeaders;
 
@@ -101,7 +101,7 @@ public class StreamTopic extends HADatAcThing implements Comparable<StreamTopic>
     private IngestionLogger logger = null;
 
     public StreamTopic() {
-        totalReceivedMessages = 0;
+        totalReceivedMessages = "0";
         cellScopeUri = new ArrayList<String>();
         cellScopeName = new ArrayList<String>();
         canView = new ArrayList<String>();
@@ -190,10 +190,10 @@ public class StreamTopic extends HADatAcThing implements Comparable<StreamTopic>
         getHeaders();
     }
 
-    public long getHasTotalReceivedMessages() {
+    public String getHasTotalReceivedMessages() {
         return totalReceivedMessages;
     }
-    public void setHasTotalReceivedMessages(long totalReceivedMessages) {
+    public void setHasTotalReceivedMessages(String totalReceivedMessages) {
         this.totalReceivedMessages = totalReceivedMessages;
     }
 
@@ -355,7 +355,8 @@ public class StreamTopic extends HADatAcThing implements Comparable<StreamTopic>
 				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
 					topic.setComment(string);
                 } else if (statement.getPredicate().getURI().equals(HASCO.HAS_TOTAL_RECEIVED_MESSAGES)) {
-                    topic.setHasTotalReceivedMessages(Long.valueOf(string));
+                    //System.out.println("StreamTopic: showing received message [" + string + "]");  
+                    topic.setHasTotalReceivedMessages(string);
                 } else if (statement.getPredicate().getURI().equals(HASCO.CAN_UPDATE)) {
                     topic.addCanUpdate(string);
                 } else if (statement.getPredicate().getURI().equals(HASCO.CAN_VIEW)) {
