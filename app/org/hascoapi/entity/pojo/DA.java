@@ -19,6 +19,7 @@ import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.hascoapi.annotations.PropertyField;
 import org.hascoapi.utils.CollectionUtil;
+import org.hascoapi.utils.IngestionLogger;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.SPARQLUtils;
 import org.hascoapi.utils.URIUtils;
@@ -98,6 +99,10 @@ public class DA extends MetadataTemplate implements Comparable<DA>  {
     }
     public void setHasTotalRecordedMessages(String totalRecordedMessages) {
         this.totalRecordedMessages = totalRecordedMessages;
+    }
+
+    public DA() {
+        totalRecordedMessages = "0";
     }
 
     public static List<DA> findByStudy(Study study, int pageSize, int offset) {
