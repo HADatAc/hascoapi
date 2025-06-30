@@ -291,4 +291,30 @@ public class DA extends MetadataTemplate implements Comparable<DA>  {
         return this.getUri().compareTo(another.getUri());
     }
 
+    private static DA findOneByQuery(String queryString) {
+        ResultSetRewindable resultsrw = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+        if (!resultsrw.hasNext()) {
+            return null;
+        }
+        if (resultsrw.hasNext()) {
+            QuerySolution soln = resultsrw.next();
+            return find(soln.getResource("uri").getURI());
+        }
+        return null;
+    }
+
+    public static DA findByDataFileUri(String dataFileUri) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+        "SELECT ?uri WHERE { " +
+        "  ?uri a ?type . " +
+        "  ?type rdfs:subClassOf* hasco:DataAcquisition . " +
+        "  ?uri hasco:hasDataFile <" + dataFileUri + "> . " +
+        "} LIMIT 1";
+    
+        return findOneByQuery(queryString);
+    }
+    
+    
+
 }

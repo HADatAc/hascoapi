@@ -15,6 +15,7 @@ import org.hascoapi.ingestion.ValueGenerator;
 import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.ingestion.Record;
 import org.hascoapi.entity.pojo.DA;
+import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.entity.pojo.StreamTopic;
 
 public class MqttMessageWorker {
@@ -198,18 +199,22 @@ public class MqttMessageWorker {
                     writer.write(message);
                     writer.write("\n");
                     System.out.println("[INFO] Message written to file for topicUri: " + topicUri);
-
-                    DA da = MqttMessageAnnotation.topicDA.get(topicUri);
-                    if (da != null) {
-                        long total = Long.valueOf(da.getHasTotalRecordedMessages());
-                        total = total + 1;
-                        da.setHasTotalRecordedMessages(Long.toString(total));
-                        da.save();
-                        DA reloaded = DA.find(da.getUri());
-                        System.out.println("Reloaded DA hasTotalRecordedMessages = " + reloaded.getHasTotalRecordedMessages());
-                    } else {
-                        System.err.println("[WARN] DA not found for topicUri: " + topicUri);
-                    }                    
+                    DataFile df = DataFile.findMostRecentByStreamTopicUri(topicUri);
+                    if (df != null) {
+                        DA da = DA.findByDataFileUri(df.getUri());
+                        if (da != null) {
+                            long total = Long.valueOf(da.getHasTotalRecordedMessages());
+                            total = total + 1;
+                            da.setHasTotalRecordedMessages(Long.toString(total));
+                            da.save();
+                            DA reloaded = DA.find(da.getUri());
+                            System.out.println("Reloaded DA hasTotalRecordedMessages = " + reloaded.getHasTotalRecordedMessages());
+                        } else {
+                            System.err.println("[WARN] DA not found for topicUri: " + topicUri);
+                        } 
+                    }else{
+                        System.err.println("[WARN] No DataFile found for topicUri: " + topicUri);
+                    }
                 } catch (IOException e) {
                     System.err.println("[ERROR] Error writing message on file for topic: " + topicUri);
                     e.printStackTrace();

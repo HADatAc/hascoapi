@@ -746,5 +746,18 @@ public class DataFile extends HADatAcThing implements Cloneable {
         return false;
     }
 
+    public static DataFile findMostRecentByStreamTopicUri(String topicUri) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+        "SELECT ?uri WHERE { " +
+        "  ?uri a ?type . " +
+        "  ?type rdfs:subClassOf* hasco:Datafile . " +
+        "  ?uri hasco:hasStreamTopic <" + topicUri + "> . " +
+        "  ?uri hasco:hasSubmissionTime ?time . " +
+        "} ORDER BY DESC(?time) LIMIT 1";
+
+        return findOneByQuery(queryString);
+    }
+    
+
 
 }

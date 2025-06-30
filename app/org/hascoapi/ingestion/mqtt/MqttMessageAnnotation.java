@@ -175,7 +175,6 @@ public class MqttMessageAnnotation {
         da.setHasVersion("");
         da.setComment("");
         da.save();
-        topicDA.put(topicUri, da);
         streamTopic.getMessageLogger().println("DataAcquisition object created with URI: " + da.getUri());
         System.out.println("[DEBUG] DA URI FINAL: " + da.getUri());
 
