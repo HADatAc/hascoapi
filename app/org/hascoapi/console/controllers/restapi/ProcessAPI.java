@@ -88,5 +88,17 @@ public class ProcessAPI extends Controller {
         }
     }
 
+    public Result deleteWithTasks(String uri) {
+        //System.out.println("Delete element => Type: [" + elementType + "]  URI [" + uri + "]");
+        if (uri == null || uri.equals("")) {
+            return ok(ApiUtil.createResponse("No uri has been provided.", false));
+        }
+        Process process = Process.find(uri);
+        if (process == null) {
+            return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+        }
+        process.deleteWithTasks();
+        return ok(ApiUtil.createResponse("PROCESS with URI [" + uri + "] has been deleted along with its TASKS", true));
+    }
 
 }
