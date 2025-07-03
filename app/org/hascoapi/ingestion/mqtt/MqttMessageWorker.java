@@ -191,7 +191,7 @@ public class MqttMessageWorker {
         String cleanMessage = message.trim();
         System.out.println("[DEBUG] CLEAN MESSAGE: " + cleanMessage);
         if (streamTopic.getHeaders() == null || streamTopic.getHeaders().isEmpty()) {
-            JSONRecord jsonRecord = new JSONRecord(message);
+            JSONRecord jsonRecord = new JSONRecord(cleanMessage);
             List<String> headers = jsonRecord.getHeaders();
             streamTopic.setHeaders(headers.toString());
         }
