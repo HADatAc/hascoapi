@@ -187,8 +187,8 @@ public class MqttMessageWorker {
 
         System.out.println("TopicStr: [" + topicStr + "]   Message: [" + message + "]");
         MqttMessageWorker.getInstance().monitor.updateLatestValue(streamTopic.getUri(), message);
+        System.out.println("[DEBUG] Current Headers: " + streamTopic.getHeaders());
         Record record = new JSONRecord(message, streamTopic.getHeaders());
-        System.out.println("[DEBUG] Record in JSON: " + record);
     
         String status = streamTopic.getHasTopicStatus();
         System.out.println("[DEBUG] Current topic in processMessage status: " + status);
