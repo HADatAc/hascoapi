@@ -752,8 +752,7 @@ public class DataFile extends HADatAcThing implements Cloneable {
         "  ?uri a ?type . " +
         "  ?type rdfs:subClassOf* hasco:Datafile . " +
         "  ?uri hasco:hasStreamTopic <" + topicUri + "> . " +
-        "  ?uri hasco:hasSubmissionTime ?time . " +
-        "} ORDER BY DESC(?time) LIMIT 1";
+        "} ORDER BY DESC(STR(?uri)) LIMIT 1";
 
         return findOneByQuery(queryString);
     }
