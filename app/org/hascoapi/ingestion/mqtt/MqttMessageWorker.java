@@ -187,7 +187,14 @@ public class MqttMessageWorker {
 
         System.out.println("TopicStr: [" + topicStr + "]   Message: [" + message + "]");
         MqttMessageWorker.getInstance().monitor.updateLatestValue(streamTopic.getUri(), message);
-        System.out.println("[DEBUG] Current Headers: " + streamTopic.getHeaders());
+        System.out.println("[DEBUG] First Current Headers: " + streamTopic.getHeaders());
+
+        if (streamTopic.getHeaders() == null || streamTopic.getHeaders().isEmpty()) {
+            JSONRecord jsonRecord = new JSONRecord(message);
+            List<String> headers = jsonRecord.getHeaders();
+            streamTopic.setHeaders(headers.toString());
+        }
+        System.out.println("[DEBUG] Second Current Headers: " + streamTopic.getHeaders());
         Record record = new JSONRecord(message, streamTopic.getHeaders());
     
         String status = streamTopic.getHasTopicStatus();

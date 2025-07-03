@@ -185,7 +185,7 @@ public class StreamTopic extends HADatAcThing implements Comparable<StreamTopic>
         return headers;
     }
 
-    private void setHeaders(String headersStr) {
+    public void setHeaders(String headersStr) {
         this.messageHeaders = headersStr;
         getHeaders();
     }
