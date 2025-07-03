@@ -187,8 +187,8 @@ public class MqttMessageWorker {
 
         System.out.println("TopicStr: [" + topicStr + "]   Message: [" + message + "]");
         MqttMessageWorker.getInstance().monitor.updateLatestValue(streamTopic.getUri(), message);
-
         Record record = new JSONRecord(message, streamTopic.getHeaders());
+        System.out.println("[DEBUG] Record in JSON: " + record);
     
         String status = streamTopic.getHasTopicStatus();
         System.out.println("[DEBUG] Current topic in processMessage status: " + status);
@@ -200,7 +200,7 @@ public class MqttMessageWorker {
             if (df != null) {
                 String directoryPath = "/var/hascoapi/stream/files";  // teu diretório fixo
                 File csvPhysicalFile = new File(directoryPath, df.getFilename());
-                
+
                 if (!csvPhysicalFile.exists()) {
                     System.err.println("[ERROR] Arquivo físico não encontrado: " + csvPhysicalFile.getAbsolutePath());
                     return record;  // ou lança exceção, conforme desejado
