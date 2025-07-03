@@ -750,7 +750,7 @@ public class DataFile extends HADatAcThing implements Cloneable {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
         "SELECT ?uri WHERE { " +
         "  ?uri a ?type . " +
-        "  ?type rdfs:subClassOf* hasco:Datafile . " +
+        "  ?type rdfs:subClassOf* hasco:DataFile . " +
         "  ?uri hasco:hasStreamTopic <" + topicUri + "> . " +
         "} ORDER BY DESC(STR(?uri)) LIMIT 1";
 
