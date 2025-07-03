@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.management.modelmbean.DescriptorSupport;
 
+import org.hascoapi.ingestion.CSVRecordFile;
 import org.hascoapi.ingestion.ValueGenerator;
 import org.hascoapi.utils.Utils;
 import org.hascoapi.entity.pojo.Stream;
@@ -26,7 +27,6 @@ import org.hascoapi.vocabularies.HASCO;
 public class MqttMessageAnnotation {
 
     public static final ConcurrentHashMap<String, FileWriter> topicWriters = new ConcurrentHashMap<>();
-    public static Map<String, DA> topicDA = new HashMap<>();
 
 
     public MqttMessageAnnotation() {}
@@ -77,13 +77,13 @@ public class MqttMessageAnnotation {
         // Encontrar o maior índice já usado
         int maxIndex = -1;
         File[] files = dir.listFiles((d, name) ->
-            name.startsWith("DA-" + safeFileNameBase + "_") && name.endsWith(".json"));
+            name.startsWith("DA-" + safeFileNameBase + "_") && name.endsWith(".csv"));
         
         if (files != null) {
             for (File f : files) {
                 String name = f.getName();
                 try {
-                    String indexPart = name.substring(name.lastIndexOf('_') + 1, name.length() - 5); // remove ".json"
+                    String indexPart = name.substring(name.lastIndexOf('_') + 1, name.length() - 4); // remove ".csv"
                     int idx = Integer.parseInt(indexPart);
                     if (idx > maxIndex) {
                         maxIndex = idx;
@@ -95,7 +95,8 @@ public class MqttMessageAnnotation {
         }
         
         int index = maxIndex + 1;
-        String fileName = String.format("DA-%s_%s_%d.json", safeFileNameBase, safeTopicLabel, index);
+        String fileName = String.format("DA-%s_%s_%d.csv", safeFileNameBase, safeTopicLabel, index);
+        String fullPath = directoryPath + File.separator + fileName;
 
 
         String dataFileUri = Utils.uriGen("datafile");
@@ -110,6 +111,9 @@ public class MqttMessageAnnotation {
         String streamUri = stream.getUri();
 
         DataFile archive = new DataFile(fileId, fileName);
+        File recordedFile = new File(fullPath);
+        CSVRecordFile recordFile = new CSVRecordFile(recordedFile);
+        
         archive.setTypeUri(HASCO.DATAFILE);
         archive.setHascoTypeUri(HASCO.DATAFILE);
         archive.setUri(dataFileUri);
@@ -121,24 +125,11 @@ public class MqttMessageAnnotation {
         archive.setNamedGraph(dataFileUri);
         archive.setStreamTopicUri(topicUri);
         archive.setFileStatus(DataFile.UNPROCESSED);
+        archive.setRecordFile(recordFile);
         Date date = new Date();
         
         archive.setSubmissionTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(date));
         archive.save();
-    
-        String fullPath = directoryPath + File.separator + fileName;
-        System.out.println("Caminho do ficheiro: " + fullPath);
-        // Criar FileWriter e armazenar para gravação
-        try {
-            FileWriter writer = new FileWriter(fullPath, true);
-            topicWriters.put(topicUri, writer);
-            System.out.println("Recording started to file: " + fullPath);
-            streamTopic.getMessageLogger().println("Recorded started to file: " + fullPath);
-        } catch (IOException e) {
-            System.out.println("Error trying to create file" + e.getMessage());
-            streamTopic.getMessageLogger().printException("Error trying to create file: " + e.getMessage());
-            return;
-        }
 
         /*
         ValueGenerator gen = new ValueGenerator(ValueGenerator.MSGMODE, null, stream, streamTopic.getSemanticDataDictionary(), null);

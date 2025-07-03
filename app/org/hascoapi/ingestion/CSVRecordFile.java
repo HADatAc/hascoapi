@@ -1,8 +1,10 @@
 package org.hascoapi.ingestion;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -92,4 +94,34 @@ public class CSVRecordFile implements RecordFile {
     public int getNumberOfRows() {
         return numberOfRows;
     }
+    
+    public void appendRecord(Record record) throws IOException {
+        boolean fileExists = file.exists();
+        boolean writeHeaders = !fileExists || numberOfRows == 0;
+
+        try (FileWriter fw = new FileWriter(file, true);
+            BufferedWriter bw = new BufferedWriter(fw)) {
+
+            if (writeHeaders && headers != null && !headers.isEmpty()) {
+                String headerLine = String.join(",", headers);
+                bw.write(headerLine);
+                bw.newLine();
+            }
+
+            List<String> values = new ArrayList<>();
+            for (String header : headers) {
+                String value = record.getValueByColumnName(header);
+                if (value.contains(",") || value.contains("\"")) {
+                    value = "\"" + value.replace("\"", "\"\"") + "\"";
+                }
+                values.add(value);
+            }
+            String line = String.join(",", values);
+            bw.write(line);
+            bw.newLine();
+
+            numberOfRows++;
+        }
+    }
+
 }

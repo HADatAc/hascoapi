@@ -10,10 +10,12 @@ import java.util.concurrent.ExecutorService;
 
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
+import org.hascoapi.ingestion.CSVRecordFile;
 import org.hascoapi.ingestion.JSONRecord;
 import org.hascoapi.ingestion.ValueGenerator;
 import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.ingestion.Record;
+import org.hascoapi.ingestion.RecordFile;
 import org.hascoapi.entity.pojo.DA;
 import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.entity.pojo.StreamTopic;
@@ -193,34 +195,36 @@ public class MqttMessageWorker {
         if (status.equals(HASCO.RECORDING)) {
             String topicUri = streamTopic.getUri();
             System.out.println("[DEBUG] Attempting to record message for topicUri: " + topicUri);
-            FileWriter writer = MqttMessageAnnotation.topicWriters.get(topicUri);
-            if (writer != null) {
-                try {
-                    writer.write(message);
-                    writer.write("\n");
-                    System.out.println("[INFO] Message written to file for topicUri: " + topicUri);
-                    DataFile df = DataFile.findMostRecentByStreamTopicUri(topicUri);
-                    if (df != null) {
+            DataFile df = DataFile.findMostRecentByStreamTopicUri(topicUri);
+            if (df != null) {
+                RecordFile rf = df.getRecordFile();
+                if (rf instanceof CSVRecordFile) {
+                    CSVRecordFile csvFile = (CSVRecordFile) rf;
+                    try {
+                        csvFile.appendRecord(record);  // escreve o Record no ficheiro
+                        System.out.println("[INFO] Record appended to CSV file for topicUri: " + topicUri);
+
+                        // Atualiza DA
                         DA da = DA.findByDataFileUri(df.getUri());
                         if (da != null) {
-                            long total = Long.valueOf(da.getHasTotalRecordedMessages());
-                            total = total + 1;
-                            da.setHasTotalRecordedMessages(Long.toString(total));
-                            da.save();
-                            DA reloaded = DA.find(da.getUri());
-                            System.out.println("Reloaded DA hasTotalRecordedMessages = " + reloaded.getHasTotalRecordedMessages());
+                             long total = Long.valueOf(da.getHasTotalRecordedMessages());
+                             total = total + 1;
+                             da.setHasTotalRecordedMessages(Long.toString(total));
+                             da.save();
+                             DA reloaded = DA.find(da.getUri());
+                             System.out.println("Reloaded DA hasTotalRecordedMessages = " + reloaded.getHasTotalRecordedMessages());
                         } else {
                             System.err.println("[WARN] DA not found for topicUri: " + topicUri);
-                        } 
-                    }else{
-                        System.err.println("[WARN] No DataFile found for topicUri: " + topicUri);
+                        }
+                    } catch (IOException e) {
+                        System.err.println("[ERROR] Error writing record to CSV file for topic: " + topicUri);
+                        e.printStackTrace();
                     }
-                } catch (IOException e) {
-                    System.err.println("[ERROR] Error writing message on file for topic: " + topicUri);
-                    e.printStackTrace();
+                } else {
+                    System.err.println("[ERROR] RecordFile is not instance of CSVRecordFile for topic: " + topicUri);
                 }
             } else {
-                System.err.println("[ERROR] File not found for topic: " + topicUri);
+                System.err.println("[WARN] No DataFile found for topicUri: " + topicUri);
             }
         } else if (status.equals(HASCO.INGESTING)) {
             System.out.println("[DEBUG] Topic in INGESTING mode, attempting to generate object...");
