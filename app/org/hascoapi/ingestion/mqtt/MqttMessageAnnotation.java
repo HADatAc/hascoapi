@@ -142,8 +142,8 @@ public class MqttMessageAnnotation {
         archive.setFileStatus(DataFile.UNPROCESSED);
         archive.setRecordFile(recordFile);
         Date date = new Date();
-        
-        archive.setSubmissionTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(date));
+        String formattedDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(date);
+        archive.setSubmissionTime(formattedDate);
         archive.save();
 
         /*
