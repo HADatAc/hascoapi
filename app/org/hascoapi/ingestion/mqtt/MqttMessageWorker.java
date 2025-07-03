@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -193,10 +194,12 @@ public class MqttMessageWorker {
         if (streamTopic.getHeaders() == null || streamTopic.getHeaders().isEmpty()) {
             JSONRecord jsonRecord = new JSONRecord(cleanMessage);
             List<String> headers = jsonRecord.getHeaders();
+            System.out.println("[DEBUG] HEADER LIST: " + headers);
             streamTopic.setHeaders(headers.toString());
         }
-        System.out.println("[DEBUG] Second Current Headers: " + streamTopic.getHeaders());
-        Record record = new JSONRecord(cleanMessage, streamTopic.getHeaders());
+        List<String> headerList = streamTopic.getHeaders();
+        System.out.println("[DEBUG] HEADER LIST: " + headerList);
+        Record record = new JSONRecord(cleanMessage, headerList);
     
         String status = streamTopic.getHasTopicStatus();
         System.out.println("[DEBUG] Current topic in processMessage status: " + status);
