@@ -197,8 +197,16 @@ public class MqttMessageWorker {
         
         if (headers == null || headers.isEmpty()) {
             JSONParser parser = new JSONParser();
-            JSONObject obj = (JSONObject) parser.parse(message);
-            headers = new ArrayList<>(obj.keySet());
+            JSONObject obj = new JSObject();
+            
+            try {
+                obj = (JSONObject) parser.parse(message);
+                headers = convertSetToList(obj.keySet());
+                headers = new ArrayList<>(obj.keySet());
+
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
         }
 
         Record record = new JSONRecord(message, headers);
