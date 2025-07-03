@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -194,7 +196,6 @@ public class MqttMessageWorker {
         List<String> headers = streamTopic.getHeaders();
         
         if (headers == null || headers.isEmpty()) {
-            // pegar os headers diretamente do JSON
             JSONParser parser = new JSONParser();
             JSONObject obj = (JSONObject) parser.parse(message);
             headers = new ArrayList<>(obj.keySet());
