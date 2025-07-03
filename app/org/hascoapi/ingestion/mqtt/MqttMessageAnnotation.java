@@ -55,7 +55,7 @@ public class MqttMessageAnnotation {
 
         String directoryPath = "/var/hascoapi/stream/files";
         File dir = new File(directoryPath);
-
+        
         String topicUri = streamTopic.getUri();
         String topicLabel = streamTopic.getLabel();
 
@@ -112,6 +112,21 @@ public class MqttMessageAnnotation {
 
         DataFile archive = new DataFile(fileId, fileName);
         File recordedFile = new File(fullPath);
+
+        if (!recordedFile.exists()) {
+            try {
+                boolean created = recordedFile.createNewFile();
+                if (created) {
+                    System.out.println("[INFO] Ficheiro CSV criado: " + recordedFile.getAbsolutePath());
+                } else {
+                    System.out.println("[WARN] Ficheiro CSV já existia: " + recordedFile.getAbsolutePath());
+                }
+            } catch (IOException e) {
+                System.err.println("[ERROR] Erro ao criar o ficheiro CSV:");
+                e.printStackTrace();
+                return;
+            }
+        }
         CSVRecordFile recordFile = new CSVRecordFile(recordedFile);
         
         archive.setTypeUri(HASCO.DATAFILE);
