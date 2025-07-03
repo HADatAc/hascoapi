@@ -201,7 +201,6 @@ public class MqttMessageWorker {
             
             try {
                 obj = (JSONObject) parser.parse(message);
-                headers = convertSetToList(obj.keySet());
                 headers = new ArrayList<>(obj.keySet());
 
             } catch (ParseException e) {
