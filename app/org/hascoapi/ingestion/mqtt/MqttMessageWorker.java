@@ -1,6 +1,7 @@
 package org.hascoapi.ingestion.mqtt;
 
 import java.util.HashMap;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -197,31 +198,35 @@ public class MqttMessageWorker {
             System.out.println("[DEBUG] Attempting to record message for topicUri: " + topicUri);
             DataFile df = DataFile.findMostRecentByStreamTopicUri(topicUri);
             if (df != null) {
-                RecordFile rf = df.getRecordFile();
-                if (rf instanceof CSVRecordFile) {
-                    CSVRecordFile csvFile = (CSVRecordFile) rf;
-                    try {
-                        csvFile.appendRecord(record);  // escreve o Record no ficheiro
-                        System.out.println("[INFO] Record appended to CSV file for topicUri: " + topicUri);
+                String directoryPath = "/var/hascoapi/stream/files";  // teu diretório fixo
+                File csvPhysicalFile = new File(directoryPath, df.getFilename());
+                
+                if (!csvPhysicalFile.exists()) {
+                    System.err.println("[ERROR] Arquivo físico não encontrado: " + csvPhysicalFile.getAbsolutePath());
+                    return record;  // ou lança exceção, conforme desejado
+                }
+                
+                CSVRecordFile csvRecordFile = new CSVRecordFile(csvPhysicalFile);
+                df.setRecordFile(csvRecordFile);
+                try {
+                    csvRecordFile.appendRecord(record);
+                    System.out.println("[INFO] Record appended to CSV file for topicUri: " + topicUri);
 
-                        // Atualiza DA
-                        DA da = DA.findByDataFileUri(df.getUri());
-                        if (da != null) {
-                             long total = Long.valueOf(da.getHasTotalRecordedMessages());
-                             total = total + 1;
-                             da.setHasTotalRecordedMessages(Long.toString(total));
-                             da.save();
-                             DA reloaded = DA.find(da.getUri());
-                             System.out.println("Reloaded DA hasTotalRecordedMessages = " + reloaded.getHasTotalRecordedMessages());
-                        } else {
-                            System.err.println("[WARN] DA not found for topicUri: " + topicUri);
-                        }
-                    } catch (IOException e) {
-                        System.err.println("[ERROR] Error writing record to CSV file for topic: " + topicUri);
-                        e.printStackTrace();
+                    // Atualiza DA
+                    DA da = DA.findByDataFileUri(df.getUri());
+                    if (da != null) {
+                        long total = Long.valueOf(da.getHasTotalRecordedMessages());
+                        total = total + 1;
+                        da.setHasTotalRecordedMessages(Long.toString(total));
+                        da.save();
+                        DA reloaded = DA.find(da.getUri());
+                        System.out.println("Reloaded DA hasTotalRecordedMessages = " + reloaded.getHasTotalRecordedMessages());
+                    } else {
+                        System.err.println("[WARN] DA not found for topicUri: " + topicUri);
                     }
-                } else {
-                    System.err.println("[ERROR] RecordFile is not instance of CSVRecordFile for topic: " + topicUri);
+                } catch (IOException e) {
+                    System.err.println("[ERROR] Error writing record to CSV file for topic: " + topicUri);
+                    e.printStackTrace();
                 }
             } else {
                 System.err.println("[WARN] No DataFile found for topicUri: " + topicUri);
