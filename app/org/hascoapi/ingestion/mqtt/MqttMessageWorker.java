@@ -9,6 +9,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -188,19 +190,17 @@ public class MqttMessageWorker {
 
         System.out.println("TopicStr: [" + topicStr + "]   Message: [" + message + "]");
         MqttMessageWorker.getInstance().monitor.updateLatestValue(streamTopic.getUri(), message);
-        System.out.println("[DEBUG] First Current Headers: " + streamTopic.getHeaders());
-        String cleanMessage = message.trim();
-        System.out.println("[DEBUG] CLEAN MESSAGE: " + cleanMessage);
-        if (streamTopic.getHeaders() == null || streamTopic.getHeaders().isEmpty()) {
-            JSONRecord jsonRecord = new JSONRecord(cleanMessage);
-            List<String> headers = jsonRecord.getHeaders();
-            System.out.println("[DEBUG] HEADER LIST: " + headers);
-            streamTopic.setHeaders(headers.toString());
+
+        List<String> headers = streamTopic.getHeaders();
+        
+        if (headers == null || headers.isEmpty()) {
+            // pegar os headers diretamente do JSON
+            JSONParser parser = new JSONParser();
+            JSONObject obj = (JSONObject) parser.parse(message);
+            headers = new ArrayList<>(obj.keySet());
         }
-        List<String> headerList = streamTopic.getHeaders();
-        System.out.println("[DEBUG] HEADER LIST: " + headerList);
-        Record record = new JSONRecord(cleanMessage, headerList);
-    
+
+        Record record = new JSONRecord(message, headers);
         String status = streamTopic.getHasTopicStatus();
         System.out.println("[DEBUG] Current topic in processMessage status: " + status);
     
