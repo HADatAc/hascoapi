@@ -196,7 +196,7 @@ public class MqttMessageWorker {
             streamTopic.setHeaders(headers.toString());
         }
         System.out.println("[DEBUG] Second Current Headers: " + streamTopic.getHeaders());
-        Record record = new JSONRecord(message, streamTopic.getHeaders());
+        Record record = new JSONRecord(cleanMessage, streamTopic.getHeaders());
     
         String status = streamTopic.getHasTopicStatus();
         System.out.println("[DEBUG] Current topic in processMessage status: " + status);
