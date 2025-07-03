@@ -197,7 +197,7 @@ public class MqttMessageWorker {
         
         if (headers == null || headers.isEmpty()) {
             JSONParser parser = new JSONParser();
-            JSONObject obj = new JSObject();
+            JSONObject obj = null;
             
             try {
                 obj = (JSONObject) parser.parse(message);
