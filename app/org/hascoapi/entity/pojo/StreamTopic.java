@@ -170,19 +170,19 @@ public class StreamTopic extends HADatAcThing implements Comparable<StreamTopic>
     }
 
     public List<String> getHeaders() {
-        if (headers != null) {
-            return headers;
+        if (this.headers != null) {
+            return this.headers;
         }
-        List<String> headers = new ArrayList<String>();
+        this.headers = new ArrayList<String>();
         if (messageHeaders == null || messageHeaders.isEmpty()) {
-            return headers;
+            return this.headers;
         }
         String auxstr = messageHeaders.replace("[","").replace("]","");
         StringTokenizer str = new StringTokenizer(auxstr,",");
         while (str.hasMoreTokens()) {
-            headers.add(str.nextToken().trim());
+            this.headers.add(str.nextToken().trim());
         }
-        return headers;
+        return this.headers;
     }
 
     public void setHeaders(String headersStr) {
