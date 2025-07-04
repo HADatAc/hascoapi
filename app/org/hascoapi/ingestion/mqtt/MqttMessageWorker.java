@@ -192,8 +192,25 @@ public class MqttMessageWorker {
 
         System.out.println("TopicStr: [" + topicStr + "]   Message: [" + message + "]");
         MqttMessageWorker.getInstance().monitor.updateLatestValue(streamTopic.getUri(), message);
-        
-        Record record = new JSONRecord(message, streamTopic.getHeaders());
+
+        List<String> headers = streamTopic.getHeaders();
+
+        // Atualiza headers se ainda estiverem vazios
+        if (headers == null || headers.isEmpty()) {
+            try {
+                JSONParser parser = new JSONParser();
+                JSONObject obj = null;
+                obj= (JSONObject) parser.parse(message);
+                headers = new ArrayList<>(obj.keySet());
+
+                streamTopic.setHeaders(String.join(",", headers));
+
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+
+        Record record = new JSONRecord(message, headers);
         String status = streamTopic.getHasTopicStatus();
         System.out.println("[DEBUG] Current topic in processMessage status: " + status);
     
