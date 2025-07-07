@@ -68,8 +68,7 @@ public class SpreadsheetRecordFile implements RecordFile {
             fileName = file.getName();
         }
         
-        try {
-            Workbook workbook = WorkbookFactory.create(new FileInputStream(file));
+        try (Workbook workbook = WorkbookFactory.create(new FileInputStream(file))) {
             numberOfSheets = workbook.getNumberOfSheets();
             
             //if (numberOfSheets > 0) {
@@ -119,10 +118,6 @@ public class SpreadsheetRecordFile implements RecordFile {
         } catch (EncryptedDocumentException e) {
             e.printStackTrace();
             return false;
-        /** 
-        } catch (InvalidFormatException e) {
-            //e.printStackTrace();
-            return false; */
         } catch (IOException e) {
             e.printStackTrace();
             return false;
