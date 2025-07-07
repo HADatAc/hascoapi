@@ -359,6 +359,24 @@ public class SIRElementAPI extends Controller {
                 message = e.getMessage();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
+        } else if (clazz == RequiredComponent.class) {
+            try {
+                RequiredComponent object;
+                object = (RequiredComponent)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == RequiredInstrument.class) {
+            try {
+                RequiredInstrument object;
+                object = (RequiredInstrument)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
         } else if (clazz == ResponseOption.class) {
             try {
                 ResponseOption object;
@@ -736,6 +754,18 @@ public class SIRElementAPI extends Controller {
             object.delete();
         } else if (clazz == Project.class) {
             Project object = Project.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == RequiredComponent.class) {
+            RequiredComponent object = RequiredComponent.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == RequiredInstrument.class) {
+            RequiredInstrument object = RequiredInstrument.find(uri);
             if (object == null) {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }

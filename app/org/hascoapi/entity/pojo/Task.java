@@ -55,8 +55,8 @@ public class Task extends HADatAcThing implements Comparable<Task> {
     @PropertyField(uri = "vstoi:hasSupertask")
     private String hasSupertaskUri;
 
-    @PropertyField(uri="vstoi:hasRequiredInstrumentation", valueType=PropertyValueType.URI)
-    private List<String> hasRequiredInstrumentationUris = new ArrayList<String>();
+    @PropertyField(uri="vstoi:hasRequiredInstrument", valueType=PropertyValueType.URI)
+    private List<String> hasRequiredInstrumentUris = new ArrayList<String>();
 
     @PropertyField(uri="vstoi:hasSubtask", valueType=PropertyValueType.URI)
     private List<String> hasSubtaskUris = new ArrayList<String>();
@@ -133,27 +133,27 @@ public class Task extends HADatAcThing implements Comparable<Task> {
         this.hasSupertaskUri = hasSupertaskUri;
     }
 
-    public List<String> getHasRequiredInstrumentationUris() {
-        return hasRequiredInstrumentationUris;
+    public List<String> getHasRequiredInstrumentUris() {
+        return hasRequiredInstrumentUris;
     }
 
-    public void setHasRequiredInstrumentationUris(List<String> hasRequiredInstrumentationUris) {
-        this.hasRequiredInstrumentationUris = hasRequiredInstrumentationUris;
+    public void setHasRequiredInstrumentUris(List<String> hasRequiredInstrumentUris) {
+        this.hasRequiredInstrumentUris = hasRequiredInstrumentUris;
     }
 
-    public void addHasRequiredInstrumentationUri(String hasRequiredInstrumentationUri) {
-        this.hasRequiredInstrumentationUris.add(hasRequiredInstrumentationUri);
+    public void addHasRequiredInstrumentUri(String hasRequiredInstrumentUri) {
+        this.hasRequiredInstrumentUris.add(hasRequiredInstrumentUri);
     }
 
-    public List<RequiredInstrumentation> getRequiredInstrumentation() {
-        List<RequiredInstrumentation> resp = new ArrayList<RequiredInstrumentation>();
-        if (hasRequiredInstrumentationUris == null || hasRequiredInstrumentationUris.size() <= 0) {
+    public List<RequiredInstrument> getRequiredInstrument() {
+        List<RequiredInstrument> resp = new ArrayList<RequiredInstrument>();
+        if (hasRequiredInstrumentUris == null || hasRequiredInstrumentUris.size() <= 0) {
             return resp;
         }
-        for (String hasRequiredInstrumentationUri : hasRequiredInstrumentationUris) {
-            RequiredInstrumentation requiredInstrumentation = RequiredInstrumentation.find(hasRequiredInstrumentationUri);
-            if (requiredInstrumentation != null) {
-                resp.add(requiredInstrumentation);
+        for (String hasRequiredInstrumentUri : hasRequiredInstrumentUris) {
+            RequiredInstrument requiredInstrument = RequiredInstrument.find(hasRequiredInstrumentUri);
+            if (requiredInstrument != null) {
+                resp.add(requiredInstrument);
             }
         }
         return resp;
@@ -249,8 +249,8 @@ public class Task extends HADatAcThing implements Comparable<Task> {
                     task.setHasTaskType(object);
                 } else if (predicate.equals(VSTOI.HAS_SUPERTASK)) {
                     task.setHasSupertaskUri(object);
-                } else if (predicate.equals(VSTOI.HAS_REQUIRED_INSTRUMENTATION)) {
-                    task.addHasRequiredInstrumentationUri(object);
+                } else if (predicate.equals(VSTOI.HAS_REQUIRED_INSTRUMENT)) {
+                    task.addHasRequiredInstrumentUri(object);
                 } else if (predicate.equals(VSTOI.HAS_SUBTASK)) {
                     task.addHasSubtaskUri(object);
                 }

@@ -444,13 +444,22 @@ public class HAScOMapper {
                         "startDate", "endDate", "hasSIRManagerEmail"));
         }
 
-        // REQUIRED_INSTRUMENTATION
-        if (mode.equals(FULL) && typeResult.equals(VSTOI.REQUIRED_INSTRUMENTATION)) {
-            filterProvider.addFilter("requiredInstrumentationFilter", SimpleBeanPropertyFilter.serializeAll());
+        // REQUIRED_COMPONENT
+        if (mode.equals(FULL) && typeResult.equals(VSTOI.REQUIRED_COMPONENT)) {
+            filterProvider.addFilter("requiredComponentFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
-            filterProvider.addFilter("requiredInstrumentationFilter",
+            filterProvider.addFilter("requiredComponentFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
-                            "hascoTypeLabel", "comment", "usedInstrument", "hasRequiredDetector", "instrument", "detectors"));
+                            "hascoTypeLabel", "comment", "usedComponent", "hasContainerSlotUri"));
+        }
+ 
+        // REQUIRED_INSTRUMENT
+        if (mode.equals(FULL) && typeResult.equals(VSTOI.REQUIRED_INSTRUMENT)) {
+            filterProvider.addFilter("requiredInstrumentFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("requiredInstrumentFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
+                            "hascoTypeLabel", "comment", "usedInstrument", "hasRequiredComponent", "instrument", "components"));
         }
  
         // RESPONSE OPTION

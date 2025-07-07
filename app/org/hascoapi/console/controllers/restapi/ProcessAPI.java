@@ -11,7 +11,7 @@ import org.hascoapi.entity.pojo.Detector;
 import org.hascoapi.entity.pojo.Instrument;
 import org.hascoapi.entity.pojo.Process;
 import org.hascoapi.entity.pojo.ProcessStem;
-import org.hascoapi.entity.pojo.RequiredInstrumentation;
+import org.hascoapi.entity.pojo.RequiredInstrument;
 import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.HAScOMapper;
 import org.hascoapi.vocabularies.VSTOI;

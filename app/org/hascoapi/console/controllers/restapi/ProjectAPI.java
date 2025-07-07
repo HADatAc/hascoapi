@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 import org.hascoapi.Constants;
 import org.hascoapi.entity.pojo.Project;
-import org.hascoapi.entity.pojo.RequiredInstrumentation;
+import org.hascoapi.entity.pojo.RequiredInstrument;
 import org.hascoapi.entity.pojo.Task;
 import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.HAScOMapper;

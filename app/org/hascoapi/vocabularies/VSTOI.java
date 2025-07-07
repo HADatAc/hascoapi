@@ -58,10 +58,12 @@ public class VSTOI {
     public static final String PROCESS                      = VSTOI + "Process";
     public static final String PROCESS_STEM                 = VSTOI + "ProcessStem";
     public static final String PSYCHOMETRIC_QUESTIONNAIRE   = VSTOI + "PsychometricQuestionnaire";
-    public static final String REQUIRED_INSTRUMENTATION     = VSTOI + "RequiredInstrumentation";
+    public static final String REQUIRED_INSTRUMENT          = VSTOI + "RequiredInstrument";
+    public static final String REQUIRED_COMPONENT           = VSTOI + "RequiredComponent";
     public static final String RESPONSE_OPTION              = VSTOI + "ResponseOption";
     public static final String TABLE                        = VSTOI + "Table";
     public static final String TASK                         = VSTOI + "Task";
+    public static final String TEMPORAL_DEPENDENCY          = VSTOI + "TemporalDependency";
     public static final String VSTOI_INSTANCE               = VSTOI + "VSTOIInstance";
 
     /*
@@ -77,6 +79,7 @@ public class VSTOI {
     public static final String HAS_ANNOTATION_STEM          = VSTOI + "hasAnnotationStem";
     public static final String HAS_CODEBOOK                 = VSTOI + "hasCodebook";
     public static final String HAS_COMPONENT                = VSTOI + "hasComponent";
+    public static final String HAS_CONTAINER_SLOT           = VSTOI + "hasContainerSlot";
     public static final String HAS_CONTENT                  = VSTOI + "hasContent";
     public static final String HAS_CONTENT_WITH_STYLE       = VSTOI + "hasContentWithStyle";
     public static final String HAS_DAMAGE_DATE              = VSTOI + "hasDamageDate";
@@ -95,8 +98,8 @@ public class VSTOI {
     public static final String HAS_PREVIOUS                 = VSTOI + "hasPrevious";
     public static final String HAS_POSITION                 = VSTOI + "hasPosition";
     public static final String HAS_PRIORITY                 = VSTOI + "hasPriority";
-    public static final String HAS_REQUIRED_DETECTOR        = VSTOI + "hasRequiredDetector";
-    public static final String HAS_REQUIRED_INSTRUMENTATION = VSTOI + "hasRequiredInstrumentation";
+    public static final String HAS_REQUIRED_COMPONENT       = VSTOI + "hasRequiredComponent";
+    public static final String HAS_REQUIRED_INSTRUMENT      = VSTOI + "hasRequiredInstrument";
     public static final String HAS_RESPONSE_OPTION          = VSTOI + "hasResponseOption";
     public static final String HAS_REVIEW_NOTE              = VSTOI + "hasReviewNote";
     public static final String HAS_SHORT_NAME               = VSTOI + "hasShortName";
@@ -106,6 +109,7 @@ public class VSTOI {
     public static final String HAS_SUBTASK                  = VSTOI + "hasSubtask";
     public static final String HAS_SUPERTASK                = VSTOI + "hasSupertask";
     public static final String HAS_TASK_TYPE                = VSTOI + "hasTaskType";
+    public static final String HAS_TEMPORAL_DEPENDENCY      = VSTOI + "hasTemporalDependency";
     public static final String HAS_TOP_TASK                 = VSTOI + "hasTopTask";
     public static final String HAS_VERSION                  = VSTOI + "hasVersion";
     public static final String HOST_TYPE                    = VSTOI + "hostType";
@@ -113,6 +117,7 @@ public class VSTOI {
     public static final String IS_DAMAGED                   = VSTOI + "isDamaged";
     public static final String IS_FIELD_OF_VIEW_OF          = VSTOI + "isFieldOfViewOf";
     public static final String OF_CODEBOOK                  = VSTOI + "ofCodebook";
+    public static final String USES_COMPONENT               = VSTOI + "usesComponent";
     public static final String USES_INSTRUMENT              = VSTOI + "usesInstrument";
 
     /*
@@ -149,14 +154,27 @@ public class VSTOI {
     public static final String PAGE_LINE_ABOVE_BOTTOM       = VSTOI + "PageLineAboveBottom";
 
     /*
-     * TYPE TYPES
+     * TASK TYPES
      */
 
-     public static final String AUTOMATED                   = VSTOI + "Automated";
-     public static final String INTERACTIVE                 = VSTOI + "Interactive";
-     public static final String MANUAL                      = VSTOI + "Manual";
+     public static final String ABSTRACT_TASK               = VSTOI + "AbstractTask";
+     public static final String APPLICATION_TASK            = VSTOI + "ApplicationTask";
+     public static final String INTERACTIVE_TASK            = VSTOI + "InteractiveTask";
+     public static final String USER_TASK                   = VSTOI + "UserTask";
 
-    /**
+    /*
+     * TEMPORAL DEPENDENCIES
+     */
+
+     public static final String ENABLING_OPERATOR           = VSTOI + "EnablingOperator";
+     public static final String ENABLING_INFORMATION_OPERATOR  = VSTOI + "EnablingInformationOperator";
+     public static final String CHOICE_OPERATOR             = VSTOI + "ChoiceOperator";
+     public static final String CONCURRENCY_OPERATOR        = VSTOI + "ConcurrencyOperator";
+     public static final String ORDER_INDEPENDENCY_OPERATOR = VSTOI + "OrderIndeopendencyOperator";
+     public static final String SUSPEND_RESUME_OPERATOR     = VSTOI + "SuspendResumeOperator";
+     public static final String ITERATION_OPERATOR          = VSTOI + "IterationOperator";
+
+     /**
      * INSTANCES
      */
 
