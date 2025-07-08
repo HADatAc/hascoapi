@@ -614,7 +614,8 @@ public class HAScOMapper {
         } else {
             filterProvider.addFilter("taskFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
-                            "hasImageUri", "hasWebDocument", "hascoTypeLabel", "comment", "hasLanguage", "hasVersion", "hasTemporalDependency", 
+                            "hasImageUri", "hasWebDocument", "hascoTypeLabel", "comment", "hasLanguage", "hasVersion", 
+                            "hasTemporalDependency", "temporalDependencyLabel", 
                             "wasDerivedFrom", "wasGeneratedBy", "hasSIRManagerEmail", "hasEditorEmail", "hasSupertask", "subtask", 
                             "requiredInstrumentation"));
         }

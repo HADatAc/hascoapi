@@ -129,6 +129,12 @@ public class Task extends HADatAcThing implements Comparable<Task> {
         return hasTemporalDependency;
     }
 
+    public String getTemporalDependencyLabel() {
+        if (hasTemporalDependency == null || hasTemporalDependency.isEmpty())
+            return "";
+        return VSTOI.temporalDependencyLabel(hasTemporalDependency);
+    }
+
     public void setHasTemporalDependency(String hasTemporalDependency) {
         this.hasTemporalDependency = hasTemporalDependency;
     }

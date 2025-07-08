@@ -1,6 +1,7 @@
 package org.hascoapi.vocabularies;
 
 import org.hascoapi.annotations.PropertyField;
+import org.hascoapi.utils.NameSpaces;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -165,13 +166,21 @@ public class VSTOI {
      * TEMPORAL DEPENDENCIES
      */
 
-     public static final String ENABLING_OPERATOR           = VSTOI + "EnablingOperator";
-     public static final String ENABLING_INFORMATION_OPERATOR  = VSTOI + "EnablingInformationOperator";
-     public static final String CHOICE_OPERATOR             = VSTOI + "ChoiceOperator";
-     public static final String CONCURRENCY_OPERATOR        = VSTOI + "ConcurrencyOperator";
-     public static final String ORDER_INDEPENDENCY_OPERATOR = VSTOI + "OrderIndeopendencyOperator";
-     public static final String SUSPEND_RESUME_OPERATOR     = VSTOI + "SuspendResumeOperator";
-     public static final String ITERATION_OPERATOR          = VSTOI + "IterationOperator";
+    public static final String ENABLING_OPERATOR            = VSTOI + "EnablingOperator";
+    public static final String ENABLING_INFORMATION_OPERATOR  = VSTOI + "EnablingInformationOperator";
+    public static final String CHOICE_OPERATOR              = VSTOI + "ChoiceOperator";
+    public static final String CONCURRENCY_OPERATOR         = VSTOI + "ConcurrencyOperator";
+    public static final String ORDER_INDEPENDENCY_OPERATOR  = VSTOI + "OrderIndependencyOperator";
+    public static final String SUSPEND_RESUME_OPERATOR      = VSTOI + "SuspendResumeOperator";
+    public static final String ITERATION_OPERATOR           = VSTOI + "IterationOperator";
+
+    public static final String ENABLING_LABEL               = "Enabling";
+    public static final String ENABLING_INFORMATION_LABEL   = "Enabling with Information Exchange";
+    public static final String CHOICE_LABEL                 = "Choice";
+    public static final String CONCURRENCY_LABEL            = "Concurrency";
+    public static final String ORDER_INDEPENDENCY_LABEL     = "Order Independency";
+    public static final String SUSPEND_RESUME_LABEL         = "Suspend Resume";
+    public static final String ITERATION_LABEL              = "Iteration";
 
      /**
      * INSTANCES
@@ -237,6 +246,25 @@ public class VSTOI {
         pagePosition.put(PAGE_BOTTOM_RIGHT, "PageBottomRight");
         pagePosition.put(PAGE_LINE_ABOVE_BOTTOM, "PageLineAboveBottom");
         pagePosition.put(NOT_VISIBLE, "NotVisible");
+    }
+
+    public static String temporalDependencyLabel(String td) {
+        if (td.equals(ENABLING_OPERATOR)) {
+            return ENABLING_LABEL;
+        } else if (td.equals(ENABLING_INFORMATION_OPERATOR)) {
+            return ENABLING_INFORMATION_LABEL;
+        } else if (td.equals(CHOICE_OPERATOR)) {
+            return CHOICE_LABEL;
+        } else if (td.equals(CONCURRENCY_OPERATOR)) {
+            return CONCURRENCY_LABEL;
+        } else if (td.equals(ORDER_INDEPENDENCY_OPERATOR)) {
+            return ORDER_INDEPENDENCY_LABEL;
+        } else if (td.equals(SUSPEND_RESUME_OPERATOR)) {
+            return SUSPEND_RESUME_LABEL;
+        } else if (td.equals(ITERATION_OPERATOR)) {
+            return ITERATION_LABEL;
+        }
+        return "";
     }
 
 }
