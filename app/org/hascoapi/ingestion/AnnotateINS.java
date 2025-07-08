@@ -38,8 +38,8 @@ public class AnnotateINS {
                 System.out.println("[WARNING] 'ResponseOptions' sheet is missing.");
                 dataFile.getLogger().println("[WARNING] 'ResponseOptions' sheet is missing.");
             } else {
-                responseOptionSheet = responseOptionSheet.replace("#", "");
-                RecordFile sheet01 = new SpreadsheetRecordFile(dataFile.getFile(), responseOptionSheet);
+                //responseOptionSheet = responseOptionSheet.replace("#", "");
+                //RecordFile sheet01 = new SpreadsheetRecordFile(dataFile.getFile(), responseOptionSheet);
                 //try {
                     //DataFile dataFileForSheet = (DataFile)dataFile.clone();
                     //dataFileForSheet.setRecordFile(sheet01);
@@ -56,8 +56,8 @@ public class AnnotateINS {
                 System.out.println("[WARNING] 'CodeBooks' sheet is missing.");
                 dataFile.getLogger().println("[WARNING] 'CodeBooks' sheet is missing.");
             } else {
-                codeBookSheet = codeBookSheet.replace("#", "");
-                RecordFile sheet02 = new SpreadsheetRecordFile(dataFile.getFile(), codeBookSheet);
+                //codeBookSheet = codeBookSheet.replace("#", "");
+                //RecordFile sheet02 = new SpreadsheetRecordFile(dataFile.getFile(), codeBookSheet);
                 //try {
                     //DataFile dataFileForSheet = (DataFile)dataFile.clone();
                     //dataFileForSheet.setRecordFile(sheet02);
@@ -74,8 +74,8 @@ public class AnnotateINS {
                 System.out.println("[WARNING] 'CodeBookSlots' sheet is missing.");
                 dataFile.getLogger().println("[WARNING] 'CodeBookSlots' sheet is missing.");
             } else {
-                codeBookSlotSheet = codeBookSlotSheet.replace("#", "");
-                RecordFile sheet03 = new SpreadsheetRecordFile(dataFile.getFile(), codeBookSlotSheet);
+                //codeBookSlotSheet = codeBookSlotSheet.replace("#", "");
+                //RecordFile sheet03 = new SpreadsheetRecordFile(dataFile.getFile(), codeBookSlotSheet);
                 //try {
                     //DataFile dataFileForSheet = (DataFile)dataFile.clone();
                     //dataFileForSheet.setRecordFile(sheet03);
@@ -92,8 +92,8 @@ public class AnnotateINS {
                 System.out.println("[WARNING] 'ActuatorStems' sheet is missing.");
                 dataFile.getLogger().println("[WARNING] 'ActuatorStems' sheet is missing.");
             } else {
-                actuatorStemSheet = actuatorStemSheet.replace("#", "");
-                RecordFile sheet04 = new SpreadsheetRecordFile(dataFile.getFile(), actuatorStemSheet);
+                //actuatorStemSheet = actuatorStemSheet.replace("#", "");
+                //RecordFile sheet04 = new SpreadsheetRecordFile(dataFile.getFile(), actuatorStemSheet);
                 //try {
                     //DataFile dataFileForSheet = (DataFile)dataFile.clone();
                     //dataFileForSheet.setRecordFile(sheet04);
@@ -110,8 +110,8 @@ public class AnnotateINS {
                 System.out.println("[WARNING] 'Actuators' sheet is missing.");
                 dataFile.getLogger().println("[WARNING] 'Actuators' sheet is missing.");
             } else {
-                actuatorSheet = actuatorSheet.replace("#", "");
-                RecordFile sheet05 = new SpreadsheetRecordFile(dataFile.getFile(), actuatorSheet);
+                //actuatorSheet = actuatorSheet.replace("#", "");
+                //RecordFile sheet05 = new SpreadsheetRecordFile(dataFile.getFile(), actuatorSheet);
                 //try {
                     //DataFile dataFileForSheet = (DataFile)dataFile.clone();
                     //dataFileForSheet.setRecordFile(sheet05);
@@ -128,8 +128,8 @@ public class AnnotateINS {
                 System.out.println("[WARNING] 'DetectorStems' sheet is missing.");
                 dataFile.getLogger().println("[WARNING] 'DetectorStems' sheet is missing.");
             } else {
-                detectorStemSheet = detectorStemSheet.replace("#", "");
-                RecordFile sheet06 = new SpreadsheetRecordFile(dataFile.getFile(), detectorStemSheet);
+                //detectorStemSheet = detectorStemSheet.replace("#", "");
+                //RecordFile sheet06 = new SpreadsheetRecordFile(dataFile.getFile(), detectorStemSheet);
                 //try {
                     //DataFile dataFileForSheet = (DataFile)dataFile.clone();
                     //dataFileForSheet.setRecordFile(sheet06);
@@ -146,8 +146,8 @@ public class AnnotateINS {
                 System.out.println("[WARNING] 'Detectors' sheet is missing.");
                 dataFile.getLogger().println("[WARNING] 'Detectors' sheet is missing.");
             } else {
-                detectorSheet = detectorSheet.replace("#", "");
-                RecordFile sheet07 = new SpreadsheetRecordFile(dataFile.getFile(), detectorSheet);
+                //detectorSheet = detectorSheet.replace("#", "");
+                //RecordFile sheet07 = new SpreadsheetRecordFile(dataFile.getFile(), detectorSheet);
                 //try {
                     //DataFile dataFileForSheet = (DataFile)dataFile.clone();
                     //dataFileForSheet.setRecordFile(sheet07);
@@ -164,8 +164,8 @@ public class AnnotateINS {
                 System.out.println("[WARNING] 'SlotElements' sheet is missing.");
                 dataFile.getLogger().println("[WARNING] 'SlotElements' sheet is missing.");
             } else {
-                slotElementSheet = slotElementSheet.replace("#", "");
-                RecordFile sheet08 = new SpreadsheetRecordFile(dataFile.getFile(), slotElementSheet);
+                //slotElementSheet = slotElementSheet.replace("#", "");
+                //RecordFile sheet08 = new SpreadsheetRecordFile(dataFile.getFile(), slotElementSheet);
                 //try {
                     //DataFile dataFileForSheet = (DataFile)dataFile.clone();
                     //dataFileForSheet.setRecordFile(sheet08);
@@ -182,8 +182,8 @@ public class AnnotateINS {
                 System.out.println("[WARNING] 'Instruments' sheet is missing.");
                 dataFile.getLogger().println("[WARNING] 'Instruments' sheet is missing.");
             } else {
-                instrumentSheet = instrumentSheet.replace("#", "");
-                RecordFile sheet09 = new SpreadsheetRecordFile(dataFile.getFile(), instrumentSheet);
+                //instrumentSheet = instrumentSheet.replace("#", "");
+                //RecordFile sheet09 = new SpreadsheetRecordFile(dataFile.getFile(), instrumentSheet);
                 //try {
                     //DataFile dataFileForSheet = (DataFile)dataFile.clone();
                     //dataFileForSheet.setRecordFile(sheet09);
