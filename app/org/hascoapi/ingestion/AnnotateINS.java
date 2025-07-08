@@ -22,9 +22,9 @@ public class AnnotateINS {
             //System.out.println(record.getValueByColumnIndex(0) + ":" + record.getValueByColumnIndex(1));
         }
 
-        //IngestionWorker.nameSpaceGen(dataFile, mapCatalog,templateFile);
+        IngestionWorker.nameSpaceGen(dataFile, mapCatalog,templateFile);
 
-        //IngestionWorker.annotationGen(dataFile, mapCatalog, templateFile, status);
+        IngestionWorker.annotationGen(dataFile, mapCatalog, templateFile, status);
 
         GeneratorChain chain = new GeneratorChain();
         //RecordFile sheet = null;
@@ -43,9 +43,9 @@ public class AnnotateINS {
                 try {
                     DataFile dataFileForSheet = (DataFile)dataFile.clone();
                     dataFileForSheet.setRecordFile(sheet01);
-                    INSGenerator respOptionGen = new INSGenerator("responseoption",dataFileForSheet, status);
-                    respOptionGen.setNamedGraphUri(dataFileForSheet.getUri());
-                    chain.addGenerator(respOptionGen);
+                    //INSGenerator respOptionGen = new INSGenerator("responseoption",dataFileForSheet, status);
+                    //respOptionGen.setNamedGraphUri(dataFileForSheet.getUri());
+                    //chain.addGenerator(respOptionGen);
                 } catch (CloneNotSupportedException e) {
                     e.printStackTrace();
                 }
@@ -61,9 +61,9 @@ public class AnnotateINS {
                 try {
                     DataFile dataFileForSheet = (DataFile)dataFile.clone();
                     dataFileForSheet.setRecordFile(sheet02);
-                    INSGenerator codeBookGen = new INSGenerator("codebook",dataFileForSheet, status);
-                    codeBookGen.setNamedGraphUri(dataFileForSheet.getUri());
-                    chain.addGenerator(codeBookGen);
+                    //INSGenerator codeBookGen = new INSGenerator("codebook",dataFileForSheet, status);
+                    //codeBookGen.setNamedGraphUri(dataFileForSheet.getUri());
+                    //chain.addGenerator(codeBookGen);
                 } catch (CloneNotSupportedException e) {
                     e.printStackTrace();
                 }
@@ -79,9 +79,9 @@ public class AnnotateINS {
                 try {
                     DataFile dataFileForSheet = (DataFile)dataFile.clone();
                     dataFileForSheet.setRecordFile(sheet03);
-                    CodeBookSlotGenerator cbSlotGen = new CodeBookSlotGenerator(dataFileForSheet);
-                    cbSlotGen.setNamedGraphUri(dataFileForSheet.getUri());
-                    chain.addGenerator(cbSlotGen);
+                    //CodeBookSlotGenerator cbSlotGen = new CodeBookSlotGenerator(dataFileForSheet);
+                    //cbSlotGen.setNamedGraphUri(dataFileForSheet.getUri());
+                    //chain.addGenerator(cbSlotGen);
                 } catch (CloneNotSupportedException e) {
                     e.printStackTrace();
                 }
@@ -97,9 +97,9 @@ public class AnnotateINS {
                 try {
                     DataFile dataFileForSheet = (DataFile)dataFile.clone();
                     dataFileForSheet.setRecordFile(sheet04);
-                    INSGenerator actStemGen = new INSGenerator("actuatorstem",dataFileForSheet, status);
-                    actStemGen.setNamedGraphUri(dataFileForSheet.getUri());
-                    chain.addGenerator(actStemGen);
+                    //INSGenerator actStemGen = new INSGenerator("actuatorstem",dataFileForSheet, status);
+                    //actStemGen.setNamedGraphUri(dataFileForSheet.getUri());
+                    //chain.addGenerator(actStemGen);
                 } catch (CloneNotSupportedException e) {
                     e.printStackTrace();
                 }
@@ -115,9 +115,9 @@ public class AnnotateINS {
                 try {
                     DataFile dataFileForSheet = (DataFile)dataFile.clone();
                     dataFileForSheet.setRecordFile(sheet05);
-                    ActuatorGenerator actGen = new ActuatorGenerator(dataFileForSheet, status);
-                    actGen.setNamedGraphUri(dataFileForSheet.getUri());
-                    chain.addGenerator(actGen);
+                    //ActuatorGenerator actGen = new ActuatorGenerator(dataFileForSheet, status);
+                    //actGen.setNamedGraphUri(dataFileForSheet.getUri());
+                    //chain.addGenerator(actGen);
                 } catch (CloneNotSupportedException e) {
                     e.printStackTrace();
                 }
@@ -133,9 +133,9 @@ public class AnnotateINS {
                 try {
                     DataFile dataFileForSheet = (DataFile)dataFile.clone();
                     dataFileForSheet.setRecordFile(sheet06);
-                    INSGenerator detStemGen = new INSGenerator("detectorstem",dataFileForSheet, status);
-                    detStemGen.setNamedGraphUri(dataFileForSheet.getUri());
-                    chain.addGenerator(detStemGen);
+                    //INSGenerator detStemGen = new INSGenerator("detectorstem",dataFileForSheet, status);
+                    //detStemGen.setNamedGraphUri(dataFileForSheet.getUri());
+                    //chain.addGenerator(detStemGen);
                 } catch (CloneNotSupportedException e) {
                     e.printStackTrace();
                 }
@@ -151,9 +151,9 @@ public class AnnotateINS {
                 try {
                     DataFile dataFileForSheet = (DataFile)dataFile.clone();
                     dataFileForSheet.setRecordFile(sheet07);
-                    DetectorGenerator detGen = new DetectorGenerator(dataFileForSheet, status);
-                    detGen.setNamedGraphUri(dataFileForSheet.getUri());
-                    chain.addGenerator(detGen);
+                    //DetectorGenerator detGen = new DetectorGenerator(dataFileForSheet, status);
+                    //detGen.setNamedGraphUri(dataFileForSheet.getUri());
+                    //chain.addGenerator(detGen);
                 } catch (CloneNotSupportedException e) {
                     e.printStackTrace();
                 }
@@ -169,9 +169,9 @@ public class AnnotateINS {
                 try {
                     DataFile dataFileForSheet = (DataFile)dataFile.clone();
                     dataFileForSheet.setRecordFile(sheet08);
-                    INSGenerator seGen = new INSGenerator("slotelement",dataFileForSheet, status);
-                    seGen.setNamedGraphUri(dataFileForSheet.getUri());
-                    chain.addGenerator(seGen);
+                    //INSGenerator seGen = new INSGenerator("slotelement",dataFileForSheet, status);
+                    //seGen.setNamedGraphUri(dataFileForSheet.getUri());
+                    //chain.addGenerator(seGen);
                 } catch (CloneNotSupportedException e) {
                     e.printStackTrace();
                 }
@@ -187,9 +187,9 @@ public class AnnotateINS {
                 try {
                     DataFile dataFileForSheet = (DataFile)dataFile.clone();
                     dataFileForSheet.setRecordFile(sheet09);
-                    INSGenerator ins = new INSGenerator("instrument",dataFileForSheet, status);
-                    ins.setNamedGraphUri(dataFileForSheet.getUri());
-                    chain.addGenerator(ins);
+                    //INSGenerator ins = new INSGenerator("instrument",dataFileForSheet, status);
+                    //ins.setNamedGraphUri(dataFileForSheet.getUri());
+                    //chain.addGenerator(ins);
                 } catch (CloneNotSupportedException e) {
                     e.printStackTrace();
                 }
