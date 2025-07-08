@@ -40,15 +40,15 @@ public class AnnotateINS {
             } else {
                 responseOptionSheet = responseOptionSheet.replace("#", "");
                 RecordFile sheet01 = new SpreadsheetRecordFile(dataFile.getFile(), responseOptionSheet);
-                try {
-                    DataFile dataFileForSheet = (DataFile)dataFile.clone();
-                    dataFileForSheet.setRecordFile(sheet01);
+                //try {
+                    //DataFile dataFileForSheet = (DataFile)dataFile.clone();
+                    //dataFileForSheet.setRecordFile(sheet01);
                     //INSGenerator respOptionGen = new INSGenerator("responseoption",dataFileForSheet, status);
                     //respOptionGen.setNamedGraphUri(dataFileForSheet.getUri());
                     //chain.addGenerator(respOptionGen);
-                } catch (CloneNotSupportedException e) {
-                    e.printStackTrace();
-                }
+                //} catch (CloneNotSupportedException e) {
+                //    e.printStackTrace();
+                //}
             }
 
             String codeBookSheet = mapCatalog.get("CodeBooks");
@@ -58,15 +58,15 @@ public class AnnotateINS {
             } else {
                 codeBookSheet = codeBookSheet.replace("#", "");
                 RecordFile sheet02 = new SpreadsheetRecordFile(dataFile.getFile(), codeBookSheet);
-                try {
-                    DataFile dataFileForSheet = (DataFile)dataFile.clone();
-                    dataFileForSheet.setRecordFile(sheet02);
+                //try {
+                    //DataFile dataFileForSheet = (DataFile)dataFile.clone();
+                    //dataFileForSheet.setRecordFile(sheet02);
                     //INSGenerator codeBookGen = new INSGenerator("codebook",dataFileForSheet, status);
                     //codeBookGen.setNamedGraphUri(dataFileForSheet.getUri());
                     //chain.addGenerator(codeBookGen);
-                } catch (CloneNotSupportedException e) {
-                    e.printStackTrace();
-                }
+                //} catch (CloneNotSupportedException e) {
+                    //e.printStackTrace();
+                //}
             }
 
             String codeBookSlotSheet = mapCatalog.get("CodeBookSlots");
@@ -76,15 +76,15 @@ public class AnnotateINS {
             } else {
                 codeBookSlotSheet = codeBookSlotSheet.replace("#", "");
                 RecordFile sheet03 = new SpreadsheetRecordFile(dataFile.getFile(), codeBookSlotSheet);
-                try {
-                    DataFile dataFileForSheet = (DataFile)dataFile.clone();
-                    dataFileForSheet.setRecordFile(sheet03);
+                //try {
+                    //DataFile dataFileForSheet = (DataFile)dataFile.clone();
+                    //dataFileForSheet.setRecordFile(sheet03);
                     //CodeBookSlotGenerator cbSlotGen = new CodeBookSlotGenerator(dataFileForSheet);
                     //cbSlotGen.setNamedGraphUri(dataFileForSheet.getUri());
                     //chain.addGenerator(cbSlotGen);
-                } catch (CloneNotSupportedException e) {
-                    e.printStackTrace();
-                }
+                //} catch (CloneNotSupportedException e) {
+                    //e.printStackTrace();
+                //}
             }
 
             String actuatorStemSheet = mapCatalog.get("ActuatorStems");
@@ -94,15 +94,15 @@ public class AnnotateINS {
             } else {
                 actuatorStemSheet = actuatorStemSheet.replace("#", "");
                 RecordFile sheet04 = new SpreadsheetRecordFile(dataFile.getFile(), actuatorStemSheet);
-                try {
-                    DataFile dataFileForSheet = (DataFile)dataFile.clone();
-                    dataFileForSheet.setRecordFile(sheet04);
+                //try {
+                    //DataFile dataFileForSheet = (DataFile)dataFile.clone();
+                    //dataFileForSheet.setRecordFile(sheet04);
                     //INSGenerator actStemGen = new INSGenerator("actuatorstem",dataFileForSheet, status);
                     //actStemGen.setNamedGraphUri(dataFileForSheet.getUri());
                     //chain.addGenerator(actStemGen);
-                } catch (CloneNotSupportedException e) {
-                    e.printStackTrace();
-                }
+                //} catch (CloneNotSupportedException e) {
+                    //e.printStackTrace();
+                //}
             }
 
             String actuatorSheet = mapCatalog.get("Actuators");
@@ -112,15 +112,15 @@ public class AnnotateINS {
             } else {
                 actuatorSheet = actuatorSheet.replace("#", "");
                 RecordFile sheet05 = new SpreadsheetRecordFile(dataFile.getFile(), actuatorSheet);
-                try {
-                    DataFile dataFileForSheet = (DataFile)dataFile.clone();
-                    dataFileForSheet.setRecordFile(sheet05);
+                //try {
+                    //DataFile dataFileForSheet = (DataFile)dataFile.clone();
+                    //dataFileForSheet.setRecordFile(sheet05);
                     //ActuatorGenerator actGen = new ActuatorGenerator(dataFileForSheet, status);
                     //actGen.setNamedGraphUri(dataFileForSheet.getUri());
                     //chain.addGenerator(actGen);
-                } catch (CloneNotSupportedException e) {
-                    e.printStackTrace();
-                }
+                //} catch (CloneNotSupportedException e) {
+                    //e.printStackTrace();
+                //}
             }
 
             String detectorStemSheet = mapCatalog.get("DetectorStems");
@@ -130,15 +130,15 @@ public class AnnotateINS {
             } else {
                 detectorStemSheet = detectorStemSheet.replace("#", "");
                 RecordFile sheet06 = new SpreadsheetRecordFile(dataFile.getFile(), detectorStemSheet);
-                try {
-                    DataFile dataFileForSheet = (DataFile)dataFile.clone();
-                    dataFileForSheet.setRecordFile(sheet06);
+                //try {
+                    //DataFile dataFileForSheet = (DataFile)dataFile.clone();
+                    //dataFileForSheet.setRecordFile(sheet06);
                     //INSGenerator detStemGen = new INSGenerator("detectorstem",dataFileForSheet, status);
                     //detStemGen.setNamedGraphUri(dataFileForSheet.getUri());
                     //chain.addGenerator(detStemGen);
-                } catch (CloneNotSupportedException e) {
-                    e.printStackTrace();
-                }
+                //} catch (CloneNotSupportedException e) {
+                    //e.printStackTrace();
+                //}
             }
 
             String detectorSheet = mapCatalog.get("Detectors");
@@ -148,15 +148,15 @@ public class AnnotateINS {
             } else {
                 detectorSheet = detectorSheet.replace("#", "");
                 RecordFile sheet07 = new SpreadsheetRecordFile(dataFile.getFile(), detectorSheet);
-                try {
-                    DataFile dataFileForSheet = (DataFile)dataFile.clone();
-                    dataFileForSheet.setRecordFile(sheet07);
+                //try {
+                    //DataFile dataFileForSheet = (DataFile)dataFile.clone();
+                    //dataFileForSheet.setRecordFile(sheet07);
                     //DetectorGenerator detGen = new DetectorGenerator(dataFileForSheet, status);
                     //detGen.setNamedGraphUri(dataFileForSheet.getUri());
                     //chain.addGenerator(detGen);
-                } catch (CloneNotSupportedException e) {
-                    e.printStackTrace();
-                }
+                //} catch (CloneNotSupportedException e) {
+                    //e.printStackTrace();
+                //}
             }
 
             String slotElementSheet = mapCatalog.get("SlotElements");
@@ -166,15 +166,15 @@ public class AnnotateINS {
             } else {
                 slotElementSheet = slotElementSheet.replace("#", "");
                 RecordFile sheet08 = new SpreadsheetRecordFile(dataFile.getFile(), slotElementSheet);
-                try {
-                    DataFile dataFileForSheet = (DataFile)dataFile.clone();
-                    dataFileForSheet.setRecordFile(sheet08);
+                //try {
+                    //DataFile dataFileForSheet = (DataFile)dataFile.clone();
+                    //dataFileForSheet.setRecordFile(sheet08);
                     //INSGenerator seGen = new INSGenerator("slotelement",dataFileForSheet, status);
                     //seGen.setNamedGraphUri(dataFileForSheet.getUri());
                     //chain.addGenerator(seGen);
-                } catch (CloneNotSupportedException e) {
-                    e.printStackTrace();
-                }
+                //} catch (CloneNotSupportedException e) {
+                    //e.printStackTrace();
+                //}
             }
 
             String instrumentSheet = mapCatalog.get("Instruments");
@@ -184,15 +184,15 @@ public class AnnotateINS {
             } else {
                 instrumentSheet = instrumentSheet.replace("#", "");
                 RecordFile sheet09 = new SpreadsheetRecordFile(dataFile.getFile(), instrumentSheet);
-                try {
-                    DataFile dataFileForSheet = (DataFile)dataFile.clone();
-                    dataFileForSheet.setRecordFile(sheet09);
+                //try {
+                    //DataFile dataFileForSheet = (DataFile)dataFile.clone();
+                    //dataFileForSheet.setRecordFile(sheet09);
                     //INSGenerator ins = new INSGenerator("instrument",dataFileForSheet, status);
                     //ins.setNamedGraphUri(dataFileForSheet.getUri());
                     //chain.addGenerator(ins);
-                } catch (CloneNotSupportedException e) {
-                    e.printStackTrace();
-                }
+                //} catch (CloneNotSupportedException e) {
+                    //e.printStackTrace();
+                //}
             }
         } catch (Exception e) {
             e.printStackTrace();
