@@ -219,6 +219,20 @@ public class GeneratorChain {
         return true;
     }
 
+    public void disposeChain() {
+        for (BaseGenerator generator : chain) {
+            if (generator != null) {
+                try {
+                    generator.dispose(); // Let each generator clean itself
+                } catch (Exception e) {
+                    System.out.println("Error disposing generator: " + generator.getClass().getSimpleName());
+                }
+            }
+        }
+        chain.clear(); // Release references to the generators
+    }
+
+
     public void delete() {
         for (BaseGenerator generator : chain) {
 

@@ -130,14 +130,11 @@ public class SpreadsheetRecordFile implements RecordFile {
 
     @Override
     public List<Record> getRecords() {
-        try {
-            Workbook workbook = WorkbookFactory.create(new FileInputStream(file));
-            Sheet sheet = null;
-            if (sheetName.isEmpty()) {
-                sheet = workbook.getSheetAt(0);
-            } else {
-                sheet = workbook.getSheet(sheetName);
-            }
+
+        try (FileInputStream fis = new FileInputStream(file);
+             Workbook workbook = WorkbookFactory.create(fis)) {
+
+            Sheet sheet = sheetName.isEmpty() ? workbook.getSheetAt(0) : workbook.getSheet(sheetName);
 
             if (sheet == null) {
                 return null;
@@ -201,35 +198,19 @@ public class SpreadsheetRecordFile implements RecordFile {
     public boolean isValid() {
         //System.out.println("(SpreadsheetRecordFile) Init with following filename: [" + fileName + "]");
         //System.out.println("(SpreadsheetRecordFile) Init with following sheetname: [" + sheetName + "]");
-                    
-        Workbook workbook = null;
-        try {
-            workbook = WorkbookFactory.create(new FileInputStream(file));
-        } catch (EncryptedDocumentException /** | InvalidFormatException */ | IOException e) {
+        try (FileInputStream fis = new FileInputStream(file);
+            Workbook workbook = WorkbookFactory.create(fis)) {
+
+            Sheet sheet = sheetName.isEmpty() ?
+                workbook.getSheetAt(0) :
+                workbook.getSheet(sheetName);
+
+            return sheet != null;
+
+        } catch (IOException | EncryptedDocumentException | IllegalArgumentException e) {
             e.printStackTrace();
             return false;
         }
-
-        // Print sheet names
-        //int numberOfSheets = workbook.getNumberOfSheets();
-        //for (int i = 0; i < numberOfSheets; i++) {
-        //    Sheet sheet = workbook.getSheetAt(i);
-        //    System.out.println("Sheet Name: " + sheet.getSheetName());
-        //}
-
-        Sheet sheet = null;
-        if (sheetName.isEmpty()) {
-            try {
-                sheet = workbook.getSheetAt(0);
-            } catch (IllegalArgumentException e) {
-                System.out.println("[ERROR] SpreadsheetRecordFile.isValid(): sheet with index 0 does NOT exist!");
-            }
-        } else {
-            sheet = workbook.getSheet(sheetName);
-        }
-
-
-        return sheet != null;
     }
 
     private boolean isEmptyRow(Row row) {

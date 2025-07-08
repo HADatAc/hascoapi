@@ -103,6 +103,7 @@ public class IngestionWorker {
             System.out.println("IngestionWorker: chain.generate() STARTED.");
             bSucceed = chain.generate();
             System.out.println("IngestionWorker: chain.generate() ENDED. Response: [" + bSucceed + "]");
+            chain.disposeChain();
         }
 
         if (bSucceed) {

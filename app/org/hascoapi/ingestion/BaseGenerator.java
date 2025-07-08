@@ -95,6 +95,15 @@ public abstract class BaseGenerator {
 
     public void initMapping() {}
 
+    public void dispose() {
+        if (rows != null) {
+            rows.clear();
+        }
+        if (objects != null) {
+            objects.clear();
+        }
+    }
+
     public void addCache(Cache cache) {
         if (!caches.containsKey(cache.getName())) {
             caches.put(cache.getName(), cache);
