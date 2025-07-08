@@ -22,9 +22,9 @@ public class AnnotateINS {
             //System.out.println(record.getValueByColumnIndex(0) + ":" + record.getValueByColumnIndex(1));
         }
 
-        IngestionWorker.nameSpaceGen(dataFile, mapCatalog,templateFile);
+        //IngestionWorker.nameSpaceGen(dataFile, mapCatalog,templateFile);
 
-        IngestionWorker.annotationGen(dataFile, mapCatalog, templateFile, status);
+        //IngestionWorker.annotationGen(dataFile, mapCatalog, templateFile, status);
 
         GeneratorChain chain = new GeneratorChain();
         //RecordFile sheet = null;
