@@ -49,11 +49,11 @@ public class Task extends HADatAcThing implements Comparable<Task> {
     @PropertyField(uri = "vstoi:hasEditorEmail")
     private String hasEditorEmail;
 
-    @PropertyField(uri = "vstoi:hasTaskType")
-    private String hasTaskType;
-
     @PropertyField(uri = "vstoi:hasSupertask")
     private String hasSupertaskUri;
+
+    @PropertyField(uri = "vstoi:hasTemporalDependency")
+    private String hasTemporalDependency;
 
     @PropertyField(uri="vstoi:hasRequiredInstrument", valueType=PropertyValueType.URI)
     private List<String> hasRequiredInstrumentUris = new ArrayList<String>();
@@ -117,20 +117,20 @@ public class Task extends HADatAcThing implements Comparable<Task> {
         this.hasEditorEmail = hasEditorEmail;
     }
 
-    public String getHasTaskType() {
-        return hasTaskType;
-    }
-
-    public void setHasTaskType(String hasTaskType) {
-        this.hasTaskType = hasTaskType;
-    }
-
     public String getHasSupertaskUri() {
         return hasSupertaskUri;
     }
 
     public void setHasSupertaskUri(String hasSupertaskUri) {
         this.hasSupertaskUri = hasSupertaskUri;
+    }
+
+    public String getHasTemporalDependency() {
+        return hasTemporalDependency;
+    }
+
+    public void setHasTemporalDependency(String hasTemporalDependency) {
+        this.hasTemporalDependency = hasTemporalDependency;
     }
 
     public List<String> getHasRequiredInstrumentUris() {
@@ -245,10 +245,10 @@ public class Task extends HADatAcThing implements Comparable<Task> {
                     task.setHasSIRManagerEmail(object);
                 } else if (predicate.equals(VSTOI.HAS_EDITOR_EMAIL)) {
                     task.setHasEditorEmail(object);
-                } else if (predicate.equals(VSTOI.HAS_TASK_TYPE)) {
-                    task.setHasTaskType(object);
                 } else if (predicate.equals(VSTOI.HAS_SUPERTASK)) {
                     task.setHasSupertaskUri(object);
+                } else if (predicate.equals(VSTOI.HAS_TEMPORAL_DEPENDENCY)) {
+                    task.setHasTemporalDependency(object);
                 } else if (predicate.equals(VSTOI.HAS_REQUIRED_INSTRUMENT)) {
                     task.addHasRequiredInstrumentUri(object);
                 } else if (predicate.equals(VSTOI.HAS_SUBTASK)) {

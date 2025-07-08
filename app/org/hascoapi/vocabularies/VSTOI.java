@@ -108,7 +108,6 @@ public class VSTOI {
     public static final String HAS_SUBCONTAINER             = VSTOI + "hasSubcontainer";
     public static final String HAS_SUBTASK                  = VSTOI + "hasSubtask";
     public static final String HAS_SUPERTASK                = VSTOI + "hasSupertask";
-    public static final String HAS_TASK_TYPE                = VSTOI + "hasTaskType";
     public static final String HAS_TEMPORAL_DEPENDENCY      = VSTOI + "hasTemporalDependency";
     public static final String HAS_TOP_TASK                 = VSTOI + "hasTopTask";
     public static final String HAS_VERSION                  = VSTOI + "hasVersion";
@@ -199,15 +198,6 @@ public class VSTOI {
         informant.put(VSTOI + "Caregiver", "Caregiver");
         informant.put(VSTOI + "HouseholdReferencePerson", "HouseholdReferencePerson");
         informant.put(VSTOI + "PhysicalWorld", "PhysicalWorld");
-    }
-
-    public static final String DEFAULT_HAS_TASK_TYPE = VSTOI + "Automated";
-    public static Map<String, String> hasTaskType;
-    static {
-        wasGeneratedBy = new HashMap<>();
-        wasGeneratedBy.put(DEFAULT_HAS_TASK_TYPE, "Automated");
-        wasGeneratedBy.put(VSTOI + "Interactive", "Interactive");
-        wasGeneratedBy.put(VSTOI + "Manual", "Manual");
     }
 
     public static final String DEFAULT_CONTAINER_POSITION = TOP_CENTER;
