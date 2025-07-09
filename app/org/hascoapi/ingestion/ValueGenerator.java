@@ -35,7 +35,7 @@ public class ValueGenerator extends BaseGenerator {
 	public static final int MSGMODE = 1;
 
     private int mode;
-    private Stream str;
+    private Stream stream;
     private DataFile dataFile;
 
     private SemanticDataDictionary schema = null;
@@ -73,24 +73,24 @@ public class ValueGenerator extends BaseGenerator {
     //private List<DASVirtualObject> templateList = new ArrayList<DASVirtualObject>();
     private DASOInstanceGenerator dasoiGen = null;
 
-    public ValueGenerator(int mode, DataFile dataFile, Stream str, SemanticDataDictionary schema, DASOInstanceGenerator dasoiGen) {
+    public ValueGenerator(int mode, DataFile dataFile, Stream stream, SemanticDataDictionary schema, DASOInstanceGenerator dasoiGen) {
         super(dataFile);
         this.mode = mode;
         if (mode == MSGMODE) {
-        	this.logger = str.getMessageLogger();
-        	this.totalCount = str.getIngestedMessages();
+        	this.logger = stream.getMessageLogger();
+        	//this.totalCount = stream.getIngestedMessages();
         }
         if (mode == FILEMODE) {
             this.dataFile = dataFile;
         }
-        this.str = str;
+        this.stream = stream;
         this.schema = schema;
     	this.dasoiGen = dasoiGen;
 
     	boolean cont = true;
-        if (str.hasCellScope()) {
+        if (stream.hasCellScope()) {
         	//System.out.println("Measurement Generator: hasCellScope is TRUE");
-        	cellScopeObject = StudyObject.find(URIUtils.replacePrefixEx(str.getCellScopeUri().get(0).trim()));
+        	cellScopeObject = StudyObject.find(URIUtils.replacePrefixEx(stream.getCellScopeUri().get(0).trim()));
         	//System.out.println("StudyObject's URI: [" + URIUtils.replacePrefixEx(da.getCellScopeUri().get(0).trim()) + "]");
         	if (cellScopeObject == null) {
         		System.out.println("No scope object");
@@ -99,7 +99,7 @@ public class ValueGenerator extends BaseGenerator {
         	}
         } else {
         	//System.out.println("Measurement Generator: hasCellScope is FALSE");
-        	//if (!dasoiGen.initiateCache(str.getStudyUri())) {
+        	//if (!dasoiGen.initiateCache(stream.getStudyUri())) {
         	//	logger.printExceptionById("DA_00001");
         	//	cont = false;
         	//}
@@ -108,9 +108,9 @@ public class ValueGenerator extends BaseGenerator {
         if (cont) {
         	//System.out.println("Measurement Generator: setting STUDY URI");
     		// Store necessary information before hand to avoid frequent SPARQL queries
-    		setStudyUri(str.getStudyUri());
+    		setStudyUri(stream.getStudyUri());
     		urisByLabels = SemanticDataDictionary.findAllUrisByLabel(schema.getUri());
-    		//possibleValues = PossibleValue.findPossibleValues(str.getSchemaUri());
+    		//possibleValues = PossibleValue.findPossibleValues(stream.getSchemaUri());
     		//dasoUnitUri = urisByLabels.get(schema.getUnitLabel());
     		groupBySocAndId = new HashMap<String,SOCGroup>();
         }
@@ -127,7 +127,7 @@ public class ValueGenerator extends BaseGenerator {
         if (mode == FILEMODE) {
         	unknownHeaders = schema.defineTemporaryPositions(file.getHeaders());
         } else {
-        	unknownHeaders = schema.defineTemporaryPositions(str.getHeaders());
+        	//unknownHeaders = schema.defineTemporaryPositions(stream.getHeaders());
         }
 
         //System.out.println("DASA after defineTemporaryPositions]");
@@ -135,11 +135,11 @@ public class ValueGenerator extends BaseGenerator {
             //System.out.println("DASA URI: [" + dasa.getUri() + "]   Position: [" + dasa.getTempPositionInt() + "]");
     	}
 
-        if (!unknownHeaders.isEmpty()) {
-            logger.addLine(Feedback.println(Feedback.WEB,
-                    "[WARNING] Failed to match the following "
-                            + unknownHeaders.size() + " headers: " + unknownHeaders));
-        }
+        //if (!unknownHeaders.isEmpty()) {
+        //    logger.addLine(Feedback.println(Feedback.WEB,
+        //            "[WARNING] Failed to match the following "
+        //                    + unknownHeaders.size() + " headers: " + unknownHeaders));
+        //}
 
         // if (!schema.getTimestampLabel().equals("")) {
         //     posTimestamp = schema.tempPositionOfLabel(schema.getTimestampLabel());
@@ -211,20 +211,20 @@ public class ValueGenerator extends BaseGenerator {
         boolean doGroup = false;
         StudyObject cellObject = null;
         StudyObjectCollection cellSoc = null;
-        if (str.hasCellScope()) {
+        if (stream.hasCellScope()) {
         	if (selector == null) {
         		return null;
         	}
-        	cellObject = str.getTopicsMap().get(selector).getStudyObject();
-        	objUri = cellObject.getUri();
-        	if (objUri == null) {
-        		return null;
-        	}
-        	cellSoc = str.getTopicsMap().get(selector).getSOC();
-        	socUri = cellSoc.getUri();
-        	if (socUri == null) {
-        		return null;
-        	}
+        	//cellObject = stream.getTopicsMap().get(selector).getStudyObject();
+        	//objUri = cellObject.getUri();
+        	//if (objUri == null) {
+        	//	return null;
+        	//}
+        	//cellSoc = stream.getTopicsMap().get(selector).getSOC();
+        	//socUri = cellSoc.getUri();
+        	//if (socUri == null) {
+        	//	return null;
+        	//}
             //socUri = cellScopeSOC.getUri();
             //objUri = cellScopeObject.getUri();
         } else {
@@ -415,7 +415,7 @@ public class ValueGenerator extends BaseGenerator {
              *   SET STUDY                       *
              *                                   *
              *===================================*/
-            value.setStudyUri(str.getStudyUri());
+            value.setStudyUri(stream.getStudyUri());
 
             /*===================================*
              *                                   *
@@ -432,7 +432,7 @@ public class ValueGenerator extends BaseGenerator {
             // value.setEntityUri("");
 
             String reference = null;
-            if (str.hasCellScope()) {
+            if (stream.hasCellScope()) {
 
                 // Objects defined by Cell Scope
             	if (objUri != null && socUri != null) {
@@ -441,7 +441,7 @@ public class ValueGenerator extends BaseGenerator {
                     value.setObjectUri(objUri);
                     //value.setObjectCollectionType(cellSoc.getTypeUri());
                     // value.setRole(cellSoc.getRoleLabel());
-            	} else if (str.getCellScopeName().get(0).equals("*")) {
+            	} else if (stream.getCellScopeName().get(0).equals("*")) {
                     value.setStudyObjectUri(cellScopeObject.getUri());
                     value.setStudyObjectTypeUri(cellScopeObject.getTypeUri());
                     value.setObjectUri(cellScopeObject.getUri());
@@ -592,17 +592,17 @@ public class ValueGenerator extends BaseGenerator {
 
             if (mode == FILEMODE) {
             	value.setUri(URIUtils.replacePrefixEx(value.getStudyUri()) + "/" +
-            			URIUtils.replaceNameSpaceEx(str.getUri()).split(":")[1] + "/" +
+            			URIUtils.replaceNameSpaceEx(stream.getUri()).split(":")[1] + "/" +
             			dasa.getLabel() + "/" );//+
             			//dataFile.getFileName() + "-" + totalCount++);
             } else {
                 value.setUri(URIUtils.replacePrefixEx(value.getStudyUri()) + "/" +
-                        URIUtils.replaceNameSpaceEx(str.getUri()).split(":")[1] + "/" +
+                        URIUtils.replaceNameSpaceEx(stream.getUri()).split(":")[1] + "/" +
                         dasa.getLabel() + "/" +
-                        str.getLabel() + "-" + totalCount++);
+                        stream.getLabel() + "-" + totalCount++);
             }
-            // value.setOwnerUri(str.getOwnerUri());
-            // value.setAcquisitionUri(str.getUri());
+            // value.setOwnerUri(stream.getOwnerUri());
+            // value.setAcquisitionUri(stream.getUri());
 
             /*======================================*
              *                                      *
@@ -721,7 +721,7 @@ public class ValueGenerator extends BaseGenerator {
             // if (mode == FILEMODE) {
             // 	value.setDatasetUri(dataFile.getDatasetUri());
             // } else {
-            // 	value.setDatasetUri(str.getUri());
+            // 	value.setDatasetUri(stream.getUri());
             // }
 
             objects.add(value);
@@ -754,8 +754,8 @@ public class ValueGenerator extends BaseGenerator {
     //     // FINAL COMMIT
     //     commitToSolr(solr, count % batchSize);
 
-    //     str.addNumberDataPoints(totalCount);
-    //     str.saveToSolr();
+    //     stream.addNumberDataPoints(totalCount);
+    //     stream.saveToSolr();
 
     //     logger.addLine(Feedback.println(Feedback.WEB, String.format(
     //             "[OK] %d object(s) have been committed to solr", count)));

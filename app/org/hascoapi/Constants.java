@@ -81,7 +81,8 @@ public class Constants {
     public static final String PREFIX_PROCESS                    = "PC0";
     public static final String PREFIX_PROCESS_STEM               = "PST";
     public static final String PREFIX_PROJECT                    = "PJT";
-    public static final String PREFIX_REQUIRED_INSTRUMENTATION   = "RIN";
+    public static final String PREFIX_REQUIRED_COMPONENT         = "RCP";
+    public static final String PREFIX_REQUIRED_INSTRUMENT        = "RIN";
     public static final String PREFIX_RESPONSE_OPTION            = "ROP";
     public static final String PREFIX_SDD                        = "SDD";
     public static final String PREFIX_SDD_ATTRIBUTE              = "SDDATT";
@@ -94,6 +95,7 @@ public class Constants {
     public static final String PREFIX_STUDY_ROLE                 = "RLE";
     public static final String PREFIX_STR                        = "STR";
     public static final String PREFIX_STREAM                     = "STM";
+    public static final String PREFIX_STREAM_TOPIC               = "STP";
     public static final String PREFIX_SUBCONTAINER               = "SCT";
     public static final String PREFIX_VIRTUAL_COLUMN             = "VCO";
   

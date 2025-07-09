@@ -135,18 +135,29 @@ GET     /hascoapi/api/deploymentbyplatforminstance/total/:platforminstanceUri   
 
 GET     /hascoapi/api/dataacquisition/bystream/:uri/:pageSize/:offset               org.hascoapi.console.controllers.restapi.DAAPI.findDAsByStream(uri: String, pageSize : Integer, offset : Integer)
 GET     /hascoapi/api/dataacquisition/bystream/total/:uri                           org.hascoapi.console.controllers.restapi.DAAPI.findTotalDAsByStream(uri: String)
+GET     /hascoapi/api/dataacquisition/bytopic/:uri/:pageSize/:offset                org.hascoapi.console.controllers.restapi.DAAPI.findDAsByStreamTopic(uri: String, pageSize : Integer, offset : Integer)
+GET     /hascoapi/api/dataacquisition/bytopic/total/:uri                            org.hascoapi.console.controllers.restapi.DAAPI.findTotalDAsByStreamTopic(uri: String)
 GET     /hascoapi/api/dataacquisition/bystudy/:uri/:pageSize/:offset                org.hascoapi.console.controllers.restapi.DAAPI.findDAsByStudy(uri: String, pageSize : Integer, offset : Integer)
 GET     /hascoapi/api/dataacquisition/bystudy/total/:uri                            org.hascoapi.console.controllers.restapi.DAAPI.findTotalDAsByStudy(uri: String)
 
-GET     /hascoapi/api/stream/bydeployment/:state/:email/:deploymentUri/:pageSize/:offset         org.hascoapi.console.controllers.restapi.StreamAPI.findCanUpdateByDeploymentWithPages(state: String, email: String, deploymentUri: String, pageSize: Integer, offset: Integer)
-GET     /hascoapi/api/stream/bydeployment/total/:state/:email/:deploymentUri                     org.hascoapi.console.controllers.restapi.StreamAPI.findTotalCanUpdateByDeploymentWithPages(state: String, email: String, deploymentUri: String)
+GET     /hascoapi/api/stream/bystateemail/:state/:email/:pageSize/:offset           org.hascoapi.console.controllers.restapi.StreamAPI.findCanUpdateByStateEmailWithPages(state: String, email: String, pageSize: Integer, offset: Integer)
+GET     /hascoapi/api/stream/bystateemail/total/:state/:email                       org.hascoapi.console.controllers.restapi.StreamAPI.findTotalCanUpdateByStateEmailWithPages(state: String, email: String)
 GET     /hascoapi/api/stream/bystudy/:studyUri/:state/:pageSize/:offset             org.hascoapi.console.controllers.restapi.StreamAPI.findByStudyWithPages(studyUri: String, state: String, pageSize: Integer, offset: Integer)
 GET     /hascoapi/api/stream/bystudy/total/:studyUri/:state                         org.hascoapi.console.controllers.restapi.StreamAPI.findByStudyTotal(studyUri: String, state: String)
+
+GET     /hascoapi/api/topic/subscribed                                              org.hascoapi.console.controllers.restapi.StreamTopicAPI.findActive()
+GET     /hascoapi/api/topic/subscribe/:topicUri                                     org.hascoapi.console.controllers.restapi.StreamTopicAPI.subscribe(topicUri: String)
+GET     /hascoapi/api/topic/unsubscribe/:topicUri                                   org.hascoapi.console.controllers.restapi.StreamTopicAPI.unsubscribe(topicUri: String)
+GET     /hascoapi/api/topic/setstatus/:topicUri/:status                             org.hascoapi.console.controllers.restapi.StreamTopicAPI.setStatus(topicUri: String, status: String)
+GET     /hascoapi/api/topic/latest/:topicUri                                        org.hascoapi.console.controllers.restapi.StreamTopicAPI.getLatestValue(topicUri: String)
 
 GET     /hascoapi/api/platforminstance/byplatform/:platformUri/:pageSize/:offset    org.hascoapi.console.controllers.restapi.VSTOIInstanceAPI.findPlatformInstancesByPlatformWithPage(platformUri: String, pageSize: Integer, offset: Integer)
 GET     /hascoapi/api/platforminstance/byplatform/total/:platformUri                org.hascoapi.console.controllers.restapi.VSTOIInstanceAPI.findTotalPlatformInstancesByPlatform(platformUri: String)
 
-POST    /hascoapi/api/task/instrumentation                                          org.hascoapi.console.controllers.restapi.TaskAPI.setRequiredInstrumentation(request: play.mvc.Http.Request)
+GET     /hascoapi/api/process/deletewithtasks/:processUri                           org.hascoapi.console.controllers.restapi.ProcessAPI.deleteWithTasks(processUri: String)
+
+POST    /hascoapi/api/task/instruments                                              org.hascoapi.console.controllers.restapi.TaskAPI.setRequiredInstruments(request: play.mvc.Http.Request)
+POST    /hascoapi/api/task/components                                               org.hascoapi.console.controllers.restapi.TaskAPI.setRequiredComponents(request: play.mvc.Http.Request)
 
 POST    /hascoapi/api/project/member                                                org.hascoapi.console.controllers.restapi.ProjectAPI.setMembers(request: play.mvc.Http.Request)
 

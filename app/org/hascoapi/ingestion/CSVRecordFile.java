@@ -1,8 +1,10 @@
 package org.hascoapi.ingestion;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -92,4 +94,49 @@ public class CSVRecordFile implements RecordFile {
     public int getNumberOfRows() {
         return numberOfRows;
     }
+
+    public void appendRecord(Record record) throws IOException {
+        boolean fileExists = file.exists();
+        boolean writeHeaders = !fileExists || numberOfRows == 0;
+    
+        if (headers == null || headers.isEmpty()) {
+            System.err.println("[WARN] Headers are null or empty, cannot write headers or data correctly.");
+        } else {
+            System.out.println("[DEBUG] Headers: " + headers);
+        }
+    
+        try (FileWriter fw = new FileWriter(file, true);
+             BufferedWriter bw = new BufferedWriter(fw)) {
+    
+            if (writeHeaders && headers != null && !headers.isEmpty()) {
+                String headerLine = String.join(",", headers);
+                System.out.println("[DEBUG] Writing headers: " + headerLine);
+                bw.write(headerLine);
+                bw.newLine();
+            }
+    
+            List<String> values = new ArrayList<>();
+            for (String header : headers) {
+                String value = record.getValueByColumnName(header);
+                if (value == null) {
+                    System.out.println("[DEBUG] Value for header [" + header + "] is null, substituindo por string vazia.");
+                    value = "";
+                } else {
+                    System.out.println("[DEBUG] Value for header [" + header + "]: " + value);
+                }
+    
+                if (value.contains(",") || value.contains("\"")) {
+                    value = "\"" + value.replace("\"", "\"\"") + "\"";
+                }
+                values.add(value);
+            }
+            String line = String.join(",", values);
+            System.out.println("[DEBUG] Writing line: " + line);
+            bw.write(line);
+            bw.newLine();
+    
+            numberOfRows++;
+        }
+    }
+
 }

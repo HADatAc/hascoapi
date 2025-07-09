@@ -125,7 +125,7 @@ public class RepoPage extends Controller {
         }
         if (RepositoryInstance.getInstance().newNamespace(json)) {
             RepositoryInstance.getInstance().save();
-            NameSpaces.getInstance().resetNameSpaces();
+            //NameSpaces.getInstance().resetNameSpaces();
             return ok(ApiUtil.createResponse("New namespace has been added to the repository.", true));
         } else {
             return ok(ApiUtil.createResponse("Failed to add new namespace into the repository.", false));

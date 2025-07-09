@@ -157,6 +157,12 @@ public class Utils {
             case "actuator":
                 shortPrefix = Constants.PREFIX_ACTUATOR;
                 break;
+            case "stream":
+                shortPrefix = Constants.PREFIX_STREAM;
+                break;
+            case "streamtopic":
+                shortPrefix = Constants.PREFIX_STREAM_TOPIC;
+                break;
             default:
                 shortPrefix = null;
         }

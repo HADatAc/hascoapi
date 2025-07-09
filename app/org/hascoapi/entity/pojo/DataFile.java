@@ -86,6 +86,9 @@ public class DataFile extends HADatAcThing implements Cloneable {
     @PropertyField(uri = "hasco:hasStream")
     private String streamUri = "";
 
+    @PropertyField(uri = "hasco:hasStreamTopic")
+    private String streamTopicUri = "";
+
     @PropertyField(uri = "hasco:hasDataset")
     private String datasetUri = "";
 
@@ -348,6 +351,13 @@ public class DataFile extends HADatAcThing implements Cloneable {
         this.streamUri = streamUri;
     }
 
+    public String getStreamTopicUri() {
+        return streamTopicUri;
+    }
+    public void setStreamTopicUri(String streamTopicUri) {
+        this.streamTopicUri = streamTopicUri;
+    }
+
     public String getDatasetUri() {
         return datasetUri;
     }
@@ -470,7 +480,6 @@ public class DataFile extends HADatAcThing implements Cloneable {
         setCompletionTime("");
     }
 
-    /** 
     public static DataFile create(String id, String filename, String hasSIRManagerEmail, String status) {
         DataFile dataFile = new DataFile(id, filename);
         dataFile.setHasSIRManagerEmail(hasSIRManagerEmail);
@@ -486,7 +495,6 @@ public class DataFile extends HADatAcThing implements Cloneable {
 
         return dataFile;
     }
-    */
 
     public static DataFile find(String uri) {
         DataFile dataFile = null;
@@ -546,10 +554,12 @@ public class DataFile extends HADatAcThing implements Cloneable {
                 dataFile.setStudyUri(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_STREAM)) {
                 dataFile.setStreamUri(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_STREAM_TOPIC)) {
+                dataFile.setStreamTopicUri(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_DATASET)) {
                 dataFile.setDatasetUri(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_COMPLETION_PERCENTAGE)) {
-                dataFile.setCompletionPercentage(Integer. parseInt(str));
+                dataFile.setCompletionPercentage(Integer.parseInt(str));
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_SUBMISSION_TIME)) {
                 dataFile.setSubmissionTime(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_COMPLETION_TIME)) {
@@ -735,6 +745,18 @@ public class DataFile extends HADatAcThing implements Cloneable {
 
         return false;
     }
+
+    public static DataFile findMostRecentByStreamTopicUri(String topicUri) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+        "SELECT ?uri WHERE { " +
+        "  ?uri a ?type . " +
+        "  ?type rdfs:subClassOf* hasco:DataFile . " +
+        "  ?uri hasco:hasStreamTopic <" + topicUri + "> . " +
+        "} ORDER BY DESC(STR(?uri)) LIMIT 1";
+
+        return findOneByQuery(queryString);
+    }
+    
 
 
 }

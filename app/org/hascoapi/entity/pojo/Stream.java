@@ -57,10 +57,6 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
      */
     @PropertyField(uri="hasco:hasStudy")
     private String studyUri;
-    @PropertyField(uri="hasco:hasSDD")
-    private String semanticDataDictionaryUri;
-    @PropertyField(uri="hasco:hasDeployment")
-    private String deploymentUri;
     @PropertyField(uri="hasco:hasMethod")
     private String method;   // Possible values: 'message' or 'file'
     @PropertyField(uri="vstoi:designedAtTime")
@@ -77,37 +73,38 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
     private String parameter;
     @PropertyField(uri="hasco:hasTriggeringEvent")
     private int triggeringEvent;
-    @PropertyField(uri="hasco:hasNumberDataPoints")
-    private long numberDataPoints;
 
     /*
      *   FILE-SUPPORTING PROPERTIES
      */
     @PropertyField(uri="hasco:hasDatasetPattern")
     private String datasetPattern;
+    @PropertyField(uri="hasco:hasSDD")
+    private String semanticDataDictionaryUri;
+    @PropertyField(uri="hasco:hasDeployment")
+    private String deploymentUri;
     @PropertyField(uri="hasco:hasDatasetURIs")
     private List<String> datasetURIs;
     @PropertyField(uri="hasco:hasCellScopeUri")
     private List<String> cellScopeUri;
     @PropertyField(uri="hasco:hasCellScopeName")
     private List<String> cellScopeName;
-
+    @PropertyField(uri="hasco:hasNumberDataPoints")
+    private long numberDataPoints;
+    @PropertyField(uri = "hasco:canView")
+    private List<String> canView;
+    @PropertyField(uri = "hasco:canUpdate")
+    private List<String> canUpdate;
 
     /*
      *   MESSAGE-SUPPORTING PROPERTIES
      */
-    @PropertyField(uri="hasco:hasTotalMessages")
-    private long totalMessages;
-    @PropertyField(uri="hasco:hasIngestedMessages")
-    private long ingestedMessages;
     @PropertyField(uri="hasco:hasMessageProtocol")
     private String messageProtocol;
     @PropertyField(uri="hasco:hasMessageIP")
     private String messageIP;
     @PropertyField(uri="hasco:hasMessagePort")
     private String messagePort;
-    @PropertyField(uri="hasco:hasMessageHeader")
-    private String messageHeaders;
     @PropertyField(uri="hasco:hasMessageArchiveID")
     private String messageArchiveId;
 
@@ -128,40 +125,15 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
     @PropertyField(uri="hasco:hasStreamStatus")
     private String hasStreamStatus;
 
-    /*
-     * A Message stream has a hasMessageStatus is to be used for MESSAGE STREAMS. 
-     * Possible values for message status:
-     *    INACTIVE: The message stream is either DRAFT or CLOSED.
-     *    RECORDING:  The message stream is active and its content is being recorded into a datafile.
-     *    INGESTING:  The message stream is active, its content is being recorded into a datafile, and, at the same time, the content is 
-     *       being ingested into a knowledge graph.  
-     *    SUSPENDED: The message stream is active but no content is being recorded or ingested.
-     * 
-     * The hasMessageStatus is a property of the stream itself, and it is not a property of a datafile 
-     * the stream may be recording. This means that if the stream's content is being saved into a datafile now to be ingested later, 
-     * the stream will not be in INGESTION mode when the recorded datafile is ingested later.
-     * 
-     */
-    @PropertyField(uri="hasco:hasMessageStatus")
-    private String hasMessageStatus;
-
-    @PropertyField(uri = "hasco:canView")
-    private List<String> canView;
-
-    @PropertyField(uri = "hasco:canUpdate")
-    private List<String> canUpdate;
-
 	@PropertyField(uri="vstoi:hasSIRManagerEmail")
 	private String hasSIRManagerEmail;
 
     private String localName;
-    private Map<String,MessageTopic> topicsMap;
     private List<String> headers;
 
     private DataFile archive = null;
     private String log;
     private IngestionLogger logger = null;
-
 
     public static final String MQTT = "mqtt";
     public static final String HTTP = "http";
@@ -171,18 +143,11 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
         endedAt = null;
         numberDataPoints = 0;
         datasetURIs = new ArrayList<String>();
-        totalMessages = 0;
-        ingestedMessages = 0;
         messageProtocol = null;
         messageIP = null;
         messagePort = null;
-        topicsMap = null;
-        headers = new ArrayList<String>();
         cellScopeUri = new ArrayList<String>();
         cellScopeName = new ArrayList<String>();
-        canView = new ArrayList<String>();
-        canUpdate = new ArrayList<String>();
-        headers = new ArrayList<String>();
     }
 
     @Override
@@ -225,7 +190,7 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
         return studyUri;
     }
     public Study getStudy() {
-        if (studyUri == null || studyUri.equals(""))
+        if (studyUri == null || studyUri.trim().equals(""))
             return null;
         return Study.find(studyUri);
     }
@@ -241,15 +206,7 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
         if (this.semanticDataDictionaryUri == null || this.semanticDataDictionaryUri.equals("")) {
             return null;
         }
-        SemanticDataDictionary semanticDataDictionary = SemanticDataDictionary.find(semanticDataDictionaryUri);
-        headers = new ArrayList<String>();
-        if (semanticDataDictionary != null && semanticDataDictionary.getAttributes() != null) {
-            for (SDDAttribute attr : semanticDataDictionary.getAttributes()) {
-                headers.add(attr.getLabel());
-            }
-        }
-        setHeaders(headers.toString());
-        return semanticDataDictionary;
+        return SemanticDataDictionary.find(semanticDataDictionaryUri);
     }
     public void setSemanticDataDictionaryUri(String semanticDataDictionaryUri) {
         this.semanticDataDictionaryUri = semanticDataDictionaryUri;
@@ -408,20 +365,6 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
         this.numberDataPoints = numberDataPoints;
     }
 
-    public long getTotalMessages() {
-        return totalMessages;
-    }
-    public void setTotalMessages(long totalMessages) {
-        this.totalMessages = totalMessages;
-    }
-
-    public long getIngestedMessages() {
-        return totalMessages;
-    }
-    public void setIngestedMessages(long totalMessages) {
-        this.totalMessages = totalMessages;
-    }
-
     public String getMessageProtocol() {
         return messageProtocol;
     }
@@ -450,6 +393,14 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
         this.messageArchiveId = messageArchiveId;
     }
 
+    public List<StreamTopic> getTopics() {
+        //return new ArrayList<StreamTopic>();
+        if (this.getUri() == null) {
+            return new ArrayList<StreamTopic>();
+        }
+        return StreamTopic.findByStream(this.getUri());
+    }
+
     public String getMessageName() {
         if (label == null && label.isEmpty()) {
             return "";
@@ -466,14 +417,6 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
 
     public void setHasStreamStatus(String hasStreamStatus) {
         this.hasStreamStatus = hasStreamStatus;
-    }
-
-    public String getHasMessageStatus() {
-        return hasMessageStatus;
-    }
-
-    public void setHasMessageStatus(String hasMessageStatus) {
-        this.hasMessageStatus = hasMessageStatus;
     }
 
     public String getParameter() {
@@ -499,61 +442,6 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
     }
     public void setMessageLogger(IngestionLogger logger) {
         this.logger = logger;
-    }
-
-    private void loadTopicsMap() {
-        List<MessageTopic> topics = MessageTopic.findByStream(uri);
-        if (topics != null) {
-            topicsMap = new HashMap<String, MessageTopic>();
-            for (MessageTopic topic : topics) {
-                topic.cacheTopic();
-                topicsMap.put(topic.getLabel(), topic);
-            }
-        }
-    }
-
-    public Map<String,MessageTopic> getTopicsMap() {
-        if (topicsMap != null) {
-            return topicsMap;
-        }
-        loadTopicsMap();
-        return topicsMap;
-    };
-
-    public List<MessageTopic> getTopicsList() {
-        if (topicsMap != null) {
-            return new ArrayList<MessageTopic>(topicsMap.values());
-        }
-        loadTopicsMap();
-        if (topicsMap != null) {
-            return new ArrayList<MessageTopic>(topicsMap.values());
-        }
-        return new ArrayList<MessageTopic>();
-    }
-
-    public void resetTopicsMap() {
-        topicsMap = null;
-    }
-
-    public List<String> getHeaders() {
-        if (headers != null) {
-            return headers;
-        }
-        List<String> headers = new ArrayList<String>();
-        if (messageHeaders == null || messageHeaders.isEmpty()) {
-            return headers;
-        }
-        String auxstr = messageHeaders.replace("[","").replace("]","");
-        StringTokenizer str = new StringTokenizer(auxstr,",");
-        while (str.hasMoreTokens()) {
-            headers.add(str.nextToken().trim());
-        }
-        return headers;
-    }
-
-    private void setHeaders(String headersStr) {
-        this.messageHeaders = headersStr;
-        getHeaders();
     }
 
     public String getDatasetPattern() {
@@ -700,7 +588,7 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
     }
 
     public static Stream find(String uri) {
-        System.out.println("inside Stream.find(uri): " + uri);
+        //System.out.println("inside Stream.find(uri): " + uri);
 		Stream str;
 		String hascoTypeUri = Utils.retrieveHASCOTypeUri(uri);
 		if (hascoTypeUri.equals(HASCO.STREAM)) {
@@ -748,8 +636,6 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
 					str.setComment(string);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_STREAM_STATUS)) {
 					str.setHasStreamStatus(string);
-				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_MESSAGE_STATUS)) {
-					str.setHasMessageStatus(string);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_PERMISSION_URI)) {
 					str.setPermissionUri(string);
 				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
@@ -770,6 +656,8 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
                     str.setMessagePort(string);
                 } else if (statement.getPredicate().getURI().equals(HASCO.HAS_MESSAGE_PROTOCOL)) {
                     str.setMessageProtocol(string);
+                } else if (statement.getPredicate().getURI().equals(HASCO.HAS_NUMBER_DATA_POINTS)) {
+                    str.setNumberDataPoints(Long.valueOf(string));
                 } else if (statement.getPredicate().getURI().equals(HASCO.CAN_UPDATE)) {
                     str.addCanUpdate(string);
                 } else if (statement.getPredicate().getURI().equals(HASCO.CAN_VIEW)) {
@@ -876,13 +764,12 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
         return findManyByQuery(queryString);
     }
 
-    public static List<Stream> findCanUpdateByDeploymentWithPages(String state, String userEmail, String deploymentUri, int pageSize, int offset) {
+    public static List<Stream> findCanUpdateByStateEmailWithPages(String state, String userEmail, int pageSize, int offset) {
         String queryString = "";
         if (state.equals(HASCO.DRAFT)) {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
             		"SELECT ?uri WHERE { " +
                     "   ?uri a hasco:Stream . " +
-                    "   ?uri hasco:hasDeployment <" + deploymentUri + "> . " +
                     "   ?uri hasco:canUpdate ?userEmail . " +
                     //"   ?uri vstoi:designedAtTime ?datetime . " +
                     "   FILTER (?userEmail = \"" + userEmail + "\") " +
@@ -896,7 +783,6 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                     "SELECT ?uri WHERE { " +
                     "   ?uri a hasco:Stream . " +
-                    "   ?uri hasco:hasDeployment <" + deploymentUri + "> . " +
                     "   ?uri hasco:canUpdate ?userEmail . " +
                     "   ?uri prov:startedAtTime ?startedattime . " +
                     "   FILTER (?userEmail = \"" + userEmail + "\") " +
@@ -909,7 +795,6 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                     "SELECT ?uri WHERE { " +
                     "   ?uri a hasco:Stream . " +
-                    "   ?uri hasco:hasDeployment <" + deploymentUri + "> . " +
                     "   ?uri hasco:canUpdate ?userEmail . " +
                     "   ?uri prov:startedAtTime ?startedattime .  " +
                     "   ?uri prov:endedAtTime ?enddatetime .  " +
@@ -922,7 +807,6 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                     "SELECT ?uri WHERE { " +
                     "   ?uri a hasco:Stream . " +
-                    "   ?uri hasco:hasDeployment <" + deploymentUri + "> . " +
                     "   ?uri hasco:canUpdate ?userEmail . " +
                     "   FILTER (?userEmail = \"" + userEmail + "\") " +
                     "} " +
@@ -936,13 +820,12 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
         return findManyByQuery(queryString);
     }
 
-    public static int findTotalCanUpdateByDeploymentWithPages(String state, String userEmail, String deploymentUri) {
+    public static int findTotalCanUpdateByStateEmailWithPages(String state, String userEmail) {
         String queryString = "";
         if (state.equals(HASCO.DRAFT)) {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 "SELECT (count(?uri) as ?tot) WHERE { " +
                 "   ?uri a hasco:Stream . " +
-                "   ?uri hasco:hasDeployment <" + deploymentUri + "> . " +
                 "   ?uri hasco:canUpdate ?userEmail . " +
                 "   FILTER (?userEmail = \"" + userEmail + "\") " +
                 "   FILTER NOT EXISTS { ?uri prov:startedAtTime ?startdatetime . } " +
@@ -952,7 +835,6 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 "SELECT (count(?uri) as ?tot) WHERE { " +
                 "   ?uri a hasco:Stream . " +
-                "   ?uri hasco:hasDeployment <" + deploymentUri + "> . " +
                 "   ?uri hasco:canUpdate ?userEmail . " +
                 "   ?uri prov:startedAtTime ?startdatetime . " +
                 "   FILTER (?userEmail = \"" + userEmail + "\") " +
@@ -962,7 +844,6 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 "SELECT (count(?uri) as ?tot) WHERE { " +
                 "   ?uri a hasco:Stream . " +
-                "   ?uri hasco:hasDeployment <" + deploymentUri + "> . " +
                 "   ?uri hasco:canUpdate ?userEmail . " +
                 "   ?uri prov:startedAtTime ?startdatetime .  " +
                 "   ?uri prov:endedAtTime ?enddatetime .  " +
@@ -972,7 +853,6 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 "SELECT (count(?uri) as ?tot) WHERE { " +
                 "   ?uri a hasco:Stream . " +
-                "   ?uri hasco:hasDeployment <" + deploymentUri + "> . " +
                 "   ?uri hasco:canUpdate ?userEmail . " +
                 "   FILTER (?userEmail = \"" + userEmail + "\") " +
                 "} ";

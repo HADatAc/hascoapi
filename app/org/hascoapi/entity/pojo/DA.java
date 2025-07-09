@@ -19,6 +19,7 @@ import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.hascoapi.annotations.PropertyField;
 import org.hascoapi.utils.CollectionUtil;
+import org.hascoapi.utils.IngestionLogger;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.SPARQLUtils;
 import org.hascoapi.utils.URIUtils;
@@ -41,6 +42,12 @@ public class DA extends MetadataTemplate implements Comparable<DA>  {
     @PropertyField(uri = "hasco:isMemberOf")
     private String isMemberOfUri;
     
+    @PropertyField(uri="hasco:hasNumberDataPoints")
+    private String numberDataPoints;
+
+    @PropertyField(uri="hasco:hasTotalRecordedMessages")
+    private String totalRecordedMessages;
+
     public String getHasDDUri() {
         return hasDDUri;
     }
@@ -80,6 +87,24 @@ public class DA extends MetadataTemplate implements Comparable<DA>  {
         return Study.find(isMemberOfUri);
     }	
 
+    public String getHasNumberDataPoints() {
+        return numberDataPoints;
+    }
+    public void setHasNumberDataPoints(String numberDataPoints) {
+        this.numberDataPoints = numberDataPoints;
+    }
+
+    public String getHasTotalRecordedMessages() {
+        return totalRecordedMessages;
+    }
+    public void setHasTotalRecordedMessages(String totalRecordedMessages) {
+        this.totalRecordedMessages = totalRecordedMessages;
+    }
+
+    public DA() {
+        totalRecordedMessages = "0";
+    }
+
     public static List<DA> findByStudy(Study study, int pageSize, int offset) {
         if (study == null) {
             return new ArrayList<DA>();
@@ -117,9 +142,8 @@ public class DA extends MetadataTemplate implements Comparable<DA>  {
                 " SELECT ?uri " +
                 " WHERE {  ?uri hasco:hascoType <" + HASCO.DATA_ACQUISITION + "> . " +
 				"          ?uri hasco:hasDataFile ?datafile . " +
-                //"          ?datafile hasco:hasStream <" + stream.getUri() + "> .  " +
+                "          ?datafile hasco:hasStream <" + stream.getUri() + "> .  " +
                 " } " +
-                //" ORDER BY ASC(?label) " +
                 " LIMIT " + pageSize +
                 " OFFSET " + offset;
         return DA.findManyByQuery(query);
@@ -134,6 +158,35 @@ public class DA extends MetadataTemplate implements Comparable<DA>  {
                 " WHERE {  ?uri hasco:hascoType <" + HASCO.DATA_ACQUISITION + "> . " +
 				"          ?uri hasco:hasDataFile ?datafile . " +
                 "          ?datafile hasco:hasStream <" + stream.getUri() + "> .  " +
+                " }";
+        return GenericFind.findTotalByQuery(query);
+    }        
+    
+    public static List<DA> findByStreamTopic(StreamTopic streamTopic, int pageSize, int offset) {
+        if (streamTopic == null) {
+            return new ArrayList<DA>();
+        }
+        String query = NameSpaces.getInstance().printSparqlNameSpaceList() + 
+                " SELECT ?uri " +
+                " WHERE {  ?uri hasco:hascoType <" + HASCO.DATA_ACQUISITION + "> . " +
+				"          ?uri hasco:hasDataFile ?datafile . " +
+                "          ?datafile hasco:hasStreamTopic <" + streamTopic.getUri() + "> .  " +
+                " } " +
+                //" ORDER BY ASC(?label) " +
+                " LIMIT " + pageSize +
+                " OFFSET " + offset;
+        return DA.findManyByQuery(query);
+    }        
+    
+    public static int findTotalByStreamTopic(StreamTopic streamTopic) {
+        if (streamTopic == null) {
+            return 0;
+        }
+        String query = NameSpaces.getInstance().printSparqlNameSpaceList() + 
+                " SELECT (count(?uri) as ?tot)  " +
+                " WHERE {  ?uri hasco:hascoType <" + HASCO.DATA_ACQUISITION + "> . " +
+				"          ?uri hasco:hasDataFile ?datafile . " +
+                "          ?datafile hasco:hasStreamTopic <" + streamTopic.getUri() + "> .  " +
                 " }";
         return GenericFind.findTotalByQuery(query);
     }        
@@ -213,6 +266,10 @@ public class DA extends MetadataTemplate implements Comparable<DA>  {
                     da.setHasSDDUri(str);
                 } else if (statement.getPredicate().getURI().equals(HASCO.IS_MEMBER_OF)) {
                     da.setIsMemberOfUri(str);
+                } else if (statement.getPredicate().getURI().equals(HASCO.HAS_NUMBER_DATA_POINTS)) {
+                    da.setHasNumberDataPoints(str);
+                } else if (statement.getPredicate().getURI().equals(HASCO.HAS_TOTAL_RECORDED_MESSAGES)) {
+                    da.setHasTotalRecordedMessages(str);
                 } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
                     da.setComment(str);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
@@ -233,5 +290,31 @@ public class DA extends MetadataTemplate implements Comparable<DA>  {
         }
         return this.getUri().compareTo(another.getUri());
     }
+
+    private static DA findOneByQuery(String queryString) {
+        ResultSetRewindable resultsrw = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+        if (!resultsrw.hasNext()) {
+            return null;
+        }
+        if (resultsrw.hasNext()) {
+            QuerySolution soln = resultsrw.next();
+            return find(soln.getResource("uri").getURI());
+        }
+        return null;
+    }
+
+    public static DA findByDataFileUri(String dataFileUri) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+        "SELECT ?uri WHERE { " +
+        "  ?uri a ?type . " +
+        "  ?type rdfs:subClassOf* hasco:DataAcquisition . " +
+        "  ?uri hasco:hasDataFile <" + dataFileUri + "> . " +
+        "} LIMIT 1";
+    
+        return findOneByQuery(queryString);
+    }
+    
+    
 
 }

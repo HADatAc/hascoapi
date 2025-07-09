@@ -9,6 +9,7 @@ import javax.inject.Singleton;
 
 import org.hascoapi.Constants;
 import org.hascoapi.RepositoryInstance;
+import org.hascoapi.entity.pojo.StreamTopic;
 import org.hascoapi.utils.NameSpaces;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,7 @@ public class OnStart {
         initDirectoryStructure();
         RepositoryInstance.getInstance();
         NameSpaces.getInstance().updateLocalNamespace();
+		StreamTopic.initiateStreamTopics();
     }
 
     private void initDirectoryStructure() {

@@ -103,6 +103,10 @@ public class GenericFind<T> {
             return ProcessStem.class;
         } else if (elementType.equals("project")) {
             return Project.class;
+        } else if (elementType.equals("requiredcomponent")) {
+            return RequiredComponent.class;
+        } else if (elementType.equals("requiredinstrument")) {
+            return RequiredInstrument.class;
         } else if (elementType.equals("responseoption")) {
             return ResponseOption.class;
         } else if (elementType.equals("sdd")) {
@@ -121,6 +125,8 @@ public class GenericFind<T> {
             return STR.class;
         } else if (elementType.equals("stream")) {
             return Stream.class;
+        } else if (elementType.equals("streamtopic")) {
+            return StreamTopic.class;
         } else if (elementType.equals("study")) {
             return Study.class;
         } else if (elementType.equals("studyobjectcollection")) {
@@ -1076,115 +1082,120 @@ public class GenericFind<T> {
     private static <T> T findElement(Class clazz, String uri) {
 
         // List of subclasses 
-        if (clazz == InstrumentType.class) {
-            return (T)InstrumentType.find(uri);
-        } else if (clazz == DetectorStemType.class) {
-            return (T)DetectorStemType.find(uri);
-        } else if (clazz == Entity.class) {
-            return (T)Entity.find(uri);
-        } else if (clazz == Attribute.class) {
-            return (T)Attribute.find(uri);
-        } else if (clazz == Unit.class) {
-            return (T)Unit.find(uri);
-        } else if (clazz == StudyObjectCollectionType.class) {
-            return (T)StudyObjectCollectionType.find(uri);
-        } else if (clazz == StudyObjectType.class) {
-            return (T)StudyObjectType.find(uri);
-        } else if (clazz == Instrument.class) {
-            return (T)Instrument.find(uri);
-        } else if (clazz == Subcontainer.class) {
-            return (T)Subcontainer.find(uri);
+        if (clazz == ActuatorStem.class) {
+            return (T)ActuatorStem.find(uri);
+        } else if (clazz == AnnotationStem.class) {
+            return (T)AnnotationStem.find(uri);
         } else if (clazz == DetectorStem.class) {
             return (T)DetectorStem.find(uri);
+        } else if (clazz == Attribute.class) {
+            return (T)Attribute.find(uri);
+//        } else if (clazz == DetectorStemType.class) {
+//            return (T)DetectorStemType.find(uri);
+        } else if (clazz == Entity.class) {
+            return (T)Entity.find(uri);
+        } else if (clazz == Instrument.class) {
+            return (T)Instrument.find(uri);
+//        } else if (clazz == InstrumentType.class) {
+//            return (T)InstrumentType.find(uri);
         } else if (clazz == Platform.class) {
             return (T)Platform.find(uri);
         } else if (clazz == ProcessStem.class) {
             return (T)ProcessStem.find(uri);
+        } else if (clazz == StudyObjectCollectionType.class) {
+            return (T)StudyObjectCollectionType.find(uri);
+        } else if (clazz == StudyObjectType.class) {
+            return (T)StudyObjectType.find(uri);
+        } else if (clazz == Subcontainer.class) {
+            return (T)Subcontainer.find(uri);
+        } else if (clazz == Unit.class) {
+            return (T)Unit.find(uri);
 
         // List of instances
-        } else if (clazz == InstrumentInstance.class) {
-            return (T)InstrumentInstance.find(uri);
-        } else if (clazz == Detector.class) {
-            return (T)Detector.find(uri);
-        } else if (clazz == DetectorInstance.class) {
-            return (T)DetectorInstance.find(uri);
-        } else if (clazz == PlatformInstance.class) {
-            return (T)PlatformInstance.find(uri);
-        } else if (clazz == ContainerSlot.class) {
-            return (T)ContainerSlot.find(uri);
+        } else if (clazz == Actuator.class) {
+            return (T)Actuator.find(uri);
+        } else if (clazz == Annotation.class) {
+            return (T)Annotation.find(uri);
         } else if (clazz == Codebook.class) {
             return (T)Codebook.find(uri);
         } else if (clazz == CodebookSlot.class) {
             return (T)CodebookSlot.find(uri);
-        } else if (clazz == ResponseOption.class) {
-            return (T)ResponseOption.find(uri);
-        } else if (clazz == AnnotationStem.class) {
-            return (T)AnnotationStem.find(uri);
-        } else if (clazz == Annotation.class) {
-            return (T)Annotation.find(uri);
-        } else if (clazz == SemanticVariable.class) {
-            return (T)SemanticVariable.find(uri);
-        } else if (clazz == INS.class) {
-            return (T)INS.find(uri);
+        } else if (clazz == ContainerSlot.class) {
+            return (T)ContainerSlot.find(uri);
         } else if (clazz == DA.class) {
             return (T)DA.find(uri);
         } else if (clazz == DD.class) {
             return (T)DD.find(uri);
+        } else if (clazz == DP2.class) {
+            return (T)DP2.find(uri);
+        } else if (clazz == DSG.class) {
+            return (T)DSG.find(uri);
+        } else if (clazz == DataFile.class) {
+            return (T)DataFile.find(uri);
+        } else if (clazz == Deployment.class) {
+            return (T)Deployment.find(uri);
+        } else if (clazz == Detector.class) {
+            return (T)Detector.find(uri);
+        } else if (clazz == DetectorInstance.class) {
+            return (T)DetectorInstance.find(uri);
+        } else if (clazz == FundingScheme.class) {
+            return (T)FundingScheme.find(uri);
+        } else if (clazz == INS.class) {
+            return (T)INS.find(uri);
+        } else if (clazz == InstrumentInstance.class) {
+            return (T)InstrumentInstance.find(uri);
+        } else if (clazz == KGR.class) {
+            return (T)KGR.find(uri);
+        } else if (clazz == Organization.class) {
+            return (T)Organization.find(uri);
+        } else if (clazz == Person.class) {
+            return (T)Person.find(uri);
+        } else if (clazz == Place.class) {
+            return (T)Place.find(uri);
+        } else if (clazz == PlatformInstance.class) {
+            return (T)PlatformInstance.find(uri);
+        } else if (clazz == PossibleValue.class) {
+            return (T)PossibleValue.find(uri);
+        } else if (clazz == PostalAddress.class) {
+            return (T)PostalAddress.find(uri);
+        } else if (clazz == Process.class) {
+            return (T)Process.find(uri);
+        } else if (clazz == Project.class) {
+            return (T)Project.find(uri);
+        } else if (clazz == RequiredComponent.class) {
+            return (T)RequiredComponent.find(uri);
+        } else if (clazz == RequiredInstrument.class) {
+            return (T)RequiredInstrument.find(uri);
+        } else if (clazz == ResponseOption.class) {
+            return (T)ResponseOption.find(uri);
         } else if (clazz == SDD.class) {
             return (T)SDD.find(uri);
         } else if (clazz == SDDAttribute.class) {
             return (T)SDDAttribute.find(uri);
         } else if (clazz == SDDObject.class) {
             return (T)SDDObject.find(uri);
-        } else if (clazz == PossibleValue.class) {
-            return (T)PossibleValue.find(uri);
-        } else if (clazz == SemanticDataDictionary.class) {
-            return (T)SemanticDataDictionary.find(uri);
-        } else if (clazz == DP2.class) {
-            return (T)DP2.find(uri);
         } else if (clazz == STR.class) {
             return (T)STR.find(uri);
-        } else if (clazz == DataFile.class) {
-            return (T)DataFile.find(uri);
-        } else if (clazz == DSG.class) {
-            return (T)DSG.find(uri);
-        } else if (clazz == Study.class) {
-            return (T)Study.find(uri);
-        } else if (clazz == StudyObjectCollection.class) {
-            return (T)StudyObjectCollection.find(uri);
-        } else if (clazz == StudyObject.class) {
-            return (T)StudyObject.find(uri);
-        } else if (clazz == StudyRole.class) {
-            return (T)StudyRole.find(uri);
-        } else if (clazz == VirtualColumn.class) {
-            return (T)VirtualColumn.find(uri);
+        } else if (clazz == SemanticDataDictionary.class) {
+            return (T)SemanticDataDictionary.find(uri);
+        } else if (clazz == SemanticVariable.class) {
+            return (T)SemanticVariable.find(uri);
         } else if (clazz == Stream.class) {
             return (T)Stream.find(uri);
-        } else if (clazz == Deployment.class) {
-            return (T)Deployment.find(uri);
-        } else if (clazz == Person.class) {
-            return (T)Person.find(uri);
-        } else if (clazz == Organization.class) {
-            return (T)Organization.find(uri);
-        } else if (clazz == Place.class) {
-            return (T)Place.find(uri);
-        } else if (clazz == PostalAddress.class) {
-            return (T)PostalAddress.find(uri);
-        } else if (clazz == Process.class) {
-            return (T)Process.find(uri);
-        } else if (clazz == KGR.class) {
-            return (T)KGR.find(uri);
-        } else if (clazz == FundingScheme.class) {
-            return (T)FundingScheme.find(uri);
-        } else if (clazz == Project.class) {
-            return (T)Project.find(uri);
-        } else if (clazz == Actuator.class) {
-            return (T)Actuator.find(uri);
-        } else if (clazz == ActuatorStem.class) {
-            return (T)ActuatorStem.find(uri);
+        } else if (clazz == Study.class) {
+            return (T)Study.find(uri);
+        } else if (clazz == StudyObject.class) {
+            return (T)StudyObject.find(uri);
+        } else if (clazz == StudyObjectCollection.class) {
+            return (T)StudyObjectCollection.find(uri);
+        } else if (clazz == StudyRole.class) {
+            return (T)StudyRole.find(uri);
         } else if (clazz == Task.class) {
             return (T)Task.find(uri);
+        } else if (clazz == VirtualColumn.class) {
+            return (T)VirtualColumn.find(uri);
         }
+
         return null;
     
     }
