@@ -67,6 +67,9 @@ public abstract class Container extends HADatAcClass implements SIRElement, Comp
     @PropertyField(uri="prov:wasDerivedFrom")
     private String wasDerivedFrom;
 
+	@PropertyField(uri="vstoi:hasMaker")
+	private String hasMakerUri;
+
     @PropertyField(uri = "vstoi:hasSIRManagerEmail")
     private String hasSIRManagerEmail;
 
@@ -167,6 +170,21 @@ public abstract class Container extends HADatAcClass implements SIRElement, Comp
 
     public String getWasDerivedFrom() {
         return wasDerivedFrom;
+    }
+
+    public String getHasMakerUri() {
+        return hasMakerUri;
+    }
+
+    public Organization getHasMaker() {
+        if (hasMakerUri == null || hasMakerUri.isEmpty()) {
+			return null;
+		}
+		return Organization.find(hasMakerUri);
+    }
+
+    public void setHasMakerUri(String hasMakerUri) {
+        this.hasMakerUri = hasMakerUri;
     }
 
     public String getHasSIRManagerEmail() {
@@ -407,6 +425,8 @@ public abstract class Container extends HADatAcClass implements SIRElement, Comp
 					container.setHasReviewNote(object);
                 } else if (predicate.equals(PROV.WAS_DERIVED_FROM)) {
                     container.setWasDerivedFrom(object);
+				} else if (predicate.equals(VSTOI.HAS_MAKER)) {
+					container.setHasMakerUri(object);
 				} else if (predicate.equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
 					container.setHasSIRManagerEmail(object);
 				} else if (predicate.equals(VSTOI.HAS_EDITOR_EMAIL)) {

@@ -71,7 +71,18 @@ public class RepoPage extends Controller {
         return ok(ApiUtil.createResponse("Repository's (description) has been UPDATED.", true));
     }
 
-    public Result updateDefaultNamespace(String prefix, String url, String sourceMime, String source){
+    public Result updateDefaultNamespace(String prefix, String url, String sourceMime, String source) {
+        if (sourceMime.equals("_")) { 
+            sourceMime = "";
+        }
+        if (source.equals("_")) { 
+            source = "";
+        }
+        //System.out.println("updateDefaultNamespace:");
+        //System.out.println("    - Namespace prefix: [" + prefix + "]");
+        //System.out.println("    - Namespace url: [" + url + "]");
+        //System.out.println("    - Namespace mime: [" + sourceMime + "]");
+        //System.out.println("    - Namespace source: [" + source + "]");
         if (prefix == null || prefix.equals("")) {
             return ok(ApiUtil.createResponse("No (prefix) has been provided.", false));
         }
@@ -114,7 +125,7 @@ public class RepoPage extends Controller {
         }
         if (RepositoryInstance.getInstance().newNamespace(json)) {
             RepositoryInstance.getInstance().save();
-            NameSpaces.getInstance().resetNameSpaces();
+            //NameSpaces.getInstance().resetNameSpaces();
             return ok(ApiUtil.createResponse("New namespace has been added to the repository.", true));
         } else {
             return ok(ApiUtil.createResponse("Failed to add new namespace into the repository.", false));

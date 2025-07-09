@@ -32,9 +32,6 @@ public class Component extends HADatAcThing implements SIRElement  {
     @PropertyField(uri = "vstoi:hasStatus")    
     private String hasStatus;
 
-    @PropertyField(uri = "vstoi:hasSerialNumber")
-    String serialNumber;
-
     @PropertyField(uri = "vstoi:hasContent")
     String hasContent;
 
@@ -52,6 +49,9 @@ public class Component extends HADatAcThing implements SIRElement  {
 
     @PropertyField(uri="prov:wasGeneratedBy")
     private String wasGeneratedBy;
+
+    @PropertyField(uri = "vstoi:hasMaker")
+    private String hasMakerUri;
 
     @PropertyField(uri = "vstoi:hasSIRManagerEmail")
     private String hasSIRManagerEmail;
@@ -88,14 +88,6 @@ public class Component extends HADatAcThing implements SIRElement  {
 
     public void setHasStatus(String hasStatus) {
         this.hasStatus = hasStatus;
-    }
-
-    public String getSerialNumber() {
-        return serialNumber;
-    }       
-
-    public void setSerialNumber(String serialNumber) {
-        this.serialNumber = serialNumber;
     }
 
     public String getHasContent() {
@@ -144,6 +136,21 @@ public class Component extends HADatAcThing implements SIRElement  {
 
     public String getWasGeneratedBy() {
         return wasGeneratedBy;
+    }
+
+    public String getHasMakerUri() {
+        return hasMakerUri;
+    }
+
+    public void setHasMakerUri(String hasMakerUri) {
+        this.hasMakerUri = hasMakerUri;
+    }
+
+    public Organization getHasMaker() {
+        if (hasMakerUri == null || hasMakerUri.isEmpty()) {
+			return null;
+		}
+		return Organization.find(hasMakerUri);
     }
 
     public String getHasSIRManagerEmail() {

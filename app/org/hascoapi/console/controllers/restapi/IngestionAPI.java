@@ -17,8 +17,11 @@ import org.hascoapi.entity.pojo.SDD;
 import org.hascoapi.entity.pojo.STR;
 import org.hascoapi.entity.pojo.Study;
 import org.hascoapi.entity.pojo.Instrument;
+import org.hascoapi.entity.pojo.FundingScheme;
+import org.hascoapi.entity.pojo.Project;
+import org.hascoapi.entity.pojo.Organization;
 import org.hascoapi.transform.mt.ins.INSGen;
-import org.hascoapi.ingestion.IngestKGR;
+import org.hascoapi.transform.mt.kgr.KGRGen;
 import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.ConfigProp;
 import org.hascoapi.utils.HAScOMapper;
@@ -36,6 +39,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
+import java.util.logging.Level;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.CopyOption;
@@ -75,133 +79,78 @@ public class IngestionAPI extends Controller {
 
         System.out.println("IngestionAPI.ingest(): API has received file content");
 
-        /* 
-         * SDD
-         */ 
-        /* 
-        if (elementType.equals("sdd")) {
-            SDD sdd = SDD.find(elementUri);
-            if (sdd == null) {
-                return ok(ApiUtil.createResponse("File FAILED to be ingested: could not retrieve " + elementType + ". ",false));
-            }
-            System.out.println("IngestionAPI.ingest(): API has read draft " + elementType + " from triplestore");
-            DataFile dataFile = DataFile.find(sdd.getHasDataFileUri());
-            if (dataFile != null) {
-                dataFile.setLastProcessTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
-                dataFile.setFileStatus(DataFile.WORKING);
-                dataFile.getLogger().resetLog();
-                dataFile.save();
-                System.out.println("IngestionAPI.ingest(): API has read DataFile from triplestore");
-            } else { 
-                return ok(ApiUtil.createResponse("IngestionAPI.ingest(): File FAILED to be ingested: could not retrieve DataFile. ",false));
-            }
-            CompletableFuture.runAsync(() -> {
-                IngestSDD.exec(sdd, dataFile,file, templateFile());
-            });
-            System.out.println("IngestionAPI.ingest(): API has just called IngestSDD.exec()");
-        */
-        /* 
-         * DSG
-         */
-        /* } else */ 
-        if (elementType.equals("dp2") || 
-            elementType.equals("dsg") ||
-            elementType.equals("ins") ||
-            elementType.equals("sdd") || 
-            elementType.equals("str")) {
-            System.out.println("IngestionAPI.ingest(): inside elementType=[" + elementType + "]");
-            DataFile dataFile = null;
-            if (elementType.equals("dp2")) {
-                DP2 dp2 = DP2.find(elementUri);
-                if (dp2 == null) {
-                    return ok(ApiUtil.createResponse("IngestionAPI.ingest(): File FAILED to be ingested: could not retrieve " + elementType + ". ",false));
-                }
-                dataFile = DataFile.find(dp2.getHasDataFileUri());
-            } else if (elementType.equals("dsg")) {
-                DSG dsg = DSG.find(elementUri);
-                if (dsg == null) {
-                    return ok(ApiUtil.createResponse("IngestionAPI.ingest(): File FAILED to be ingested: could not retrieve " + elementType + ". ",false));
-                }
-                dataFile = DataFile.find(dsg.getHasDataFileUri());
-            } else if (elementType.equals("ins")) {
-                INS ins = INS.find(elementUri);
-                if (ins == null) {
-                    return ok(ApiUtil.createResponse("IngestionAPI.ingest(): File FAILED to be ingested: could not retrieve " + elementType + ". ",false));
-                }
-                dataFile = DataFile.find(ins.getHasDataFileUri());
-            } else if (elementType.equals("sdd")) {
-                SDD sdd = SDD.find(elementUri);
-                if (sdd == null) {
-                    return ok(ApiUtil.createResponse("IngestionAPI.ingest(): File FAILED to be ingested: could not retrieve " + elementType + ". ",false));
-                }
-                dataFile = DataFile.find(sdd.getHasDataFileUri());
-            } else if (elementType.equals("str")) {
-                STR str = STR.find(elementUri);
-                if (str == null) {
-                    return ok(ApiUtil.createResponse("IngestionAPI.ingest(): File FAILED to be ingested: could not retrieve " + elementType + ". ",false));
-                }
-                dataFile = DataFile.find(str.getHasDataFileUri());
-            }
-            if (dataFile != null) {
-                dataFile.setLastProcessTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
-                if (elementType.equals("dsg")) {
-                    dataFile.setFileStatus(DataFile.WORKING_STD);
-                } else {
-                    dataFile.setFileStatus(DataFile.WORKING);
-                }
-                dataFile.getLogger().resetLog();
-                dataFile.save();
-                System.out.println("IngestionAPI.ingest(): API has read DataFile from triplestore");
-            } else { 
-                return ok(ApiUtil.createResponse("IngestionAPI.ingest(): File FAILED to be ingested: could not retrieve DataFile. ",false));
-            }
-            File filePerm = IngestionAPI.saveFileAsPermanent(file,dataFile.getFilename());
-            if (dataFile != null & filePerm != null) {
-                final DataFile finalDataFile = dataFile; 
-                CompletableFuture.runAsync(() -> {
-                    IngestionWorker.ingest(finalDataFile, filePerm, templateFile(), status);
-                });
-                System.out.println("IngestionAPI.ingest(): API has just called IngestionWorker.ingest()");
-            } else {
-                return ok(ApiUtil.createResponse("Could not prepare ingestion for element type " + elementType,false));
-            }
+        if (!elementType.equals("dp2") && 
+            !elementType.equals("dsg") &&
+            !elementType.equals("ins") &&
+            !elementType.equals("kgr") &&
+            !elementType.equals("sdd") && 
+            !elementType.equals("str")) {
 
-        /*
-         *  KGR
-         */
-        } else if (elementType.equals("kgr")) {
-            System.out.println("IngestionAPI.ingest(): inside elementType=[" + elementType + "]");
-            KGR kgr = KGR.find(elementUri);
-            if (kgr == null) {
-                return ok(ApiUtil.createResponse("IngestionAPI.ingest(): File FAILED to be ingested: could not retrieve " + elementType + "from the triple store. ",false));
-            }
-            DataFile dataFile = DataFile.find(kgr.getHasDataFileUri());
-            if (dataFile != null) {
-                dataFile.setLastProcessTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
-                dataFile.setFileStatus(DataFile.WORKING);
-                dataFile.getLogger().resetLog();
-                dataFile.save();
-                System.out.println("IngestionAPI.ingest(): API has read DataFile from triplestore");
-            } else { 
-                return ok(ApiUtil.createResponse("IngestionAPI.ingest(): File FAILED to be ingested: could not retrieve DataFile. ",false));
-            }
-            File filePerm = IngestionAPI.saveFileAsPermanent(file,dataFile.getFilename());
-            if (dataFile != null & filePerm != null) {
-                CompletableFuture.runAsync(() -> {
-                    IngestKGR.exec(kgr, dataFile, filePerm, templateFile());
-                });
-                System.out.println("IngestionAPI.ingest(): API has just called IngestKGR.exec()");
-            } else {
-                return ok(ApiUtil.createResponse("Could not prepare ingestion for element type " + elementType,false));
-            }
-
-        /*
-         *  UNKNOWN MT's TYPE
-         */
-        } else {
             return ok(ApiUtil.createResponse("Could not find ingestion procedure for element type " + elementType,false));
         }
 
+        System.out.println("IngestionAPI.ingest(): inside elementType=[" + elementType + "]");
+        DataFile dataFile = null;
+        if (elementType.equals("dp2")) {
+            DP2 dp2 = DP2.find(elementUri);
+            if (dp2 == null) {
+                return ok(ApiUtil.createResponse("IngestionAPI.ingest(): File FAILED to be ingested: could not retrieve " + elementType + ". ",false));
+            }
+            dataFile = DataFile.find(dp2.getHasDataFileUri());
+        } else if (elementType.equals("dsg")) {
+            DSG dsg = DSG.find(elementUri);
+            if (dsg == null) {
+                return ok(ApiUtil.createResponse("IngestionAPI.ingest(): File FAILED to be ingested: could not retrieve " + elementType + ". ",false));
+            }
+            dataFile = DataFile.find(dsg.getHasDataFileUri());
+        } else if (elementType.equals("ins")) {
+            INS ins = INS.find(elementUri);
+            if (ins == null) {
+                return ok(ApiUtil.createResponse("IngestionAPI.ingest(): File FAILED to be ingested: could not retrieve " + elementType + ". ",false));
+            }
+            dataFile = DataFile.find(ins.getHasDataFileUri());
+        } else if (elementType.equals("kgr")) {
+            KGR kgr = KGR.find(elementUri);
+            if (kgr == null) {
+                return ok(ApiUtil.createResponse("IngestionAPI.ingest(): File FAILED to be ingested: could not retrieve " + elementType + ". ",false));
+            }
+            dataFile = DataFile.find(kgr.getHasDataFileUri());
+        } else if (elementType.equals("sdd")) {
+            SDD sdd = SDD.find(elementUri);
+            if (sdd == null) {
+                return ok(ApiUtil.createResponse("IngestionAPI.ingest(): File FAILED to be ingested: could not retrieve " + elementType + ". ",false));
+            }
+            dataFile = DataFile.find(sdd.getHasDataFileUri());
+        } else if (elementType.equals("str")) {
+            STR str = STR.find(elementUri);
+            if (str == null) {
+                return ok(ApiUtil.createResponse("IngestionAPI.ingest(): File FAILED to be ingested: could not retrieve " + elementType + ". ",false));
+            }
+            dataFile = DataFile.find(str.getHasDataFileUri());
+        }
+        if (dataFile != null) {
+            dataFile.setLastProcessTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
+            if (elementType.equals("dsg")) {
+                dataFile.setFileStatus(DataFile.WORKING_STD);
+            } else {
+                dataFile.setFileStatus(DataFile.WORKING);
+            }
+            dataFile.getLogger().resetLog();
+            dataFile.save();
+            System.out.println("IngestionAPI.ingest(): API has read DataFile from triplestore");
+        } 
+        File filePerm = this.saveFileAsPermanent(file,dataFile.getFilename());
+        if (dataFile != null & filePerm != null) {
+            final DataFile finalDataFile = dataFile; 
+            CompletableFuture.runAsync(() -> {
+                IngestionWorker.ingest(finalDataFile, filePerm, templateFile(), status);
+            });
+            System.out.println("IngestionAPI.ingest(): API has just called IngestionWorker.ingest()");
+        } else {
+            return ok(ApiUtil.createResponse("Could not prepare ingestion for element type " + elementType,false));
+        }
+
+        System.out.println("IngestionAPI.ingest(): API has just called IngestionWorker.ingest()");
         return ok(ApiUtil.createResponse("File submitted for ingestion. Check file's log for ingestion status ",true));
 
     }
@@ -210,37 +159,45 @@ public class IngestionAPI extends Controller {
      * Copies a temporary file to a permanent file
      *
      * @param tempFile The temporary file to be copied.
-     * @param fileName Name of permanent copy 
+     * @param fileName Name of the permanent copy.
      * @return The permanent file if the copy is successful, null otherwise.
      */
-    public static File saveFileAsPermanent(File tempFile, String fileName) {
-        if (tempFile == null) {
+    public File saveFileAsPermanent(File tempFile, String fileName) {
+        if (tempFile == null || fileName == null || fileName.trim().isEmpty()) {
+            System.out.println("[ERROR] Invalid input: tempFile or fileName is null/empty.");
             return null;
         }
 
-        // Define the permanent file path
-        String pathString = ConfigProp.getPathIngestion() + fileName;
-        Path permanentPath = Paths.get(pathString);
+        String destinationDir = config.getString("hascoapi.paths.ingestion");
+        if (destinationDir == null || destinationDir.trim().isEmpty()) {
+            System.out.println("[ERROR] ConfigProp.getPathIngestion() returned an invalid path.");
+            return null;
+        }
+
+        Path permanentPath = Paths.get(destinationDir, fileName);
 
         try {
-            // Ensure the temporary file is deleted on exit
-            tempFile.deleteOnExit();
+            // Ensure the destination directory exists
+            Files.createDirectories(permanentPath.getParent());
 
-            // Define options for file copy (to overwrite if exists)
-            CopyOption[] options = new CopyOption[]{
-                StandardCopyOption.REPLACE_EXISTING, // Option to replace the existing file
-                StandardCopyOption.COPY_ATTRIBUTES // Option to copy file attributes
-            };            
-        
-            // Copy the file to the permanent location
+            // Define file copy options
+            CopyOption[] options = {
+                StandardCopyOption.REPLACE_EXISTING,
+                StandardCopyOption.COPY_ATTRIBUTES
+            };
+
+            // Copy the file
             Files.copy(tempFile.toPath(), permanentPath, options);
+            //System.out.println("File successfully saved to: " + permanentPath);
 
-            System.out.println("Temporary file has been successfully saved as " + pathString);
+            // Optionally delete temp file manually
+            if (!tempFile.delete()) {
+                System.out.println("[ERROR] Failed to delete temporary file: " + tempFile.getAbsolutePath());
+            }
 
-            // Return the permanent file
             return permanentPath.toFile();
         } catch (IOException e) {
-            System.err.println("[ERROR] IngestionAPI.saveFileAsPermanent(): Error saving file " + e.getMessage());
+            System.out.println("[ERROR] While saving file: " + e.getMessage());
             return null;
         }
     }
@@ -251,7 +208,7 @@ public class IngestionAPI extends Controller {
      * @param fileName The name of the file to be deleted.
      * @return true if the file was successfully deleted, false otherwise.
      */
-    public static boolean deletePermanentFile(String fileName) {
+    public boolean deletePermanentFile(String fileName) {
 
         // Define the permanent file path
         String pathString = ConfigProp.getPathIngestion() + fileName;
@@ -301,8 +258,8 @@ public class IngestionAPI extends Controller {
             System.out.println(errorMsg);
             return ok(ApiUtil.createResponse(errorMsg,false));
         } else {
-            if (mtRaw.getHascoTypeUri().equals(HASCO.KNOWLEDGE_GRAPH)) {
-                mtType = HASCO.KNOWLEDGE_GRAPH;
+            if (mtRaw.getHascoTypeUri().equals(HASCO.KGR)) {
+                mtType = HASCO.KGR;
                 System.out.println("IngestionAPI.uningestMetadataTemplate() read KGR");
             } else if (mtRaw.getHascoTypeUri().equals(HASCO.SDD)) {
                 mtType = HASCO.SDD;
@@ -329,7 +286,7 @@ public class IngestionAPI extends Controller {
             return ok(ApiUtil.createResponse(errorMsg,false));
         }
 
-        if (mtType.equals(HASCO.KNOWLEDGE_GRAPH)) {
+        if (mtType.equals(HASCO.KGR)) {
             KGR kgr = KGR.find(metadataTemplateUri);
             if (kgr == null) {
                 String errorMsg = "[ERROR] IngestionAPI.uningestMetadataTemplate() unable to retrieve KGR with metadataTemplateUri = " + metadataTemplateUri;
@@ -346,7 +303,7 @@ public class IngestionAPI extends Controller {
             System.out.println("IngestionAPI.ingest(): API has able to retrieve KGR from triplestore");
 
             // Delete API copy of metadata template
-            boolean deletedFile = IngestionAPI.deletePermanentFile(dataFile.getFilename());
+            boolean deletedFile = this.deletePermanentFile(dataFile.getFilename());
 
             // Uningest Datafile content
             dataFile.delete();
@@ -373,7 +330,7 @@ public class IngestionAPI extends Controller {
             System.out.println("IngestionAPI.ingest(): API has able to retrieve DSG from triplestore");
 
             // Delete API copy of metadata template
-            boolean deletedFile = IngestionAPI.deletePermanentFile(dataFile.getFilename());
+            boolean deletedFile = this.deletePermanentFile(dataFile.getFilename());
 
             // Uningest Datafile content
             dataFile.delete();
@@ -400,7 +357,7 @@ public class IngestionAPI extends Controller {
             System.out.println("IngestionAPI.ingest(): API has able to retrieve DP2 from triplestore");
 
             // Delete API copy of metadata template
-            boolean deletedFile = IngestionAPI.deletePermanentFile(dataFile.getFilename());
+            boolean deletedFile = this.deletePermanentFile(dataFile.getFilename());
 
             // Uningest Datafile content
             dataFile.delete();
@@ -427,7 +384,7 @@ public class IngestionAPI extends Controller {
             System.out.println("IngestionAPI.ingest(): API has able to retrieve DSG from triplestore");
 
             // Delete API copy of metadata template
-            boolean deletedFile = IngestionAPI.deletePermanentFile(dataFile.getFilename());
+            boolean deletedFile = this.deletePermanentFile(dataFile.getFilename());
 
             // Uningest Datafile content
             dataFile.delete();
@@ -454,7 +411,7 @@ public class IngestionAPI extends Controller {
             System.out.println("IngestionAPI.ingest(): API has able to retrieve SDD from triplestore");
 
             // Delete API copy of metadata template
-            boolean deletedFile = IngestionAPI.deletePermanentFile(dataFile.getFilename());
+            boolean deletedFile = this.deletePermanentFile(dataFile.getFilename());
 
             // Uningest Datafile content
             dataFile.delete();
@@ -481,7 +438,7 @@ public class IngestionAPI extends Controller {
             System.out.println("IngestionAPI.ingest(): API has able to retrieve STR from triplestore");
 
             // Delete API copy of metadata template
-            boolean deletedFile = IngestionAPI.deletePermanentFile(dataFile.getFilename());
+            boolean deletedFile = this.deletePermanentFile(dataFile.getFilename());
 
             // Uningest Datafile content
             dataFile.delete();
@@ -499,7 +456,7 @@ public class IngestionAPI extends Controller {
     
     }
 
-    public Result mtGenByStatus(String elementtype, String status, String filename) {
+    public Result mtGenByStatus(String elementtype, String status, String filename, String mediaFolder, String verifyUri) {
         if (elementtype == null || elementtype.isEmpty()) {
             String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() requires elementtype";
             System.out.println(errorMsg);
@@ -519,6 +476,9 @@ public class IngestionAPI extends Controller {
             case "ins":
                 INSGen.genByStatus(status,filename);
                 break;
+            case "kgr":
+                KGRGen.genByStatus(status,filename);
+                break;
             default:
                 String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() invalid elementtype=[" + elementtype + "]";
                 System.out.println(errorMsg);
@@ -527,25 +487,25 @@ public class IngestionAPI extends Controller {
         return ok(ApiUtil.createResponse("", true));
     }
 
-    public Result mtGenByInstrument(String elementtype, String instrumenturi, String filename) {
+    public Result mtGenByInstrument(String elementtype, String instrumenturi, String filename, String mediaFolder, String verifyUri) {
         if (elementtype == null || elementtype.isEmpty()) {
-            String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() requires elementtype";
+            String errorMsg = "[ERROR] IngestionAPI.mtGenByInstrument() requires elementtype";
             System.out.println(errorMsg);
             return ok(ApiUtil.createResponse(errorMsg,false));
         }
         if (instrumenturi == null || instrumenturi.isEmpty()) {
-            String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() requires instrumenturi";
+            String errorMsg = "[ERROR] IngestionAPI.mtGenByInstrument() requires instrumenturi";
             System.out.println(errorMsg);
             return ok(ApiUtil.createResponse(errorMsg,false));
         }
         Instrument instrument = Instrument.find(instrumenturi);
         if (instrument == null) {
-            String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() cannot retrieve instrument with uri=[" + instrumenturi + "]";
+            String errorMsg = "[ERROR] IngestionAPI.mtGenByInstrument() cannot retrieve instrument with uri=[" + instrumenturi + "]";
             System.out.println(errorMsg);
             return ok(ApiUtil.createResponse(errorMsg,false));
         }
         if (filename == null || filename.isEmpty()) {
-            String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() requires filename";
+            String errorMsg = "[ERROR] IngestionAPI.mtGenByInstrument() requires filename";
             System.out.println(errorMsg);
             return ok(ApiUtil.createResponse(errorMsg,false));
         }
@@ -555,7 +515,7 @@ public class IngestionAPI extends Controller {
                 resp = INSGen.genByInstrument(instrument,filename);
                 break;
             default:
-                String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() invalid elementtype=[" + elementtype + "]";
+                String errorMsg = "[ERROR] IngestionAPI.mtGenByInstrument() invalid elementtype=[" + elementtype + "]";
                 System.out.println(errorMsg);
                 return ok(ApiUtil.createResponse(errorMsg,false));
         }
@@ -566,7 +526,127 @@ public class IngestionAPI extends Controller {
         }
     }
 
-    public Result mtGenByManager(String elementtype, String useremail, String status, String filename) {
+    public Result mtGenByOrganization(String elementtype, String organizationuri, String filename, String mediaFolder, String verifyUri) {
+        System.out.println("IngestionAPI.mtGenByOrganization() with organizationUri = " + organizationuri);
+        if (elementtype == null || elementtype.isEmpty()) {
+             String errorMsg = "[ERROR] IngestionAPI.mtGenByOrganization() requires elementtype";
+             System.out.println(errorMsg);
+             return ok(ApiUtil.createResponse(errorMsg,false));
+         }
+         if (organizationuri == null || organizationuri.isEmpty()) {
+             String errorMsg = "[ERROR] IngestionAPI.mtGenByOrganization() requires organizationuri";
+             System.out.println(errorMsg);
+             return ok(ApiUtil.createResponse(errorMsg,false));
+         }
+         Organization organization = Organization.find(organizationuri);
+         if (organization == null) {
+             String errorMsg = "[ERROR] IngestionAPI.mtGenByorganization() cannot retrieve organization with uri=[" + organizationuri + "]";
+             System.out.println(errorMsg);
+             return ok(ApiUtil.createResponse(errorMsg,false));
+         }
+         if (filename == null || filename.isEmpty()) {
+             String errorMsg = "[ERROR] IngestionAPI.mtGenByOrganization() requires filename";
+             System.out.println(errorMsg);
+             return ok(ApiUtil.createResponse(errorMsg,false));
+         }
+         String resp = "";
+         switch (elementtype) {
+             case "kgr":
+                 resp = KGRGen.genByOrganization(organization,filename);
+                 break;
+             default:
+                 String errorMsg = "[ERROR] IngestionAPI.mtGenByOrganization() invalid elementtype=[" + elementtype + "]";
+                 System.out.println(errorMsg);
+                 return ok(ApiUtil.createResponse(errorMsg,false));
+         }
+         if (resp.equals("")) {
+             return ok(ApiUtil.createResponse(resp, true));
+         } else {
+             return ok(ApiUtil.createResponse(resp, false));
+         }
+     }
+ 
+     public Result mtGenByProject(String elementtype, String projecturi, String filename, String mediaFolder, String verifyUri) {
+       System.out.println("IngestionAPI.mtGenByProject() with projectUri = " + projecturi);
+       if (elementtype == null || elementtype.isEmpty()) {
+            String errorMsg = "[ERROR] IngestionAPI.mtGenByProject() requires elementtype";
+            System.out.println(errorMsg);
+            return ok(ApiUtil.createResponse(errorMsg,false));
+        }
+        if (projecturi == null || projecturi.isEmpty()) {
+            String errorMsg = "[ERROR] IngestionAPI.mtGenByProject() requires projecturi";
+            System.out.println(errorMsg);
+            return ok(ApiUtil.createResponse(errorMsg,false));
+        }
+        Project project = Project.find(projecturi);
+        if (project == null) {
+            String errorMsg = "[ERROR] IngestionAPI.mtGenByproject() cannot retrieve project with uri=[" + projecturi + "]";
+            System.out.println(errorMsg);
+            return ok(ApiUtil.createResponse(errorMsg,false));
+        }
+        if (filename == null || filename.isEmpty()) {
+            String errorMsg = "[ERROR] IngestionAPI.mtGenByProject() requires filename";
+            System.out.println(errorMsg);
+            return ok(ApiUtil.createResponse(errorMsg,false));
+        }
+        String resp = "";
+        switch (elementtype) {
+            case "kgr":
+                resp = KGRGen.genByProject(project,filename);
+                break;
+            default:
+                String errorMsg = "[ERROR] IngestionAPI.mtGenByProject() invalid elementtype=[" + elementtype + "]";
+                System.out.println(errorMsg);
+                return ok(ApiUtil.createResponse(errorMsg,false));
+        }
+        if (resp.equals("")) {
+            return ok(ApiUtil.createResponse(resp, true));
+        } else {
+            return ok(ApiUtil.createResponse(resp, false));
+        }
+    }
+
+    public Result mtGenByFundingScheme(String elementtype, String fundingschemeuri, String filename, String mediaFolder, String verifyUri) {
+        System.out.println("IngestionAPI.mtGenByFundingScheme() with fundingschemeUri = " + fundingschemeuri);
+        if (elementtype == null || elementtype.isEmpty()) {
+             String errorMsg = "[ERROR] IngestionAPI.mtGenByFundingScheme() requires elementtype";
+             System.out.println(errorMsg);
+             return ok(ApiUtil.createResponse(errorMsg,false));
+         }
+         if (fundingschemeuri == null || fundingschemeuri.isEmpty()) {
+             String errorMsg = "[ERROR] IngestionAPI.mtGenByFundingScheme() requires fundingschemeuri";
+             System.out.println(errorMsg);
+             return ok(ApiUtil.createResponse(errorMsg,false));
+         }
+         FundingScheme fundingScheme = FundingScheme.find(fundingschemeuri);
+         if (fundingScheme == null) {
+             String errorMsg = "[ERROR] IngestionAPI.mtGenByFundingScheme() cannot retrieve fundingScheme with uri=[" + fundingschemeuri + "]";
+             System.out.println(errorMsg);
+             return ok(ApiUtil.createResponse(errorMsg,false));
+         }
+         if (filename == null || filename.isEmpty()) {
+             String errorMsg = "[ERROR] IngestionAPI.mtGenByFundingScheme() requires filename";
+             System.out.println(errorMsg);
+             return ok(ApiUtil.createResponse(errorMsg,false));
+         }
+         String resp = "";
+         switch (elementtype) {
+             case "kgr":
+                 resp = KGRGen.genByFundingScheme(fundingScheme,filename);
+                 break;
+             default:
+                 String errorMsg = "[ERROR] IngestionAPI.mtGenByFundingSchme() invalid elementtype=[" + elementtype + "]";
+                 System.out.println(errorMsg);
+                 return ok(ApiUtil.createResponse(errorMsg,false));
+         }
+         if (resp.equals("")) {
+             return ok(ApiUtil.createResponse(resp, true));
+         } else {
+             return ok(ApiUtil.createResponse(resp, false));
+         }
+     }
+ 
+     public Result mtGenByManager(String elementtype, String useremail, String status, String filename, String mediaFolder, String verifyUri) {
         if (elementtype == null || elementtype.isEmpty()) {
             String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() requires elementtype";
             System.out.println(errorMsg);
@@ -590,6 +670,9 @@ public class IngestionAPI extends Controller {
         switch (elementtype) {
             case "ins":
                 INSGen.genByManager(useremail, status, filename);
+                break;
+            case "kgr":
+                KGRGen.genByManager(useremail, status, filename);
                 break;
             default:
                 String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() invalid elementtype=[" + elementtype + "]";

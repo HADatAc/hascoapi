@@ -40,7 +40,6 @@ import org.hascoapi.vocabularies.SCHEMA;
 import org.hascoapi.vocabularies.VSTOI;
 import org.hascoapi.annotations.PropertyField;
 import org.hascoapi.utils.CollectionUtil;
-import org.hascoapi.utils.State;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -53,23 +52,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class Stream extends HADatAcThing implements Comparable<Stream> {
     private static final String className = "hasco:Stream";
 
-    public static String INDENT1 = "   ";
-    public static String INSERT_LINE1 = "INSERT DATA {  ";
-    public static String DELETE_LINE1 = "DELETE WHERE {  ";
-    public static String LINE3 = INDENT1 + "a hasco:StudyObjectCollection;  ";
-    public static String DELETE_LINE3 = INDENT1 + " ?p ?o . ";
-    public static String DELETE_LINE4 = "  hasco:hasLastCounter ?o . ";
-    public static String LINE_LAST = "}  ";
-
     /*
      *   GENERIC STREAM PROPERTIES
      */
     @PropertyField(uri="hasco:hasStudy")
     private String studyUri;
-    @PropertyField(uri="hasco:hasSDD")
-    private String semanticDataDictionaryUri;
-    @PropertyField(uri="hasco:hasDeployment")
-    private String deploymentUri;
     @PropertyField(uri="hasco:hasMethod")
     private String method;   // Possible values: 'message' or 'file'
     @PropertyField(uri="vstoi:designedAtTime")
@@ -86,88 +73,67 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
     private String parameter;
     @PropertyField(uri="hasco:hasTriggeringEvent")
     private int triggeringEvent;
-    @PropertyField(uri="hasco:hasNumberDataPoints")
-    private long numberDataPoints;
 
     /*
      *   FILE-SUPPORTING PROPERTIES
      */
     @PropertyField(uri="hasco:hasDatasetPattern")
     private String datasetPattern;
+    @PropertyField(uri="hasco:hasSDD")
+    private String semanticDataDictionaryUri;
+    @PropertyField(uri="hasco:hasDeployment")
+    private String deploymentUri;
     @PropertyField(uri="hasco:hasDatasetURIs")
     private List<String> datasetURIs;
     @PropertyField(uri="hasco:hasCellScopeUri")
     private List<String> cellScopeUri;
     @PropertyField(uri="hasco:hasCellScopeName")
     private List<String> cellScopeName;
-
+    @PropertyField(uri="hasco:hasNumberDataPoints")
+    private long numberDataPoints;
+    @PropertyField(uri = "hasco:canView")
+    private List<String> canView;
+    @PropertyField(uri = "hasco:canUpdate")
+    private List<String> canUpdate;
 
     /*
      *   MESSAGE-SUPPORTING PROPERTIES
      */
-    @PropertyField(uri="hasco:hasTotalMessages")
-    private long totalMessages;
-    @PropertyField(uri="hasco:hasIngestedMessages")
-    private long ingestedMessages;
     @PropertyField(uri="hasco:hasMessageProtocol")
     private String messageProtocol;
     @PropertyField(uri="hasco:hasMessageIP")
     private String messageIP;
     @PropertyField(uri="hasco:hasMessagePort")
     private String messagePort;
-    @PropertyField(uri="hasco:hasMessageHeader")
-    private String messageHeaders;
     @PropertyField(uri="hasco:hasMessageArchiveID")
     private String messageArchiveId;
 
 
     /*
-     * Possible values for message status:
-     * ACTIVE:     It is not closed and it is collecting data
-     * SUSPENDED:  It is not closed but it is not collecting data
-     * CLOSED:     It is not collecting data. It is no longer available
-     *             for data collection
+     *  A Stream can have one of these status (hasStremStatus): 
+     *     DRAFT: Designed but not being executed. Data cannot be collected from the stream.
+     *     ACTIVE: Being executed. Data may be collected from the stream.
+     *     CLOSED: Stream cannot be used anymore to collect data. It is used to preserve
+     *             provenance about the stream
+     * 
+     * For method execution purpose, there is a ALL_STATUSES that indicates that we want to
+     * retrieve all streams regardless of their status.
+     * 
+     * These statuses are valid for both datafile streams and message streams
+     *     
      */
-    @PropertyField(uri="hasco:hasMessageStatus")
-    private String messageStatus;
-
-    /*
-     * 0 - DataAcquisition is a new one, its details on the preamble It should
-     * not exist inside the KB Preamble must contain deployment link and
-     * deployment must exists on the KB 1 - DataAcquisition already exists, only
-     * a reference present on the preamble It should exist inside the KB as not
-     * finished yet 2 - DataAcquisition already exists, the preamble states its
-     * termination with endedAtTime information It should exist inside the KB as
-     * not finished yet
-     *
-     * 9999 - Stream Specification is complete (anything else diferent
-     * than 9999 is considered incomplete
-     *
-     */
-    @PropertyField(uri="hasco:hasStatus")
-    private int status;
-
-    @PropertyField(uri = "hasco:canView")
-    private List<String> canView;
-
-    @PropertyField(uri = "hasco:canUpdate")
-    private List<String> canUpdate;
+    @PropertyField(uri="hasco:hasStreamStatus")
+    private String hasStreamStatus;
 
 	@PropertyField(uri="vstoi:hasSIRManagerEmail")
 	private String hasSIRManagerEmail;
 
-    private boolean isComplete;
     private String localName;
-    private Map<String,MessageTopic> topicsMap;
     private List<String> headers;
 
     private DataFile archive = null;
     private String log;
     private IngestionLogger logger = null;
-
-    public static final String ACTIVE = "ACTIVE";
-    public static final String SUSPENDED = "SUSPENDED";
-    public static final String CLOSED = "CLOSED";
 
     public static final String MQTT = "mqtt";
     public static final String HTTP = "http";
@@ -176,20 +142,12 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
         startedAt = null;
         endedAt = null;
         numberDataPoints = 0;
-        isComplete = false;
         datasetURIs = new ArrayList<String>();
-        totalMessages = 0;
-        ingestedMessages = 0;
         messageProtocol = null;
         messageIP = null;
         messagePort = null;
-        topicsMap = null;
-        headers = new ArrayList<String>();
         cellScopeUri = new ArrayList<String>();
         cellScopeName = new ArrayList<String>();
-        canView = new ArrayList<String>();
-        canUpdate = new ArrayList<String>();
-        headers = new ArrayList<String>();
     }
 
     @Override
@@ -214,16 +172,6 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
         return this.getUri().compareTo(another.getUri());
     }
 
-    /*
-    public String getUsedUri() {
-        return used_uri;
-    }
-
-    public void setUsedUri(String used_uri) {
-        this.used_uri = used_uri;
-    }
-	*/
-
     public String getDeploymentUri() {
         return deploymentUri;
     }
@@ -242,7 +190,7 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
         return studyUri;
     }
     public Study getStudy() {
-        if (studyUri == null || studyUri.equals(""))
+        if (studyUri == null || studyUri.trim().equals(""))
             return null;
         return Study.find(studyUri);
     }
@@ -258,15 +206,7 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
         if (this.semanticDataDictionaryUri == null || this.semanticDataDictionaryUri.equals("")) {
             return null;
         }
-        SemanticDataDictionary semanticDataDictionary = SemanticDataDictionary.find(semanticDataDictionaryUri);
-        headers = new ArrayList<String>();
-        if (semanticDataDictionary != null && semanticDataDictionary.getAttributes() != null) {
-            for (SDDAttribute attr : semanticDataDictionary.getAttributes()) {
-                headers.add(attr.getLabel());
-            }
-        }
-        setHeaders(headers.toString());
-        return semanticDataDictionary;
+        return SemanticDataDictionary.find(semanticDataDictionaryUri);
     }
     public void setSemanticDataDictionaryUri(String semanticDataDictionaryUri) {
         this.semanticDataDictionaryUri = semanticDataDictionaryUri;
@@ -285,14 +225,6 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
 
     public void setPermissionUri(String permissionUri) {
         this.permissionUri = permissionUri;
-    }
-
-    public boolean getIsComplete() {
-        return isComplete;
-    }
-
-    public void setIsComplete(boolean isComplete) {
-        this.isComplete = isComplete;
     }
 
     public int getTriggeringEvent() {
@@ -410,7 +342,7 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
                 throw new IllegalArgumentException("Date-time string is not in a valid format: " + endedAtString, ex);
             }
         }
-        this.startedAt = endedAtRaw.toString(formatterISO);
+        this.endedAt = endedAtRaw.toString(formatterISO);
     }
     public void setEndedAtXsd(DateTime endedAtRaw) {
         DateTimeFormatter formatterNoMillis = ISODateTimeFormat.dateTimeNoMillis();
@@ -431,20 +363,6 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
 
     public void setNumberDataPoints(long numberDataPoints) {
         this.numberDataPoints = numberDataPoints;
-    }
-
-    public long getTotalMessages() {
-        return totalMessages;
-    }
-    public void setTotalMessages(long totalMessages) {
-        this.totalMessages = totalMessages;
-    }
-
-    public long getIngestedMessages() {
-        return totalMessages;
-    }
-    public void setIngestedMessages(long totalMessages) {
-        this.totalMessages = totalMessages;
     }
 
     public String getMessageProtocol() {
@@ -475,6 +393,14 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
         this.messageArchiveId = messageArchiveId;
     }
 
+    public List<StreamTopic> getTopics() {
+        //return new ArrayList<StreamTopic>();
+        if (this.getUri() == null) {
+            return new ArrayList<StreamTopic>();
+        }
+        return StreamTopic.findByStream(this.getUri());
+    }
+
     public String getMessageName() {
         if (label == null && label.isEmpty()) {
             return "";
@@ -485,24 +411,12 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
         return label + "_at_" + messageIP + "_" + messagePort;
     }
 
-    public String getMessageStatus() {
-        return messageStatus;
+    public String getHasStreamStatus() {
+        return hasStreamStatus;
     }
 
-    public void setMessageStatus(String messageStatus) {
-        this.messageStatus = messageStatus;
-    }
-
-    public int getStatus() {
-        return status;
-    }
-
-    public void setStatus(int status) {
-        this.status = status;
-    }
-
-    public boolean isComplete() {
-        return status == 9999;
+    public void setHasStreamStatus(String hasStreamStatus) {
+        this.hasStreamStatus = hasStreamStatus;
     }
 
     public String getParameter() {
@@ -528,61 +442,6 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
     }
     public void setMessageLogger(IngestionLogger logger) {
         this.logger = logger;
-    }
-
-    private void loadTopicsMap() {
-        List<MessageTopic> topics = MessageTopic.findByStream(uri);
-        if (topics != null) {
-            topicsMap = new HashMap<String, MessageTopic>();
-            for (MessageTopic topic : topics) {
-                topic.cacheTopic();
-                topicsMap.put(topic.getLabel(), topic);
-            }
-        }
-    }
-
-    public Map<String,MessageTopic> getTopicsMap() {
-        if (topicsMap != null) {
-            return topicsMap;
-        }
-        loadTopicsMap();
-        return topicsMap;
-    };
-
-    public List<MessageTopic> getTopicsList() {
-        if (topicsMap != null) {
-            return new ArrayList<MessageTopic>(topicsMap.values());
-        }
-        loadTopicsMap();
-        if (topicsMap != null) {
-            return new ArrayList<MessageTopic>(topicsMap.values());
-        }
-        return new ArrayList<MessageTopic>();
-    }
-
-    public void resetTopicsMap() {
-        topicsMap = null;
-    }
-
-    public List<String> getHeaders() {
-        if (headers != null) {
-            return headers;
-        }
-        List<String> headers = new ArrayList<String>();
-        if (messageHeaders == null || messageHeaders.isEmpty()) {
-            return headers;
-        }
-        String auxstr = messageHeaders.replace("[","").replace("]","");
-        StringTokenizer str = new StringTokenizer(auxstr,",");
-        while (str.hasMoreTokens()) {
-            headers.add(str.nextToken().trim());
-        }
-        return headers;
-    }
-
-    private void setHeaders(String headersStr) {
-        this.messageHeaders = headersStr;
-        getHeaders();
     }
 
     public String getDatasetPattern() {
@@ -728,43 +587,8 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
     	return resp;
     }
 
-    /*
-    public boolean isFinished() {
-        if (endedAt == null) {
-            return false;
-        } else {
-            return endedAt.isBeforeNow();
-        }
-    }
-    */
-
-
-    /*
-    @Override
-    public int deleteFromSolr() {
-        try {
-            deleteMeasurementData();
-
-            SolrClient solr = new HttpSolrClient.Builder(
-                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.DATA_COLLECTION)).build();
-            UpdateResponse response = solr.deleteById(this.uri);
-            solr.commit();
-            solr.close();
-            return response.getStatus();
-        } catch (SolrServerException e) {
-            System.out.println("[ERROR] STR.delete() - SolrServerException message: " + e.getMessage());
-        } catch (IOException e) {
-            System.out.println("[ERROR] STR.delete() - IOException message: " + e.getMessage());
-        } catch (Exception e) {
-            System.out.println("[ERROR] STR.delete() - Exception message: " + e.getMessage());
-        }
-
-        return -1;
-    }
-    */
-
     public static Stream find(String uri) {
-        System.out.println("inside Stream.find(uri): " + uri);
+        //System.out.println("inside Stream.find(uri): " + uri);
 		Stream str;
 		String hascoTypeUri = Utils.retrieveHASCOTypeUri(uri);
 		if (hascoTypeUri.equals(HASCO.STREAM)) {
@@ -810,6 +634,12 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
 					str.setDatasetPattern(string);
 				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
 					str.setComment(string);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_STREAM_STATUS)) {
+					str.setHasStreamStatus(string);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_PERMISSION_URI)) {
+					str.setPermissionUri(string);
+				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
+					str.setComment(string);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.DESIGNED_AT_TIME)) {
                     str.setDesignedAt(string);
                 } else if (statement.getPredicate().getURI().equals(PROV.STARTED_AT_TIME)) {
@@ -818,14 +648,16 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
                     str.setEndedAt(string);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_VERSION)) {
                     str.setHasVersion(string);
-                } else if (statement.getPredicate().getURI().equals(HASCO.HAS_MESSSAGE_ARCHIVE_ID)) {
+                } else if (statement.getPredicate().getURI().equals(HASCO.HAS_MESSAGE_ARCHIVE_ID)) {
                     str.setMessageArchiveId(string);
-                } else if (statement.getPredicate().getURI().equals(HASCO.HAS_MESSSAGE_IP)) {
+                } else if (statement.getPredicate().getURI().equals(HASCO.HAS_MESSAGE_IP)) {
                     str.setMessageIP(string);
-                } else if (statement.getPredicate().getURI().equals(HASCO.HAS_MESSSAGE_PORT)) {
+                } else if (statement.getPredicate().getURI().equals(HASCO.HAS_MESSAGE_PORT)) {
                     str.setMessagePort(string);
-                } else if (statement.getPredicate().getURI().equals(HASCO.HAS_MESSSAGE_PROTOCOL)) {
+                } else if (statement.getPredicate().getURI().equals(HASCO.HAS_MESSAGE_PROTOCOL)) {
                     str.setMessageProtocol(string);
+                } else if (statement.getPredicate().getURI().equals(HASCO.HAS_NUMBER_DATA_POINTS)) {
+                    str.setNumberDataPoints(Long.valueOf(string));
                 } else if (statement.getPredicate().getURI().equals(HASCO.CAN_UPDATE)) {
                     str.addCanUpdate(string);
                 } else if (statement.getPredicate().getURI().equals(HASCO.CAN_VIEW)) {
@@ -836,82 +668,41 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
 			}
 		}
 
-        /*
-        @PropertyField(uri="hasco:hasStartedAtDate")
-        private String startedAtString;
-        @PropertyField(uri="hasco:hasEndedAtDate")
-        private String endedAtString;
-        @PropertyField(uri="hasco:hasOwnerUri")
-        private String ownerUri;
-        @PropertyField(uri="hasco:hasVersion")
-        private String version;
-        @PropertyField(uri="hasco:hasPermissionUri")
-        private String permissionUri;
-        @PropertyField(uri="hasco:hasParameter")
-        private String parameter;
-        @PropertyField(uri="hasco:hasTriggeringEvent")
-        private int triggeringEvent;
-        @PropertyField(uri="hasco:hasNumberDataPoints")
-        private long numberDataPoints;
-        @PropertyField(uri="hasco:hasTotalMessages")
-        private long totalMessages;
-        @PropertyField(uri="hasco:hasIngestedMessages")
-        private long ingestedMessages;
-        @PropertyField(uri="hasco:hasMessageProtocol")
-        private String messageProtocol;
-        @PropertyField(uri="hasco:hasMessageIP")
-        private String messageIP;
-        @PropertyField(uri="hasco:hasMessagePort")
-        private String messagePort;
-        @PropertyField(uri="hasco:hasMessageHeader")
-        private String messageHeaders;
-        @PropertyField(uri="hasco:hasMessageArchiveID")
-        private String messageArchiveId;
-        @PropertyField(uri="hasco:hasStudyUri")
-        private String studyUri;
-        @PropertyField(uri="hasco:hasMethodUri")
-        private String methodUri;
-        @PropertyField(uri="hasco:hasSchemaUri")
-        private String schemaUri;
-        @PropertyField(uri="hasco:hasDeploymentUri")
-        private String deploymentUri;
-        @PropertyField(uri="hasco:hasInstrumentModel")
-        private String instrumentModel;
-        @PropertyField(uri="hasco:hasInstrumentUri")
-        private String instrumentUri;
-        @PropertyField(uri="hasco:hasPlatformName")
-        private String platformName;
-        @PropertyField(uri="hasco:hasPlatformUri")
-        private String platformUri;
-        @PropertyField(uri="hasco:hasLocation")
-        private String location;
-        @PropertyField(uri="hasco:hasElevation")
-        private String elevation;
-        @PropertyField(uri="hasco:hasDatasetUri")
-        private List<String> datasetURIs;
-        @PropertyField(uri="hasco:hasCellScopeUri")
-        private List<String> cellScopeUri;
-        @PropertyField(uri="hasco:hasCellScopeName")
-        private List<String> cellScopeName;
-        @PropertyField(uri="hasco:hasMessageStatus")
-        private String messageStatus;
-        @PropertyField(uri="hasco:hasStatus")
-        private int status;
-        @PropertyField(uri="vstoi:hasSIRManagerEmail")
-        private String hasSIRManagerEmail;
-        */
-
 		str.setUri(uri);
 
 		return str;
 	}
 
+    public static List<Stream> findByStudyWithPages(Study study,String state,int pageSize, int offset) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+            "SELECT ?uri WHERE { \n" +
+            "   ?uri hasco:hasStudy <" + study.getUri() + "> . \n" +
+            "   ?uri hasco:hascoType hasco:Stream . \n";
+        if (!state.equals(HASCO.ALL_STATUSES)) {
+            queryString += "   ?uri hasco:hasStreamStatus <" + state + "> . \n";
+        }
+        queryString += " } " + 
+            " LIMIT " + pageSize +
+            " OFFSET " + offset;
+        return findManyByQuery(queryString);
+    } 
+
+    public static int findByStudyTotal(Study study, String state) {
+		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+		queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
+            "   ?uri hasco:hasStudy <" + study.getUri() + "> . \n" +
+            "   ?uri hasco:hascoType hasco:Stream . \n";
+        if (!state.equals(HASCO.ALL_STATUSES)) {
+            queryString += "   ?uri hasco:hasStreamStatus <" + state + "> . \n";
+        }
+        queryString += " } ";
+        return GenericFind.findTotalByQuery(queryString);
+    } 
+
     public static List<Stream> findStreamsByStudy(String studyUri) {
         if (studyUri == null) {
             return null;
         }
-        List<Stream> streamList = new ArrayList<Stream>();
-
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 "SELECT ?uri WHERE { \n" +
                 "   ?uri hasco:hasStudy <" + studyUri + "> . \n" +
@@ -929,9 +720,9 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
         return GenericFind.findTotalByQuery(queryString);
 	}
 
-    public static List<Stream> findByStateDeployment(State state, String deploymentUri) {
+    public static List<Stream> findByStateDeployment(String state, String deploymentUri) {
         String queryString = "";
-        if (state.getCurrent() == State.DESIGN) {
+        if (state.equals(HASCO.DRAFT)) {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
             		"SELECT ?uri WHERE { " +
                     "   ?uri a hasco:Stream . " +
@@ -941,7 +732,7 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
                     "   FILTER NOT EXISTS { ?uri prov:endedAtTime ?enddatetime . } " +
                     "} " +
                     " ORDER BY DESC(?datetime) ";
-        } else if (state.getCurrent() == State.ACTIVE) {
+        } else if (state.equals(HASCO.ACTIVE)) {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                     "SELECT ?uri WHERE { " +
                     "   ?uri a hasco:Stream . " +
@@ -950,7 +741,7 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
                     "   FILTER NOT EXISTS { ?uri prov:endedAtTime ?enddatetime . } " +
                     "} " +
                     " ORDER BY DESC(?startedattime)";
-        } else if (state.getCurrent() == State.CLOSED) {
+        } else if (state.equals(HASCO.CLOSED)) {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                     "SELECT ?uri WHERE { " +
                     "   ?uri a hasco:Stream . " +
@@ -959,7 +750,7 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
                     "   ?uri prov:endedAtTime ?enddatetime .  " +
                     "} " +
                     " ORDER BY DESC(?startedattime)";
-        } else if (state.getCurrent() == State.ALL) {
+        } else if (state.equals(HASCO.ALL_STATUSES)) {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                     "SELECT ?uri WHERE { " +
                     "   ?uri a hasco:Stream . " +
@@ -973,13 +764,12 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
         return findManyByQuery(queryString);
     }
 
-    public static List<Stream> findCanUpdateByDeploymentWithPages(State state, String userEmail, String deploymentUri, int pageSize, int offset) {
+    public static List<Stream> findCanUpdateByStateEmailWithPages(String state, String userEmail, int pageSize, int offset) {
         String queryString = "";
-        if (state.getCurrent() == State.DESIGN) {
+        if (state.equals(HASCO.DRAFT)) {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
             		"SELECT ?uri WHERE { " +
                     "   ?uri a hasco:Stream . " +
-                    "   ?uri hasco:hasDeployment <" + deploymentUri + "> . " +
                     "   ?uri hasco:canUpdate ?userEmail . " +
                     //"   ?uri vstoi:designedAtTime ?datetime . " +
                     "   FILTER (?userEmail = \"" + userEmail + "\") " +
@@ -989,11 +779,10 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
                     " ORDER BY DESC(?datetime) " +
             		" LIMIT " + pageSize +
             		" OFFSET " + offset;
-        } else if (state.getCurrent() == State.ACTIVE) {
+        } else if (state.equals(HASCO.ACTIVE)) {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                     "SELECT ?uri WHERE { " +
                     "   ?uri a hasco:Stream . " +
-                    "   ?uri hasco:hasDeployment <" + deploymentUri + "> . " +
                     "   ?uri hasco:canUpdate ?userEmail . " +
                     "   ?uri prov:startedAtTime ?startedattime . " +
                     "   FILTER (?userEmail = \"" + userEmail + "\") " +
@@ -1002,11 +791,10 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
                     " ORDER BY DESC(?startedattime) " +
                     " LIMIT " + pageSize +
                     " OFFSET " + offset;
-        } else if (state.getCurrent() == State.CLOSED) {
+        } else if (state.equals(HASCO.CLOSED)) {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                     "SELECT ?uri WHERE { " +
                     "   ?uri a hasco:Stream . " +
-                    "   ?uri hasco:hasDeployment <" + deploymentUri + "> . " +
                     "   ?uri hasco:canUpdate ?userEmail . " +
                     "   ?uri prov:startedAtTime ?startedattime .  " +
                     "   ?uri prov:endedAtTime ?enddatetime .  " +
@@ -1015,11 +803,10 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
                     " ORDER BY DESC(?startedattime) " +
                     " LIMIT " + pageSize +
                     " OFFSET " + offset;
-        } else if (state.getCurrent() == State.ALL) {
+        } else if (state.equals(HASCO.ALL_STATUSES)) {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                     "SELECT ?uri WHERE { " +
                     "   ?uri a hasco:Stream . " +
-                    "   ?uri hasco:hasDeployment <" + deploymentUri + "> . " +
                     "   ?uri hasco:canUpdate ?userEmail . " +
                     "   FILTER (?userEmail = \"" + userEmail + "\") " +
                     "} " +
@@ -1033,43 +820,39 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
         return findManyByQuery(queryString);
     }
 
-    public static int findTotalCanUpdateByDeploymentWithPages(State state, String userEmail, String deploymentUri) {
+    public static int findTotalCanUpdateByStateEmailWithPages(String state, String userEmail) {
         String queryString = "";
-        if (state.getCurrent() == State.DESIGN) {
+        if (state.equals(HASCO.DRAFT)) {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 "SELECT (count(?uri) as ?tot) WHERE { " +
                 "   ?uri a hasco:Stream . " +
-                "   ?uri hasco:hasDeployment <" + deploymentUri + "> . " +
                 "   ?uri hasco:canUpdate ?userEmail . " +
                 "   FILTER (?userEmail = \"" + userEmail + "\") " +
                 "   FILTER NOT EXISTS { ?uri prov:startedAtTime ?startdatetime . } " +
                 "   FILTER NOT EXISTS { ?uri prov:endedAtTime ?enddatetime . } " +
                 "} ";
-        } else if (state.getCurrent() == State.ACTIVE) {
+        } else if (state.equals(HASCO.ACTIVE)) {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 "SELECT (count(?uri) as ?tot) WHERE { " +
                 "   ?uri a hasco:Stream . " +
-                "   ?uri hasco:hasDeployment <" + deploymentUri + "> . " +
                 "   ?uri hasco:canUpdate ?userEmail . " +
                 "   ?uri prov:startedAtTime ?startdatetime . " +
                 "   FILTER (?userEmail = \"" + userEmail + "\") " +
                 "   FILTER NOT EXISTS { ?uri prov:endedAtTime ?enddatetime . } " +
                 "} ";
-        } else if (state.getCurrent() == State.CLOSED) {
+        } else if (state.equals(HASCO.CLOSED)) {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 "SELECT (count(?uri) as ?tot) WHERE { " +
                 "   ?uri a hasco:Stream . " +
-                "   ?uri hasco:hasDeployment <" + deploymentUri + "> . " +
                 "   ?uri hasco:canUpdate ?userEmail . " +
                 "   ?uri prov:startedAtTime ?startdatetime .  " +
                 "   ?uri prov:endedAtTime ?enddatetime .  " +
                 "   FILTER (?userEmail = \"" + userEmail + "\") " +
                 "} ";
-        } else if (state.getCurrent() == State.ALL) {
+        } else if (state.equals(HASCO.ALL_STATUSES)) {
             queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 "SELECT (count(?uri) as ?tot) WHERE { " +
                 "   ?uri a hasco:Stream . " +
-                "   ?uri hasco:hasDeployment <" + deploymentUri + "> . " +
                 "   ?uri hasco:canUpdate ?userEmail . " +
                 "   FILTER (?userEmail = \"" + userEmail + "\") " +
                 "} ";
@@ -1101,17 +884,16 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
                 System.out.println("[ERROR] OwnerUri for STR " + str.getUri() + "is missing");
                 continue;
             }
-            if (str.getPermissionUri().equals("Public") || str.getPermissionUri().equals(user_email)
-                    || str.getHasSIRManagerEmail().equals(user_email)) {
+            if (str.getPermissionUri().equals(HASCO.PUBLIC) || str.getHasSIRManagerEmail().equals(user_email)) {
                 results.add(str.getUri());
                 continue;
             }
 
-            for (String level : accessLevels) {
-                if (str.getPermissionUri().equals(level)) {
-                    results.add(str.getUri());
-                }
-            }
+            //for (String level : accessLevels) {
+            //    if (str.getPermissionUri().equals(level)) {
+            //        results.add(str.getUri());
+            //    }
+            //}
         }
 
         return results;
@@ -1127,12 +909,11 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
 
     /* Open streams are those with ended_at_date =  9999-12-31T23:59:59.999Z */
     public static List<Stream> findOpenStreams() {
-        /*
-        SolrQuery query = new SolrQuery();
-        query.set("q", "message_ip_str:* AND ended_at_date:\"9999-12-31T23:59:59.999Z\" AND -message_status_str:\"CLOSED\"");
-        query.set("rows", "10000000");
-        */
-        String query = "";
+        String query = NameSpaces.getInstance().printSparqlNameSpaceList() +
+            "SELECT ?uri WHERE { " +
+            "   ?uri a hasco:Stream . " +
+            "   ?uri hasco:hasStreamStatus hasco:Active . " +
+            "} ";
         return findManyByQuery(query);
     }
 
@@ -1236,127 +1017,6 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
     }
 
     @Override
-    //@SuppressWarnings("unchecked")
-    public boolean saveToTripleStore(boolean withValidation, boolean withDeletion, org.eclipse.rdf4j.model.Model model, List<String> query) {
-        String insert = "";
-
-        if (query == null || query.isEmpty()) {
-            insert += NameSpaces.getInstance().printSparqlNameSpaceList();
-            insert += INSERT_LINE1;
-        } else {
-            insert = query.get(0);
-        }
-
-        String streamUri = "";
-        if (this.getUri().startsWith("<")) {
-            streamUri = this.getUri();
-        } else {
-            streamUri = "<" + this.getUri() + ">";
-        }
-
-        if (!getNamedGraph().isEmpty()) {
-            insert += " GRAPH <" + getNamedGraph() + "> { ";
-        } else {
-            insert += " GRAPH <" + Constants.DEFAULT_REPOSITORY + "> { ";
-        }
-
-        insert += streamUri + " a <" + typeUri + "> . ";
-        insert += streamUri + " hasco:hascoType <" + hascoTypeUri + "> . ";
-        insert += streamUri + " rdfs:label  \"" + this.getLabel() + "\" . ";
-        if (this.getStudyUri().startsWith("http")) {
-            insert += streamUri + " hasco:hasStudy  <" + this.getStudyUri() + "> . ";
-        } else {
-            insert += streamUri + " hasco:hasStudy  " + this.getStudyUri() + " . ";
-        }
-        if (this.getSemanticDataDictionaryUri().startsWith("http")) {
-            insert += streamUri + " hasco:hasSDD  <" + this.getSemanticDataDictionaryUri() + "> . ";
-        } else {
-            insert += streamUri + " hasco:hasSDD  " + this.getSemanticDataDictionaryUri() + " . ";
-        }
-        if (this.getDeploymentUri().startsWith("http")) {
-            insert += streamUri + " hasco:hasDeployment  <" + this.getDeploymentUri() + "> . ";
-        } else {
-            insert += streamUri + " hasco:hasDeployment  " + this.getDeploymentUri() + " . ";
-        }
-        if (this.getPermissionUri().startsWith("http")) {
-            insert += streamUri + " hasco:hasPermissionUri  <" + this.getPermissionUri() + "> . ";
-        } else {
-            insert += streamUri + " hasco:hasPermissionUri  " + this.getPermissionUri() + " . ";
-        }
-        if (this.getHasSIRManagerEmail() != null && !this.getHasSIRManagerEmail().equals("")) {
-            insert += streamUri + " vstoi:hasSIRManagerEmail  \"" + this.getHasSIRManagerEmail() + "\" . ";
-        }
-        // insert += streamUri + " hasco:hasLastCounter  \"" + this.hasLastCounter + "\" . ";
-        // if (this.getSpaceScopeUris() != null && this.getSpaceScopeUris().size() > 0) {
-        //     for (String spaceScope : this.getSpaceScopeUris()) {
-        //         if (spaceScope != null && !spaceScope.isEmpty()){
-        //             if (spaceScope.startsWith("http")) {
-        //                 insert += streamUri + " hasco:hasSpaceScope  <" + spaceScope + "> . ";
-        //             } else {
-        //                 insert += streamUri + " hasco:hasSpaceScope  " + spaceScope + " . ";
-        //             }
-        //         }
-        //     }
-        // }
-        // if (this.getTimeScopeUris() != null && this.getTimeScopeUris().size() > 0) {
-        //     for (String timeScope : this.getTimeScopeUris()) {
-        //         if (timeScope != null && !timeScope.isEmpty()){
-        //             if (timeScope.startsWith("http")) {
-        //                 insert += streamUri + " hasco:hasTimeScope  <" + timeScope + "> . ";
-        //             } else {
-        //                 insert += streamUri + " hasco:hasTimeScope  " + timeScope + " . ";
-        //                 //System.out.println(streamUri + " hasco:hasTimeScope  " + timeScope + " . ");
-        //             }
-        //         }
-        //     }
-        // }
-        // if (this.getGroupUris() != null && this.getGroupUris().size() > 0) {
-        //     for (String group : this.getGroupUris()) {
-        //         if (group.length() > 0){
-        //             if (group.startsWith("http")) {
-        //                 insert += streamUri + " hasco:hasGroup  <" + group + "> . ";
-        //             } else {
-        //                 insert += streamUri + " hasco:hasGroup  " + group + " . ";
-        //                 //System.out.println(streamUri + " hasco:hasGroup  " + group + " . ");
-        //             }
-        //         }
-        //     }
-        // }
-
-        // NAMEDGRAPH CLOSING
-        insert += " } ";
-
-        //System.out.println("\n\nsave to TS: insert = " + insert + "\n ");
-
-        if (query == null){
-            // INSERT CLOSING
-            insert += LINE_LAST;
-
-            try {
-                UpdateRequest request = UpdateFactory.create(insert);
-                UpdateProcessor processor = UpdateExecutionFactory.createRemote(
-                        request, CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
-                processor.execute();
-            } catch (QueryParseException e) {
-                System.out.println("QueryParseException due to update query: " + insert);
-                throw e;
-            }
-        } else {
-            // Update query
-            if (query.isEmpty()){
-                query.add(insert);
-            } else {
-                query.set(0, insert);
-            }
-        }
-
-        //saveObjectUris(streamUri);
-
-        return true;
-    }
-
-
-    @Override
     public void save() {
         //System.out.println("Saving stream [" + uri + "]");
         //if (null == endedAt) {
@@ -1364,7 +1024,11 @@ public class Stream extends HADatAcThing implements Comparable<Stream> {
         //} else if (endedAt.toString().startsWith("9999")) {
         //    endedAt = "9999-12-31T23:59:59.999Z";
         //}
-        saveToTripleStore();
+        try {
+            saveToTripleStore();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

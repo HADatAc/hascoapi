@@ -66,9 +66,11 @@ public class Constants {
     public static final String PREFIX_DETECTOR                   = "DTC";
     public static final String PREFIX_DETECTOR_INSTANCE          = "DTI";
     public static final String PREFIX_DSG                        = "DSG";
+    public static final String PREFIX_FUNDING_SCHEME             = "FSC";
     public static final String PREFIX_INSTRUMENT                 = "INS";
     public static final String PREFIX_INSTRUMENT_INSTANCE        = "IN0";
     public static final String PREFIX_INS                        = "INS";
+    public static final String PREFIX_KGR                        = "KGR";
     public static final String PREFIX_ORGANIZATION               = "ORG";
     public static final String PREFIX_PERSON                     = "PER";
     public static final String PREFIX_PLACE                      = "PLC";
@@ -78,7 +80,9 @@ public class Constants {
     public static final String PREFIX_POSTAL_ADDRESS             = "PAD";
     public static final String PREFIX_PROCESS                    = "PC0";
     public static final String PREFIX_PROCESS_STEM               = "PST";
-    public static final String PREFIX_REQUIRED_INSTRUMENTATION   = "RIN";
+    public static final String PREFIX_PROJECT                    = "PJT";
+    public static final String PREFIX_REQUIRED_COMPONENT         = "RCP";
+    public static final String PREFIX_REQUIRED_INSTRUMENT        = "RIN";
     public static final String PREFIX_RESPONSE_OPTION            = "ROP";
     public static final String PREFIX_SDD                        = "SDD";
     public static final String PREFIX_SDD_ATTRIBUTE              = "SDDATT";
@@ -91,6 +95,7 @@ public class Constants {
     public static final String PREFIX_STUDY_ROLE                 = "RLE";
     public static final String PREFIX_STR                        = "STR";
     public static final String PREFIX_STREAM                     = "STM";
+    public static final String PREFIX_STREAM_TOPIC               = "STP";
     public static final String PREFIX_SUBCONTAINER               = "SCT";
     public static final String PREFIX_VIRTUAL_COLUMN             = "VCO";
   
@@ -132,7 +137,10 @@ public class Constants {
     public static final String PREFIX_SUBCONTAINER               = "SC";
     public static final String PREFIX_VIRTUAL_COLUMN             = "VC";
     */
-  
+
+    public static final String RESOURCE_FOLDER = "resources/";
+    public static final String MEDIA_FOLDER = "media/";
+
     public static final String DEFAULT_KB = "http://hadatac.org/kb/default/";
     public static final String DEFAULT_REPOSITORY = DEFAULT_KB + "repository";
     /**

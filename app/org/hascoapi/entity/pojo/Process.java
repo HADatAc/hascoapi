@@ -111,6 +111,13 @@ public class Process extends HADatAcThing implements Comparable<Process> {
         return hasTopTaskUri;
     }
 
+    public Task getHasTopTask() {
+        if (hasTopTaskUri == null || hasTopTaskUri.trim().isEmpty()) {
+            return null;
+        }
+        return Task.find(hasTopTaskUri);
+    }
+
     public void setHasTopTaskUri(String hasTopTaskUri) {
         this.hasTopTaskUri = hasTopTaskUri;
     }
@@ -196,6 +203,14 @@ public class Process extends HADatAcThing implements Comparable<Process> {
 
     @Override
     public void delete() {
+        deleteFromTripleStore();
+    }
+
+    public void deleteWithTasks() {
+        Task topTask = this.getHasTopTask();
+        if (topTask != null) {
+            topTask.deleteWithSubtasks();
+        }
         deleteFromTripleStore();
     }
 

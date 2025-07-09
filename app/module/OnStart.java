@@ -7,7 +7,9 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import org.hascoapi.Constants;
 import org.hascoapi.RepositoryInstance;
+import org.hascoapi.entity.pojo.StreamTopic;
 import org.hascoapi.utils.NameSpaces;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,11 +26,17 @@ public class OnStart {
         initDirectoryStructure();
         RepositoryInstance.getInstance();
         NameSpaces.getInstance().updateLocalNamespace();
+		StreamTopic.initiateStreamTopics();
     }
 
     private void initDirectoryStructure() {
         List<String> listFolderPaths = new LinkedList<String>();
         listFolderPaths.add(ConfigProp.getPathIngestion());
+		if (ConfigProp.getPathIngestion().endsWith("/")) {
+			listFolderPaths.add(ConfigProp.getPathIngestion() + Constants.RESOURCE_FOLDER);
+		} else {
+			listFolderPaths.add(ConfigProp.getPathIngestion());
+		}
 		/*listFolderPaths.add("tmp");
 		listFolderPaths.add("logs");
 		listFolderPaths.add("processed_csv");

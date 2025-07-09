@@ -33,6 +33,9 @@ public abstract class VSTOIInstance extends HADatAcThing implements Comparable<V
 
 	private static final Logger log = LoggerFactory.getLogger(VSTOIInstance.class);
 
+	@PropertyField(uri="vstoi:hasStatus")
+	private String hasStatus;
+
 	@PropertyField(uri="vstoi:hasSerialNumber")
     protected String hasSerialNumber;
 
@@ -45,8 +48,21 @@ public abstract class VSTOIInstance extends HADatAcThing implements Comparable<V
 	@PropertyField(uri="vstoi:hasDamageDate")
 	private String hasDamageDate;
 
+	@PropertyField(uri="vstoi:hasOwner")
+	private String hasOwnerUri;
+
+	@PropertyField(uri="vstoi:hasMaintainer")
+	private String hasMaintainerUri;
+
 	@PropertyField(uri="vstoi:hasSIRManagerEmail")
 	private String hasSIRManagerEmail;
+
+	public String getHasStatus() {
+		return hasStatus;
+	}
+	public void setHasStatus(String hasStatus) {
+		this.hasStatus = hasStatus;
+	}
 
 	public String getHasSerialNumber() {
 		return hasSerialNumber;
@@ -74,6 +90,32 @@ public abstract class VSTOIInstance extends HADatAcThing implements Comparable<V
 	}
 	public void setHasDamageDate(String hasDamageDate) {
 		this.hasDamageDate = hasDamageDate;
+	}
+
+	public String getHasOwnerUri() {
+		return hasOwnerUri;
+	}
+    public Organization getHasOwner() {
+        if (hasOwnerUri == null || hasOwnerUri.isEmpty()) {
+			return null;
+		}
+		return Organization.find(hasOwnerUri);
+    }
+	public void setHasOwnerUri(String hasOwnerUri) {
+		this.hasOwnerUri = hasOwnerUri;
+	}
+
+	public String getHasMaintainerUri() {
+		return hasMaintainerUri;
+	}
+    public Person getHasMaintainer() {
+        if (hasMaintainerUri == null || hasMaintainerUri.isEmpty()) {
+			return null;
+		}
+		return Person.find(hasMaintainerUri);
+    }
+	public void setHasMaintainerUri(String hasMaintainerUri) {
+		this.hasMaintainerUri = hasMaintainerUri;
 	}
 
 	public String getHasSIRManagerEmail() {
@@ -153,6 +195,8 @@ public abstract class VSTOIInstance extends HADatAcThing implements Comparable<V
 					instance.setHasImageUri(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_WEB_DOCUMENT)) {
 					instance.setHasWebDocument(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_STATUS)) {
+					instance.setHasStatus(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_ACQUISITION_DATE)) {
 					instance.setHasAcquisitionDate(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SERIAL_NUMBER)) {
@@ -161,6 +205,10 @@ public abstract class VSTOIInstance extends HADatAcThing implements Comparable<V
 					instance.setIsDamaged(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_DAMAGE_DATE)) {
 					instance.setHasDamageDate(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_OWNER)) {
+					instance.setHasOwnerUri(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_MAINTAINER)) {
+					instance.setHasMaintainerUri(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
 					instance.setHasSIRManagerEmail(str);
 				}

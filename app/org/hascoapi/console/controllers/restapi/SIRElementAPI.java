@@ -201,6 +201,16 @@ public class SIRElementAPI extends Controller {
                 message = e.getMessage();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
+        } else if (clazz == FundingScheme.class) {
+            try {
+                FundingScheme object;
+                System.out.println("FUNDING SCHEME: " + json);
+                object = (FundingScheme)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
         } else if (clazz == INS.class) {
             try {
                 INS object;
@@ -339,6 +349,34 @@ public class SIRElementAPI extends Controller {
                 message = e.getMessage();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
+        } else if (clazz == Project.class) {
+            try {
+                Project object;
+                object = (Project)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                System.out.println("Error processing Project: " + e.getMessage());
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == RequiredComponent.class) {
+            try {
+                RequiredComponent object;
+                object = (RequiredComponent)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == RequiredInstrument.class) {
+            try {
+                RequiredInstrument object;
+                object = (RequiredInstrument)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
         } else if (clazz == ResponseOption.class) {
             try {
                 ResponseOption object;
@@ -413,6 +451,16 @@ public class SIRElementAPI extends Controller {
                 object.save();
             } catch (JsonProcessingException e) {
                 System.out.println("Error processing Stream: " + e.getMessage());
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == StreamTopic.class) {
+            try {
+                StreamTopic object;
+                object = (StreamTopic)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                System.out.println("Error processing StreamTopic: " + e.getMessage());
                 message = e.getMessage();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
@@ -602,14 +650,6 @@ public class SIRElementAPI extends Controller {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
-        /*
-        } else if (clazz == DetectorStemType.class) {
-            DetectorStemType object = DetectorStemType.find(uri);
-            if (object == null) {
-                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
-            }
-            object.delete();
-        */
         } else if (clazz == DP2.class) {
             DP2 object = DP2.find(uri);
             if (object == null) {
@@ -624,6 +664,12 @@ public class SIRElementAPI extends Controller {
             object.delete();
         } else if (clazz == Entity.class) {
             Entity object = Entity.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == FundingScheme.class) {
+            FundingScheme object = FundingScheme.find(uri);
             if (object == null) {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
@@ -646,14 +692,6 @@ public class SIRElementAPI extends Controller {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
-        /*
-        } else if (clazz == InstrumentType.class) {
-            InstrumentType object = InstrumentType.find(uri);
-            if (object == null) {
-                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
-            }
-            object.delete();
-        */
         } else if (clazz == KGR.class) {
             KGR object = KGR.find(uri);
             if (object == null) {
@@ -714,6 +752,24 @@ public class SIRElementAPI extends Controller {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
+        } else if (clazz == Project.class) {
+            Project object = Project.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == RequiredComponent.class) {
+            RequiredComponent object = RequiredComponent.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == RequiredInstrument.class) {
+            RequiredInstrument object = RequiredInstrument.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
         } else if (clazz == ResponseOption.class) {
             ResponseOption object = ResponseOption.find(uri);
             if (object == null) {
@@ -764,6 +820,13 @@ public class SIRElementAPI extends Controller {
             object.delete();
         } else if (clazz == Stream.class) {
             Stream object = Stream.find(uri);
+            System.out.println("Ended at: "+ object.getEndedAt());
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == StreamTopic.class) {
+            StreamTopic object = StreamTopic.find(uri);
             if (object == null) {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
@@ -1031,6 +1094,14 @@ public class SIRElementAPI extends Controller {
             GenericFind<KGR> query = new GenericFind<KGR>();
             List<KGR> results = query.findByKeywordWithPages(KGR.class,keyword, pageSize, offset);
             return KGRAPI.getKGRs(results);
+        }  else if (elementType.equals("fundingscheme")) {
+            GenericFind<FundingScheme> query = new GenericFind<FundingScheme>();
+            List<FundingScheme> results = query.findByKeywordWithPages(FundingScheme.class,keyword, pageSize, offset);
+            return FundingSchemeAPI.getFundingSchemes(results);
+        }  else if (elementType.equals("project")) {
+            GenericFind<Project> query = new GenericFind<Project>();
+            List<Project> results = query.findByKeywordWithPages(Project.class,keyword, pageSize, offset);
+            return ProjectAPI.getProjects(results);
         }  else if (elementType.equals("actuator")) {
             GenericFind<Actuator> query = new GenericFind<Actuator>();
             List<Actuator> results = query.findByKeywordWithPages(Actuator.class,keyword, pageSize, offset);
@@ -1054,11 +1125,38 @@ public class SIRElementAPI extends Controller {
         if (elementType == null || elementType.isEmpty()) {
             return ok(ApiUtil.createResponse("No elementType has been provided", false));
         }
-        Class clazz = GenericFind.getElementClass(elementType);
-        if (clazz == null) {        
-            return ok(ApiUtil.createResponse("[" + elementType + "] is not a valid elementType", false));
+        int totalElements = -1;
+        if (elementType.equals("component")) {
+            Class clazz = GenericFind.getElementClass("detector");
+            int totalDetectors = GenericFind.findTotalByKeyword(clazz, keyword);
+            if (totalDetectors < 0) {
+                totalDetectors = 0;
+            }
+            clazz = GenericFind.getElementClass("actuator");
+            int totalActuators = GenericFind.findTotalByKeyword(clazz, keyword);
+            if (totalActuators < 0) {
+                totalActuators = 0;
+            }
+            totalElements = totalDetectors + totalActuators;
+        } else if (elementType.equals("componentinstance")) {
+            Class clazz = GenericFind.getElementClass("detectorinstance");
+            int totalDetectorInstances = GenericFind.findTotalByKeyword(clazz, keyword);
+            if (totalDetectorInstances < 0) {
+                totalDetectorInstances = 0;
+            }
+            clazz = GenericFind.getElementClass("actuatorinstance");
+            int totalActuatorInstances = GenericFind.findTotalByKeyword(clazz, keyword);
+            if (totalActuatorInstances < 0) {
+                totalActuatorInstances = 0;
+            }
+            totalElements = totalDetectorInstances + totalActuatorInstances;
+        } else {
+            Class clazz = GenericFind.getElementClass(elementType);
+            if (clazz == null) {        
+                return ok(ApiUtil.createResponse("[" + elementType + "] is not a valid elementType", false));
+            }
+            totalElements = GenericFind.findTotalByKeyword(clazz, keyword);
         }
-        int totalElements = GenericFind.findTotalByKeyword(clazz, keyword);
         if (totalElements >= 0) {
             String totalElementsJSON = "{\"total\":" + totalElements + "}";
             return ok(ApiUtil.createResponse(totalElementsJSON, true));
@@ -1070,158 +1168,102 @@ public class SIRElementAPI extends Controller {
      *   GET ELEMENTS BY KEYWORD AND LANGUAGE WITH PAGE
      */
                 
-    public Result getElementsByKeywordAndLanguageWithPage(String elementType, String keyword, String language, int pageSize, int offset) {
+    public Result getElementsByKeywordAndLanguageWithPage(String elementType, String keyword, String language, String type, String manageremail, String status, int pageSize, int offset) {
         if (keyword.equals("_")) {
             keyword = "";
         }
         if (language.equals("_")) {
             language = "";
         }
-        if (elementType.equals("instrument")) {
-            GenericFind<Instrument> query = new GenericFind<Instrument>();
-            List<Instrument> results = query.findByKeywordAndLanguageWithPages(Instrument.class, keyword, language, pageSize, offset);
-            return InstrumentAPI.getInstruments(results);
-        } else if (elementType.equals("detectorstem")) {
-            GenericFind<DetectorStem> query = new GenericFind<DetectorStem>();
-            List<DetectorStem> results = query.findByKeywordAndLanguageWithPages(DetectorStem.class, keyword, language, pageSize, offset);
-            return DetectorStemAPI.getDetectorStems(results);
-        } else if (elementType.equals("detector")) {
-            GenericFind<Detector> query = new GenericFind<Detector>();
-            List<Detector> results = query.findByKeywordAndLanguageWithPages(Detector.class, keyword, language, pageSize, offset);
-            return DetectorAPI.getDetectors(results);
-        } else if (elementType.equals("codebook")) {
-            GenericFind<Codebook> query = new GenericFind<Codebook>();
-            List<Codebook> results = query.findByKeywordAndLanguageWithPages(Codebook.class, keyword, language, pageSize, offset);
-            return CodebookAPI.getCodebooks(results);
-        } else if (elementType.equals("responseoption")) {
-            GenericFind<ResponseOption> query = new GenericFind<ResponseOption>();
-            List<ResponseOption> results = query.findByKeywordAndLanguageWithPages(ResponseOption.class, keyword, language, pageSize, offset);
-            return ResponseOptionAPI.getResponseOptions(results);
-        } else if (elementType.equals("annotationstem")) {
-            GenericFind<AnnotationStem> query = new GenericFind<AnnotationStem>();
-            List<AnnotationStem> results = query.findByKeywordAndLanguageWithPages(AnnotationStem.class, keyword, language, pageSize, offset);
-            return AnnotationStemAPI.getAnnotationStems(results);
+        if (type.equals("_")) {
+            type = "";
+        }
+        if (manageremail.equals("_")) {
+            manageremail = "";
+        }
+        if (status.equals("_")) {
+            status = "";
+        }
+        if (elementType.equals("actuator")) {
+            GenericFind<Actuator> query = new GenericFind<Actuator>();
+            List<Actuator> results = query.findByKeywordAndLanguageWithPages(Actuator.class, keyword, language, type, manageremail, status, pageSize, offset);
+            return ActuatorAPI.getActuators(results);
+        } else if (elementType.equals("actuatorstem")) {
+            GenericFind<ActuatorStem> query = new GenericFind<ActuatorStem>();
+            List<ActuatorStem> results = query.findByKeywordAndLanguageWithPages(ActuatorStem.class, keyword, language, type, manageremail, status, pageSize, offset);
+            return ActuatorStemAPI.getActuatorStems(results);
         } else if (elementType.equals("annotation")) {
             GenericFind<Annotation> query = new GenericFind<Annotation>();
-            List<Annotation> results = query.findByKeywordAndLanguageWithPages(Annotation.class, keyword, language, pageSize, offset);
+            List<Annotation> results = query.findByKeywordAndLanguageWithPages(Annotation.class, keyword, language, type, manageremail, status, pageSize, offset);
             return AnnotationAPI.getAnnotations(results);
-        } else if (elementType.equals("semanticvariable")) {
-            GenericFind<SemanticVariable> query = new GenericFind<SemanticVariable>();
-            List<SemanticVariable> results = query.findByKeywordAndLanguageWithPages(SemanticVariable.class, keyword, language, pageSize, offset);
-            return SemanticVariableAPI.getSemanticVariables(results);
-        } else if (elementType.equals("entity")) {
-            GenericFind<Entity> query = new GenericFind<Entity>();
-            List<Entity> results = query.findByKeywordAndLanguageWithPages(Entity.class, keyword, language, pageSize, offset);
-            return EntityAPI.getEntities(results);
+        } else if (elementType.equals("annotationstem")) {
+            GenericFind<AnnotationStem> query = new GenericFind<AnnotationStem>();
+            List<AnnotationStem> results = query.findByKeywordAndLanguageWithPages(AnnotationStem.class, keyword, language, type, manageremail, status, pageSize, offset);
+            return AnnotationStemAPI.getAnnotationStems(results);
         }  else if (elementType.equals("attribute")) {
             GenericFind<Attribute> query = new GenericFind<Attribute>();
-            List<Attribute> results = query.findByKeywordAndLanguageWithPages(Attribute.class, keyword, language, pageSize, offset);
+            List<Attribute> results = query.findByKeywordAndLanguageWithPages(Attribute.class, keyword, language, type, manageremail, status, pageSize, offset);
             return AttributeAPI.getAttributes(results);
-        }  else if (elementType.equals("unit")) {
-            GenericFind<Unit> query = new GenericFind<Unit>();
-            List<Unit> results = query.findByKeywordAndLanguageWithPages(Unit.class, keyword, language, pageSize, offset);
-            return UnitAPI.getUnits(results);
+        } else if (elementType.equals("codebook")) {
+            GenericFind<Codebook> query = new GenericFind<Codebook>();
+            List<Codebook> results = query.findByKeywordAndLanguageWithPages(Codebook.class, keyword, language, type, manageremail, status, pageSize, offset);
+            return CodebookAPI.getCodebooks(results);
+        } else if (elementType.equals("detector")) {
+            GenericFind<Detector> query = new GenericFind<Detector>();
+            List<Detector> results = query.findByKeywordAndLanguageWithPages(Detector.class, keyword, language, type, manageremail, status, pageSize, offset);
+            return DetectorAPI.getDetectors(results);
+        } else if (elementType.equals("detectorstem")) {
+            GenericFind<DetectorStem> query = new GenericFind<DetectorStem>();
+            List<DetectorStem> results = query.findByKeywordAndLanguageWithPages(DetectorStem.class, keyword, language, type, manageremail, status, pageSize, offset);
+            return DetectorStemAPI.getDetectorStems(results);
+        } else if (elementType.equals("entity")) {
+            GenericFind<Entity> query = new GenericFind<Entity>();
+            List<Entity> results = query.findByKeywordAndLanguageWithPages(Entity.class, keyword, language, type, manageremail, status, pageSize, offset);
+            return EntityAPI.getEntities(results);
+        } else if (elementType.equals("instrument")) {
+            GenericFind<Instrument> query = new GenericFind<Instrument>();
+            List<Instrument> results = query.findByKeywordAndLanguageWithPages(Instrument.class, keyword, language, type, manageremail, status, pageSize, offset);
+            return InstrumentAPI.getInstruments(results);
         }  else if (elementType.equals("process")) {
             GenericFind<org.hascoapi.entity.pojo.Process> query = new GenericFind<org.hascoapi.entity.pojo.Process>();
-            List<org.hascoapi.entity.pojo.Process> results = query.findByKeywordAndLanguageWithPages(org.hascoapi.entity.pojo.Process.class, keyword, language, pageSize, offset);
+            List<org.hascoapi.entity.pojo.Process> results = query.findByKeywordAndLanguageWithPages(org.hascoapi.entity.pojo.Process.class, keyword, language, type, manageremail, status, pageSize, offset);
             return ProcessAPI.getProcesses(results);
         }  else if (elementType.equals("processstem")) {
             GenericFind<ProcessStem> query = new GenericFind<ProcessStem>();
-            List<ProcessStem> results = query.findByKeywordAndLanguageWithPages(ProcessStem.class, keyword, language, pageSize, offset);
+            List<ProcessStem> results = query.findByKeywordAndLanguageWithPages(ProcessStem.class, keyword, language, type, manageremail, status, pageSize, offset);
             return ProcessAPI.getProcessStems(results);
-        } else if (elementType.equals("actuatorstem")) {
-            GenericFind<ActuatorStem> query = new GenericFind<ActuatorStem>();
-            List<ActuatorStem> results = query.findByKeywordAndLanguageWithPages(ActuatorStem.class, keyword, language, pageSize, offset);
-            return ActuatorStemAPI.getActuatorStems(results);
-        } else if (elementType.equals("actuator")) {
-            GenericFind<Actuator> query = new GenericFind<Actuator>();
-            List<Actuator> results = query.findByKeywordAndLanguageWithPages(Actuator.class, keyword, language, pageSize, offset);
-            return ActuatorAPI.getActuators(results);
-        /* NOTE: THE CLASSES BELOW DO NOT HAVE LANGUAGE PROPERTY 
-        }  else if (elementType.equals("ins")) {
-            GenericFind<INS> query = new GenericFind<INS>();
-            List<INS> results = query.findByKeywordAndLanguageWithPages(INS.class, keyword, language, pageSize, offset);
-            return INSAPI.getINSs(results);
-        }  else if (elementType.equals("da")) {
-            GenericFind<DA> query = new GenericFind<DA>();
-            List<DA> results = query.findByKeywordAndLanguageWithPages(DA.class, keyword, language, pageSize, offset);
-            return DAAPI.getDAs(results);
-        }  else if (elementType.equals("dd")) {
-            GenericFind<DD> query = new GenericFind<DD>();
-            List<DD> results = query.findByKeywordAndLanguageWithPages(DD.class, keyword, language, pageSize, offset);
-            return DDAPI.getDDs(results);
-        }  else if (elementType.equals("sdd")) {
-            GenericFind<SDD> query = new GenericFind<SDD>();
-            List<SDD> results = query.findByKeywordAndLanguageWithPages(SDD.class, keyword, language, pageSize, offset);
-            return SDDAPI.getSDDs(results);
-        }  else if (elementType.equals("dp2")) {
-            GenericFind<DP2> query = new GenericFind<DP2>();
-            List<DP2> results = query.findByKeywordAndLanguageWithPages(DP2.class, keyword, language, pageSize, offset);
-            return DP2API.getDP2s(results);
-        }  else if (elementType.equals("str")) {
-            GenericFind<STR> query = new GenericFind<STR>();
-            List<STR> results = query.findByKeywordAndLanguageWithPages(STR.class, keyword, language, pageSize, offset);
-            return STRAPI.getSTRs(results);
-        }  else if (elementType.equals("datafile")) {
-            GenericFind<DataFile> query = new GenericFind<DataFile>();
-            List<DataFile> results = query.findByKeywordAndLanguageWithPages(DataFile.class, keyword, language, pageSize, offset);
-            return DataFileAPI.getDataFiles(results);
-        }  else if (elementType.equals("dsg")) {
-            GenericFind<DSG> query = new GenericFind<DSG>();
-            List<DSG> results = query.findByKeywordAndLanguageWithPages(DSG.class, keyword, language, pageSize, offset);
-            return DSGAPI.getDSGs(results);
-        }  else if (elementType.equals("study")) {
-            GenericFind<Study> query = new GenericFind<Study>();
-            List<Study> results = query.findByKeywordAndLanguageWithPages(Study.class, keyword, language, pageSize, offset);
-            return StudyAPI.getStudies(results);
-        }  else if (elementType.equals("studyobjectcollection")) {
-            GenericFind<StudyObjectCollection> query = new GenericFind<StudyObjectCollection>();
-            List<StudyObjectCollection> results = query.findByKeywordAndLanguageWithPages(StudyObjectCollection.class, keyword, language, pageSize, offset);
-            return StudyObjectCollectionAPI.getStudyObjectCollections(results);
-        }  else if (elementType.equals("studyobject")) {
-            GenericFind<StudyObject> query = new GenericFind<StudyObject>();
-            List<StudyObject> results = query.findByKeywordAndLanguageWithPages(StudyObject.class, keyword, language, pageSize, offset);
-            return StudyObjectAPI.getStudyObjects(results);
-        }  else if (elementType.equals("studyrole")) {
-            GenericFind<StudyRole> query = new GenericFind<StudyRole>();
-            List<StudyRole> results = query.findByKeywordAndLanguageWithPages(StudyRole.class, keyword, language, pageSize, offset);
-            return StudyRoleAPI.getStudyRoles(results);
-        }  else if (elementType.equals("virtualcolumn")) {
-            GenericFind<VirtualColumn> query = new GenericFind<VirtualColumn>();
-            List<VirtualColumn> results = query.findByKeywordAndLanguageWithPages(VirtualColumn.class, keyword, language, pageSize, offset);
-            return VirtualColumnAPI.getVirtualColumns(results);
-        }  else if (elementType.equals("person")) {
-            GenericFind<Person> query = new GenericFind<Person>();
-            List<Person> results = query.findByKeywordAndLanguageWithPages(Person.class, keyword, language, pageSize, offset);
-            return PersonAPI.getPeople(results);
-        }  else if (elementType.equals("organization")) {
-            GenericFind<Organization> query = new GenericFind<Organization>();
-            List<Organization> results = query.findByKeywordAndLanguageWithPages(Organization.class, keyword, language, pageSize, offset);
-            return OrganizationAPI.getOrganizations(results);
-        }  else if (elementType.equals("place")) {
-            GenericFind<Place> query = new GenericFind<Place>();
-            List<Place> results = query.findByKeywordAndLanguageWithPages(Place.class, keyword, language, pageSize, offset);
-            return PlaceAPI.getPlaces(results);
-        }  else if (elementType.equals("postaladdress")) {
-            GenericFind<PostalAddress> query = new GenericFind<PostalAddress>();
-            List<PostalAddress> results = query.findByKeywordAndLanguageWithPages(PostalAddress.class, keyword, language, pageSize, offset);
-            return PostalAddressAPI.getPostalAddresses(results);
-        }  else if (elementType.equals("kgr")) {
-            GenericFind<KGR> query = new GenericFind<KGR>();
-            List<KGR> results = query.findByKeywordAndLanguageWithPages(KGR.class, keyword, language, pageSize, offset);
-            return KGRAPI.getKGRs(results);
-        */
+        } else if (elementType.equals("responseoption")) {
+            GenericFind<ResponseOption> query = new GenericFind<ResponseOption>();
+            List<ResponseOption> results = query.findByKeywordAndLanguageWithPages(ResponseOption.class, keyword, language, type, manageremail, status, pageSize, offset);
+            return ResponseOptionAPI.getResponseOptions(results);
+        } else if (elementType.equals("semanticvariable")) {
+            GenericFind<SemanticVariable> query = new GenericFind<SemanticVariable>();
+            List<SemanticVariable> results = query.findByKeywordAndLanguageWithPages(SemanticVariable.class, keyword, language, type, manageremail, status, pageSize, offset);
+            return SemanticVariableAPI.getSemanticVariables(results);
+        }  else if (elementType.equals("unit")) {
+            GenericFind<Unit> query = new GenericFind<Unit>();
+            List<Unit> results = query.findByKeywordAndLanguageWithPages(Unit.class, keyword, language, type, manageremail, status, pageSize, offset);
+            return UnitAPI.getUnits(results);
         } 
         return ok("[getElementsByKeywordAndLanguageWithPage] No valid element type.");
     }
 
-    public Result getTotalElementsByKeywordAndLanguage(String elementType, String keyword, String language) {
+    public Result getTotalElementsByKeywordAndLanguage(String elementType, String keyword, String language, String type, String manageremail, String status) {
         //System.out.println("ElementType: " + elementType);
         if (keyword.equals("_")) {
             keyword = "";
         }
         if (language.equals("_")) {
             language = "";
+        }
+        if (type.equals("_")) {
+            type = "";
+        }
+        if (manageremail.equals("_")) {
+            manageremail = "";
+        }
+        if (status.equals("_")) {
+            status = "";
         }
         if (elementType == null || elementType.isEmpty()) {
             return ok(ApiUtil.createResponse("No elementType has been provided", false));
@@ -1230,7 +1272,7 @@ public class SIRElementAPI extends Controller {
         if (clazz == null) {        
             return ok(ApiUtil.createResponse("[" + elementType + "] is not a valid elementType", false));
         }
-        int totalElements = GenericFind.findTotalByKeywordAndLanguage(clazz, keyword, language);
+        int totalElements = GenericFind.findTotalByKeywordAndLanguage(clazz, keyword, language, type, manageremail, status);
         if (totalElements >= 0) {
             String totalElementsJSON = "{\"total\":" + totalElements + "}";
             return ok(ApiUtil.createResponse(totalElementsJSON, true));
@@ -1386,6 +1428,14 @@ public class SIRElementAPI extends Controller {
             GenericFind<KGR> query = new GenericFind<KGR>();
             List<KGR> results = query.findByManagerEmailWithPages(KGR.class, managerEmail, pageSize, offset);
             return KGRAPI.getKGRs(results);
+        }  else if (elementType.equals("fundingscheme")) {
+            GenericFind<FundingScheme> query = new GenericFind<FundingScheme>();
+            List<FundingScheme> results = query.findByManagerEmailWithPages(FundingScheme.class, managerEmail, pageSize, offset);
+            return FundingSchemeAPI.getFundingSchemes(results);
+        }  else if (elementType.equals("project")) {
+            GenericFind<Project> query = new GenericFind<Project>();
+            List<Project> results = query.findByManagerEmailWithPages(Project.class, managerEmail, pageSize, offset);
+            return ProjectAPI.getProjects(results);
         }  else if (elementType.equals("actuatorstem")) {
             GenericFind<ActuatorStem> query = new GenericFind<ActuatorStem>();
             List<ActuatorStem> results = query.findByManagerEmailWithPages(ActuatorStem.class, managerEmail, pageSize, offset);
@@ -1570,6 +1620,14 @@ public class SIRElementAPI extends Controller {
             GenericFindWithStatus<KGR> query = new GenericFindWithStatus<KGR>();
             List<KGR> results = query.findByStatusWithPages(KGR.class, hasStatus, pageSize, offset);
             return KGRAPI.getKGRs(results);
+        }  else if (elementType.equals("fundingscheme")) {
+            GenericFindWithStatus<FundingScheme> query = new GenericFindWithStatus<FundingScheme>();
+            List<FundingScheme> results = query.findByStatusWithPages(FundingScheme.class, hasStatus, pageSize, offset);
+            return FundingSchemeAPI.getFundingSchemes(results);
+        }  else if (elementType.equals("project")) {
+            GenericFindWithStatus<Project> query = new GenericFindWithStatus<Project>();
+            List<Project> results = query.findByStatusWithPages(Project.class, hasStatus, pageSize, offset);
+            return ProjectAPI.getProjects(results);
         }  else if (elementType.equals("actuatorstem")) {
             GenericFindWithStatus<ActuatorStem> query = new GenericFindWithStatus<ActuatorStem>();
             List<ActuatorStem> results = query.findByStatusWithPages(ActuatorStem.class, hasStatus, pageSize, offset);
@@ -1754,6 +1812,14 @@ public class SIRElementAPI extends Controller {
             GenericFindWithStatus<KGR> query = new GenericFindWithStatus<KGR>();
             List<KGR> results = query.findByStatusManagerEmailWithPages(KGR.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return KGRAPI.getKGRs(results);
+        }  else if (elementType.equals("fundingscheme")) {
+            GenericFindWithStatus<FundingScheme> query = new GenericFindWithStatus<FundingScheme>();
+            List<FundingScheme> results = query.findByStatusManagerEmailWithPages(FundingScheme.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
+            return FundingSchemeAPI.getFundingSchemes(results);
+        }  else if (elementType.equals("project")) {
+            GenericFindWithStatus<Project> query = new GenericFindWithStatus<Project>();
+            List<Project> results = query.findByStatusManagerEmailWithPages(Project.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
+            return ProjectAPI.getProjects(results);
         }  else if (elementType.equals("actuatorstem")) {
             GenericFindWithStatus<ActuatorStem> query = new GenericFindWithStatus<ActuatorStem>();
             List<ActuatorStem> results = query.findByStatusManagerEmailWithPages(ActuatorStem.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
@@ -1790,6 +1856,83 @@ public class SIRElementAPI extends Controller {
 
     }
 
+            
+    /**
+     *   GET ELEMENTS BY KEYWORD, TYPE, MANAGER EMAIL AND STATUS PAGE
+     */
+                
+     public Result getElementsByKeywordTypeManagerEmailAndStatusWithPage(String elementType, String project, String keyword, String type, String managerEmail, String status, int pageSize, int offset) {
+
+        if (project.equals("_")) {
+            project = "";
+        }
+        if (keyword.equals("_")) {
+            keyword = "";
+        }
+        if (type.equals("_")) {
+            type = "";
+        }
+        if (managerEmail.equals("_")) {
+            managerEmail = "";
+        }
+        if (status.equals("_")) {
+            status = "";
+        }
+        if (elementType.equals("organization")) {
+            GenericFindSocial<Organization> query = new GenericFindSocial<Organization>();
+            List<Organization> results = query.findByKeywordTypeManagerEmailandStatusWithPages(Organization.class, project, keyword, type, managerEmail, status, pageSize, offset);
+            return OrganizationAPI.getOrganizations(results);
+        } else if (elementType.equals("person")) {
+            GenericFindSocial<Person> query = new GenericFindSocial<Person>();
+            List<Person> results = query.findByKeywordTypeManagerEmailandStatusWithPages(Person.class, project, keyword, type, managerEmail, status, pageSize, offset);
+            return PersonAPI.getPeople(results);
+        } else if (elementType.equals("place")) {
+            GenericFindSocial<Place> query = new GenericFindSocial<Place>();
+            List<Place> results = query.findByKeywordTypeManagerEmailandStatusWithPages(Place.class, project, keyword, type, managerEmail, status, pageSize, offset);
+            return PlaceAPI.getPlaces(results);
+        } else if (elementType.equals("postaladdress")) {
+            GenericFindSocial<PostalAddress> query = new GenericFindSocial<PostalAddress>();
+            List<PostalAddress> results = query.findByKeywordTypeManagerEmailandStatusWithPages(PostalAddress.class, project, keyword, type, managerEmail, status, pageSize, offset);
+            return PostalAddressAPI.getPostalAddresses(results);
+        } 
+        return ok("[getElementsByKeywordTypeManagerEmailAnStatusWithPage] No valid element type.");
+    }
+
+    public Result getTotalElementsByKeywordTypeManagerEmailAndStatus(String elementType, String project, String keyword, String type, String managerEmail, String status) {
+
+        System.out.println("SIRElementAPI: getTotalElementsByKeywordType: project=[" + project + "]");
+
+
+        if (project.equals("_")) {
+            project = "";
+        }
+        if (keyword.equals("_")) {
+            keyword = "";
+        }
+        if (type.equals("_")) {
+            type = "";
+        }
+        if (managerEmail.equals("_")) {
+            managerEmail = "";
+        }
+        if (status.equals("_")) {
+            status = "";
+        }
+        if (elementType == null || elementType.isEmpty()) {
+            return ok(ApiUtil.createResponse("No elementType has been provided", false));
+        }
+        Class clazz = GenericFind.getElementClass(elementType);
+        if (clazz == null) {        
+            return ok(ApiUtil.createResponse("[" + elementType + "] is not a valid elementType", false));
+        }
+        int totalElements = GenericFindSocial.findTotalByKeywordTypeManagerEmailAndStatus(clazz, project, keyword, type, managerEmail, status);
+        if (totalElements >= 0) {
+            String totalElementsJSON = "{\"total\":" + totalElements + "}";
+            return ok(ApiUtil.createResponse(totalElementsJSON, true));
+        }
+        return ok(ApiUtil.createResponse("query method getTotalElementsByKeyword() failed to retrieve total number of [" + elementType + "]", false));
+    }
+        
     public Result usage(String elementUri){
         HADatAcThing object = URIPage.objectFromUri(elementUri);
         if (object == null || object.getHascoTypeUri() == null) {

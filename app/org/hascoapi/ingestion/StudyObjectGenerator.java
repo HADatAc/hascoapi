@@ -145,7 +145,7 @@ public class StudyObjectGenerator extends BaseGenerator {
     	if (socMap.containsKey(soc_uri)) {
     		return socMap.get(soc_uri);
     	}
-    	StudyObjectCollection soc = StudyObjectCollection.find(Utils.uriPlainGen("studyobjectcollection", soc_uri));
+    	StudyObjectCollection soc = StudyObjectCollection.find(soc_uri);
     	socMap.put(soc_uri, soc);
     	return soc;
     }

@@ -16,7 +16,7 @@ public class HASCO {
     public static final String DSG                                    = "http://hadatac.org/ont/hasco/DSG";
     public static final String HASCO_CLASS                            = "http://hadatac.org/ont/hasco/HascoClass";
     public static final String INS                                    = "http://hadatac.org/ont/hasco/INS";
-    public static final String KNOWLEDGE_GRAPH                        = "http://hadatac.org/ont/hasco/KnowledgeGraph";
+    public static final String KGR                                    = "http://hadatac.org/ont/hasco/KGR";
     public static final String LOCATION_COLLECTION                    = "http://hadatac.org/ont/hasco/LocationCollection";
     public static final String MANAGED_ONTOLOGY                       = "http://hadatac.org/ont/hasco/ManagedOntology";
     public static final String MATCHING_COLLECTION                    = "http://hadatac.org/ont/hasco/MatchingCollection";
@@ -33,6 +33,7 @@ public class HASCO {
     public static final String SEMANTIC_VARIABLE                      = "http://hadatac.org/ont/hasco/SemanticVariable";
     public static final String STR                                    = "http://hadatac.org/ont/hasco/STR";
     public static final String STREAM                                 = "http://hadatac.org/ont/hasco/Stream";
+    public static final String STREAM_TOPIC                           = "http://hadatac.org/ont/hasco/StreamTopic";
     public static final String STUDY                                  = "http://hadatac.org/ont/hasco/Study";
     public static final String STUDY_OBJECT                           = "http://hadatac.org/ont/hasco/StudyObject";
     public static final String STUDY_OBJECT_COLLECTION                = "http://hadatac.org/ont/hasco/StudyObjectCollection";
@@ -102,19 +103,21 @@ public class HASCO {
     public static final String HAS_LOG                                = "http://hadatac.org/ont/hasco/hasLog";
     public static final String HAS_MANAGER                            = "http://hadatac.org/ont/hasco/hasManager";
     public static final String HAS_MANAGER_EMAIL                      = "http://hadatac.org/ont/hasco/hasManagerEmail";
-    public static final String HAS_MESSSAGE_ARCHIVE_ID                = "http://hadatac.org/ont/hasco/hasMessageArchiveID";
-    public static final String HAS_MESSSAGE_HEADER                    = "http://hadatac.org/ont/hasco/hasMessageHeader";
-    public static final String HAS_MESSSAGE_IP                        = "http://hadatac.org/ont/hasco/hasMessageIP";
-    public static final String HAS_MESSSAGE_PORT                      = "http://hadatac.org/ont/hasco/hasMessagePort";
-    public static final String HAS_MESSSAGE_PROTOCOL                  = "http://hadatac.org/ont/hasco/hasMessageProtocol";
+    public static final String HAS_MESSAGE_ARCHIVE_ID                 = "http://hadatac.org/ont/hasco/hasMessageArchiveID";
+    public static final String HAS_MESSAGE_HEADER                     = "http://hadatac.org/ont/hasco/hasMessageHeader";
+    public static final String HAS_MESSAGE_IP                         = "http://hadatac.org/ont/hasco/hasMessageIP";
+    public static final String HAS_MESSAGE_PORT                       = "http://hadatac.org/ont/hasco/hasMessagePort";
+    public static final String HAS_MESSAGE_PROTOCOL                   = "http://hadatac.org/ont/hasco/hasMessageProtocol";
     public static final String HAS_METHOD                             = "http://hadatac.org/ont/hasco/hasMethod";
     public static final String HAS_NAMESPACE_ABBREVIATION             = "http://hadatac.org/ont/hasco/hasNamespaceAbbreviation";
     public static final String HAS_NAMESPACE_URL                      = "http://hadatac.org/ont/hasco/hasNamespaceURL";
+    public static final String HAS_NUMBER_DATA_POINTS                 = "http://hadatac.org/ont/hasco/hasNumberDataPoints";    
     public static final String HAS_NUMBER_LOADED_TRIPLES              = "http://hadatac.org/ont/hasco/hasNumberLoadedTriples";
     public static final String HAS_OBJECT                             = "http://hadatac.org/ont/hasco/hasObject";
     public static final String HAS_OBJECT_SCOPE                       = "http://hadatac.org/ont/hasco/hasObjectScope";
     public static final String HAS_ORIGINAL_VALUE                     = "http://hadatac.org/ont/hasco/hasOriginalValue";
     public static final String HAS_OTHER_FOR                          = "http://hadatac.org/ont/hasco/otherFor";
+    public static final String HAS_PERMISSION_URI                     = "http://hadatac.org/ont/hasco/hasPermissionUri";
     public static final String HAS_PI                                 = "http://hadatac.org/ont/hasco/hasPI";
     public static final String HAS_PROJECT                            = "http://hadatac.org/ont/hasco/hasProject";
     public static final String HAS_REFERENCE_LAYOUT                   = "http://hadatac.org/ont/hasco/hasReferenceLayout";
@@ -134,15 +137,20 @@ public class HASCO {
     public static final String HAS_SOC_TYPE                           = "http://hadatac.org/ont/hasco/hasSOCType";
     public static final String HAS_SPACE_OBJECT_SCOPE                 = "http://hadatac.org/ont/hasco/hasSpaceObjectScope";
     public static final String HAS_STREAM                             = "http://hadatac.org/ont/hasco/hasStream";
+    public static final String HAS_STREAM_TOPIC                       = "http://hadatac.org/ont/hasco/hasStreamTopic";
+    public static final String HAS_STREAM_STATUS                      = "http://hadatac.org/ont/hasco/hasStreamStatus";
     public static final String HAS_STUDY                              = "http://hadatac.org/ont/hasco/hasStudy";
     public static final String HAS_STUDY_OBJECT                       = "http://hadatac.org/ont/hasco/hasStudyObject";
     public static final String HAS_STUDY_OBJECT_TYPE                  = "http://hadatac.org/ont/hasco/hasStudyObjectType";
     public static final String HAS_SUBMISSION_TIME                    = "http://hadatac.org/ont/hasco/hasSumissionTime";
-    public static final String HAS_TIME_OBJECT_SCOPE                  = "http://hadatac.org/ont/hasco/hasTimeObjectScope";
     public static final String HAS_THIRD_COORDINATE                   = "http://hadatac.org/ont/hasco/hasThirdCoordinate";
     public static final String HAS_THIRD_COORDINATE_UNIT              = "http://hadatac.org/ont/hasco/hasThirdCoordinateUnit";
     public static final String HAS_THIRD_COORDINATE_CHARACTERISTIC    = "http://hadatac.org/ont/hasco/hasThirdCoordinateCharacteristic";
+    public static final String HAS_TIME_OBJECT_SCOPE                  = "http://hadatac.org/ont/hasco/hasTimeObjectScope";
     public static final String HAS_TITLE                              = "http://hadatac.org/ont/hasco/hasTitle";
+    public static final String HAS_TOPIC_STATUS                       = "http://hadatac.org/ont/hasco/hasTopicStatus";
+    public static final String HAS_TOTAL_RECEIVED_MESSAGES            = "http://hadatac.org/ont/hasco/hasTotalReceivedMessages";
+    public static final String HAS_TOTAL_RECORDED_MESSAGES            = "http://hadatac.org/ont/hasco/hasTotalRecordedMessages";
     public static final String HAS_UNIT                               = "http://hadatac.org/ont/hasco/hasUnit";
     public static final String HAS_URL                                = "http://hadatac.org/ont/hasco/hasURL";
     public static final String HAS_VALUE                              = "http://hadatac.org/ont/hasco/hasValue";
@@ -162,5 +170,29 @@ public class HASCO {
     public static final String PART_OF                                = "http://hadatac.org/ont/hasco/partOf";
     public static final String PART_OF_SCHEMA                         = "http://hadatac.org/ont/hasco/partOfSchema";
 
-}
+    /*
+     * STREAM STATUS
+     */
 
+    public static final String DRAFT                                  = "http://hadatac.org/ont/hasco/Draft";        
+    public static final String ACTIVE                                 = "http://hadatac.org/ont/hasco/Active";          
+    public static final String CLOSED                                 = "http://hadatac.org/ont/hasco/Closed";      
+    public static final String ALL_STATUSES                           = "http://hadatac.org/ont/hasco/AllStatuses";      
+
+    /*
+     * MESSAGE STATUS
+     */
+
+    public static final String INACTIVE                               = "http://hadatac.org/ont/hasco/Inactive";
+    public static final String RECORDING                              = "http://hadatac.org/ont/hasco/Recording";
+    public static final String INGESTING                              = "http://hadatac.org/ont/hasco/Ingesting";
+    public static final String SUSPENDED                              = "http://hadatac.org/ont/hasco/Suspended";
+    
+    /*
+     * PERMISSION URI
+     */
+
+    public static final String PUBLIC                                 = "http://hadatac.org/ont/hasco/Public";        
+    public static final String PRIVATE                                = "http://hadatac.org/ont/hasco/Private";          
+ 
+}

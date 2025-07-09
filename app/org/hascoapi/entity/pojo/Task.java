@@ -19,6 +19,7 @@ import org.hascoapi.vocabularies.RDF;
 import org.hascoapi.vocabularies.RDFS;
 import org.hascoapi.vocabularies.VSTOI;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +30,9 @@ public class Task extends HADatAcThing implements Comparable<Task> {
 
     @PropertyField(uri = "vstoi:hasStatus")
     private String hasStatus;
+
+	@PropertyField(uri="vstoi:hasLanguage")
+	private String hasLanguage;
 
     @PropertyField(uri = "vstoi:hasVersion")
     private String hasVersion;
@@ -45,14 +49,14 @@ public class Task extends HADatAcThing implements Comparable<Task> {
     @PropertyField(uri = "vstoi:hasEditorEmail")
     private String hasEditorEmail;
 
-    @PropertyField(uri = "vstoi:hasTaskType")
-    private String hasTaskType;
-
     @PropertyField(uri = "vstoi:hasSupertask")
     private String hasSupertaskUri;
 
-    @PropertyField(uri="vstoi:hasRequiredInstrumentation", valueType=PropertyValueType.URI)
-    private List<String> hasRequiredInstrumentationUris = new ArrayList<String>();
+    @PropertyField(uri = "vstoi:hasTemporalDependency")
+    private String hasTemporalDependency;
+
+    @PropertyField(uri="vstoi:hasRequiredInstrument", valueType=PropertyValueType.URI)
+    private List<String> hasRequiredInstrumentUris = new ArrayList<String>();
 
     @PropertyField(uri="vstoi:hasSubtask", valueType=PropertyValueType.URI)
     private List<String> hasSubtaskUris = new ArrayList<String>();
@@ -63,6 +67,14 @@ public class Task extends HADatAcThing implements Comparable<Task> {
 
     public void setHasStatus(String hasStatus) {
         this.hasStatus = hasStatus;
+    }
+
+    public String getHasLanguage() {
+        return hasLanguage;
+    }
+
+    public void setHasLanguage(String hasLanguage) {
+        this.hasLanguage = hasLanguage;
     }
 
     public String getHasVersion() {
@@ -105,14 +117,6 @@ public class Task extends HADatAcThing implements Comparable<Task> {
         this.hasEditorEmail = hasEditorEmail;
     }
 
-    public String getHasTaskType() {
-        return hasTaskType;
-    }
-
-    public void setHasTaskType(String hasTaskType) {
-        this.hasTaskType = hasTaskType;
-    }
-
     public String getHasSupertaskUri() {
         return hasSupertaskUri;
     }
@@ -121,27 +125,41 @@ public class Task extends HADatAcThing implements Comparable<Task> {
         this.hasSupertaskUri = hasSupertaskUri;
     }
 
-    public List<String> getHasRequiredInstrumentationUris() {
-        return hasRequiredInstrumentationUris;
+    public String getHasTemporalDependency() {
+        return hasTemporalDependency;
     }
 
-    public void setHasRequiredInstrumentationUris(List<String> hasRequiredInstrumentationUris) {
-        this.hasRequiredInstrumentationUris = hasRequiredInstrumentationUris;
+    public String getTemporalDependencyLabel() {
+        if (hasTemporalDependency == null || hasTemporalDependency.isEmpty())
+            return "";
+        return VSTOI.temporalDependencyLabel(hasTemporalDependency);
     }
 
-    public void addHasRequiredInstrumentationUri(String hasRequiredInstrumentationUri) {
-        this.hasRequiredInstrumentationUris.add(hasRequiredInstrumentationUri);
+    public void setHasTemporalDependency(String hasTemporalDependency) {
+        this.hasTemporalDependency = hasTemporalDependency;
     }
 
-    public List<RequiredInstrumentation> getRequiredInstrumentation() {
-        List<RequiredInstrumentation> resp = new ArrayList<RequiredInstrumentation>();
-        if (hasRequiredInstrumentationUris == null || hasRequiredInstrumentationUris.size() <= 0) {
+    public List<String> getHasRequiredInstrumentUris() {
+        return hasRequiredInstrumentUris;
+    }
+
+    public void setHasRequiredInstrumentUris(List<String> hasRequiredInstrumentUris) {
+        this.hasRequiredInstrumentUris = hasRequiredInstrumentUris;
+    }
+
+    public void addHasRequiredInstrumentUri(String hasRequiredInstrumentUri) {
+        this.hasRequiredInstrumentUris.add(hasRequiredInstrumentUri);
+    }
+
+    public List<RequiredInstrument> getRequiredInstrument() {
+        List<RequiredInstrument> resp = new ArrayList<RequiredInstrument>();
+        if (hasRequiredInstrumentUris == null || hasRequiredInstrumentUris.size() <= 0) {
             return resp;
         }
-        for (String hasRequiredInstrumentationUri : hasRequiredInstrumentationUris) {
-            RequiredInstrumentation requiredInstrumentation = RequiredInstrumentation.find(hasRequiredInstrumentationUri);
-            if (requiredInstrumentation != null) {
-                resp.add(requiredInstrumentation);
+        for (String hasRequiredInstrumentUri : hasRequiredInstrumentUris) {
+            RequiredInstrument requiredInstrument = RequiredInstrument.find(hasRequiredInstrumentUri);
+            if (requiredInstrument != null) {
+                resp.add(requiredInstrument);
             }
         }
         return resp;
@@ -155,7 +173,12 @@ public class Task extends HADatAcThing implements Comparable<Task> {
         this.hasSubtaskUris.add(hasSubtaskUri);
     }
 
-    public List<Task> getSubtask() {
+    public List<String> getHasSubtaskUris() {
+        return this.hasSubtaskUris;
+    }
+
+    /* 
+    public List<Task> getSubtasks() {
         List<Task> resp = new ArrayList<Task>();
         if (hasSubtaskUris == null || hasSubtaskUris.size() <= 0) {
             return resp;
@@ -168,6 +191,7 @@ public class Task extends HADatAcThing implements Comparable<Task> {
         }
         return resp;
     }
+    */
 
     public static Task find(String uri) {
  		if (uri == null || uri.isEmpty()) {
@@ -215,6 +239,8 @@ public class Task extends HADatAcThing implements Comparable<Task> {
                     task.setHasWebDocument(object);
                 } else if (predicate.equals(VSTOI.HAS_STATUS)) {
                     task.setHasStatus(object);
+                } else if (predicate.equals(VSTOI.HAS_LANGUAGE)) {
+                    task.setHasLanguage(object);
                 } else if (predicate.equals(VSTOI.HAS_VERSION)) {
                     task.setHasVersion(object);
                 } else if (predicate.equals(VSTOI.HAS_REVIEW_NOTE)) {
@@ -225,12 +251,12 @@ public class Task extends HADatAcThing implements Comparable<Task> {
                     task.setHasSIRManagerEmail(object);
                 } else if (predicate.equals(VSTOI.HAS_EDITOR_EMAIL)) {
                     task.setHasEditorEmail(object);
-                } else if (predicate.equals(VSTOI.HAS_TASK_TYPE)) {
-                    task.setHasTaskType(object);
                 } else if (predicate.equals(VSTOI.HAS_SUPERTASK)) {
                     task.setHasSupertaskUri(object);
-                } else if (predicate.equals(VSTOI.HAS_REQUIRED_INSTRUMENTATION)) {
-                    task.addHasRequiredInstrumentationUri(object);
+                } else if (predicate.equals(VSTOI.HAS_TEMPORAL_DEPENDENCY)) {
+                    task.setHasTemporalDependency(object);
+                } else if (predicate.equals(VSTOI.HAS_REQUIRED_INSTRUMENT)) {
+                    task.addHasRequiredInstrumentUri(object);
                 } else if (predicate.equals(VSTOI.HAS_SUBTASK)) {
                     task.addHasSubtaskUri(object);
                 }
@@ -250,10 +276,41 @@ public class Task extends HADatAcThing implements Comparable<Task> {
     @Override
     public void save() {
         saveToTripleStore();
+        if (this.hasSupertaskUri != null && !this.hasSupertaskUri.isEmpty()) {
+            Task superTask = Task.find(this.hasSupertaskUri);
+            if (superTask != null && !superTask.getHasSubtaskUris().contains(this.uri)) {
+                superTask.addHasSubtaskUri(this.uri);
+                superTask.save();
+            }
+        }
+    }
+
+    private void deleteSubtasks(Task task) {
+        if (task.getHasSubtaskUris() != null && task.getHasSubtaskUris().size() > 0) {
+            for (String subtaskUri : task.getHasSubtaskUris()) {
+                Task subtask = Task.find(subtaskUri);
+                if (subtask != null) {
+                    this.deleteSubtasks(subtask);
+                }
+            }
+        }
+        task.delete();
     }
 
     @Override
     public void delete() {
+        deleteFromTripleStore();
+    }
+
+    public void deleteWithSubtasks() {
+        if (this.getHasSubtaskUris() != null && this.getHasSubtaskUris().size() > 0) {
+            for (String subtaskUri : this.getHasSubtaskUris()) {
+                Task subtask = Task.find(subtaskUri);
+                if (subtask != null) {
+                    this.deleteSubtasks(subtask);
+                }
+            }
+        }
         deleteFromTripleStore();
     }
 

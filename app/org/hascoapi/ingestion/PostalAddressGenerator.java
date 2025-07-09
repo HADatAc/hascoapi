@@ -33,16 +33,19 @@ public class PostalAddressGenerator extends BaseGenerator {
 	private static final Logger log = LoggerFactory.getLogger(PostalAddressGenerator.class);
     private long timestamp;
 	private String managerEmail;
+	private String status;
 	private List<String> addressKeyList;
 
 	final String kbPrefix = ConfigProp.getKbPrefix();
 	String startTime = "";
     protected IngestionLogger logger = null;
 
-	public PostalAddressGenerator(DataFile dataFile, String templateFile, String managerEmail) {
+	public PostalAddressGenerator(DataFile dataFile, String status, String templateFile, String managerEmail) {
 		super(dataFile, null, templateFile);
+		this.status = status;
 		this.logger = dataFile.getLogger();
 		this.managerEmail = managerEmail;
+		this.status = status;
 	}
 
 	@Override
@@ -153,7 +156,9 @@ public class PostalAddressGenerator extends BaseGenerator {
 		row.put("schema:addressLocality", getPostalAddressLocality(rec));
 		row.put("schema:addressRegion", getPostalAddressRegion(rec));
 		row.put("schema:addressCountry", getPostalAddressCountry(rec));
+		row.put("vstoi:hasStatus", URIUtils.replaceNameSpaceEx(status));
 		row.put("vstoi:hasSIRManagerEmail", managerEmail);
+		row.put("vstoi:hasStatus", status);
 		return row;
 	}
 

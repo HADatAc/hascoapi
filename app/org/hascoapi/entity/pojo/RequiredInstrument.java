@@ -28,16 +28,16 @@ import org.slf4j.LoggerFactory;
 
 import static org.hascoapi.Constants.*;
 
-@JsonFilter("requiredInstrumentationFilter")
-public class RequiredInstrumentation extends HADatAcThing {
+@JsonFilter("requiredInstrumentFilter")
+public class RequiredInstrument extends HADatAcThing {
 
-	private static final Logger log = LoggerFactory.getLogger(RequiredInstrumentation.class);
+	private static final Logger log = LoggerFactory.getLogger(RequiredInstrument.class);
 
 	@PropertyField(uri="vstoi:usesInstrument")
     protected String usesInstrument;
 
-	@PropertyField(uri="vstoi:hasRequiredDetector")
-	private List<String> hasRequiredDetectors;
+	@PropertyField(uri="vstoi:hasRequiredComponent")
+	private List<String> hasRequiredComponentURIs;
 
 	public String getUsesInstrument() {
 		return usesInstrument;
@@ -54,20 +54,28 @@ public class RequiredInstrumentation extends HADatAcThing {
 		return Instrument.find(usesInstrument);
 	} 
 
-	public List<String> getHasRequiredDetector() {
-		return hasRequiredDetectors;
+	public List<String> getHasRequiredComponents() {
+		return hasRequiredComponentURIs;
 	}
 
-	public List<Detector> getDetectors() {
-		if (hasRequiredDetectors == null || hasRequiredDetectors.isEmpty()) {
+	public void setHasRequiredComponent(List<String> hasRequiredComponentURIs) {
+		this.hasRequiredComponentURIs = hasRequiredComponentURIs;
+	}
+
+	public void addHasRequiredComponent(String hasRequiredComponent) {
+		this.hasRequiredComponentURIs.add(hasRequiredComponent);
+	}
+
+	public List<RequiredComponent> getRequiredComponents() {
+		if (hasRequiredComponentURIs == null || hasRequiredComponentURIs.isEmpty()) {
 			return null;
 		}
-		List<Detector> list = new ArrayList<Detector>();
-		for (String detectorUri : hasRequiredDetectors) {
-			if (detectorUri != null && !detectorUri.isEmpty()) {
-				Detector detector = Detector.find(detectorUri);
-				if (detector != null) {
-					list.add(detector);
+		List<RequiredComponent> list = new ArrayList<RequiredComponent>();
+		for (String hasRequiredComponentURI : hasRequiredComponentURIs) {
+			if (hasRequiredComponentURI != null && !hasRequiredComponentURI.isEmpty()) {
+				RequiredComponent requiredComponent = RequiredComponent.find(hasRequiredComponentURI);
+				if (requiredComponent != null) {
+					list.add(requiredComponent);
 				}
 			}
 		}
@@ -75,31 +83,23 @@ public class RequiredInstrumentation extends HADatAcThing {
 
 	}
 
-	public void setHasRequiredDetector(List<String> hasRequiredDetectors) {
-		this.hasRequiredDetectors = hasRequiredDetectors;
+	public RequiredInstrument() {
+		this.setTypeUri(VSTOI.REQUIRED_INSTRUMENT);
+		this.setHascoTypeUri(VSTOI.REQUIRED_INSTRUMENT);
+		hasRequiredComponentURIs = new ArrayList<String>();
 	}
 
-	public void addHasRequiredDetector(String hasRequiredDetector) {
-		this.hasRequiredDetectors.add(hasRequiredDetector);
-	}
-
-	public RequiredInstrumentation() {
-		this.setTypeUri(VSTOI.REQUIRED_INSTRUMENTATION);
-		this.setHascoTypeUri(VSTOI.REQUIRED_INSTRUMENTATION);
-		hasRequiredDetectors = new ArrayList<String>();
-	}
-
-	public static RequiredInstrumentation find(String uri) {
+	public static RequiredInstrument find(String uri) {
 		//System.out.println("RequiredInstrumentation.find(): uri = [" + uri + "]");
-		RequiredInstrumentation requiredInstrumentation;
+		RequiredInstrument requiredInstrument;
 		String hascoTypeUri = Utils.retrieveHASCOTypeUri(uri);
 		if (hascoTypeUri == null) {
-			System.out.println("[ERROR] RequiredInstrumentation.java: URI [" + uri + "] has no HASCO TYPE.");
+			System.out.println("[ERROR] RequiredInstrument.java: URI [" + uri + "] has no HASCO TYPE.");
 			return null;
 		}
 		//System.out.println("Place.find(): typeUri = [" + typeUri + "]");
-		if (hascoTypeUri.equals(VSTOI.REQUIRED_INSTRUMENTATION)) {
-			requiredInstrumentation = new RequiredInstrumentation();
+		if (hascoTypeUri.equals(VSTOI.REQUIRED_INSTRUMENT)) {
+			requiredInstrument = new RequiredInstrument();
 		} else {
 			return null;
 		}
@@ -123,24 +123,24 @@ public class RequiredInstrumentation extends HADatAcThing {
 			String str = URIUtils.objectRDFToString(object);
 			if (uri != null && !uri.isEmpty()) {
 				if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
-					requiredInstrumentation.setLabel(str);
+					requiredInstrument.setLabel(str);
 				} else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
-					requiredInstrumentation.setTypeUri(str); 
+					requiredInstrument.setTypeUri(str); 
 				} else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
-					requiredInstrumentation.setComment(str);
+					requiredInstrument.setComment(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
-					requiredInstrumentation.setHascoTypeUri(str);
+					requiredInstrument.setHascoTypeUri(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.USES_INSTRUMENT)) {
-					requiredInstrumentation.setUsesInstrument(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_REQUIRED_DETECTOR)) {
-					requiredInstrumentation.addHasRequiredDetector(str);
+					requiredInstrument.setUsesInstrument(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_REQUIRED_COMPONENT)) {
+					requiredInstrument.addHasRequiredComponent(str);
 				}
 			}
 		}
 
-		requiredInstrumentation.setUri(uri);
+		requiredInstrument.setUri(uri);
 		
-		return requiredInstrumentation;
+		return requiredInstrument;
 	}
 
     @Override public void save() {

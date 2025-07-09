@@ -137,7 +137,9 @@ public class GeneratorChain {
 
         // Commit if no errors occurred
         for (BaseGenerator generator : chain) {
-            System.out.println("GeneratorChain: Started commit of generator of type [" + generator.getClass().getSimpleName() + "]");
+            String elementType = generator.getElementType();
+            System.out.println("GeneratorChain: Started commit of generator of type [" + generator.getClass().getSimpleName() + " " + elementType + "]");
+            System.out.println("GeneratorChain: Number of Rows [" + generator.getRows().size() + "]");
             if (!getNamedGraphUri().isEmpty()) {
                 generator.setNamedGraphUri(getNamedGraphUri());
             }
@@ -163,7 +165,7 @@ public class GeneratorChain {
                 generator.getLogger().printException(generator.getErrorMsg(e));
                 return false;
             }
-            System.out.println("GeneratorChain: Finished commit of generator of type [" + generator.getClass().getSimpleName() + "]");
+            System.out.println("GeneratorChain: Finished commit of generator of type [" + generator.getClass().getSimpleName() + " " + elementType + "]");
         }
 
         for (BaseGenerator generator : chain) {
@@ -216,6 +218,20 @@ public class GeneratorChain {
         postprocess();
         return true;
     }
+
+    public void disposeChain() {
+        for (BaseGenerator generator : chain) {
+            if (generator != null) {
+                try {
+                    generator.dispose(); // Let each generator clean itself
+                } catch (Exception e) {
+                    System.out.println("Error disposing generator: " + generator.getClass().getSimpleName());
+                }
+            }
+        }
+        chain.clear(); // Release references to the generators
+    }
+
 
     public void delete() {
         for (BaseGenerator generator : chain) {

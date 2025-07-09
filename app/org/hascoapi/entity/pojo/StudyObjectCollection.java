@@ -666,6 +666,7 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
     }
 
     public static StudyObjectCollection find(String uri) {
+        //System.out.println("StudyObjectCollection: find() with URI=[" + uri + "]");
         StudyObjectCollection soc = null;
         Statement statement;
         RDFNode object;
@@ -1244,7 +1245,7 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         	}
         }
     	super.deleteFromTripleStore();
-    	System.out.println("StudyObjectCollection: deleted SOC " + this.getLabel() + " and its " + totObj + " objects.");
+    	//System.out.println("StudyObjectCollection: deleted SOC " + this.getLabel() + " and its " + totObj + " objects.");
     }
 
     public static String computeRouteLabel (StudyObjectCollection soc, List<StudyObjectCollection> studySOCs) {

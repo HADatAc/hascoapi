@@ -145,14 +145,23 @@ public class Utils {
             case "process":
                 shortPrefix = Constants.PREFIX_PROCESS;
                 break;
-            case "processstem":
-                shortPrefix = Constants.PREFIX_PROCESS_STEM;
+            case "fundingscheme":
+                shortPrefix = Constants.PREFIX_FUNDING_SCHEME;
+                break;
+            case "project":
+                shortPrefix = Constants.PREFIX_PROJECT;
                 break;
             case "actuatorstem":
                 shortPrefix = Constants.PREFIX_ACTUATOR_STEM;
                 break;
             case "actuator":
                 shortPrefix = Constants.PREFIX_ACTUATOR;
+                break;
+            case "stream":
+                shortPrefix = Constants.PREFIX_STREAM;
+                break;
+            case "streamtopic":
+                shortPrefix = Constants.PREFIX_STREAM_TOPIC;
                 break;
             default:
                 shortPrefix = null;
@@ -267,8 +276,9 @@ public class Utils {
             repoUri += "/";
         }
 
-        return repoUri + shortPrefix + '_' + identifier;
+        String finalUri = repoUri + shortPrefix + '_' + identifier;
 
+        return finalUri;
     }
 
     public static String retrieveHASCOTypeUri(String uri) {

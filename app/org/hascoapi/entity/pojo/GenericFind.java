@@ -71,6 +71,8 @@ public class GenericFind<T> {
             return DSG.class;
         } else if (elementType.equals("entity")) {
             return Entity.class;
+        } else if (elementType.equals("fundingscheme")) {
+            return FundingScheme.class;
         } else if (elementType.equals("ins")) {
             return INS.class;
         } else if (elementType.equals("instrument")) {
@@ -99,6 +101,12 @@ public class GenericFind<T> {
             return Process.class;
         } else if (elementType.equals("processstem")) {
             return ProcessStem.class;
+        } else if (elementType.equals("project")) {
+            return Project.class;
+        } else if (elementType.equals("requiredcomponent")) {
+            return RequiredComponent.class;
+        } else if (elementType.equals("requiredinstrument")) {
+            return RequiredInstrument.class;
         } else if (elementType.equals("responseoption")) {
             return ResponseOption.class;
         } else if (elementType.equals("sdd")) {
@@ -117,6 +125,8 @@ public class GenericFind<T> {
             return STR.class;
         } else if (elementType.equals("stream")) {
             return Stream.class;
+        } else if (elementType.equals("streamtopic")) {
+            return StreamTopic.class;
         } else if (elementType.equals("study")) {
             return Study.class;
         } else if (elementType.equals("studyobjectcollection")) {
@@ -202,9 +212,9 @@ public class GenericFind<T> {
         } else if (clazz == Deployment.class) {
             return URIUtils.replaceNameSpace(VSTOI.DEPLOYMENT);
         } else if (clazz == Person.class) {
-            return URIUtils.replaceNameSpace(FOAF.PERSON);
+            return URIUtils.replaceNameSpace(SCHEMA.PERSON);
         } else if (clazz == Organization.class) {
-            return URIUtils.replaceNameSpace(FOAF.ORGANIZATION);
+            return URIUtils.replaceNameSpace(SCHEMA.ORGANIZATION);
         } else if (clazz == Place.class) {
             return URIUtils.replaceNameSpace(SCHEMA.PLACE);
         } else if (clazz == PostalAddress.class) {
@@ -214,7 +224,11 @@ public class GenericFind<T> {
         } else if (clazz == ProcessStem.class) {
             return URIUtils.replaceNameSpace(VSTOI.PROCESS_STEM);
         } else if (clazz == KGR.class) {
-            return URIUtils.replaceNameSpace(HASCO.KNOWLEDGE_GRAPH);
+            return URIUtils.replaceNameSpace(HASCO.KGR);
+        } else if (clazz == FundingScheme.class) {
+            return URIUtils.replaceNameSpace(SCHEMA.FUNDING_SCHEME);
+        } else if (clazz == Project.class) {
+            return URIUtils.replaceNameSpace(SCHEMA.PROJECT);
         } else if (clazz == Actuator.class) {
             return URIUtils.replaceNameSpace(VSTOI.ACTUATOR);
         } else if (clazz == ActuatorStem.class) {
@@ -615,7 +629,7 @@ public class GenericFind<T> {
      *     FIND ELEMENTS BY KEYWORD AND LANGUAGE (AND THEIR TOTALS) WITH PAHES
      */
 
-    public static <T> List<T> findByKeywordAndLanguageWithPages(Class clazz, String keyword, String language, int pageSize, int offset) {
+    public static <T> List<T> findByKeywordAndLanguageWithPages(Class clazz, String keyword, String language, String type, String manageremail, String status, int pageSize, int offset) {
         if (clazz == null) {
             return null;
         }
@@ -630,9 +644,9 @@ public class GenericFind<T> {
         //    return findDetectorInstancesByKeywordAndLanguageWithPages(clazz, hascoType, keyword, language, pageSize, offset);
         //} else 
         if (isSIR(clazz)) {
-            return findSIRElementsByKeywordAndLanguageWithPages(clazz, hascoType, keyword, language, pageSize, offset);
+            return findSIRElementsByKeywordAndLanguageWithPages(clazz, hascoType, keyword, language, type, manageremail, status, pageSize, offset);
         } else {
-            return findElementsByKeywordAndLanguageWithPages(clazz, hascoType, keyword, language, pageSize, offset);
+            return findElementsByKeywordAndLanguageWithPages(clazz, hascoType, keyword, language, type, manageremail, status, pageSize, offset);
         }
     }
 
@@ -663,7 +677,7 @@ public class GenericFind<T> {
 	}
     */
 
-	public static <T> List<T> findSIRElementsByKeywordAndLanguageWithPages(Class clazz, String hascoType, String keyword, String language, int pageSize, int offset) {
+	public static <T> List<T> findSIRElementsByKeywordAndLanguageWithPages(Class clazz, String hascoType, String keyword, String language, String type, String manageremail, String status, int pageSize, int offset) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
 		queryString += " SELECT ?uri WHERE { " +
 				//" ?type rdfs:subClassOf* " + className + " . " +
@@ -672,6 +686,15 @@ public class GenericFind<T> {
 		if (!language.isEmpty()) {
 			queryString += " ?uri vstoi:hasLanguage ?language . ";
 		}
+		if (type != null && !type.isEmpty()) {
+			queryString += " ?uri rdf:type <" + type + "> . ";
+		}
+		if (manageremail != null && !manageremail.isEmpty()) {
+			queryString += " ?uri vstoi:hasSIRManagerEmail ?managerEmail . ";
+        }
+        if (status != null && !status.isEmpty()) {
+			queryString += "  ?uri vstoi:hasStatus <" + status + "> . ";
+        }
 		queryString += " OPTIONAL { ?uri vstoi:hasContent ?content . } ";
 		if (!keyword.isEmpty() && !language.isEmpty()) {
 			queryString += "   FILTER (regex(?content, \"" + keyword + "\", \"i\") && (?language = \"" + language + "\")) ";
@@ -680,6 +703,9 @@ public class GenericFind<T> {
 		} else if (!language.isEmpty()) {
 			queryString += "   FILTER ((?language = \"" + language + "\")) ";
 		}
+        if (manageremail != null && !manageremail.isEmpty()) {
+	        queryString += "   FILTER (?managerEmail = \"" + manageremail + "\") ";
+        }
 		queryString += "} " +
                 " ORDER BY ASC(?content) " +
 				" LIMIT " + pageSize +
@@ -688,7 +714,7 @@ public class GenericFind<T> {
 		return findByQuery(clazz, queryString);
 	}
 
-	public static <T> List<T> findElementsByKeywordAndLanguageWithPages(Class clazz, String hascoType, String keyword, String language, int pageSize, int offset) {
+	public static <T> List<T> findElementsByKeywordAndLanguageWithPages(Class clazz, String hascoType, String keyword, String language, String type, String manageremail, String status, int pageSize, int offset) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
 		queryString += " SELECT ?uri WHERE { " +
 				//" ?type rdfs:subClassOf* " + className + " . " +
@@ -697,6 +723,15 @@ public class GenericFind<T> {
 		if (!language.isEmpty()) {
 			queryString += " ?uri vstoi:hasLanguage ?language . ";
 		}
+		if (type != null && !type.isEmpty()) {
+			queryString += " ?uri rdf:type <" + type + "> . ";
+		}
+		if (manageremail != null && !manageremail.isEmpty()) {
+			queryString += " ?uri vstoi:hasSIRManagerEmail ?managerEmail . ";
+        }
+        if (status != null && !status.isEmpty()) {
+			queryString += "  ?uri vstoi:hasStatus <" + status + "> . ";
+        }
 		queryString += " OPTIONAL { ?uri rdfs:label ?label . } ";
 		if (!keyword.isEmpty() && !language.isEmpty()) {
 			queryString += "   FILTER (regex(?label, \"" + keyword + "\", \"i\") && (?language = \"" + language + "\")) ";
@@ -705,6 +740,9 @@ public class GenericFind<T> {
 		} else if (!language.isEmpty()) {
 			queryString += "   FILTER ((?language = \"" + language + "\")) ";
 		}
+        if (manageremail != null && !manageremail.isEmpty()) {
+	        queryString += "   FILTER (?managerEmail = \"" + manageremail + "\") ";
+        }
 		queryString += "} " +
                 " ORDER BY ASC(?label) " +
 				" LIMIT " + pageSize +
@@ -736,7 +774,7 @@ public class GenericFind<T> {
 	}
     */
 
-	public static int findTotalByKeywordAndLanguage(Class clazz, String keyword, String language) {
+	public static int findTotalByKeywordAndLanguage(Class clazz, String keyword, String language, String type, String manageremail, String status) {
         String hascoType = classNameWithNamespace(clazz);
         if (hascoType == null) {
             hascoType = superclassNameWithNamespace(clazz);
@@ -755,6 +793,15 @@ public class GenericFind<T> {
 		if (!keyword.isEmpty()) {
 			queryString += " ?uri rdfs:label ?label . ";
 		}
+		if (type != null && !type.isEmpty()) {
+			queryString += " ?uri rdf:type <" + type + "> . ";
+		}
+		if (manageremail != null && !manageremail.isEmpty()) {
+			queryString += " ?uri vstoi:hasSIRManagerEmail ?managerEmail . ";
+        }
+        if (status != null && !status.isEmpty()) {
+			queryString += "  ?uri vstoi:hasStatus <" + status + "> . ";
+        }
 		if (!keyword.isEmpty() && !language.isEmpty()) {
 			queryString += "   FILTER (regex(?label, \"" + keyword + "\", \"i\") && (?language = \"" + language + "\")) ";
 		} else if (!keyword.isEmpty()) {
@@ -762,6 +809,9 @@ public class GenericFind<T> {
 		} else if (!language.isEmpty()) {
 			queryString += "   FILTER ((?language = \"" + language + "\")) ";
 		}
+        if (manageremail != null && !manageremail.isEmpty()) {
+	        queryString += "   FILTER (?managerEmail = \"" + manageremail + "\") ";
+        }
 		queryString += "}";
         return findTotalByQuery(queryString);
 	}
@@ -843,7 +893,7 @@ public class GenericFind<T> {
 
 	public List<T> findElementsByManagerEmailWithPages(Class clazz, String hascoTypeStr, String managerEmail, int pageSize, int offset) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
-		queryString += " SELECT ?uri WHERE { " +
+        queryString += " SELECT ?uri WHERE { " +
 				//" ?model rdfs:subClassOf* " + className + " . " +
 				//" ?uri a ?model ." +
 				" ?uri hasco:hascoType " + hascoTypeStr + " . " +
@@ -854,7 +904,6 @@ public class GenericFind<T> {
 				" ORDER BY ASC(?label) " +
 				" LIMIT " + pageSize +
 				" OFFSET " + offset;
-        //System.out.println(queryString);
 		return findByQuery(clazz, queryString);
 	}
 
@@ -1026,117 +1075,127 @@ public class GenericFind<T> {
                 }
             }
         }
+        //System.out.println("FindByQuery: total size of list = [" + list.size() + "]");
         return list;
     }
 
     private static <T> T findElement(Class clazz, String uri) {
 
         // List of subclasses 
-        if (clazz == InstrumentType.class) {
-            return (T)InstrumentType.find(uri);
-        } else if (clazz == DetectorStemType.class) {
-            return (T)DetectorStemType.find(uri);
-        } else if (clazz == Entity.class) {
-            return (T)Entity.find(uri);
-        } else if (clazz == Attribute.class) {
-            return (T)Attribute.find(uri);
-        } else if (clazz == Unit.class) {
-            return (T)Unit.find(uri);
-        } else if (clazz == StudyObjectCollectionType.class) {
-            return (T)StudyObjectCollectionType.find(uri);
-        } else if (clazz == StudyObjectType.class) {
-            return (T)StudyObjectType.find(uri);
-        } else if (clazz == Instrument.class) {
-            return (T)Instrument.find(uri);
-        } else if (clazz == Subcontainer.class) {
-            return (T)Subcontainer.find(uri);
+        if (clazz == ActuatorStem.class) {
+            return (T)ActuatorStem.find(uri);
+        } else if (clazz == AnnotationStem.class) {
+            return (T)AnnotationStem.find(uri);
         } else if (clazz == DetectorStem.class) {
             return (T)DetectorStem.find(uri);
+        } else if (clazz == Attribute.class) {
+            return (T)Attribute.find(uri);
+//        } else if (clazz == DetectorStemType.class) {
+//            return (T)DetectorStemType.find(uri);
+        } else if (clazz == Entity.class) {
+            return (T)Entity.find(uri);
+        } else if (clazz == Instrument.class) {
+            return (T)Instrument.find(uri);
+//        } else if (clazz == InstrumentType.class) {
+//            return (T)InstrumentType.find(uri);
         } else if (clazz == Platform.class) {
             return (T)Platform.find(uri);
         } else if (clazz == ProcessStem.class) {
             return (T)ProcessStem.find(uri);
+        } else if (clazz == StudyObjectCollectionType.class) {
+            return (T)StudyObjectCollectionType.find(uri);
+        } else if (clazz == StudyObjectType.class) {
+            return (T)StudyObjectType.find(uri);
+        } else if (clazz == Subcontainer.class) {
+            return (T)Subcontainer.find(uri);
+        } else if (clazz == Unit.class) {
+            return (T)Unit.find(uri);
 
         // List of instances
-        } else if (clazz == InstrumentInstance.class) {
-            return (T)InstrumentInstance.find(uri);
-        } else if (clazz == Detector.class) {
-            return (T)Detector.find(uri);
-        } else if (clazz == DetectorInstance.class) {
-            return (T)DetectorInstance.find(uri);
-        } else if (clazz == PlatformInstance.class) {
-            return (T)PlatformInstance.find(uri);
-        } else if (clazz == ContainerSlot.class) {
-            return (T)ContainerSlot.find(uri);
+        } else if (clazz == Actuator.class) {
+            return (T)Actuator.find(uri);
+        } else if (clazz == Annotation.class) {
+            return (T)Annotation.find(uri);
         } else if (clazz == Codebook.class) {
             return (T)Codebook.find(uri);
         } else if (clazz == CodebookSlot.class) {
             return (T)CodebookSlot.find(uri);
-        } else if (clazz == ResponseOption.class) {
-            return (T)ResponseOption.find(uri);
-        } else if (clazz == AnnotationStem.class) {
-            return (T)AnnotationStem.find(uri);
-        } else if (clazz == Annotation.class) {
-            return (T)Annotation.find(uri);
-        } else if (clazz == SemanticVariable.class) {
-            return (T)SemanticVariable.find(uri);
-        } else if (clazz == INS.class) {
-            return (T)INS.find(uri);
+        } else if (clazz == ContainerSlot.class) {
+            return (T)ContainerSlot.find(uri);
         } else if (clazz == DA.class) {
             return (T)DA.find(uri);
         } else if (clazz == DD.class) {
             return (T)DD.find(uri);
+        } else if (clazz == DP2.class) {
+            return (T)DP2.find(uri);
+        } else if (clazz == DSG.class) {
+            return (T)DSG.find(uri);
+        } else if (clazz == DataFile.class) {
+            return (T)DataFile.find(uri);
+        } else if (clazz == Deployment.class) {
+            return (T)Deployment.find(uri);
+        } else if (clazz == Detector.class) {
+            return (T)Detector.find(uri);
+        } else if (clazz == DetectorInstance.class) {
+            return (T)DetectorInstance.find(uri);
+        } else if (clazz == FundingScheme.class) {
+            return (T)FundingScheme.find(uri);
+        } else if (clazz == INS.class) {
+            return (T)INS.find(uri);
+        } else if (clazz == InstrumentInstance.class) {
+            return (T)InstrumentInstance.find(uri);
+        } else if (clazz == KGR.class) {
+            return (T)KGR.find(uri);
+        } else if (clazz == Organization.class) {
+            return (T)Organization.find(uri);
+        } else if (clazz == Person.class) {
+            return (T)Person.find(uri);
+        } else if (clazz == Place.class) {
+            return (T)Place.find(uri);
+        } else if (clazz == PlatformInstance.class) {
+            return (T)PlatformInstance.find(uri);
+        } else if (clazz == PossibleValue.class) {
+            return (T)PossibleValue.find(uri);
+        } else if (clazz == PostalAddress.class) {
+            return (T)PostalAddress.find(uri);
+        } else if (clazz == Process.class) {
+            return (T)Process.find(uri);
+        } else if (clazz == Project.class) {
+            return (T)Project.find(uri);
+        } else if (clazz == RequiredComponent.class) {
+            return (T)RequiredComponent.find(uri);
+        } else if (clazz == RequiredInstrument.class) {
+            return (T)RequiredInstrument.find(uri);
+        } else if (clazz == ResponseOption.class) {
+            return (T)ResponseOption.find(uri);
         } else if (clazz == SDD.class) {
             return (T)SDD.find(uri);
         } else if (clazz == SDDAttribute.class) {
             return (T)SDDAttribute.find(uri);
         } else if (clazz == SDDObject.class) {
             return (T)SDDObject.find(uri);
-        } else if (clazz == PossibleValue.class) {
-            return (T)PossibleValue.find(uri);
-        } else if (clazz == SemanticDataDictionary.class) {
-            return (T)SemanticDataDictionary.find(uri);
-        } else if (clazz == DP2.class) {
-            return (T)DP2.find(uri);
         } else if (clazz == STR.class) {
             return (T)STR.find(uri);
-        } else if (clazz == DataFile.class) {
-            return (T)DataFile.find(uri);
-        } else if (clazz == DSG.class) {
-            return (T)DSG.find(uri);
-        } else if (clazz == Study.class) {
-            return (T)Study.find(uri);
-        } else if (clazz == StudyObjectCollection.class) {
-            return (T)StudyObjectCollection.find(uri);
-        } else if (clazz == StudyObject.class) {
-            return (T)StudyObject.find(uri);
-        } else if (clazz == StudyRole.class) {
-            return (T)StudyRole.find(uri);
-        } else if (clazz == VirtualColumn.class) {
-            return (T)VirtualColumn.find(uri);
+        } else if (clazz == SemanticDataDictionary.class) {
+            return (T)SemanticDataDictionary.find(uri);
+        } else if (clazz == SemanticVariable.class) {
+            return (T)SemanticVariable.find(uri);
         } else if (clazz == Stream.class) {
             return (T)Stream.find(uri);
-        } else if (clazz == Deployment.class) {
-            return (T)Deployment.find(uri);
-        } else if (clazz == Person.class) {
-            return (T)Person.find(uri);
-        } else if (clazz == Organization.class) {
-            return (T)Organization.find(uri);
-        } else if (clazz == Place.class) {
-            return (T)Place.find(uri);
-        } else if (clazz == PostalAddress.class) {
-            return (T)PostalAddress.find(uri);
-        } else if (clazz == Process.class) {
-            return (T)Process.find(uri);
-        } else if (clazz == KGR.class) {
-            return (T)KGR.find(uri);
-        } else if (clazz == Actuator.class) {
-            return (T)Actuator.find(uri);
-        } else if (clazz == ActuatorStem.class) {
-            return (T)ActuatorStem.find(uri);
+        } else if (clazz == Study.class) {
+            return (T)Study.find(uri);
+        } else if (clazz == StudyObject.class) {
+            return (T)StudyObject.find(uri);
+        } else if (clazz == StudyObjectCollection.class) {
+            return (T)StudyObjectCollection.find(uri);
+        } else if (clazz == StudyRole.class) {
+            return (T)StudyRole.find(uri);
         } else if (clazz == Task.class) {
             return (T)Task.find(uri);
+        } else if (clazz == VirtualColumn.class) {
+            return (T)VirtualColumn.find(uri);
         }
+
         return null;
     
     }

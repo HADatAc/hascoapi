@@ -14,7 +14,6 @@ import org.hascoapi.entity.pojo.Deployment;
 import org.hascoapi.entity.pojo.HADatAcClass;
 import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.HAScOMapper;
-import org.hascoapi.utils.State;
 import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.VSTOI;
 import play.mvc.Controller;

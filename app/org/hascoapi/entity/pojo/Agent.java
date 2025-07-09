@@ -20,7 +20,17 @@ import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.VSTOI;
 import org.hascoapi.vocabularies.FOAF;
 
+
 public class Agent extends HADatAcThing implements Comparable<Agent> {
+
+  	@PropertyField(uri="vstoi:hasStatus")
+  	private String hasStatus;
+
+  	@PropertyField(uri="hasco:originalID")
+  	private String originalID;
+
+    @PropertyField(uri="schema:alternateName")
+    private String hasShortName;
 
     @PropertyField(uri="foaf:name")
     protected String name;
@@ -34,11 +44,31 @@ public class Agent extends HADatAcThing implements Comparable<Agent> {
     @PropertyField(uri="schema:address")
     protected String hasAddressUri;
 
-    @PropertyField(uri="schema:url")
-    protected String hasUrl;
-
     @PropertyField(uri="vstoi:hasSIRManagerEmail")
     protected String hasSIRManagerEmail;
+
+    public String getHasStatus() {
+        return hasStatus;
+    }
+
+    public void setHasStatus(String hasStatus) {
+        this.hasStatus = hasStatus;
+    }
+
+    public String getOriginalID() {
+        return originalID;
+    }
+
+    public void setOriginalID(String originalID) {
+        this.originalID = originalID;
+    }
+
+    public String getHasShortName() {
+        return hasShortName;
+    }
+    public void setHasShortName(String hasShortName) {
+        this.hasShortName = hasShortName;
+    }
 
     public String getName() {
         return name;
@@ -72,13 +102,6 @@ public class Agent extends HADatAcThing implements Comparable<Agent> {
             return null;
         }
         return PostalAddress.find(this.hasAddressUri);
-    }
-
-    public String getHasUrl() {
-        return hasUrl;
-    }
-    public void setHasUrl(String hasUrl) {
-        this.hasUrl = hasUrl;
     }
 
     public String getHasSIRManagerEmail() {

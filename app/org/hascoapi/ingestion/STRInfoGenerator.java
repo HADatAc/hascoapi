@@ -27,7 +27,7 @@ public class STRInfoGenerator extends BaseGenerator{
     private Map<String, Map<String, String>> messageStreamSpec = new HashMap<String, Map<String, String>>();
     // private String studyId;
     private String studyUri;
-    private String version;
+    //private String version;
     private Study study;
 
     public STRInfoGenerator(DataFile dataFile) {
@@ -103,8 +103,8 @@ public class STRInfoGenerator extends BaseGenerator{
         return mapCatalog.get("Version");
     }
 
-    public void setVersion(String version) {
-        this.version = version;
-    }
+    //public void setVersion(String version) {
+    //    this.version = version;
+    //}
 
 }

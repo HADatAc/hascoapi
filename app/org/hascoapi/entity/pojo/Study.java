@@ -46,11 +46,13 @@ public class Study extends HADatAcThing {
 
     private static final String kbPrefix = ConfigProp.getKbPrefix();
 
+    /*
     public static String INSERT_LINE1 = "INSERT DATA {  ";
     public static String DELETE_LINE1 = "DELETE WHERE {  ";
     public static String DELETE_LINE3 = " ?p ?o . ";
     public static String LINE_LAST = "}  ";
     public static String PREFIX = "DSG-";
+    */
 
     @PropertyField(uri="hasco:hasId")
     private String id;
@@ -86,7 +88,7 @@ public class Study extends HADatAcThing {
 
     private DateTime endedAt;
 
-    private List<String> dataAcquisitionUris;
+    //private List<String> dataAcquisitionUris;
 
     private List<String> objectCollectionUris;
 
@@ -118,7 +120,7 @@ public class Study extends HADatAcThing {
         this.piUri = piUri;
         this.setStartedAt(startDateTime);
         this.setEndedAt(endDateTime);
-        this.dataAcquisitionUris = new ArrayList<String>();
+        //this.dataAcquisitionUris = new ArrayList<String>();
         this.objectCollectionUris = new ArrayList<String>();
         //this.lastId= "0";
     }
@@ -135,7 +137,7 @@ public class Study extends HADatAcThing {
         this.piUri = "";
         this.setStartedAt("");
         this.setEndedAt("");
-        this.dataAcquisitionUris = new ArrayList<String>();
+        //this.dataAcquisitionUris = new ArrayList<String>();
         this.objectCollectionUris = new ArrayList<String>();
         //this.lastId = "0";
     }
@@ -333,6 +335,7 @@ public class Study extends HADatAcThing {
         this.endedAt = formatter.parseDateTime(endedAt);
     }
 
+    /* 
     public void setDataAcquisitionUris(List<String> dataAcquisitionUris) {
         this.dataAcquisitionUris = dataAcquisitionUris;
     }
@@ -344,6 +347,7 @@ public class Study extends HADatAcThing {
     public void addDataAcquisitionUri(String da_uri) {
         this.dataAcquisitionUris.add(da_uri);
     }
+    */
 
     public void setStudyObjectCollectionUris(List<String> objectCollectionUris) {
         this.objectCollectionUris = objectCollectionUris;
@@ -378,7 +382,7 @@ public class Study extends HADatAcThing {
             return null;
         }
 
-		System.out.println("Study.java : in find(): uri = [" + uri + "]");
+		//System.out.println("Study.java : in find(): uri = [" + uri + "]");
 	    Study study = null;
 	    Statement statement;
 	    RDFNode object;
@@ -403,7 +407,7 @@ public class Study extends HADatAcThing {
 				if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
 					study.setLabel(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_TITLE)) {
-					study.setTitle(str); 
+					study.setTitle(str);
 				} else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
 					study.setTypeUri(str); 
 				} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
@@ -539,18 +543,6 @@ public class Study extends HADatAcThing {
         return GenericFind.findTotalByQuery(query);
     }        
     
-    public static int findTotalStudyDAs(String uri) {
-        if (uri == null || uri.isEmpty()) {
-            return 0;
-        }
-        String query = NameSpaces.getInstance().printSparqlNameSpaceList() + 
-                " SELECT (count(?uri) as ?tot)  " +
-                " WHERE {  ?uri hasco:isMemberOf <" + uri + "> .  " +
-				"          ?uri hasco:hascoType <" + HASCO.DATA_ACQUISITION + "> . " +
-                " }";
-        return GenericFind.findTotalByQuery(query);
-    }        
-    
     public static int findTotalStudyRoles(String uri) {
         if (uri == null || uri.isEmpty()) {
             return 0;
@@ -588,6 +580,7 @@ public class Study extends HADatAcThing {
         return socList;
     }
 
+    /* 
     private static List<String> findDataAcquisitionUris(String study_uri) {
         List<String> daList = new ArrayList<String>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
@@ -609,6 +602,7 @@ public class Study extends HADatAcThing {
         }
         return daList;
     }
+    */
 
     public static Study findById(String id) {
         if (id == null || id.isEmpty()) {
@@ -711,7 +705,7 @@ public class Study extends HADatAcThing {
 
         // Delete associated DAs and their measurements
         deleteMeasurements();
-        deleteDataAcquisitions();
+        //deleteDataAcquisitions();
 
         // Delete associated SOCs
         for (String soc_uri : this.objectCollectionUris) {
@@ -730,10 +724,12 @@ public class Study extends HADatAcThing {
         super.deleteFromTripleStore();
     }
 
+    /* 
     public int deleteDataAcquisitions() {
         // TO BE IMPLEMENTED - WAS SOLR BASED
         return -1;
     }
+    */
 
     public int deleteMeasurements() {
         // TO BE IMPLEMENTED - WAS SOLR BASED
