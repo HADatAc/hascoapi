@@ -196,19 +196,19 @@ public class MqttMessageWorker {
         List<String> headers = streamTopic.getHeaders();
 
         // Atualiza headers se ainda estiverem vazios
-        if (headers == null || headers.isEmpty()) {
-            try {
-                JSONParser parser = new JSONParser();
-                JSONObject obj = null;
-                obj= (JSONObject) parser.parse(message);
-                headers = new ArrayList<>(obj.keySet());
+        // if (headers == null || headers.isEmpty()) {
+        //     try {
+        //         JSONParser parser = new JSONParser();
+        //         JSONObject obj = null;
+        //         obj= (JSONObject) parser.parse(message);
+        //         headers = new ArrayList<>(obj.keySet());
 
-                streamTopic.setHeaders(String.join(",", headers));
+        //         streamTopic.setHeaders(String.join(",", headers));
 
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-        }
+        //     } catch (ParseException e) {
+        //         e.printStackTrace();
+        //     }
+        // }
 
         Record record = new JSONRecord(message, headers);
         String status = streamTopic.getHasTopicStatus();
