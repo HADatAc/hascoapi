@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
-import org.json.JSONObject;
+import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
@@ -197,7 +197,9 @@ public class MqttMessageWorker {
         List<String> headers = streamTopic.getHeaders();
         if (headers == null || headers.isEmpty()) {
             try {
-                JSONObject json = new JSONObject(message);
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                json = (JSONObject) parser.parse(message);
                 List<String> keys = new ArrayList<>(json.keySet());
                 Collections.sort(keys);  // organiza alfabeticamente
                 headers = keys;
