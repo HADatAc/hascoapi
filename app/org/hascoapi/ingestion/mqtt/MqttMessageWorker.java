@@ -201,9 +201,10 @@ public class MqttMessageWorker {
                 JSONObject json = null;
                 json = (JSONObject) parser.parse(message);
                 List<String> keys = new ArrayList<>(json.keySet());
+                System.out.println("[INFO] keys da primeira mensagem: " + keys);
                 Collections.sort(keys);  // organiza alfabeticamente
                 headers = keys;
-                streamTopic.setHeaders(headers.toString());  // atualiza o streamTopic
+                streamTopic.setHeaders(headers.toString());  
                 System.out.println("[INFO] Headers extraídos da primeira mensagem: " + headers);
             } catch (Exception e) {
                 System.err.println("[ERROR] Falha ao extrair headers do JSON inicial.");
