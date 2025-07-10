@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -194,21 +195,20 @@ public class MqttMessageWorker {
         MqttMessageWorker.getInstance().monitor.updateLatestValue(streamTopic.getUri(), message);
 
         List<String> headers = streamTopic.getHeaders();
+        if (headers == null || headers.isEmpty()) {
+            try {
+                JSONObject json = new JSONObject(message);
+                List<String> keys = new ArrayList<>(json.keySet());
+                Collections.sort(keys);  // organiza alfabeticamente
+                headers = keys;
+                streamTopic.setHeaders(headers.toString());  // atualiza o streamTopic
+                System.out.println("[INFO] Headers extraídos da primeira mensagem: " + headers);
+            } catch (Exception e) {
+                System.err.println("[ERROR] Falha ao extrair headers do JSON inicial.");
+                e.printStackTrace();
+            }
+        }
 
-        // Atualiza headers se ainda estiverem vazios
-        // if (headers == null || headers.isEmpty()) {
-        //     try {
-        //         JSONParser parser = new JSONParser();
-        //         JSONObject obj = null;
-        //         obj= (JSONObject) parser.parse(message);
-        //         headers = new ArrayList<>(obj.keySet());
-
-        //         streamTopic.setHeaders(String.join(",", headers));
-
-        //     } catch (ParseException e) {
-        //         e.printStackTrace();
-        //     }
-        // }
 
         Record record = new JSONRecord(message, headers);
         String status = streamTopic.getHasTopicStatus();
@@ -228,6 +228,7 @@ public class MqttMessageWorker {
                 }
                 
                 CSVRecordFile csvRecordFile = new CSVRecordFile(csvPhysicalFile);
+                csvRecordFile.setHeaders(headers);
                 df.setRecordFile(csvRecordFile);
                 try {
                     csvRecordFile.appendRecord(record);
