@@ -83,6 +83,16 @@ public class TaskAPI extends Controller {
         for (JsonNode node : requiredInstrumentNode) {
             RequiredInstrument riTmp = new RequiredInstrument();
 
+            String requiredInstrumentUri = node.path("requireInstrumentUri").asText();
+                    
+            if (requiredInstrumentUri.isEmpty()) {
+                return badRequest("Each requiredInstrument entry must have a requiredInstrumentUri");
+            }
+
+            System.out.println("   required instrument uri: <" + requiredInstrumentUri + ">");
+
+            riTmp.setUri(requiredInstrumentUri);
+
             riTmp.setUsesInstrument(node.path("instrumentUri").asText());
             
             if (riTmp.getUsesInstrument().isEmpty()) {
@@ -124,6 +134,8 @@ public class TaskAPI extends Controller {
         
                     System.out.println("   container slot uri: <" + rcTmp.getHasContainerSlot() + ">");
 
+                    rcTmp.setTypeUri(VSTOI.REQUIRED_INSTRUMENT);
+                    rcTmp.setHascoTypeUri(VSTOI.REQUIRED_INSTRUMENT);
                     rcTmp.save();
                     riTmp.addHasRequiredComponent(rcTmp.getUri());
                 }
@@ -144,9 +156,6 @@ public class TaskAPI extends Controller {
         List<String> listRi = new ArrayList<String>();
         for (RequiredInstrument ri : riList) {
             
-            ri.setUri(taskuri +
-                "/" + Constants.PREFIX_REQUIRED_INSTRUMENT + 
-                "/" + aux++);    
             try {
                 listRi.add(ri.getUri());
                 ri.setTypeUri(VSTOI.REQUIRED_INSTRUMENT);
