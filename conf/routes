@@ -157,7 +157,7 @@ GET     /hascoapi/api/platforminstance/byplatform/total/:platformUri            
 GET     /hascoapi/api/process/deletewithtasks/:processUri                           org.hascoapi.console.controllers.restapi.ProcessAPI.deleteWithTasks(processUri: String)
 
 POST    /hascoapi/api/task/instruments                                              org.hascoapi.console.controllers.restapi.TaskAPI.setRequiredInstruments(request: play.mvc.Http.Request)
-POST    /hascoapi/api/task/components                                               org.hascoapi.console.controllers.restapi.TaskAPI.setRequiredComponents(request: play.mvc.Http.Request)
+POST    /hascoapi/api/task/deletewithtasks/:taskUri                                 org.hascoapi.console.controllers.restapi.TaskAPI.deleteWithTasks(taskUri: String)
 
 POST    /hascoapi/api/project/member                                                org.hascoapi.console.controllers.restapi.ProjectAPI.setMembers(request: play.mvc.Http.Request)
 

@@ -34,6 +34,19 @@ public class TaskAPI extends Controller {
         }
     }
 
+    public Result deleteWithTasks(String uri) {
+        //System.out.println("Delete element => Type: [" + elementType + "]  URI [" + uri + "]");
+        if (uri == null || uri.equals("")) {
+            return ok(ApiUtil.createResponse("No uri has been provided.", false));
+        }
+        Task task = Task.find(uri);
+        if (task == null) {
+            return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+        }
+        task.deleteWithSubtasks();
+        return ok(ApiUtil.createResponse("PROCESS with URI [" + uri + "] has been deleted along with its TASKS", true));
+    }
+
     public Result setRequiredComponents(Http.Request request) {
         // Get the JSON body from the request
         JsonNode json = request.body().asJson();
@@ -85,7 +98,7 @@ public class TaskAPI extends Controller {
             System.out.println("   container slot uri: <" + containerSlotUri + ">");
 
             String reqUri = taskuri + 
-                Constants.PREFIX_REQUIRED_COMPONENT + 
+                "/" + Constants.PREFIX_REQUIRED_COMPONENT + 
                 "/" + aux++;    
             try {
                 RequiredComponent requiredComponent = new RequiredComponent();
@@ -194,7 +207,7 @@ public class TaskAPI extends Controller {
         for (String instrumentUri : instrumentUris) {
             
             String rinUri = taskuri +
-                Constants.PREFIX_REQUIRED_INSTRUMENT + 
+                "/" + Constants.PREFIX_REQUIRED_INSTRUMENT + 
                 "/" + aux++;    
             try {
                 RequiredInstrument requiredInstrument = new RequiredInstrument();
