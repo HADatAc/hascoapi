@@ -80,18 +80,16 @@ public class TaskAPI extends Controller {
 
         List<RequiredInstrument> riList = new ArrayList<RequiredInstrument>();
 
+        int riInt = 0;
+
         for (JsonNode node : requiredInstrumentNode) {
             RequiredInstrument riTmp = new RequiredInstrument();
 
-            String requiredInstrumentUri = node.path("requireInstrumentUri").asText();
-                    
-            if (requiredInstrumentUri.isEmpty()) {
-                return badRequest("Each requiredInstrument entry must have a requiredInstrumentUri");
-            }
+            String riUri = taskuri + 
+                "/" + Constants.PREFIX_REQUIRED_INSTRUMENT + 
+                "/" + riInt++;    
 
-            System.out.println("   required instrument uri: <" + requiredInstrumentUri + ">");
-
-            riTmp.setUri(requiredInstrumentUri);
+            riTmp.setUri(riUri);
 
             riTmp.setUsesInstrument(node.path("instrumentUri").asText());
             
@@ -105,18 +103,18 @@ public class TaskAPI extends Controller {
             JsonNode requiredComponentsNode = node.path("requiredComponents");
 
             if (requiredComponentsNode.isArray()) {
+
+                int rcInt = 0;
+
                 for (JsonNode requiredComponentNode : requiredComponentsNode) {
                     RequiredComponent rcTmp = new RequiredComponent();
 
-                    String requiredComponentUri = node.path("requireComponentUri").asText();
-                    
-                    if (requiredComponentUri.isEmpty()) {
-                        return badRequest("Each requiredComponent entry must have a requiredComponentUri");
-                    }
-
-                    System.out.println("   required component uri: <" + requiredComponentUri + ">");
-
-                    rcTmp.setUri(requiredComponentUri);
+                    String rcUri = taskuri + 
+                    "/" + Constants.PREFIX_REQUIRED_INSTRUMENT + 
+                    "/" + riInt + "/" + rcInt++;    
+    
+                    riTmp.setUri(riUri);
+                    System.out.println("   required component uri: <" + rcUri + ">");
 
                     rcTmp.setUsesComponent(node.path("componentUri").asText());
             
@@ -134,8 +132,8 @@ public class TaskAPI extends Controller {
         
                     System.out.println("   container slot uri: <" + rcTmp.getHasContainerSlot() + ">");
 
-                    rcTmp.setTypeUri(VSTOI.REQUIRED_INSTRUMENT);
-                    rcTmp.setHascoTypeUri(VSTOI.REQUIRED_INSTRUMENT);
+                    rcTmp.setTypeUri(VSTOI.REQUIRED_COMPONENT);
+                    rcTmp.setHascoTypeUri(VSTOI.REQUIRED_COMPONENT);
                     rcTmp.save();
                     riTmp.addHasRequiredComponent(rcTmp.getUri());
                 }
