@@ -173,6 +173,12 @@ public class Task extends HADatAcThing implements Comparable<Task> {
         this.hasSubtaskUris.add(hasSubtaskUri);
     }
 
+    public void removeHasSubtaskUri(String hasSubtaskUri) {
+        if (hasSubtaskUri.contains(hasSubtaskUri)) {
+            this.hasSubtaskUris.remove(hasSubtaskUri);
+        }
+    }
+
     public List<String> getHasSubtaskUris() {
         return this.hasSubtaskUris;
     }
@@ -299,6 +305,13 @@ public class Task extends HADatAcThing implements Comparable<Task> {
 
     @Override
     public void delete() {
+        if (this.hasSupertaskUri != null && !this.hasSupertaskUri.isEmpty()) {
+            Task superTask = Task.find(this.hasSupertaskUri);
+            if (superTask != null && superTask.getHasSubtaskUris().contains(this.uri)) {
+                superTask.removeHasSubtaskUri(this.uri);
+                superTask.save();
+            }
+        }
         deleteFromTripleStore();
     }
 
