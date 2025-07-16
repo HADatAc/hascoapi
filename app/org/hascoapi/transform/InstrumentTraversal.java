@@ -191,7 +191,37 @@ public class InstrumentTraversal {
 					}
 				} else if (slotElement instanceof Subcontainer) {
 					Subcontainer subsubcontainer = (Subcontainer)slotElement;
-					list.addAll(traverseContainer(list, subsubcontainer));
+					list.addAll(traverseContainerComponent(list, subsubcontainer));
+				}
+			}
+		}
+		return list;
+	}
+
+	public static List<ContainerSlot> retrieveInstrumentContainerSlots(String uri) {
+		Instrument instr = Instrument.find(uri);
+		List<ContainerSlot> list = new ArrayList<ContainerSlot>();
+		if (instr == null) {
+			return list;
+		}
+		list.addAll(traverseContainerSlots(list, (Container)instr));
+		Set<ContainerSlot> set = new HashSet<>(list);
+        List<ContainerSlot> uniqueList = new ArrayList<>(set);
+		return uniqueList;
+	}
+
+	private static List<ContainerSlot> traverseContainerSlots(List<ContainerSlot> list, Container container) {
+		//System.out.println("  - Container: " + container.getUri());
+		List<SlotElement> slots = container.getSlotElements();
+		if (slots == null || slots.size() <= 0) {
+			return list;
+		} else {
+			for (SlotElement slotElement: slots) {
+				if (slotElement instanceof ContainerSlot) {
+					list.add((ContainerSlot)slotElement);
+				} else if (slotElement instanceof Subcontainer) {
+					Subcontainer subsubcontainer = (Subcontainer)slotElement;
+					list.addAll(traverseContainerSlots(list, subsubcontainer));
 				}
 			}
 		}
