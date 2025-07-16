@@ -104,6 +104,7 @@ GET     /hascoapi/api/instrument/totext/pdf/:uri            org.hascoapi.console
 GET     /hascoapi/api/instrument/tordf/:uri                 org.hascoapi.console.controllers.restapi.InstrumentAPI.toRDF(uri: String)
 GET     /hascoapi/api/instrument/tofhir/:uri                org.hascoapi.console.controllers.restapi.InstrumentAPI.toFHIR(uri: String)
 GET     /hascoapi/api/instrument/components/:instrumentUri  org.hascoapi.console.controllers.restapi.InstrumentAPI.retrieveInstrumentComponents(instrumentUri: String)
+GET     /hascoapi/api/instrument/containerslots/:instrumentUri  org.hascoapi.console.controllers.restapi.InstrumentAPI.retrieveInstrumentContainerSlots(instrumentUri: String)
 
 # CONCEPT-SPECIFIC METHODS
 
@@ -157,7 +158,7 @@ GET     /hascoapi/api/platforminstance/byplatform/total/:platformUri            
 GET     /hascoapi/api/process/deletewithtasks/:processUri                           org.hascoapi.console.controllers.restapi.ProcessAPI.deleteWithTasks(processUri: String)
 
 POST    /hascoapi/api/task/instruments                                              org.hascoapi.console.controllers.restapi.TaskAPI.setRequiredInstruments(request: play.mvc.Http.Request)
-POST    /hascoapi/api/task/components                                               org.hascoapi.console.controllers.restapi.TaskAPI.setRequiredComponents(request: play.mvc.Http.Request)
+POST    /hascoapi/api/task/deletewithtasks/:taskUri                                 org.hascoapi.console.controllers.restapi.TaskAPI.deleteWithTasks(taskUri: String)
 
 POST    /hascoapi/api/project/member                                                org.hascoapi.console.controllers.restapi.ProjectAPI.setMembers(request: play.mvc.Http.Request)
 
