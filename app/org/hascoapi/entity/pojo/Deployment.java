@@ -345,6 +345,45 @@ public class Deployment extends HADatAcThing {
             RDFNode object = statement.getObject();
             String str = URIUtils.objectRDFToString(object);
             //System.out.println("Str [" + str + "] Predicate [" + statement.getPredicate().getURI() + "]");
+            /* Solução para quebrar o uso de memória,
+             * pois o if else consome muita memória, pois tem que rodar todos os ifs quando for o ultimo if.
+             *
+            switch (collectionUtil.Collection.getCollectionName(statement.getPredicate().getURI())) {
+                case "vstoi:designedAtTime":
+                    deployment.setDesignedAt(str);
+                    break;
+                case "prov:startedAtTime":
+                    deployment.setStartedAt(str);
+                    break;
+                case "prov:endedAtTime":
+                    deployment.setEndedAt(str);
+                    break;
+                case "vstoi:isLegacy":
+                    deployment.setIsLegacy(str);
+                    break;
+                case "vstoi:hasInstrumentInstance":
+                    deployment.setInstrumentInstanceUri(str);
+                    break;
+                case "vstoi:hasPlatformInstance":
+                    deployment.setPlatformInstanceUri(str);
+                    break;
+                case "vstoi:hasDetectorInstance":
+                    deployment.addDetectorInstanceUri(str);
+                    break;
+                case "vstoi:hasVersion":
+                    deployment.setHasVersion(str);
+                    break;
+                case "hasco:canUpdate":
+                    deployment.addCanUpdate(str);
+                    break;
+                case "hasco:canView":
+                    deployment.addCanView(str);
+                    break;
+                case "vstoi:hasSIRManagerEmail":
+                    deployment.setHasSIRManagerEmail(str);
+                    break;
+            }
+             */
             if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
                 deployment.setLabel(str);
             } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
