@@ -22,6 +22,7 @@ public class HASCO {
     public static final String MATCHING_COLLECTION                    = "http://hadatac.org/ont/hasco/MatchingCollection";
     public static final String OBJECT_COLLECTION                      = "http://hadatac.org/ont/hasco/StudyObjectCollection";
     public static final String ONTOLOGY                               = "http://hadatac.org/ont/hasco/Ontology";
+    public static final String OPCUA_OBJECT                           = "http://hadatac.org/ont/hasco/OpcUaObject";
     public static final String ORGANIZATION                           = "http://hadatac.org/ont/hasco/Organization";
     public static final String POSSIBLE_VALUE                         = "http://hadatac.org/ont/hasco/PossibleValue";
     public static final String REPOSITORY                             = "http://hadatac.org/ont/hasco/Repository";
@@ -111,10 +112,12 @@ public class HASCO {
     public static final String HAS_METHOD                             = "http://hadatac.org/ont/hasco/hasMethod";
     public static final String HAS_NAMESPACE_ABBREVIATION             = "http://hadatac.org/ont/hasco/hasNamespaceAbbreviation";
     public static final String HAS_NAMESPACE_URL                      = "http://hadatac.org/ont/hasco/hasNamespaceURL";
+    public static final String HAS_NODE_ID                            = "http://hadatac.org/ont/hasco/hasNodeID";
     public static final String HAS_NUMBER_DATA_POINTS                 = "http://hadatac.org/ont/hasco/hasNumberDataPoints";    
     public static final String HAS_NUMBER_LOADED_TRIPLES              = "http://hadatac.org/ont/hasco/hasNumberLoadedTriples";
     public static final String HAS_OBJECT                             = "http://hadatac.org/ont/hasco/hasObject";
     public static final String HAS_OBJECT_SCOPE                       = "http://hadatac.org/ont/hasco/hasObjectScope";
+    public static final String HAS_OPCUA_OBJECT_STATUS                = "http://hadatac.org/ont/hasco/hasOpcUaObjectStatus";
     public static final String HAS_ORIGINAL_VALUE                     = "http://hadatac.org/ont/hasco/hasOriginalValue";
     public static final String HAS_OTHER_FOR                          = "http://hadatac.org/ont/hasco/otherFor";
     public static final String HAS_PERMISSION_URI                     = "http://hadatac.org/ont/hasco/hasPermissionUri";

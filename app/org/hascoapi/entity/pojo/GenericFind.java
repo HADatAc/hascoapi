@@ -83,6 +83,8 @@ public class GenericFind<T> {
             return InstrumentType.class;
         } else if (elementType.equals("kgr")) {
             return KGR.class;
+        } else if (elementType.equals("opcuaobject")) {
+            return OpcUaObject.class;    
         } else if (elementType.equals("organization")) {
             return Organization.class;
         } else if (elementType.equals("person")) {
