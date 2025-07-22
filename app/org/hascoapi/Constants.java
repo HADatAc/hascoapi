@@ -71,6 +71,7 @@ public class Constants {
     public static final String PREFIX_INSTRUMENT_INSTANCE        = "IN0";
     public static final String PREFIX_INS                        = "INS";
     public static final String PREFIX_KGR                        = "KGR";
+    public static final String PREFIX_OPCUA_OBJECT               = "OPCUAOBJ";
     public static final String PREFIX_ORGANIZATION               = "ORG";
     public static final String PREFIX_PERSON                     = "PER";
     public static final String PREFIX_PLACE                      = "PLC";

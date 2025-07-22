@@ -269,7 +269,17 @@ public class SIRElementAPI extends Controller {
                 message = e.getMessage();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
-        } else if (clazz == Person.class) {
+        }else if (clazz == OpcUaObject.class) {
+            try {
+                OpcUaObject object;
+                object = (OpcUaObject)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                System.out.println("Error processing OpcUaObject: " + e.getMessage());
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        }else if (clazz == Person.class) {
             try {
                 Person object;
                 object = (Person)objectMapper.readValue(json, clazz);
