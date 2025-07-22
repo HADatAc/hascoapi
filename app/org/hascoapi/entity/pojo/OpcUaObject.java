@@ -329,9 +329,9 @@ public class OpcUaObject extends HADatAcThing implements Comparable<OpcUaObject>
     public static void initiateStreamObjects() {
         List<OpcUaObject> openTopics = OpcUaObject.findOpenStreamObjects();
         if (openTopics != null && openTopics.size() > 0) {
-            System.out.println("StreamTopic.initiateStreamTopics() called to fix " + openTopics.size() + " topics.");
-            for (StreamTopic topic : openTopics) {
-                topic.setHasTopicStatus(HASCO.INACTIVE);
+            System.out.println("OpcUaObject.initiatStreamObjects() called to fix " + openTopics.size() + " topics.");
+            for (OpcUaObject topic : openTopics) {
+                topic.setStatus(HASCO.INACTIVE);
                 topic.save();
             }
         }
