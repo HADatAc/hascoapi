@@ -181,14 +181,6 @@ public class OpcUaObject extends HADatAcThing implements Comparable<OpcUaObject>
         this.namespaceIndex = namespaceIndex;
     }
     
-    public String getNamespaceUri() {
-        return this.namespaceUri;
-    }
-    
-    public void setNamespaceUri(String namespaceUri) {
-        this.namespaceUri = namespaceUri;
-    }
-    
     public String getObjectType() {
         return this.objectType;
     }
