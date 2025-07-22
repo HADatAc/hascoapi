@@ -136,6 +136,9 @@ public class Utils {
             case "organization":
                 shortPrefix = Constants.PREFIX_ORGANIZATION;
                 break;
+            case "opcuaobject":
+                shortPrefix = Constants.PREFIX_OPCUA_OBJECT;
+                break;                
             case "person":
                 shortPrefix = Constants.PREFIX_PERSON;
                 break;
