@@ -64,7 +64,7 @@ public class IngestionWorker {
         if (fileName.endsWith(".csv")) {
             recordFile = new CSVRecordFile(file);
         } else if (fileName.endsWith(".xlsx")) {
-            recordFile = new SpreadsheetRecordFile(file,dataFile.getFilename(),"InfoSheet");
+            recordFile = new SpreadsheetRecordFile_OLD(file,dataFile.getFilename(),"InfoSheet");
         } else {
             dataFile.getLogger().printExceptionByIdWithArgs("GBL_00003", fileName);
             System.out.println("[ERROR] IngestionWorker: invalid file extension.");
@@ -230,7 +230,7 @@ public class IngestionWorker {
 
         if (mapCatalog.get("hasStudyDescription") != null) {
             System.out.print("Extracting STD sheet from spreadsheet... ");
-            studyRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), mapCatalog.get("hasStudyDescription"));
+            studyRecordFile = new SpreadsheetRecordFile_OLD(dataFile.getFile(), dataFile.getFilename(), mapCatalog.get("hasStudyDescription"));
             if (studyRecordFile == null) {
                 System.out.println("[ERROR] StudyGenerator: studyRecordFile is NULL.");
                 return null;
@@ -284,7 +284,7 @@ public class IngestionWorker {
 
             if (mapCatalog.get("hasEntityDesign") != null) {
                 System.out.print("Extracting SSD sheet from spreadsheet... ");
-                ssdRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), mapCatalog.get("hasEntityDesign"));
+                ssdRecordFile = new SpreadsheetRecordFile_OLD(dataFile.getFile(), dataFile.getFilename(), mapCatalog.get("hasEntityDesign"));
                 if (ssdRecordFile == null) {
                     System.out.println("[ERROR] IngestionWorker: ssdRecordFile is NULL.");
                     return null;
@@ -392,7 +392,7 @@ public class IngestionWorker {
             if (mapCatalog.get(i) != null && !mapCatalog.get(i).isEmpty()) {
                 try {
                     System.out.println("Pre-processing SOC [" + mapCatalog.get(i) + "]");
-                    RecordFile SOsheet = new SpreadsheetRecordFile(dataFile.getFile(), mapCatalog.get(i).replace("#", ""));
+                    RecordFile SOsheet = new SpreadsheetRecordFile_OLD(dataFile.getFile(), mapCatalog.get(i).replace("#", ""));
                     DataFile dataFileForSheet = (DataFile)dataFile.clone();
                     dataFileForSheet.setRecordFile(SOsheet);
                     if (mapContent == null || mapContent.get(i) == null) {
@@ -417,7 +417,7 @@ public class IngestionWorker {
 
     public static GeneratorChain annotateDOIFile(DataFile dataFile) {
         System.out.println("Processing DOI file ...");
-        RecordFile recordFile = new SpreadsheetRecordFile(dataFile.getFile(), "InfoSheet");
+        RecordFile recordFile = new SpreadsheetRecordFile_OLD(dataFile.getFile(), "InfoSheet");
         if (!recordFile.isValid()) {
             dataFile.getLogger().printExceptionById("DOI_00001");
             return null;
@@ -460,7 +460,7 @@ public class IngestionWorker {
         }
 
         String sheetName = mapCatalog.get("Filenames").replace("#", "");
-        RecordFile sheet = new SpreadsheetRecordFile(dataFile.getFile(), sheetName);
+        RecordFile sheet = new SpreadsheetRecordFile_OLD(dataFile.getFile(), sheetName);
 
         try {
         	DataFile dataFileForSheet = (DataFile)dataFile.clone();
@@ -480,7 +480,7 @@ public class IngestionWorker {
      ****************************/
 
     public static GeneratorChain annotateDP2File(DataFile dataFile, String templateFile) {
-        RecordFile recordFile = new SpreadsheetRecordFile(dataFile.getFile(), "InfoSheet");
+        RecordFile recordFile = new SpreadsheetRecordFile_OLD(dataFile.getFile(), "InfoSheet");
         if (!recordFile.isValid()) {
             dataFile.getLogger().printExceptionById("DPL_00001");
             return null;
@@ -525,7 +525,7 @@ public class IngestionWorker {
                 dataFile.getLogger().println("[WARNING] 'PlatformModels' sheet is missing.");
             } else {
                 platformModelsSheet.replace("#", "");
-                sheet = new SpreadsheetRecordFile(dataFile.getFile(), platformModelsSheet);
+                sheet = new SpreadsheetRecordFile_OLD(dataFile.getFile(), platformModelsSheet);
                 try {
                     DataFile dataFileForSheet = (DataFile)dataFile.clone();
                     dataFileForSheet.setRecordFile(sheet);
@@ -544,7 +544,7 @@ public class IngestionWorker {
                 dataFile.getLogger().println("[WARNING] 'Platforms' sheet is missing.");
             } else {
                 platformsSheet.replace("#", "");
-                sheet = new SpreadsheetRecordFile(dataFile.getFile(), platformsSheet);
+                sheet = new SpreadsheetRecordFile_OLD(dataFile.getFile(), platformsSheet);
                 try {
                     DataFile dataFileForSheet = (DataFile)dataFile.clone();
                     dataFileForSheet.setRecordFile(sheet);
@@ -563,7 +563,7 @@ public class IngestionWorker {
                 dataFile.getLogger().println("[WARNING] 'FieldsOfView' sheet is missing.");
             } else {
                 fieldsOfViewSheet.replace("#", "");
-                sheet = new SpreadsheetRecordFile(dataFile.getFile(), fieldsOfViewSheet);
+                sheet = new SpreadsheetRecordFile_OLD(dataFile.getFile(), fieldsOfViewSheet);
                 try {
                     DataFile dataFileForSheet = (DataFile)dataFile.clone();
                     dataFileForSheet.setRecordFile(sheet);
@@ -582,7 +582,7 @@ public class IngestionWorker {
                 dataFile.getLogger().println("[WARNING] 'Deployments' sheet is missing.");
             } else {
                 deploymentsSheet.replace("#", "");
-                sheet = new SpreadsheetRecordFile(dataFile.getFile(), deploymentsSheet);
+                sheet = new SpreadsheetRecordFile_OLD(dataFile.getFile(), deploymentsSheet);
                 try {
                     DataFile dataFileForSheet = (DataFile)dataFile.clone();
                     dataFileForSheet.setRecordFile(sheet);
@@ -605,7 +605,7 @@ public class IngestionWorker {
         RecordFile nameSpaceRecordFile = null;
         if (mapCatalog.get("hasDependencies") != null) {
             System.out.print("Extracting NameSpace sheet from spreadsheet... ");
-            nameSpaceRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), mapCatalog.get("hasDependencies"));
+            nameSpaceRecordFile = new SpreadsheetRecordFile_OLD(dataFile.getFile(), dataFile.getFilename(), mapCatalog.get("hasDependencies"));
             if (nameSpaceRecordFile == null) {
                 System.out.println("[WARNING] NameSpaceGenerator: nameSpaceRecordFile is NULL.");
             } else if (nameSpaceRecordFile.getRecords() == null) {
@@ -648,7 +648,7 @@ public class IngestionWorker {
         }
         if (mapCatalog.get("AnnotationStems") != null) {
             System.out.print("Extracting [AnnotationStems] sheet from spreadsheet... ");
-            annotationStemRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), mapCatalog.get("AnnotationStems"));
+            annotationStemRecordFile = new SpreadsheetRecordFile_OLD(dataFile.getFile(), dataFile.getFilename(), mapCatalog.get("AnnotationStems"));
             if (annotationStemRecordFile == null) {
                 System.out.println("[WARNING] 'AnnotationStems' sheet is missing.");
                 dataFile.getLogger().println("[WARNING] 'AnnotationStems' sheet is missing.");
@@ -661,7 +661,7 @@ public class IngestionWorker {
         }
         if (mapCatalog.get("Annotations") != null) {
             System.out.print("Extracting [Annotations] sheet from spreadsheet... ");
-            annotationRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), mapCatalog.get("Annotations"));
+            annotationRecordFile = new SpreadsheetRecordFile_OLD(dataFile.getFile(), dataFile.getFilename(), mapCatalog.get("Annotations"));
             if (annotationRecordFile == null) {
                 System.out.println("[WARNING] 'Annotations' sheet is missing.");
                 dataFile.getLogger().println("[WARNING] 'Annotations' sheet is missing.");
@@ -708,7 +708,7 @@ public class IngestionWorker {
         }
         if (mapCatalog.get("MessageStream") != null) {
             System.out.print("Extracting [MessageStream] sheet from spreadsheet... ");
-            messageStreamRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), mapCatalog.get("MessageStream"));
+            messageStreamRecordFile = new SpreadsheetRecordFile_OLD(dataFile.getFile(), dataFile.getFilename(), mapCatalog.get("MessageStream"));
             if (messageStreamRecordFile == null) {
                 System.out.println("[WARNING] 'MessageStream' sheet is missing.");
                 dataFile.getLogger().println("[WARNING] 'MessageStream' sheet is missing.");
@@ -721,7 +721,7 @@ public class IngestionWorker {
         }
         if (mapCatalog.get("MessageTopic") != null) {
             System.out.print("Extracting [MessageTopic] sheet from spreadsheet... ");
-            messageTopicRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), mapCatalog.get("MessageTopic"));
+            messageTopicRecordFile = new SpreadsheetRecordFile_OLD(dataFile.getFile(), dataFile.getFilename(), mapCatalog.get("MessageTopic"));
             if (messageTopicRecordFile == null) {
                 System.out.println("[WARNING] 'MessageTopic' sheet is missing.");
                 dataFile.getLogger().println("[WARNING] 'MessageTopic' sheet is missing.");
@@ -771,7 +771,7 @@ public class IngestionWorker {
         }
         if (mapCatalog.get("Instruments") != null) {
             System.out.print("Extracting [Instruments] sheet from spreadsheet... ");
-            instrumentsRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), mapCatalog.get("Instruments"));
+            instrumentsRecordFile = new SpreadsheetRecordFile_OLD(dataFile.getFile(), dataFile.getFilename(), mapCatalog.get("Instruments"));
             if (instrumentsRecordFile == null) {
                 System.out.println("[WARNING] 'Instruments' sheet is missing.");
                 dataFile.getLogger().println("[WARNING] 'Instruments' sheet is missing.");
@@ -784,7 +784,7 @@ public class IngestionWorker {
         }
         if (mapCatalog.get("Detectors") != null) {
             System.out.print("Extracting [Detectors] sheet from spreadsheet... ");
-            detectorsRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), mapCatalog.get("Detectors"));
+            detectorsRecordFile = new SpreadsheetRecordFile_OLD(dataFile.getFile(), dataFile.getFilename(), mapCatalog.get("Detectors"));
             if (detectorsRecordFile == null) {
                 System.out.println("[WARNING] 'Detectors' sheet is missing.");
                 dataFile.getLogger().println("[WARNING] 'Detectors' sheet is missing.");
@@ -797,7 +797,7 @@ public class IngestionWorker {
         }
         if (mapCatalog.get("SensingPerspective") != null) {
             System.out.print("Extracting [SensingPerspective] sheet from spreadsheet... ");
-            sensingPerspectiveRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), mapCatalog.get("SensingPerspective"));
+            sensingPerspectiveRecordFile = new SpreadsheetRecordFile_OLD(dataFile.getFile(), dataFile.getFilename(), mapCatalog.get("SensingPerspective"));
             if (sensingPerspectiveRecordFile == null) {
                 System.out.println("[WARNING] 'SensingPerspective' sheet is missing.");
                 dataFile.getLogger().println("[WARNING] 'SensingPerspective' sheet is missing.");
