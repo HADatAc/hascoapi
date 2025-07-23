@@ -22,59 +22,58 @@ import java.util.List;
 
 public class OpcUaObjectAPI extends Controller {
 
-    // public static Result getOpcUaObjects(List<OpcUaObject> results){
-    //     if (results == null) {
-    //         return ok(ApiUtil.createResponse("No OpcUaObject has been found", false));
-    //     } else {
-    //         ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL,HASCO.STREAM_TOPIC);
-    //         JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
-    //         return ok(ApiUtil.createResponse(jsonObject, true));
-    //     }
-    // }
+    public static Result getOpcUaObjects(List<OpcUaObject> results){
+        if (results == null) {
+            return ok(ApiUtil.createResponse("No OpcUaObject has been found", false));
+        } else {
+            ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL,HASCO.STREAM_TOPIC);
+            JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
+            return ok(ApiUtil.createResponse(jsonObject, true));
+        }
+    }
 
-    // // public Result findActive() {
-    // //     List<OpcUaObject> streamTopics = MqttMessageWorker.getInstance().listStreamTopics();
-    // //     return getStreamTopics(streamTopics);
-    // // }
+    public Result findActive() {
+        List<OpcUaObject> activeObjects = OpcUaObjectsWorker.getInstance().listOpcUaObjects();
+        return ok(ApiUtil.createResponse(activeObjects, true));
+    }
+    public Result subscribe(String objectUri) {
+        if (objectUri == null || objectUri.isEmpty()) {
+            return ok(ApiUtil.createResponse("Invalid objectUri", false));
+        }
+        if (OpcUaObjectsWorker.getInstance().addObjectToWorker(objectUri)) {
+            return ok(ApiUtil.createResponse("Subscribed to OPC UA object", true));
+        }
+        return ok(ApiUtil.createResponse("Failed to subscribe", false));
+    }
 
-    // public Result subscribe(String objectUri) {
-    //     if (objectUri == null || topicUri.isEmpty()) {
-    //         return ok(ApiUtil.createResponse("No valid objectUri has been provided", false));
-    //     }
-    //     if (MqttMessageWorker.getInstance().addStreamTopicToWorker(topicUri)) {
-    //         return ok(ApiUtil.createResponse("StreamTopic has been subscribed", true));
-    //     }     
-    //     return ok(ApiUtil.createResponse("Failed to subscribe to StreamTopic", false));   
-    // }
+    public Result unsubscribe(String objectUri) {
+        if (objectUri == null || objectUri.isEmpty()) {
+            return ok(ApiUtil.createResponse("Invalid objectUri", false));
+        }
+        if (OpcUaObjectsWorker.getInstance().removeObjectFromWorker(objectUri)) {
+            return ok(ApiUtil.createResponse("Unsubscribed from OPC UA object", true));
+        }
+        return ok(ApiUtil.createResponse("Failed to unsubscribe", false));
+    }
 
-    // public Result unsubscribe(String topicUri) {
-    //     if (topicUri == null || topicUri.isEmpty()) {
-    //         return ok(ApiUtil.createResponse("No valid topicUri has been provided", false));
-    //     }
-    //     if (MqttMessageWorker.getInstance().removeStreamTopicFromWorker(topicUri)) {
-    //         return ok(ApiUtil.createResponse("StreamTopic has been unsubscribed", true));
-    //     }     
-    //     return ok(ApiUtil.createResponse("Failed to unsubscribe requested StreamTopic", false));   
-    // }
+    public Result setStatus(String objectUri, String status) {
+        if (objectUri == null || objectUri.isEmpty()) {
+            return ok(ApiUtil.createResponse("No valid objectUri has been provided", false));
+        }
+        if (status == null || status.isEmpty()) {
+            return ok(ApiUtil.createResponse("No valid status has been provided", false));
+        }
+        if (OpcUaObjectsWorker.getInstance().setStatus(objectUri, status)) {
+            return ok(ApiUtil.createResponse("OPC UA object " + objectUri + " has set to status " + status, true));
+        }     
+        return ok(ApiUtil.createResponse("Failed to unsubscribe requested OPC UA object", false));   
+    }
 
-    // public Result setStatus(String topicUri, String status) {
-    //     if (topicUri == null || topicUri.isEmpty()) {
-    //         return ok(ApiUtil.createResponse("No valid topicUri has been provided", false));
-    //     }
-    //     if (status == null || status.isEmpty()) {
-    //         return ok(ApiUtil.createResponse("No valid status has been provided", false));
-    //     }
-    //     if (MqttMessageWorker.getInstance().setStatus(topicUri, status)) {
-    //         return ok(ApiUtil.createResponse("StreamTopic " + topicUri + " has set to status " + status, true));
-    //     }     
-    //     return ok(ApiUtil.createResponse("Failed to unsubscribe requested StreamTopic", false));   
-    // }
-
-    // public Result getLatestValue(String topicUri) {
-    //     if (topicUri == null || topicUri.isEmpty()) {
-    //         return ok(ApiUtil.createResponse("No valid topicUri has been provided", false));
-    //     }
-    //     return ok(ApiUtil.createResponse(MqttMessageWorker.getInstance().getMonitor().getLatestValue(topicUri), true));
-    // }
+    public Result getLatestValue(String objectUri) {
+        if (objectUri == null || objectUri.isEmpty()) {
+            return ok(ApiUtil.createResponse("Invalid objectUri", false));
+        }
+        return ok(ApiUtil.createResponse(OpcUaObjectsWorker.getInstance().getMonitor().getLatestValue(objectUri), true));
+    }
 
 }
