@@ -21,7 +21,7 @@ public class AnnotateSTR {
         // }
 
         // verifies if data file contains an InfoSheet sheet
-        RecordFile recordFile = new SpreadsheetRecordFile_OLD(dataFile.getFile(), "InfoSheet");
+        RecordFile recordFile = new SpreadsheetRecordFile(dataFile.getFile(), "InfoSheet");
         if (!recordFile.isValid()) {
             dataFile.getLogger().printExceptionById("STR_00001");
             return null;
@@ -54,21 +54,21 @@ public class AnnotateSTR {
         	dataFile.getLogger().printExceptionById("STR_00005");
         	return null;
         }
-        fileStreamRecordFile = new SpreadsheetRecordFile_OLD(dataFile.getFile(), mapCatalog.get(STRInfoGenerator.FILESTREAM).replace("#", ""));
+        fileStreamRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), mapCatalog.get(STRInfoGenerator.FILESTREAM).replace("#", ""));
 
         // verifies if messagestream sheet is available, even if no message stream is specified
         if (mapCatalog.get(STRInfoGenerator.MESSAGESTREAM) == null) {
     		dataFile.getLogger().printExceptionById("STR_00006");
     		return null;
         }
-        messageStreamRecordFile = new SpreadsheetRecordFile_OLD(dataFile.getFile(), mapCatalog.get(STRInfoGenerator.MESSAGESTREAM).replace("#", ""));
+        messageStreamRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), mapCatalog.get(STRInfoGenerator.MESSAGESTREAM).replace("#", ""));
 
         // verifies if messagetopic sheet is available, even if no message topic is specified
         if (mapCatalog.get(STRInfoGenerator.MESSAGETOPIC) == null) {
     		dataFile.getLogger().printExceptionById("STR_00016");
     		return null;
         }
-        messageTopicRecordFile = new SpreadsheetRecordFile_OLD(dataFile.getFile(), mapCatalog.get(STRInfoGenerator.MESSAGETOPIC).replace("#", ""));
+        messageTopicRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), mapCatalog.get(STRInfoGenerator.MESSAGETOPIC).replace("#", ""));
 
         // verifies if not both fileStream sheet and messageStream sheet are empty
         if (fileStreamRecordFile.getNumberOfRows() <= 0 && messageStreamRecordFile.getNumberOfRows() <= 0) {

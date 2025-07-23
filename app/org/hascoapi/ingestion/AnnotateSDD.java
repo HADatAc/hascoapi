@@ -13,7 +13,7 @@ public class AnnotateSDD {
      public static GeneratorChain exec(DataFile dataFile, String templateFile) {
         System.out.println("Processing SDD file ...");
 
-        RecordFile recordFile = new SpreadsheetRecordFile_OLD(dataFile.getFile(), "InfoSheet");
+        RecordFile recordFile = new SpreadsheetRecordFile(dataFile.getFile(), "InfoSheet");
         if (!recordFile.isValid()) {
             dataFile.getLogger().printExceptionById("SDD_00001");
             return null;
@@ -58,12 +58,12 @@ public class AnnotateSDD {
                     "sddtmp/" + fileName.replace(".xlsx", "") + "-code-mappings.csv");
 
             if (mapCatalog.get("Codebook") != null) {
-                codeBookRecordFile = new SpreadsheetRecordFile_OLD(dataFile.getFile(), mapCatalog.get("Codebook").replace("#", ""));
+                codeBookRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), mapCatalog.get("Codebook").replace("#", ""));
                 System.out.println("IngestionWorker: read codeBookRecordFile with " + codeBookRecordFile.getRecords().size() + " records.");
             }
 
             if (mapCatalog.get("Data_Dictionary") != null) {
-                dictionaryRecordFile = new SpreadsheetRecordFile_OLD(dataFile.getFile(), mapCatalog.get("Data_Dictionary").replace("#", ""));
+                dictionaryRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), mapCatalog.get("Data_Dictionary").replace("#", ""));
                 System.out.println("IngestionWorker: read dictionaryRecordFile with " + dictionaryRecordFile.getRecords().size() + " records.");
             }
 
