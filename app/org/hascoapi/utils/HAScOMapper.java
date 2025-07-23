@@ -242,12 +242,6 @@ public class HAScOMapper {
                             "wasDerivedFrom", "wasGeneratedBy", "hasSIRManagerEmail", "hasEditorEmail", "detects", "detectsSemanticVariable"));
         }
 
-        // DETECTOR_STEM_TYPE
-        /*
-        filterProvider.addFilter("detectorStemTypeFilter", 
-            SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "className", "superUri", "superLabel", "comment"));
-        */
-
         // DSG
         if (mode.equals(FULL) && typeResult.equals(HASCO.DSG)) {
             filterProvider.addFilter("dsgFilter", SimpleBeanPropertyFilter.serializeAll());
@@ -284,9 +278,9 @@ public class HAScOMapper {
             filterProvider.addFilter("hascoClassFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("hascoClassFilter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "superUri", "typeLabel", "hascoTypeUri",
-                            "hasImageUri", "hasWebDocument", 
-                            "hascoTypeLabel", "nodeId", "comment", "isDomainOf", "isRangeOf", "isDisjointWith", "hasStatus", "subClasses"));
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "superUri", "typeUri", "typeLabel", "hascoTypeUri",
+                            "hasImageUri", "hasWebDocument", "hascoTypeLabel", "nodeId", 
+                            "comment", "description", "isDomainOf", "isRangeOf", "isDisjointWith", "hasStatus", "subClasses"));
         }
 
         // INS
