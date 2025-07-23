@@ -13,7 +13,7 @@ public class AnnotateKGR {
  
         System.out.println("AnnotateKGR.buildChain(): Build chain 1 of 9 - Reading catalog and template");
 
-        RecordFile recordFile = new SpreadsheetRecordFile_OLD(dataFile.getFile(), "InfoSheet");
+        RecordFile recordFile = new SpreadsheetRecordFile(dataFile.getFile(), "InfoSheet");
         if (!recordFile.isValid()) {
             dataFile.getLogger().printExceptionById("DPL_00001");
             return null;
@@ -73,7 +73,7 @@ public class AnnotateKGR {
             dataFile.getLogger().println("[WARNING] 'Places' sheet is missing.");
         } else {
             placeSheet.replace("#", "");
-            sheet = new SpreadsheetRecordFile_OLD(dataFile.getFile(), placeSheet);
+            sheet = new SpreadsheetRecordFile(dataFile.getFile(), placeSheet);
             try {
                 DataFile dataFileForSheet = (DataFile)dataFile.clone();
                 dataFileForSheet.setRecordFile(sheet);
@@ -92,7 +92,7 @@ public class AnnotateKGR {
             dataFile.getLogger().println("[WARNING] 'PostalAddresses' sheet is missing.");
         } else {
             postalAddressSheet.replace("#", "");
-            sheet = new SpreadsheetRecordFile_OLD(dataFile.getFile(), postalAddressSheet);
+            sheet = new SpreadsheetRecordFile(dataFile.getFile(), postalAddressSheet);
             try {
                 DataFile dataFileForSheet = (DataFile)dataFile.clone();
                 dataFileForSheet.setRecordFile(sheet);
@@ -111,7 +111,7 @@ public class AnnotateKGR {
             dataFile.getLogger().println("[WARNING] 'Organizations' sheet is missing.");
         } else {
             organizationSheet.replace("#", "");
-            sheet = new SpreadsheetRecordFile_OLD(dataFile.getFile(), organizationSheet);
+            sheet = new SpreadsheetRecordFile(dataFile.getFile(), organizationSheet);
             try {
                 DataFile dataFileForSheet = (DataFile)dataFile.clone();
                 dataFileForSheet.setRecordFile(sheet);
@@ -130,7 +130,7 @@ public class AnnotateKGR {
             dataFile.getLogger().println("[WARNING] 'Persons' sheet is missing.");
         } else {
             personSheet.replace("#", "");
-            sheet = new SpreadsheetRecordFile_OLD(dataFile.getFile(), personSheet);
+            sheet = new SpreadsheetRecordFile(dataFile.getFile(), personSheet);
             try {
                 DataFile dataFileForSheet = (DataFile)dataFile.clone();
                 dataFileForSheet.setRecordFile(sheet);
@@ -149,7 +149,7 @@ public class AnnotateKGR {
             dataFile.getLogger().println("[WARNING] 'Projects' sheet is missing.");
         } else {
             projectSheet.replace("#", "");
-            sheet = new SpreadsheetRecordFile_OLD(dataFile.getFile(), projectSheet);
+            sheet = new SpreadsheetRecordFile(dataFile.getFile(), projectSheet);
             try {
                 DataFile dataFileForSheet = (DataFile)dataFile.clone();
                 dataFileForSheet.setRecordFile(sheet);
@@ -168,7 +168,7 @@ public class AnnotateKGR {
             dataFile.getLogger().println("[WARNING] 'ProjectOrganizations' sheet is missing.");
         } else {
             projectOrganizationSheet.replace("#", "");
-            sheet = new SpreadsheetRecordFile_OLD(dataFile.getFile(), projectOrganizationSheet);
+            sheet = new SpreadsheetRecordFile(dataFile.getFile(), projectOrganizationSheet);
             try {
                 DataFile dataFileForSheet = (DataFile)dataFile.clone();
                 dataFileForSheet.setRecordFile(sheet);
@@ -187,7 +187,7 @@ public class AnnotateKGR {
             dataFile.getLogger().println("[WARNING] 'FundingSchemes' sheet is missing.");
         } else {
             fundingSchemeSheet.replace("#", "");
-            sheet = new SpreadsheetRecordFile_OLD(dataFile.getFile(), fundingSchemeSheet);
+            sheet = new SpreadsheetRecordFile(dataFile.getFile(), fundingSchemeSheet);
             try {
                 DataFile dataFileForSheet = (DataFile)dataFile.clone();
                 dataFileForSheet.setRecordFile(sheet);
