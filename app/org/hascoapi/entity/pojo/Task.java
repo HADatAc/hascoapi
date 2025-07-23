@@ -173,6 +173,12 @@ public class Task extends HADatAcThing implements Comparable<Task> {
         this.hasSubtaskUris.add(hasSubtaskUri);
     }
 
+    public void removeHasSubtaskUri(String hasSubtaskUri) {
+        if (hasSubtaskUri.contains(hasSubtaskUri)) {
+            this.hasSubtaskUris.remove(hasSubtaskUri);
+        }
+    }
+
     public List<String> getHasSubtaskUris() {
         return this.hasSubtaskUris;
     }
@@ -285,33 +291,28 @@ public class Task extends HADatAcThing implements Comparable<Task> {
         }
     }
 
-    private void deleteSubtasks(Task task) {
+    @Override
+    public void delete() {
+        if (this.hasSupertaskUri != null && !this.hasSupertaskUri.isEmpty()) {
+            Task superTask = Task.find(this.hasSupertaskUri);
+            if (superTask != null && superTask.getHasSubtaskUris().contains(this.uri)) {
+                superTask.removeHasSubtaskUri(this.uri);
+                superTask.save();
+            }
+        }
+        deleteFromTripleStore();
+    }
+
+    public static void deleteWithSubtasks(Task task) {
         if (task.getHasSubtaskUris() != null && task.getHasSubtaskUris().size() > 0) {
             for (String subtaskUri : task.getHasSubtaskUris()) {
                 Task subtask = Task.find(subtaskUri);
                 if (subtask != null) {
-                    this.deleteSubtasks(subtask);
+                    Task.deleteWithSubtasks(subtask);
                 }
             }
         }
         task.delete();
-    }
-
-    @Override
-    public void delete() {
-        deleteFromTripleStore();
-    }
-
-    public void deleteWithSubtasks() {
-        if (this.getHasSubtaskUris() != null && this.getHasSubtaskUris().size() > 0) {
-            for (String subtaskUri : this.getHasSubtaskUris()) {
-                Task subtask = Task.find(subtaskUri);
-                if (subtask != null) {
-                    this.deleteSubtasks(subtask);
-                }
-            }
-        }
-        deleteFromTripleStore();
     }
 
 }
