@@ -1,13 +1,14 @@
 package org.hascoapi.entity.pojo;
 
-import java.io.File;
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.net.URL;
+import java.net.HttpURLConnection;
 import java.util.*;
+import java.io.*;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.jena.query.*;
+import org.apache.jena.query.ResultSetRewindable;
+import org.apache.jena.query.ResultSet;
+import org.apache.jena.query.QuerySolution;
 import org.apache.jena.update.UpdateExecutionFactory;
 import org.apache.jena.update.UpdateFactory;
 import org.apache.jena.update.UpdateProcessor;
@@ -118,7 +119,25 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
 
             this.numberOfLoadedTriples = Integer.valueOf(soln.getLiteral("tot").getValue().toString()).intValue();
         } catch (Exception e) {
-            System.out.println("NameSpace.updateLoadedTripleSize()");
+            System.out.println("NameS[info] compiling 1 Java source to /home/paulo/git/hascoapi/target/scala-2.12/classes ...\n" + //
+                                "[error] /home/paulo/git/hascoapi/app/org/hascoapi/entity/pojo/NameSpace.java:194:1: incompatible types: org.apache.jena.query.ResultSetRewindable cannot be converted to java.sql.ResultSet\n" + //
+                                "[error] SPARQLUtils.select(CollectionUtil.getCollectionPath(\n" + //
+                                "[error]         \tCollectionUtil.Collection.SPARQL_QUERY), queryString)\n" + //
+                                "[error] /home/paulo/git/hascoapi/app/org/hascoapi/entity/pojo/NameSpace.java:197:1: cannot find symbol\n" + //
+                                "[error]   symbol:   method hasNext()\n" + //
+                                "[error]   location: variable resultSet of type java.sql.ResultSet\n" + //
+                                "[error] resultSet.hasNext\n" + //
+                                "[error] /home/paulo/git/hascoapi/app/org/hascoapi/entity/pojo/NameSpace.java:204:1: cannot find symbol\n" + //
+                                "[error]   symbol:   method hasNext()\n" + //
+                                "[error]   location: variable resultSet of type java.sql.ResultSet\n" + //
+                                "[error] resultSet.hasNext\n" + //
+                                "[error] /home/paulo/git/hascoapi/app/org/hascoapi/entity/pojo/NameSpace.java:205:1: incompatible types: boolean cannot be converted to org.apache.jena.query.QuerySolution\n" + //
+                                "[error] resultSet.next()\n" + //
+                                "[info] /home/paulo/git/hascoapi/app/org/hascoapi/entity/pojo/NameSpace.java: NameSpace.java uses or overrides a deprecated API.\n" + //
+                                "[info] /home/paulo/git/hascoapi/app/org/hascoapi/entity/pojo/NameSpace.java: Recompile with -Xlint:deprecation for details.\n" + //
+                                "[error] (Compile / compileIncremental) javac returned non-zero exit code\n" + //
+                                "[error] Total time: 0 s, completed 21/07/2025, 13:29:00\n" + //
+                                "pace.updateLoadedTripleSize()");
             System.out.println("  - Value of CollectionUtil.Collection.SPARQL_QUERY=[" + CollectionUtil.Collection.SPARQL_QUERY + "]");
             System.out.println("  - Value of CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY)=[" + CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY) + "]");
             e.printStackTrace();
@@ -310,27 +329,42 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
     */
 
     public void loadTriples(String address, boolean fromRemote) {
+        //System.out.println("[DEBUG] Received address: " + address);
         Optional<File> tempFileOpt = Optional.empty();
         RDFFormat format = getRioFormat(getSourceMime());
+    
         try {
-            System.out.println("Namespace: Loading triples from " + address);
+            //System.out.println("Namespace: Loading triples from " + address);
             File tripleFile;
+    
             if (fromRemote) {
                 tempFileOpt = Optional.of(File.createTempFile("remoteTriples", "." + format.getDefaultFileExtension()));
-
                 tripleFile = tempFileOpt.get();
-                FileUtils.copyURLToFile(new URL(address), tripleFile);            }
-            else {
+    
+                //System.out.println("[DEBUG] Final address: " + address);
+                //System.out.println("[DEBUG] MIME: " + format.getDefaultMIMEType());
+                //System.out.println("[DEBUG] EXT: " + format.getDefaultFileExtension());
+    
+                boolean success = NameSpace.downloadWithRedirect(address, tripleFile, format.getDefaultMIMEType());
+                if (!success) {
+                    System.err.println("[ERROR] Failed to download triples from remote source: " + address);
+                    return; // Abort if download fails
+                }
+    
+            } else {
                 tripleFile = new File(address);
             }
+    
             String endpointUrl = CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_GRAPH);
             GSPClient gspClient = new GSPClient(endpointUrl);
+    
             if (address.equals("http://hadatac.org/ont/uberon/uberonpmsr.ttl")) {
                 NameSpace.printFirst30Lines(tripleFile);
             }
+    
             gspClient.postFile(tripleFile, format.getDefaultMIMEType(), getUri());
-            System.out.println("Loaded triples from " + address + " \n");
             //System.out.println("Loaded triples from " + address + " \n");
+    
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);
@@ -338,7 +372,7 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
             tempFileOpt.ifPresent(FileUtils::deleteQuietly);
         }
     }
-
+    
     public static void printFirst30Lines(File file) {
         BufferedReader reader = null;
 
@@ -415,18 +449,19 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
         }
      }
 
-    @Override
-    public void delete() {
-        // permanent name spaces cannot be deleted from triple store because they are not store into the triple store
-        if (!this.permanent) {
-            // namespaces are always stored into the named graph called DEFAULT_REPOSITORY 
-            this.setNamedGraph(Constants.DEFAULT_REPOSITORY);
-            System.out.println("   URI = [" + this.getUri() + "]");
-            deleteFromTripleStore();
-        }
-    }
+    
+     @Override
+     public void delete() {
+         // permanent name spaces cannot be deleted from triple store because they are not store into the triple store
+         if (!this.permanent) {
+             // namespaces are always stored into the named graph called DEFAULT_REPOSITORY 
+             this.setNamedGraph(Constants.DEFAULT_REPOSITORY);
+             System.out.println("   URI = [" + this.getUri() + "]");
+             deleteFromTripleStore();
+         }
+     } 
 
-    public static String deleteNamespace(String abbreviation) {
+     public static String deleteNamespace(String abbreviation) {
 
         // RETRIEVE FROM MEMORY
         NameSpace ns = NameSpace.findInMemoryByAbbreviation(abbreviation);
@@ -470,5 +505,100 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
     public int compareTo(NameSpace another) {
         return this.getLabel().compareTo(another.getLabel());
     }
+
+    public static boolean downloadWithRedirect(String urlStr, File destination, String preferredMime) {
+        final int maxRetries = 3;
+    
+        for (int attempt = 1; attempt <= maxRetries; attempt++) {
+            //System.out.println("[DEBUG] Attempt " + attempt + " with Accept: " + preferredMime);
+            if (download(urlStr, destination, preferredMime)) {
+                return true;
+            }
+            sleep(1000); // Optional backoff between retries
+        }
+    
+        // Fallback to */* Accept header
+        //System.err.println("[DEBUG] Falling back to Accept: */* after " + maxRetries + " failed attempts");
+    
+        for (int attempt = 1; attempt <= maxRetries; attempt++) {
+            //System.out.println("[DEBUG] Fallback attempt " + attempt);
+            if (download(urlStr, destination, "*/*")) {
+                return true;
+            }
+            sleep(1000);
+        }
+    
+        if (destination.exists()) {
+            destination.delete(); // Clean up partial files
+        }
+    
+        System.err.println("[ERROR] All download attempts failed for: " + urlStr);
+        return false;
+    }
+    
+    private static boolean download(String urlStr, File destination, String acceptHeader) {
+        InputStream in = null;
+        FileOutputStream out = null;
+        HttpURLConnection connection = null;
+    
+        try {
+            URL url = new URL(urlStr);
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setInstanceFollowRedirects(true);
+            connection.setRequestProperty("Accept", acceptHeader);
+            connection.setConnectTimeout(10000);
+            connection.setReadTimeout(10000);
+    
+            int responseCode = connection.getResponseCode();
+    
+            if (isRedirect(responseCode)) {
+                String newLocation = connection.getHeaderField("Location");
+                if (newLocation != null) {
+                    //System.out.println("[DEBUG] Redirecting to: " + newLocation);
+                    return download(newLocation, destination, acceptHeader);
+                }
+            }
+    
+            if (responseCode >= 400) {
+                System.err.println("[ERROR] Download failed: HTTP " + responseCode + " - " + connection.getResponseMessage());
+                return false;
+            }
+    
+            in = connection.getInputStream();
+            out = new FileOutputStream(destination);
+            byte[] buffer = new byte[8192];
+            int bytesRead;
+            while ((bytesRead = in.read(buffer)) != -1) {
+                out.write(buffer, 0, bytesRead);
+            }
+    
+            return true;
+    
+        } catch (Exception e) {
+            System.err.println("[ERROR] Exception during download: " + e.getMessage());
+            return false;
+    
+        } finally {
+            try {
+                if (in != null) in.close();
+                if (out != null) out.close();
+            } catch (IOException ignored) {}
+            if (connection != null) connection.disconnect();
+        }
+    }
+    
+    private static boolean isRedirect(int code) {
+        return code == HttpURLConnection.HTTP_MOVED_PERM ||
+               code == HttpURLConnection.HTTP_MOVED_TEMP ||
+               code == HttpURLConnection.HTTP_SEE_OTHER ||
+               code == 307 || code == 308;
+    }
+    
+    private static void sleep(int millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException ignored) {}
+    }
+    
 
 }

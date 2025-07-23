@@ -25,6 +25,7 @@ import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.SPARQLUtils;
 import org.hascoapi.utils.TreeNode;
 import org.hascoapi.utils.URIUtils;
+import org.hascoapi.vocabularies.DCTERMS;
 import org.hascoapi.vocabularies.PROV;
 import org.hascoapi.vocabularies.RDF;
 import org.hascoapi.vocabularies.RDFS;
@@ -62,17 +63,6 @@ public class HADatAcClass extends HADatAcThing {
     public String getClassName() {
         return className;
     }
-
-    //public String getUri() {
-    //    return uri;
-    //}
-
-    //public void setUri(String uri) {
-    //    if (uri == null) {
-    //        uri = "";
-    //    }
-    //    this.uri = uri;
-    //}
 
     public String getSuperUri() {
         return superUri;
@@ -243,6 +233,8 @@ public class HADatAcClass extends HADatAcThing {
                     typeClass.addDisjointWith(object);
                 } else if (predicate.equals(RDFS.COMMENT) || predicate.equals(PROV.DEFINITION)) {
                     typeClass.setComment(object);
+                } else if (predicate.equals(DCTERMS.DESCRIPTION)) {
+                    typeClass.setDescription(object);
                 } else if (predicate.equals(HASCO.HAS_IMAGE)) {
                     typeClass.setHasImageUri(object);
                 } else if (predicate.equals(HASCO.HAS_WEB_DOCUMENT)) {
@@ -302,6 +294,11 @@ public class HADatAcClass extends HADatAcThing {
                 if (textStr != null) {
                     typeClass.setComment(textStr);
                 }
+            } else if (predUri.equals(DCTERMS.DESCRIPTION)) {
+                 String textStr = object.asLiteral().getString();
+                if (textStr != null) {
+                    typeClass.setDescription(textStr);
+                }
             }
         }
 
@@ -315,12 +312,13 @@ public class HADatAcClass extends HADatAcThing {
     public String getHierarchyJson() {
         //System.out.println("Inside HADatAcClass's getHierarchyJson: [" + className + "]");
         String q =
-                "SELECT ?id ?superId ?label ?superLabel ?comment WHERE { " +
+                "SELECT ?id ?superId ?label ?superLabel ?comment ?description WHERE { " +
                         "   ?id rdfs:subClassOf* " + className + " . " +
                         "   ?id rdfs:subClassOf ?superId .  " +
                         "   OPTIONAL { ?id rdfs:label ?label . } " +
                         "   OPTIONAL { ?superId rdfs:label ?superLabel . } " +
                         "   OPTIONAL { ?id rdfs:comment ?comment . } " +
+                        "   OPTIONAL { ?id dcterms:description ?description . } " +
                         "}";
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
@@ -341,12 +339,13 @@ public class HADatAcClass extends HADatAcThing {
     public String getHierarchyJson2() {
         //System.out.println("Inside HADatAcClass's getHierarchyJson: [" + className + "]");
         String q =
-                "SELECT ?model ?superModel ?modelName ?superModelName ?comment WHERE { " +
+                "SELECT ?model ?superModel ?modelName ?superModelName ?comment ?description WHERE { " +
                         "   ?model rdfs:subClassOf* " + className + " . " +
                         "   ?model rdfs:subClassOf ?superModel .  " +
                         "   OPTIONAL { ?model rdfs:label ?modelName . } " +
                         "   OPTIONAL { ?superModel rdfs:label ?superModelName . } " +
                         "   OPTIONAL { ?model rdfs:comment ?comment . } " +
+                        "   OPTIONAL { ?model dcterms:description ?description . } " +
                         "}";
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
@@ -708,6 +707,7 @@ public class HADatAcClass extends HADatAcThing {
                         resultsTree = new TreeNode(tn.getName());
                         resultsTree.setUri(tn.getUri());
                         resultsTree.setComment(tn.getComment());
+                        resultsTree.setDescription(tn.getDescription());
                         resultsTree.addChild(tn.getChildren().get(0));
                         assignedBranches.add(tn);
                     } else {
@@ -720,6 +720,7 @@ public class HADatAcClass extends HADatAcThing {
                                 TreeNode newBranch = new TreeNode(tn.getName());
                                 newBranch.setUri(tn.getUri());
                                 newBranch.setComment(tn.getComment());
+                                newBranch.setDescription(tn.getDescription());
                                 newBranch.addChild(resultsTree);
                                 resultsTree = newBranch;
                                 assignedBranches.add(tn);
