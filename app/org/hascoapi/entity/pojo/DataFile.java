@@ -16,7 +16,7 @@ import org.apache.jena.update.UpdateRequest;
 import org.hascoapi.annotations.PropertyField;
 import org.hascoapi.ingestion.CSVRecordFile;
 import org.hascoapi.ingestion.RecordFile;
-import org.hascoapi.ingestion.SpreadsheetRecordFile;
+import org.hascoapi.ingestion.SpreadsheetRecordFile_OLD;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.ConfigProp;
 import org.hascoapi.utils.Feedback;
