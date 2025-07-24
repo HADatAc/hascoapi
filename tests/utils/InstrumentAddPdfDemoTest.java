@@ -1,4 +1,4 @@
-package tests.utils;
+package utils;
 
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.*;
@@ -19,7 +19,7 @@ public class InstrumentAddPdfDemoTest {
     void setup() {
         driver = new ChromeDriver();
         driver.manage().window().maximize();
-        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait = new WebDriverWait(driver, 10);
         js = (JavascriptExecutor) driver;
 
         // Login

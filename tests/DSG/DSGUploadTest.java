@@ -1,9 +1,9 @@
-package tests.DSG;
+package DSG;
 
 import org.junit.jupiter.api.*;
 
 import java.io.File;
-import tests.base.BaseUpload;
+import base.BaseUpload;
 public class DSGUploadTest extends BaseUpload {
 
     private final String dsgType = System.getProperty("dsgType", "WS");

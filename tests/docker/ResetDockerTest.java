@@ -1,4 +1,4 @@
-package tests.docker;
+package docker;
 
 import org.junit.jupiter.api.Test;
 

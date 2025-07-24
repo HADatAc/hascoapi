@@ -6,11 +6,11 @@ import org.junit.platform.launcher.*;
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
 
-import tests.DP2.DP2RegressionTest;
-import tests.DSG.DSGRegressionTest;
-import tests.INS.INSRegressionTest;
-import tests.SDD.SDDRegressionTest;
-import tests.STR.STRRegressionTest;
+import DP2.DP2RegressionTest;
+import DSG.DSGRegressionTest;
+import INS.INSRegressionTest;
+import SDD.SDDRegressionTest;
+import STR.STRRegressionTest;
 
 public class FullRegressionTest {
 

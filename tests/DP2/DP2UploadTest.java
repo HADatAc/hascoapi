@@ -1,9 +1,9 @@
-package tests.DP2;
+package DP2;
 
 import org.junit.jupiter.api.*;
 
 import java.io.File;
-import tests.base.BaseUpload;
+import base.BaseUpload;
 public class DP2UploadTest extends BaseUpload {
 
     private final String dp2Type = System.getProperty("dp2Type", "WS");

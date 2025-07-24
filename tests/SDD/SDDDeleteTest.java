@@ -1,8 +1,8 @@
-package tests.SDD;
+package SDD;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import tests.base.BaseDelete;
+import base.BaseDelete;
 
 public class SDDDeleteTest extends BaseDelete {
 

@@ -1,15 +1,15 @@
-package tests.repository;
+package repository;
 
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.*;
-import tests.base.BaseRep;
+import base.BaseRep;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
 
-import static tests.config.EnvConfig.*;
+import static config.EnvConfig.*;
 
 public class RepositoryFormAutomationTest extends BaseRep {
 

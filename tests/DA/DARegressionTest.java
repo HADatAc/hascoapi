@@ -1,4 +1,4 @@
-package tests.DA;
+package DA;
 
 public class DARegressionTest {
 }

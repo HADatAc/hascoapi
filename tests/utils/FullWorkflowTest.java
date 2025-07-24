@@ -1,24 +1,24 @@
-package tests.utils;
+package utils;
 
 import org.junit.jupiter.api.Test;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
 import org.junit.platform.launcher.*;
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
-import tests.DP2.DP2IngestTest;
-import tests.DP2.DP2RegressionTest;
-import tests.DP2.DP2UploadTest;
-import tests.DSG.DSGIngestTest;
-import tests.DSG.DSGRegressionTest;
-import tests.STR.STRUploadTest;
-import tests.INS.INSNHANESIngestTest;
-import tests.INS.INSRegressionTest;
-import tests.INS.INSUploadTest;
-import tests.SDD.SDDIngestDPQTest;
-import tests.SDD.SDDRegressionTest;
-import tests.SDD.SDDUploadTest;
-import tests.STR.STRIngestTest;
-import tests.STR.STRRegressionTest;
+import DP2.DP2IngestTest;
+import DP2.DP2RegressionTest;
+import DP2.DP2UploadTest;
+import DSG.DSGIngestTest;
+import DSG.DSGRegressionTest;
+import STR.STRUploadTest;
+import INS.INSNHANESIngestTest;
+import INS.INSRegressionTest;
+import INS.INSUploadTest;
+import SDD.SDDIngestDPQTest;
+import SDD.SDDRegressionTest;
+import SDD.SDDUploadTest;
+import STR.STRIngestTest;
+import STR.STRRegressionTest;
 
 
 public class FullWorkflowTest {//extends BaseTest{

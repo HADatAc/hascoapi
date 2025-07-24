@@ -1,17 +1,17 @@
-package tests.repository;
+package repository;
 
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.*;
-import tests.base.BaseRep;
+import base.BaseRep;
 
 import java.time.Duration;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static tests.config.EnvConfig.FRONTEND_URL;
-import static tests.config.EnvConfig.NAMESPACES_URL;
+import static config.EnvConfig.FRONTEND_URL;
+import static config.EnvConfig.NAMESPACES_URL;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class NamespaceTableVerificationTest extends BaseRep {

@@ -1,4 +1,4 @@
-package tests.config;
+package config;
 
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.*;
@@ -17,7 +17,7 @@ public class BackendUPTest {
     void setUp() {
         driver = new ChromeDriver();
         driver.manage().window().maximize();
-        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait = new WebDriverWait(driver, 10);
     }
 
     @Test

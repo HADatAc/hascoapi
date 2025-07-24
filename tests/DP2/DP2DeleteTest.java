@@ -1,8 +1,8 @@
-package tests.DP2;
+package DP2;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import tests.base.BaseDelete;
+import base.BaseDelete;
 
 public class DP2DeleteTest extends BaseDelete {
 

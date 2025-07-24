@@ -1,4 +1,4 @@
-package tests.base;
+package base;
 
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.*;
@@ -10,7 +10,7 @@ import java.time.Duration;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static tests.config.EnvConfig.*;
+import static config.EnvConfig.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class BaseIngest {
@@ -27,7 +27,7 @@ public abstract class BaseIngest {
     void setup() {
         driver = new ChromeDriver();
         driver.manage().window().maximize();
-        wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+        wait = new WebDriverWait(driver, 15);
 
         driver.get(LOGIN_URL);
         driver.findElement(By.id("edit-name")).sendKeys(USERNAME);

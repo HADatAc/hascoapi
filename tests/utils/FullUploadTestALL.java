@@ -1,14 +1,14 @@
-package tests.utils;
+package utils;
 
 import org.junit.jupiter.api.Test;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
 import org.junit.platform.launcher.*;
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
-import tests.DA.DAUploadTest;
-import tests.DP2.DP2UploadTest;
-import tests.DSG.DSGUploadTest;
-import tests.INS.INSUploadTest;
+import DA.DAUploadTest;
+import DP2.DP2UploadTest;
+import DSG.DSGUploadTest;
+import INS.INSUploadTest;
 
 public class FullUploadTestALL {
 

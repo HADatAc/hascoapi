@@ -1,4 +1,4 @@
-package tests.config;
+package config;
 
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.*;
@@ -9,7 +9,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static tests.config.EnvConfig.*;
+import static config.EnvConfig.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class AdminAuto {
@@ -21,7 +21,7 @@ public class AdminAuto {
     void setup() {
         driver = new ChromeDriver();
         driver.manage().window().maximize();
-        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait = new WebDriverWait(driver, 10);
 
         // Login step
         driver.get(LOGIN_URL);

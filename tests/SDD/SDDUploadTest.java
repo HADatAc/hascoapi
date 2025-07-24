@@ -1,7 +1,7 @@
-package tests.SDD;
+package SDD;
 
 import org.junit.jupiter.api.*;
-import tests.base.BaseUpload;
+import base.BaseUpload;
 
 import java.io.File;
 

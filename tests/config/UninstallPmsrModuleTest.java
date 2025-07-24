@@ -1,4 +1,4 @@
-package tests.config;
+package config;
 
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.*;
@@ -7,7 +7,7 @@ import org.openqa.selenium.support.ui.*;
 
 import java.time.Duration;
 
-import static tests.config.EnvConfig.FRONTEND_URL;
+import static config.EnvConfig.FRONTEND_URL;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class UninstallPmsrModuleTest {
@@ -19,7 +19,7 @@ public class UninstallPmsrModuleTest {
     void setup() {
         driver = new ChromeDriver();
         driver.manage().window().maximize();
-        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait = new WebDriverWait(driver, 10);
 
         // Login
         driver.get(FRONTEND_URL + "/user/login");

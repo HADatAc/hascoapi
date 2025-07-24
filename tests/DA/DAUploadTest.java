@@ -1,7 +1,7 @@
-package tests.DA;
+package DA;
 
 import org.junit.jupiter.api.*;
-import tests.base.BaseUpload;
+import base.BaseUpload;
 
 import java.io.File;
 

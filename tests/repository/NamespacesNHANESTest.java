@@ -1,14 +1,14 @@
-package tests.repository;
+package repository;
 
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.*;
-import tests.base.BaseRep;
+import base.BaseRep;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static tests.config.EnvConfig.NAMESPACES_URL;
+import static config.EnvConfig.NAMESPACES_URL;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)

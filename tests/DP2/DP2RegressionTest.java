@@ -1,4 +1,4 @@
-package tests.DP2;
+package DP2;
 
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.*;

@@ -1,18 +1,18 @@
-package tests.A1;
+package A1;
 
 import org.junit.jupiter.api.Test;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
 import org.junit.platform.launcher.Launcher;
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
-import tests.config.AdminAuto;
-import tests.config.BackendUPTest;
-import tests.config.UninstallPmsrModuleTest;
-import tests.INS.INSDeleteTest;
-import tests.INS.INSNHANESIngestTest;
-import tests.INS.INSUploadTest;
-import tests.docker.ResetDockerTest;
-import tests.repository.*;
+import config.AdminAuto;
+import config.BackendUPTest;
+import config.UninstallPmsrModuleTest;
+import INS.INSDeleteTest;
+import INS.INSNHANESIngestTest;
+import INS.INSUploadTest;
+import docker.ResetDockerTest;
+import repository.*;
 /*
         *Teste de Regressão para as ontologias do repositório testando:
         * - Reset do Docker

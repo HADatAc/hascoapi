@@ -1,9 +1,9 @@
-package tests.INS;
+package INS;
 
 import org.junit.jupiter.api.*;
 
 import java.io.File;
-import tests.base.BaseUpload;
+import base.BaseUpload;
 public class INSUploadTest extends BaseUpload {
 
     private final String insType = System.getProperty("insType", "nhanes");

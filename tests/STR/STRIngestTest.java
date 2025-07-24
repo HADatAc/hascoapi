@@ -1,8 +1,8 @@
-package tests.STR;
+package STR;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import tests.base.BaseIngest;
+import base.BaseIngest;
 
 public class STRIngestTest extends BaseIngest {
 

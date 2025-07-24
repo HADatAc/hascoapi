@@ -1,4 +1,4 @@
-package tests.utils;
+package utils;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -7,11 +7,11 @@ import org.junit.platform.launcher.*;
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
 
-import tests.DP2.DP2IngestTest;
-import tests.DSG.DSGIngestTest;
-import tests.INS.INSIngestHierarchyTest;
-import tests.INS.INSNHANESIngestTest;
-import tests.base.BaseIngest;
+import DP2.DP2IngestTest;
+import DSG.DSGIngestTest;
+import INS.INSIngestHierarchyTest;
+import INS.INSNHANESIngestTest;
+import base.BaseIngest;
 
 public class FullIngestTestDRAFT {
 
@@ -42,7 +42,7 @@ public class FullIngestTestDRAFT {
         // SDD
         //runTestClass(SDDIngestDPQTest.class);
         //Thread.sleep(2000);
-       // runTestClass(tests.SDD.SDDIngestDEMOTest.class);
+       // runTestClass(SDD.SDDIngestDEMOTest.class);
         //Thread.sleep(2000);
 
         // DP2

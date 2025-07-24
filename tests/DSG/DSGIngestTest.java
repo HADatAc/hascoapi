@@ -1,8 +1,8 @@
-package tests.DSG;
+package DSG;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import tests.base.BaseIngest;
+import base.BaseIngest;
 
 public class DSGIngestTest extends BaseIngest {
 

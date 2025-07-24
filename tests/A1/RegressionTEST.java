@@ -1,18 +1,18 @@
-package tests.A1;
+package A1;
 
 import org.junit.jupiter.api.Test;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
 import org.junit.platform.launcher.Launcher;
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
-import tests.config.AdminAuto;
-import tests.config.AttachPDFINST;
-import tests.DA.DADeleteTest;
-import tests.DP2.DP2DeleteTest;
-import tests.DSG.DSGDeleteTest;
-import tests.INS.INSDeleteTest;
-import tests.utils.FullIngestTestDRAFT;
-import tests.utils.FullUploadTestALL;
+import config.AdminAuto;
+import config.AttachPDFINST;
+import DA.DADeleteTest;
+import DP2.DP2DeleteTest;
+import DSG.DSGDeleteTest;
+import INS.INSDeleteTest;
+import utils.FullIngestTestDRAFT;
+import utils.FullUploadTestALL;
 
 public class RegressionTEST {
     private final Launcher launcher = LauncherFactory.create();

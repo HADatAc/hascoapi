@@ -1,4 +1,4 @@
-package tests.INS;
+package INS;
 
 import org.junit.jupiter.api.Test;
 import org.junit.platform.engine.discovery.DiscoverySelectors;

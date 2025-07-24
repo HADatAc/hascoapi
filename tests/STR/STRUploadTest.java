@@ -1,9 +1,9 @@
-package tests.STR;
+package STR;
 
 import org.junit.jupiter.api.*;
 
 import java.io.File;
-import tests.base.BaseUpload;
+import base.BaseUpload;
 public class STRUploadTest extends BaseUpload {
 
     @Test

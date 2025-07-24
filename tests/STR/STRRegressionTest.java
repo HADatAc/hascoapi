@@ -1,4 +1,4 @@
-package tests.STR;
+package STR;
 
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.*;
@@ -21,7 +21,7 @@ public class STRRegressionTest {
     void setup() {
         driver = new ChromeDriver();
         driver.manage().window().maximize();
-        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait = new WebDriverWait(driver, 10);
 
         // Login to the application before running tests
         driver.get("http://localhost/user/login");

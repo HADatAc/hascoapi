@@ -1,4 +1,4 @@
-package tests.SDD;
+package SDD;
 
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.*;
@@ -21,7 +21,7 @@ public class SDDRegressionTest {
     void setup() {
         driver = new ChromeDriver();
         driver.manage().window().maximize();
-        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait = new WebDriverWait(driver, 10);
 
         // Login before tests
         driver.get("http://localhost/user/login");
