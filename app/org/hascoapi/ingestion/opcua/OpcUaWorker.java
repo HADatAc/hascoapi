@@ -39,7 +39,7 @@ public class OpcUaWorker {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executorsMap.put(objectUri, executor);
 
-        executor.submit(() -> OpcUaObjectsAsyncSubscribe.exec(objectUri, monitor));
+        //executor.submit(() -> OpcUaObjectsAsyncSubscribe.exec(objectUri, monitor));
 
         return true;
     }
