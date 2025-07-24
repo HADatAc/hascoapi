@@ -1,49 +1,53 @@
-package A1;
+package tests.utils;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
 import org.junit.platform.launcher.*;
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
 
-import tests.DP2.DP2RegressionTest;
-import tests.DSG.DSGRegressionTest;
-import tests.INS.INSRegressionTest;
-import tests.SDD.SDDRegressionTest;
-import tests.STR.STRRegressionTest;
+import tests.DA.DAIngestTest;
+import tests.DP2.DP2IngestTest;
+import tests.DSG.DSGIngestTest;
+import tests.INS.INSFullIngest;
+import tests.SDD.SDDIngestDPQTest;
+import tests.STR.STRIngestTest;
+import tests.base.BaseIngest;
 
-public class FullRegressionTest {
+public class FullIngestTestCURRENT {
 
     private final Launcher launcher = LauncherFactory.create();
 
+    @BeforeAll
+    static void setMode() {
+        BaseIngest.ingestMode = "current";
+    }
 
     @Test
-    void runRegressionTests() throws InterruptedException {
+    void runOnlyIngestsForCurrentMode() throws InterruptedException {
         // INS
-        runTestClass(INSRegressionTest.class);
+        runTestClass(INSFullIngest.class);
         Thread.sleep(2000);
 
         // DSG
-        runTestClass(DSGRegressionTest.class);
+        runTestClass(DSGIngestTest.class);
         Thread.sleep(2000);
 
         // DA
-        /* Waiting DA Ingest Implementation
-        runTestClass(DARegressionTest.class);
+        runTestClass(DAIngestTest.class);
         Thread.sleep(2000);
 
-         */
-
         // SDD
-        runTestClass(SDDRegressionTest.class);
+        runTestClass(SDDIngestDPQTest.class);
         Thread.sleep(2000);
 
         // DP2
-        runTestClass(DP2RegressionTest.class);
+        runTestClass(DP2IngestTest.class);
         Thread.sleep(2000);
 
         // STR
-        runTestClass(STRRegressionTest.class);
+        runTestClass(STRIngestTest.class);
     }
 
     private void runTestClass(Class<?> testClass) {

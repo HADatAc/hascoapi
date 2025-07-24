@@ -2,6 +2,7 @@ package tests.DA;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.openqa.selenium.By;
 import tests.base.BaseDelete;
 
 public class DADeleteTest extends BaseDelete {

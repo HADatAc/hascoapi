@@ -1,21 +1,25 @@
-package tests.INS;
+package tests.config;
 
 import org.junit.jupiter.api.Test;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
-import org.junit.platform.launcher.*;
-import org.junit.platform.launcher.core.*;
+import org.junit.platform.launcher.Launcher;
+import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
+import org.junit.platform.launcher.core.LauncherFactory;
+import tests.utils.InstrumentAddPdfDemoTest;
+import tests.utils.InstrumentAddPdfTest;
 
-public class INSFullIngest {
-
+public class AttachPDFINST {
     private final Launcher launcher = LauncherFactory.create();
 
     @Test
-    void runAllInstrumentTests() throws InterruptedException {
+    void attachpdfs() throws InterruptedException {
+        // DEMO
+        runTestClass(InstrumentAddPdfDemoTest.class);
         Thread.sleep(5000);
-        runTestClass(INSIngestHierarchyTest.class);
-        Thread.sleep(2000);
-        runTestClass(INSNHANESIngestTest.class);
-        Thread.sleep(2000);
+        // DPQ
+        runTestClass(InstrumentAddPdfTest.class);
+        Thread.sleep(5000);
+
     }
 
     private void runTestClass(Class<?> testClass) {

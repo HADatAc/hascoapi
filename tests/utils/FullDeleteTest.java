@@ -1,51 +1,26 @@
-package tests.A1;
+package tests.utils;
 
 import org.junit.jupiter.api.Test;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
-import org.junit.platform.launcher.Launcher;
+import org.junit.platform.launcher.*;
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
-import tests.config.AdminAuto;
-import tests.config.AttachPDFINST;
 import tests.DA.DADeleteTest;
 import tests.DP2.DP2DeleteTest;
 import tests.DSG.DSGDeleteTest;
 import tests.INS.INSDeleteTest;
-import tests.utils.FullIngestTestDRAFT;
-import tests.utils.FullUploadTestALL;
 
-public class RegressionTEST {
+public class FullDeleteTest { //extends BaseTest{
+    /*
+    1º DSG
+    2ª SDD
+    3º DP2
+    4º STR
+        */
     private final Launcher launcher = LauncherFactory.create();
 
     @Test
-    void runsetupanddeletetests() throws InterruptedException {
-
-        /*// Setup of rep configuration
-        runTestClass(RepositoryFormAutomationTest.class);
-        Thread.sleep(5000);
-
-         */
-
-        //Admin Status and Data conf permission
-        runTestClass(AdminAuto.class);
-        Thread.sleep(5000);
-
-        // All data upload
-        runTestClass(FullUploadTestALL.class);
-        Thread.sleep(5000);
-
-        // All data ingest
-        runTestClass(FullIngestTestDRAFT.class);
-        Thread.sleep(5000);
-
-        // All data Regression Test
-        runTestClass(FullRegressionTest.class);
-        Thread.sleep(5000);
-
-        //AttachPDFINST
-        runTestClass(AttachPDFINST.class);
-        Thread.sleep(5000);
-
+    void runAllDeleteTests() throws InterruptedException {
         // INS
         runTestClass(INSDeleteTest.class);
         Thread.sleep(2000);
@@ -64,8 +39,8 @@ public class RegressionTEST {
 
 
         // SDD
-        // runTestClass(SDDDeleteTest.class);
-        // Thread.sleep(2000);
+       // runTestClass(SDDDeleteTest.class);
+       // Thread.sleep(2000);
 
         // STR
         //runTestClass(STRDeleteTest.class);
