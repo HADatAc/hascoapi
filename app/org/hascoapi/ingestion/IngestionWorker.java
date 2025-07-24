@@ -65,6 +65,7 @@ public class IngestionWorker {
             recordFile = new CSVRecordFile(file);
         } else if (fileName.endsWith(".xlsx")) {
             recordFile = new SpreadsheetRecordFile(file,dataFile.getFilename(),"InfoSheet");
+            System.out.println("IngestionWorker: has record file (1)");
         } else {
             dataFile.getLogger().printExceptionByIdWithArgs("GBL_00003", fileName);
             System.out.println("[ERROR] IngestionWorker: invalid file extension.");
@@ -77,6 +78,7 @@ public class IngestionWorker {
             return;
         }
 
+        System.out.println("IngestionWorker: has record file (2)");
         dataFile.setRecordFile(recordFile);
 
         // Setting study URI from dataFile
