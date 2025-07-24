@@ -186,6 +186,8 @@ public class URIPage extends Controller {
                 finalResult = InstrumentInstance.find(uri);
             } else if (result.getHascoTypeUri().equals(HASCO.KGR)) {
                 finalResult = KGR.find(uri);
+            } else if (result.getHascoTypeUri().equals(HASCO.OPCUA_OBJECT)) {
+                finalResult = OpcUaObject.find(uri);
             } else if (result.getHascoTypeUri().equals(SCHEMA.ORGANIZATION)) {
                 finalResult = Organization.find(uri);
             } else if (result.getHascoTypeUri().equals(SCHEMA.PERSON)) {
