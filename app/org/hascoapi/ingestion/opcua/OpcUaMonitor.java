@@ -1,47 +1,65 @@
-// package org.hascoapi.ingestion.opcua;
+package org.hascoapi.ingestion.opcua;
 
-// import java.util.Map;
-// import java.util.concurrent.ConcurrentHashMap;
-// import java.util.concurrent.atomic.AtomicReference;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
-// public class OpcUaMonitor {
+public class OpcUaMonitor {
 
-//     private final Map<String, StreamMonitor> streamMonitors = new ConcurrentHashMap<>();
+    // Conjunto de URIs de objetos monitorados (ex: objetos OPC UA)
+    private final Set<String> objectURIs;
 
-//     public void registerStream(String streamUri) {
-//         streamMonitors.putIfAbsent(streamUri, new StreamTopicMonitor(streamUri));
-//     }
+    // Contador de mensagens por objeto URI
+    private final Map<String, Integer> messageCountMap;
 
-//     public void removeStream(String streamUri) {
-//         streamMonitors.remove(streamUri);
-//     }
+    // Último valor recebido por objeto (opcional, pode ser útil para debug)
+    private final Map<String, String> latestValueMap;
 
-//     public void updateLatestValue(String streamUri, String value) {
-//         StreamMonitor monitor = streamMonitors.get(streamUri);
-//         if (monitor != null) {
-//             monitor.setLatestValue(value);
-//         }
-//     }
+    public OpcUaMonitor() {
+        this.objectURIs = ConcurrentHashMap.newKeySet();
+        this.messageCountMap = new ConcurrentHashMap<>();
+        this.latestValueMap = new ConcurrentHashMap<>();
+    }
 
-//     public String getLatestValue(String streamUri) {
-//         StreamMonitor monitor = streamMonitors.get(streamUri);
-//         return monitor != null ? monitor.getLatestValue() : "Stream not found or not active";
-//     }
+    /** Adiciona objeto para monitoramento */
+    public void addObject(String objectUri) {
+        objectURIs.add(objectUri);
+        messageCountMap.putIfAbsent(objectUri, 0);
+    }
 
-//     private static class StreamMonitor {
-//         private final String streamUri;
-//         private final AtomicReference<String> latestValue = new AtomicReference<>("No data yet");
+    /** Remove objeto do monitoramento */
+    public void removeObject(String objectUri) {
+        objectURIs.remove(objectUri);
+        messageCountMap.remove(objectUri);
+        latestValueMap.remove(objectUri);
+    }
 
-//         public StreamMonitor(String streamUri) {
-//             this.streamUri = streamUri;
-//         }
+    /** Lista todos os objetos monitorados */
+    public List<String> listObjects() {
+        return new ArrayList<>(objectURIs);
+    }
 
-//         public void setLatestValue(String value) {
-//             latestValue.set(value);
-//         }
+    /** Atualiza o valor mais recente e incrementa o contador */
+    public void updateLatestValue(String objectUri, String value) {
+        latestValueMap.put(objectUri, value);
+        messageCountMap.compute(objectUri, (k, v) -> (v == null) ? 1 : v + 1);
+    }
 
-//         public String getLatestValue() {
-//             return latestValue.get();
-//         }
-//     }
-// }
+    /** Retorna o número de mensagens recebidas */
+    public int getMessageCount(String objectUri) {
+        return messageCountMap.getOrDefault(objectUri, 0);
+    }
+
+    /** Retorna o último valor recebido */
+    public String getLatestValue(String objectUri) {
+        return latestValueMap.getOrDefault(objectUri, null);
+    }
+
+    /** Zera todos os contadores */
+    public void resetAll() {
+        messageCountMap.clear();
+        latestValueMap.clear();
+        for (String uri : objectURIs) {
+            messageCountMap.put(uri, 0);
+        }
+    }
+}

@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 import org.hascoapi.Constants;
 import org.hascoapi.entity.pojo.OpcUaObject;
-import org.hascoapi.entity.pojo.StreamTopic;
 import org.hascoapi.entity.pojo.Study;
 import org.hascoapi.ingestion.mqtt.MqttMessageWorker;
 import org.hascoapi.utils.ApiUtil;
