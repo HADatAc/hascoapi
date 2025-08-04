@@ -24,6 +24,8 @@ public class StudyObjectGenerator extends BaseGenerator {
     String soc_type;
     String soc_scope;
     String soc_timescope;
+    String soc_spacescope;
+    String namespace;
     private Map<String, StudyObjectCollection> socMap = new HashMap<String, StudyObjectCollection>();
     String role;
     final String kbPrefix = ConfigProp.getKbPrefix();
@@ -32,10 +34,11 @@ public class StudyObjectGenerator extends BaseGenerator {
     private Map<String, List<String>> mapContent = new HashMap<String, List<String>>();
 
     public StudyObjectGenerator(DataFile dataFile, List<String> listContent, 
-            Map<String, List<String>> mapContent, String study_uri, String study_id) {
+            Map<String, List<String>> mapContent, String study_uri, String study_id, String namespace) {
         super(dataFile);
         //this.study_id = study_id; 
         //file_name = file.getFile().getName();
+        this.namespace = namespace;
         file_name = fileName;
         //System.out.println("We are in StudyObject Generator!");
         //System.out.println("Study URI: " + study_uri);
@@ -48,7 +51,11 @@ public class StudyObjectGenerator extends BaseGenerator {
         this.listCache = listContent;
         //System.out.println(listContent);
         this.mapContent = mapContent;
-        this.soc_uri = Utils.uriPlainGen("studyobjectcollection", listContent.get(0));
+
+        this.soc_uri = Utils.uriPlainGen(
+            "studyobjectcollection", 
+            listContent.get(0),
+            namespace);
         //System.out.println("oc_uri : " + oc_uri);
         this.soc_type = listContent.get(1);
         //System.out.println("oc_type : " + oc_type);
@@ -56,12 +63,18 @@ public class StudyObjectGenerator extends BaseGenerator {
         //System.out.println("oc_scope : " + oc_scope);
         this.soc_timescope = listContent.get(3);
         //System.out.println("oc_timescope : " + oc_timescope);
+        this.soc_spacescope = listContent.get(4);
+        //System.out.println("oc_spacescope : " + oc_spacescope);
         this.role = listContent.get(4);
         //System.out.println("role : " + role);
+
+        //listContent.get(5) tmp.add(record.getValueByColumnName("hasSOCReference"));
+        //listContent.get(6) tmp.add(record.getValueByColumnName("groundingLabel"));
+
         uriMap.put("hasco:SubjectGroup", "SBJ-");
         uriMap.put("hasco:SampleCollection", "SPL-");
         uriMap.put("hasco:TimeCollection", "TIME-");
-        uriMap.put("hasco:LocationCollection", "LOC-");
+        uriMap.put("hasco:SpaceCollection", "LOC-");
         uriMap.put("hasco:ObjectCollection", "OBJ-");
     }
 
@@ -72,9 +85,10 @@ public class StudyObjectGenerator extends BaseGenerator {
         mapCol.put("rdf:type", "rdf:type");
         mapCol.put("scopeID", "scopeID");
         mapCol.put("timeScopeID", "timeScopeID");
+        mapCol.put("spaceScopeID", "spaceScopeID");
     }
 
-    private String getUri() {
+    private String getUri(Record rec) {
         //String originalID = rec.getValueByColumnName(mapCol.get("originalID"));
         // System.out.println("StudyObjectGenerator: " + originalID);
         //if (URIUtils.isValidURI(originalID)) {
@@ -86,7 +100,9 @@ public class StudyObjectGenerator extends BaseGenerator {
         //if ( uriMap.get(soc_type).contains("SBJ-") && UNIQUE_IDENTIFIER_ON) {
         //    return kbPrefix + uriMap.get(soc_type) + originalID;
         //} else return kbPrefix + uriMap.get(soc_type) + originalID + "-" + study_id;
-        return Utils.uriGen("studyobject");
+        return Utils.uriPlainGen("studyobject",
+            rec.getValueByColumnName(mapCol.get("originalID")),
+            this.namespace);
     }
 
     private String getType(Record rec) {
@@ -188,13 +204,35 @@ public class StudyObjectGenerator extends BaseGenerator {
         }
     }
     
+    private String getSpaceScopeUri(Record rec) {
+        if (soc_spacescope != null && soc_spacescope.length() > 0){
+        	if (mapContent.get(soc_spacescope) != null) {
+        		String spaceScopeSOCtype = mapContent.get(soc_spacescope).get(1);
+        		String returnedValue = rec.getValueByColumnName(mapCol.get("spaceScopeID"));
+        		// the value returned by getValueByColumnName may be an URI or an original.
+        		if (URIUtils.isValidURI(returnedValue)) {
+        			// if returned value is an URI, this function returns the URI with expanded namespace 
+        			return URIUtils.replacePrefixEx(returnedValue);
+        		} else {
+        			// if returned value is not an URI, this function composes an URI according to SDD convention 
+        			return kbPrefix + uriMap.get(spaceScopeSOCtype) + returnedValue.replaceAll("(?<=^\\d+)\\.0*$", "") + "-" + study_id;
+        		}
+        	} else {
+        		System.out.println("[ERROR] StudyObjectGenerator: no mapContent for [" + soc_spacescope + "] in getSpaceScopeUri(). Record is " + rec);
+        		return "";
+        	}
+        } else {
+            return "";
+        }
+    }
+    
     public StudyObject createStudyObject(Record record) throws Exception {
     	if (getOriginalID(record) == null || getOriginalID(record).isEmpty()) {
     		return null;
     	}
 
     	StudyObject obj = new StudyObject(
-            getUri(), 
+            getUri(record), 
             getType(record), 
             URIUtils.replacePrefixEx(HASCO.STUDY_OBJECT),
 			getOriginalID(record), 
@@ -213,6 +251,7 @@ public class StudyObjectGenerator extends BaseGenerator {
         //	System.out.println("StudyObjectGenerator: mapContent's key [" + str + "]");
         //}
         obj.addTimeScopeUri(getTimeScopeUri(record));
+        obj.addSpaceScopeUri(getSpaceScopeUri(record));
         
         return obj;
     }
@@ -226,7 +265,7 @@ public class StudyObjectGenerator extends BaseGenerator {
     public Map<String, Object> createRow(Record rec, int rowNumber) throws Exception {
         if (getOriginalID(rec).length() > 0) {
             Map<String, Object> row = new HashMap<String, Object>();
-            row.put("hasURI", getUri());
+            row.put("hasURI", getUri(rec));
             return row;
         }
         

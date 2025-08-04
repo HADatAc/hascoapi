@@ -8,6 +8,7 @@ import org.apache.poi.xssf.model.StylesTable;
 import org.apache.poi.xssf.usermodel.XSSFComment;
 import org.apache.poi.xssf.eventusermodel.XSSFSheetXMLHandler;
 import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.util.CellReference;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
@@ -44,6 +45,9 @@ public class SpreadsheetRecordFile implements RecordFile {
     }
 
     private boolean init() {
+
+        System.out.println("SpreadsheetRecordFile: looking for sheetName = [" + sheetName + "]");
+
         if (file == null || !file.exists() || !file.canRead()) {
             System.err.println("SpreadsheetRecordFile.init() failed: file is invalid.");
             return false;
@@ -55,15 +59,21 @@ public class SpreadsheetRecordFile implements RecordFile {
             ReadOnlySharedStringsTable strings = new ReadOnlySharedStringsTable(pkg);
             DataFormatter formatter = new DataFormatter();
 
+            boolean found = false;
             XSSFReader.SheetIterator iter = (XSSFReader.SheetIterator) reader.getSheetsData();
             while (iter.hasNext()) {
                 try (InputStream sheetStream = iter.next()) {
                     String currentSheetName = iter.getSheetName();
                     numberOfSheets++;
 
+                    //System.out.println("SpreadsheetRecordFile: available [" + currentSheetName + "]");
+
                     if (!sheetName.isEmpty() && !sheetName.equals(currentSheetName)) {
                         continue;
                     }
+
+                    found = true;
+                    //System.out.println("SpreadsheetRecordFile: found sheetName = [" + sheetName + "]");
 
                     InputSource sheetSource = new InputSource(sheetStream);
                     XMLReader parser = XMLReaderFactory.createXMLReader();
@@ -79,6 +89,10 @@ public class SpreadsheetRecordFile implements RecordFile {
                     break; // stop after the target sheet
                 }
             }
+            if (!found) {
+                System.err.println("SpreadsheetRecordFile: could not found sheet with the following name: [" + sheetName + "]");
+            }
+            //System.out.println("SpreadsheetRecordFile: end of search for sheetName = [" + sheetName + "]");
         } catch (Exception e) {
             System.err.println("Error reading spreadsheet: " + e.getMessage());
             e.printStackTrace();
@@ -156,7 +170,15 @@ public class SpreadsheetRecordFile implements RecordFile {
 
         @Override
         public void cell(String cellReference, String formattedValue, XSSFComment comment) {
-            currentRow.add(formattedValue);
+            int currentColIndex = (new CellReference(cellReference)).getCol();
+
+            // Ensure the list is big enough
+            while (currentRow.size() <= currentColIndex) {
+                currentRow.add("");
+            }
+
+            // Set the value at the correct column index
+            currentRow.set(currentColIndex, formattedValue);
         }
 
         public int getRowCount() {

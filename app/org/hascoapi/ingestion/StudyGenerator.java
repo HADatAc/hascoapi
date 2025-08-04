@@ -4,6 +4,7 @@ import java.lang.String;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.hascoapi.Constants;
 import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.utils.URIUtils;
 import org.hascoapi.vocabularies.HASCO;
@@ -68,7 +69,7 @@ public class StudyGenerator extends BaseGenerator {
     private String getId(Record rec) {
         //System.out.println("Value of mapCol.get(\"studyID\"): " + mapCol.get("studyID"));
         //System.out.println("Value of getValueByColumnName(): " + rec.getValueByColumnName(mapCol.get("studyID")));
-        return rec.getValueByColumnName(mapCol.get("studyID"));
+        return Constants.PREFIX_STUDY + "-" + rec.getValueByColumnName(mapCol.get("studyID"));
     }
 
     private String getUri() {
@@ -109,6 +110,9 @@ public class StudyGenerator extends BaseGenerator {
         String uri = getUri();
         String id = getId(rec);
         String title = getTitle(rec);
+        if (rec.size() <= 0) {
+            return null;
+        }
         if (uri == null || uri.isEmpty()) {
             //throw new Exception("[ERROR] StudyGenerator: No URI value has been found");
             System.out.println("[ERROR] StudyGenerator: No URI value has been found");

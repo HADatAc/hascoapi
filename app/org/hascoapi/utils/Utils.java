@@ -259,11 +259,21 @@ public class Utils {
     }
 
     public static String uriPlainGen(String elementType, String identifier) {
+        return uriPlainGen(elementType, identifier, null);
+    }
+
+    public static String uriPlainGen(String elementType, String identifier, String namespace) {
         if (elementType == null) {
             System.out.println("[ERROR] Utils.uriHashGen(): elementType not provided.");
             return null;
         }
-        String repoUri = RepositoryInstance.getInstance().getHasDefaultNamespaceURL();
+        
+        String repoUri = null;
+        if (namespace != null) {
+            repoUri = namespace;
+        } else {
+            repoUri = RepositoryInstance.getInstance().getHasDefaultNamespaceURL();
+        }
         if (repoUri == null || repoUri.isEmpty()) {
             System.out.println("[ERROR] Utils.uriHashGen(): no baseURL found for current repository.");
             return null;
@@ -275,13 +285,13 @@ public class Utils {
             return null;
         }
 
-        if (!repoUri.endsWith("/")) {
-            repoUri += "/";
-        }
+        String finalUri = repoUri + ":" + shortPrefix + "-" + identifier;
+        finalUri = URIUtils.replacePrefixEx(finalUri);
 
-        String finalUri = repoUri + shortPrefix + '_' + identifier;
+        finalUri = finalUri.replace("#/","#");
 
         return finalUri;
+
     }
 
     public static String retrieveHASCOTypeUri(String uri) {
