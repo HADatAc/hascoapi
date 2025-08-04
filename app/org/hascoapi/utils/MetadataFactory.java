@@ -73,7 +73,18 @@ public class MetadataFactory {
                     //    continue;
                     //}
 
-                    String cellValue = (String)row.get(key);
+                    //String cellValue = (String)row.get(key);
+                    String cellValue = null;
+                    Object raw = row.get(key);
+                    if (raw instanceof List) {
+                        List<?> list = (List<?>) raw;
+                        if (!list.isEmpty()) {
+                            cellValue = list.get(0).toString();  // Use first value
+                        }
+                    } else if (raw != null) {
+                        cellValue = raw.toString();
+                    }
+
                     if (URIUtils.isValidURI(cellValue)) {
                         IRI obj = factory.createIRI(URIUtils.replacePrefixEx(cellValue));
                         if (namedGraph == null) {

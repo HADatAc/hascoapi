@@ -689,8 +689,23 @@ public class DASOInstanceGenerator extends BaseGenerator {
                 newVc.saveToTripleStore();
                 // addObject(newVc);
             }
-            StudyObjectCollection newSoc = new StudyObjectCollection(newSOCUri, collectionType, daso.getTypeUri(), newLabel, newLabel, studyUri, 
-            		newVc.getUri(), daso.getRole(), daso.getHasSIRManagerEmail(), scopeUri, null, null, null, "0");
+            StudyObjectCollection newSoc = new StudyObjectCollection();
+            
+            newSoc.setUri(newSOCUri);
+            newSoc.setTypeUri(URIUtils.replacePrefixEx(collectionType));
+            newSoc.setHascoTypeUri(daso.getTypeUri());
+            newSoc.setLabel(newLabel);
+            newSoc.setComment(newLabel);
+            newSoc.setIsMemberOfUri(studyUri);
+            newSoc.setVirtualColumnUri(newVc.getUri());
+            newSoc.setRoleUri(daso.getRole());
+            newSoc.setHasSIRManagerEmail(daso.getHasSIRManagerEmail());
+            newSoc.setHasScopeUri(scopeUri);
+            newSoc.setTimeScopeUris(null);
+            newSoc.setSpaceScopeUris(null);
+            newSoc.setGroupUris(null);
+            newSoc.setLastCounter("0");
+
             newSoc.setNamedGraph(namedGraphUri);
             newSoc.saveToTripleStore();
             // addObject(newSoc);

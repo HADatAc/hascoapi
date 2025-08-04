@@ -92,7 +92,7 @@ public class GeneratorChain {
         if (!isValid()) {
             return false;
         }
-        System.out.println("GeneratorChain: Executing [NORMAL] generator chain.");
+        //System.out.println("GeneratorChain: Executing [NORMAL] generator chain.");
 
         //int i = 0;
         //for (BaseGenerator generator : chain) {
@@ -106,7 +106,7 @@ public class GeneratorChain {
             } else {
                 elementType = " (" + elementType + ")";
             }
-            System.out.println("GeneratorChain: Executing generator of type [" + generator.getClass().getSimpleName() + elementType + "]");
+            System.out.println("GeneratorChain: Executing generator of type [" + generator.getClass().getSimpleName() + " of element type " + elementType + "]");
             //System.out.println("GeneratorChain: Named Graph is [" + generator.getNamedGraphUri() + "]");
             try {
                 //System.out.println("  - GenerationChain: PreProcess");
@@ -126,7 +126,7 @@ public class GeneratorChain {
                 generator.getLogger().printException(generator.getErrorMsg(e));
                 return false;
             }
-            System.out.println("GeneratorChain: Ended execution of generator of type [" + generator.getClass().getSimpleName() + elementType + "]");
+            System.out.println("GeneratorChain: Ended execution of generator of type [" + generator.getClass().getSimpleName() + " of element type " + elementType + "]");
         }
 
         if (!bCommit) {

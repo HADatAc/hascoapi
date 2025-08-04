@@ -578,6 +578,7 @@ public class HAScOMapper {
             filterProvider.addFilter("studyObjectCollectionFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
                             "hasImageUri", "hasWebDocument", 
+                            "virtualColumnUri", "virtualColumn", 
                             "hascoTypeLabel", "comment", "isMemberOfUri", "isMemberOf"));
         }
 
