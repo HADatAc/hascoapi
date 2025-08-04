@@ -579,6 +579,7 @@ public class HAScOMapper {
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
                             "hasImageUri", "hasWebDocument", 
                             "virtualColumnUri", "virtualColumn", 
+                            "hasScopeUri", "timeScopeUris", "spaceScopeUris",
                             "hascoTypeLabel", "comment", "isMemberOfUri", "isMemberOf"));
         }
 
