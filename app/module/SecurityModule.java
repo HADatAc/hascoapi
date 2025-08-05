@@ -27,7 +27,11 @@ import play.cache.SyncCacheApi;
 
 import org.hascoapi.utils.ConfigProp;
 import org.hascoapi.utils.Utils;
+import org.hascoapi.console.views.*;
 import org.hascoapi.console.views.html.*;
+
+//import views.html.*;
+
 import static play.mvc.Results.forbidden;
 import static play.mvc.Results.unauthorized;
 

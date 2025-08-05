@@ -49,6 +49,7 @@ public class INSGenerator extends BaseGenerator {
 		        }
 		    }
 		}
+		// Mudar para switch case, possivelmente está estourando o limite de 64K
 		if (this.getElementType().equals("instrument")) {
 			//row.put("rdfs:subClassOf", VSTOI.INSTRUMENT);
 			row.put("hasco:hascoType", VSTOI.INSTRUMENT);

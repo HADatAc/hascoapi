@@ -55,8 +55,6 @@ libraryDependencies ++= Seq(
   "com.typesafe.play" % "play-cache_2.12" % playVersion,
   "commons-io" % "commons-io" % "2.11.0",
   "com.fasterxml.jackson.module" % "jackson-module-scala_2.12" % "2.15.2",
-  //"com.monitorjbl" % "xlsx-streamer" % "2.2.0",
-  "org.apache.poi" % "poi" % "5.2.5", 
   "org.apache.poi" % "poi-ooxml" % "5.2.3",
   "org.apache.commons" % "commons-configuration2" % "2.8.0",
   "com.typesafe.play" %% "play-mailer" % "8.0.1",
