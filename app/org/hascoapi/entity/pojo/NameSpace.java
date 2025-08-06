@@ -5,6 +5,7 @@ import java.net.HttpURLConnection;
 import java.util.*;
 import java.io.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.io.FileUtils;
 import org.apache.jena.query.ResultSetRewindable;
 import org.apache.jena.query.ResultSet;
@@ -172,6 +173,7 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
         return uris;
     }
 
+    @JsonIgnore
     public List<HADatAcClass> getTopclasses() {
         System.out.println("NameSpace.getTopClasses of [" + label + "]");
         List<HADatAcClass> topclasses = new ArrayList<HADatAcClass>();
