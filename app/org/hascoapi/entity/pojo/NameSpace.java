@@ -5,7 +5,6 @@ import java.net.HttpURLConnection;
 import java.util.*;
 import java.io.*;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.io.FileUtils;
 import org.apache.jena.query.ResultSetRewindable;
 import org.apache.jena.query.ResultSet;
@@ -121,25 +120,7 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
 
             this.numberOfLoadedTriples = Integer.valueOf(soln.getLiteral("tot").getValue().toString()).intValue();
         } catch (Exception e) {
-            System.out.println("NameS[info] compiling 1 Java source to /home/paulo/git/hascoapi/target/scala-2.12/classes ...\n" + //
-                                "[error] /home/paulo/git/hascoapi/app/org/hascoapi/entity/pojo/NameSpace.java:194:1: incompatible types: org.apache.jena.query.ResultSetRewindable cannot be converted to java.sql.ResultSet\n" + //
-                                "[error] SPARQLUtils.select(CollectionUtil.getCollectionPath(\n" + //
-                                "[error]         \tCollectionUtil.Collection.SPARQL_QUERY), queryString)\n" + //
-                                "[error] /home/paulo/git/hascoapi/app/org/hascoapi/entity/pojo/NameSpace.java:197:1: cannot find symbol\n" + //
-                                "[error]   symbol:   method hasNext()\n" + //
-                                "[error]   location: variable resultSet of type java.sql.ResultSet\n" + //
-                                "[error] resultSet.hasNext\n" + //
-                                "[error] /home/paulo/git/hascoapi/app/org/hascoapi/entity/pojo/NameSpace.java:204:1: cannot find symbol\n" + //
-                                "[error]   symbol:   method hasNext()\n" + //
-                                "[error]   location: variable resultSet of type java.sql.ResultSet\n" + //
-                                "[error] resultSet.hasNext\n" + //
-                                "[error] /home/paulo/git/hascoapi/app/org/hascoapi/entity/pojo/NameSpace.java:205:1: incompatible types: boolean cannot be converted to org.apache.jena.query.QuerySolution\n" + //
-                                "[error] resultSet.next()\n" + //
-                                "[info] /home/paulo/git/hascoapi/app/org/hascoapi/entity/pojo/NameSpace.java: NameSpace.java uses or overrides a deprecated API.\n" + //
-                                "[info] /home/paulo/git/hascoapi/app/org/hascoapi/entity/pojo/NameSpace.java: Recompile with -Xlint:deprecation for details.\n" + //
-                                "[error] (Compile / compileIncremental) javac returned non-zero exit code\n" + //
-                                "[error] Total time: 0 s, completed 21/07/2025, 13:29:00\n" + //
-                                "pace.updateLoadedTripleSize()");
+            System.out.println("NameSpace.updateLoadedTripleSize()");
             System.out.println("  - Value of CollectionUtil.Collection.SPARQL_QUERY=[" + CollectionUtil.Collection.SPARQL_QUERY + "]");
             System.out.println("  - Value of CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY)=[" + CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY) + "]");
             e.printStackTrace();
@@ -173,10 +154,9 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
         return uris;
     }
 
-    @JsonIgnore
     public List<HADatAcClass> getTopclasses() {
         System.out.println("NameSpace.getTopClasses of [" + label + "]");
-        List<HADatAcClass> topclasses = new ArrayList<HADatAcClass>();
+        List<HADatAcClass> subclasses = new ArrayList<HADatAcClass>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
             "SELECT DISTINCT ?uri WHERE { " +
             "   ?uri a owl:Class . " +
@@ -184,29 +164,31 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
             "   FILTER STRSTARTS(STR(?uri), <" + uri + ">)"  + 
             "   # Exclude classes that have a superclass other than owl:Thing  " + 
             "   FILTER NOT EXISTS { " +
-            "      ?uri rdfs:subClassOf ?superclass . "  +
+            "      uri rdfs:subClassOf ?superclass . "  +
             "      FILTER (?superclass != owl:Thing) " +
             "   } " + 
             "} ";
+
+        System.out.println("Query in getTopClasses(): " + queryString);
 
         ResultSetRewindable resultsrw = SPARQLUtils.select(
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
         while (resultsrw.hasNext()) {
             QuerySolution soln = resultsrw.next();
-            HADatAcClass topclass;
+            HADatAcClass subclass;
             try {
-                topclass = (HADatAcClass)URIPage.objectFromUri(soln.getResource("uri").getURI());
+                subclass = (HADatAcClass)URIPage.objectFromUri(soln.getResource("uri").getURI());
             } catch (Exception e) { 
-                topclass = HADatAcClass.find(soln.getResource("uri").getURI());
+                subclass = HADatAcClass.find(soln.getResource("uri").getURI());
             }
-            if (topclass != null) {
-                topclass.setNodeId(HADatAcThing.createUrlHash(topclass.getUri()));
-                topclasses.add(topclass);
+            if (subclass != null) {
+                subclass.setNodeId(HADatAcThing.createUrlHash(subclass.getUri()));
+                subclasses.add(subclass);
             }
         }
 
-        return topclasses;
+        return subclasses;
     }
     
     public static List<NameSpace> findWithPages(int pageSize, int offset) {
