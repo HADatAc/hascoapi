@@ -6,15 +6,20 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.hascoapi.RepositoryInstance;
 import org.hascoapi.console.controllers.ontologies.LoadOnt;
+import org.hascoapi.entity.pojo.HADatAcClass;
 import org.hascoapi.entity.pojo.NameSpace;
 import org.hascoapi.entity.pojo.Repository;
 import org.hascoapi.entity.pojo.Table;
 import org.hascoapi.utils.ApiUtil;
+import org.hascoapi.utils.HAScOMapper;
 import org.hascoapi.utils.NameSpaces;
+import org.hascoapi.vocabularies.HASCO;
+
 import play.mvc.Controller;
 import play.mvc.Result;
 import com.typesafe.config.ConfigFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -268,6 +273,20 @@ public class RepoPage extends Controller {
             e.printStackTrace();
             return badRequest(ApiUtil.createResponse("Error retrieving namespaces", false));
         }
+    }
+
+    public Result getTopClasses(String abbreviation) {
+        if (abbreviation == null || abbreviation.equals("")) {
+            return ok(ApiUtil.createResponse("No Namespace's ABBREVIATION has been provided.", false));
+        }
+        NameSpace nameSpace = NameSpaces.getInstance().getNamespaces().get(abbreviation);
+        List<HADatAcClass> topClasses = nameSpace.getTopclasses();
+        if (topClasses == null) {
+            topClasses = new ArrayList<HADatAcClass>();
+        }
+        ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL,HASCO.HASCO_CLASS);
+        JsonNode jsonObject = mapper.convertValue(topClasses, JsonNode.class);
+        return ok(ApiUtil.createResponse(jsonObject, true));
     }
 
     public Result getInstrumentPositions() {

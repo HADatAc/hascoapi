@@ -1,4 +1,4 @@
-# Routesf
+# Routes
 # This file defines all applicatƒion routes (Higher priority routes first)
 # ~~~~
 
@@ -25,6 +25,8 @@ GET     /hascoapi/api/subclasses/keyword/:superuri/:keyword     org.hascoapi.con
 GET     /hascoapi/api/superclasses/:uri                         org.hascoapi.console.controllers.restapi.HAScOClassAPI.getSuperclasses(uri: String)
 GET     /hascoapi/api/:elementType/elements/:pageSize/:offset                                       org.hascoapi.console.controllers.restapi.SIRElementAPI.getElementsWithPage(elementType: String, pageSize : Integer, offset : Integer)
 GET     /hascoapi/api/:elementType/elements/total                                                   org.hascoapi.console.controllers.restapi.SIRElementAPI.getTotalElements(elementType: String)
+GET     /hascoapi/api/:elementtype/bysoc/:socuri/:pageSize/:offset                                  org.hascoapi.console.controllers.restapi.StudyObjectCollectionAPI.getElementsBySOC(socuri : String, elementtype: String, pageSize : Integer, offset : Integer)
+GET     /hascoapi/api/:elementtype/bysoc/total/:socuri                                              org.hascoapi.console.controllers.restapi.StudyObjectCollectionAPI.getTotalElementsBySOC(socuri : String, elementtype : String)
 # GET     /hascoapi/api/:elementType/keywordlanguage/:keyword/:language/:pageSize/:offset             org.hascoapi.console.controllers.restapi.SIRElementAPI.getElementsByKeywordAndLanguageWithPage(elementType: String, keyword : String, language : String, pageSize : Integer, offset : Integer)
 # GET     /hascoapi/api/:elementType/keywordlanguage/total/:keyword/:language                         org.hascoapi.console.controllers.restapi.SIRElementAPI.getTotalElementsByKeywordAndLanguage(elementType : String, keyword : String, language : String)
 GET     /hascoapi/api/:elementType/keywordlanguage/:keyword/:language/:type/:manageremail/:status/:pageSize/:offset        org.hascoapi.console.controllers.restapi.SIRElementAPI.getElementsByKeywordAndLanguageWithPage(elementType: String, keyword : String, language : String, type : String, manageremail : String, status : String, pageSize : Integer, offset : Integer)
@@ -86,6 +88,7 @@ GET     /hascoapi/api/repo/namespace/default/:prefix/:url/:mime/:source    org.h
 GET     /hascoapi/api/repo/namespace/reset                  org.hascoapi.console.controllers.restapi.RepoPage.resetNamespaces()
 GET     /hascoapi/api/repo/namespace/create/:json           org.hascoapi.console.controllers.restapi.RepoPage.createNamespace(json : String)
 GET     /hascoapi/api/repo/namespace/delete/:abbreviation   org.hascoapi.console.controllers.restapi.RepoPage.deleteSelectedNamespace(abbreviation : String)
+GET     /hascoapi/api/repo/namespace/topclasses/:abbreviation org.hascoapi.console.controllers.restapi.RepoPage.getTopClasses(abbreviation : String)
 GET     /hascoapi/api/repo/namespace/delete                 org.hascoapi.console.controllers.restapi.RepoPage.deleteNamespace()
 GET     /hascoapi/api/repo/table/informants                 org.hascoapi.console.controllers.restapi.RepoPage.getInformants()
 GET     /hascoapi/api/repo/table/languages                  org.hascoapi.console.controllers.restapi.RepoPage.getLanguages()

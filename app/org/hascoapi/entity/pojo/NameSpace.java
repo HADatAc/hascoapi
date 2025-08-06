@@ -23,6 +23,7 @@ import org.hascoapi.utils.SPARQLUtils;
 import org.hascoapi.utils.URIUtils;
 import org.hascoapi.Constants;
 import org.hascoapi.annotations.PropertyField;
+import org.hascoapi.console.controllers.restapi.URIPage;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.RDF;
@@ -171,6 +172,41 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
         return uris;
     }
 
+    public List<HADatAcClass> getTopclasses() {
+        System.out.println("NameSpace.getTopClasses of [" + label + "]");
+        List<HADatAcClass> topclasses = new ArrayList<HADatAcClass>();
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+            "SELECT DISTINCT ?uri WHERE { " +
+            "   ?uri a owl:Class . " +
+            "   # Restrict to a specific namespace  "  + 
+            "   FILTER STRSTARTS(STR(?uri), <" + uri + ">)"  + 
+            "   # Exclude classes that have a superclass other than owl:Thing  " + 
+            "   FILTER NOT EXISTS { " +
+            "      ?uri rdfs:subClassOf ?superclass . "  +
+            "      FILTER (?superclass != owl:Thing) " +
+            "   } " + 
+            "} ";
+
+        ResultSetRewindable resultsrw = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+        while (resultsrw.hasNext()) {
+            QuerySolution soln = resultsrw.next();
+            HADatAcClass topclass;
+            try {
+                topclass = (HADatAcClass)URIPage.objectFromUri(soln.getResource("uri").getURI());
+            } catch (Exception e) { 
+                topclass = HADatAcClass.find(soln.getResource("uri").getURI());
+            }
+            if (topclass != null) {
+                topclass.setNodeId(HADatAcThing.createUrlHash(topclass.getUri()));
+                topclasses.add(topclass);
+            }
+        }
+
+        return topclasses;
+    }
+    
     public static List<NameSpace> findWithPages(int pageSize, int offset) {
         List<NameSpace> listOntologies = NameSpaces.getInstance().getOrderedNamespacesAsList();
         if (listOntologies == null || pageSize < 1 || offset < 0) {

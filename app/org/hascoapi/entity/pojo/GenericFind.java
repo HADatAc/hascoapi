@@ -294,9 +294,11 @@ public class GenericFind<T> {
         return null;
     }
 
-    /**
+    /*************************************************************************************
+     *
      *     FIND ELEMENTS (AND THEIR TOTALS) WITH PAGES
-     */
+     * 
+     **************************************************************************************/
 
     public static <T> List<T> findWithPages(Class clazz, int pageSize, int offset) {
         if (clazz == null) {
@@ -390,6 +392,20 @@ public class GenericFind<T> {
         return findByQuery(clazz, queryString);
     }
     
+	public List<T> findWithPagesBySOC(Class clazz, String studyobjectcollectionuri, int pageSize, int offset) {
+        String className = classNameWithNamespace(clazz);
+		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+		queryString += " SELECT ?uri WHERE { " +
+            "  ?uri hasco:hascoType " + classNameWithNamespace(clazz) + " . " +
+            "  OPTIONAL { ?uri rdfs:label ?label . } " +
+            "  ?uri hasco:isMemberOf <" + studyobjectcollectionuri + "> . " + 
+            "}" +
+            "  ORDER BY ASC(?label) " +
+            "  LIMIT " + pageSize +
+            "  OFFSET " + offset;
+		return findByQuery(clazz, queryString);
+	}
+
     public static int getNumberElements(String elementType) {
         if (elementType == null || elementType.isEmpty()) {
             return -1   ;
@@ -434,9 +450,20 @@ public class GenericFind<T> {
         return findTotalByQuery(queryString);
 	}
 
-    /**
+	public static int findTotalBySOC(Class clazz, String studyobjectcollectionuri) {
+		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+		queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
+			" ?uri hasco:hascoType " + classNameWithNamespace(clazz) + " . " +
+            " ?uri hasco:isMemberOf <" + studyobjectcollectionuri + "> . " +
+ 			"}";
+        return findTotalByQuery(queryString);
+	}
+
+    /*************************************************************************************
+     *
      *     FIND ELEMENTS BY KEYWORD (AND THEIR TOTALS) WITH PAGES
-     */
+     * 
+     **************************************************************************************/
 
     public static <T> List<T> findByKeywordWithPages(Class clazz, String keyword, int pageSize, int offset) {
         if (clazz == null) {
@@ -627,9 +654,11 @@ public class GenericFind<T> {
     }
     */
 
-    /**
-     *     FIND ELEMENTS BY KEYWORD AND LANGUAGE (AND THEIR TOTALS) WITH PAHES
-     */
+    /*************************************************************************************
+     *
+     *     FIND ELEMENTS BY KEYWORD AND LANGUAGE(AND THEIR TOTALS) WITH PAGES
+     * 
+     **************************************************************************************/
 
     public static <T> List<T> findByKeywordAndLanguageWithPages(Class clazz, String keyword, String language, String type, String manageremail, String status, int pageSize, int offset) {
         if (clazz == null) {
@@ -818,9 +847,11 @@ public class GenericFind<T> {
         return findTotalByQuery(queryString);
 	}
 
-    /**
+    /*************************************************************************************
+     *
      *     FIND ELEMENTS BY MANAGER (AND THEIR TOTALS)
-     */
+     * 
+     **************************************************************************************/
 
 	public List<T> findByManagerEmailWithPages(Class clazz, String managerEmail, int pageSize, int offset) {
         //System.out.println("findByManagerEmailWithPages: Clazz=[" + clazz + "]");
@@ -1048,9 +1079,11 @@ public class GenericFind<T> {
 	}
 
 
-    /** 
-     *    QUERY EXECUTION
-     */
+    /*************************************************************************************
+     *
+     *     QUERY EXECUTION
+     * 
+     **************************************************************************************/
 
     public static <T> List<T> findByQuery(Class clazz,String queryString) {
         //System.out.println("FindByQuery: query = [" + queryString + "]");
