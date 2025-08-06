@@ -159,16 +159,13 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
         List<HADatAcClass> subclasses = new ArrayList<HADatAcClass>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
             "SELECT DISTINCT ?uri WHERE { " +
-            "   ?uri a owl:Class . " +
-            "   # Restrict to a specific namespace  "  + 
-            "   FILTER STRSTARTS(STR(?uri), <" + uri + ">)"  + 
-            "   # Exclude classes that have a superclass other than owl:Thing  " + 
-            "   FILTER NOT EXISTS { " +
-            "      uri rdfs:subClassOf ?superclass . "  +
-            "      FILTER (?superclass != owl:Thing) " +
-            "   } " + 
+            "    ?uri a owl:Class . " +
+            "    FILTER STRSTARTS(STR(?uri), \"" + uri + "\") " +
+            "    FILTER NOT EXISTS { " + 
+            "    ?uri rdfs:subClassOf ?superclass . " + 
+            "    FILTER (?superclass != owl:Thing) " +
+            "    } " +
             "} ";
-
         System.out.println("Query in getTopClasses(): " + queryString);
 
         ResultSetRewindable resultsrw = SPARQLUtils.select(
