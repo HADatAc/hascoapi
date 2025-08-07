@@ -5,6 +5,7 @@ import java.net.HttpURLConnection;
 import java.util.*;
 import java.io.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.io.FileUtils;
 import org.apache.jena.query.ResultSetRewindable;
 import org.apache.jena.query.ResultSet;
@@ -154,6 +155,7 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
         return uris;
     }
 
+    @JsonIgnore
     public List<HADatAcClass> getTopclasses() {
         System.out.println("NameSpace.getTopClasses of [" + label + "]");
         List<HADatAcClass> subclasses = new ArrayList<HADatAcClass>();
@@ -166,7 +168,7 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
             "    FILTER (?superclass != owl:Thing) " +
             "    } " +
             "} ";
-        System.out.println("Query in getTopClasses(): " + queryString);
+        //System.out.println("Query in getTopClasses(): " + queryString);
 
         ResultSetRewindable resultsrw = SPARQLUtils.select(
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);

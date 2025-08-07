@@ -41,6 +41,7 @@ public class AnnotateSSD extends BaseAnnotator {
         SSDSheet ssd = new SSDSheet(dataFile);
         mapCatalog = ssd.getCatalog();
         Map<String, List<String>> mapContent = ssd.getMapContent();
+        Map<String, String> mapReferences = ssd.getMapReferences();
 
         SSDGeneratorChain chain = new SSDGeneratorChain();
         chain.setNamedGraphUri(dataFile.getUri());
@@ -57,10 +58,11 @@ public class AnnotateSSD extends BaseAnnotator {
 
         chain.setStudyUri(URIUtils.replacePrefixEx(studyUri));
         dataFile.getLogger().println("SSD ingestion: The study URI [" + studyUri + "] is in the triple store.");
-        System.out.println("IngestionWorker: Pre-processing StudyObjectGenerator. Study ID: " + study.getId());
+        System.out.println("AnnotateSSD: Pre-processing StudyObjectGenerator. Study URI: " + study.getUri());
 
+        System.out.println("AnnotateSSD: Catalog size: " + mapCatalog.size());
         for (String sheetKey : mapCatalog.keySet()) {
-            addStudyObjectGenerator(sheetKey, mapCatalog, mapContent, dataFile, chain, study, namespace);
+            addStudyObjectGenerator(sheetKey, mapCatalog, mapContent, mapReferences, dataFile, chain, study, namespace);
         }
 
         System.out.println("SSD Processing: Completed GeneratorChain.");
@@ -143,6 +145,7 @@ public class AnnotateSSD extends BaseAnnotator {
             String key,
             Map<String, String> catalog,
             Map<String, List<String>> content,
+            Map<String, String> references,
             DataFile dataFile,
             SSDGeneratorChain chain,
             Study study,
@@ -165,7 +168,7 @@ public class AnnotateSSD extends BaseAnnotator {
             }
 
             System.out.println("Adding StudyObjectGenerator...");
-            chain.addGenerator(new StudyObjectGenerator(clonedFile, headers, content, chain.getStudyUri(), study.getId(), namespace));
+            chain.addGenerator(new StudyObjectGenerator(clonedFile, headers, content, references, chain.getStudyUri(), study.getId(), namespace));
 
         } catch (CloneNotSupportedException e) {
             e.printStackTrace();

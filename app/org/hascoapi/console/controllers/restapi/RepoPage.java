@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+
 import org.hascoapi.RepositoryInstance;
 import org.hascoapi.console.controllers.ontologies.LoadOnt;
 import org.hascoapi.entity.pojo.HADatAcClass;
@@ -264,7 +267,8 @@ public class RepoPage extends Controller {
     }
 
     public Result getNamespaces() {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL, HASCO.HASCO_CLASS);
+        //ObjectMapper mapper = new ObjectMapper();
         try {
             ArrayNode array = mapper.convertValue(NameSpaces.getInstance().getOrderedNamespacesAsList(), ArrayNode.class);
             JsonNode jsonObject = mapper.convertValue(array, JsonNode.class);

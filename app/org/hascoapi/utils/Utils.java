@@ -259,10 +259,14 @@ public class Utils {
     }
 
     public static String uriPlainGen(String elementType, String identifier) {
-        return uriPlainGen(elementType, identifier, null);
+        return uriPlainGen(elementType, identifier, null, null);
     }
 
     public static String uriPlainGen(String elementType, String identifier, String namespace) {
+        return uriPlainGen(elementType, identifier, namespace, null);
+    }
+    
+    public static String uriPlainGen(String elementType, String identifier, String namespace, String socReference) {
         if (elementType == null) {
             System.out.println("[ERROR] Utils.uriHashGen(): elementType not provided.");
             return null;
@@ -275,17 +279,27 @@ public class Utils {
             repoUri = RepositoryInstance.getInstance().getHasDefaultNamespaceURL();
         }
         if (repoUri == null || repoUri.isEmpty()) {
-            System.out.println("[ERROR] Utils.uriHashGen(): no baseURL found for current repository.");
+            System.out.println("[ERROR] Utils.uriPlainGen(): no baseURL found for current repository.");
             return null;
         }
 
         String shortPrefix = Utils.shortPrefix(elementType);
         if (shortPrefix == null) {
-            System.out.println("[ERROR] Utils.uriHashGen(): could not found valid short prefix for elementType [" + elementType + "]");
+            System.out.println("[ERROR] Utils.uriPlainGen(): could not found valid short prefix for elementType [" + elementType + "].");
             return null;
         }
 
-        String finalUri = repoUri + ":" + shortPrefix + "-" + identifier;
+        if (identifier == null || identifier.isEmpty()) {
+            System.out.println("[ERROR] Utils.uriPlainGen(): no valid identifier found.");
+            return null;
+        }
+
+        String finalUri = "";
+        if (socReference != null && !socReference.isEmpty()) {
+            finalUri = repoUri + ":" + shortPrefix + "_" + socReference.replace("??","") + "_" + identifier;
+        } else {
+            finalUri = repoUri + ":" + shortPrefix + "_" + identifier;
+        }
         finalUri = URIUtils.replacePrefixEx(finalUri);
 
         finalUri = finalUri.replace("#/","#");
