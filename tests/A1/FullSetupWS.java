@@ -7,11 +7,12 @@ import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
 import config.AdminAuto;
 import config.AttachPDFINST;
-import utils.FullIngestTestDRAFT;
-import utils.FullUploadTestALL;
+import utils.FullIngestNHANESTestDRAFT;
 import repository.RepositoryFormAutomationTest;
+import utils.FullIngestWSTestDRAFT;
+import utils.FullUploadWS;
 
-public class FullSetup {
+public class FullSetupWS {
     private final Launcher launcher = LauncherFactory.create();
 
     @Test
@@ -22,14 +23,14 @@ public class FullSetup {
 
         //Admin Status and Data conf permission
         runTestClass(AdminAuto.class);
-         Thread.sleep(5000);
+        Thread.sleep(5000);
 
         // All data upload
-        runTestClass(FullUploadTestALL.class);
+        runTestClass(FullUploadWS.class);
         Thread.sleep(5000);
 
         // All data ingest
-        runTestClass(FullIngestTestDRAFT.class);
+        runTestClass(FullIngestWSTestDRAFT.class);
         Thread.sleep(5000);
 
         // All data Regression Test
@@ -45,9 +46,9 @@ public class FullSetup {
         System.out.println("===> Running: " + testClass.getSimpleName());
 
         launcher.execute(
-                LauncherDiscoveryRequestBuilder.request()
-                        .selectors(DiscoverySelectors.selectClass(testClass))
-                        .build()
+            LauncherDiscoveryRequestBuilder.request()
+                .selectors(DiscoverySelectors.selectClass(testClass))
+                .build()
         );
     }
 }

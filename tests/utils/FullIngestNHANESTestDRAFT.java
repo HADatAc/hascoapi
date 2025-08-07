@@ -7,33 +7,29 @@ import org.junit.platform.launcher.*;
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
 
-import  DA.DAIngestTest;
-import DP2.DP2IngestTest;
 import DSG.DSGIngestTest;
-import INS.INSFullIngest;
-import SDD.SDDIngestDPQTest;
-import STR.STRIngestTest;
+import INS.INSNHANESIngestTest;
 import base.BaseIngest;
 
-public class FullIngestTestCURRENT {
+public class FullIngestNHANESTestDRAFT {
 
     private final Launcher launcher = LauncherFactory.create();
 
     @BeforeAll
     static void setMode() {
-        BaseIngest.ingestMode = "current";
+        BaseIngest.ingestMode = "draft";
     }
 
     @Test
     void runOnlyIngestsForCurrentMode() throws InterruptedException {
-        // INS
-        runTestClass(INSFullIngest.class);
-        Thread.sleep(2000);
 
+        // INS NHANES
+        runTestClass(INSNHANESIngestTest.class);
+        Thread.sleep(2000);
         // DSG
         runTestClass(DSGIngestTest.class);
         Thread.sleep(2000);
-
+/*
         // DA
         runTestClass(DAIngestTest.class);
         Thread.sleep(2000);
@@ -41,13 +37,20 @@ public class FullIngestTestCURRENT {
         // SDD
         runTestClass(SDDIngestDPQTest.class);
         Thread.sleep(2000);
+        runTestClass(SDD.SDDIngestDEMOTest.class);
+        Thread.sleep(2000);
 
         // DP2
         runTestClass(DP2IngestTest.class);
         Thread.sleep(2000);
+         //STR upload needs to be run after SDD ingest
+        runTestClass(STRUploadTest.class);
+        Thread.sleep(2000);
 
         // STR
         runTestClass(STRIngestTest.class);
+
+ */
     }
 
     private void runTestClass(Class<?> testClass) {
