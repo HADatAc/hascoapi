@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInstance;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.*;
 
 import java.time.Duration;
@@ -21,13 +22,22 @@ public abstract class BaseDelete {
     protected final Map<String, Boolean> selectedRows = new HashMap<>();
     protected static final int MAX_ATTEMPTS = 10;
     protected static final int WAIT_INTERVAL_MS = 10000;
-    
+
     @BeforeAll
     void setup() {
         driver = new ChromeDriver();
         driver.manage().window().maximize();
         wait = new WebDriverWait(driver, 15);
-
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments(
+            "--headless=new",
+            "--no-sandbox",
+            "--disable-dev-shm-usage",
+            "--disable-gpu",
+            "--remote-debugging-port=9222",
+            "--window-size=1920,1080",
+            "--ignore-certificate-errors"
+        );
         driver.get(LOGIN_URL);
         driver.findElement(By.id("edit-name")).sendKeys(USERNAME);
         driver.findElement(By.id("edit-pass")).sendKeys(PASSWORD);

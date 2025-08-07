@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.apache.jena.query.ResultSetFormatter;
+import org.apache.jena.query.ResultSetRewindable;
 import org.hascoapi.RepositoryInstance;
 import org.hascoapi.console.controllers.ontologies.LoadOnt;
 import org.hascoapi.entity.pojo.NameSpace;
@@ -11,6 +14,7 @@ import org.hascoapi.entity.pojo.Repository;
 import org.hascoapi.entity.pojo.Table;
 import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.NameSpaces;
+import org.hascoapi.utils.SPARQLUtils;
 import play.mvc.Controller;
 import play.mvc.Result;
 import com.typesafe.config.ConfigFactory;
@@ -72,10 +76,10 @@ public class RepoPage extends Controller {
     }
 
     public Result updateDefaultNamespace(String prefix, String url, String sourceMime, String source) {
-        if (sourceMime.equals("_")) { 
+        if (sourceMime.equals("_")) {
             sourceMime = "";
         }
-        if (source.equals("_")) { 
+        if (source.equals("_")) {
             source = "";
         }
         //System.out.println("updateDefaultNamespace:");
@@ -159,7 +163,7 @@ public class RepoPage extends Controller {
         String url = RepositoryInstance.getInstance().getHasDefaultNamespaceURL();
         String mime = RepositoryInstance.getInstance().getHasDefaultNamespaceSourceMime();
         String source = RepositoryInstance.getInstance().getHasDefaultNamespaceSource();
-        if (prefix == null || prefix.equals("") || 
+        if (prefix == null || prefix.equals("") ||
             url == null    || url.equals("") ||
             mime == null   || mime.equals("") ||
             source == null || source.equals("")) {
@@ -178,7 +182,7 @@ public class RepoPage extends Controller {
         LoadOnt.playLoadOntologiesAsync(oper, kb);
         return 0L;
     }
-    
+
     public Result loadOntologies(){
         String kb = ConfigFactory.load().getString("hascoapi.repository.triplestore");
         CompletableFuture<Long> completableFuture = CompletableFuture.supplyAsync(() -> manageTriples("load", kb));
@@ -291,6 +295,26 @@ public class RepoPage extends Controller {
         } catch (Exception e) {
             e.printStackTrace();
             return badRequest(ApiUtil.createResponse("Error retrieving Subcontainer Positions", false));
+        }
+    }
+
+    public static Result queryTest() {
+        String sparqlEndpoint = "http://localhost:3030/ds/sparql";
+        String sparqlQuery = "SELECT * WHERE { ?s ?p ?o } LIMIT 1";
+
+        try {
+            // Executa a query via SPARQLUtils
+            ResultSetRewindable results = SPARQLUtils.select(sparqlEndpoint, sparqlQuery);
+
+            // Converte o ResultSet para JSON (formato SPARQL Results JSON)
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            ResultSetFormatter.outputAsJSON(outputStream, results);
+            String json = outputStream.toString();
+
+            return ok(json).as("application/json");
+
+        } catch (Exception e) {
+            return internalServerError("SPARQL query failed: " + e.getMessage());
         }
     }
 

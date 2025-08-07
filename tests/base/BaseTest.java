@@ -6,6 +6,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 
 public abstract class BaseTest {
 
@@ -16,6 +17,16 @@ public abstract class BaseTest {
         System.setProperty("webdriver.chrome.driver", "drivers/chromedriver"); // ajuste o caminho se necessário
         driver = new ChromeDriver();
         driver.manage().window().maximize();
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments(
+            "--headless=new",
+            "--no-sandbox",
+            "--disable-dev-shm-usage",
+            "--disable-gpu",
+            "--remote-debugging-port=9222",
+            "--window-size=1920,1080",
+            "--ignore-certificate-errors"
+        );
 
         login();
     }

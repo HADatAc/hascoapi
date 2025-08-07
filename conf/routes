@@ -68,7 +68,7 @@ GET     /hascoapi/api/study/streams/:uri                                        
 GET     /hascoapi/api/study/streams/total/:uri                                            org.hascoapi.console.controllers.restapi.StudyAPI.findTotalStreams(uri: String)
 GET     /hascoapi/api/study/studyobjects/total/:uri                                       org.hascoapi.console.controllers.restapi.StudyAPI.findTotalSOs(uri: String)
 
-# MANAGEMENT GENERIC 
+# MANAGEMENT GENERIC
 
 POST    /hascoapi/api/:elementType/create/:json             org.hascoapi.console.controllers.restapi.SIRElementAPI.createElement(elementType: String, json: String)
 GET     /hascoapi/api/:elementType/create/:json             org.hascoapi.console.controllers.restapi.SIRElementAPI.createElement(elementType: String, json: String)
@@ -119,7 +119,7 @@ GET     /hascoapi/api/slots/container/detach/:containerSlotUri                  
 GET     /hascoapi/api/slots/codebook/attach/:responseOptionUri/:codebookSlotUri     org.hascoapi.console.controllers.restapi.CodebookAPI.attach(responseOptionUri: String, codebookSlotUri : String)
 GET     /hascoapi/api/slots/codebook/attach/status/:responseOptionUri/:codebookSlotUri/:statusUri     org.hascoapi.console.controllers.restapi.CodebookAPI.attachWithStatus(responseOptionUri: String, codebookSlotUri : String, statusUri)
 GET     /hascoapi/api/slots/codebook/detach/:codebookSlotUri                        org.hascoapi.console.controllers.restapi.CodebookAPI.detach(codebookSlotUri : String)
-        
+
 GET     /hascoapi/api/slotelements/bycontainer/:containerUri                        org.hascoapi.console.controllers.restapi.ContainerAPI.getSlotElements(containerUri: String)
 GET     /hascoapi/api/annotationsbycontainerposition/:containerUri/:positionUri     org.hascoapi.console.controllers.restapi.AnnotationAPI.getAnnotationByContainerAndPosition(containerUri: String, positionUri: String)
 GET     /hascoapi/api/slots/bycodebook/:codebookUri                                 org.hascoapi.console.controllers.restapi.CodebookSlotAPI.getCodebookSlotsByCodebook(codebookUri: String)
@@ -178,7 +178,7 @@ GET     /hascoapi/api/mt/gen/perproject/:elementtype/:projecturi/:filename/:medi
 GET     /hascoapi/api/mt/gen/perorganization/:elementtype/:organizationuri/:filename/:mediafolder/:verifyuri            org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenByOrganization(elementtype : String, organizationuri: String, filename: String, mediafolder : String, verifyuri : String)
 GET     /hascoapi/api/mt/gen/peruser/:elementtype/:useremail/:status/:filename/:mediafolder/:verifyuri      org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenByManager(elementtype : String, useremail: String, status: String, filename: String, mediafolder : String, verifyuri : String)
 
-# REVIEWING METHODS 
+# REVIEWING METHODS
 
 GET     /hascoapi/api/review/pending                                                org.hascoapi.console.controllers.restapi.SIRElementAPI.pendingReviews
 POST    /hascoapi/api/review/recursive/:instrumentUri/:status                       org.hascoapi.console.controllers.restapi.InstrumentAPI.updateReviewsRecursive(instrumentUri: String, status: String)
@@ -252,3 +252,5 @@ GET     /hascoapi/ontologies/maintenance                   org.hascoapi.console.
 # Map static resources from the /public folder to the /assets URL path
 GET     /hascoapi/assets/*file                              controllers.Assets.versioned(path="/public", file: Asset)
 
+# Tests
+GET     /hascoapi/api/repo/queryTest      org.hascoapi.console.controllers.restapi.RepoPage.queryTest()
