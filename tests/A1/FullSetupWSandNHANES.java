@@ -7,11 +7,8 @@ import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
 import config.AdminAuto;
 import config.AttachPDFINST;
-import utils.FullIngestNHANESTestDRAFT;
-import utils.FullIngestWSTestDRAFT;
-import utils.FullUploadNHANESTestALL;
+import utils.*;
 import repository.RepositoryFormAutomationTest;
-import utils.FullUploadWS;
 
 public class FullSetupWSandNHANES {
     private final Launcher launcher = LauncherFactory.create();
@@ -19,6 +16,7 @@ public class FullSetupWSandNHANES {
     @Test
     void runOnlyIngestsForCurrentMode() throws InterruptedException {
         // Setup of rep configuration
+        /*
         runTestClass(RepositoryFormAutomationTest.class);
         Thread.sleep(5000);
 
@@ -26,6 +24,8 @@ public class FullSetupWSandNHANES {
         runTestClass(AdminAuto.class);
         Thread.sleep(5000);
 
+
+         */
         // All data upload
         runTestClass(FullUploadWS.class);
         Thread.sleep(5000);
@@ -42,12 +42,17 @@ public class FullSetupWSandNHANES {
         runTestClass(FullIngestNHANESTestDRAFT.class);
         Thread.sleep(5000);
 
+
         // All data Regression Test
         runTestClass(FullRegressionTest.class);
         Thread.sleep(5000);
 
         //AttachPDFINST
         runTestClass(AttachPDFINST.class);
+        Thread.sleep(5000);
+
+        //Delete
+        runTestClass(FullDeleteTest.class);
         Thread.sleep(5000);
     }
 

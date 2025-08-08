@@ -1,5 +1,7 @@
 package utils;
 
+import SDD.SDDDeleteTest;
+import STR.STRDeleteTest;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
 import org.junit.platform.launcher.*;
@@ -39,11 +41,11 @@ public class FullDeleteTest { //extends BaseTest{
 
 
         // SDD
-       // runTestClass(SDDDeleteTest.class);
-       // Thread.sleep(2000);
+       runTestClass(SDDDeleteTest.class);
+       Thread.sleep(2000);
 
         // STR
-        //runTestClass(STRDeleteTest.class);
+        runTestClass(STRDeleteTest.class);
     }
 
     private void runTestClass(Class<?> testClass) {

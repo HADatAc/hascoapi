@@ -298,7 +298,7 @@ public class RepoPage extends Controller {
         }
     }
 
-    public static Result queryTest() {
+    /*public static Result queryTest() {
         String sparqlEndpoint = "http://localhost:3030/ds/sparql";
         String sparqlQuery = "SELECT * WHERE { ?s ?p ?o } LIMIT 1";
 
@@ -317,5 +317,7 @@ public class RepoPage extends Controller {
             return internalServerError("SPARQL query failed: " + e.getMessage());
         }
     }
+    
+     */
 
 }
