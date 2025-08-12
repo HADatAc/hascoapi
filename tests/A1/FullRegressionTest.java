@@ -23,6 +23,7 @@ public class FullRegressionTest {
         runTestClass(INSRegressionTest.class);
         Thread.sleep(2000);
 
+
         // DSG
         runTestClass(DSGRegressionTest.class);
         Thread.sleep(2000);
