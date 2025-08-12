@@ -76,6 +76,10 @@ public class ConfigProp {
 	    return ConfigFactory.load().getString("hascoapi.paths.ingestion");
 	}
 
+	public static String getPathAppOntology() {
+	    return ConfigFactory.load().getString("hascoapi.paths.app_ontology");
+	}
+
 
 
     /**

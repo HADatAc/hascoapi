@@ -15,6 +15,7 @@ import org.hascoapi.RepositoryInstance;
 import org.hascoapi.entity.pojo.*;
 import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.HAScOMapper;
+import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.Utils;
 import org.hascoapi.vocabularies.FOAF;
 import org.hascoapi.vocabularies.HASCO;
@@ -112,7 +113,7 @@ public class URIPage extends Controller {
     }
 
     public static HADatAcThing objectFromUri(String uri) {
-        //System.out.println("URIPage.objectFromUri(): URI [" + uri + "]");
+        System.out.println("URIPage.objectFromUri(): URI [" + uri + "]");
         String typeUri = "";
         try {
 
@@ -124,8 +125,16 @@ public class URIPage extends Controller {
             GenericInstance result = GenericInstance.find(uri);
 
             if (result == null) {
-                System.out.println("[WARNING] URIPage.objectFromUri(): No generic instance found for uri [" + uri + "]");
-                return null;
+                System.out.println("NS size: " + NameSpaces.getInstance().getNamespacesByUri().size());
+                NameSpace ns = NameSpaces.getInstance().getNamespacesByUri().get(uri);
+
+                if (ns == null) {
+                    System.out.println("[WARNING] URIPage.objectFromUri(): No generic instance found for uri [" + uri + "]");
+                    return null;
+                }
+
+                return (HADatAcThing)ns;
+
             }
 
             //System.out.println("URIPage.objectFromUri(): HASCO TYPE [" + result.getHascoTypeUri() + "]");
@@ -186,6 +195,8 @@ public class URIPage extends Controller {
                 finalResult = InstrumentInstance.find(uri);
             } else if (result.getHascoTypeUri().equals(HASCO.KGR)) {
                 finalResult = KGR.find(uri);
+            } else if (result.getHascoTypeUri().equals(HASCO.ONTOLOGY)) {
+                finalResult = NameSpaces.getInstance().getNamespaces().get(uri);
             } else if (result.getHascoTypeUri().equals(SCHEMA.ORGANIZATION)) {
                 finalResult = Organization.find(uri);
             } else if (result.getHascoTypeUri().equals(SCHEMA.PERSON)) {

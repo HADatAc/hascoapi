@@ -160,15 +160,18 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
         System.out.println("NameSpace.getTopClasses of [" + label + "]");
         List<HADatAcClass> subclasses = new ArrayList<HADatAcClass>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-            "SELECT DISTINCT ?uri WHERE { " +
-            "    ?uri a owl:Class . " +
-            "    FILTER STRSTARTS(STR(?uri), \"" + uri + "\") " +
-            "    FILTER NOT EXISTS { " + 
-            "    ?uri rdfs:subClassOf ?superclass . " + 
-            "    FILTER (?superclass != owl:Thing) " +
+            " SELECT DISTINCT ?class " + 
+            "     WHERE { " +
+            "      ?class a ?type . " +
+            "     VALUES ?type { owl:Class rdfs:Class } " +
+            "     FILTER isIRI(?class) " +
+            "     FILTER (CONTAINS(STR(?class), \"" + uri + "\")) " +
+            "     FILTER NOT EXISTS { " +
+            "          ?class rdfs:subClassOf ?superclass . " +
+            "         FILTER (isIRI(?superclass) && ?superclass != owl:Thing) " +
             "    } " +
-            "} ";
-        //System.out.println("Query in getTopClasses(): " + queryString);
+            " } " +
+            " ORDER BY ?class ";
 
         ResultSetRewindable resultsrw = SPARQLUtils.select(
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
@@ -176,10 +179,12 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
         while (resultsrw.hasNext()) {
             QuerySolution soln = resultsrw.next();
             HADatAcClass subclass;
+            String str = soln.getResource("class").getURI();
+            System.out.println("retrieved uri: " + str);
             try {
-                subclass = (HADatAcClass)URIPage.objectFromUri(soln.getResource("uri").getURI());
+                subclass = (HADatAcClass)URIPage.objectFromUri(soln.getResource("class").getURI());
             } catch (Exception e) { 
-                subclass = HADatAcClass.find(soln.getResource("uri").getURI());
+                subclass = HADatAcClass.find(soln.getResource("class").getURI());
             }
             if (subclass != null) {
                 subclass.setNodeId(HADatAcThing.createUrlHash(subclass.getUri()));

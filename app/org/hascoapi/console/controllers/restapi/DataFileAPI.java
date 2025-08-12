@@ -83,7 +83,7 @@ public class DataFileAPI extends Controller {
         Path permanentPath = destinationDir.resolve(filename);
     
         // Save file asynchronously to avoid blocking request handling
-        CompletableFuture.runAsync(() -> saveFile(tempFile, permanentPath));
+        CompletableFuture.runAsync(() -> DataFileAPI.saveFile(tempFile, permanentPath));
     
         return ok(ApiUtil.createResponse("File upload in progress. It will be saved shortly.", true));
     }
@@ -159,7 +159,7 @@ public class DataFileAPI extends Controller {
     /**
      * Saves a file to a permanent location and handles errors.
      */
-    private void saveFile(File tempFile, Path permanentPath) {
+    public static void saveFile(File tempFile, Path permanentPath) {
         try {
             Files.createDirectories(permanentPath.getParent());
             Files.copy(tempFile.toPath(), permanentPath, StandardCopyOption.REPLACE_EXISTING);

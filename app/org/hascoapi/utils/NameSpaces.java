@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
+
+import javax.xml.stream.events.Namespace;
+
 import java.util.Comparator;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -19,6 +22,7 @@ import org.hascoapi.vocabularies.HASCO;
 public class NameSpaces {
 
     private ConcurrentHashMap<String, NameSpace> table = new ConcurrentHashMap<String, NameSpace>();
+    private ConcurrentHashMap<String, NameSpace> uriTable = new ConcurrentHashMap<String, NameSpace>();
     private NameSpace localNamespace = null;
     private String turtleNameSpaceList = "";
     private String sparqlNameSpaceList = "";
@@ -317,6 +321,10 @@ public class NameSpaces {
         }
     }
 
+    public NameSpace getAppOntology() {
+        return localNamespace;
+    }
+
     public void addNamespace(NameSpace newNS) {
         if (RepositoryInstance.getInstance() == null ||
             newNS.getLabel() == null || newNS.getLabel().equals("") ||
@@ -351,6 +359,7 @@ public class NameSpaces {
         for (NameSpace ns : namespaces) {
             //System.out.println("NameSpaces: adding namespace. Abbreviation is [" + ns.getLabel() + "]. Uri is [" + ns.getUri() + "]");
             table.put(ns.getLabel(), ns);
+            uriTable.put(ns.getUri(), ns);
         }
 
         //System.out.println("  - Generating ordered list of ontologies");
@@ -450,6 +459,10 @@ public class NameSpaces {
 
     public ConcurrentHashMap<String, NameSpace> getNamespaces() {
         return table;
+    }
+
+    public ConcurrentHashMap<String, NameSpace> getNamespacesByUri() {
+        return uriTable;
     }
 
     public List<NameSpace> getOrderedNamespacesAsList() {
