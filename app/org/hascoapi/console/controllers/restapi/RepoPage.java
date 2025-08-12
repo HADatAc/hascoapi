@@ -343,6 +343,14 @@ public class RepoPage extends Controller {
             return ok(ApiUtil.createResponse("No Namespace's uri has been provided.", false));
         }
         NameSpace nameSpace = NameSpaces.getInstance().getNamespacesByUri().get(uri);
+        if (nameSpace == null) {
+            nameSpace = NameSpace.find(uri);
+        }
+
+        if (nameSpace == null) {
+            return ok(ApiUtil.createResponse("Could not retreive any namespace with the uri that has been provided.", false));
+        }
+ 
         List<HADatAcClass> topClasses = nameSpace.getTopclasses();
         if (topClasses == null) {
             topClasses = new ArrayList<HADatAcClass>();
