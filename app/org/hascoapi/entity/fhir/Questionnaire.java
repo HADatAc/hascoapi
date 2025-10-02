@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.hascoapi.entity.pojo.ContainerSlot;
 import org.hascoapi.entity.pojo.SlotElement;
-import org.hascoapi.entity.pojo.Detector;
 import org.hascoapi.entity.pojo.Component;
 import org.hascoapi.entity.pojo.Container;
 

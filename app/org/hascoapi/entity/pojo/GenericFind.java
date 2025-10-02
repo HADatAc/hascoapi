@@ -31,11 +31,7 @@ public class GenericFind<T> {
 
     public static Class getElementClass(String elementType) {
         
-        if (elementType.equals("actuator")) {
-            return Actuator.class;
-        } else if (elementType.equals("actuatorstem")) {
-            return ActuatorStem.class;
-        } else if (elementType.equals("agent")) {
+        if (elementType.equals("agent")) {
             return Agent.class;
         } else if (elementType.equals("annotation")) {
             return Annotation.class;
@@ -47,6 +43,12 @@ public class GenericFind<T> {
             return Codebook.class;
         } else if (elementType.equals("codebookslot")) {
             return CodebookSlot.class;
+        } else if (elementType.equals("component")) {
+            return Component.class;
+        } else if (elementType.equals("componentinstance")) {
+            return ComponentInstance.class;
+        } else if (elementType.equals("componentstem")) {
+            return ComponentStem.class;
         } else if (elementType.equals("containerslot")) {
             return ContainerSlot.class;
         } else if (elementType.equals("da")) {
@@ -57,14 +59,6 @@ public class GenericFind<T> {
             return DD.class;
         } else if (elementType.equals("deployment")) {
             return Deployment.class;
-        } else if (elementType.equals("detector")) {
-            return Detector.class;
-        } else if (elementType.equals("detectorinstance")) {
-            return DetectorInstance.class;
-        } else if (elementType.equals("detectorstem")) {
-            return DetectorStem.class;
-        } else if (elementType.equals("detectorstemtype")) {
-            return DetectorStemType.class;
         } else if (elementType.equals("dp2")) {
             return DP2.class;
         } else if (elementType.equals("dsg")) {
@@ -153,10 +147,10 @@ public class GenericFind<T> {
     public static String classNameWithNamespace (Class clazz) {
         if (clazz == InstrumentInstance.class) {
             return URIUtils.replaceNameSpace(VSTOI.INSTRUMENT_INSTANCE);
-        } else if (clazz == Detector.class) {
-            return URIUtils.replaceNameSpace(VSTOI.DETECTOR);
-        } else if (clazz == DetectorInstance.class) {
-            return URIUtils.replaceNameSpace(VSTOI.DETECTOR_INSTANCE);
+        } else if (clazz == Component.class) {
+            return URIUtils.replaceNameSpace(VSTOI.COMPONENT);
+        } else if (clazz == ComponentInstance.class) {
+            return URIUtils.replaceNameSpace(VSTOI.COMPONENT_INSTANCE);
         } else if (clazz == PlatformInstance.class) {
             return URIUtils.replaceNameSpace(VSTOI.PLATFORM_INSTANCE);
         } else if (clazz == ContainerSlot.class) {
@@ -231,10 +225,6 @@ public class GenericFind<T> {
             return URIUtils.replaceNameSpace(SCHEMA.FUNDING_SCHEME);
         } else if (clazz == Project.class) {
             return URIUtils.replaceNameSpace(SCHEMA.PROJECT);
-        } else if (clazz == Actuator.class) {
-            return URIUtils.replaceNameSpace(VSTOI.ACTUATOR);
-        } else if (clazz == ActuatorStem.class) {
-            return URIUtils.replaceNameSpace(VSTOI.ACTUATOR_STEM);
         } else if (clazz == Task.class) {
             return URIUtils.replaceNameSpace(VSTOI.TASK);
         }
@@ -243,11 +233,8 @@ public class GenericFind<T> {
 
     public static boolean isSIR (Class clazz) {
         // Instrument/Container is not SIR Element
-        if (clazz == Actuator.class ||
-            clazz == ActuatorStem.class ||
-            clazz == Detector.class ||
-            clazz == DetectorStem.class ||
-            clazz == Component.class ||
+        if (clazz == Component.class ||
+            clazz == ComponentStem.class ||
             clazz == ResponseOption.class ||
             clazz == AnnotationStem.class ||
             clazz == Annotation.class ||
@@ -276,10 +263,8 @@ public class GenericFind<T> {
     public static String superclassNameWithNamespace (Class clazz) {
         if (clazz == Instrument.class) {
             return URIUtils.replaceNameSpace(VSTOI.INSTRUMENT);
-        } else if (clazz == ActuatorStem.class) {
-            return URIUtils.replaceNameSpace(VSTOI.ACTUATOR_STEM);
-        } else if (clazz == DetectorStem.class) {
-            return URIUtils.replaceNameSpace(VSTOI.DETECTOR_STEM);
+        } else if (clazz == ComponentStem.class) {
+            return URIUtils.replaceNameSpace(VSTOI.COMPONENT_STEM);
         } else if (clazz == Process.class) {
             return URIUtils.replaceNameSpace(VSTOI.PROCESS);
         } else if (clazz == Platform.class) {
@@ -480,9 +465,6 @@ public class GenericFind<T> {
         //System.out.println("findByKeywordWithPages: className=[" + className + "]");
         //System.out.println("findByKeywordWithPages: superclassName=[" + superclassName + "]");
         //System.out.println("findByKeywordWithPages: isSIR=[" + isSIR(clazz) + "]");
-        //if (clazz == Detector.class) {
-        //    return findDetectorClassesByKeywordWithPages(clazz, superclassName, keyword, pageSize, offset);
-        //} else 
         if (clazz.equals(Annotation.class)) {
             return findAnnotationsByKeywordWithPages(clazz, className, keyword, pageSize, offset);
         } else if (isSIR(clazz) && superclassName != null) {
@@ -494,26 +476,6 @@ public class GenericFind<T> {
         }             
         return findInstancesByKeywordWithPages(clazz, className, keyword, pageSize, offset);
     }
-
-    /*
-    public static <T> List<T> findDetectorClassesByKeywordWithPages(Class clazz, String superclassName, String keyword, int pageSize, int offset) {
-        System.out.println("GenericFind.findDetectorClassesByKeywordWithPages: " + superclassName + "  " + keyword + "  " + pageSize + "  " + offset);
-        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                " SELECT ?uri WHERE { " +
-                " ?uri rdfs:subClassOf* " + superclassName + " . " +
-                //" ?uri hasco:hascoType " + hascoType + " . " +
-                //" ?uri vstoi:hasDetectorStem ?stem . " +
-                " ?stem vstoi:hasContent ?content . " +
-                "   FILTER regex(?content, \"" + keyword + "\", \"i\") " +
-                "} " +
-                " ORDER BY ASC(?content) " +
-                " LIMIT " + pageSize +
-                " OFFSET " + offset;
-
-        //System.out.println("GenericFind.findSIRInstancesByKeywordWithPages: [" + queryString + "]");
-        return findByQuery(clazz, queryString);
-    }
-    */
 
     public static <T> List<T> findAnnotationsByKeywordWithPages(Class clazz, String className, String keyword, int pageSize, int offset) {
         //System.out.println("In findAddnotationByKeyword. className=[" + className + "]  keyword=[" + keyword + "]");
@@ -671,42 +633,12 @@ public class GenericFind<T> {
         if (hascoType == null) {
             return null;
         }
-        //if (clazz == Detector.class) {
-        //    return findDetectorInstancesByKeywordAndLanguageWithPages(clazz, hascoType, keyword, language, pageSize, offset);
-        //} else 
         if (isSIR(clazz)) {
             return findSIRElementsByKeywordAndLanguageWithPages(clazz, hascoType, keyword, language, type, manageremail, status, pageSize, offset);
         } else {
             return findElementsByKeywordAndLanguageWithPages(clazz, hascoType, keyword, language, type, manageremail, status, pageSize, offset);
         }
     }
-
-    /*
-	public static <T> List<T> findDetectorInstancesByKeywordAndLanguageWithPages(Class clazz, String hascoType, String keyword, String language, int pageSize, int offset) {
-		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
-		queryString += " SELECT ?uri WHERE { " +
-				//" ?type rdfs:subClassOf* " + className + " . " +
-				//" ?uri a ?type . " +
-                " ?uri hasco:hascoType " + hascoType + " . " +
-                " ?uri vstoi:hasDetectorStem ?stem . ";
-		if (!language.isEmpty()) {
-			queryString += " ?stem vstoi:hasLanguage ?language . ";
-		}
-		queryString += " OPTIONAL { ?stem vstoi:hasContent ?content . } ";
-		if (!keyword.isEmpty() && !language.isEmpty()) {
-			queryString += "   FILTER (regex(?content, \"" + keyword + "\", \"i\") && (?language = \"" + language + "\")) ";
-		} else if (!keyword.isEmpty()) {
-			queryString += "   FILTER (regex(?content, \"" + keyword + "\", \"i\")) ";
-		} else if (!language.isEmpty()) {
-			queryString += "   FILTER ((?language = \"" + language + "\")) ";
-		}
-		queryString += "} " +
-                " ORDER BY ASC(?content) " +
-				" LIMIT " + pageSize +
-				" OFFSET " + offset;
-		return findByQuery(clazz, queryString);
-	}
-    */
 
 	public static <T> List<T> findSIRElementsByKeywordAndLanguageWithPages(Class clazz, String hascoType, String keyword, String language, String type, String manageremail, String status, int pageSize, int offset) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
@@ -863,9 +795,6 @@ public class GenericFind<T> {
             return null;
         }
         //System.out.println("findByManagerEmailWithPages: hascoTypeStr=[" + hascoTypeStr + "]");
-        //if (clazz == Detector.class) {
-        //    return findDetectorInstancesByManagerEmailWithPages(clazz, hascoTypeStr, managerEmail, pageSize, offset);
-        //} else 
         if (isSIR(clazz)) {
             return findSIRInstancesByManagerEmailWithPages(clazz, hascoTypeStr, managerEmail, pageSize, offset);
         } else if (isMT(clazz)) {
@@ -874,24 +803,6 @@ public class GenericFind<T> {
             return findElementsByManagerEmailWithPages(clazz, hascoTypeStr, managerEmail, pageSize, offset);
         }
     }
-
-    /*
-	public List<T> findDetectorInstancesByManagerEmailWithPages(Class clazz, String hascoTypeStr, String managerEmail, int pageSize, int offset) {
-		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
-		queryString += " SELECT ?uri WHERE { " +
-				//" ?model rdfs:subClassOf* " + className + " . " +
-				//" ?uri a ?model ." +
-                " ?uri hasco:hascoType " + hascoTypeStr + " . " +
-                " ?uri vstoi:hasDetectorStem ?stem . " +
-                " OPTIONAL { ?stem vstoi:hasContent ?content . } " +
-				" ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
-				"   FILTER (?managerEmail = \"" + managerEmail + "\") " +
-				"}" +
-				" ORDER BY ASC(?content) " +
-				" LIMIT " + pageSize +
-				" OFFSET " + offset;
-		return findByQuery(clazz, queryString);
-	}*/
 
 	public List<T> findSIRInstancesByManagerEmailWithPages(Class clazz, String hascoTypeStr, String managerEmail, int pageSize, int offset) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
@@ -1117,22 +1028,16 @@ public class GenericFind<T> {
     private static <T> T findElement(Class clazz, String uri) {
 
         // List of subclasses 
-        if (clazz == ActuatorStem.class) {
-            return (T)ActuatorStem.find(uri);
-        } else if (clazz == AnnotationStem.class) {
+        if (clazz == AnnotationStem.class) {
             return (T)AnnotationStem.find(uri);
-        } else if (clazz == DetectorStem.class) {
-            return (T)DetectorStem.find(uri);
+        } else if (clazz == ComponentStem.class) {
+            return (T)ComponentStem.find(uri);
         } else if (clazz == Attribute.class) {
             return (T)Attribute.find(uri);
-//        } else if (clazz == DetectorStemType.class) {
-//            return (T)DetectorStemType.find(uri);
         } else if (clazz == Entity.class) {
             return (T)Entity.find(uri);
         } else if (clazz == Instrument.class) {
             return (T)Instrument.find(uri);
-//        } else if (clazz == InstrumentType.class) {
-//            return (T)InstrumentType.find(uri);
         } else if (clazz == Platform.class) {
             return (T)Platform.find(uri);
         } else if (clazz == ProcessStem.class) {
@@ -1147,14 +1052,16 @@ public class GenericFind<T> {
             return (T)Unit.find(uri);
 
         // List of instances
-        } else if (clazz == Actuator.class) {
-            return (T)Actuator.find(uri);
         } else if (clazz == Annotation.class) {
             return (T)Annotation.find(uri);
         } else if (clazz == Codebook.class) {
             return (T)Codebook.find(uri);
         } else if (clazz == CodebookSlot.class) {
             return (T)CodebookSlot.find(uri);
+        } else if (clazz == Component.class) {
+            return (T)Component.find(uri);
+        } else if (clazz == ComponentInstance.class) {
+            return (T)ComponentInstance.find(uri);
         } else if (clazz == ContainerSlot.class) {
             return (T)ContainerSlot.find(uri);
         } else if (clazz == DA.class) {
@@ -1169,10 +1076,6 @@ public class GenericFind<T> {
             return (T)DataFile.find(uri);
         } else if (clazz == Deployment.class) {
             return (T)Deployment.find(uri);
-        } else if (clazz == Detector.class) {
-            return (T)Detector.find(uri);
-        } else if (clazz == DetectorInstance.class) {
-            return (T)DetectorInstance.find(uri);
         } else if (clazz == FundingScheme.class) {
             return (T)FundingScheme.find(uri);
         } else if (clazz == INS.class) {
@@ -1252,7 +1155,6 @@ public class GenericFind<T> {
 
     public static int[] findTotalsUnderReview() {
 
-
         String queryString = "";
         queryString += NameSpaces.getInstance().printSparqlNameSpaceList(); // Add necessary namespaces
 
@@ -1261,47 +1163,39 @@ public class GenericFind<T> {
             + " (COUNT(?typeAS) AS ?tot1) "  
             + " (COUNT(?typeCB) AS ?tot2) " 
             + " (COUNT(?typeCN) AS ?tot3) " 
-            + " (COUNT(?typeDT) AS ?tot4) " 
-            + " (COUNT(?typeDS) AS ?tot5) " 
-            + " (COUNT(?typeAT) AS ?tot6) " 
-            + " (COUNT(?typeATS) AS ?tot7) " 
-            + " (COUNT(?typeRO) AS ?tot8) " 
-            + " (COUNT(?typePS) AS ?tot9) " 
-            + " (COUNT(?typePC) AS ?tot10) " 
-            + " WHERE {"
+            + " (COUNT(?typeCP) AS ?tot4) " 
+            + " (COUNT(?typeCS) AS ?tot5) " 
+            + " (COUNT(?typeRO) AS ?tot6) " 
+            + " (COUNT(?typePS) AS ?tot7) " 
+            + " (COUNT(?typePC) AS ?tot8) " 
+            + " WHERE { "
             + "     { ?typeAS rdfs:subClassOf* <" + VSTOI.ANNOTATION_STEM + "> . "
             + "       ?typeAS hasco:hasStatus <" + VSTOI.UNDER_REVIEW + "> . }"
-            + "  UNION"
+            + "  UNION "
             + "     { ?typeCB rdf:type <" + VSTOI.CODEBOOK + "> . "
             + "       ?typeCB hasco:hasStatus <" + VSTOI.UNDER_REVIEW + "> . }"
-            + "  UNION"
+            + "  UNION "
             + "     { ?typeCN rdfs:subClassOf* <" + VSTOI.CONTAINER + "> . "
             + "       ?typeCN hasco:hasStatus <" + VSTOI.UNDER_REVIEW + "> . }"
-            + "  UNION"
-            + "     { ?typeDT rdfs:subClassOf* <" + VSTOI.DETECTOR + "> . "
-            + "       ?typeDT hasco:hasStatus <" + VSTOI.UNDER_REVIEW + "> . }"
-            + "  UNION"
-            + "     { ?typeDS rdfs:subClassOf* <" + VSTOI.DETECTOR_STEM + "> . "
-            + "       ?typeDS hasco:hasStatus <" + VSTOI.UNDER_REVIEW + "> . }"
-            + "  UNION"
-            + "     { ?typeAT rdfs:subClassOf* <" + VSTOI.ACTUATOR + "> . "
-            + "       ?typeAT hasco:hasStatus <" + VSTOI.UNDER_REVIEW + "> . }"
-            + "  UNION"
-            + "     { ?typeATS rdfs:subClassOf* <" + VSTOI.ACTUATOR_STEM + "> . "
-            + "       ?typeATS hasco:hasStatus <" + VSTOI.UNDER_REVIEW + "> . }"
-            + "  UNION"
+            + "  UNION "
+            + "     { ?typeCP rdfs:subClassOf* <" + VSTOI.COMPONENT + "> . "
+            + "       ?typeCP hasco:hasStatus <" + VSTOI.UNDER_REVIEW + "> . }"
+            + "  UNION "
+            + "     { ?typeCS rdfs:subClassOf* <" + VSTOI.COMPONENT_STEM + "> . "
+            + "       ?typeCS hasco:hasStatus <" + VSTOI.UNDER_REVIEW + "> . }"
+            + "  UNION "
             + "     { ?typeRO rdfs:subClassOf* <" + VSTOI.RESPONSE_OPTION + "> . "
             + "       ?typeRO hasco:hasStatus <" + VSTOI.UNDER_REVIEW + "> . }"
-            + "  UNION"
+            + "  UNION "
             + "     { ?typePS rdfs:subClassOf* <" + VSTOI.PROCESS_STEM + "> . "
             + "       ?typePS hasco:hasStatus <" + VSTOI.UNDER_REVIEW + "> . }"
-            + "  UNION"
+            + "  UNION "
             + "     { ?typePC rdf:type <" + VSTOI.PROCESS + "> . "
             + "       ?typePC hasco:hasStatus <" + VSTOI.UNDER_REVIEW + "> . }"
             + "}";
 
 
-        int[] totals = new int[10]; 
+        int[] totals = new int[8]; 
         
         try {
             // Execute the query using the SPARQLUtils utility
@@ -1319,8 +1213,6 @@ public class GenericFind<T> {
                 totals[5] = Integer.parseInt(soln.getLiteral("tot6").getString());
                 totals[6] = Integer.parseInt(soln.getLiteral("tot7").getString());
                 totals[7] = Integer.parseInt(soln.getLiteral("tot8").getString());
-                totals[8] = Integer.parseInt(soln.getLiteral("tot9").getString());
-                totals[9] = Integer.parseInt(soln.getLiteral("tot10").getString());
             }
         } catch (Exception e) {
             e.printStackTrace();

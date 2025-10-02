@@ -54,17 +54,9 @@ public class Renderings {
 					} else {
 						String content = "";
 						//System.out.println(detector.toString());
-						if (component.getHascoTypeUri().equals(VSTOI.DETECTOR)) {
-							Detector detector = (Detector)component; 
-							if (detector != null && detector.getDetectorStem() != null && detector.getDetectorStem().getHasContent() != null) {
-								content = detector.getDetectorStem().getHasContent();
-							}
-						}
-						if (component.getHascoTypeUri().equals(VSTOI.ACTUATOR)) {
-							Actuator actuator = (Actuator)component; 
-							if (actuator != null && actuator.getActuatorStem() != null && actuator.getActuatorStem().getHasContent() != null) {
-								content = actuator.getActuatorStem().getHasContent();
-							}
+						ComponentStem componentStem = component.getComponentStem();
+						if (componentStem != null && componentStem.getHasContent() != null) {
+							content = componentStem.getHasContent();
 						}
 						str += " " + containerSlot.getHasPriority() + ". " + content + " ";
 						Codebook codebook = component.getCodebook();
@@ -396,17 +388,9 @@ public class Renderings {
 					} else {
 						String content = "";
 						//System.out.println(detector.toString());
-						if (component.getHascoTypeUri().equals(VSTOI.DETECTOR)) {
-							Detector detector = (Detector)component; 
-							if (detector != null && detector.getDetectorStem() != null && detector.getDetectorStem().getHasContent() != null) {
-								content = detector.getDetectorStem().getHasContent();
-							}
-						}
-						if (component.getHascoTypeUri().equals(VSTOI.ACTUATOR)) {
-							Actuator actuator = (Actuator)component; 
-							if (actuator != null && actuator.getActuatorStem() != null && actuator.getActuatorStem().getHasContent() != null) {
-								content = actuator.getActuatorStem().getHasContent();
-							}
+						ComponentStem componentStem = component.getComponentStem();
+						if (componentStem != null && componentStem.getHasContent() != null) {
+							content = componentStem.getHasContent();
 						}
 						html += "<tr>";
 						html += "<td>" + containerSlot.getHasPriority() + ". " + content + "</td>";

@@ -7,7 +7,7 @@ import java.util.Map;
 import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.vocabularies.VSTOI;
 
-public class ActuatorGenerator extends BaseGenerator {
+public class ComponentGenerator extends BaseGenerator {
 
 	protected String hasStatus = "";
 
@@ -19,7 +19,7 @@ public class ActuatorGenerator extends BaseGenerator {
 		this.hasStatus = hasStatus;
 	}
 
-	public ActuatorGenerator(DataFile dataFile, String hasStatus) {
+	public ComponentGenerator(DataFile dataFile, String hasStatus) {
 		super(dataFile);
 		this.setHasStatus(hasStatus);
 	}
@@ -28,12 +28,12 @@ public class ActuatorGenerator extends BaseGenerator {
     public void createRows() throws Exception {    		
 
 		if (records == null) {
-			System.out.println("[ERROR] ActuatorGenerator: no records to process.");
+			System.out.println("[ERROR] ComponentGenerator: no records to process.");
             return;
         }
 
-		System.out.println("inside of ActuatorGenerator's createRows");
-		System.out.println("inside of ActuatorGenerator's: total of records=" + records.size());
+		System.out.println("inside of ComponentGenerator's createRows");
+		System.out.println("inside of ComponentGenerator's: total of records=" + records.size());
 
 		int priority = 1;
 		
@@ -49,8 +49,8 @@ public class ActuatorGenerator extends BaseGenerator {
 				//	System.out.println(entry.getKey() + ": " + entry.getValue());
 				//}
 				if (tempRow != null) {
-					tempRow.put("rdf:subClassOf", VSTOI.ACTUATOR);
-					tempRow.put("hasco:hascoType", VSTOI.ACTUATOR);
+					tempRow.put("rdf:subClassOf", VSTOI.COMPONENT);
+					tempRow.put("hasco:hascoType", VSTOI.COMPONENT);
 					if (this.getHasStatus() != null && !this.getHasStatus().equals("_")) {
 						tempRow.put("vstoi:hasStatus", this.getHasStatus());
 					}
@@ -83,7 +83,7 @@ public class ActuatorGenerator extends BaseGenerator {
 
 	@Override
 	public String getTableName() {
-		return "Actuator";
+		return "Component";
 	}
 
 	@Override
