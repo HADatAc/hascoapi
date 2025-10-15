@@ -20,12 +20,12 @@ public class Constants {
     public static final String TEST_CONTAINER_SLOT2_URI = TEST_INSTRUMENT_URI + "/" + CONTAINER_SLOT_PREFIX + "/0002";
     public static final String TEST_CONTAINER_SLOT3_URI = TEST_SUBCONTAINER1_URI + "/" + CONTAINER_SLOT_PREFIX + "/0001";
     public static final String TEST_CONTAINER_SLOT4_URI = TEST_SUBCONTAINER1_URI + "/" + CONTAINER_SLOT_PREFIX + "/0002";
-    public static final String TEST_DETECTOR_STEM1_URI = TEST_KB + "TestDetectorStem1";
-    public static final String TEST_DETECTOR_STEM2_URI = TEST_KB + "TestDetectorStem2";
-    public static final String TEST_DETECTOR1_URI = TEST_KB + "TestDetector1";  // For Instrument with Stem 1
-    public static final String TEST_DETECTOR2_URI = TEST_KB + "TestDetector2";  // For Instrument with Stem 2
-    public static final String TEST_DETECTOR3_URI = TEST_KB + "TestDetector3";  // For Subcontainer with Stem 1
-    public static final String TEST_DETECTOR4_URI = TEST_KB + "TestDetector4";  // For Subcontainer with Stem 2
+    public static final String TEST_COMPONENT_STEM1_URI = TEST_KB + "TestDetectorStem1";
+    public static final String TEST_COMPONENT_STEM2_URI = TEST_KB + "TestDetectorStem2";
+    public static final String TEST_COMPONENT1_URI = TEST_KB + "TestDetector1";  // For Instrument with Stem 1
+    public static final String TEST_COMPONENT2_URI = TEST_KB + "TestDetector2";  // For Instrument with Stem 2
+    public static final String TEST_COMPONENT3_URI = TEST_KB + "TestDetector3";  // For Subcontainer with Stem 1
+    public static final String TEST_COMPONENT4_URI = TEST_KB + "TestDetector4";  // For Subcontainer with Stem 2
     public static final String TEST_CODEBOOK_URI = TEST_KB + "TestCodebook";
     public static final String TEST_CODEBOOK_TOT_CODEBOOK_SLOTS = "2";
     public static final String TEST_CODEBOOK_SLOT1_URI = TEST_CODEBOOK_URI + "/" + CODEBOOK_SLOT_PREFIX + "/0001";
@@ -51,9 +51,6 @@ public class Constants {
     public static final String TEST_ATTRIBUTE2_URI = TEST_KB + "TestAttribute2";
     public static final String TEST_UNIT_URI = TEST_KB + "TestUnit";
 
-    public static final String PREFIX_ACTUATOR                   = "ACT";
-    public static final String PREFIX_ACTUATOR_STEM              = "ACS";
-    public static final String PREFIX_ACTUATOR_INSTANCE          = "ACI";
     public static final String PREFIX_ANNOTATION                 = "ANN";
     public static final String PREFIX_ANNOTATION_STEM            = "ASM";
     public static final String PREFIX_CODEBOOK                   = "CBK";
@@ -62,9 +59,9 @@ public class Constants {
     public static final String PREFIX_DD                         = "DD0";
     public static final String PREFIX_DP2                        = "DP2";
     public static final String PREFIX_DEPLOYMENT                 = "DPL";
-    public static final String PREFIX_DETECTOR_STEM              = "DSM";
-    public static final String PREFIX_DETECTOR                   = "DTC";
-    public static final String PREFIX_DETECTOR_INSTANCE          = "DTI";
+    public static final String PREFIX_COMPONENT_STEM             = "CSM";
+    public static final String PREFIX_COMPONENT                  = "CPC";
+    public static final String PREFIX_COMPONENT_INSTANCE         = "CPI";
     public static final String PREFIX_DSG                        = "DSG";
     public static final String PREFIX_FUNDING_SCHEME             = "FSC";
     public static final String PREFIX_INSTRUMENT                 = "INS";
@@ -109,9 +106,9 @@ public class Constants {
     public static final String PREFIX_DD                         = "DD";
     public static final String PREFIX_DEPLOYMENT                 = "DP";
     public static final String PREFIX_DESIGN                     = "DG";
-    public static final String PREFIX_DETECTOR_STEM              = "DS";
-    public static final String PREFIX_DETECTOR                   = "DT";
-    public static final String PREFIX_DETECTOR_INSTANCE          = "DTI";
+    public static final String PREFIX_COMPONENT_STEM              = "DS";
+    public static final String PREFIX_COMPONENT                   = "DT";
+    public static final String PREFIX_COMPONENT_INSTANCE          = "DTI";
     public static final String PREFIX_DP2                        = "D2";
     public static final String PREFIX_DSG                        = "DG";
     public static final String PREFIX_INS                        = "IS";

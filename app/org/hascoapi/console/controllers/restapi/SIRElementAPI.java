@@ -35,25 +35,7 @@ public class SIRElementAPI extends Controller {
         boolean success = true;
         String message = "";
         ObjectMapper objectMapper = new ObjectMapper();
-        if (clazz == Actuator.class) {
-            try {
-                Actuator object;
-                object = (Actuator)objectMapper.readValue(json, clazz);
-                object.save();
-            } catch (JsonProcessingException e) {
-                message = e.getMessage();
-                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
-            }
-        } else if (clazz == ActuatorStem.class) {
-            try {
-                ActuatorStem object;
-                object = (ActuatorStem)objectMapper.readValue(json, clazz);
-                object.save();
-            } catch (JsonProcessingException e) {
-                message = e.getMessage();
-                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
-            }
-        } else if (clazz == Annotation.class) {
+        if (clazz == Annotation.class) {
             try {
                 Annotation object;
                 object = (Annotation)objectMapper.readValue(json, clazz);
@@ -98,6 +80,34 @@ public class SIRElementAPI extends Controller {
                 message = e.getMessage();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
+        } else if (clazz == Component.class) {
+            try {
+                Component object;
+                object = (Component)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == ComponentInstance.class) {
+            ComponentInstance object;
+            try {
+                object = (ComponentInstance)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                e.printStackTrace();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        } else if (clazz == ComponentStem.class) {
+            try {
+                ComponentStem object;
+                object = (ComponentStem)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
         } else if (clazz == ContainerSlot.class) {
             // NOTE: Use ContainerSlot.createContainerSlots(container,totContainerSlots) to create container slots
         } else if (clazz == DA.class) {
@@ -134,43 +144,6 @@ public class SIRElementAPI extends Controller {
                 object.save();
             } catch (JsonProcessingException e) {
                 System.out.println("Error processing Deployment: " + e.getMessage());
-                message = e.getMessage();
-                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
-            }
-        } else if (clazz == Detector.class) {
-            try {
-                Detector object;
-                object = (Detector)objectMapper.readValue(json, clazz);
-                object.save();
-            } catch (JsonProcessingException e) {
-                message = e.getMessage();
-                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
-            }
-        } else if (clazz == DetectorInstance.class) {
-            DetectorInstance object;
-            try {
-                object = (DetectorInstance)objectMapper.readValue(json, clazz);
-                object.save();
-            } catch (JsonProcessingException e) {
-                message = e.getMessage();
-                e.printStackTrace();
-                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
-            }
-        } else if (clazz == DetectorStem.class) {
-            try {
-                DetectorStem object;
-                object = (DetectorStem)objectMapper.readValue(json, clazz);
-                object.save();
-            } catch (JsonProcessingException e) {
-                message = e.getMessage();
-                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
-            }
-        } else if (clazz == DetectorStemType.class) {
-            try {
-                DetectorStemType object;
-                object = (DetectorStemType)objectMapper.readValue(json, clazz);
-                object.save();
-            } catch (JsonProcessingException e) {
                 message = e.getMessage();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
@@ -570,19 +543,7 @@ public class SIRElementAPI extends Controller {
         if (clazz == null) {
             return ok(ApiUtil.createResponse("No valid elementType has been provided", false));
         }
-        if (clazz == Actuator.class) {
-            Actuator object = Actuator.find(uri);
-            if (object == null) {
-                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
-            }
-            object.delete();
-        } else if (clazz == ActuatorStem.class) {
-            ActuatorStem object = ActuatorStem.find(uri);
-            if (object == null) {
-                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
-            }
-            object.delete();
-        } else if (clazz == Annotation.class) {
+        if (clazz == Annotation.class) {
             Annotation object = Annotation.find(uri);
             if (object == null) {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
@@ -608,6 +569,24 @@ public class SIRElementAPI extends Controller {
             object.delete();
         } else if (clazz == CodebookSlot.class) {
             CodebookSlot object = CodebookSlot.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == Component.class) {
+            Component object = Component.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == ComponentInstance.class) {
+            ComponentInstance object = ComponentInstance.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        } else if (clazz == ComponentStem.class) {
+            ComponentStem object = ComponentStem.find(uri);
             if (object == null) {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
@@ -638,24 +617,6 @@ public class SIRElementAPI extends Controller {
             object.delete();
         } else if (clazz == Deployment.class) {
             Deployment object = Deployment.find(uri);
-            if (object == null) {
-                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
-            }
-            object.delete();
-        } else if (clazz == Detector.class) {
-            Detector object = Detector.find(uri);
-            if (object == null) {
-                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
-            }
-            object.delete();
-        } else if (clazz == DetectorInstance.class) {
-            DetectorInstance object = DetectorInstance.find(uri);
-            if (object == null) {
-                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
-            }
-            object.delete();
-        } else if (clazz == DetectorStem.class) {
-            DetectorStem object = DetectorStem.find(uri);
             if (object == null) {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
@@ -952,22 +913,22 @@ public class SIRElementAPI extends Controller {
             GenericFind<InstrumentInstance> query = new GenericFind<InstrumentInstance>();
             List<InstrumentInstance> results = query.findByKeywordWithPages(InstrumentInstance.class,keyword, pageSize, offset);
             return VSTOIInstanceAPI.getInstrumentInstances(results);
-        } else if (elementType.equals("detectorinstance")) {
-            GenericFind<DetectorInstance> query = new GenericFind<DetectorInstance>();
-            List<DetectorInstance> results = query.findByKeywordWithPages(DetectorInstance.class,keyword, pageSize, offset);
-            return VSTOIInstanceAPI.getDetectorInstances(results);
+        } else if (elementType.equals("componentinstance")) {
+            GenericFind<ComponentInstance> query = new GenericFind<ComponentInstance>();
+            List<ComponentInstance> results = query.findByKeywordWithPages(ComponentInstance.class,keyword, pageSize, offset);
+            return VSTOIInstanceAPI.getComponentInstances(results);
         } else if (elementType.equals("platforminstance")) {
             GenericFind<PlatformInstance> query = new GenericFind<PlatformInstance>();
             List<PlatformInstance> results = query.findByKeywordWithPages(PlatformInstance.class,keyword, pageSize, offset);
             return VSTOIInstanceAPI.getPlatformInstances(results);
-        } else if (elementType.equals("detectorstem")) {
-            GenericFind<DetectorStem> query = new GenericFind<DetectorStem>();
-            List<DetectorStem> results = query.findByKeywordWithPages(DetectorStem.class,keyword, pageSize, offset);
-            return DetectorStemAPI.getDetectorStems(results);
-        } else if (elementType.equals("detector")) {
-            GenericFind<Detector> query = new GenericFind<Detector>();
-            List<Detector> results = query.findByKeywordWithPages(Detector.class,keyword, pageSize, offset);
-            return DetectorAPI.getDetectors(results);
+        } else if (elementType.equals("componentstem")) {
+            GenericFind<ComponentStem> query = new GenericFind<ComponentStem>();
+            List<ComponentStem> results = query.findByKeywordWithPages(ComponentStem.class,keyword, pageSize, offset);
+            return ComponentStemAPI.getComponentStems(results);
+        } else if (elementType.equals("component")) {
+            GenericFind<Component> query = new GenericFind<Component>();
+            List<Component> results = query.findByKeywordWithPages(Component.class,keyword, pageSize, offset);
+            return ComponentAPI.getComponents(results);
         } else if (elementType.equals("codebook")) {
             GenericFind<Codebook> query = new GenericFind<Codebook>();
             List<Codebook> results = query.findByKeywordWithPages(Codebook.class,keyword, pageSize, offset);
@@ -1112,14 +1073,6 @@ public class SIRElementAPI extends Controller {
             GenericFind<Project> query = new GenericFind<Project>();
             List<Project> results = query.findByKeywordWithPages(Project.class,keyword, pageSize, offset);
             return ProjectAPI.getProjects(results);
-        }  else if (elementType.equals("actuator")) {
-            GenericFind<Actuator> query = new GenericFind<Actuator>();
-            List<Actuator> results = query.findByKeywordWithPages(Actuator.class,keyword, pageSize, offset);
-            return ActuatorAPI.getActuators(results);
-        }  else if (elementType.equals("actuatorstem")) {
-            GenericFind<ActuatorStem> query = new GenericFind<ActuatorStem>();
-            List<ActuatorStem> results = query.findByKeywordWithPages(ActuatorStem.class,keyword, pageSize, offset);
-            return ActuatorStemAPI.getActuatorStems(results);
         }  else if (elementType.equals("task")) {
             GenericFind<Task> query = new GenericFind<Task>();
             List<Task> results = query.findByKeywordWithPages(Task.class,keyword, pageSize, offset);
@@ -1136,37 +1089,11 @@ public class SIRElementAPI extends Controller {
             return ok(ApiUtil.createResponse("No elementType has been provided", false));
         }
         int totalElements = -1;
-        if (elementType.equals("component")) {
-            Class clazz = GenericFind.getElementClass("detector");
-            int totalDetectors = GenericFind.findTotalByKeyword(clazz, keyword);
-            if (totalDetectors < 0) {
-                totalDetectors = 0;
-            }
-            clazz = GenericFind.getElementClass("actuator");
-            int totalActuators = GenericFind.findTotalByKeyword(clazz, keyword);
-            if (totalActuators < 0) {
-                totalActuators = 0;
-            }
-            totalElements = totalDetectors + totalActuators;
-        } else if (elementType.equals("componentinstance")) {
-            Class clazz = GenericFind.getElementClass("detectorinstance");
-            int totalDetectorInstances = GenericFind.findTotalByKeyword(clazz, keyword);
-            if (totalDetectorInstances < 0) {
-                totalDetectorInstances = 0;
-            }
-            clazz = GenericFind.getElementClass("actuatorinstance");
-            int totalActuatorInstances = GenericFind.findTotalByKeyword(clazz, keyword);
-            if (totalActuatorInstances < 0) {
-                totalActuatorInstances = 0;
-            }
-            totalElements = totalDetectorInstances + totalActuatorInstances;
-        } else {
-            Class clazz = GenericFind.getElementClass(elementType);
-            if (clazz == null) {        
-                return ok(ApiUtil.createResponse("[" + elementType + "] is not a valid elementType", false));
-            }
-            totalElements = GenericFind.findTotalByKeyword(clazz, keyword);
+        Class clazz = GenericFind.getElementClass(elementType);
+        if (clazz == null) {        
+            return ok(ApiUtil.createResponse("[" + elementType + "] is not a valid elementType", false));
         }
+        totalElements = GenericFind.findTotalByKeyword(clazz, keyword);
         if (totalElements >= 0) {
             String totalElementsJSON = "{\"total\":" + totalElements + "}";
             return ok(ApiUtil.createResponse(totalElementsJSON, true));
@@ -1194,15 +1121,7 @@ public class SIRElementAPI extends Controller {
         if (status.equals("_")) {
             status = "";
         }
-        if (elementType.equals("actuator")) {
-            GenericFind<Actuator> query = new GenericFind<Actuator>();
-            List<Actuator> results = query.findByKeywordAndLanguageWithPages(Actuator.class, keyword, language, type, manageremail, status, pageSize, offset);
-            return ActuatorAPI.getActuators(results);
-        } else if (elementType.equals("actuatorstem")) {
-            GenericFind<ActuatorStem> query = new GenericFind<ActuatorStem>();
-            List<ActuatorStem> results = query.findByKeywordAndLanguageWithPages(ActuatorStem.class, keyword, language, type, manageremail, status, pageSize, offset);
-            return ActuatorStemAPI.getActuatorStems(results);
-        } else if (elementType.equals("annotation")) {
+        if (elementType.equals("annotation")) {
             GenericFind<Annotation> query = new GenericFind<Annotation>();
             List<Annotation> results = query.findByKeywordAndLanguageWithPages(Annotation.class, keyword, language, type, manageremail, status, pageSize, offset);
             return AnnotationAPI.getAnnotations(results);
@@ -1218,14 +1137,14 @@ public class SIRElementAPI extends Controller {
             GenericFind<Codebook> query = new GenericFind<Codebook>();
             List<Codebook> results = query.findByKeywordAndLanguageWithPages(Codebook.class, keyword, language, type, manageremail, status, pageSize, offset);
             return CodebookAPI.getCodebooks(results);
-        } else if (elementType.equals("detector")) {
-            GenericFind<Detector> query = new GenericFind<Detector>();
-            List<Detector> results = query.findByKeywordAndLanguageWithPages(Detector.class, keyword, language, type, manageremail, status, pageSize, offset);
-            return DetectorAPI.getDetectors(results);
-        } else if (elementType.equals("detectorstem")) {
-            GenericFind<DetectorStem> query = new GenericFind<DetectorStem>();
-            List<DetectorStem> results = query.findByKeywordAndLanguageWithPages(DetectorStem.class, keyword, language, type, manageremail, status, pageSize, offset);
-            return DetectorStemAPI.getDetectorStems(results);
+        } else if (elementType.equals("component")) {
+            GenericFind<Component> query = new GenericFind<Component>();
+            List<Component> results = query.findByKeywordAndLanguageWithPages(Component.class, keyword, language, type, manageremail, status, pageSize, offset);
+            return ComponentAPI.getComponents(results);
+        } else if (elementType.equals("componentstem")) {
+            GenericFind<ComponentStem> query = new GenericFind<ComponentStem>();
+            List<ComponentStem> results = query.findByKeywordAndLanguageWithPages(ComponentStem.class, keyword, language, type, manageremail, status, pageSize, offset);
+            return ComponentStemAPI.getComponentStems(results);
         } else if (elementType.equals("entity")) {
             GenericFind<Entity> query = new GenericFind<Entity>();
             List<Entity> results = query.findByKeywordAndLanguageWithPages(Entity.class, keyword, language, type, manageremail, status, pageSize, offset);
@@ -1310,22 +1229,22 @@ public class SIRElementAPI extends Controller {
             GenericFind<InstrumentInstance> query = new GenericFind<InstrumentInstance>();
             List<InstrumentInstance> results = query.findByManagerEmailWithPages(InstrumentInstance.class, managerEmail, pageSize, offset);
             return VSTOIInstanceAPI.getInstrumentInstances(results);
-        } else if (elementType.equals("detectorinstance")) {
-            GenericFind<DetectorInstance> query = new GenericFind<DetectorInstance>();
-            List<DetectorInstance> results = query.findByManagerEmailWithPages(DetectorInstance.class, managerEmail, pageSize, offset);
-            return VSTOIInstanceAPI.getDetectorInstances(results);
+        } else if (elementType.equals("componentinstance")) {
+            GenericFind<ComponentInstance> query = new GenericFind<ComponentInstance>();
+            List<ComponentInstance> results = query.findByManagerEmailWithPages(ComponentInstance.class, managerEmail, pageSize, offset);
+            return VSTOIInstanceAPI.getComponentInstances(results);
         } else if (elementType.equals("platforminstance")) {
             GenericFind<PlatformInstance> query = new GenericFind<PlatformInstance>();
             List<PlatformInstance> results = query.findByManagerEmailWithPages(PlatformInstance.class, managerEmail, pageSize, offset);
             return VSTOIInstanceAPI.getPlatformInstances(results);
-        }  else if (elementType.equals("detectorstem")) {
-            GenericFind<DetectorStem> query = new GenericFind<DetectorStem>();
-            List<DetectorStem> results = query.findByManagerEmailWithPages(DetectorStem.class, managerEmail, pageSize, offset);
-            return DetectorStemAPI.getDetectorStems(results);
-        }  else if (elementType.equals("detector")) {
-            GenericFind<Detector> query = new GenericFind<Detector>();
-            List<Detector> results = query.findByManagerEmailWithPages(Detector.class, managerEmail, pageSize, offset);
-            return DetectorAPI.getDetectors(results);
+        }  else if (elementType.equals("componentstem")) {
+            GenericFind<ComponentStem> query = new GenericFind<ComponentStem>();
+            List<ComponentStem> results = query.findByManagerEmailWithPages(ComponentStem.class, managerEmail, pageSize, offset);
+            return ComponentStemAPI.getComponentStems(results);
+        }  else if (elementType.equals("component")) {
+            GenericFind<Component> query = new GenericFind<Component>();
+            List<Component> results = query.findByManagerEmailWithPages(Component.class, managerEmail, pageSize, offset);
+            return ComponentAPI.getComponents(results);
         }  else if (elementType.equals("codebook")) {
             GenericFind<Codebook> query = new GenericFind<Codebook>();
             List<Codebook> results = query.findByManagerEmailWithPages(Codebook.class, managerEmail, pageSize, offset);
@@ -1446,14 +1365,6 @@ public class SIRElementAPI extends Controller {
             GenericFind<Project> query = new GenericFind<Project>();
             List<Project> results = query.findByManagerEmailWithPages(Project.class, managerEmail, pageSize, offset);
             return ProjectAPI.getProjects(results);
-        }  else if (elementType.equals("actuatorstem")) {
-            GenericFind<ActuatorStem> query = new GenericFind<ActuatorStem>();
-            List<ActuatorStem> results = query.findByManagerEmailWithPages(ActuatorStem.class, managerEmail, pageSize, offset);
-            return ActuatorStemAPI.getActuatorStems(results);
-        }  else if (elementType.equals("actuator")) {
-            GenericFind<Actuator> query = new GenericFind<Actuator>();
-            List<Actuator> results = query.findByManagerEmailWithPages(Actuator.class, managerEmail, pageSize, offset);
-            return ActuatorAPI.getActuators(results);
         }  else if (elementType.equals("task")) {
             GenericFind<Task> query = new GenericFind<Task>();
             List<Task> results = query.findByManagerEmailWithPages(Task.class, managerEmail, pageSize, offset);
@@ -1502,22 +1413,22 @@ public class SIRElementAPI extends Controller {
             GenericFindWithStatus<InstrumentInstance> query = new GenericFindWithStatus<InstrumentInstance>();
             List<InstrumentInstance> results = query.findByStatusWithPages(InstrumentInstance.class, hasStatus, pageSize, offset);
             return VSTOIInstanceAPI.getInstrumentInstances(results);
-        } else if (elementType.equals("detectorinstance")) {
-            GenericFindWithStatus<DetectorInstance> query = new GenericFindWithStatus<DetectorInstance>();
-            List<DetectorInstance> results = query.findByStatusWithPages(DetectorInstance.class, hasStatus, pageSize, offset);
-            return VSTOIInstanceAPI.getDetectorInstances(results);
+        } else if (elementType.equals("componentinstance")) {
+            GenericFindWithStatus<ComponentInstance> query = new GenericFindWithStatus<ComponentInstance>();
+            List<ComponentInstance> results = query.findByStatusWithPages(ComponentInstance.class, hasStatus, pageSize, offset);
+            return VSTOIInstanceAPI.getComponentInstances(results);
         } else if (elementType.equals("platforminstance")) {
             GenericFindWithStatus<PlatformInstance> query = new GenericFindWithStatus<PlatformInstance>();
             List<PlatformInstance> results = query.findByStatusWithPages(PlatformInstance.class, hasStatus, pageSize, offset);
             return VSTOIInstanceAPI.getPlatformInstances(results);
-        }  else if (elementType.equals("detectorstem")) {
-            GenericFindWithStatus<DetectorStem> query = new GenericFindWithStatus<DetectorStem>();
-            List<DetectorStem> results = query.findByStatusWithPages(DetectorStem.class, hasStatus, pageSize, offset);
-            return DetectorStemAPI.getDetectorStems(results);
-        }  else if (elementType.equals("detector")) {
-            GenericFindWithStatus<Detector> query = new GenericFindWithStatus<Detector>();
-            List<Detector> results = query.findByStatusWithPages(Detector.class, hasStatus, pageSize, offset);
-            return DetectorAPI.getDetectors(results);
+        }  else if (elementType.equals("componentstem")) {
+            GenericFindWithStatus<ComponentStem> query = new GenericFindWithStatus<ComponentStem>();
+            List<ComponentStem> results = query.findByStatusWithPages(ComponentStem.class, hasStatus, pageSize, offset);
+            return ComponentStemAPI.getComponentStems(results);
+        }  else if (elementType.equals("component")) {
+            GenericFindWithStatus<Component> query = new GenericFindWithStatus<Component>();
+            List<Component> results = query.findByStatusWithPages(Component.class, hasStatus, pageSize, offset);
+            return ComponentAPI.getComponents(results);
         }  else if (elementType.equals("codebook")) {
             GenericFindWithStatus<Codebook> query = new GenericFindWithStatus<Codebook>();
             List<Codebook> results = query.findByStatusWithPages(Codebook.class, hasStatus, pageSize, offset);
@@ -1638,14 +1549,6 @@ public class SIRElementAPI extends Controller {
             GenericFindWithStatus<Project> query = new GenericFindWithStatus<Project>();
             List<Project> results = query.findByStatusWithPages(Project.class, hasStatus, pageSize, offset);
             return ProjectAPI.getProjects(results);
-        }  else if (elementType.equals("actuatorstem")) {
-            GenericFindWithStatus<ActuatorStem> query = new GenericFindWithStatus<ActuatorStem>();
-            List<ActuatorStem> results = query.findByStatusWithPages(ActuatorStem.class, hasStatus, pageSize, offset);
-            return ActuatorStemAPI.getActuatorStems(results);
-        }  else if (elementType.equals("actuator")) {
-            GenericFindWithStatus<Actuator> query = new GenericFindWithStatus<Actuator>();
-            List<Actuator> results = query.findByStatusWithPages(Actuator.class, hasStatus, pageSize, offset);
-            return ActuatorAPI.getActuators(results);
         }  else if (elementType.equals("task")) {
             GenericFindWithStatus<Task> query = new GenericFindWithStatus<Task>();
             List<Task> results = query.findByStatusWithPages(Task.class, hasStatus, pageSize, offset);
@@ -1694,22 +1597,22 @@ public class SIRElementAPI extends Controller {
             GenericFindWithStatus<InstrumentInstance> query = new GenericFindWithStatus<InstrumentInstance>();
             List<InstrumentInstance> results = query.findByStatusManagerEmailWithPages(InstrumentInstance.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return VSTOIInstanceAPI.getInstrumentInstances(results);
-        } else if (elementType.equals("detectorinstance")) {
-            GenericFindWithStatus<DetectorInstance> query = new GenericFindWithStatus<DetectorInstance>();
-            List<DetectorInstance> results = query.findByStatusManagerEmailWithPages(DetectorInstance.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
-            return VSTOIInstanceAPI.getDetectorInstances(results);
+        } else if (elementType.equals("componentinstance")) {
+            GenericFindWithStatus<ComponentInstance> query = new GenericFindWithStatus<ComponentInstance>();
+            List<ComponentInstance> results = query.findByStatusManagerEmailWithPages(ComponentInstance.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
+            return VSTOIInstanceAPI.getComponentInstances(results);
         } else if (elementType.equals("platforminstance")) {
             GenericFindWithStatus<PlatformInstance> query = new GenericFindWithStatus<PlatformInstance>();
             List<PlatformInstance> results = query.findByStatusManagerEmailWithPages(PlatformInstance.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return VSTOIInstanceAPI.getPlatformInstances(results);
-        }  else if (elementType.equals("detectorstem")) {
-            GenericFindWithStatus<DetectorStem> query = new GenericFindWithStatus<DetectorStem>();
-            List<DetectorStem> results = query.findByStatusManagerEmailWithPages(DetectorStem.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
-            return DetectorStemAPI.getDetectorStems(results);
-        }  else if (elementType.equals("detector")) {
-            GenericFindWithStatus<Detector> query = new GenericFindWithStatus<Detector>();
-            List<Detector> results = query.findByStatusManagerEmailWithPages(Detector.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
-            return DetectorAPI.getDetectors(results);
+        }  else if (elementType.equals("componentstem")) {
+            GenericFindWithStatus<ComponentStem> query = new GenericFindWithStatus<ComponentStem>();
+            List<ComponentStem> results = query.findByStatusManagerEmailWithPages(ComponentStem.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
+            return ComponentStemAPI.getComponentStems(results);
+        }  else if (elementType.equals("component")) {
+            GenericFindWithStatus<Component> query = new GenericFindWithStatus<Component>();
+            List<Component> results = query.findByStatusManagerEmailWithPages(Component.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
+            return ComponentAPI.getComponents(results);
         }  else if (elementType.equals("codebook")) {
             GenericFindWithStatus<Codebook> query = new GenericFindWithStatus<Codebook>();
             List<Codebook> results = query.findByStatusManagerEmailWithPages(Codebook.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
@@ -1830,14 +1733,6 @@ public class SIRElementAPI extends Controller {
             GenericFindWithStatus<Project> query = new GenericFindWithStatus<Project>();
             List<Project> results = query.findByStatusManagerEmailWithPages(Project.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return ProjectAPI.getProjects(results);
-        }  else if (elementType.equals("actuatorstem")) {
-            GenericFindWithStatus<ActuatorStem> query = new GenericFindWithStatus<ActuatorStem>();
-            List<ActuatorStem> results = query.findByStatusManagerEmailWithPages(ActuatorStem.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
-            return ActuatorStemAPI.getActuatorStems(results);
-        }  else if (elementType.equals("actuator")) {
-            GenericFindWithStatus<Actuator> query = new GenericFindWithStatus<Actuator>();
-            List<Actuator> results = query.findByStatusManagerEmailWithPages(Actuator.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
-            return ActuatorAPI.getActuators(results);
         }  else if (elementType.equals("task")) {
             GenericFindWithStatus<Task> query = new GenericFindWithStatus<Task>();
             List<Task> results = query.findByStatusManagerEmailWithPages(Task.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
@@ -1950,15 +1845,11 @@ public class SIRElementAPI extends Controller {
         }
         String elementType = object.getHascoTypeUri();
         //System.out.println("SIREelementAPI: element type is " + elementType);
-        if (elementType.equals(VSTOI.DETECTOR)) {
-            List<ContainerSlot> results = Detector.usage(elementUri);
+        if (elementType.equals(VSTOI.COMPONENT)) {
+            List<ContainerSlot> results = Component.usage(elementUri);
             //System.out.println("SIREelementAPI: Results is " + results.size());
             return ContainerSlotAPI.getContainerSlots(results);
-        } //else if (elementType.equals("detector")) {
-        //    int totalDetectors = Detector.findTotalByManagerEmail(managerEmail);
-        //    String totalDetectorsJSON = "{\"total\":" + totalDetectors + "}";
-        //    return ok(ApiUtil.createResponse(totalDetectorsJSON, true));
-        //}
+        } 
         return ok("[usage] No valid element type.");
     }
 
@@ -1969,15 +1860,11 @@ public class SIRElementAPI extends Controller {
         }
         String elementType = object.getHascoTypeUri();
         //System.out.println("SIREelementAPI: element type is " + elementType);
-        if (elementType.equals(VSTOI.DETECTOR)) {
-            List<Detector> results = Detector.derivationDetector(elementUri);
+        if (elementType.equals(VSTOI.COMPONENT)) {
+            List<Component> results = Component.derivationComponent(elementUri);
             //System.out.println("SIREelementAPI: Results is " + results.size());
-            return DetectorAPI.getDetectors(results);
-        } //else if (elementType.equals("detector")) {
-        //    int totalDetectors = Detector.findTotalByManagerEmail(managerEmail);
-        //    String totalDetectorsJSON = "{\"total\":" + totalDetectors + "}";
-        //    return ok(ApiUtil.createResponse(totalDetectorsJSON, true));
-        //}
+            return ComponentAPI.getComponents(results);
+        } 
         return ok("[derivation] No valid element type.");
     }
 
@@ -2002,13 +1889,11 @@ public class SIRElementAPI extends Controller {
                 "{\"AnnotationStem\":\"" + response[0] + "\"}," + 
                 "{\"Codebook\":\"" + response[1] + "\"}," + 
                 "{\"Container\":\"" + response[2] + "\"}," + 
-                "{\"Detector\":\"" + response[3] + "\"}," + 
-                "{\"DetectorStem\":\"" + response[4] + "\"}," + 
-                "{\"Actuator\":\"" + response[5] + "\"}," + 
-                "{\"ActuatorStem\":\"" + response[6] + "\"}," + 
-                "{\"ResponseOption\":\"" + response[7] + "\"}" + 
-                "{\"ProcessStem\":\"" + response[8] + "\"}," + 
-                "{\"Process\":\"" + response[9] + "\"}" + 
+                "{\"Component\":\"" + response[3] + "\"}," + 
+                "{\"ComponentStem\":\"" + response[4] + "\"}," + 
+                "{\"ResponseOption\":\"" + response[5] + "\"}" + 
+                "{\"ProcessStem\":\"" + response[6] + "\"}," + 
+                "{\"Process\":\"" + response[7] + "\"}" + 
                 "]";
             return ok(ApiUtil.createResponse(respJSON, true));
         }     

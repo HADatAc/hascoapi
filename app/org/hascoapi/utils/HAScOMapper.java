@@ -38,39 +38,6 @@ public class HAScOMapper {
         ObjectMapper mapper = new ObjectMapper();
         SimpleFilterProvider filterProvider = new SimpleFilterProvider();
 
-        // ACTUATOR
-        if (mode.equals(FULL) && typeResult.equals(VSTOI.ACTUATOR)) {
-            filterProvider.addFilter("actuatorFilter", SimpleBeanPropertyFilter.serializeAll());
-        } else {
-            filterProvider.addFilter("actuatorFilter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
-                            "hasImageUri", "hasWebDocument", 
-                            "hascoTypeLabel", "comment", "hasContent", "hasSerialNumber", "hasLanguage", "hasVersion",
-                            "wasDerivedFrom", "wasGeneratedBy", "hasSIRManagerEmail", "hasEditorEmail",  "isAttributeOf", 
-                            "hasActuatorStem", "actuatorStem", "hasCodebook", "codebook"));
-        }
-
-        // ACTUATOR_INSTANCE
-        if (mode.equals(FULL) && typeResult.equals(VSTOI.ACTUATOR_INSTANCE)) {
-            filterProvider.addFilter("actuatorInstanceFilter", SimpleBeanPropertyFilter.serializeAll());
-        } else {
-            filterProvider.addFilter("actuatorInstanceFilter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
-                            "hasStatus", "hasImageUri", "hasWebDocument", 
-                            "hascoTypeLabel", "comment", "hasSerialNumber", "hasAcquisitionDate", "isDamaged", "hasDamageDate", 
-                            "hasOwnerUri", "hasOwner", "hasMaintainerUri", "hasMaintainer", "hasSIRManagerEmail"));
-        }
-
-        // ACTUATOR_STEM
-        if (mode.equals(FULL) && typeResult.equals(VSTOI.ACTUATOR_STEM)) {
-            filterProvider.addFilter("actuatorStemFilter", SimpleBeanPropertyFilter.serializeAll());
-        } else {
-            filterProvider.addFilter("actuatorStemFilter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "superUri", "typeLabel", "hasStatus", "hascoTypeUri",
-                            "hasImageUri", "hasWebDocument", 
-                            "hascoTypeLabel", "comment", "hasContent", "hasLanguage", "hasVersion",
-                            "wasDerivedFrom", "wasGeneratedBy", "hasSIRManagerEmail", "hasEditorEmail", "activates", "activatesSemanticVariable"));
-        }
         // ANNOTATION
         if (mode.equals(FULL) && typeResult.equals(VSTOI.ANNOTATION)) {
             filterProvider.addFilter("annotationFilter", SimpleBeanPropertyFilter.serializeAll());
@@ -131,8 +98,30 @@ public class HAScOMapper {
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
                             "hasImageUri", "hasWebDocument", 
                             "hascoTypeLabel", "comment", "hasContent", "hasSerialNumber", "hasLanguage", "hasVersion",
-                            "wasDerivedFrom", "wasGeneratedBy", "hasMakerUri", "hasMaker", 
-                            "hasSIRManagerEmail", "hasEditorEmail",  "isAttributeOf", "hasCodebook", "codebook"));
+                            "wasDerivedFrom", "wasGeneratedBy", "hasMakerUri", "hasSIRManagerEmail", "hasEditorEmail",  "isAttributeOf", 
+                            "hasDetectorStem", "detectorStem", "hasCodebook", "codebook"));
+        }
+
+        // COMPONENT_INSTANCE
+        if (mode.equals(FULL) && typeResult.equals(VSTOI.COMPONENT_INSTANCE)) {
+            filterProvider.addFilter("componentInstanceFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("componentInstanceFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
+                            "hasStatus", "hasImageUri", "hasWebDocument", 
+                            "hascoTypeLabel", "comment", "hasSerialNumber", "hasAcquisitionDate", "isDamaged", "hasDamageDate", 
+                            "hasOwnerUri", "hasOwner", "hasMaintainerUri", "hasMaintainer", "hasSIRManagerEmail"));
+        }
+
+        // COMPONENT_STEM
+        if (mode.equals(FULL) && typeResult.equals(VSTOI.COMPONENT_STEM)) {
+            filterProvider.addFilter("componentStemFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("componentStemFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "superUri", "typeLabel", "hasStatus", "hascoTypeUri",
+                            "hasImageUri", "hasWebDocument", 
+                            "hascoTypeLabel", "comment", "hasContent", "hasLanguage", "hasVersion",
+                            "wasDerivedFrom", "wasGeneratedBy", "hasSIRManagerEmail", "hasEditorEmail", "isAssociatedWith", "isAssociatedWithSemanticVariable"));
         }
 
         // CONTAINER
@@ -206,40 +195,6 @@ public class HAScOMapper {
             filterProvider.addFilter("dp2Filter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hascoTypeUri",
                             "hascoTypeLabel", "hasVersion",  "comment", "hasDataFileUri", "hasDataFile"));
-        }
-
-        // DETECTOR
-        if (mode.equals(FULL) && typeResult.equals(VSTOI.DETECTOR)) {
-            filterProvider.addFilter("detectorFilter", SimpleBeanPropertyFilter.serializeAll());
-        } else {
-            filterProvider.addFilter("detectorFilter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
-                            "hasImageUri", "hasWebDocument", 
-                            "hascoTypeLabel", "comment", "hasContent", "hasSerialNumber", "hasLanguage", "hasVersion",
-                            "wasDerivedFrom", "wasGeneratedBy", "hasMakerUri", "hasSIRManagerEmail", "hasEditorEmail",  "isAttributeOf", 
-                            "hasDetectorStem", "detectorStem", "hasCodebook", "codebook"));
-        }
-
-        // DETECTOR_INSTANCE
-        if (mode.equals(FULL) && typeResult.equals(VSTOI.DETECTOR_INSTANCE)) {
-            filterProvider.addFilter("detectorInstanceFilter", SimpleBeanPropertyFilter.serializeAll());
-        } else {
-            filterProvider.addFilter("detectorInstanceFilter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
-                            "hasStatus", "hasImageUri", "hasWebDocument", 
-                            "hascoTypeLabel", "comment", "hasSerialNumber", "hasAcquisitionDate", "isDamaged", "hasDamageDate", 
-                            "hasOwnerUri", "hasOwner", "hasMaintainerUri", "hasMaintainer", "hasSIRManagerEmail"));
-        }
-
-        // DETECTOR_STEM
-        if (mode.equals(FULL) && typeResult.equals(VSTOI.DETECTOR_STEM)) {
-            filterProvider.addFilter("detectorStemFilter", SimpleBeanPropertyFilter.serializeAll());
-        } else {
-            filterProvider.addFilter("detectorStemFilter",
-                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "superUri", "typeLabel", "hasStatus", "hascoTypeUri",
-                            "hasImageUri", "hasWebDocument", 
-                            "hascoTypeLabel", "comment", "hasContent", "hasLanguage", "hasVersion",
-                            "wasDerivedFrom", "wasGeneratedBy", "hasSIRManagerEmail", "hasEditorEmail", "detects", "detectsSemanticVariable"));
         }
 
         // DSG
@@ -645,13 +600,7 @@ public class HAScOMapper {
         ObjectMapper mapper = new ObjectMapper();
         SimpleFilterProvider filterProvider = new SimpleFilterProvider();
 
-        if (clazz == Actuator.class) {
-            return getFiltered(mode, VSTOI.ACTUATOR);
-        } else if (clazz == ActuatorInstance.class) {
-            return getFiltered(mode, VSTOI.ACTUATOR_INSTANCE);
-        } else if (clazz == ActuatorStem.class) {
-            return getFiltered(mode, VSTOI.ACTUATOR_STEM);
-        } else if (clazz == Annotation.class) {
+        if (clazz == Annotation.class) {
             return getFiltered(mode, VSTOI.ANNOTATION);
         } if (clazz == AnnotationStem.class) {
             return getFiltered(mode, VSTOI.ANNOTATION_STEM);
@@ -661,6 +610,12 @@ public class HAScOMapper {
             return getFiltered(mode, VSTOI.CODEBOOK);
         } else if (clazz == CodebookSlot.class) {
             return getFiltered(mode, VSTOI.CODEBOOK_SLOT);
+        } else if (clazz == Component.class) {
+            return getFiltered(mode, VSTOI.COMPONENT);
+        } else if (clazz == ComponentInstance.class) {
+            return getFiltered(mode, VSTOI.COMPONENT_INSTANCE);
+        } else if (clazz == ComponentStem.class) {
+            return getFiltered(mode, VSTOI.COMPONENT_STEM);
         } else if (clazz == Container.class) {
             return getFiltered(mode, VSTOI.CONTAINER);
         } else if (clazz == ContainerSlot.class) {
@@ -671,12 +626,6 @@ public class HAScOMapper {
             return getFiltered(mode, HASCO.DATAFILE);
         } else if (clazz == DD.class) {
             return getFiltered(mode, HASCO.DD);
-        } else if (clazz == Detector.class) {
-            return getFiltered(mode, VSTOI.DETECTOR);
-        } else if (clazz == DetectorInstance.class) {
-            return getFiltered(mode, VSTOI.DETECTOR_INSTANCE);
-        } else if (clazz == DetectorStem.class) {
-            return getFiltered(mode, VSTOI.DETECTOR_STEM);
         } else if (clazz == Deployment.class) {
             return getFiltered(mode, VSTOI.DEPLOYMENT);
         } else if (clazz == DP2.class) {

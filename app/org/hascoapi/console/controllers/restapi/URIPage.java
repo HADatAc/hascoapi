@@ -149,11 +149,7 @@ public class URIPage extends Controller {
              * }
              */
 
-            if (result.getHascoTypeUri().equals(VSTOI.ACTUATOR)) {
-                finalResult = Actuator.find(uri);
-            } else if (result.getHascoTypeUri().equals(VSTOI.ACTUATOR_STEM)) {
-                finalResult = ActuatorStem.find(uri);
-            } else if (result.getHascoTypeUri().equals(VSTOI.ANNOTATION)) {
+            if (result.getHascoTypeUri().equals(VSTOI.ANNOTATION)) {
                 finalResult = Annotation.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.ANNOTATION_STEM)) {
                 finalResult = AnnotationStem.find(uri);
@@ -163,6 +159,12 @@ public class URIPage extends Controller {
                 finalResult = Codebook.find(uri);            
             } else if (result.getHascoTypeUri().equals(VSTOI.CODEBOOK_SLOT)) {
                 finalResult = CodebookSlot.find(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.COMPONENT)) {
+                finalResult = Component.find(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.COMPONENT_INSTANCE)) {
+                finalResult = ComponentInstance.find(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.COMPONENT_STEM)) {
+                finalResult = ComponentStem.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.CONTAINER_SLOT)) {
                 finalResult = ContainerSlot.find(uri);
             } else if (result.getHascoTypeUri().equals(HASCO.DATA_ACQUISITION)) {
@@ -173,12 +175,6 @@ public class URIPage extends Controller {
                 finalResult = DD.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.DEPLOYMENT)) {
                 finalResult = Deployment.find(uri);
-            } else if (result.getHascoTypeUri().equals(VSTOI.DETECTOR)) {
-                finalResult = Detector.find(uri);
-            } else if (result.getHascoTypeUri().equals(VSTOI.DETECTOR_INSTANCE)) {
-                finalResult = DetectorInstance.find(uri);
-            } else if (result.getHascoTypeUri().equals(VSTOI.DETECTOR_STEM)) {
-                finalResult = DetectorStem.find(uri);
             } else if (result.getHascoTypeUri().equals(HASCO.DP2)) {
                 finalResult = DP2.find(uri);
             } else if (result.getHascoTypeUri().equals(HASCO.DSG)) {

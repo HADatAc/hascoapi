@@ -85,11 +85,9 @@ public class ContainerSlot extends HADatAcThing implements SlotElement, Comparab
             return null;
         }
         GenericInstance genericInstance = GenericInstance.find(hasComponent);
-        if (genericInstance.getHascoTypeUri().equals(VSTOI.ACTUATOR)) {
-            return Actuator.find(hasComponent);
-        } else if (genericInstance.getHascoTypeUri().equals(VSTOI.DETECTOR)) {
-            return Detector.find(hasComponent);
-        }
+        if (genericInstance.getHascoTypeUri().equals(VSTOI.COMPONENT)) {
+            return Component.find(hasComponent);
+        } 
         return null;
     }
 

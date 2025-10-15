@@ -17,7 +17,6 @@ import org.hascoapi.entity.pojo.SlotElement;
 import org.hascoapi.entity.pojo.StudyObject;
 import org.hascoapi.entity.pojo.Instrument;
 import org.hascoapi.entity.pojo.Subcontainer;
-import org.hascoapi.entity.pojo.Detector;
 import org.hascoapi.entity.pojo.Component;
 import org.hascoapi.entity.pojo.GenericFind;
 import org.hascoapi.transform.Renderings;
@@ -53,7 +52,7 @@ public class ContainerAPI extends Controller {
         if (containerSlot == null) {
             return ok(ApiUtil.createResponse("There is no containerSlot with uri <" + containerSlotUri + ">.", false));
         }
-        if (Detector.attach(containerSlot, component)) {
+        if (Component.attach(containerSlot, component)) {
             return ok(ApiUtil.createResponse("Component <" + uri + "> successfully attached to containerSlot <" + containerSlotUri + ">.", true));
         }
         return ok(ApiUtil.createResponse("Component <" + uri + "> failed to associate with containerSlot  <" + containerSlotUri + ">.", false));
@@ -87,8 +86,8 @@ public class ContainerAPI extends Controller {
         if (testInstrument.getSlotElements() == null) {
             return ok(ApiUtil.createResponse("Create containerSlots for test instrument before trying to attach components.", false));
         }
-        Component component1 = (Component)Detector.find(TEST_DETECTOR1_URI);
-        Component component2 = (Component)Detector.find(TEST_DETECTOR2_URI);
+        Component component1 = Component.find(TEST_COMPONENT1_URI);
+        Component component2 = Component.find(TEST_COMPONENT2_URI);
         ContainerSlot slot1 = ContainerSlot.find(TEST_CONTAINER_SLOT1_URI);
         ContainerSlot slot2 = ContainerSlot.find(TEST_CONTAINER_SLOT2_URI);
         if (component1 == null) {
@@ -113,22 +112,22 @@ public class ContainerAPI extends Controller {
         if (testSubcontainer.getSlotElements() == null) {
             return ok(ApiUtil.createResponse("Create containerSlots for test subcontainer before trying to attach components.", false));
         }
-        Component component3 = (Component)Detector.find(TEST_DETECTOR3_URI);
-        Component component4 = (Component)Detector.find(TEST_DETECTOR4_URI);
+        Component component3 = Component.find(TEST_COMPONENT3_URI);
+        Component component4 = Component.find(TEST_COMPONENT4_URI);
         ContainerSlot slot3 = ContainerSlot.find(TEST_CONTAINER_SLOT3_URI);
         ContainerSlot slot4 = ContainerSlot.find(TEST_CONTAINER_SLOT4_URI);
         if (component3 == null) {
-            return ok(ApiUtil.createResponse("There is no Test Detector 3 to be attached to test subcontainer.", false));
+            return ok(ApiUtil.createResponse("There is no Test Component 3 to be attached to test subcontainer.", false));
         } else if (component4 == null) {
-            return ok(ApiUtil.createResponse("There is no Test Detector 4 to be attached to test subcontainer.", false));
+            return ok(ApiUtil.createResponse("There is no Test Component 4 to be attached to test subcontainer.", false));
         } else if (slot3 == null) {
             return ok(ApiUtil.createResponse("There is no Test Container Slot 3 in test subcontainer.", false));
         } else if (slot4 == null) {
             return ok(ApiUtil.createResponse("There is no Test Container Slot 4 in test subcontainer.", false));
         } else if (slot3.getComponent() != null) {
-            return ok(ApiUtil.createResponse("There is a Test Detector already attached to Slot 3.", false));
+            return ok(ApiUtil.createResponse("There is a Test Component already attached to Slot 3.", false));
         } else if (slot2.getComponent() != null) {
-            return ok(ApiUtil.createResponse("There is a Test Detector already attached to Slot 4.", false));
+            return ok(ApiUtil.createResponse("There is a Test Component already attached to Slot 4.", false));
         }  
             
         // PERFORM ATTACHMENTS
@@ -152,7 +151,7 @@ public class ContainerAPI extends Controller {
             }
         }
 
-        return ok(ApiUtil.createResponse("Test Detectors 1 and 2 have been ATTACHED to Test Container.", true));
+        return ok(ApiUtil.createResponse("Test Components 1 and 2 have been ATTACHED to Test Container.", true));
     }
 
     public Result detachForTesting(){
@@ -165,8 +164,8 @@ public class ContainerAPI extends Controller {
         if (testInst.getSlotElements() == null) {
             return ok(ApiUtil.createResponse("Test instrument has no containerSlots for components.", false));
         }
-        Component test1 = (Component)Detector.find(TEST_DETECTOR1_URI);
-        Component test2 = (Component)Detector.find(TEST_DETECTOR2_URI);
+        Component test1 = Component.find(TEST_COMPONENT1_URI);
+        Component test2 = Component.find(TEST_COMPONENT2_URI);
         ContainerSlot slot1 = ContainerSlot.find(TEST_CONTAINER_SLOT1_URI);
         ContainerSlot slot2 = ContainerSlot.find(TEST_CONTAINER_SLOT2_URI);
         if (test1 == null) {
@@ -191,8 +190,8 @@ public class ContainerAPI extends Controller {
         if (testSubcontainer.getSlotElements() == null) {
             return ok(ApiUtil.createResponse("Test subcontainer has no containerSlots for components.", false));
         }
-        Component component3 = (Component)Detector.find(TEST_DETECTOR3_URI);
-        Component component4 = (Component)Detector.find(TEST_DETECTOR4_URI);
+        Component component3 = Component.find(TEST_COMPONENT3_URI);
+        Component component4 = Component.find(TEST_COMPONENT4_URI);
         ContainerSlot slot3 = ContainerSlot.find(TEST_CONTAINER_SLOT3_URI);
         ContainerSlot slot4 = ContainerSlot.find(TEST_CONTAINER_SLOT4_URI);
         if (component3 == null) {
@@ -211,16 +210,16 @@ public class ContainerAPI extends Controller {
 
         // PERFORM DETACHING 
         String msg = "";
-        if (!Detector.detach(slot1)) {
+        if (!Component.detach(slot1)) {
             msg += "No datachment at slot 1. ";
         }
-        if (!Detector.detach(slot2)) {
+        if (!Component.detach(slot2)) {
             msg += "No datachment at slot 2. ";
         }
-        if (!Detector.detach(slot3)) {
+        if (!Component.detach(slot3)) {
             msg += "No datachment at slot 3. ";
         } 
-        if (!Detector.detach(slot4)) {
+        if (!Component.detach(slot4)) {
             msg += "No datachment at slot 4. ";
         } 
         if (msg.isEmpty()) {

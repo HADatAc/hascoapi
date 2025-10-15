@@ -6,8 +6,6 @@ import org.hascoapi.entity.pojo.Instrument;
 import org.hascoapi.entity.pojo.Container;
 import org.hascoapi.entity.pojo.Subcontainer;
 import org.hascoapi.entity.pojo.Component;
-import org.hascoapi.entity.pojo.Actuator;
-import org.hascoapi.entity.pojo.Detector;
 import org.hascoapi.entity.pojo.ContainerSlot;
 import org.hascoapi.entity.pojo.SlotElement;
 import org.hascoapi.utils.URIUtils;
@@ -90,13 +88,7 @@ public class INSSlotElement {
                 componentUri = "";
             } else {
                 Component component = Component.find(componentUri);
-                if (component instanceof Detector) {
-                    Detector detector = (Detector)component;
-                    helper.dets.put(detector.getUri(),detector);
-                } else if (component instanceof Actuator) {
-                    Actuator actuator = (Actuator)component; 
-                    helper.acts.put(actuator.getUri(),actuator);
-                }
+                helper.components.put(component.getUri(),component);
             }
         } else {
             String subcontainerUri = ((Subcontainer)slotElement).getUri();

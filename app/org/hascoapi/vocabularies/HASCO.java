@@ -49,10 +49,10 @@ public class HASCO {
      *    PROPERTIES
      */
 
-    public static final String ACTIVATES                              = "http://hadatac.org/ont/hasco/activates";
+    //public static final String ACTIVATES                              = "http://hadatac.org/ont/hasco/activates";
     public static final String CAN_UPDATE                             = "http://hadatac.org/ont/hasco/canUpdate";
     public static final String CAN_VIEW                               = "http://hadatac.org/ont/hasco/canView";
-    public static final String DETECTS                                = "http://hadatac.org/ont/hasco/detects";
+    //public static final String DETECTS                                = "http://hadatac.org/ont/hasco/detects";
     public static final String HAS_ACRONYM                            = "http://hadatac.org/ont/hasco/hasAcronym";
     public static final String HAS_ABBREVIATION                       = "http://hadatac.org/ont/hasco/hasAbbreviation";
     public static final String HAS_ATTRIBUTE                          = "http://hadatac.org/ont/hasco/hasAttribute";
@@ -166,6 +166,7 @@ public class HASCO {
     public static final String IN_RELATION_TO                         = "http://hadatac.org/ont/hasco/inRelationTo";
     public static final String IS_MEMBER_OF                           = "http://hadatac.org/ont/hasco/isMemberOf";
     public static final String IS_POSSIBLE_VALUE_OF                   = "http://hadatac.org/ont/hasco/isPossibleValueOf";
+    public static final String IS_ASSOCIATED_WITH                     = "http://hadatac.org/ont/hasco/isAssociatedWith";
     public static final String IS_VARIABLE_OF                         = "http://hadatac.org/ont/hasco/isVariableOf";
     public static final String LIST_POSITION                          = "http://hadatac.org/ont/hasco/listPosition";
     public static final String HASCO_TYPE                             = "http://hadatac.org/ont/hasco/hascoType";

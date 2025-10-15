@@ -58,8 +58,8 @@ public class Utils {
             case "instrumentinstance":
                 shortPrefix = Constants.PREFIX_INSTRUMENT_INSTANCE;
                 break;
-            case "detectorinstance":
-                shortPrefix = Constants.PREFIX_DETECTOR_INSTANCE;
+            case "componentinstance":
+                shortPrefix = Constants.PREFIX_COMPONENT_INSTANCE;
                 break;
             case "platforminstance":
                 shortPrefix = Constants.PREFIX_PLATFORM_INSTANCE;
@@ -67,11 +67,11 @@ public class Utils {
             case "subcontainer":
                 shortPrefix = Constants.PREFIX_SUBCONTAINER;
                 break;
-            case "detectorstem":
-                shortPrefix = Constants.PREFIX_DETECTOR_STEM;
+            case "componentstem":
+                shortPrefix = Constants.PREFIX_COMPONENT_STEM;
                 break;
-            case "detector":
-                shortPrefix = Constants.PREFIX_DETECTOR;
+            case "component":
+                shortPrefix = Constants.PREFIX_COMPONENT;
                 break;
             case "codebook":
                 shortPrefix = Constants.PREFIX_CODEBOOK;
@@ -153,12 +153,6 @@ public class Utils {
                 break;
             case "project":
                 shortPrefix = Constants.PREFIX_PROJECT;
-                break;
-            case "actuatorstem":
-                shortPrefix = Constants.PREFIX_ACTUATOR_STEM;
-                break;
-            case "actuator":
-                shortPrefix = Constants.PREFIX_ACTUATOR;
                 break;
             case "stream":
                 shortPrefix = Constants.PREFIX_STREAM;

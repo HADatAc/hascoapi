@@ -26,14 +26,10 @@ public class AnnotateINS extends BaseAnnotator {
                 (df, st) -> new INSGenerator("codebook", df, st));
         addCustomGeneratorIfSheetExists(dataFile, mapCatalog, "CodeBookSlots", status, chain,
                 new CodeBookSlotGeneratorFactory());
-        addCustomGeneratorIfSheetExists(dataFile, mapCatalog, "ActuatorStems", status, chain,
-                (df, st) -> new INSGenerator("actuatorstem", df, st));
-        addCustomGeneratorIfSheetExists(dataFile, mapCatalog, "Actuators", status, chain,
-                new ActuatorGeneratorFactory());
-        addCustomGeneratorIfSheetExists(dataFile, mapCatalog, "DetectorStems", status, chain,
-                (df, st) -> new INSGenerator("detectorstem", df, st));
-        addCustomGeneratorIfSheetExists(dataFile, mapCatalog, "Detectors", status, chain,
-                new DetectorGeneratorFactory());
+        addCustomGeneratorIfSheetExists(dataFile, mapCatalog, "ComponentStems", status, chain,
+                (df, st) -> new INSGenerator("componentstem", df, st));
+        addCustomGeneratorIfSheetExists(dataFile, mapCatalog, "Components", status, chain,
+                new ComponentGeneratorFactory());
         addCustomGeneratorIfSheetExists(dataFile, mapCatalog, "SlotElements", status, chain,
                 (df, st) -> new INSGenerator("slotelement", df, st));
         addCustomGeneratorIfSheetExists(dataFile, mapCatalog, "Instruments", status, chain,
@@ -49,16 +45,11 @@ public class AnnotateINS extends BaseAnnotator {
         }
     }
 
-    static class ActuatorGeneratorFactory implements GeneratorFactory {
+    static class ComponentGeneratorFactory implements GeneratorFactory {
         public BaseGenerator create(DataFile dataFile, String status) {
-            return new ActuatorGenerator(dataFile, status);
+            return new ComponentGenerator(dataFile, status);
         }
     }
 
-    static class DetectorGeneratorFactory implements GeneratorFactory {
-        public BaseGenerator create(DataFile dataFile, String status) {
-            return new DetectorGenerator(dataFile, status);
-        }
-    }
 }
 
