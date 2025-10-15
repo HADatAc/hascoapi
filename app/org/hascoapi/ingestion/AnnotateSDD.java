@@ -56,6 +56,9 @@ public class AnnotateSDD extends BaseAnnotator {
             dataFile.getLogger().printWarningById("SDD_00017");
         }
 
+        // if needed, ingest SDD-required namespaces
+        IngestionWorker.nameSpaceGen(dataFile, mapCatalog, templateFile);
+
         GeneratorChain chain = new GeneratorChain();
         chain.setNamedGraphUri(dataFile.getUri());
         chain.setPV(true);
