@@ -156,6 +156,7 @@ GET     /hascoapi/api/topic/unsubscribe/:topicUri                               
 GET     /hascoapi/api/topic/setstatus/:topicUri/:status                             org.hascoapi.console.controllers.restapi.StreamTopicAPI.setStatus(topicUri: String, status: String)
 GET     /hascoapi/api/topic/latest/:topicUri                                        org.hascoapi.console.controllers.restapi.StreamTopicAPI.getLatestValue(topicUri: String)
 POST    /hascoapi/api/topic/startExpose                                             org.hascoapi.console.controllers.restapi.StreamTopicAPI.startExpose
+GET     /hascoapi/api/topic/stopExpose/:topicUri                                    org.hascoapi.console.controllers.restapi.StreamTopicAPI.stopExpose(topicUri: String)
 
 
 GET     /hascoapi/api/platforminstance/byplatform/:platformUri/:pageSize/:offset    org.hascoapi.console.controllers.restapi.VSTOIInstanceAPI.findPlatformInstancesByPlatformWithPage(platformUri: String, pageSize: Integer, offset: Integer)
