@@ -77,8 +77,6 @@ public class StreamTopicAPI extends Controller {
         return ok(ApiUtil.createResponse(MqttMessageWorker.getInstance().getMonitor().getLatestValue(topicUri), true));
     }
     
-    import play.mvc.Http;
-
     public Result startExpose(Http.Request request) {
         JsonNode json = request.body().asJson();
         if (json == null || !json.has("topicUri") || !json.has("brokerIp") || !json.has("brokerPort")) {
@@ -106,7 +104,6 @@ public class StreamTopicAPI extends Controller {
     
         return ok(ApiUtil.createResponse("Failed to start expose for topic " + topicUri, false));
     }
-    
     
     
     public Result stopExpose(String topicUri) {
