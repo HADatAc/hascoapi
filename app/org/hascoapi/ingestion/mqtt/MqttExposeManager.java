@@ -2,7 +2,6 @@ package org.hascoapi.ingestion.mqtt;
 
 import org.eclipse.paho.client.mqttv3.*;
 
-import java.text.ParseException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
