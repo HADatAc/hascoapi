@@ -155,7 +155,7 @@ GET     /hascoapi/api/topic/subscribe/:topicUri                                 
 GET     /hascoapi/api/topic/unsubscribe/:topicUri                                   org.hascoapi.console.controllers.restapi.StreamTopicAPI.unsubscribe(topicUri: String)
 GET     /hascoapi/api/topic/setstatus/:topicUri/:status                             org.hascoapi.console.controllers.restapi.StreamTopicAPI.setStatus(topicUri: String, status: String)
 GET     /hascoapi/api/topic/latest/:topicUri                                        org.hascoapi.console.controllers.restapi.StreamTopicAPI.getLatestValue(topicUri: String)
-POST    /hascoapi/api/topic/startExpose                                             org.hascoapi.console.controllers.restapi.StreamTopicAPI.startExpose
+POST    /hascoapi/api/topic/startExpose                                             org.hascoapi.console.controllers.restapi.StreamTopicAPI.startExpose(request: play.mvc.Http.Request)
 GET     /hascoapi/api/topic/stopExpose/:topicUri                                    org.hascoapi.console.controllers.restapi.StreamTopicAPI.stopExpose(topicUri: String)
 
 

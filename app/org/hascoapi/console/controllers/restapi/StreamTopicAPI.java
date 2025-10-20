@@ -15,6 +15,7 @@ import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.VSTOI;
 import play.mvc.Controller;
 import play.mvc.Result;
+import play.mvc.Http;
 
 import java.io.ByteArrayOutputStream;
 import java.util.List;
@@ -76,8 +77,10 @@ public class StreamTopicAPI extends Controller {
         return ok(ApiUtil.createResponse(MqttMessageWorker.getInstance().getMonitor().getLatestValue(topicUri), true));
     }
     
-    public Result startExpose() {
-        JsonNode json = request().body().asJson();
+    import play.mvc.Http;
+
+    public Result startExpose(Http.Request request) {
+        JsonNode json = request.body().asJson();
         if (json == null || !json.has("topicUri") || !json.has("brokerIp") || !json.has("brokerPort")) {
             return ok(ApiUtil.createResponse("Missing parameters: topicUri, brokerIp, or brokerPort", false));
         }
@@ -103,6 +106,7 @@ public class StreamTopicAPI extends Controller {
     
         return ok(ApiUtil.createResponse("Failed to start expose for topic " + topicUri, false));
     }
+    
     
     
     public Result stopExpose(String topicUri) {
