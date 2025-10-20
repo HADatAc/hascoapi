@@ -257,18 +257,41 @@ public class MqttMessageWorker {
                 System.err.println("[WARN] No DataFile found for topicUri: " + topicUri);
             }
         } else if (status.equals(HASCO.INGESTING)) {
-            System.out.println("[DEBUG] Topic in INGESTING mode, attempting to generate object...");
-            ValueGenerator generator = MqttMessageWorker.getInstance().getStreamGenerator(streamTopic.getUri());
-            if (generator == null) {
-                System.out.println("[ERROR] MessageWorker: stream generator is missing in processMessage");
-            } else {
-                try {
-                    generator.createObject(record, currentRow, topicStr);
-                    System.out.println("[INFO] Object generated successfully.");
-                } catch (Exception e) {
-                    System.err.println("[ERROR] Exception while creating object:");
-                    e.printStackTrace();
-                }
+            // System.out.println("[DEBUG] Topic in INGESTING mode, attempting to generate object...");
+            // ValueGenerator generator = MqttMessageWorker.getInstance().getStreamGenerator(streamTopic.getUri());
+            // if (generator == null) {
+            //     System.out.println("[ERROR] MessageWorker: stream generator is missing in processMessage");
+            // } else {
+            //     try {
+            //         generator.createObject(record, currentRow, topicStr);
+            //         System.out.println("[INFO] Object generated successfully.");
+
+            //         MqttExposeManager exposeManager = MqttExposeManager.getInstance();
+            //         if (exposeManager.isExposing(streamTopic.getUri())) {
+            //             String recordUri = "http://example.org/kg/record/" + System.currentTimeMillis();
+                    
+            //             exposeManager.publish(
+            //                 streamTopic.getUri(),
+            //                 streamTopic.getLabel(),
+            //                 message,
+            //                 recordUri
+            //             );
+            //         }
+
+            //     } catch (Exception e) {
+            //         System.err.println("[ERROR] Exception while creating object:");
+            //         e.printStackTrace();
+            //     }
+            // }
+
+            MqttExposeManager exposeManager = MqttExposeManager.getInstance();
+            if (exposeManager.isExposing(streamTopic.getUri())) {
+                String recordUri = "http://example.org/kg/record/" + System.currentTimeMillis();
+                String deploymentUri = streamTopic.getDeploymentUri();
+                String safeDeployment = deploymentUri != null ? deploymentUri.replaceAll("[^a-zA-Z0-9_]", "_") : "unknown";
+        
+                String exposedTopicLabel = "expose/" + safeDeployment + "/" + streamTopic.getLabel();
+                exposeManager.publish(streamTopic.getUri(), exposedTopicLabel, message, recordUri);
             }
         }
         return record;
@@ -321,5 +344,36 @@ public class MqttMessageWorker {
         System.out.println("Total number of clients is " + this.clientsMap.size());
         System.out.println("Total number of executors is " + this.executorsMap.size());
     }
+
+    public boolean startExpose(String topicUri, String brokerIp, String brokerPort) {
+        StreamTopic streamTopic = streamTopics.get(topicUri);
+        if (streamTopic == null) {
+            System.out.println("[Expose] Topic not found for expose: " + topicUri);
+            return false;
+        }
+    
+        if (!streamTopic.getHasTopicStatus().equals(HASCO.INGESTING)) {
+            System.out.println("[Expose] Cannot expose topic that is not ingesting");
+            return false;
+        }
+
+        String deploymentUri = streamTopic.getDeploymentUri();
+        String safeDeployment = deploymentUri != null ? deploymentUri.replaceAll("[^a-zA-Z0-9_]", "_") : "unknown";
+
+        String exposedTopicLabel = "expose/" + safeDeployment + "/" + streamTopic.getLabel();
+    
+        String brokerUrl = "tcp://" + brokerIp + ":" + brokerPort;
+        return MqttExposeManager.getInstance().startExpose(streamTopic.getUri(), exposedTopicLabel, brokerUrl);
+    }
+    
+    public boolean stopExpose(String topicUri) {
+        StreamTopic streamTopic = streamTopics.get(topicUri);
+        if (streamTopic == null) {
+            return false;
+        }
+    
+        return MqttExposeManager.getInstance().stopExpose(streamTopic.getUri());
+    }
+    
 
 }

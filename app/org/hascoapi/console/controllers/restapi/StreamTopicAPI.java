@@ -75,5 +75,43 @@ public class StreamTopicAPI extends Controller {
         }
         return ok(ApiUtil.createResponse(MqttMessageWorker.getInstance().getMonitor().getLatestValue(topicUri), true));
     }
+    
+    public Result startExpose() {
+        JsonNode json = request().body().asJson();
+        if (json == null || !json.has("topicUri") || !json.has("brokerIp") || !json.has("brokerPort")) {
+            return ok(ApiUtil.createResponse("Missing parameters: topicUri, brokerIp, or brokerPort", false));
+        }
+    
+        String topicUri = json.get("topicUri").asText();
+        String brokerIp = json.get("brokerIp").asText();
+        String brokerPort = json.get("brokerPort").asText();
+    
+        StreamTopic topic = StreamTopic.find(topicUri);
+        if (topic == null) {
+            return ok(ApiUtil.createResponse("StreamTopic not found: " + topicUri, false));
+        }
+    
+        if (!HASCO.INGESTING.equals(topic.getHasTopicStatus())) {
+            return ok(ApiUtil.createResponse(
+                "Cannot expose topic " + topicUri + " because it is not ingesting", false));
+        }
+    
+        if (MqttMessageWorker.getInstance().startExpose(topicUri, brokerIp, brokerPort)) {
+            return ok(ApiUtil.createResponse(
+                "Expose started for topic " + topicUri + " using broker " + brokerIp + ":" + brokerPort, true));
+        }
+    
+        return ok(ApiUtil.createResponse("Failed to start expose for topic " + topicUri, false));
+    }
+    
+    
+    public Result stopExpose(String topicUri) {
+        if (MqttMessageWorker.getInstance().stopExpose(topicUri)) {
+            return ok(ApiUtil.createResponse("Expose stopped for topic " + topicUri, true));
+        }
+        return ok(ApiUtil.createResponse("Failed to stop expose for topic " + topicUri, false));
+    }
+    
+    
 
 }
