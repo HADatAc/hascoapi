@@ -22,7 +22,7 @@ import org.hascoapi.vocabularies.FOAF;
 
 
 public class Agent extends HADatAcThing implements Comparable<Agent> {
-
+    
   	@PropertyField(uri="vstoi:hasStatus")
   	private String hasStatus;
 
