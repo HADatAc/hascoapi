@@ -37,6 +37,7 @@ public class OnStart {
 		} else {
 			listFolderPaths.add(ConfigProp.getPathIngestion());
 		}
+        listFolderPaths.add(ConfigProp.getPathAppOntology());
 		/*listFolderPaths.add("tmp");
 		listFolderPaths.add("logs");
 		listFolderPaths.add("processed_csv");

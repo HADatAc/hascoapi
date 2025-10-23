@@ -17,6 +17,7 @@ import org.apache.jena.update.UpdateExecutionFactory;
 import org.apache.jena.update.UpdateFactory;
 import org.apache.jena.update.UpdateProcessor;
 import org.apache.jena.update.UpdateRequest;
+import org.hascoapi.Constants;
 import org.hascoapi.annotations.PropertyField;
 import org.hascoapi.annotations.ReversedPropertyField;
 import org.hascoapi.vocabularies.HASCO;
@@ -58,8 +59,8 @@ public class VirtualColumn extends HADatAcThing implements Comparable<VirtualCol
         String label = hasSOCReference;
         if (hasGroundingLabel != null && !hasGroundingLabel.isEmpty()) {
             label = label + " (" + hasGroundingLabel.trim() + ")";
-        }
-        String vcUri= studyUri.replace("ST", "VC") + "-" + hasSOCReference.replace("??", "");
+        }        
+        String vcUri= studyUri.replace(Constants.PREFIX_STUDY, Constants.PREFIX_VIRTUAL_COLUMN) + "-" + hasSOCReference.replace("??", "");
         this.setUri(vcUri);
         this.setTypeUri(URIUtils.replacePrefixEx(HASCO.VIRTUAL_COLUMN));
         this.setHascoTypeUri(URIUtils.replacePrefixEx(HASCO.VIRTUAL_COLUMN));

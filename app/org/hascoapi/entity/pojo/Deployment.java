@@ -55,8 +55,8 @@ public class Deployment extends HADatAcThing {
     @PropertyField(uri="vstoi:hasPlatformInstance")
     private String platformInstanceUri;
 
-    @PropertyField(uri="vstoi:hasDetectorInstance")
-    private List<String> detectorInstanceUri;
+    @PropertyField(uri="vstoi:hasComponentInstance")
+    private List<String> componentInstanceUri;
 
     @PropertyField(uri = "vstoi:hasVersion")
     private String hasVersion;
@@ -98,7 +98,7 @@ public class Deployment extends HADatAcThing {
         instrumentInstanceUri = null;
         platformInstanceUri = null;
         isLegacy = "F";
-        detectorInstanceUri = new ArrayList<String>();
+        componentInstanceUri = new ArrayList<String>();
         canUpdate = new ArrayList<String>();
         canView = new ArrayList<String>();
         Deployment.getCache();
@@ -218,27 +218,27 @@ public class Deployment extends HADatAcThing {
         this.platformInstanceUri = platformInstanceUri;
     }
 
-    public List<String> getDetectorInstanceUri() {
-        return detectorInstanceUri;
+    public List<String> getComponentInstanceUri() {
+        return componentInstanceUri;
     }
-    public List<DetectorInstance> getDetectorInstance() {
-        List<DetectorInstance> detectorInstances = new ArrayList<DetectorInstance>();
-        if (detectorInstanceUri != null && detectorInstanceUri.size() > 0) {
-            for (String detInstanceUri : detectorInstanceUri) {
+    public List<ComponentInstance> getComponentInstance() {
+        List<ComponentInstance> componentInstances = new ArrayList<ComponentInstance>();
+        if (componentInstanceUri != null && componentInstanceUri.size() > 0) {
+            for (String detInstanceUri : componentInstanceUri) {
                 if (detInstanceUri != null) {
-                    DetectorInstance detInstance = DetectorInstance.find(detInstanceUri);
+                    ComponentInstance detInstance = ComponentInstance.find(detInstanceUri);
                     if (detInstance != null) {
-                        detectorInstances.add(detInstance);
+                        componentInstances.add(detInstance);
                     }
                 }
             }
         }
-        return detectorInstances;
+        return componentInstances;
     }
-    public void addDetectorInstanceUri(String detectorInstanceUri) {
-        if (detectorInstanceUri != null) {
-            if (!detectorInstanceUri.contains(detectorInstanceUri)) {
-                this.detectorInstanceUri.add(detectorInstanceUri);
+    public void addComponentInstanceUri(String componentInstanceUri) {
+        if (componentInstanceUri != null) {
+            if (!componentInstanceUri.contains(componentInstanceUri)) {
+                this.componentInstanceUri.add(componentInstanceUri);
             }
         }
     }
@@ -361,8 +361,8 @@ public class Deployment extends HADatAcThing {
                 deployment.setInstrumentInstanceUri(str);                
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_PLATFORM_INSTANCE)) {
                 deployment.setPlatformInstanceUri(str);;
-            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_DETECTOR_INSTANCE)) {
-                deployment.addDetectorInstanceUri(str);
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_COMPONENT_INSTANCE)) {
+                deployment.addComponentInstanceUri(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.DESIGNED_AT_TIME)) {
                 deployment.setDesignedAt(str);
             } else if (statement.getPredicate().getURI().equals(PROV.STARTED_AT_TIME)) {

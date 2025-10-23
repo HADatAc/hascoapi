@@ -142,19 +142,20 @@ public class Triplestore {
         for (String abbrev : namespaces.keySet()) {
             NameSpace ns = namespaces.get(abbrev);
             String nsURL = ns.getSource();
-            System.out.println("  - loading [" + nsURL + "]");
             if (abbrev != null && nsURL != null && !nsURL.equals("") && ns.getSourceMime() != null) {
+                System.out.println("[Triplestore] Loading [" + nsURL + "]");
                 String path = "";
                 ns.loadTriples(nsURL, true);
                 path = nsURL;
                 Long newTotal = totalTriples();
                 message += Feedback.println(mode, "   Added " + (newTotal - total) + " triples from " + path + " .");
-                System.out.println("  - added " + (newTotal - total) + " triples from " + path + " .");
+                System.out.println("[Triplestore]    - Added " + (newTotal - total) + " triples from " + path + " .");
                 total = newTotal;
                 ns.setNumberOfLoadedTriples();
                 //ns.updateFromTripleStore();
             }
         }
+        System.out.println("Triplestore.loadOntologies() is DONE!");
         message += Feedback.println(mode," ");
         message += Feedback.println(mode, "   Triples after [loadOntologies]: " + totalTriples());
         //NameSpaces.getInstance().reload();

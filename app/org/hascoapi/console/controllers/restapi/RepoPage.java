@@ -4,17 +4,32 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+
+import org.hascoapi.Constants;
 import org.hascoapi.RepositoryInstance;
 import org.hascoapi.console.controllers.ontologies.LoadOnt;
+import org.hascoapi.entity.pojo.HADatAcClass;
 import org.hascoapi.entity.pojo.NameSpace;
 import org.hascoapi.entity.pojo.Repository;
 import org.hascoapi.entity.pojo.Table;
 import org.hascoapi.utils.ApiUtil;
+import org.hascoapi.utils.ConfigProp;
+import org.hascoapi.utils.HAScOMapper;
 import org.hascoapi.utils.NameSpaces;
+import org.hascoapi.utils.URIUtils;
+import org.hascoapi.vocabularies.HASCO;
+
 import play.mvc.Controller;
+import play.mvc.Http;
 import play.mvc.Result;
 import com.typesafe.config.ConfigFactory;
 
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -179,6 +194,57 @@ public class RepoPage extends Controller {
         return 0L;
     }
     
+    /**
+     * Handles application ontology upload, save permanently, delete old triples, and ingest new ones.
+     */
+    public Result ingestAppOntology(Http.Request request) {
+        File tempFile = request.body().asRaw().asFile();
+        if (tempFile == null) {
+            return ok(ApiUtil.createResponse(
+                "[ERROR] RepoPage.ingestAppOntology(): No file has been provided for ingestion.", false
+            ));
+        }
+
+        String basePath = ConfigProp.getPathAppOntology();
+        if (basePath == null || basePath.trim().isEmpty()) {
+            System.err.println("[ERROR] RepoPage.ingestAppOntology(): Invalid file storage path from ConfigProp.getPathAppOntology()");
+            return internalServerError(ApiUtil.createResponse(
+                "[ERROR] RepoPage.ingestAppOntology(): Invalid file storage path.", false
+            ));
+        }
+
+        String filename = tempFile.getName();
+        Path permanentPath = Paths.get(basePath, filename);
+
+        // Run asynchronously to avoid blocking the HTTP thread
+        CompletableFuture.runAsync(() -> {
+            try {
+                // Save file permanently
+                DataFileAPI.saveFile(tempFile, permanentPath);
+
+                NameSpace appOntology = NameSpaces.getInstance().getAppOntology();
+
+                System.out.println("ingestAppOntology: filename=[" + permanentPath + "]");
+                System.out.println("ingestAppOntology: appOntologyURI=[" + appOntology.getUri() + "]");
+
+                // Remove triples from the same named graph
+                appOntology.deleteTriples();
+
+                // Load triples from the newly saved local file
+                appOntology.loadTriples(permanentPath.toString(), false);
+
+                System.out.println("[INFO] Ontology ingestion complete for file: " + permanentPath);
+
+            } catch (Exception e) {
+                System.err.println("[ERROR] Failed during ontology ingestion: " + e.getMessage());
+                e.printStackTrace();
+            }
+        });
+
+        return ok(ApiUtil.createResponse("Ontology upload and ingestion in progress.", true));
+    }
+
+
     public Result loadOntologies(){
         String kb = ConfigFactory.load().getString("hascoapi.repository.triplestore");
         CompletableFuture<Long> completableFuture = CompletableFuture.supplyAsync(() -> manageTriples("load", kb));
@@ -259,7 +325,8 @@ public class RepoPage extends Controller {
     }
 
     public Result getNamespaces() {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL, HASCO.HASCO_CLASS);
+        //ObjectMapper mapper = new ObjectMapper();
         try {
             ArrayNode array = mapper.convertValue(NameSpaces.getInstance().getOrderedNamespacesAsList(), ArrayNode.class);
             JsonNode jsonObject = mapper.convertValue(array, JsonNode.class);
@@ -268,6 +335,29 @@ public class RepoPage extends Controller {
             e.printStackTrace();
             return badRequest(ApiUtil.createResponse("Error retrieving namespaces", false));
         }
+    }
+
+    public Result getTopClasses(String uri) {
+        System.out.println("RepoPage.getTopClasses:uri=[" + uri + "]");
+        if (uri == null || uri.isEmpty()) {
+            return ok(ApiUtil.createResponse("No Namespace's uri has been provided.", false));
+        }
+        NameSpace nameSpace = NameSpaces.getInstance().getNamespacesByUri().get(uri);
+        if (nameSpace == null) {
+            nameSpace = NameSpace.find(uri);
+        }
+
+        if (nameSpace == null) {
+            return ok(ApiUtil.createResponse("Could not retreive any namespace with the uri that has been provided.", false));
+        }
+ 
+        List<HADatAcClass> topClasses = nameSpace.getTopclasses();
+        if (topClasses == null) {
+            topClasses = new ArrayList<HADatAcClass>();
+        }
+        ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL,HASCO.HASCO_CLASS);
+        JsonNode jsonObject = mapper.convertValue(topClasses, JsonNode.class);
+        return ok(ApiUtil.createResponse(jsonObject, true));
     }
 
     public Result getInstrumentPositions() {

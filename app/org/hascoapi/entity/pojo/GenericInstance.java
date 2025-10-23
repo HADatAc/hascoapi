@@ -68,12 +68,12 @@ public class GenericInstance extends HADatAcThing implements Comparable<GenericI
         if (execQuery(instrumentQuery)) {
             return VSTOI.INSTRUMENT;
         }
-        String detectorQuery = NameSpaces.getInstance().printSparqlNameSpaceList();
-        detectorQuery += " select ?uri where { " +
-                " ?uri rdfs:subClassOf* vstoi:Detector . " +
+        String componentQuery = NameSpaces.getInstance().printSparqlNameSpaceList();
+        componentQuery += " select ?uri where { " +
+                " ?uri rdfs:subClassOf* vstoi:Component . " +
                 "}";
-        if (execQuery(detectorQuery)) {
-            return VSTOI.DETECTOR;
+        if (execQuery(componentQuery)) {
+            return VSTOI.COMPONENT;
         }
         return null;
     }

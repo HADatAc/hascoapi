@@ -7,10 +7,8 @@ import java.util.HashMap;
 import org.hascoapi.entity.pojo.NameSpace;
 import org.hascoapi.entity.pojo.Instrument;
 import org.hascoapi.entity.pojo.ContainerSlot;
-import org.hascoapi.entity.pojo.DetectorStem;
-import org.hascoapi.entity.pojo.Detector;
-import org.hascoapi.entity.pojo.ActuatorStem;
-import org.hascoapi.entity.pojo.Actuator;
+import org.hascoapi.entity.pojo.ComponentStem;
+import org.hascoapi.entity.pojo.Component;
 import org.hascoapi.entity.pojo.Codebook;
 import org.hascoapi.entity.pojo.CodebookSlot;
 import org.hascoapi.entity.pojo.ResponseOption;
@@ -24,10 +22,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 public class INSGenHelper {
 
     public Map<String,NameSpace> namespaces;
-    public Map<String,DetectorStem> detStems;
-    public Map<String,Detector> dets;
-    public Map<String,ActuatorStem> actStems;
-    public Map<String,Actuator> acts;
+    public Map<String,ComponentStem> componentStems;
+    public Map<String,Component> components;
     public Map<String,Codebook> codebooks;
     public Map<String,ResponseOption> respOptions;
     public Map<String,AnnotationStem> annStems;
@@ -36,10 +32,8 @@ public class INSGenHelper {
     
     public INSGenHelper() {
         namespaces = new HashMap<String,NameSpace>();
-        detStems = new HashMap<String,DetectorStem>();
-        dets = new HashMap<String,Detector>();
-        actStems = new HashMap<String,ActuatorStem>();
-        acts = new HashMap<String,Actuator>();
+        componentStems = new HashMap<String,ComponentStem>();
+        components = new HashMap<String,Component>();
         codebooks = new HashMap<String,Codebook>();
         respOptions = new HashMap<String,ResponseOption>();
         annStems = new HashMap<String,AnnotationStem>();
@@ -55,39 +49,21 @@ public class INSGenHelper {
         }
     }
 
-    public void addDetectorStem(DetectorStem detStem) {
-        if (detStem == null || detStem.getUri() == null) {
+    public void addComponentStem(ComponentStem componentStem) {
+        if (componentStem == null || componentStem.getUri() == null) {
             return;
         }
-        if (!detStems.containsKey(detStem.getUri())) {
-            detStems.put(detStem.getUri(),detStem);
+        if (!componentStems.containsKey(componentStem.getUri())) {
+            componentStems.put(componentStem.getUri(),componentStem);
         }
     }
 
-    public void addDetector(Detector det) {
-        if (det == null || det.getUri() == null) {
+    public void addComponent(Component component) {
+        if (component == null || component.getUri() == null) {
             return;
         }
-        if (!dets.containsKey(det.getUri())) {
-            dets.put(det.getUri(),det);
-        }
-    }
-
-    public void addActuatorStem(ActuatorStem actStem) {
-        if (actStem == null || actStem.getUri() == null) {
-            return;
-        }
-        if (!actStems.containsKey(actStem.getUri())) {
-            actStems.put(actStem.getUri(),actStem);
-        }
-    }
-
-    public void addActuator(Actuator act) {
-        if (act == null || act.getUri() == null) {
-            return;
-        }
-        if (!acts.containsKey(act.getUri())) {
-            acts.put(act.getUri(),act);
+        if (!components.containsKey(component.getUri())) {
+            components.put(component.getUri(),component);
         }
     }
 

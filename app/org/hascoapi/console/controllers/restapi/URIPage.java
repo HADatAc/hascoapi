@@ -15,6 +15,7 @@ import org.hascoapi.RepositoryInstance;
 import org.hascoapi.entity.pojo.*;
 import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.HAScOMapper;
+import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.Utils;
 import org.hascoapi.vocabularies.FOAF;
 import org.hascoapi.vocabularies.HASCO;
@@ -112,7 +113,7 @@ public class URIPage extends Controller {
     }
 
     public static HADatAcThing objectFromUri(String uri) {
-        //System.out.println("URIPage.objectFromUri(): URI [" + uri + "]");
+        System.out.println("URIPage.objectFromUri(): URI [" + uri + "]");
         String typeUri = "";
         try {
 
@@ -124,8 +125,16 @@ public class URIPage extends Controller {
             GenericInstance result = GenericInstance.find(uri);
 
             if (result == null) {
-                System.out.println("[WARNING] URIPage.objectFromUri(): No generic instance found for uri [" + uri + "]");
-                return null;
+                System.out.println("NS size: " + NameSpaces.getInstance().getNamespacesByUri().size());
+                NameSpace ns = NameSpaces.getInstance().getNamespacesByUri().get(uri);
+
+                if (ns == null) {
+                    System.out.println("[WARNING] URIPage.objectFromUri(): No generic instance found for uri [" + uri + "]");
+                    return null;
+                }
+
+                return (HADatAcThing)ns;
+
             }
 
             //System.out.println("URIPage.objectFromUri(): HASCO TYPE [" + result.getHascoTypeUri() + "]");
@@ -140,11 +149,7 @@ public class URIPage extends Controller {
              * }
              */
 
-            if (result.getHascoTypeUri().equals(VSTOI.ACTUATOR)) {
-                finalResult = Actuator.find(uri);
-            } else if (result.getHascoTypeUri().equals(VSTOI.ACTUATOR_STEM)) {
-                finalResult = ActuatorStem.find(uri);
-            } else if (result.getHascoTypeUri().equals(VSTOI.ANNOTATION)) {
+            if (result.getHascoTypeUri().equals(VSTOI.ANNOTATION)) {
                 finalResult = Annotation.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.ANNOTATION_STEM)) {
                 finalResult = AnnotationStem.find(uri);
@@ -154,6 +159,12 @@ public class URIPage extends Controller {
                 finalResult = Codebook.find(uri);            
             } else if (result.getHascoTypeUri().equals(VSTOI.CODEBOOK_SLOT)) {
                 finalResult = CodebookSlot.find(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.COMPONENT)) {
+                finalResult = Component.find(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.COMPONENT_INSTANCE)) {
+                finalResult = ComponentInstance.find(uri);
+            } else if (result.getHascoTypeUri().equals(VSTOI.COMPONENT_STEM)) {
+                finalResult = ComponentStem.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.CONTAINER_SLOT)) {
                 finalResult = ContainerSlot.find(uri);
             } else if (result.getHascoTypeUri().equals(HASCO.DATA_ACQUISITION)) {
@@ -164,12 +175,6 @@ public class URIPage extends Controller {
                 finalResult = DD.find(uri);
             } else if (result.getHascoTypeUri().equals(VSTOI.DEPLOYMENT)) {
                 finalResult = Deployment.find(uri);
-            } else if (result.getHascoTypeUri().equals(VSTOI.DETECTOR)) {
-                finalResult = Detector.find(uri);
-            } else if (result.getHascoTypeUri().equals(VSTOI.DETECTOR_INSTANCE)) {
-                finalResult = DetectorInstance.find(uri);
-            } else if (result.getHascoTypeUri().equals(VSTOI.DETECTOR_STEM)) {
-                finalResult = DetectorStem.find(uri);
             } else if (result.getHascoTypeUri().equals(HASCO.DP2)) {
                 finalResult = DP2.find(uri);
             } else if (result.getHascoTypeUri().equals(HASCO.DSG)) {
@@ -186,6 +191,8 @@ public class URIPage extends Controller {
                 finalResult = InstrumentInstance.find(uri);
             } else if (result.getHascoTypeUri().equals(HASCO.KGR)) {
                 finalResult = KGR.find(uri);
+            } else if (result.getHascoTypeUri().equals(HASCO.ONTOLOGY)) {
+                finalResult = NameSpaces.getInstance().getNamespaces().get(uri);
             } else if (result.getHascoTypeUri().equals(SCHEMA.ORGANIZATION)) {
                 finalResult = Organization.find(uri);
             } else if (result.getHascoTypeUri().equals(SCHEMA.PERSON)) {

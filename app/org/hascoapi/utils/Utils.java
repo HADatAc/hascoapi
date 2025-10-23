@@ -58,8 +58,8 @@ public class Utils {
             case "instrumentinstance":
                 shortPrefix = Constants.PREFIX_INSTRUMENT_INSTANCE;
                 break;
-            case "detectorinstance":
-                shortPrefix = Constants.PREFIX_DETECTOR_INSTANCE;
+            case "componentinstance":
+                shortPrefix = Constants.PREFIX_COMPONENT_INSTANCE;
                 break;
             case "platforminstance":
                 shortPrefix = Constants.PREFIX_PLATFORM_INSTANCE;
@@ -67,11 +67,11 @@ public class Utils {
             case "subcontainer":
                 shortPrefix = Constants.PREFIX_SUBCONTAINER;
                 break;
-            case "detectorstem":
-                shortPrefix = Constants.PREFIX_DETECTOR_STEM;
+            case "componentstem":
+                shortPrefix = Constants.PREFIX_COMPONENT_STEM;
                 break;
-            case "detector":
-                shortPrefix = Constants.PREFIX_DETECTOR;
+            case "component":
+                shortPrefix = Constants.PREFIX_COMPONENT;
                 break;
             case "codebook":
                 shortPrefix = Constants.PREFIX_CODEBOOK;
@@ -136,6 +136,9 @@ public class Utils {
             case "organization":
                 shortPrefix = Constants.PREFIX_ORGANIZATION;
                 break;
+            case "opcuaobject":
+                shortPrefix = Constants.PREFIX_OPCUA_OBJECT;
+                break;                
             case "person":
                 shortPrefix = Constants.PREFIX_PERSON;
                 break;
@@ -150,12 +153,6 @@ public class Utils {
                 break;
             case "project":
                 shortPrefix = Constants.PREFIX_PROJECT;
-                break;
-            case "actuatorstem":
-                shortPrefix = Constants.PREFIX_ACTUATOR_STEM;
-                break;
-            case "actuator":
-                shortPrefix = Constants.PREFIX_ACTUATOR;
                 break;
             case "stream":
                 shortPrefix = Constants.PREFIX_STREAM;
@@ -256,29 +253,53 @@ public class Utils {
     }
 
     public static String uriPlainGen(String elementType, String identifier) {
+        return uriPlainGen(elementType, identifier, null, null);
+    }
+
+    public static String uriPlainGen(String elementType, String identifier, String namespace) {
+        return uriPlainGen(elementType, identifier, namespace, null);
+    }
+    
+    public static String uriPlainGen(String elementType, String identifier, String namespace, String socReference) {
         if (elementType == null) {
             System.out.println("[ERROR] Utils.uriHashGen(): elementType not provided.");
             return null;
         }
-        String repoUri = RepositoryInstance.getInstance().getHasDefaultNamespaceURL();
+        
+        String repoUri = null;
+        if (namespace != null) {
+            repoUri = namespace;
+        } else {
+            repoUri = RepositoryInstance.getInstance().getHasDefaultNamespaceURL();
+        }
         if (repoUri == null || repoUri.isEmpty()) {
-            System.out.println("[ERROR] Utils.uriHashGen(): no baseURL found for current repository.");
+            System.out.println("[ERROR] Utils.uriPlainGen(): no baseURL found for current repository.");
             return null;
         }
 
         String shortPrefix = Utils.shortPrefix(elementType);
         if (shortPrefix == null) {
-            System.out.println("[ERROR] Utils.uriHashGen(): could not found valid short prefix for elementType [" + elementType + "]");
+            System.out.println("[ERROR] Utils.uriPlainGen(): could not found valid short prefix for elementType [" + elementType + "].");
             return null;
         }
 
-        if (!repoUri.endsWith("/")) {
-            repoUri += "/";
+        if (identifier == null || identifier.isEmpty()) {
+            System.out.println("[ERROR] Utils.uriPlainGen(): no valid identifier found.");
+            return null;
         }
 
-        String finalUri = repoUri + shortPrefix + '_' + identifier;
+        String finalUri = "";
+        if (socReference != null && !socReference.isEmpty()) {
+            finalUri = repoUri + ":" + shortPrefix + "_" + socReference.replace("??","") + "_" + identifier;
+        } else {
+            finalUri = repoUri + ":" + shortPrefix + "_" + identifier;
+        }
+        finalUri = URIUtils.replacePrefixEx(finalUri);
+
+        finalUri = finalUri.replace("#/","#");
 
         return finalUri;
+
     }
 
     public static String retrieveHASCOTypeUri(String uri) {

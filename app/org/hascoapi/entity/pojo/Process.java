@@ -209,7 +209,7 @@ public class Process extends HADatAcThing implements Comparable<Process> {
     public void deleteWithTasks() {
         Task topTask = this.getHasTopTask();
         if (topTask != null) {
-            topTask.deleteWithSubtasks();
+            Task.deleteWithSubtasks(topTask);
         }
         deleteFromTripleStore();
     }

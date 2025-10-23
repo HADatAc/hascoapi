@@ -55,6 +55,9 @@ public abstract class HADatAcThing {
     @PropertyField(uri="rdfs:comment")
     String comment = "";
 
+    @PropertyField(uri="dcterms:description")
+    String description = "";
+
     @PropertyField(uri="hasco:hasImage")
     String hasImageUri = "";
 
@@ -220,6 +223,14 @@ public abstract class HADatAcThing {
 
     public void setComment(String comment) {
         this.comment = comment;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getNamedGraph() {

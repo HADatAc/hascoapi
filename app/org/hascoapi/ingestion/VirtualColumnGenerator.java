@@ -50,18 +50,19 @@ public class VirtualColumnGenerator extends BaseGenerator {
         	return null;
         }
         
-        // Skip the study row in the SSD sheet
-        //if (typeUri.equals("hasco:Study")) {
-        //    return null;
-        //}
+        // generate error if type uri is missing
+        if (typeUri == null || typeUri.equals("")) {
+            logger.printException("Missing typeUri for virtual column");
+            return null;
+        }
     	
-        // generate error if only study URI is missing
+        // generate error if study URI is missing
         if (this.studyUri == null || this.studyUri.equals("")) {
             logger.printExceptionByIdWithArgs("SSD_00003", this.getTypeUri(record));
             return null;
         }
             
-        // generate error if only SOC reference is missing
+        // generate error if SOC reference is missing
         if (SOCReference == null || SOCReference.equals("")) {
             logger.printException("SSD_00004");
             return null;
@@ -86,7 +87,7 @@ public class VirtualColumnGenerator extends BaseGenerator {
 
     @Override
     public String getErrorMsg(Exception e) {
-        return "Error in SSDGenerator: " + e.getMessage();
+        return "Error in VirtualColumnGenerator: " + e.getMessage();
     }
 
     @Override

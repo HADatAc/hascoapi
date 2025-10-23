@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.hascoapi.Constants;
 import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.entity.pojo.HADatAcThing;
 import org.hascoapi.entity.pojo.StudyObjectCollection;
@@ -17,15 +18,19 @@ public class SSDGenerator extends BaseGenerator {
 
     String SDDName = ""; //used for reference column uri
 
-    public SSDGenerator(DataFile dataFile) {
+    String namespace = "";
+
+    public SSDGenerator(DataFile dataFile, String namespace) {
         super(dataFile);
         //this.SDDName = dataFile.getBaseName().replaceAll("SSD-", "");
-        
-        if (records.get(0) != null) {
-            studyUri = URIUtils.replacePrefixEx(getUri(records.get(0)));
-        } else {
-            studyUri = "";
-        }
+
+        this.namespace = namespace;
+        studyUri = dataFile.getStudyUri();
+        //if (records.get(0) != null) {
+        //    studyUri = URIUtils.replacePrefixEx(getUri(records.get(0)));
+        //} else {
+        //    studyUri = "";
+        //}
     }
 
     @Override
@@ -45,7 +50,13 @@ public class SSDGenerator extends BaseGenerator {
     }
 
     private String getUri(Record rec) {
-        return Utils.uriPlainGen("studyobjectcollection", rec.getValueByColumnName(mapCol.get("uri")));
+        //System.out.println("SSDGenerator: namespace before getUri() is [" + namespace + "]");
+        String newUri = Utils.uriPlainGen(
+            "studyobjectcollection", 
+            rec.getValueByColumnName(mapCol.get("uri")),
+            namespace);
+        //System.out.println("SSDGenerator: namespace after getUri() is [" + newUri + "]");
+        return newUri;
     }
 
     private String getTypeUri(Record rec) {
@@ -58,7 +69,7 @@ public class SSDGenerator extends BaseGenerator {
 
     private String getVirtualColumnUri(Record rec) {
         String vcUri= 
-            studyUri.replace("ST", "VC") + "-" + 
+            studyUri.replace(Constants.PREFIX_STUDY, Constants.PREFIX_VIRTUAL_COLUMN) + "-" + 
             getSOCReference(rec).replace("??", "");
         return vcUri;
     }
@@ -84,7 +95,10 @@ public class SSDGenerator extends BaseGenerator {
             rec.getValueByColumnName(mapCol.get("hasScopeUri")).isEmpty()) {
             return null;
         }
-        return Utils.uriPlainGen("studyobjectcollection", rec.getValueByColumnName(mapCol.get("hasScopeUri")));
+        return Utils.uriPlainGen(
+            "studyobjectcollection", 
+            rec.getValueByColumnName(mapCol.get("hasScopeUri")),
+            namespace);
     }
 
     /*private String getGroundingLabel(Record rec) {
@@ -95,6 +109,7 @@ public class SSDGenerator extends BaseGenerator {
         if (mapCol.get("spaceScopeUris") == null || rec.getValueByColumnName(mapCol.get("spaceScopeUris")) == null) {
             return new ArrayList<String>();
         }
+        //System.out.println("getSpaceScopeUris: getValueByColumnName: [" + rec.getValueByColumnName(mapCol.get("spaceScopeUris")) + "]");
         List<String> ans = Arrays.asList(rec.getValueByColumnName(mapCol.get("spaceScopeUris")).split(","))
                 .stream()
                 .map(s -> URIUtils.replacePrefixEx(s))
@@ -104,18 +119,21 @@ public class SSDGenerator extends BaseGenerator {
             if (item == null || item.isEmpty()) {
                 uris.add(null);
             } else {
-                uris.add(Utils.uriPlainGen("studyobjectcollection", item));
+                uris.add(Utils.uriPlainGen(
+                    "studyobjectcollection", 
+                    item,
+                    namespace));
             }
         }
         return uris;
     }
 
     private List<String> getTimeScopeUris(Record rec) {
-        System.out.println("getTimeScopeUris:  timeScopeUris is [" + mapCol.get("timeScopeUris") + "]");
+        //System.out.println("getTimeScopeUris:  timeScopeUris is [" + mapCol.get("timeScopeUris") + "]");
         if (mapCol.get("timeScopeUris") == null || rec.getValueByColumnName(mapCol.get("timeScopeUris")) == null) {
             return new ArrayList<String>();
         }
-        System.out.println("getTimeScopeUris: getValueByColumnName: [" + rec.getValueByColumnName(mapCol.get("timeScopeUris")) + "]");
+        //System.out.println("getTimeScopeUris: getValueByColumnName: [" + rec.getValueByColumnName(mapCol.get("timeScopeUris")) + "]");
         List<String> ans = Arrays.asList(rec.getValueByColumnName(mapCol.get("timeScopeUris")).split(","))
                 .stream()
                 .map(s -> URIUtils.replacePrefixEx(s))
@@ -125,7 +143,10 @@ public class SSDGenerator extends BaseGenerator {
             if (item == null || item.isEmpty()) {
                 uris.add(null);
             } else {
-                uris.add(Utils.uriPlainGen("studyobjectcollection", item));
+                uris.add(Utils.uriPlainGen(
+                    "studyobjectcollection", 
+                    item,
+                    namespace));
             }
         }
         return uris;
@@ -144,18 +165,23 @@ public class SSDGenerator extends BaseGenerator {
 
     public StudyObjectCollection createObjectCollection(Record record) throws Exception {
 
+        if (record.size() <= 0) {  // skip empty records
+			return null;
+		}
+
         String uri = this.getUri(record);
     	String typeUri = this.getTypeUri(record);
+        String SOCReference = getSOCReference(record);
+
+        System.out.println("SSDGenerator: recordSize=[" + record.size() + "]");
+        System.out.println("     uri=[" + uri + "] studyUri=[" + studyUri + "]");
+        System.out.println("     typeUri=[" + typeUri + "] SOCReference=[" + SOCReference + "]");
 
         // Skip the study row in the SSD sheet
     	//if (typeUri.equals("hasco:Study")) {
         //    return null;
         //}
         
-        // Skip the SOC generator for columns with just VirtualColumn info (i.e., blank type and filled out SOC reference
-        String SOCReference = getSOCReference(record);
-
-        System.out.println("SSDGenerator: typeUri=[" + typeUri + "] SOCReference=[" + SOCReference + "]");
 
         if (typeUri.isEmpty() && SOCReference != null && !SOCReference.isEmpty()) {
             return null;
@@ -176,12 +202,30 @@ public class SSDGenerator extends BaseGenerator {
         }
 
         String scopeUri = getHasScopeUri(record);
-        if (scopeUri == null) {
-            scopeUri = "";
-        } else {
+        if (scopeUri != null && !scopeUri.isEmpty()) {
             scopeUri = URIUtils.replacePrefixEx(scopeUri);
         }
+        //System.out.println("SSDGenerator: [" + scopeUri + "]");
 
+        StudyObjectCollection soc = new StudyObjectCollection();
+        soc.setUri(uri);
+        soc.setTypeUri(URIUtils.replacePrefixEx(typeUri));
+        soc.setHascoTypeUri(URIUtils.replacePrefixEx(HASCO.STUDY_OBJECT_COLLECTION));
+        soc.setLabel(getLabel(record));
+        soc.setComment(getLabel(record));
+        soc.setIsMemberOfUri(studyUri);
+        soc.setVirtualColumnUri(getVirtualColumnUri(record));
+        soc.setRoleUri(getRoleLabel(record));
+        soc.setHasSIRManagerEmail(this.dataFile.getHasSIRManagerEmail());
+        if (scopeUri != null && !scopeUri.isEmpty()) {
+            soc.setHasScopeUri(scopeUri);
+        }
+        soc.setTimeScopeUris(getTimeScopeUris(record));
+        soc.setSpaceScopeUris(getSpaceScopeUris(record));
+        soc.setGroupUris(getGroupUris(record));
+        soc.setLastCounter("0");
+
+        /* 
         StudyObjectCollection soc = new StudyObjectCollection(
                 getUri(record),
                 URIUtils.replacePrefixEx(typeUri),
@@ -197,9 +241,9 @@ public class SSDGenerator extends BaseGenerator {
                 getTimeScopeUris(record),
                 getGroupUris(record),
                 "0");
-        
-        System.out.println("New SOC: uri=[" + getUri(record) +
-                "] label=[" + getLabel(record) + "]");
+        */
+
+        System.out.println("New SOC: uri=[" + soc.getUri() + "] label=[" + soc.getLabel() + "]");
 
         return soc;
     }   

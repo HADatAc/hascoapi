@@ -61,6 +61,11 @@ public class NameSpaceGenerator extends BaseGenerator {
 		//for (int aux=0; aux < record.size(); aux++) {
 		//	System.out.println("  - [" + record.getValueByColumnIndex(aux) + "]");
 		//}
+
+		if (record.size() <= 0) {
+			return null;
+		}
+
 		String nsUri = getNSUri(record); 
 		if (nsUri == null || nsUri.isEmpty()) {
 			return null;
@@ -80,6 +85,8 @@ public class NameSpaceGenerator extends BaseGenerator {
 			return null;
 		}
 
+		String source = getNSSource(record);
+
         NameSpace ns = new NameSpace();
 		ns.setNamedGraph(Constants.DEFAULT_REPOSITORY);
         ns.setLabel(nsAbbrev);
@@ -87,7 +94,7 @@ public class NameSpaceGenerator extends BaseGenerator {
         ns.setTypeUri(HASCO.ONTOLOGY);
         ns.setHascoTypeUri(HASCO.ONTOLOGY);
         ns.setSourceMime(getNSFormat(record));
-        ns.setSource(getNSSource(record));
+        ns.setSource(source);
         ns.setComment("Ingested by NameSpaceGenerator");
         ns.setPriority(100);
         ns.setPermanent(false);
@@ -108,6 +115,17 @@ public class NameSpaceGenerator extends BaseGenerator {
 		//                  the save command is going to cause the ns's uri to be invalid.  
 
 		System.out.println("NameSpaceGenerator: adding " + nsAbbrev + " into triple store.");
+
+		ns.save();
+
+		if (source != null && !source.isEmpty()) {
+			ns.deleteTriples();
+			String url = ns.getSource();
+			if (!url.isEmpty()) {
+				ns.loadTriples(url, true);
+			}
+			ns.setNumberOfLoadedTriples();
+		}
 
 		ns.save();
 

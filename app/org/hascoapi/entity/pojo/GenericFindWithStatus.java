@@ -43,8 +43,8 @@ public class GenericFindWithStatus<T> {
             return null;
         }
         //System.out.println("findByStatusWithPages: hascoTypeStr=[" + hascoTypeStr + "]");
-        if (clazz == Detector.class) {
-            return findDetectorInstancesByStatusWithPages(clazz, hascoTypeStr, hasStatus, pageSize, offset);
+        if (clazz == Component.class) {
+            return findComponentInstancesByStatusWithPages(clazz, hascoTypeStr, hasStatus, pageSize, offset);
         } else if (GenericFind.isSIR(clazz)) {
             return findSIRInstancesByStatusWithPages(clazz, hascoTypeStr, hasStatus, pageSize, offset);
         } else if (GenericFind.isMT(clazz)) {
@@ -54,11 +54,11 @@ public class GenericFindWithStatus<T> {
         }
     }
 
-	public List<T> findDetectorInstancesByStatusWithPages(Class clazz, String hascoTypeStr, String hasStatus, int pageSize, int offset) {
+	public List<T> findComponentInstancesByStatusWithPages(Class clazz, String hascoTypeStr, String hasStatus, int pageSize, int offset) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
 		queryString += " SELECT ?uri WHERE { " +
                 " ?uri hasco:hascoType " + hascoTypeStr + " . " +
-                " ?uri vstoi:hasDetectorStem ?stem . " +
+                " ?uri vstoi:hasComponentStem ?stem . " +
                 " OPTIONAL { ?stem vstoi:hasContent ?content . } " +
 				" ?uri vstoi:hasStatus <" + hasStatus + "> . " +
 				"}" +
@@ -161,8 +161,8 @@ public class GenericFindWithStatus<T> {
             return null;
         }
         //System.out.println("findByStatusManagerEmailWithPages: hascoTypeStr=[" + hascoTypeStr + "]");
-        if (clazz == Detector.class) {
-            return findDetectorInstancesByStatusManagerEmailWithPages(clazz, hascoTypeStr, hasStatus, managerEmail, withCurrent, pageSize, offset);
+        if (clazz == Component.class) {
+            return findComponentInstancesByStatusManagerEmailWithPages(clazz, hascoTypeStr, hasStatus, managerEmail, withCurrent, pageSize, offset);
         } else if (GenericFind.isSIR(clazz)) {
             return findSIRInstancesByStatusManagerEmailWithPages(clazz, hascoTypeStr, hasStatus, managerEmail, withCurrent, pageSize, offset);
         } else if (GenericFind.isMT(clazz)) {
@@ -172,12 +172,12 @@ public class GenericFindWithStatus<T> {
         }
     }
 
-	public List<T> findDetectorInstancesByStatusManagerEmailWithPages(Class clazz, String hascoTypeStr, String hasStatus, String managerEmail, boolean withCurrent, int pageSize, int offset) {
+	public List<T> findComponentInstancesByStatusManagerEmailWithPages(Class clazz, String hascoTypeStr, String hasStatus, String managerEmail, boolean withCurrent, int pageSize, int offset) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
         if (withCurrent) {
             queryString += " SELECT ?uri WHERE { " +
                     " ?uri hasco:hascoType " + hascoTypeStr + " . " +
-                    " ?uri vstoi:hasDetectorStem ?stem . " +
+                    " ?uri vstoi:hasComponentStem ?stem . " +
                     " OPTIONAL { ?stem vstoi:hasContent ?content . } " +
                     " { " +
                     "   ?uri vstoi:hasStatus <" + hasStatus + "> . " +
@@ -193,7 +193,7 @@ public class GenericFindWithStatus<T> {
         } else {
             queryString += " SELECT ?uri WHERE { " +
                     " ?uri hasco:hascoType " + hascoTypeStr + " . " +
-                    " ?uri vstoi:hasDetectorStem ?stem . " +
+                    " ?uri vstoi:hasComponentStem ?stem . " +
                     " OPTIONAL { ?stem vstoi:hasContent ?content . } " +
                     " ?uri vstoi:hasStatus <" + hasStatus + "> . " +
                     " ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +

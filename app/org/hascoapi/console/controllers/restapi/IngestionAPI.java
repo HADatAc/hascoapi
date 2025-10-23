@@ -130,11 +130,7 @@ public class IngestionAPI extends Controller {
         }
         if (dataFile != null) {
             dataFile.setLastProcessTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
-            if (elementType.equals("dsg")) {
-                dataFile.setFileStatus(DataFile.WORKING_STD);
-            } else {
-                dataFile.setFileStatus(DataFile.WORKING);
-            }
+            dataFile.setFileStatus(DataFile.WORKING);
             dataFile.getLogger().resetLog();
             dataFile.save();
             System.out.println("IngestionAPI.ingest(): API has read DataFile from triplestore");

@@ -16,8 +16,8 @@ import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.vocabularies.*;
 
-@JsonFilter("detectorStemFilter")
-public class DetectorStem extends HADatAcClass implements SIRElement, Comparable<DetectorStem>  {
+@JsonFilter("componentStemFilter")
+public class ComponentStem extends HADatAcClass implements SIRElement, Comparable<ComponentStem>  {
 
     @PropertyField(uri="vstoi:hasStatus")
     private String hasStatus;
@@ -46,8 +46,8 @@ public class DetectorStem extends HADatAcClass implements SIRElement, Comparable
     @PropertyField(uri = "vstoi:hasEditorEmail")
     private String hasEditorEmail;
 
-    @PropertyField(uri="hasco:detects")
-    private String detects;
+    @PropertyField(uri="hasco:isAssociatedWith")
+    private String isAssociatedWith;
 
     public String getHasStatus() {
         return hasStatus;
@@ -63,21 +63,6 @@ public class DetectorStem extends HADatAcClass implements SIRElement, Comparable
 
     public void setHasContent(String hasContent) {
         this.hasContent = hasContent;
-    }
-
-    public String getDetects() {
-        return detects;
-    }
-
-    public SemanticVariable getDetectsSemanticVariable() {
-        if (detects == null) {
-            return null;
-        }
-        return SemanticVariable.find(detects);
-    }
-
-    public void setDetects(String detects) {
-        this.detects = detects;
     }
 
     public String getHasLanguage() {
@@ -136,52 +121,49 @@ public class DetectorStem extends HADatAcClass implements SIRElement, Comparable
         this.hasEditorEmail = hasEditorEmail;
     }
 
-    /* 
-    public String getTypeLabel() {
-        DetectorStemType detType = DetectorStemType.find(getTypeUri());
-        if (detType == null || detType.getLabel() == null) {
-            return "";
+    public String getIsAssociatedWith() {
+        return isAssociatedWith;
+    }
+
+    public SemanticVariable getIsAssociatedWithSemanticVariable() {
+        if (isAssociatedWith == null) {
+            return null;
         }
-        return detType.getLabel();
+        return SemanticVariable.find(isAssociatedWith);
     }
 
-    public String getTypeURL() {
-        DetectorStemType detType = DetectorStemType.find(getTypeUri());
-        if (detType == null || detType.getLabel() == null) {
-            return "";
-        }
-        return detType.getURL();
-    }
-    */
-
-    public DetectorStem () {
+    public void setIsAssociatedWith(String isAssociatedWith) {
+        this.isAssociatedWith = isAssociatedWith;
     }
 
-    public DetectorStem (String className) {
+    public ComponentStem () {
+    }
+
+    public ComponentStem (String className) {
 		super(className);
     }
 
-    public static List<DetectorStem> findByInstrument(String instrumentUri) {
+    public static List<ComponentStem> findByInstrument(String instrumentUri) {
         //System.out.println("findByInstrument: [" + instrumentUri + "]");
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?detModel rdfs:subClassOf* vstoi:DetectorStem . " +
-                " ?uri a ?detModel ." +
-                " ?attUri vstoi:hasDetectorStem ?uri . " +
+                " ?model rdfs:subClassOf* vstoi:ComponentStem . " +
+                " ?uri a ?model ." +
+                " ?attUri vstoi:hasComponentStem ?uri . " +
                 " ?attUri vstoi:belongsTo <" + instrumentUri + ">. " +
                 "} ";
 
         return findByQuery(queryString);
     }
 
-    public static List<DetectorStem> findAvailable() {
+    public static List<ComponentStem> findAvailable() {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                "   { ?detModel rdfs:subClassOf* vstoi:DetectorStem . " +
-                "     ?uri a ?detModel ." +
+                "   { ?model rdfs:subClassOf* vstoi:ComponentStem . " +
+                "     ?uri a ?model ." +
                 "   } MINUS { " +
                 "     ?dep_uri a vstoi:Deployment . " +
-                "     ?dep_uri hasco:hasDetectorStem ?uri .  " +
+                "     ?dep_uri hasco:hasComponentStem ?uri .  " +
                 "     FILTER NOT EXISTS { ?dep_uri prov:endedAtTime ?enddatetime . } " +
                 "    } " +
                 "} " +
@@ -190,13 +172,13 @@ public class DetectorStem extends HADatAcClass implements SIRElement, Comparable
         return findByQuery(queryString);
     }
 
-    public static List<DetectorStem> findDeployed() {
+    public static List<ComponentStem> findDeployed() {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                "   ?detModel rdfs:subClassOf* vstoi:DetectorStem . " +
-                "   ?uri a ?detModel ." +
+                "   ?model rdfs:subClassOf* vstoi:ComponentStem . " +
+                "   ?uri a ?model ." +
                 "   ?dep_uri a vstoi:Deployment . " +
-                "   ?dep_uri hasco:hasDetectorStem ?uri .  " +
+                "   ?dep_uri hasco:hasComponentStem ?uri .  " +
                 "   FILTER NOT EXISTS { ?dep_uri prov:endedAtTime ?enddatetime . } " +
                 "} " +
                 "ORDER BY DESC(?datetime) ";
@@ -204,8 +186,8 @@ public class DetectorStem extends HADatAcClass implements SIRElement, Comparable
         return findByQuery(queryString);
     }
 
-    private static List<DetectorStem> findByQuery(String queryString) {
-        List<DetectorStem> detectorStems = new ArrayList<DetectorStem>();
+    private static List<ComponentStem> findByQuery(String queryString) {
+        List<ComponentStem> ComponentStems = new ArrayList<ComponentStem>();
         ResultSetRewindable resultsrw = SPARQLUtils.select(
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
@@ -215,20 +197,20 @@ public class DetectorStem extends HADatAcClass implements SIRElement, Comparable
 
         while (resultsrw.hasNext()) {
             QuerySolution soln = resultsrw.next();
-            DetectorStem detectorStem = find(soln.getResource("uri").getURI());
-            detectorStems.add(detectorStem);
+            ComponentStem ComponentStem = find(soln.getResource("uri").getURI());
+            ComponentStems.add(ComponentStem);
         }
 
-        java.util.Collections.sort((List<DetectorStem>) detectorStems);
-        return detectorStems;
+        java.util.Collections.sort((List<ComponentStem>) ComponentStems);
+        return ComponentStems;
 
     }
 
-    public static DetectorStem find(String uri) {
+    public static ComponentStem find(String uri) {
 		if (uri == null || uri.isEmpty()) {
 			return null;
 		}
-		DetectorStem detectorStem = null;
+		ComponentStem ComponentStem = null;
 		// Construct the SELECT query to retrieve named graphs
 		String queryString = "SELECT DISTINCT ?graph ?p ?o WHERE { GRAPH ?graph { <" + uri + "> ?p ?o } }";
 		ResultSet resultSet = SPARQLUtils.select(CollectionUtil.getCollectionPath(
@@ -237,7 +219,7 @@ public class DetectorStem extends HADatAcClass implements SIRElement, Comparable
 		if (!resultSet.hasNext()) {
 			return null;
 		} else {
-            detectorStem = new DetectorStem(VSTOI.DETECTOR_STEM);
+            ComponentStem = new ComponentStem(VSTOI.COMPONENT_STEM);
 		}
 
 		// Iterate over results
@@ -246,7 +228,7 @@ public class DetectorStem extends HADatAcClass implements SIRElement, Comparable
 			
 			// Retrieve the named graph URI
 			if (qs.contains("graph")) {
-				detectorStem.setNamedGraph(qs.get("graph").toString());
+				ComponentStem.setNamedGraph(qs.get("graph").toString());
 				//System.out.println("Graph: " + graphURI);
 			}
 			
@@ -257,66 +239,66 @@ public class DetectorStem extends HADatAcClass implements SIRElement, Comparable
 				//System.out.println("Predicate: " + predicate + " | Object: " + object);
 
 				if (predicate.equals(RDFS.LABEL)) {
-					detectorStem.setLabel(object);
+					ComponentStem.setLabel(object);
 				} else if (predicate.equals(RDFS.SUBCLASS_OF)) {
-					detectorStem.setSuperUri(object); 
+					ComponentStem.setSuperUri(object); 
 				} else if (predicate.equals(HASCO.HASCO_TYPE)) {
-					detectorStem.setHascoTypeUri(object);
+					ComponentStem.setHascoTypeUri(object);
 				} else if (predicate.equals(HASCO.HAS_IMAGE)) {
-					detectorStem.setHasImageUri(object);
+					ComponentStem.setHasImageUri(object);
 				} else if (predicate.equals(HASCO.HAS_WEB_DOCUMENT)) {
-					detectorStem.setHasWebDocument(object);
+					ComponentStem.setHasWebDocument(object);
                 } else if (predicate.equals(RDFS.COMMENT)) {
-                    detectorStem.setComment(object);
+                    ComponentStem.setComment(object);
                 } else if (predicate.equals(HASCO.HASCO_TYPE)) {
-                    detectorStem.setHascoTypeUri(object);
+                    ComponentStem.setHascoTypeUri(object);
                 } else if (predicate.equals(VSTOI.HAS_STATUS)) {
-                    detectorStem.setHasStatus(object);
+                    ComponentStem.setHasStatus(object);
                 } else if (predicate.equals(VSTOI.HAS_CONTENT)) {
-                    detectorStem.setHasContent(object);
+                    ComponentStem.setHasContent(object);
                 } else if (predicate.equals(VSTOI.HAS_LANGUAGE)) {
-                    detectorStem.setHasLanguage(object);
+                    ComponentStem.setHasLanguage(object);
                 } else if (predicate.equals(VSTOI.HAS_VERSION)) {
-                    detectorStem.setHasVersion(object);
-                } else if (predicate.equals(HASCO.DETECTS)) {
+                    ComponentStem.setHasVersion(object);
+                } else if (predicate.equals(HASCO.IS_ASSOCIATED_WITH)) {
                     try {
-                        detectorStem.setDetects(object);
+                        ComponentStem.setIsAssociatedWith(object);
                     } catch (Exception e) {
                     }
                 } else if (predicate.equals(PROV.WAS_DERIVED_FROM)) {
                     try {
-                        detectorStem.setWasDerivedFrom(object);
+                        ComponentStem.setWasDerivedFrom(object);
                     } catch (Exception e) {
                     }
                 } else if (predicate.equals(PROV.WAS_GENERATED_BY)) {
                     try {
-                        detectorStem.setWasGeneratedBy(object);
+                        ComponentStem.setWasGeneratedBy(object);
                     } catch (Exception e) {
                     }
 				} else if (predicate.equals(VSTOI.HAS_REVIEW_NOTE)) {
-					detectorStem.setHasReviewNote(object);
+					ComponentStem.setHasReviewNote(object);
 				} else if (predicate.equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
-					detectorStem.setHasSIRManagerEmail(object);
+					ComponentStem.setHasSIRManagerEmail(object);
 				} else if (predicate.equals(VSTOI.HAS_EDITOR_EMAIL)) {
-					detectorStem.setHasEditorEmail(object);
+					ComponentStem.setHasEditorEmail(object);
                 } 
             }
         }
 
-        detectorStem.setUri(uri);
+        ComponentStem.setUri(uri);
 
-        return detectorStem;
+        return ComponentStem;
     }
 
-    public static List<DetectorStem> derivation(String detectorStemuri) {
-        if (detectorStemuri == null || detectorStemuri.isEmpty()) {
+    public static List<ComponentStem> derivation(String ComponentStemuri) {
+        if (ComponentStemuri == null || ComponentStemuri.isEmpty()) {
             return null;
         }
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?detModel rdfs:subClassOf* vstoi:DetectorStem . " +
-                " ?uri a ?detModel ." +
-                " ?uri prov:wasDerivedFrom <" + detectorStemuri + "> . " +
+                " ?model rdfs:subClassOf* vstoi:ComponentStem . " +
+                " ?uri a ?model ." +
+                " ?uri prov:wasDerivedFrom <" + ComponentStemuri + "> . " +
                 " ?uri vstoi:hasContent ?content . " +
                 "} " +
                 "ORDER BY ASC(?content) ";
@@ -327,7 +309,7 @@ public class DetectorStem extends HADatAcClass implements SIRElement, Comparable
     }
 
     @Override
-    public int compareTo(DetectorStem another) {
+    public int compareTo(ComponentStem another) {
         return this.getLabel().compareTo(another.getLabel());
     }
 

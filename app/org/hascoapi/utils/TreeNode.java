@@ -9,6 +9,7 @@ public class TreeNode {
     private String name;
     private String uri;
     private String comment;
+    private String description;
     private boolean firstVisit;
     private ArrayList<TreeNode> children;
 
@@ -52,6 +53,14 @@ public class TreeNode {
 
     public String getComment() {
         return this.comment;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getDescription() {
+        return this.description;
     }
 
     public boolean getFirstVisit() {

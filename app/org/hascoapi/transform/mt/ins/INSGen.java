@@ -5,10 +5,8 @@ import java.io.IOException;
 import java.util.List;
 import org.hascoapi.entity.pojo.Instrument;
 import org.hascoapi.entity.pojo.ContainerSlot;
-import org.hascoapi.entity.pojo.DetectorStem;
-import org.hascoapi.entity.pojo.Detector;
-import org.hascoapi.entity.pojo.ActuatorStem;
-import org.hascoapi.entity.pojo.Actuator;
+import org.hascoapi.entity.pojo.Component;
+import org.hascoapi.entity.pojo.ComponentStem;
 import org.hascoapi.entity.pojo.Codebook;
 import org.hascoapi.entity.pojo.SlotElement;
 import org.hascoapi.entity.pojo.ResponseOption;
@@ -25,10 +23,8 @@ public class INSGen {
     public static final String NAMESPACES           = "Namespaces";
     public static final String INSTRUMENTS          = "Instruments";
     public static final String SLOT_ELEMENTS        = "SlotElements";
-    public static final String DETECTOR_STEMS       = "DetectorStems";
-    public static final String DETECTORS            = "Detectors";
-    public static final String ACTUATOR_STEMS       = "ActuatorStems";
-    public static final String ACTUATORS            = "Actuators";
+    public static final String COMPONENT_STEMS      = "ComponentStems";
+    public static final String COMPONENTS           = "Components";
     public static final String CODEBOOKS            = "CodeBooks";
     public static final String CODEBOOK_SLOTS       = "CodeBookSlots";
     public static final String RESPONSE_OPTIONS     = "ResponseOptions";
@@ -51,34 +47,23 @@ public class INSGen {
                 helper = INSSlotElement.addByInstrument(helper,instrument);
             }
         }
-        GenericFindWithStatus<DetectorStem> detStemQuery = new GenericFindWithStatus<DetectorStem>();
-        List<DetectorStem> detStems = detStemQuery.findByStatusWithPages(DetectorStem.class, status, PAGESIZE, OFFSET);
-        if (detStems != null) {
-            for (DetectorStem detStem: detStems) {
-                helper = INSDetectorStem.add(helper,detStem);
+
+        GenericFindWithStatus<ComponentStem> componentStemQuery = new GenericFindWithStatus<ComponentStem>();
+        List<ComponentStem> componentStems = componentStemQuery.findByStatusWithPages(ComponentStem.class, status, PAGESIZE, OFFSET);
+        if (componentStems != null) {
+            for (ComponentStem componentStem: componentStems) {
+                helper = INSComponentStem.add(helper,componentStem);
             }
         }
-        GenericFindWithStatus<Detector> detQuery = new GenericFindWithStatus<Detector>();
-        List<Detector> dets = detQuery.findByStatusWithPages(Detector.class, status, PAGESIZE, OFFSET);
-        if (dets != null) {
-            for (Detector det: dets) {
-                helper = INSDetector.add(helper,det);
+
+        GenericFindWithStatus<Component> componentQuery = new GenericFindWithStatus<Component>();
+        List<Component> components = componentQuery.findByStatusWithPages(Component.class, status, PAGESIZE, OFFSET);
+        if (components != null) {
+            for (Component component: components) {
+                helper = INSComponent.add(helper,component);
             }
         }
-        GenericFindWithStatus<ActuatorStem> actStemQuery = new GenericFindWithStatus<ActuatorStem>();
-        List<ActuatorStem> actStems = actStemQuery.findByStatusWithPages(ActuatorStem.class, status, PAGESIZE, OFFSET);
-        if (actStems != null) {
-            for (ActuatorStem actStem: actStems) {
-                helper = INSActuatorStem.add(helper,actStem);
-            }
-        }
-        GenericFindWithStatus<Actuator> actQuery = new GenericFindWithStatus<Actuator>();
-        List<Actuator> acts = actQuery.findByStatusWithPages(Actuator.class, status, PAGESIZE, OFFSET);
-        if (acts != null) {
-            for (Actuator act: acts) {
-                helper = INSActuator.add(helper,act);
-            }
-        }
+
         GenericFindWithStatus<Codebook> cbQuery = new GenericFindWithStatus<Codebook>();
         List<Codebook> cbs = cbQuery.findByStatusWithPages(Codebook.class, status, PAGESIZE, OFFSET);
         if (cbs != null) {
@@ -120,25 +105,15 @@ public class INSGen {
         
         helper = INSInstrument.add(helper,instrument);
         helper = INSSlotElement.addByInstrument(helper,instrument);
-        if (helper.dets.size() > 0) {
-            for (Detector detector : helper.dets.values()) {
-                helper = INSDetector.add(helper,detector);
+        if (helper.components.size() > 0) {
+            for (Component component : helper.components.values()) {
+                helper = INSComponent.add(helper,component);
             }
         }
-        if (helper.acts.size() > 0) {
-            for (Actuator actuator : helper.acts.values()) {
-                helper = INSActuator.add(helper,actuator);
-            }            
-        }
-        if (helper.detStems.size() > 0) {
-            for (DetectorStem detectorStem : helper.detStems.values()) {
-                helper = INSDetectorStem.add(helper,detectorStem);
+        if (helper.componentStems.size() > 0) {
+            for (ComponentStem componentStem : helper.componentStems.values()) {
+                helper = INSComponentStem.add(helper,componentStem);
             }
-        }
-        if (helper.actStems.size() > 0) {
-            for (ActuatorStem actuatorStem : helper.actStems.values()) {
-                helper = INSActuatorStem.add(helper,actuatorStem);
-            }            
         }
         if (helper.codebooks.size() > 0) {
             for (Codebook codebook : helper.codebooks.values()) {
@@ -168,32 +143,18 @@ public class INSGen {
                 INSSlotElement.addByInstrument(helper,instrument);
             }
         }
-        GenericFindWithStatus<DetectorStem> detStemQuery = new GenericFindWithStatus<DetectorStem>();
-        List<DetectorStem> detStems = detStemQuery.findByStatusManagerEmailWithPages(DetectorStem.class, status, useremail, withCurrent, PAGESIZE, OFFSET);
-        if (detStems != null) {
-            for (DetectorStem detStem: detStems) {
-                INSDetectorStem.add(helper,detStem);
+        GenericFindWithStatus<ComponentStem> componentStemQuery = new GenericFindWithStatus<ComponentStem>();
+        List<ComponentStem> componentStems = componentStemQuery.findByStatusManagerEmailWithPages(ComponentStem.class, status, useremail, withCurrent, PAGESIZE, OFFSET);
+        if (componentStems != null) {
+            for (ComponentStem componentStem: componentStems) {
+                INSComponentStem.add(helper,componentStem);
             }
         }
-        GenericFindWithStatus<Detector> detQuery = new GenericFindWithStatus<Detector>();
-        List<Detector> dets = detQuery.findByStatusManagerEmailWithPages(Detector.class, status, useremail, withCurrent, PAGESIZE, OFFSET);
-        if (dets != null) {
-            for (Detector det: dets) {
-                INSDetector.add(helper,det);
-            }
-        }
-        GenericFindWithStatus<ActuatorStem> actStemQuery = new GenericFindWithStatus<ActuatorStem>();
-        List<ActuatorStem> actStems = actStemQuery.findByStatusManagerEmailWithPages(ActuatorStem.class, status, useremail, withCurrent, PAGESIZE, OFFSET);
-        if (actStems != null) {
-            for (ActuatorStem actStem: actStems) {
-                INSActuatorStem.add(helper,actStem);
-            }
-        }
-        GenericFindWithStatus<Actuator> actQuery = new GenericFindWithStatus<Actuator>();
-        List<Actuator> acts = actQuery.findByStatusManagerEmailWithPages(Actuator.class, status, useremail, withCurrent, PAGESIZE, OFFSET);
-        if (acts != null) {
-            for (Actuator act: acts) {
-                INSActuator.add(helper,act);
+        GenericFindWithStatus<Component> componentQuery = new GenericFindWithStatus<Component>();
+        List<Component> components = componentQuery.findByStatusManagerEmailWithPages(Component.class, status, useremail, withCurrent, PAGESIZE, OFFSET);
+        if (components != null) {
+            for (Component component: components) {
+                INSComponent.add(helper,component);
             }
         }
         GenericFindWithStatus<Codebook> cbQuery = new GenericFindWithStatus<Codebook>();
@@ -263,57 +224,45 @@ public class INSGen {
 
         Row isDataRow4 = infoSheet.createRow(4);
         Cell isDataCell4_1 = isDataRow4.createCell(0);
-        isDataCell4_1.setCellValue("DetectorStems");
+        isDataCell4_1.setCellValue("ComponentStems");
         Cell isDataCell4_2 = isDataRow4.createCell(1);
-        isDataCell4_2.setCellValue("#" + INSGen.DETECTOR_STEMS);
+        isDataCell4_2.setCellValue("#" + INSGen.COMPONENT_STEMS);
 
         Row isDataRow5 = infoSheet.createRow(5);
         Cell isDataCell5_1 = isDataRow5.createCell(0);
-        isDataCell5_1.setCellValue("Detectors");
+        isDataCell5_1.setCellValue("Components");
         Cell isDataCell5_2 = isDataRow5.createCell(1);
-        isDataCell5_2.setCellValue("#" + INSGen.DETECTORS);
+        isDataCell5_2.setCellValue("#" + INSGen.COMPONENTS);
 
         Row isDataRow6 = infoSheet.createRow(6);
         Cell isDataCell6_1 = isDataRow6.createCell(0);
-        isDataCell6_1.setCellValue("ActuatorStems");
+        isDataCell6_1.setCellValue("CodeBooks");
         Cell isDataCell6_2 = isDataRow6.createCell(1);
-        isDataCell6_2.setCellValue("#" + INSGen.ACTUATOR_STEMS);
+        isDataCell6_2.setCellValue("#" + INSGen.CODEBOOKS);
 
         Row isDataRow7 = infoSheet.createRow(7);
         Cell isDataCell7_1 = isDataRow7.createCell(0);
-        isDataCell7_1.setCellValue("Actuators");
+        isDataCell7_1.setCellValue("CodeBookSlots");
         Cell isDataCell7_2 = isDataRow7.createCell(1);
-        isDataCell7_2.setCellValue("#" + INSGen.ACTUATORS);
+        isDataCell7_2.setCellValue("#" + INSGen.CODEBOOK_SLOTS);
 
         Row isDataRow8 = infoSheet.createRow(8);
         Cell isDataCell8_1 = isDataRow8.createCell(0);
-        isDataCell8_1.setCellValue("CodeBooks");
+        isDataCell8_1.setCellValue("ResponseOptions");
         Cell isDataCell8_2 = isDataRow8.createCell(1);
-        isDataCell8_2.setCellValue("#" + INSGen.CODEBOOKS);
+        isDataCell8_2.setCellValue("#" + INSGen.RESPONSE_OPTIONS);
 
         Row isDataRow9 = infoSheet.createRow(9);
         Cell isDataCell9_1 = isDataRow9.createCell(0);
-        isDataCell9_1.setCellValue("CodeBookSlots");
+        isDataCell9_1.setCellValue("Annotations");
         Cell isDataCell9_2 = isDataRow9.createCell(1);
-        isDataCell9_2.setCellValue("#" + INSGen.CODEBOOK_SLOTS);
+        isDataCell9_2.setCellValue("#" + INSGen.ANNOTATIONS);
 
         Row isDataRow10 = infoSheet.createRow(10);
         Cell isDataCell10_1 = isDataRow10.createCell(0);
-        isDataCell10_1.setCellValue("ResponseOptions");
+        isDataCell10_1.setCellValue("AnnotationStems");
         Cell isDataCell10_2 = isDataRow10.createCell(1);
-        isDataCell10_2.setCellValue("#" + INSGen.RESPONSE_OPTIONS);
-
-        Row isDataRow11 = infoSheet.createRow(11);
-        Cell isDataCell11_1 = isDataRow11.createCell(0);
-        isDataCell11_1.setCellValue("Annotations");
-        Cell isDataCell11_2 = isDataRow11.createCell(1);
-        isDataCell11_2.setCellValue("#" + INSGen.ANNOTATIONS);
-
-        Row isDataRow12 = infoSheet.createRow(12);
-        Cell isDataCell12_1 = isDataRow12.createCell(0);
-        isDataCell12_1.setCellValue("AnnotationStems");
-        Cell isDataCell12_2 = isDataRow12.createCell(1);
-        isDataCell12_2.setCellValue("#" + INSGen.ANNOTATION_STEMS);
+        isDataCell10_2.setCellValue("#" + INSGen.ANNOTATION_STEMS);
 
         // Create sheet named 'Namespaces'
         Sheet nsSheet = workbook.createSheet(INSGen.NAMESPACES);
@@ -361,64 +310,34 @@ public class INSGen {
             slotElementSheet.autoSizeColumn(i);
         }
 
-        // Create sheet named 'DetectorStem'
-        Sheet detectorStemSheet = workbook.createSheet(INSGen.DETECTOR_STEMS);
-        String[] detectorStemHeaders = { "hasURI", "hasco:hascoType", "rdfs:subClassOf", "rdfs:label",	"vstoi:hasContent", "vstoi:hasLanguage",	
+        // Create sheet named 'ComponentStem'
+        Sheet componentStemSheet = workbook.createSheet(INSGen.COMPONENT_STEMS);
+        String[] componentStemHeaders = { "hasURI", "hasco:hascoType", "rdfs:subClassOf", "rdfs:label",	"vstoi:hasContent", "vstoi:hasLanguage",	
             "vstoi:hasVersion", "hasco:hasMaker", "rdfs:comment:", "hasco:hasImage", "hasco:hasWebDocument" };
 
         // Create header row
-        Row detectorStemHeaderRow = detectorStemSheet.createRow(0);
-        for (int i = 0; i < detectorStemHeaders.length; i++) {
-            Cell cell = detectorStemHeaderRow.createCell(i);
-            cell.setCellValue(detectorStemHeaders[i]);
+        Row componentStemHeaderRow = componentStemSheet.createRow(0);
+        for (int i = 0; i < componentStemHeaders.length; i++) {
+            Cell cell = componentStemHeaderRow.createCell(i);
+            cell.setCellValue(componentStemHeaders[i]);
         }
-        for (int i = 0; i < detectorStemHeaders.length; i++) {
-            detectorStemSheet.autoSizeColumn(i);
+        for (int i = 0; i < componentStemHeaders.length; i++) {
+            componentStemSheet.autoSizeColumn(i);
         }
 
-        // Create sheet named 'Detector'
-        Sheet detectorSheet = workbook.createSheet(INSGen.DETECTORS);
-        String[] detectorHeaders = { "hasURI", "hasco:hascoType", "rdf:type", "rdfs:label", "vstoi:hasDetectorStem", "vstoi:hasCodebook", 
+        // Create sheet named 'Component'
+        Sheet componentSheet = workbook.createSheet(INSGen.COMPONENTS);
+        String[] componentHeaders = { "hasURI", "hasco:hascoType", "rdf:type", "rdfs:label", "vstoi:hasComponentStem", "vstoi:hasCodebook", 
             "vstoi:isAttributeOf" , "hasco:hasWebDocument"};
 
         // Create header row
-        Row detectorHeaderRow = detectorSheet.createRow(0);
-        for (int i = 0; i < detectorHeaders.length; i++) {
-            Cell cell = detectorHeaderRow.createCell(i);
-            cell.setCellValue(detectorHeaders[i]);
+        Row componentHeaderRow = componentSheet.createRow(0);
+        for (int i = 0; i < componentHeaders.length; i++) {
+            Cell cell = componentHeaderRow.createCell(i);
+            cell.setCellValue(componentHeaders[i]);
         }
-        for (int i = 0; i < detectorHeaders.length; i++) {
-            detectorSheet.autoSizeColumn(i);
-        }
-
-        // Create sheet named 'ActuatorStem'
-        Sheet actuatorStemSheet = workbook.createSheet(INSGen.ACTUATOR_STEMS);
-        String[] actuatorStemHeaders = { "hasURI", "hasco:hascoType", "rdfs:subClassOf", "rdfs:label",	"vstoi:hasContent", "vstoi:hasLanguage",	
-            "vstoi:hasVersion", "hasco:hasMaker", "rdfs:comment:", "hasco:hasImage", "hasco:hasWebDocument" };
-
-        // Create header row
-        Row actuatorStemHeaderRow = actuatorStemSheet.createRow(0);
-        for (int i = 0; i < actuatorStemHeaders.length; i++) {
-            Cell cell = actuatorStemHeaderRow.createCell(i);
-            cell.setCellValue(actuatorStemHeaders[i]);
-        }
-        for (int i = 0; i < actuatorStemHeaders.length; i++) {
-            actuatorStemSheet.autoSizeColumn(i);
-        }
-
-        // Create sheet named 'Actuator'
-        Sheet actuatorSheet = workbook.createSheet(INSGen.ACTUATORS);
-        String[] actuatorHeaders = { "hasURI", "hasco:hascoType", "rdf:type", "rdfs:label", "vstoi:hasActuatorStem", "vstoi:hasCodebook", 
-            "vstoi:isAttributeOf", "hasco:hasWebDocument" };
-
-        // Create header row
-        Row actuatorHeaderRow = actuatorSheet.createRow(0);
-        for (int i = 0; i < actuatorHeaders.length; i++) {
-            Cell cell = actuatorHeaderRow.createCell(i);
-            cell.setCellValue(actuatorHeaders[i]);
-        }
-        for (int i = 0; i < actuatorHeaders.length; i++) {
-            actuatorSheet.autoSizeColumn(i);
+        for (int i = 0; i < componentHeaders.length; i++) {
+            componentSheet.autoSizeColumn(i);
         }
 
         // Create sheet named 'CodeBook'

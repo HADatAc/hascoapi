@@ -84,6 +84,7 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         this.groupUris = new ArrayList<String>();
     }
 
+    /* 
     public StudyObjectCollection(
             String uri,
             String typeUri,
@@ -114,7 +115,9 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         this.setGroupUris(groupUris);
         this.setLastCounter(hasLastCounter);
     }
+    */
 
+    /* 
     public StudyObjectCollection(String uri,
             String typeUri,
             String hascoTypeUri,
@@ -137,6 +140,7 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         this.hasLastCounter = "0";
 
     }
+    */
 
     @Override
     public boolean equals(Object o) {
@@ -335,10 +339,16 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         return hasVirtualColumnUri;
     }
     public VirtualColumn getVirtualColumn() {
+        //System.out.println("StudyObjectCollection.getVirtualColumn with URI [" + hasVirtualColumnUri + "]");
         if (hasVirtualColumnUri == null || hasVirtualColumnUri.isEmpty()) {
             return null;
         }
-        return VirtualColumn.find(hasVirtualColumnUri);
+        VirtualColumn vc = VirtualColumn.find(hasVirtualColumnUri);
+        if (vc == null) {
+            return null;
+        }
+        //System.out.println("   found " + vc.getSOCReference());
+        return vc;
     }
     @JsonIgnore
     public String getSOCReference() {

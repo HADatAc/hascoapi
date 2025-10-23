@@ -46,6 +46,18 @@ public class StudyObjectCollectionAPI extends Controller {
         return ok("[getElementsByManagerEmailByStudy] No valid element type.");
     }
 
+    /**
+     *   GET ELEMENTS BY SOC WITH PAGE
+     */
+    public Result getElementsBySOC(String studyobjectcollectionuri, String elementtype, int pagesize, int offset) {
+        if (elementtype.equals("studyobject")) {
+            GenericFind<StudyObject> query = new GenericFind<StudyObject>();
+            List<StudyObject> results = query.findWithPagesBySOC(StudyObject.class, studyobjectcollectionuri, pagesize, offset);
+            return StudyObjectAPI.getStudyObjects(results);
+        }  
+        return ok("[getElementsByStudy] No valid element type.");
+    }
+
     public Result getTotalElementsByManagerEmailBySOC(String studyobjectcollectionuri, String elementtype, String manageremail){
         //System.out.println("SIRElementAPI: getTotalElementsByManagerEmailByStudy");
         if (elementtype == null || elementtype.isEmpty()) {
@@ -61,6 +73,23 @@ public class StudyObjectCollectionAPI extends Controller {
             return ok(ApiUtil.createResponse(totalElementsJSON, true));
         }
         return ok(ApiUtil.createResponse("query method getTotalElementsByManagerEmailBySOC() failed to retrieve total number of element", false));
+    }
+
+    public Result getTotalElementsBySOC(String studyobjectcollectionuri, String elementtype){
+        //System.out.println("SIRElementAPI: getTotalElementsByManagerEmailByStudy");
+        if (elementtype == null || elementtype.isEmpty()) {
+            return ok(ApiUtil.createResponse("No elementtype has been provided", false));
+        }
+        Class clazz = GenericFind.getElementClass(elementtype);
+        if (clazz == null) {        
+            return ok(ApiUtil.createResponse("[" + elementtype + "] is not a valid elementtype", false));
+        }
+        int totalElements = totalElements = GenericFind.findTotalBySOC(clazz, studyobjectcollectionuri);
+        if (totalElements >= 0) {
+            String totalElementsJSON = "{\"total\":" + totalElements + "}";
+            return ok(ApiUtil.createResponse(totalElementsJSON, true));
+        }
+        return ok(ApiUtil.createResponse("query method getTotalElementsBySOC() failed to retrieve total number of element", false));
     }
 
     public Result getSOCsByStudy(String studyUri){

@@ -34,92 +34,23 @@ public class TaskAPI extends Controller {
         }
     }
 
-    public Result setRequiredComponents(Http.Request request) {
-        // Get the JSON body from the request
-        JsonNode json = request.body().asJson();
-
-        if (json == null) {
-            return badRequest("Expecting JSON data");
+    public Result deleteWithTasks(String uri) {
+        //System.out.println("Delete element => Type: [" + elementType + "]  URI [" + uri + "]");
+        if (uri == null || uri.equals("")) {
+            return ok(ApiUtil.createResponse("No uri has been provided.", false));
         }
-
-        // Extract the "taskuri" from the JSON body
-        String taskuri = json.path("taskuri").asText();
-
-        if (taskuri.isEmpty()) {
-            return badRequest("Missing parameter: taskuri");
-        }
-
-        System.out.println("TaskAPI: will read task");
-        Task task = Task.find(taskuri);
-        System.out.println("TaskAPI: read task");
-
+        Task task = Task.find(uri);
         if (task == null) {
-            return ok(ApiUtil.createResponse("Task with URI <" + taskuri + "> could not be found.", false));
-        } 
-
-        // Extract the "requiredInstrument" array from the JSON body
-        JsonNode requiredComponentNode = json.path("requiredComponent");
-
-        if (!requiredComponentNode.isArray()) {
-            return badRequest("Missing or invalid parameter: requiredComponent");
+            return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
         }
-
-        int aux = 0;
-
-        List<RequiredComponent> requiredComponents = new ArrayList<RequiredComponent>();
-
-        for (JsonNode node : requiredComponentNode) {
-
-            // extract component uri
-            String componentUri = node.path("componentUri").asText();
-            if (componentUri.isEmpty()) {
-                return badRequest("Each requiredComponent entry must have a componentUri");
-            }
-            System.out.println("   component uri: <" + componentUri + ">");
-
-            // extract container slot uri
-            String containerSlotUri = node.path("containerSlotUri").asText();
-            if (containerSlotUri.isEmpty()) {
-                return badRequest("Each requiredComponent entry must have a containerSlotUri");
-            }
-            System.out.println("   container slot uri: <" + containerSlotUri + ">");
-
-            String reqUri = taskuri + 
-                Constants.PREFIX_REQUIRED_COMPONENT + 
-                "/" + aux++;    
-            try {
-                RequiredComponent requiredComponent = new RequiredComponent();
-                requiredComponent.setUri(reqUri);
-                requiredComponent.setUsesComponent(componentUri);
-                requiredComponent.setHasContainerSlot(containerSlotUri);
-                requiredComponents.add(requiredComponent);
-            } catch (Exception e) {
-                e.printStackTrace();
-                return badRequest("Error processing Required Component ");
-            }
-        }
-
-        System.out.println("TaskAPI: will save a total of " + requiredComponents.size() + " required components.");
-        for (RequiredComponent requiredComponent : requiredComponents) {
-            requiredComponent.save();
-        }
-        System.out.println("TaskAPI: added required instrumentation");
-
-        System.out.println("taskAPI: will save process");
-        try {
-            task.save();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return internalServerError("Error saving task: " + e.getMessage());
-        }
-        System.out.println("TaskAPI: saved task");
-
-        return ok("Saved requiredComponents for taskuri: " + taskuri);
+        Task.deleteWithSubtasks(task);
+        return ok(ApiUtil.createResponse("PROCESS with URI [" + uri + "] has been deleted along with its TASKS", true));
     }
 
     public Result setRequiredInstruments(Http.Request request) {
         // Get the JSON body from the request
         JsonNode json = request.body().asJson();
+        System.out.println(json);
 
         if (json == null) {
             return badRequest("Expecting JSON data");
@@ -147,69 +78,94 @@ public class TaskAPI extends Controller {
             return badRequest("Missing or invalid parameter: requiredInstrument");
         }
 
-        List<String> instrumentUris = new ArrayList<>();
-        Map<String, List<String>> instrumentComponents = new HashMap<>();
+        List<RequiredInstrument> riList = new ArrayList<RequiredInstrument>();
+
+        int riInt = 0;
 
         for (JsonNode node : requiredInstrumentNode) {
-            String instrumentUri = node.path("instrumentUri").asText();
+            RequiredInstrument riTmp = new RequiredInstrument();
+
+            String riUri = taskuri + 
+                "/" + Constants.PREFIX_REQUIRED_INSTRUMENT + 
+                "/" + riInt++;    
+
+            riTmp.setUri(riUri);
+
+            riTmp.setUsesInstrument(node.path("instrumentUri").asText());
             
-            if (instrumentUri.isEmpty()) {
+            if (riTmp.getUsesInstrument().isEmpty()) {
                 return badRequest("Each requiredInstrument entry must have an instrumentUri");
             }
 
-            System.out.println("   instrument uri: <" + instrumentUri + ">");
-            instrumentUris.add(instrumentUri);
+            System.out.println("   instrument uri: <" + riTmp.getUsesInstrument() + ">");
 
-            // Extract detectors
+            // Extract components
             JsonNode requiredComponentsNode = node.path("requiredComponents");
-            List<String> requiredComponents = new ArrayList<>();
 
             if (requiredComponentsNode.isArray()) {
+
+                int rcInt = 0;
+
                 for (JsonNode requiredComponentNode : requiredComponentsNode) {
-                    String requiredComponentUri = node.path("requireComponentUri").asText();
-                    
-                    if (requiredComponentUri.isEmpty()) {
-                        return badRequest("Each requiredComponent entry must have a requiredComponentUri");
+                    RequiredComponent rcTmp = new RequiredComponent();
+
+                    String rcUri = taskuri + 
+                    "/" + Constants.PREFIX_REQUIRED_INSTRUMENT + 
+                    "/" + riInt + "/" + rcInt++;    
+    
+                    riTmp.setUri(riUri);
+                    System.out.println("   required component uri: <" + rcUri + ">");
+
+                    rcTmp.setUsesComponent(node.path("componentUri").asText());
+            
+                    if (rcTmp.getUsesComponent().isEmpty()) {
+                        return badRequest("Each requiredComponent entry must have a componentUri");
                     }
+        
+                    System.out.println("   component uri: <" + rcTmp.getUsesComponent() + ">");
 
-                    System.out.println("   required component uri: <" + requiredComponentUri + ">");
+                    rcTmp.setHasContainerSlot(node.path("containerSlotUri").asText());
+            
+                    if (rcTmp.getHasContainerSlot().isEmpty()) {
+                        return badRequest("Each requiredComponent entry must have a containerSlotUri");
+                    }
+        
+                    System.out.println("   container slot uri: <" + rcTmp.getHasContainerSlot() + ">");
 
-                    requiredComponents.add(requiredComponentUri);
+                    rcTmp.setTypeUri(VSTOI.REQUIRED_COMPONENT);
+                    rcTmp.setHascoTypeUri(VSTOI.REQUIRED_COMPONENT);
+                    rcTmp.save();
+                    riTmp.addHasRequiredComponent(rcTmp.getUri());
                 }
             }
 
-            instrumentComponents.put(instrumentUri, requiredComponents);
+            riList.add(riTmp);
         }
 
-        System.out.println("Total instruments: <" + instrumentUris.size() + ">");
+        System.out.println("Total instruments: <" + riList.size() + ">");
 
 
-        if (instrumentUris.isEmpty()) {
+        if (riList.isEmpty()) {
             return badRequest("List of instruments is empty");
         }
 
         // Save instruments to task
         int aux = 0;
-        List<String> listRequiredInstrumentUri = new ArrayList<String>();
-        for (String instrumentUri : instrumentUris) {
+        List<String> listRi = new ArrayList<String>();
+        for (RequiredInstrument ri : riList) {
             
-            String rinUri = taskuri +
-                Constants.PREFIX_REQUIRED_INSTRUMENT + 
-                "/" + aux++;    
             try {
-                RequiredInstrument requiredInstrument = new RequiredInstrument();
-                requiredInstrument.setUri(rinUri);
-                requiredInstrument.setUsesInstrument(instrumentUri);
-                requiredInstrument.setHasRequiredComponent(instrumentComponents.get(instrumentUri));
-                requiredInstrument.save();
-                listRequiredInstrumentUri.add(rinUri);
+                listRi.add(ri.getUri());
+                ri.setTypeUri(VSTOI.REQUIRED_INSTRUMENT);
+                ri.setHascoTypeUri(VSTOI.REQUIRED_INSTRUMENT);
+                ri.save();
             } catch (Exception e) {
                 e.printStackTrace();
                 return badRequest("Error processing Required Instrumentation ");
             }
         }
         System.out.println("TaskAPI: will add required instrumentation");
-        task.setHasRequiredInstrumentUris(listRequiredInstrumentUri);
+        task.setHasRequiredInstrumentUris(listRi);
         System.out.println("TaskAPI: added required instrumentation");
 
         System.out.println("taskAPI: will save process");
@@ -221,7 +177,7 @@ public class TaskAPI extends Controller {
         }
         System.out.println("TaskAPI: saved task");
 
-        return ok("Received taskuri: " + taskuri + ", instrumenturis: " + instrumentUris);
+        return ok("Received required instrument(s) for taskuri: [" + taskuri + "].");
     }
 
 }

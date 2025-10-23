@@ -69,6 +69,11 @@ public class CSVRecordFile implements RecordFile {
     public List<String> getHeaders() {
         return headers;
     }
+    
+    public void setHeaders(List<String> headers) {
+        this.headers = headers;
+    }
+    
 
     @Override
     public File getFile() {

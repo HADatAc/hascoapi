@@ -231,10 +231,18 @@ public abstract class BaseGenerator {
 
         int rowNumber = 0;
         for (Record record : records) {
+            if (record.size() <= 0) {
+                break;
+            }
             HADatAcThing obj = createObject(record, ++rowNumber, null);
             if (obj != null) {
                 objects.add(obj);
             }
+        }
+
+        if (rowNumber == 0) {
+            System.out.println("[WARNING] BaseGenerator: no record of size greater than zero has been provided for ingestion.");
+            return;
         }
 
         Map<String, Integer> mapStats = new HashMap<String, Integer>();
@@ -297,7 +305,7 @@ public abstract class BaseGenerator {
     }
 
     public boolean commitRowsToTripleStore(List<Map<String, Object>> rows) {
-        System.out.println("BaseGenerator: commitRowsToTripleStore(): received values");
+        //System.out.println("BaseGenerator: commitRowsToTripleStore(): received values");
         //for (Map<String, Object> row : rows) {
         //    for (Map.Entry<String, Object> entry : row.entrySet()) {
         //        System.out.println("Row: " + entry.getKey() + ": " + entry.getValue());
@@ -536,7 +544,7 @@ public abstract class BaseGenerator {
         }
 
         // Show the total URI
-        System.out.println("[INFO] BaseGenerator: (deleteObjectsFromTripleStore) Total URI deleted from triplestore: " + totalUri);
+        //System.out.println("[INFO] BaseGenerator: (deleteObjectsFromTripleStore) Total URI deleted from triplestore: " + totalUri);
     }
 
     private void dropGraph(String namedGraphUri)
@@ -546,6 +554,7 @@ public abstract class BaseGenerator {
     }
 
     public void updateTripleStore(String query){
+        //System.out.println("Query: " + query);
         // Create a request
         UpdateRequest request = UpdateFactory.create(query);
 

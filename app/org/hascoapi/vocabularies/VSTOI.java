@@ -16,7 +16,7 @@ public class VSTOI {
 
     public static final String CONTAINER                    = VSTOI + "Container";
     public static final String DEPLOYMENT                   = VSTOI + "Deployment";
-    public static final String DETECTOR                     = VSTOI + "Detector";
+    //public static final String DETECTOR                     = VSTOI + "Detector";
     public static final String INSTRUMENT                   = VSTOI + "Instrument";
     public static final String PHYSICAL_INSTRUMENT          = VSTOI + "PhysicalInstrument";
     public static final String PLATFORM                     = VSTOI + "Platform";
@@ -40,17 +40,14 @@ public class VSTOI {
      * CLASSES
      */
 
-    public static final String ACTUATOR                     = VSTOI + "Actuator";
-    public static final String ACTUATOR_STEM                = VSTOI + "ActuatorStem";
-    public static final String ACTUATOR_INSTANCE            = VSTOI + "ActuatorInstance";
     public static final String ANNOTATION_STEM              = VSTOI + "AnnotationStem";
     public static final String ANNOTATION                   = VSTOI + "Annotation";
     public static final String CODEBOOK                     = VSTOI + "Codebook";
     public static final String CODEBOOK_SLOT                = VSTOI + "CodebookSlot";
     public static final String COMPONENT                    = VSTOI + "Component";
+    public static final String COMPONENT_STEM               = VSTOI + "ComponentStem";
+    public static final String COMPONENT_INSTANCE           = VSTOI + "ComponentInstance";
     public static final String CONTAINER_SLOT               = VSTOI + "ContainerSlot";
-    public static final String DETECTOR_STEM                = VSTOI + "DetectorStem";
-    public static final String DETECTOR_INSTANCE            = VSTOI + "DetectorInstance";
     public static final String FIELD_OF_VIEW                = VSTOI + "FieldOfView";
     public static final String INFORMANT                    = VSTOI + "Informant";
     public static final String ITEM                         = VSTOI + "Item";
@@ -74,19 +71,15 @@ public class VSTOI {
     public static final String BELONGS_TO                   = VSTOI + "belongsTo";
     public static final String DESIGNED_AT_TIME             = VSTOI + "designedAtTime";
     public static final String HAS_ACQUISITION_DATE         = VSTOI + "hasAcquisitionDate";    
-    public static final String HAS_ACTUATOR                 = VSTOI + "hasActuator";
-    public static final String HAS_ACTUATOR_INSTANCE        = VSTOI + "hasActuatorInstance";
-    public static final String HAS_ACTUATOR_STEM            = VSTOI + "hasActuatorStem";
     public static final String HAS_ANNOTATION_STEM          = VSTOI + "hasAnnotationStem";
     public static final String HAS_CODEBOOK                 = VSTOI + "hasCodebook";
     public static final String HAS_COMPONENT                = VSTOI + "hasComponent";
+    public static final String HAS_COMPONENT_INSTANCE       = VSTOI + "hasComponentInstance";
+    public static final String HAS_COMPONENT_STEM           = VSTOI + "hasComponentStem";
     public static final String HAS_CONTAINER_SLOT           = VSTOI + "hasContainerSlot";
     public static final String HAS_CONTENT                  = VSTOI + "hasContent";
     public static final String HAS_CONTENT_WITH_STYLE       = VSTOI + "hasContentWithStyle";
     public static final String HAS_DAMAGE_DATE              = VSTOI + "hasDamageDate";
-    public static final String HAS_DETECTOR                 = VSTOI + "hasDetector";
-    public static final String HAS_DETECTOR_INSTANCE        = VSTOI + "hasDetectorInstance";
-    public static final String HAS_DETECTOR_STEM            = VSTOI + "hasDetectorStem";
     public static final String HAS_EDITOR_EMAIL             = VSTOI + "hasEditorEmail";
     public static final String HAS_FIRST                    = VSTOI + "hasFirst";
     public static final String HAS_INFORMANT                = VSTOI + "hasInformant";

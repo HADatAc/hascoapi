@@ -1,182 +1,125 @@
 package org.hascoapi.ingestion;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
+import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
+import org.apache.poi.xssf.eventusermodel.ReadOnlySharedStringsTable;
+import org.apache.poi.xssf.eventusermodel.XSSFReader;
+import org.apache.poi.xssf.model.StylesTable;
+import org.apache.poi.xssf.usermodel.XSSFComment;
+import org.apache.poi.xssf.eventusermodel.XSSFSheetXMLHandler;
+import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.util.CellReference;
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLReaderFactory;
 
-import org.apache.poi.EncryptedDocumentException;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
+import java.io.File;
+import java.io.InputStream;
+import java.util.*;
 
 public class SpreadsheetRecordFile implements RecordFile {
 
-    private File file = null;
-    private String fileName = "";
-    private String sheetName = "";
-    private int numberOfSheets = 1;
-    private int numberOfRows;
-    private List<String> headers;
-    List<String> cellValues = new ArrayList<String>();
-    
+    private final File file;
+    private final String fileName;
+    private final String sheetName;
+
+    private int numberOfSheets = 0;
+    private int numberOfRows = 0;
+
+    private List<String> headers = new ArrayList<>();
+    private final List<Record> records = new ArrayList<>();
+
     public SpreadsheetRecordFile(File file) {
-        this.file = file;
-        init();
+        this(file, "", "");
     }
-    
+
     public SpreadsheetRecordFile(File file, String sheetName) {
-        this.file = file;
-        this.sheetName = sheetName;
-        init();
+        this(file, "", sheetName);
     }
-    
+
     public SpreadsheetRecordFile(File file, String fileName, String sheetName) {
         this.file = file;
+        this.fileName = fileName == null || fileName.isEmpty() ? file.getName() : fileName;
         this.sheetName = sheetName;
-        this.fileName = fileName;
         init();
     }
-    
+
     private boolean init() {
 
-        StringBuilder sb = new StringBuilder(sheetName);
-        if (sb.charAt(0) == '#') {
-            sb.deleteCharAt(0);
-            sheetName = sb.toString();
-        }
-        //System.out.println("SpreadsheetRecordFile: file's filename is [" + file.getName() + "]");
-        //System.out.println("SpreadsheetRecordFile: RecordFile's filename is [" + fileName + "]");
-        //System.out.println("SpreadsheetRecordFile: RecordFile's sheetname is [" + sheetName + "]");
+        System.out.println("SpreadsheetRecordFile: looking for sheetName = [" + sheetName + "]");
 
-        if (file == null || file.getName() == null || file.getName().isEmpty()) {
-            System.out.println("[ERROR] SpreadsheetRecordFile.init() failed: file is null of file.getName() is null.");
+        if (file == null || !file.exists() || !file.canRead()) {
+            System.err.println("SpreadsheetRecordFile.init() failed: file is invalid.");
             return false;
         }
 
-        if (fileName.isEmpty()) {
-            fileName = file.getName();
-        }
-        
-        try (Workbook workbook = WorkbookFactory.create(new FileInputStream(file))) {
-            numberOfSheets = workbook.getNumberOfSheets();
-            
-            //if (numberOfSheets > 0) {
-            //    for (int aux = 0; aux < numberOfSheets; aux++) {
-            //        Sheet sheet = workbook.getSheetAt(aux);
-            //        System.out.println("Sheet " + aux + ": " + sheet.getSheetName());
-            //    }
-            //}
-            Sheet sheet = null;
-            if (sheetName.isEmpty()) {
-                sheet = workbook.getSheetAt(0);
-            } else {
-                sheet = workbook.getSheet(sheetName);
-            }
-            
-            if (sheet == null) {
-                System.out.println("Could not find sheet [" + sheetName + "]");
-                return false;
-            }
-            
-            //numberOfRows = sheet.getLastRowNum() + 1;
+        try (OPCPackage pkg = OPCPackage.open(file)) {
+            XSSFReader reader = new XSSFReader(pkg);
+            StylesTable styles = reader.getStylesTable();
+            ReadOnlySharedStringsTable strings = new ReadOnlySharedStringsTable(pkg);
+            DataFormatter formatter = new DataFormatter();
 
-            Iterator<Row> rows = sheet.iterator();
-            int nonEmptyRowCount = 0;
-            boolean headerFound = false;
-            
-            while (rows.hasNext()) {
-                Row row = rows.next();
-            
-                if (isEmptyRow(row)) {
-                    // Stop processing at the first empty row
-                    break;
+            boolean found = false;
+            XSSFReader.SheetIterator iter = (XSSFReader.SheetIterator) reader.getSheetsData();
+            while (iter.hasNext()) {
+                try (InputStream sheetStream = iter.next()) {
+                    String currentSheetName = iter.getSheetName();
+                    numberOfSheets++;
+
+                    //System.out.println("SpreadsheetRecordFile: available [" + currentSheetName + "]");
+
+                    if (!sheetName.isEmpty() && !sheetName.equals(currentSheetName)) {
+                        continue;
+                    }
+
+                    found = true;
+                    //System.out.println("SpreadsheetRecordFile: found sheetName = [" + sheetName + "]");
+
+                    InputSource sheetSource = new InputSource(sheetStream);
+                    XMLReader parser = XMLReaderFactory.createXMLReader();
+                    SheetHandler sheetHandler = new SheetHandler();
+                    XSSFSheetXMLHandler handler = new XSSFSheetXMLHandler(styles, null, strings, sheetHandler, formatter, false);
+                    parser.setContentHandler(handler);
+                    parser.parse(sheetSource);
+
+                    this.headers = sheetHandler.getHeaders();
+                    this.numberOfRows = sheetHandler.getRowCount();
+                    this.records.addAll(sheetHandler.getRecords());
+
+                    break; // stop after the target sheet
                 }
-            
-                if (!headerFound) {
-                    headers = getRowValues(row);  // First non-empty row is treated as header
-                    headerFound = true;
-                }
-            
-                nonEmptyRowCount++;
             }
-            
-            numberOfRows = nonEmptyRowCount;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            return false;
-        } catch (EncryptedDocumentException e) {
-            e.printStackTrace();
-            return false;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
+            if (!found) {
+                System.err.println("SpreadsheetRecordFile: could not found sheet with the following name: [" + sheetName + "]");
+            }
+            //System.out.println("SpreadsheetRecordFile: end of search for sheetName = [" + sheetName + "]");
         } catch (Exception e) {
+            System.err.println("Error reading spreadsheet: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
+
         return true;
     }
 
     @Override
     public List<Record> getRecords() {
-
-        try (FileInputStream fis = new FileInputStream(file);
-             Workbook workbook = WorkbookFactory.create(fis)) {
-
-            Sheet sheet = sheetName.isEmpty() ? workbook.getSheetAt(0) : workbook.getSheet(sheetName);
-
-            if (sheet == null) {
-                return null;
-            }
-            
-            Iterator<Row> rows = sheet.iterator();
-
-            Iterable<Row> iterable = () -> rows;
-            Stream<Row> stream = StreamSupport.stream(iterable.spliterator(), false);
-
-            return stream.skip(1)
-                    .filter(row -> !isEmptyRow(row))
-                    .map(row -> {
-                        return new SpreadsheetFileRecord(row);
-                    }).collect(Collectors.toList());
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (EncryptedDocumentException e) {
-            e.printStackTrace();
-        /** 
-        } catch (InvalidFormatException e) {
-            e.printStackTrace(); */
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return null;
+        return records;
     }
-    
+
     @Override
     public int getNumberOfSheets() {
         return numberOfSheets;
     }
-    
+
     @Override
     public int getNumberOfRows() {
         return numberOfRows;
     }
-    
+
     @Override
     public String getSheetName() {
-    	return sheetName;
+        return sheetName;
     }
 
     @Override
@@ -188,7 +131,7 @@ public class SpreadsheetRecordFile implements RecordFile {
     public File getFile() {
         return file;
     }
-    
+
     @Override
     public String getStorageFileName() {
         return fileName;
@@ -196,58 +139,100 @@ public class SpreadsheetRecordFile implements RecordFile {
 
     @Override
     public boolean isValid() {
-        //System.out.println("(SpreadsheetRecordFile) Init with following filename: [" + fileName + "]");
-        //System.out.println("(SpreadsheetRecordFile) Init with following sheetname: [" + sheetName + "]");
-        try (FileInputStream fis = new FileInputStream(file);
-            Workbook workbook = WorkbookFactory.create(fis)) {
-
-            Sheet sheet = sheetName.isEmpty() ?
-                workbook.getSheetAt(0) :
-                workbook.getSheet(sheetName);
-
-            return sheet != null;
-
-        } catch (IOException | EncryptedDocumentException | IllegalArgumentException e) {
-            e.printStackTrace();
-            return false;
-        }
+        return file.exists() && file.canRead();
     }
 
-    private boolean isEmptyRow(Row row) {
-        //if (row == null || row.getFirstCellNum() < 0 || row.getLastCellNum() < 0) {
-        if (row == null) {
-            return true;
+    // ================================
+    // Internal Sheet Handler Class
+    // ================================
+    private class SheetHandler implements XSSFSheetXMLHandler.SheetContentsHandler {
+        private final List<Record> rowRecords = new ArrayList<>();
+        private final List<String> currentRow = new ArrayList<>();
+        private boolean isHeaderRow = true;
+
+        private int rowCount = 0;
+
+        @Override
+        public void startRow(int rowNum) {
+            currentRow.clear();
         }
 
-        for (Cell cell : row) {
-            if (cell != null && cell.getCellType() != CellType.BLANK &&
-                cell.getCellType() != CellType._NONE &&
-                !cell.toString().trim().isEmpty()) {
-                return false;
-            }
-        }
-
-        //for (int i = row.getFirstCellNum(); i <= row.getLastCellNum(); i++) {
-        //    if (row.getCell(i) != null && !row.getCell(i).toString().trim().isEmpty()) {
-        //        return false;
-        //    }
-        //}
-
-        return true;
-    }
-
-    private List<String> getRowValues(Row row) {
-        List<String> values = new ArrayList<String>();
-        for (int i = row.getFirstCellNum(); i <= row.getLastCellNum(); i++) {
-            if (row.getCell(i) != null) {
-                values.add(row.getCell(i).toString());
-                
+        @Override
+        public void endRow(int rowNum) {
+            if (isHeaderRow) {
+                headers = new ArrayList<>(currentRow);
+                isHeaderRow = false;
             } else {
-                values.add("");
+                rowRecords.add(new SimpleRecord(new ArrayList<>(currentRow), headers));
+                rowCount++;
             }
         }
 
-        return values;
+        @Override
+        public void cell(String cellReference, String formattedValue, XSSFComment comment) {
+            int currentColIndex = (new CellReference(cellReference)).getCol();
+
+            // Ensure the list is big enough
+            while (currentRow.size() <= currentColIndex) {
+                currentRow.add("");
+            }
+
+            // Set the value at the correct column index
+            currentRow.set(currentColIndex, formattedValue);
+        }
+
+        public int getRowCount() {
+            return rowCount;
+        }
+
+        public List<String> getHeaders() {
+            return headers;
+        }
+
+        public List<Record> getRecords() {
+            return rowRecords;
+        }
+
+        public void headerFooter(String text, boolean isHeader, String tagName) {
+            // No-op
+        }
+    }
+
+    // ================================
+    // SimpleRecord Implementation
+    // ================================
+    public static class SimpleRecord implements Record {
+        private final List<String> values;
+        private final List<String> headers;
+
+        public SimpleRecord(List<String> values, List<String> headers) {
+            this.values = values;
+            this.headers = headers;
+        }
+
+        @Override
+        public String getValueByColumnIndex(int index) {
+            return (index >= 0 && index < values.size()) ? values.get(index) : "";
+        }
+
+        @Override
+        public String getValueByColumnName(String columnName) {
+            if (columnName == null || headers == null) return "";
+            for (int i = 0; i < headers.size(); i++) {
+                if (columnName.equalsIgnoreCase(headers.get(i))) {
+                    return getValueByColumnIndex(i);
+                }
+            }
+            return "";
+        }
+
+        public List<String> getValues() {
+            return values;
+        }
+
+        @Override
+        public int size() {
+            return values.size();
+        }
     }
 }
-    

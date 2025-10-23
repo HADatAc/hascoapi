@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 import org.hascoapi.Constants;
 import org.hascoapi.entity.pojo.ContainerSlot;
-import org.hascoapi.entity.pojo.Detector;
+import org.hascoapi.entity.pojo.Component;
 import org.hascoapi.entity.pojo.Instrument;
 import org.hascoapi.entity.pojo.Process;
 import org.hascoapi.entity.pojo.ProcessStem;
@@ -44,7 +44,7 @@ public class ProcessAPI extends Controller {
             //convert json string to Instrument instance
             newProcessStem  = objectMapper.readValue(json, ProcessStem.class);
         } catch (Exception e) {
-            //System.out.println("(createDetector) Failed to parse json.");
+            //System.out.println("(createComponent) Failed to parse json.");
             return ok(ApiUtil.createResponse("Failed to parse json.", false));
         }
         return createProcessStemResult(newProcessStem);

@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
+
+import javax.xml.stream.events.Namespace;
+
 import java.util.Comparator;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -19,6 +22,7 @@ import org.hascoapi.vocabularies.HASCO;
 public class NameSpaces {
 
     private ConcurrentHashMap<String, NameSpace> table = new ConcurrentHashMap<String, NameSpace>();
+    private ConcurrentHashMap<String, NameSpace> uriTable = new ConcurrentHashMap<String, NameSpace>();
     private NameSpace localNamespace = null;
     private String turtleNameSpaceList = "";
     private String sparqlNameSpaceList = "";
@@ -74,8 +78,8 @@ public class NameSpaces {
         XSD_NAMESPACE.setUri("http://www.w3.org/2001/XMLSchema#");
         XSD_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
         XSD_NAMESPACE.setHascoTypeUri(HASCO.ONTOLOGY);
-        XSD_NAMESPACE.setSourceMime("application/rdf+xml");
-        XSD_NAMESPACE.setSource("http://www.w3.org/2001/XMLSchema#");
+        //XSD_NAMESPACE.setSourceMime("application/rdf+xml");
+        //XSD_NAMESPACE.setSource("http://www.w3.org/2001/XMLSchema#");
         XSD_NAMESPACE.setComment("W3C's XML Schema");
         XSD_NAMESPACE.setVersion("1.0");
         XSD_NAMESPACE.setPermanent(true);
@@ -141,6 +145,19 @@ public class NameSpaces {
         SIO_NAMESPACE.setPriority(7);
         namespaces.add(SIO_NAMESPACE);
 
+        // DCTERMS
+        NameSpace DCTERMS_NAMESPACE = new NameSpace();
+        DCTERMS_NAMESPACE.setLabel("dcterms");
+        DCTERMS_NAMESPACE.setUri("http://purl.org/dc/terms/");
+        DCTERMS_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
+        DCTERMS_NAMESPACE.setHascoTypeUri(HASCO.ONTOLOGY);
+        DCTERMS_NAMESPACE.setSourceMime("text/turtle");
+        DCTERMS_NAMESPACE.setSource("http://purl.org/dc/terms/");
+        DCTERMS_NAMESPACE.setComment("DCMI Metadata Terms");
+        DCTERMS_NAMESPACE.setVersion("01.2020");
+        DCTERMS_NAMESPACE.setPermanent(true);
+        DCTERMS_NAMESPACE.setPriority(8);
+        namespaces.add(DCTERMS_NAMESPACE);
 
         // UO
         // uo=http://purl.obolibrary.org/obo/UO_,application/rdf+xml,https://raw.githubusercontent.com/bio-ontology-research-group/unit-ontology/master/uo.owl
@@ -156,7 +173,7 @@ public class NameSpaces {
         HASCO_NAMESPACE.setComment("Human-Aware Science Ontology");
         HASCO_NAMESPACE.setVersion("1.0");
         HASCO_NAMESPACE.setPermanent(true);
-        HASCO_NAMESPACE.setPriority(8);
+        HASCO_NAMESPACE.setPriority(9);
         namespaces.add(HASCO_NAMESPACE);
 
         // VSTOI
@@ -170,7 +187,7 @@ public class NameSpaces {
         VSTOI_NAMESPACE.setComment("Virtual Terrestrial Solar Observatory - Instruments");
         VSTOI_NAMESPACE.setVersion("0.7");
         VSTOI_NAMESPACE.setPermanent(true);
-        VSTOI_NAMESPACE.setPriority(9);
+        VSTOI_NAMESPACE.setPriority(10);
         namespaces.add(VSTOI_NAMESPACE);
 
         // Languages
@@ -184,7 +201,7 @@ public class NameSpaces {
         lcc_639_1_NAMESPACE.setComment("Language codes from ISO 639-1, as expressed in https://www.w3schools.com/tags/ref_language_codes.asp");
         lcc_639_1_NAMESPACE.setVersion("1.0");
         lcc_639_1_NAMESPACE.setPermanent(true);
-        lcc_639_1_NAMESPACE.setPriority(10);
+        lcc_639_1_NAMESPACE.setPriority(11);
         namespaces.add(lcc_639_1_NAMESPACE);
 
         // FHIR
@@ -196,7 +213,7 @@ public class NameSpaces {
         FHIR_NAMESPACE.setComment("FHIR is a standard for health care data exchange, published by HL7.");
         FHIR_NAMESPACE.setVersion("R5");
         FHIR_NAMESPACE.setPermanent(true);
-        FHIR_NAMESPACE.setPriority(11);
+        FHIR_NAMESPACE.setPriority(12);
         namespaces.add(FHIR_NAMESPACE);
 
         // FOAF
@@ -210,7 +227,7 @@ public class NameSpaces {
         FOAF_NAMESPACE.setComment("Friend of a Friend (FOAF) vocabulary");
         FOAF_NAMESPACE.setVersion("0.1");
         FOAF_NAMESPACE.setPermanent(true);
-        FOAF_NAMESPACE.setPriority(12);
+        FOAF_NAMESPACE.setPriority(13);
         namespaces.add(FOAF_NAMESPACE);
 
         // SCHEMA
@@ -224,7 +241,7 @@ public class NameSpaces {
         SCHEMA_NAMESPACE.setComment("Schema Namespace");
         SCHEMA_NAMESPACE.setVersion("25.0");
         SCHEMA_NAMESPACE.setPermanent(true);
-        SCHEMA_NAMESPACE.setPriority(13);
+        SCHEMA_NAMESPACE.setPriority(14);
         namespaces.add(SCHEMA_NAMESPACE);
 
         // DEFAULT
@@ -236,7 +253,7 @@ public class NameSpaces {
         DEFAULT_NAMESPACE.setComment("Default Namespace");
         DEFAULT_NAMESPACE.setVersion("0.1");
         DEFAULT_NAMESPACE.setPermanent(true);
-        DEFAULT_NAMESPACE.setPriority(14);
+        DEFAULT_NAMESPACE.setPriority(15);
         namespaces.add(DEFAULT_NAMESPACE);
 
         // TEST
@@ -304,6 +321,10 @@ public class NameSpaces {
         }
     }
 
+    public NameSpace getAppOntology() {
+        return localNamespace;
+    }
+
     public void addNamespace(NameSpace newNS) {
         if (RepositoryInstance.getInstance() == null ||
             newNS.getLabel() == null || newNS.getLabel().equals("") ||
@@ -338,6 +359,7 @@ public class NameSpaces {
         for (NameSpace ns : namespaces) {
             //System.out.println("NameSpaces: adding namespace. Abbreviation is [" + ns.getLabel() + "]. Uri is [" + ns.getUri() + "]");
             table.put(ns.getLabel(), ns);
+            uriTable.put(ns.getUri(), ns);
         }
 
         //System.out.println("  - Generating ordered list of ontologies");
@@ -437,6 +459,10 @@ public class NameSpaces {
 
     public ConcurrentHashMap<String, NameSpace> getNamespaces() {
         return table;
+    }
+
+    public ConcurrentHashMap<String, NameSpace> getNamespacesByUri() {
+        return uriTable;
     }
 
     public List<NameSpace> getOrderedNamespacesAsList() {

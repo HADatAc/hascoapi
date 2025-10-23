@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 import org.hascoapi.Constants;
-import org.hascoapi.entity.pojo.DetectorInstance;
+import org.hascoapi.entity.pojo.ComponentInstance;
 import org.hascoapi.entity.pojo.GenericFind;
 import org.hascoapi.entity.pojo.INS;
 import org.hascoapi.entity.pojo.InstrumentInstance;
@@ -35,11 +35,11 @@ public class VSTOIInstanceAPI extends Controller {
         }
     }
 
-    public static Result getDetectorInstances(List<DetectorInstance> results){
+    public static Result getComponentInstances(List<ComponentInstance> results){
         if (results == null) {
-            return ok(ApiUtil.createResponse("No DetectorInstance has been found", false));
+            return ok(ApiUtil.createResponse("No ComponentInstance has been found", false));
         } else {
-            ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL,VSTOI.DETECTOR_INSTANCE);
+            ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL,VSTOI.COMPONENT_INSTANCE);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));
         }

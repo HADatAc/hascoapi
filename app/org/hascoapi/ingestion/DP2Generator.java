@@ -57,8 +57,8 @@ public class DP2Generator extends BaseGenerator {
 		} else if (this.getElementType().equals("instrumentinstance")) {
 			row.put("hasco:hascoType", VSTOI.INSTRUMENT_INSTANCE);
 			row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
-		} else if (this.getElementType().equals("detectorinstance")) {
-			row.put("hasco:hascoType", VSTOI.DETECTOR_INSTANCE);
+		} else if (this.getElementType().equals("componentinstance")) {
+			row.put("hasco:hascoType", VSTOI.COMPONENT_INSTANCE);
 			row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
 		}
 

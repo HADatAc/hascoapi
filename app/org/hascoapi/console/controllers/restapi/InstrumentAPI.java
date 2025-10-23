@@ -12,6 +12,7 @@ import ca.uhn.fhir.parser.IParser;
 import org.hascoapi.Constants;
 import org.hascoapi.entity.fhir.Questionnaire;
 import org.hascoapi.entity.pojo.Instrument;
+import org.hascoapi.entity.pojo.ContainerSlot;
 import org.hascoapi.transform.Renderings;
 import org.hascoapi.transform.InstrumentTraversal;
 import org.hascoapi.utils.ApiUtil;
@@ -217,10 +218,33 @@ public class InstrumentAPI extends Controller {
                 String jsonArray = objectMapper.writeValueAsString(components);
                 return ok(ApiUtil.createResponse(jsonArray, true));
             } catch (Exception e) {
-                return ok(ApiUtil.createResponse("retrieveInstrumentComponents() failed to retrieve detectors", false));
+                return ok(ApiUtil.createResponse("retrieveInstrumentComponents() failed to retrieve components", false));
             }
         }
-        return ok(ApiUtil.createResponse("retrieveInstrumentComponents() failed to retrieve detectors", false));
+        return ok(ApiUtil.createResponse("retrieveInstrumentComponents() failed to retrieve components", false));
+    }
+
+    public Result retrieveInstrumentContainerSlots(String uri) {
+        //System.out.println("retrieveInstrumentContainerSlots: [" + uri + "]");
+        if (uri  == null || uri.equals("")) {
+            return ok(ApiUtil.createResponse("No URI has been provided", false));
+        }
+        Instrument instr = Instrument.find(uri);
+        if (instr == null) {
+            return ok(ApiUtil.createResponse("No instrument instance found for uri [" + uri + "]", false));
+        }
+
+        List<ContainerSlot> containerSlots = InstrumentTraversal.retrieveInstrumentContainerSlots(uri);
+        if (containerSlots.size() >= 0) { 
+            try {
+                ObjectMapper objectMapper = new ObjectMapper();
+                String jsonArray = objectMapper.writeValueAsString(containerSlots);
+                return ok(ApiUtil.createResponse(jsonArray, true));
+            } catch (Exception e) {
+                return ok(ApiUtil.createResponse("retrieveInstrumentContainerSlots() failed to retrieve containerSlots", false));
+            }
+        }
+        return ok(ApiUtil.createResponse("retrieveInstrumentContainerSlots() failed to retrieve containerSlots", false));
     }
 
 }
