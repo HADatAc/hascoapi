@@ -25,7 +25,7 @@ public class Agent extends HADatAcThing implements Comparable<Agent> {
     
   	@PropertyField(uri="vstoi:hasStatus")
   	private String hasStatus;
-
+ 
   	@PropertyField(uri="hasco:originalID")
   	private String originalID;
 
