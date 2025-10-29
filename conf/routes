@@ -157,6 +157,7 @@ GET     /hascoapi/api/topic/setstatus/:topicUri/:status                         
 GET     /hascoapi/api/topic/latest/:topicUri                                        org.hascoapi.console.controllers.restapi.StreamTopicAPI.getLatestValue(topicUri: String)
 POST    /hascoapi/api/topic/startExpose                                             org.hascoapi.console.controllers.restapi.StreamTopicAPI.startExpose(request: play.mvc.Http.Request)
 GET     /hascoapi/api/topic/stopExpose/:topicUri                                    org.hascoapi.console.controllers.restapi.StreamTopicAPI.stopExpose(topicUri: String)
+GET     /hascoapi/api/topic/isExposed/:topicUri                                     org.hascoapi.console.controllers.restapi.StreamTopicAPI.isExposed(topicUri: String)
 
 
 GET     /hascoapi/api/platforminstance/byplatform/:platformUri/:pageSize/:offset    org.hascoapi.console.controllers.restapi.VSTOIInstanceAPI.findPlatformInstancesByPlatformWithPage(platformUri: String, pageSize: Integer, offset: Integer)

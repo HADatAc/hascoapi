@@ -160,6 +160,15 @@ public class Utils {
             case "streamtopic":
                 shortPrefix = Constants.PREFIX_STREAM_TOPIC;
                 break;
+            case "semanticstream":
+                shortPrefix = Constants.PREFIX_SEMANTIC_STREAM;
+                break;
+            case "semanticstreamtopic":
+                shortPrefix = Constants.PREFIX_SEMANTIC_STREAM_TOPIC;
+                break;
+            case "semanticmessagebroker":
+                shortPrefix = Constants.PREFIX_SEMANTIC_MESSSAGE_BROKER;
+                break;
             default:
                 shortPrefix = null;
         }

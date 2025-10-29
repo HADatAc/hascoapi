@@ -20,12 +20,15 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.hascoapi.ingestion.CSVRecordFile;
 import org.hascoapi.ingestion.JSONRecord;
 import org.hascoapi.ingestion.ValueGenerator;
+import org.hascoapi.utils.Utils;
 import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.ingestion.Record;
 import org.hascoapi.ingestion.RecordFile;
 import org.hascoapi.entity.pojo.DA;
 import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.entity.pojo.StreamTopic;
+import org.hascoapi.entity.pojo.ExposureMessageStream;
+import java.time.Instant;
 
 public class MqttMessageWorker {
 
@@ -363,7 +366,29 @@ public class MqttMessageWorker {
         String exposedTopicLabel = "expose/" + safeDeployment + "/" + streamTopic.getLabel();
     
         String brokerUrl = "tcp://" + brokerIp + ":" + brokerPort;
-        return MqttExposeManager.getInstance().startExpose(streamTopic.getUri(), exposedTopicLabel, brokerUrl);
+        boolean success = MqttExposeManager.getInstance().startExpose(streamTopic.getUri(), exposedTopicLabel, brokerUrl);
+
+        if (success) {
+            // --- Cria e guarda o ExposureMessageStream no triplestore ---
+            ExposureMessageStream exp = new ExposureMessageStream();
+            String emsUri = Utils.uriGen("exposuremessagestream");
+            System.out.println("[DEBUG] Generated ExposureMessageStream URI: " + emsUri);
+            exp.setUri(emsUri);
+            exp.setTypeUri(HASCO.EXPOSURE_MESSAGE_STREAM);
+            exp.setHascoTypeUri(HASCO.EXPOSURE_MESSAGE_STREAM);
+            exp.setHasStreamTopic(topicUri);
+            exp.setHasBrokerHost(brokerIp);
+            exp.setHasBrokerPort(brokerPort);
+            exp.setHasExposeStatus(HASCO.EXPOSING);
+            exp.setStartedAt(Instant.now().toString());
+            exp.setLabel(exposedTopicLabel);
+            exp.save();
+    
+            System.out.println("[Expose] ExposureMessageStream created and saved: " + exp.getUri());
+            return true;
+        }
+    
+        return false;
     }
     
     public boolean stopExpose(String topicUri) {
@@ -372,8 +397,24 @@ public class MqttMessageWorker {
             return false;
         }
     
-        return MqttExposeManager.getInstance().stopExpose(streamTopic.getUri());
+        boolean success = MqttExposeManager.getInstance().stopExpose(streamTopic.getUri());
+        if (success) {
+            List<ExposureMessageStream> exposures = ExposureMessageStream.findByTopicUri(topicUri);
+            if (!exposures.isEmpty()) {
+                ExposureMessageStream exp = exposures.get(0);
+                exp.setHasExposeStatus(HASCO.STOPPED);
+                exp.setStoppedAt(Instant.now().toString());
+                exp.save();
+                System.out.println("[Expose] ExposureMessageStream updated to STOPPED: " + exp.getUri());
+            } else {
+                System.out.println("[Expose] No ExposureMessageStream found to update for " + topicUri);
+            }
+        }
+        return success;
     }
-    
+
+    public boolean isExposing(String topicUri) {
+        return MqttExposeManager.getInstance().isExposing(topicUri);
+    }
 
 }

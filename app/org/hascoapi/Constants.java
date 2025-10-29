@@ -86,6 +86,9 @@ public class Constants {
     public static final String PREFIX_SDD_ATTRIBUTE              = "SDDATT";
     public static final String PREFIX_SDD_OBJECT                 = "SDDOBJ";
     public static final String PREFIX_SEMANTIC_DATA_DICTIONARY   = "SDDICT";
+    public static final String PREFIX_SEMANTIC_STREAM            = "SSTM";
+    public static final String PREFIX_SEMANTIC_MESSSAGE_BROKER   = "SMB";
+    public static final String PREFIX_SEMANTIC_STREAM_TOPIC      = "SSTP";
     public static final String PREFIX_SEMANTIC_VARIABLE          = "SVR";
     public static final String PREFIX_STUDY                      = "STD";
     public static final String PREFIX_STUDY_OBJECT_COLLECTION    = "OCL";

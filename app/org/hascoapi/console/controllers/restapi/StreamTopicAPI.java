@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 import org.hascoapi.Constants;
+import org.hascoapi.entity.pojo.ExposureMessageStream;
 import org.hascoapi.entity.pojo.StreamTopic;
 import org.hascoapi.entity.pojo.Study;
 import org.hascoapi.ingestion.mqtt.MqttMessageWorker;
@@ -112,7 +113,19 @@ public class StreamTopicAPI extends Controller {
         }
         return ok(ApiUtil.createResponse("Failed to stop expose for topic " + topicUri, false));
     }
+
+    public Result isExposed(String topicUri) {
+        if (topicUri == null || topicUri.isEmpty()) {
+            return ok(ApiUtil.createResponse("No valid topicUri has been provided", false));
+        }
     
+        boolean exposing = MqttMessageWorker.getInstance().isExposing(topicUri);
+        if (exposing) {
+            return ok(ApiUtil.createResponse("true", true));
+        }
+    
+        return ok(ApiUtil.createResponse("false", false));
+    }
     
 
 }

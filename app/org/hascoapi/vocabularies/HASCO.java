@@ -31,6 +31,9 @@ public class HASCO {
     public static final String SDD_ATTRIBUTE                          = "http://hadatac.org/ont/hasco/SDDAttribute";
     public static final String SDD_OBJECT                             = "http://hadatac.org/ont/hasco/SDDObject";
     public static final String SEMANTIC_DATA_DICTIONARY               = "http://hadatac.org/ont/hasco/SemanticDataDictionary";
+    public static final String SEMANTIC_MESSAGE_BROKER                = "http://hadatac.org/ont/hasco/SemanticMessageBroker";
+    public static final String SEMANTIC_STREAM                        = "http://hadatac.org/ont/hasco/SemanticStream";
+    public static final String SEMANTIC_STREAM_TOPIC                  = "http://hadatac.org/ont/hasco/SemanticStreamTopic";
     public static final String SEMANTIC_VARIABLE                      = "http://hadatac.org/ont/hasco/SemanticVariable";
     public static final String STR                                    = "http://hadatac.org/ont/hasco/STR";
     public static final String STREAM                                 = "http://hadatac.org/ont/hasco/Stream";
@@ -135,6 +138,8 @@ public class HASCO {
     public static final String HAS_SECOND_COORDINATE                  = "http://hadatac.org/ont/hasco/hasSecondCoordinate";
     public static final String HAS_SECOND_COORDINATE_UNIT             = "http://hadatac.org/ont/hasco/hasSecondCoordinateUnit";
     public static final String HAS_SECOND_COORDINATE_CHARACTERISTIC   = "http://hadatac.org/ont/hasco/hasSecondCoordinateCharacteristic";
+    public static final String HAS_SEMANTIC_MESSAGE_BROKER            = "http://hadatac.org/ont/hasco/hasSemanticMessageBroker";
+    public static final String HAS_SEMANTIC_STREAM                    = "http://hadatac.org/ont/hasco/hasSemanticStream";
     public static final String HAS_SEMANTIC_VARIABLE                  = "http://hadatac.org/ont/hasco/hasSemanticVariable";
     public static final String HAS_SOC_REFERENCE                      = "http://hadatac.org/ont/hasco/hasSOCReference";
     public static final String HAS_SOC_TYPE                           = "http://hadatac.org/ont/hasco/hasSOCType";
@@ -191,7 +196,7 @@ public class HASCO {
     public static final String RECORDING                              = "http://hadatac.org/ont/hasco/Recording";
     public static final String INGESTING                              = "http://hadatac.org/ont/hasco/Ingesting";
     public static final String SUSPENDED                              = "http://hadatac.org/ont/hasco/Suspended";
-    
+
     /*
      * PERMISSION URI
      */
