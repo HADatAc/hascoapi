@@ -169,9 +169,9 @@ public class NameSpaces {
         HASCO_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
         HASCO_NAMESPACE.setHascoTypeUri(HASCO.ONTOLOGY);
         HASCO_NAMESPACE.setSourceMime("text/turtle");
-        HASCO_NAMESPACE.setSource("https://hadatac.org/ont/hasco/1.2");
+        HASCO_NAMESPACE.setSource("https://hadatac.org/ont/hasco/1.3");
         HASCO_NAMESPACE.setComment("Human-Aware Science Ontology");
-        HASCO_NAMESPACE.setVersion("1.0");
+        HASCO_NAMESPACE.setVersion("1.3");
         HASCO_NAMESPACE.setPermanent(true);
         HASCO_NAMESPACE.setPriority(9);
         namespaces.add(HASCO_NAMESPACE);
