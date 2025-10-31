@@ -274,7 +274,7 @@ public class NameSpaces {
         BFO_NAMESPACE.setUri("http://purl.obolibrary.org/obo/BFO_");
         BFO_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
         BFO_NAMESPACE.setHascoTypeUri(HASCO.ONTOLOGY);
-        BFO_NAMESPACE.setSourceMime("text/turtle");
+        BFO_NAMESPACE.setSourceMime("application/rdf+xml");
         BFO_NAMESPACE.setSource("http://purl.obolibrary.org/obo/bfo.owl");
         BFO_NAMESPACE.setComment("Basic Formal Ontology");
         BFO_NAMESPACE.setVersion("2020");
