@@ -1,16 +1,15 @@
 package org.hascoapi.ingestion;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import java.util.*;
 import org.hascoapi.entity.pojo.DataFile;
 
 public abstract class BaseAnnotator {
 
     /**
      * Loads and validates the InfoSheet, builds the mapCatalog, and sets it on the dataFile.
+     * Returns null if the InfoSheet is invalid, empty, or has missing/unexpected sheet keys.
      */
-    protected static Map<String, String> loadCatalog(DataFile dataFile) {
+    protected static Map<String, String> loadCatalog(DataFile dataFile, String metadataType) {
         RecordFile recordFile = new SpreadsheetRecordFile(dataFile.getFile(), "InfoSheet");
         if (!recordFile.isValid()) {
             dataFile.getLogger().printExceptionById("DPL_00001");
@@ -25,8 +24,9 @@ public abstract class BaseAnnotator {
         }
 
         dataFile.setRecordFile(recordFile);
-
         Map<String, String> mapCatalog = new HashMap<>();
+
+        // Build catalog map from InfoSheet
         for (Record record : recordFile.getRecords()) {
             String key = record.getValueByColumnIndex(0);
             String value = record.getValueByColumnIndex(1);
@@ -36,7 +36,53 @@ public abstract class BaseAnnotator {
             }
         }
 
+        // Validate sheet keys; return null if any errors found
+        boolean valid = validateSheetKeys(dataFile, mapCatalog, metadataType);
+        if (!valid) {
+            String msg = "[ERROR] InfoSheet validation failed for metadata type: " + metadataType;
+            System.out.println(msg);
+            dataFile.getLogger().println(msg);
+            return null;
+        }
+
         return mapCatalog;
+    }
+
+    /**
+     * Validates the sheet keys in mapCatalog against the expected list
+     * from MetadataSheetsCatalog for the given metadata type.
+     *
+     * @return true if valid, false if missing or unexpected sheets are found.
+     */
+    private static boolean validateSheetKeys(DataFile dataFile, Map<String, String> mapCatalog, String metadataType) {
+        List<String> expectedSheets = MetadataSheetsCatalog.getSheetsForType(metadataType);
+        Set<String> providedSheets = mapCatalog.keySet();
+
+        boolean isValid = true;
+
+        // Missing expected sheets
+        for (String required : expectedSheets) {
+            if (!providedSheets.contains(required)) {
+                String msg = "[ERROR] Missing required sheet key: '" + required + "' for type " + metadataType;
+                System.out.println(msg);
+                dataFile.getLogger().printExceptionById("DPL_00002"); // placeholder
+                dataFile.getLogger().println(msg);
+                isValid = false;
+            }
+        }
+
+        // Extra sheets not expected for this metadata type
+        for (String extra : providedSheets) {
+            if (!expectedSheets.contains(extra)) {
+                String msg = "[ERROR] Unexpected sheet key found: '" + extra + "' for type " + metadataType;
+                System.out.println(msg);
+                dataFile.getLogger().printExceptionById("DPL_00003"); // placeholder
+                dataFile.getLogger().println(msg);
+                isValid = false;
+            }
+        }
+
+        return isValid;
     }
 
     /**
