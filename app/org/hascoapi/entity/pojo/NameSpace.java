@@ -383,8 +383,8 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
             GSPClient gspClient = new GSPClient(endpointUrl);
     
             //if (address.equals("http://hadatac.org/ont/uberon/uberonpmsr.ttl")) {
-                System.out.println("Printing first 30 lines of ingested file");
-                NameSpace.printFirst30Lines(tripleFile);
+            //    System.out.println("Printing first 30 lines of ingested file");
+            //    NameSpace.printFirst30Lines(tripleFile);
             //}
     
             gspClient.postFile(tripleFile, format.getDefaultMIMEType(), getUri());

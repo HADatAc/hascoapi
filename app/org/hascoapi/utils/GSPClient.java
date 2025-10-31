@@ -41,8 +41,9 @@ public class GSPClient {
             }
             requestUriBuilder.addParameter("graph", graph);
             URI requestUri = requestUriBuilder.build();
-            System.out.println("REQUEST URI: " + requestUri);
-            System.out.println("PROVIDED MIMETYPE: " + mimeType);
+            //System.out.println("REQUEST URI: " + requestUri);
+            //System.out.println("REQUEST GRAPH: " + graph);
+            //System.out.println("PROVIDED MIMETYPE: " + mimeType);
             HttpRequest request = HttpRequest.newBuilder(requestUri)
                     .POST(HttpRequest.BodyPublishers.ofInputStream(streamSupplier))
                     .header("Content-Type", mimeType)

@@ -268,6 +268,20 @@ public class NameSpaces {
         TEST_NAMESPACE.setPriority(20);
         namespaces.add(TEST_NAMESPACE);
 
+        // BFO
+        BFOSpace BFO_NAMESPACE = new NameSpace();
+        BFO_NAMESPACE.setLabel("bfo");
+        BFO_NAMESPACE.setUri("http://purl.obolibrary.org/obo/BFO_");
+        BFO_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
+        BFO_NAMESPACE.setHascoTypeUri(HASCO.ONTOLOGY);
+        BFO_NAMESPACE.setSourceMime("text/turtle");
+        BFO_NAMESPACE.setSource("http://purl.obolibrary.org/obo/bfo.owl");
+        BFO_NAMESPACE.setComment("Basic Formal Ontology");
+        BFO_NAMESPACE.setVersion("2020");
+        BFO_NAMESPACE.setPermanent(true);
+        BFO_NAMESPACE.setPriority(21);
+        namespaces.add(BFO_NAMESPACE);
+
         System.out.println("NameSpaces: Initiating " + namespaces.size() + " pre-defined name spaces.");
 
         // ADDING STORE NAMED SPACES INSIDE CACHED NAME SPACE LIST
