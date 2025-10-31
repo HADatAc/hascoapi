@@ -9,7 +9,7 @@ public class AnnotateSTD extends BaseAnnotator {
     public static GeneratorChain exec(DataFile dataFile, String studyUri, String templateFile) {
         System.out.println("Processing DGS's STD meta-template ...");
 
-        Map<String, String> mapCatalog = loadCatalog(dataFile);
+        Map<String, String> mapCatalog = loadCatalog(dataFile,"STD");
         if (mapCatalog == null) {
             System.out.println("[ERROR] STD: Failed to load InfoSheet.");
             return null;

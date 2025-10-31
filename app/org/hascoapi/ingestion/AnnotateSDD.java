@@ -14,7 +14,7 @@ public class AnnotateSDD extends BaseAnnotator {
         System.out.println("Processing SDD meta-template ...");
 
         // Load the InfoSheet catalog and set it on dataFile
-        Map<String, String> mapCatalog = loadCatalog(dataFile);
+        Map<String, String> mapCatalog = loadCatalog(dataFile,"SDD");
         if (mapCatalog == null) {
             return null; // loading failed, error already logged
         }

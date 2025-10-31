@@ -12,7 +12,7 @@ public class AnnotateDOI extends BaseAnnotator {
         System.out.println("Processing DOI file ...");
 
         // Load and validate InfoSheet, build catalog
-        Map<String, String> mapCatalog = loadCatalog(dataFile);
+        Map<String, String> mapCatalog = loadCatalog(dataFile,"DOI");
         if (mapCatalog == null) {
             dataFile.getLogger().printExceptionById("DOI_00001");
             return null;

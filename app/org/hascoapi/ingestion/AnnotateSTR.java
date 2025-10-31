@@ -14,7 +14,7 @@ public class AnnotateSTR extends BaseAnnotator {
         System.out.println("Processing STR meta-template ...");
 
         // Load InfoSheet catalog using BaseAnnotator
-        Map<String, String> mapCatalog = loadCatalog(dataFile);
+        Map<String, String> mapCatalog = loadCatalog(dataFile,"STR");
         if (mapCatalog == null) {
             dataFile.getLogger().printExceptionById("STR_00001");
             return null;

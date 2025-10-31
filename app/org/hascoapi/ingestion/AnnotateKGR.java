@@ -12,7 +12,7 @@ public class AnnotateKGR extends BaseAnnotator {
 
         System.out.println("AnnotateKGR.exec(): Build chain 1 of 9 - Reading catalog and template");
 
-        Map<String, String> mapCatalog = loadCatalog(dataFile);
+        Map<String, String> mapCatalog = loadCatalog(dataFile,"KGR");
         if (mapCatalog == null) {
             return null;
         }

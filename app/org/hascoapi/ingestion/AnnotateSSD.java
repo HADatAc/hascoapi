@@ -22,7 +22,7 @@ public class AnnotateSSD extends BaseAnnotator {
     public static GeneratorChain exec(DataFile dataFile, String studyUri, String templateFile, String status) {
         System.out.println("Processing DGS's SSD meta-template ...");
 
-        Map<String, String> mapCatalog = loadCatalog(dataFile);
+        Map<String, String> mapCatalog = loadCatalog(dataFile,"SSD");
         if (mapCatalog == null) {
             return null;
         }
