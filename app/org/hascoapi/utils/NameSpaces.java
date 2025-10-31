@@ -269,7 +269,7 @@ public class NameSpaces {
         namespaces.add(TEST_NAMESPACE);
 
         // BFO
-        BFOSpace BFO_NAMESPACE = new NameSpace();
+        NameSpace BFO_NAMESPACE = new NameSpace();
         BFO_NAMESPACE.setLabel("bfo");
         BFO_NAMESPACE.setUri("http://purl.obolibrary.org/obo/BFO_");
         BFO_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
