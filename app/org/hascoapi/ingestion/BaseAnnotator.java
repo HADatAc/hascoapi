@@ -2,6 +2,7 @@ package org.hascoapi.ingestion;
 
 import java.util.*;
 import org.hascoapi.entity.pojo.DataFile;
+import org.hascoapi.utils.MetadataSheetsCatalog;
 
 public abstract class BaseAnnotator {
 
