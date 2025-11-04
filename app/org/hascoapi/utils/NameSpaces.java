@@ -138,7 +138,8 @@ public class NameSpaces {
         SIO_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
         SIO_NAMESPACE.setHascoTypeUri(HASCO.ONTOLOGY);
         SIO_NAMESPACE.setSourceMime("application/rdf+xml");
-        SIO_NAMESPACE.setSource("https://raw.githubusercontent.com/MaastrichtU-IDS/semanticscience/master/ontology/sio.owl");
+        //SIO_NAMESPACE.setSource("https://raw.githubusercontent.com/MaastrichtU-IDS/semanticscience/master/ontology/sio.owl");
+        SIO_NAMESPACE.setSource("https://raw.githubusercontent.com/micheldumontier/semanticscience/master/ontology/sio/release/sio-release.owl");
         SIO_NAMESPACE.setComment("Semanticscience Integrated Ontology");
         SIO_NAMESPACE.setVersion("1.59");
         SIO_NAMESPACE.setPermanent(true);
