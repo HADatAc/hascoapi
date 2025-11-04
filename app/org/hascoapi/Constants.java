@@ -9,6 +9,17 @@ public class Constants {
 
     public static final String CONTAINER_SLOT_PREFIX = "CTS";
     public static final String CODEBOOK_SLOT_PREFIX = "CBS";
+
+    public static final String MT_DD          = "DD";
+    public static final String MT_DOI          = "DOI";
+    public static final String MT_DP2          = "DP2";
+    public static final String MT_DSG          = "DSG";
+    public static final String MT_INS          = "INS";
+    public static final String MT_KGR          = "KGR";
+    public static final String MT_SDD          = "SDD";
+    public static final String MT_STR         = "STR";
+
+
     public static final String TEST_KB = "http://hadatac.org/kb/test/";
 
     public static final String TEST_INSTRUMENT_URI = TEST_KB + "TestInstrument";

@@ -76,8 +76,8 @@
       "content": [
         {
           "id": "SDD_00001",
-          "detail": "The Info sheet is missing in this SDD file. ",
-          "solution": ""
+          "detail": "Missing InfoSheet.",
+          "solution": "Ensure that the SDD spreadsheet includes a sheet called 'InfoSheet'."
         },
         {
           "id": "SDD_00002",
@@ -163,6 +163,21 @@
           "id": "SDD_00018",
           "detail": "This SDD has no Version filled.",
           "solution": "In the Info sheet of the SDD, fill in the value for Version"
+        },
+        {
+          "id": "SDD_00019",
+          "detail": "InfoSheet has no records.",
+          "solution": "Ensure that the InfoSheet contains at least one record."
+        },
+        {
+          "id": "SDD_00020",
+          "detail": "Missing required sheet key: %s for metadata type SDD",
+          "solution": "Ensure that the specified sheet exists in the InfoSheet for the given metadata type."
+        },
+        {
+          "id": "SDD_00021",
+          "detail": "Unexpected sheet key found: %s for metadata type SDD",
+          "solution": "Remove or rename the unexpected sheet in the InfoSheet for the given metadata type."
         }
       ]
     },
@@ -432,7 +447,7 @@
       "content": [
         {
           "id": "GBL_00001",
-          "detail": "Unsupported file name prefix, acceptable prefixes are DA-, DOI-, DPL-, STR-, SDD-, SSD-, STD- ",
+          "detail": "Unsupported file name prefix, acceptable prefixes are DA-, DD-, DOI-, DP2-, DSG-, INS-, KGR-, SDD-, STR-",
           "solution": "Rename the current file to have a valid prefix. Please note that the prefixes end with an hyphen, not an underscore"
         },
         {
@@ -444,7 +459,33 @@
           "id": "GBL_00003",
           "detail": "Unknown file format: %s",
           "solution": "Known formats are .csv or .xlsx"
+        },
+        {
+          "id": "GBL_00004",
+          "detail": "InfoSheet has no records",
+          "solution": "The InfoSheet must include and only the required sheets accordly with the metadata"
+        },
+        {
+          "id": "GBL_00005",
+          "detail": "Missing InfoSheet. ",
+          "solution": "Use Excel to open this file and see if it has a sheet called 'InfoSheet'. If not, create such sheet."
+        },
+        {
+          "id": "GBL_00006",
+          "detail": "Missing required sheet key: %s for metadata type %s",
+          "solution": "Ensure that the specified sheet exists in the InfoSheet for the given metadata type."
+        },
+        {
+          "id": "GBL_00007",
+          "detail": "Unexpected sheet key found: %s for metadata type %s",
+          "solution": "Remove or rename the unexpected sheet in the InfoSheet for the given metadata type."
+        },
+        {
+          "id": "GBL_00008",
+          "detail": "Failed to clone DataFile object: %s",
+          "solution": "Verify that the DataFile class properly implements Cloneable and that all referenced objects can be safely cloned."
         }
+
       ]
     },
 

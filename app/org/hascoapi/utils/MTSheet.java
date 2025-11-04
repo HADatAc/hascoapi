@@ -1,18 +1,20 @@
 package org.hascoapi.utils;
 
+import org.hascoapi.Constants;
+
 import java.util.*;
 
 /**
  * Centralizes all metadata types and their corresponding sheet keys
  * for consistent processing across annotators (INS, DP2, SDD, DSG, STR).
  */
-public class MetadataSheetsCatalog {
+public class MTSheet {
 
     // Map: MetadataType -> List of sheet keys
     private static final Map<String, List<String>> METADATA_SHEETS = new HashMap<>();
 
     static {
-        METADATA_SHEETS.put("INS", Arrays.asList(
+        METADATA_SHEETS.put(Constants.MT_INS, Arrays.asList(
                 "hasDependencies",
                 "Instruments",
                 "SlotElements",
@@ -25,7 +27,7 @@ public class MetadataSheetsCatalog {
                 "AnnotationStems"
         ));
 
-        METADATA_SHEETS.put("DP2", Arrays.asList(
+        METADATA_SHEETS.put(Constants.MT_DP2, Arrays.asList(
                 "hasDependencies",
                 "Deployments",
                 "PlatformModels",
@@ -36,7 +38,7 @@ public class MetadataSheetsCatalog {
                 "SensingPerspective"
         ));
 
-        METADATA_SHEETS.put("SDD", Arrays.asList(
+        METADATA_SHEETS.put(Constants.MT_SDD, Arrays.asList(
                 "SDD_ID",
                 "hasDependencies",
                 "Data_Dictionary",
@@ -47,7 +49,7 @@ public class MetadataSheetsCatalog {
                 "Version"
         ));
 
-        METADATA_SHEETS.put("DSG", Arrays.asList(
+        METADATA_SHEETS.put(Constants.MT_DSG, Arrays.asList(
                 "hasStudyURI",
                 "hasStudyKG",
                 "hasDependencies",
@@ -57,7 +59,7 @@ public class MetadataSheetsCatalog {
                 "hasVersion"
         ));
 
-        METADATA_SHEETS.put("STR", Arrays.asList(
+        METADATA_SHEETS.put(Constants.MT_STR, Arrays.asList(
                 "Study_ID",
                 "Version",
                 "FileStream",

@@ -2,7 +2,7 @@ package org.hascoapi.ingestion;
 
 import java.util.*;
 import org.hascoapi.entity.pojo.DataFile;
-import org.hascoapi.utils.MetadataSheetsCatalog;
+import org.hascoapi.utils.MTSheet;
 
 public abstract class BaseAnnotator {
 
@@ -10,20 +10,18 @@ public abstract class BaseAnnotator {
      * Loads and validates the InfoSheet, builds the mapCatalog, and sets it on the dataFile.
      * Returns null if the InfoSheet is invalid, empty, or has missing/unexpected sheet keys.
      */
-    protected static Map<String, String> loadCatalog(DataFile dataFile, String metadataType) {
+    protected static Map<String, String> loadCatalog(DataFile dataFile, String mtType) {
         RecordFile recordFile = new SpreadsheetRecordFile(dataFile.getFile(), "InfoSheet");
+
+        // InfoSheet missing
         if (!recordFile.isValid()) {
-            // Missing InfoSheet → match with "Missing InfoSheet" errors from dictionary
-            dataFile.getLogger().printExceptionById("DOI_00001");
+            dataFile.getLogger().printExceptionByIdWithArgs("GBL_00005", mtType);
             return null;
         }
 
+        // InfoSheet empty
         if (recordFile.getRecords().isEmpty()) {
-            String msg = "[ERROR] InfoSheet has no records.";
-            System.out.println(msg);
-            // Equivalent to "Unknown headers" or malformed InfoSheet
-            dataFile.getLogger().printExceptionById("DPL_00002");
-            dataFile.getLogger().println(msg);
+            dataFile.getLogger().printExceptionByIdWithArgs("GBL_00004", mtType);
             return null;
         }
 
@@ -36,18 +34,13 @@ public abstract class BaseAnnotator {
             String value = record.getValueByColumnIndex(1);
             if (key != null && !key.trim().isEmpty()) {
                 mapCatalog.put(key.trim(), value != null ? value.trim() : "");
-                System.out.println(key + " : " + value);
             }
         }
 
         // Validate sheet keys; return null if any errors found
-        boolean valid = validateSheetKeys(dataFile, mapCatalog, metadataType);
+        boolean valid = validateSheetKeys(dataFile, mapCatalog, mtType);
         if (!valid) {
-            String msg = "[ERROR] InfoSheet validation failed for metadata type: " + metadataType;
-            System.out.println(msg);
-            // Log a more general “unknown headers / wrong structure” type of issue
-            dataFile.getLogger().printExceptionById("DPL_00002");
-            dataFile.getLogger().println(msg);
+            dataFile.getLogger().printExceptionByIdWithArgs("GBL_00004", mtType);
             return null;
         }
 
@@ -60,8 +53,8 @@ public abstract class BaseAnnotator {
      *
      * @return true if valid, false if missing or unexpected sheets are found.
      */
-    private static boolean validateSheetKeys(DataFile dataFile, Map<String, String> mapCatalog, String metadataType) {
-        List<String> expectedSheets = MetadataSheetsCatalog.getSheetsForType(metadataType);
+    private static boolean validateSheetKeys(DataFile dataFile, Map<String, String> mapCatalog, String mtType) {
+        List<String> expectedSheets = MTSheet.getSheetsForType(mtType);
         Set<String> providedSheets = mapCatalog.keySet();
 
         boolean isValid = true;
@@ -69,11 +62,8 @@ public abstract class BaseAnnotator {
         // Missing expected sheets
         for (String required : expectedSheets) {
             if (!providedSheets.contains(required)) {
-                String msg = "[ERROR] Missing required sheet key: '" + required + "' for type " + metadataType;
-                System.out.println(msg);
-                // “Missing InfoSheet / required sheet” → consistent with STR_00005–STR_00006
-                dataFile.getLogger().printExceptionById("STR_00005");
-                dataFile.getLogger().println(msg);
+                // Log using JSON template: "Missing required sheet key: %s for metadata type %s"
+                dataFile.getLogger().printExceptionByIdWithArgs("GBL_00006", required, mtType);
                 isValid = false;
             }
         }
@@ -81,11 +71,8 @@ public abstract class BaseAnnotator {
         // Extra sheets not expected for this metadata type
         for (String extra : providedSheets) {
             if (!expectedSheets.contains(extra)) {
-                String msg = "[ERROR] Unexpected sheet key found: '" + extra + "' for type " + metadataType;
-                System.out.println(msg);
-                // "Unknown headers" fits this case
-                dataFile.getLogger().printExceptionById("DPL_00002");
-                dataFile.getLogger().println(msg);
+                // Log using JSON template: "Unexpected sheet key found: %s for metadata type %s"
+                dataFile.getLogger().printExceptionByIdWithArgs("GBL_00007", extra, mtType);
                 isValid = false;
             }
         }
@@ -122,9 +109,11 @@ public abstract class BaseAnnotator {
         }
     }
 
+    /**
+     * Logs a warning when a sheet is not found, but not critical.
+     */
     public static void warnSheetMissing(DataFile dataFile, String sheetKey) {
-        String msg = "[WARNING] '" + sheetKey + "' sheet is missing.";
-        System.out.println(msg);
-        dataFile.getLogger().println(msg);
+        // JSON template example: "Sheet %s was not found in the InfoSheet catalog."
+        dataFile.getLogger().printWarningByIdWithArgs("GBL_00006", sheetKey);
     }
 }

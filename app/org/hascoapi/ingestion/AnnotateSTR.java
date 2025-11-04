@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 
+import org.hascoapi.Constants;
 import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.entity.pojo.Study;
 
@@ -14,7 +15,7 @@ public class AnnotateSTR extends BaseAnnotator {
         System.out.println("Processing STR meta-template ...");
 
         // Load InfoSheet catalog using BaseAnnotator
-        Map<String, String> mapCatalog = loadCatalog(dataFile,"STR");
+        Map<String, String> mapCatalog = loadCatalog(dataFile, Constants.MT_STR);
         if (mapCatalog == null) {
             dataFile.getLogger().printExceptionById("STR_00001");
             return null;
