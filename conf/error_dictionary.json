@@ -424,7 +424,7 @@
           "detail": "Failed to retrieve DA <%s> ",
           "solution": "DA file was not ingested prior the execution of this DOI file."
         }
-        
+
       ]
     },
     "GLOBAL": {
@@ -444,6 +444,99 @@
           "id": "GBL_00003",
           "detail": "Unknown file format: %s",
           "solution": "Known formats are .csv or .xlsx"
+        }
+      ]
+    },
+
+    "INS": {
+      "file type": "INS",
+      "content": [
+        {
+          "id": "INS_00001",
+          "detail": "Missing InfoSheet.",
+          "solution": "Ensure that the INS spreadsheet includes a sheet called 'InfoSheet'."
+        },
+        {
+          "id": "INS_00002",
+          "detail": "InfoSheet has no records.",
+          "solution": "Ensure that the InfoSheet contains at least one record."
+        },
+        {
+          "id": "INS_00003",
+          "detail": "Missing or extra sheet(s) in InfoSheet for INS metadata.",
+          "solution": "Ensure that all required sheets are present and no unexpected sheets are included. Expected sheets are: hasDependencies, Instruments, SlotElements, ComponentStems, Components, CodeBooks, CodeBookSlots, ResponseOptions, Annotations, AnnotationStems."
+        },
+        {
+          "id": "INS_00004",
+          "detail": "Sheet '%s' is missing in INS file.",
+          "solution": "Add the missing sheet to the INS file."
+        },
+        {
+          "id": "INS_00005",
+          "detail": "Unexpected sheet '%s' found in InfoSheet.",
+          "solution": "Remove the unexpected sheet from the INS InfoSheet."
+        }
+      ]
+    },
+
+    "DP2": {
+      "file type": "DP2",
+      "content": [
+        {
+          "id": "DP2_00001",
+          "detail": "Missing InfoSheet.",
+          "solution": "Ensure that the DP2 spreadsheet includes a sheet called 'InfoSheet'."
+        },
+        {
+          "id": "DP2_00002",
+          "detail": "InfoSheet has no records.",
+          "solution": "Ensure that the InfoSheet contains at least one record."
+        },
+        {
+          "id": "DP2_00003",
+          "detail": "Missing or extra sheet(s) in InfoSheet for DP2 metadata.",
+          "solution": "Ensure that all required sheets are present and no unexpected sheets are included. Expected sheets are: hasDependencies, Deployments, PlatformModels, Platforms, FieldsOfView, Instruments, Components, SensingPerspective."
+        },
+        {
+          "id": "DP2_00004",
+          "detail": "Sheet '%s' is missing in DP2 file.",
+          "solution": "Add the missing sheet to the DP2 file."
+        },
+        {
+          "id": "DP2_00005",
+          "detail": "Unexpected sheet '%s' found in InfoSheet.",
+          "solution": "Remove the unexpected sheet from the DP2 InfoSheet."
+        }
+      ]
+    },
+
+    "DSG": {
+      "file type": "DSG",
+      "content": [
+        {
+          "id": "DSG_00001",
+          "detail": "Missing InfoSheet.",
+          "solution": "Ensure that the DSG spreadsheet includes a sheet called 'InfoSheet'."
+        },
+        {
+          "id": "DSG_00002",
+          "detail": "InfoSheet has no records.",
+          "solution": "Ensure that the InfoSheet contains at least one record."
+        },
+        {
+          "id": "DSG_00003",
+          "detail": "Missing or extra sheet(s) in InfoSheet for DSG metadata.",
+          "solution": "Ensure that all required sheets are present and no unexpected sheets are included. Expected sheets are: hasStudyURI, hasStudyKG, hasDependencies, hasStudyDescription, hasEntityDesign, hasVariableDesign, hasVersion."
+        },
+        {
+          "id": "DSG_00004",
+          "detail": "Sheet '%s' is missing in DSG file.",
+          "solution": "Add the missing sheet to the DSG file."
+        },
+        {
+          "id": "DSG_00005",
+          "detail": "Unexpected sheet '%s' found in InfoSheet.",
+          "solution": "Remove the unexpected sheet from the DSG InfoSheet."
         }
       ]
     }

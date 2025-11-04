@@ -13,13 +13,16 @@ public abstract class BaseAnnotator {
     protected static Map<String, String> loadCatalog(DataFile dataFile, String metadataType) {
         RecordFile recordFile = new SpreadsheetRecordFile(dataFile.getFile(), "InfoSheet");
         if (!recordFile.isValid()) {
-            dataFile.getLogger().printExceptionById("DPL_00001");
+            // Missing InfoSheet → match with "Missing InfoSheet" errors from dictionary
+            dataFile.getLogger().printExceptionById("DOI_00001");
             return null;
         }
 
         if (recordFile.getRecords().isEmpty()) {
             String msg = "[ERROR] InfoSheet has no records.";
             System.out.println(msg);
+            // Equivalent to "Unknown headers" or malformed InfoSheet
+            dataFile.getLogger().printExceptionById("DPL_00002");
             dataFile.getLogger().println(msg);
             return null;
         }
@@ -42,6 +45,8 @@ public abstract class BaseAnnotator {
         if (!valid) {
             String msg = "[ERROR] InfoSheet validation failed for metadata type: " + metadataType;
             System.out.println(msg);
+            // Log a more general “unknown headers / wrong structure” type of issue
+            dataFile.getLogger().printExceptionById("DPL_00002");
             dataFile.getLogger().println(msg);
             return null;
         }
@@ -66,7 +71,8 @@ public abstract class BaseAnnotator {
             if (!providedSheets.contains(required)) {
                 String msg = "[ERROR] Missing required sheet key: '" + required + "' for type " + metadataType;
                 System.out.println(msg);
-                dataFile.getLogger().printExceptionById("DPL_00002"); // placeholder
+                // “Missing InfoSheet / required sheet” → consistent with STR_00005–STR_00006
+                dataFile.getLogger().printExceptionById("STR_00005");
                 dataFile.getLogger().println(msg);
                 isValid = false;
             }
@@ -77,7 +83,8 @@ public abstract class BaseAnnotator {
             if (!expectedSheets.contains(extra)) {
                 String msg = "[ERROR] Unexpected sheet key found: '" + extra + "' for type " + metadataType;
                 System.out.println(msg);
-                dataFile.getLogger().printExceptionById("DPL_00003"); // placeholder
+                // "Unknown headers" fits this case
+                dataFile.getLogger().printExceptionById("DPL_00002");
                 dataFile.getLogger().println(msg);
                 isValid = false;
             }
