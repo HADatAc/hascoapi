@@ -25,7 +25,7 @@ services:
                 aliases:
                     - fuseki-yasgui
         environment:
-            DEFAULT_SPARQL_ENDPOINT: "http://fuseki:3030/dataset/sparql"
+            DEFAULT_SPARQL_ENDPOINT: "http://fuseki:3030/store/sparql"
         depends_on:
             - fuseki
 
