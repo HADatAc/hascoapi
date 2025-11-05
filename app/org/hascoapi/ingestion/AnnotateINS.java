@@ -7,7 +7,7 @@ import org.hascoapi.entity.pojo.DataFile;
 public class AnnotateINS extends BaseAnnotator {
 
     public static GeneratorChain exec(DataFile dataFile, String templateFile, String status) {
-        System.out.println("Processing INS meta-template ...");
+        dataFile.getLogger().println("Processing INS meta-template ...");
 
         // Load catalog with sheet validation
         Map<String, String> mapCatalog = loadCatalog(dataFile, Constants.MT_INS);

@@ -12,7 +12,7 @@ import org.hascoapi.entity.pojo.Study;
 public class AnnotateSTR extends BaseAnnotator {
 
     public static GeneratorChain exec(DataFile dataFile, String templateFile) {
-        System.out.println("Processing STR meta-template ...");
+        dataFile.getLogger().println("Processing STR meta-template ...");
 
         // Load InfoSheet catalog using BaseAnnotator
         Map<String, String> mapCatalog = loadCatalog(dataFile, Constants.MT_STR);

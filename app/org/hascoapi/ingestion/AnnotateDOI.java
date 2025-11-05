@@ -10,7 +10,7 @@ import org.hascoapi.entity.pojo.Study;
 public class AnnotateDOI extends BaseAnnotator {
 
     public static GeneratorChain exec(DataFile dataFile) {
-        System.out.println("Processing DOI file ...");
+        dataFile.getLogger().println("Processing DOI file ...");
 
         // Load and validate InfoSheet, build catalog
         Map<String, String> mapCatalog = loadCatalog(dataFile, Constants.MT_DOI);

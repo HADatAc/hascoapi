@@ -8,7 +8,7 @@ import org.hascoapi.entity.pojo.KGR;
 public class AnnotateKGR extends BaseAnnotator {
 
     public static GeneratorChain exec(DataFile dataFile, String templateFile, String status) {
-        System.out.println("AnnotateKGR.exec(): Processing KGR meta-template ...");
+        dataFile.getLogger().println("AnnotateKGR.exec(): Processing KGR meta-template ...");
 
         Map<String, String> mapCatalog = loadCatalog(dataFile, Constants.MT_KGR);
         if (mapCatalog == null) {

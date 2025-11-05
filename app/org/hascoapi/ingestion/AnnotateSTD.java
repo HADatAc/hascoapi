@@ -7,47 +7,65 @@ import org.hascoapi.entity.pojo.DataFile;
 public class AnnotateSTD extends BaseAnnotator {
 
     public static GeneratorChain exec(DataFile dataFile, String studyUri, String templateFile) {
-        System.out.println("Processing DGS's STD meta-template ...");
+        dataFile.getLogger().println("Processing DSG's STD meta-template ...");
 
-        Map<String, String> mapCatalog = loadCatalog(dataFile,"STD");
+        Map<String, String> mapCatalog = loadCatalog(dataFile, "STD");
         if (mapCatalog == null) {
-            System.out.println("[ERROR] STD: Failed to load InfoSheet.");
+            dataFile.getLogger().printExceptionById("DSG_00017");
             return null;
         }
-    
+
         // Check file extension
         if (!dataFile.getFilename().endsWith(".xlsx")) {
-            System.out.println("[ERROR] STD: File must have .xlsx extension.");
+            dataFile.getLogger().printExceptionByIdWithArgs("DSG_00018", dataFile.getFilename());
             return null;
         }
 
         // Generate namespace
         IngestionWorker.nameSpaceGen(dataFile, mapCatalog, templateFile);
+        dataFile.getLogger().println("Namespace generation completed.");
 
         GeneratorChain chain = new GeneratorChain();
         chain.setNamedGraphUri(dataFile.getUri());
+        dataFile.getLogger().println("Named graph URI set: " + dataFile.getUri());
 
         // Load hasStudyDescription sheet
         String sheetKey = "hasStudyDescription";
         String sheetName = mapCatalog.get(sheetKey);
         if (sheetName == null || sheetName.trim().isEmpty()) {
-            System.out.println("[ERROR] STD: Missing 'hasStudyDescription' sheet in catalog.");
+            dataFile.getLogger().printExceptionById("DSG_00019");
             return null;
         }
 
-        RecordFile studyRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), sheetName.replace("#", ""));
-        if (studyRecordFile == null || studyRecordFile.getRecords() == null) {
-            System.out.println("[ERROR] STD: Failed to load or parse study description sheet.");
+        try {
+            dataFile.getLogger().println("Loading sheet [" + sheetName + "] from STD file ...");
+            RecordFile studyRecordFile = new SpreadsheetRecordFile(
+                    dataFile.getFile(),
+                    dataFile.getFilename(),
+                    sheetName.replace("#", "")
+            );
+
+            if (studyRecordFile == null || studyRecordFile.getRecords() == null) {
+                dataFile.getLogger().printExceptionById("DSG_00020");
+                return null;
+            }
+
+            dataFile.getLogger().println(
+                    "STD: Loaded studyRecordFile with [" + studyRecordFile.getRecords().size() + "] rows."
+            );
+            dataFile.setRecordFile(studyRecordFile);
+
+            // Add generators
+            dataFile.getLogger().println("Adding AgentGenerator and StudyGenerator to chain...");
+            chain.addGenerator(new AgentGenerator(dataFile, studyUri, templateFile));
+            chain.addGenerator(new StudyGenerator(dataFile, studyUri, templateFile));
+
+        } catch (Exception e) {
+            dataFile.getLogger().printExceptionByIdWithArgs("DSG_00021", e.getMessage());
             return null;
         }
 
-        System.out.println("STD: Loaded studyRecordFile with [" + studyRecordFile.getRecords().size() + "] rows.");
-        dataFile.setRecordFile(studyRecordFile);
-
-        // Add generators
-        chain.addGenerator(new AgentGenerator(dataFile, studyUri, templateFile));
-        chain.addGenerator(new StudyGenerator(dataFile, studyUri, templateFile));
-
+        dataFile.getLogger().println("STD processing completed successfully.");
         return chain;
     }
 }

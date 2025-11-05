@@ -7,7 +7,7 @@ import org.hascoapi.entity.pojo.DataFile;
 public class AnnotateDP2 extends BaseAnnotator {
 
     public static GeneratorChain exec(DataFile dataFile, String templateFile, String status) {
-        System.out.println("Processing DP2 meta-template ...");
+        dataFile.getLogger().println("Processing DP2 meta-template ...");
 
         // Load catalog with sheet validation
         Map<String, String> mapCatalog = loadCatalog(dataFile, Constants.MT_DP2);

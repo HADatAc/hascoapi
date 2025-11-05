@@ -12,7 +12,7 @@ import org.hascoapi.utils.URIUtils;
 public class AnnotateSDD extends BaseAnnotator {
 
     public static GeneratorChain exec(DataFile dataFile, String templateFile) {
-        System.out.println("Processing SDD meta-template ...");
+        dataFile.getLogger().println("Processing SDD meta-template ...");
 
         Map<String, String> mapCatalog = loadCatalog(dataFile, Constants.MT_SDD);
         if (mapCatalog == null) {

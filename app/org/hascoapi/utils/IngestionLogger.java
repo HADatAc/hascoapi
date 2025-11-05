@@ -134,10 +134,12 @@ public class IngestionLogger {
     }
 
     public void printWarning(String message) {
+        System.out.println(message);
         addLine(Feedback.println(Feedback.WEB, "[WARNING] " + message));
     }
 
     public void println(String message) {
+        System.out.println(message);
         addLine(Feedback.println(Feedback.WEB, "[LOG] " + message));
     }
 }

@@ -1,21 +1,52 @@
 {
   "title": "Automatic Annotator Ingestion Error Dictionary",
   "content": {
-    "STD": {
-      "file type": "STD",
+    "DA": {
+      "file type": "DA",
       "content": [
         {
-          "id": "STD_00001",
-          "detail": "Study ID is empty",
-          "solution": "Fill in a study ID"
+          "id": "DA_00001",
+          "detail": "MeasurementGeneration: failed to initialize the data ingestion.",
+          "solution": ""
         },
         {
-          "id": "STD_00002",
-          "detail": "Study title not given",
-          "solution": "Fill in study title"
+          "id": "DA_00002",
+          "detail": "SSDGenerator: no SOCReference provided for SOC generator",
+          "solution": ""
+        },
+        {
+          "id": "DA_00003",
+          "detail": "STR for the uri <%s> is incomplete",
+          "solution": ""
+        },
+        {
+          "id": "DA_00004",
+          "detail": "Cannot find STR with following URI: <%s>",
+          "solution": ""
+        },
+        {
+          "id": "DA_00005",
+          "detail": "Cannot load SDD specified for the following STR: <%s>",
+          "solution": ""
+        },
+        {
+          "id": "DA_00006",
+          "detail": "Cannot load deployment specified for the following STR: <%s>",
+          "solution": ""
+        },
+        {
+          "id": "DA_00007",
+          "detail": "SDD <%s> cannot be found",
+          "solution": "Make sure the identified SDD has been ingested prior to the ingestion of this DA file"
+        },
+        {
+          "id": "DA_00008",
+          "detail": "Study is missing for the following STR: <%s>",
+          "solution": "Add a valid study id to the STR for of this file stream"
         }
       ]
     },
+
     "DPL": {
       "file type": "DPL",
       "content": [
@@ -31,46 +62,270 @@
         }
       ]
     },
-    "SSD": {
-      "file type": "SSD",
+
+    "DP2": {
+      "file type": "DP2",
       "content": [
         {
-          "id": "SSD_00001",
+          "id": "DP2_00001",
+          "detail": "Missing InfoSheet.",
+          "solution": "Ensure that the DP2 spreadsheet includes a sheet called 'InfoSheet'."
+        },
+        {
+          "id": "DP2_00002",
+          "detail": "InfoSheet has no records.",
+          "solution": "Ensure that the InfoSheet contains at least one record."
+        },
+        {
+          "id": "DP2_00003",
+          "detail": "Missing or extra sheet(s) in InfoSheet for DP2 metadata.",
+          "solution": "Ensure that all required sheets are present and no unexpected sheets are included. Expected sheets are: hasDependencies, Deployments, PlatformModels, Platforms, FieldsOfView, Instruments, Components, SensingPerspective."
+        },
+        {
+          "id": "DP2_00004",
+          "detail": "Sheet '%s' is missing in DP2 file.",
+          "solution": "Add the missing sheet to the DP2 file."
+        },
+        {
+          "id": "DP2_00005",
+          "detail": "Unexpected sheet '%s' found in InfoSheet.",
+          "solution": "Remove the unexpected sheet from the DP2 InfoSheet."
+        }
+      ]
+    },
+
+    "DSG": {
+      "file type": "DSG",
+      "content": [
+        {
+          "id": "DSG_00001",
+          "detail": "Missing InfoSheet.",
+          "solution": "Ensure that the DSG spreadsheet includes a sheet called 'InfoSheet'."
+        },
+        {
+          "id": "DSG_00002",
+          "detail": "InfoSheet has no records.",
+          "solution": "Ensure that the InfoSheet contains at least one record."
+        },
+        {
+          "id": "DSG_00003",
+          "detail": "Missing or extra sheet(s) in InfoSheet for DSG metadata.",
+          "solution": "Ensure that all required sheets are present and no unexpected sheets are included. Expected sheets are: hasStudyURI, hasStudyKG, hasDependencies, hasStudyDescription, hasEntityDesign, hasVariableDesign, hasVersion."
+        },
+        {
+          "id": "DSG_00004",
+          "detail": "Sheet '%s' is missing in DSG file.",
+          "solution": "Add the missing sheet to the DSG file."
+        },
+        {
+          "id": "DSG_00005",
+          "detail": "Unexpected sheet '%s' found in InfoSheet.",
+          "solution": "Remove the unexpected sheet from the DSG InfoSheet."
+        },
+        {
+          "id": "DSG_00006",
           "detail": "SSDGenerator: no studyUri provided for SOC generator with typeUri [%s]",
           "solution": ""
         },
         {
-          "id": "SSD_00002",
+          "id": "DSG_00007",
           "detail": "SSDGenerator: no SOCReference provided for SOC generator",
           "solution": ""
         },
         {
-          "id": "SSD_00003",
+          "id": "DSG_00008",
           "detail": "VirtualColumnGenerator: no studyUri provided for generator with typeUri [%s]",
           "solution": ""
         },
         {
-          "id": "SSD_00004",
+          "id": "DSG_00009",
           "detail": "VirtualColumnGenerator: no SOCReference provided for generator",
           "solution": ""
         },
         {
-          "id": "SSD_00005",
-          "detail": "SSD ingestion: Could not find the study uri <%s> in the TS, check the study uri in the SSD sheet.",
+          "id": "DSG_00010",
+          "detail": "DSG ingestion: Could not find the study uri <%s> in the TS, check the study uri in the DSG sheet.",
           "solution": ""
         },
         {
-          "id": "SSD_00006",
-          "detail": "SSD ingestion: There is no SOC of type hasco:SubjectGroup, make sure one and only one SOC is of type hasco:SubjectGroup.",
+          "id": "DSG_00011",
+          "detail": "DSG ingestion: There is no SOC of type hasco:SubjectGroup, make sure one and only one SOC is of type hasco:SubjectGroup.",
           "solution": ""
         },
         {
-          "id": "SSD_00007",
-          "detail": "SSD ingestion: There is more than one SOC of type hasco:SubjectGroup, make sure one and only one SOC is of type hasco:SubjectGroup.",
+          "id": "DSG_00012",
+          "detail": "DSG ingestion: There is more than one SOC of type hasco:SubjectGroup, make sure one and only one SOC is of type hasco:SubjectGroup.",
           "solution": ""
+        },
+        {
+          "id": "DSG_00013",
+          "detail": "STD Processing: Missing 'hasStudyDescription' sheet in InfoSheet.",
+          "solution": "Ensure that the DSG InfoSheet includes a sheet called 'hasStudyDescription'."
+        },
+        {
+          "id": "DSG_00014",
+          "detail": "STD Processing: Failed to load or parse 'hasStudyDescription' sheet.",
+          "solution": "Ensure that the DSG sheet 'hasStudyDescription' exists and is correctly formatted."
+        },
+        {
+          "id": "DSG_00015",
+          "detail": "Study ID is empty.",
+          "solution": "Fill in a study ID."
+        },
+        {
+          "id": "DSG_00016",
+          "detail": "Study title not given.",
+          "solution": "Fill in study title."
+        },
+        {
+          "id": "DSG_00017",
+          "detail": "DSG file must have a .xlsx extension: %s",
+          "solution": "Rename the file to use the .xlsx extension or provide an Excel file."
+        },
+        {
+          "id": "DSG_00018",
+          "detail": "Missing sheet name for [hasEntityDesign] in DSG InfoSheet.",
+          "solution": "Define the hasEntityDesign sheet name in the DSG InfoSheet."
+        },
+        {
+          "id": "DSG_00019",
+          "detail": "Failed to load SSD sheet or extract records.",
+          "solution": "Verify the sheet name and the file contents; ensure the sheet exists and is readable."
+        },
+        {
+          "id": "DSG_00020",
+          "detail": "Exception during SSD sheet extraction: %s",
+          "solution": "Check stack trace and file contents; ensure file is not corrupted and sheet name is correct."
+        },
+        {
+          "id": "DSG_00021",
+          "detail": "SSD sheet is empty or invalid.",
+          "solution": "Ensure the SSD sheet referenced by hasEntityDesign contains rows and valid structure."
         }
       ]
     },
+
+
+
+
+    "DOI": {
+      "file type": "DOI",
+      "content": [
+        {
+          "id": "DOI_00001",
+          "detail": "Missing InfoSheet. ",
+          "solution": "Use Excel to open this file and see if it has a sheet called 'InfoSheet'. If not, create such sheet."
+        },
+        {
+          "id": "DOI_00002",
+          "detail": "Missing Study_ID property in InfoSheet. ",
+          "solution": "Include a valid Study_ID property into InfoSheet."
+        },
+        {
+          "id": "DOI_00003",
+          "detail": "Study_ID property <%s> in InfoSheet is invalid. ",
+          "solution": "Study_ID property in InfoSheet is not of a valid study. Replace the property with a valid study id."
+        },
+        {
+          "id": "DOI_00004",
+          "detail": "Invalid/missing Version property in InfoSheet. ",
+          "solution": "Correct/include a valid Version property into InfoSheet."
+        },
+        {
+          "id": "DOI_00005",
+          "detail": "Missing Filenames Sheet. ",
+          "solution": "Include a 'Filenames' sheet into the DOI file."
+        },
+        {
+          "id": "DOI_00006",
+          "detail": "Error processing DOI Generator. ",
+          "solution": ""
+        },
+        {
+          "id": "DOI_00007",
+          "detail": "Failed to retrieve DA <%s> ",
+          "solution": "DA file was not ingested prior the execution of this DOI file."
+        }
+      ]
+    },
+
+    "GLOBAL": {
+      "file type": "GLOBAL",
+      "content": [
+        {
+          "id": "GBL_00001",
+          "detail": "Unsupported file name prefix, acceptable prefixes are DA-, DD-, DOI-, DP2-, DSG-, INS-, KGR-, SDD-, STR-",
+          "solution": "Rename the current file to have a valid prefix. Please note that the prefixes end with an hyphen, not an underscore"
+        },
+        {
+          "id": "GBL_00002",
+          "detail": "Already processed a file with the same name %s . ",
+          "solution": "Either remove this file or the old file before moving forward. "
+        },
+        {
+          "id": "GBL_00003",
+          "detail": "Unknown file format: %s",
+          "solution": "Known formats are .csv or .xlsx"
+        },
+        {
+          "id": "GBL_00004",
+          "detail": "InfoSheet has no records",
+          "solution": "The InfoSheet must include and only the required sheets accordly with the metadata"
+        },
+        {
+          "id": "GBL_00005",
+          "detail": "Missing InfoSheet. ",
+          "solution": "Use Excel to open this file and see if it has a sheet called 'InfoSheet'. If not, create such sheet."
+        },
+        {
+          "id": "GBL_00006",
+          "detail": "Missing required sheet key: %s for metadata type %s",
+          "solution": "Ensure that the specified sheet exists in the InfoSheet for the given metadata type."
+        },
+        {
+          "id": "GBL_00007",
+          "detail": "Unexpected sheet key found: %s for metadata type %s",
+          "solution": "Remove or rename the unexpected sheet in the InfoSheet for the given metadata type."
+        },
+        {
+          "id": "GBL_00008",
+          "detail": "Failed to clone DataFile object: %s",
+          "solution": "Verify that the DataFile class properly implements Cloneable and that all referenced objects can be safely cloned."
+        }
+      ]
+    },
+
+    "INS": {
+      "file type": "INS",
+      "content": [
+        {
+          "id": "INS_00001",
+          "detail": "Missing InfoSheet.",
+          "solution": "Ensure that the INS spreadsheet includes a sheet called 'InfoSheet'."
+        },
+        {
+          "id": "INS_00002",
+          "detail": "InfoSheet has no records.",
+          "solution": "Ensure that the InfoSheet contains at least one record."
+        },
+        {
+          "id": "INS_00003",
+          "detail": "Missing or extra sheet(s) in InfoSheet for INS metadata.",
+          "solution": "Ensure that all required sheets are present and no unexpected sheets are included. Expected sheets are: hasDependencies, Instruments, SlotElements, ComponentStems, Components, CodeBooks, CodeBookSlots, ResponseOptions, Annotations, AnnotationStems."
+        },
+        {
+          "id": "INS_00004",
+          "detail": "Sheet '%s' is missing in INS file.",
+          "solution": "Add the missing sheet to the INS file."
+        },
+        {
+          "id": "INS_00005",
+          "detail": "Unexpected sheet '%s' found in InfoSheet.",
+          "solution": "Remove the unexpected sheet from the INS InfoSheet."
+        }
+      ]
+    },
+
     "SDD": {
       "file type": "SDD",
       "content": [
@@ -355,231 +610,7 @@
           "solution": "For the identified SDD, make sure the SDD file is properly ingested. "
         }
       ]
-    },
-    "DA": {
-      "file type": "DA",
-      "content": [
-        {
-          "id": "DA_00001",
-          "detail": "MeasurementGeneration: failed to initialize the data ingestion.",
-          "solution": ""
-        },
-        {
-          "id": "DA_00002",
-          "detail": "SSDGenerator: no SOCReference provided for SOC generator",
-          "solution": ""
-        },
-        {
-          "id": "DA_00003",
-          "detail": "STR for the uri <%s> is incomplete",
-          "solution": ""
-        },
-        {
-          "id": "DA_00004",
-          "detail": "Cannot find STR with following URI: <%s>",
-          "solution": ""
-        },
-        {
-          "id": "DA_00005",
-          "detail": "Cannot load SDD specified for the following STR: <%s>",
-          "solution": ""
-        },
-        {
-          "id": "DA_00006",
-          "detail": "Cannot load deployment specified for the following STR: <%s>",
-          "solution": ""
-        },
-        {
-          "id": "DA_00007",
-          "detail": "SDD <%s> cannot be found",
-          "solution": "Make sure the identified SDD has been ingested prior to the ingestion of this DA file"
-        },
-        {
-          "id": "DA_00008",
-          "detail": "Study is missing for the following STR: <%s>",
-          "solution": "Add a valid study id to the STR for of this file stream"
-        }
-      ]
-    },
-    "DOI": {
-      "file type": "DOI",
-      "content": [
-        {
-          "id": "DOI_00001",
-          "detail": "Missing InfoSheet. ",
-          "solution": "Use Excel to open this file and see if it has a sheet called 'InfoSheet'. If not, create such sheet."
-        },
-        {
-          "id": "DOI_00002",
-          "detail": "Missing Study_ID property in InfoSheet. ",
-          "solution": "Include a valid Study_ID property into InfoSheet."
-        },
-        {
-          "id": "DOI_00003",
-          "detail": "Study_ID property <%s> in InfoSheet is invalid. ",
-          "solution": "Study_ID property in InfoSheet is not of a valid study. Replace the property with a valid study id."
-        },
-        {
-          "id": "DOI_00004",
-          "detail": "Invalid/missing Version property in InfoSheet. ",
-          "solution": "Correct/include a valid Version property into InfoSheet."
-        },
-        {
-          "id": "DOI_00005",
-          "detail": "Missing Filenames Sheet. ",
-          "solution": "Include a 'Filenames' sheet into the DOI file."
-        },
-        {
-          "id": "DOI_00006",
-          "detail": "Error processing DOI Generator. ",
-          "solution": ""
-        },
-        {
-          "id": "DOI_00007",
-          "detail": "Failed to retrieve DA <%s> ",
-          "solution": "DA file was not ingested prior the execution of this DOI file."
-        }
-
-      ]
-    },
-    "GLOBAL": {
-      "file type": "GLOBAL",
-      "content": [
-        {
-          "id": "GBL_00001",
-          "detail": "Unsupported file name prefix, acceptable prefixes are DA-, DD-, DOI-, DP2-, DSG-, INS-, KGR-, SDD-, STR-",
-          "solution": "Rename the current file to have a valid prefix. Please note that the prefixes end with an hyphen, not an underscore"
-        },
-        {
-          "id": "GBL_00002",
-          "detail": "Already processed a file with the same name %s . ",
-          "solution": "Either remove this file or the old file before moving forward. "
-        },
-        {
-          "id": "GBL_00003",
-          "detail": "Unknown file format: %s",
-          "solution": "Known formats are .csv or .xlsx"
-        },
-        {
-          "id": "GBL_00004",
-          "detail": "InfoSheet has no records",
-          "solution": "The InfoSheet must include and only the required sheets accordly with the metadata"
-        },
-        {
-          "id": "GBL_00005",
-          "detail": "Missing InfoSheet. ",
-          "solution": "Use Excel to open this file and see if it has a sheet called 'InfoSheet'. If not, create such sheet."
-        },
-        {
-          "id": "GBL_00006",
-          "detail": "Missing required sheet key: %s for metadata type %s",
-          "solution": "Ensure that the specified sheet exists in the InfoSheet for the given metadata type."
-        },
-        {
-          "id": "GBL_00007",
-          "detail": "Unexpected sheet key found: %s for metadata type %s",
-          "solution": "Remove or rename the unexpected sheet in the InfoSheet for the given metadata type."
-        },
-        {
-          "id": "GBL_00008",
-          "detail": "Failed to clone DataFile object: %s",
-          "solution": "Verify that the DataFile class properly implements Cloneable and that all referenced objects can be safely cloned."
-        }
-
-      ]
-    },
-
-    "INS": {
-      "file type": "INS",
-      "content": [
-        {
-          "id": "INS_00001",
-          "detail": "Missing InfoSheet.",
-          "solution": "Ensure that the INS spreadsheet includes a sheet called 'InfoSheet'."
-        },
-        {
-          "id": "INS_00002",
-          "detail": "InfoSheet has no records.",
-          "solution": "Ensure that the InfoSheet contains at least one record."
-        },
-        {
-          "id": "INS_00003",
-          "detail": "Missing or extra sheet(s) in InfoSheet for INS metadata.",
-          "solution": "Ensure that all required sheets are present and no unexpected sheets are included. Expected sheets are: hasDependencies, Instruments, SlotElements, ComponentStems, Components, CodeBooks, CodeBookSlots, ResponseOptions, Annotations, AnnotationStems."
-        },
-        {
-          "id": "INS_00004",
-          "detail": "Sheet '%s' is missing in INS file.",
-          "solution": "Add the missing sheet to the INS file."
-        },
-        {
-          "id": "INS_00005",
-          "detail": "Unexpected sheet '%s' found in InfoSheet.",
-          "solution": "Remove the unexpected sheet from the INS InfoSheet."
-        }
-      ]
-    },
-
-    "DP2": {
-      "file type": "DP2",
-      "content": [
-        {
-          "id": "DP2_00001",
-          "detail": "Missing InfoSheet.",
-          "solution": "Ensure that the DP2 spreadsheet includes a sheet called 'InfoSheet'."
-        },
-        {
-          "id": "DP2_00002",
-          "detail": "InfoSheet has no records.",
-          "solution": "Ensure that the InfoSheet contains at least one record."
-        },
-        {
-          "id": "DP2_00003",
-          "detail": "Missing or extra sheet(s) in InfoSheet for DP2 metadata.",
-          "solution": "Ensure that all required sheets are present and no unexpected sheets are included. Expected sheets are: hasDependencies, Deployments, PlatformModels, Platforms, FieldsOfView, Instruments, Components, SensingPerspective."
-        },
-        {
-          "id": "DP2_00004",
-          "detail": "Sheet '%s' is missing in DP2 file.",
-          "solution": "Add the missing sheet to the DP2 file."
-        },
-        {
-          "id": "DP2_00005",
-          "detail": "Unexpected sheet '%s' found in InfoSheet.",
-          "solution": "Remove the unexpected sheet from the DP2 InfoSheet."
-        }
-      ]
-    },
-
-    "DSG": {
-      "file type": "DSG",
-      "content": [
-        {
-          "id": "DSG_00001",
-          "detail": "Missing InfoSheet.",
-          "solution": "Ensure that the DSG spreadsheet includes a sheet called 'InfoSheet'."
-        },
-        {
-          "id": "DSG_00002",
-          "detail": "InfoSheet has no records.",
-          "solution": "Ensure that the InfoSheet contains at least one record."
-        },
-        {
-          "id": "DSG_00003",
-          "detail": "Missing or extra sheet(s) in InfoSheet for DSG metadata.",
-          "solution": "Ensure that all required sheets are present and no unexpected sheets are included. Expected sheets are: hasStudyURI, hasStudyKG, hasDependencies, hasStudyDescription, hasEntityDesign, hasVariableDesign, hasVersion."
-        },
-        {
-          "id": "DSG_00004",
-          "detail": "Sheet '%s' is missing in DSG file.",
-          "solution": "Add the missing sheet to the DSG file."
-        },
-        {
-          "id": "DSG_00005",
-          "detail": "Unexpected sheet '%s' found in InfoSheet.",
-          "solution": "Remove the unexpected sheet from the DSG InfoSheet."
-        }
-      ]
     }
   }
 }
+
