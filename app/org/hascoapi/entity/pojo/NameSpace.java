@@ -167,8 +167,11 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
             "     FILTER isIRI(?class) " +
             "     FILTER (CONTAINS(STR(?class), \"" + uri + "\")) " +
             "     FILTER NOT EXISTS { " +
-            "          ?class rdfs:subClassOf ?superclass . " +
-            "         FILTER (isIRI(?superclass) && ?superclass != owl:Thing) " +
+            "           ?class rdfs:subClassOf ?superclass . " +
+            "         FILTER ( " + 
+            "           isIRI(?superclass) && " +
+            "           !STRSTARTS(STR(?superclass),STR(hasco:)) && " +
+            "           ?superclass != owl:Thing) " +
             "    } " +
             " } " +
             " ORDER BY ?class ";
