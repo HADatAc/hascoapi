@@ -265,7 +265,7 @@
         {
           "id": "GBL_00003",
           "detail": "Unknown file format: %s",
-          "solution": "Known formats are .csv or .xlsx"
+          "solution": "Known formats are .xlsx"
         },
         {
           "id": "GBL_00004",
@@ -291,6 +291,56 @@
           "id": "GBL_00008",
           "detail": "Failed to clone DataFile object: %s",
           "solution": "Verify that the DataFile class properly implements Cloneable and that all referenced objects can be safely cloned."
+        },
+        {
+          "id": "GBL_00009",
+          "detail": "NameSpaceGenerator: nameSpaceRecordFile is NULL.",
+          "solution": "Verify that the DataFile has a namespace file."
+        },
+        {
+          "id": "GBL_00010",
+          "detail": "NameSpaceGenerator: nameSpaceRecordFile.getRecords() is NULL.",
+          "solution": "Make sure that the namespace file has records"
+        },
+        {
+          "id": "GBL_00011",
+          "detail": "NameSpaceGenerator: could not find any sheet inside of Metadata Template called [hasDependencies].",
+          "solution": "Make sure that the DataFile in the Infosheet has an line called [hasDependencies]."
+        },
+        {
+          "id": "GBL_00012",
+          "detail": "IngestionWorker - following error cloning dataFile: %s" ,
+          "solution": "Check where the exception begins to solve the problem."
+        },
+        {
+          "id": "GBL_00013",
+          "detail": "%s sheet is missing" ,
+          "solution": "Make sure that the DataFile has an sheet called 'AnnotationStems'."
+        },
+        {
+          "id": "GBL_00014",
+          "detail": "%s recordFile.getRecords() is NULL." ,
+          "solution": "Check the annotation Generator code to see the exception launched."
+        },
+        {
+          "id": "GBL_00015",
+          "detail": " %s sheet is missing.",
+          "solution": "Make sure that the DataFile has the 'Annotations' sheet in it."
+        },
+        {
+          "id": "GBL_00016",
+          "detail": "Failed to extract %s sheets.",
+          "solution": "Check the previous logs for more details"
+        },
+        {
+          "id": "GBL_00017",
+          "detail": "IngestionWorker: failed to build studyUri - missing hasStudyURI portion of the URI in the InfoSheet",
+          "solution": "Fullfill the hasStudyURI"
+        },
+        {
+          "id": "GBL_00018",
+          "detail": "IngestionWorker: failed to build studyUri - missing hasStudyKG portion of the URI in the InfoSheet",
+          "solution": "Fullfill the hasStudyKG"
         }
       ]
     },

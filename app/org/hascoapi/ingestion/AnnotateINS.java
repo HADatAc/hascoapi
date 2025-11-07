@@ -12,7 +12,7 @@ public class AnnotateINS extends BaseAnnotator {
         // Load catalog with sheet validation
         Map<String, String> mapCatalog = loadCatalog(dataFile, Constants.MT_INS);
         if (mapCatalog == null) {
-            dataFile.getLogger().printExceptionById("INS_00001"); // "INS InfoSheet validation failed"
+           // dataFile.getLogger().printExceptionById("INS_00001"); // "INS InfoSheet validation failed"
             return null;
         }
 

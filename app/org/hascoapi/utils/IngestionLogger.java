@@ -107,6 +107,7 @@ public class IngestionLogger {
     }
 
     public void printException(Exception exception) {
+        System.out.println(exception.getMessage());
         addLine(Feedback.println(Feedback.WEB, "[ERROR] " + exception.getMessage()));
     }
 
@@ -123,6 +124,7 @@ public class IngestionLogger {
      * Example: printWarningByIdWithArgs("GBL_00003", "Deployments")
      */
     public void printWarningByIdWithArgs(String id, Object... args) {
+        System.out.println(id + ": " + ErrorDictionary.getDetailById(id));
         String template = ErrorDictionary.getDetailById(id);
         if (template == null) {
             printWarning(id + ": [Unknown warning ID]");
