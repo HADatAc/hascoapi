@@ -120,7 +120,8 @@ public class GeneratorChain {
                 generator.postprocess();
                 uris = generator.postprocessuris();
             } catch (Exception e) {
-                System.out.println("[ERROR] GenerationChain: " + generator.getErrorMsg(e));
+                getDataFile().getLogger().printExceptionByIdWithArgs("GBL_00044", generator.getErrorMsg(e));
+                //System.out.println("[ERROR] GenerationChain: " + generator.getErrorMsg(e));
                 e.printStackTrace();
 
                 generator.getLogger().printException(generator.getErrorMsg(e));
@@ -173,7 +174,6 @@ public class GeneratorChain {
                 setStudyUri(generator.getStudyUri());
             }
         }
-
         postprocess();
         System.out.println("GeneratorChain: Ended [NORMAL] execution of generator chain.");
 
@@ -209,13 +209,14 @@ public class GeneratorChain {
                     generator.commitObjectsToTripleStore(generator.getObjects());
                 }
             } catch (Exception e) {
-                System.out.println("[ERROR] GenerationChain: " + generator.getErrorMsg(e));
+                getDataFile().getLogger().printExceptionByIdWithArgs("GBL_00044", generator.getErrorMsg(e));
+                //System.out.println("[ERROR] GenerationChain: " + generator.getErrorMsg(e));
                 e.printStackTrace();
                 generator.getLogger().printException(generator.getErrorMsg(e));
                 return false;
             }
         }
-        postprocess();
+       postprocess();
         return true;
     }
 

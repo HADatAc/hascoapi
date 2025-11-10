@@ -179,7 +179,7 @@
         },
         {
           "id": "DSG_00017",
-          "detail": "DSG file must have a .xlsx extension: %s",
+          "detail": "DSG file must have a .xlsx extension",
           "solution": "Rename the file to use the .xlsx extension or provide an Excel file."
         },
         {
@@ -269,7 +269,7 @@
         },
         {
           "id": "GBL_00004",
-          "detail": "InfoSheet has no records",
+          "detail": "InfoSheet has no records or not Valid",
           "solution": "The InfoSheet must include and only the required sheets accordly with the metadata"
         },
         {
@@ -341,7 +341,208 @@
           "id": "GBL_00018",
           "detail": "IngestionWorker: failed to build studyUri - missing hasStudyKG portion of the URI in the InfoSheet",
           "solution": "Fullfill the hasStudyKG"
+        },
+        {
+          "id": "GBL_00019",
+          "detail": "ValueGenerator: could not retrieve Study Object for ID [%s]",
+          "solution": "Ensure that the original ID exists in the DASO instance generator and that the StudyObject is properly defined."
+        },
+        {
+          "id": "GBL_00020",
+          "detail": "ValueGenerator: exceeded maximum row errors [%s]",
+          "solution": "Check your input file for invalid or missing data and correct it before retrying ingestion."
+        },
+        {
+          "id": "GBL_00021",
+          "detail": "ValueGenerator: could not find DASA reference for ID [%s]",
+          "solution": "Verify that each row in the data file contains valid references corresponding to the schema attributes."
+        },
+        {
+          "id": "GBL_00022",
+          "detail": "ValueGenerator: missing object URI for reference [%s]",
+          "solution": "Ensure that the row-scope or cell-scope object exists and is correctly mapped in the DASO instance generator."
+        },
+        {
+          "id": "GBL_00023",
+          "detail": "ValueGenerator: ground object is null for ID [%s]",
+          "solution": "Check that the DASO generator correctly returns a ground object for the given ID."
+        },
+        {
+          "id": "GBL_00024",
+          "detail": "ValueGenerator: could not assign object URI from StudyObjectMatching for ID [%s]",
+          "solution": "Ensure that a StudyObjectMatching exists for the scope object and the reference provided."
+        },
+        {
+          "id": "GBL_00025",
+          "detail": "ValueGenerator: invalid or missing value for attribute [%s] at row [%s]",
+          "solution": "Check that the attribute exists in the input file and matches the schema definitions."
+        },
+        {
+          "id": "GBL_00026",
+          "detail": "ValueGenerator: could not retrieve in-relation-to object for attribute [%s]",
+          "solution": "Ensure that the in-relation-to reference is defined in the schema and exists in the data file."
+        },
+        {
+          "id": "GBL_00027",
+          "detail": "ValueGenerator: failed to generate value URI for attribute [%s] at row [%s]",
+          "solution": "Check that the schema and stream URIs are correctly defined and that the totalCount is properly incremented."
+        },
+        {
+          "id": "GBL_00028",
+          "detail": "StudyGenerator: No URI value has been found for Study",
+          "solution": "Ensure the study URI is defined in the input file or properly set in the generator."
+        },
+        {
+          "id": "GBL_00029",
+          "detail": "StudyGenerator: No ID value has been found for Study",
+          "solution": "Verify that the study ID column exists and contains valid values in the input file."
+        },
+        {
+          "id": "GBL_00030",
+          "detail": "StudyGenerator: No TITLE value has been found for Study",
+          "solution": "Ensure that the study title column is present and not empty in the data file."
+        },
+        {
+          "id": "GBL_00031",
+          "detail": "StudyGenerator: Record contains no columns",
+          "solution": "Check that the input data file is properly formatted and contains all required columns."
+        },
+        {
+          "id": "GBL_00032",
+          "detail": "StudyGenerator: PI URI is missing",
+          "solution": "Set the PI URI in the URI map before processing the study record."
+        },
+        {
+          "id": "GBL_00033",
+          "detail": "StudyGenerator: Institution URI is missing",
+          "solution": "Set the Institution URI in the URI map before processing the study record."
+        },
+        {
+          "id": "GBL_00034",
+          "detail": "StudyGenerator: CPI1 URI is missing",
+          "solution": "Set the CPI1 URI in the URI map before processing the study record."
+        },
+        {
+          "id": "GBL_00035",
+          "detail": "StudyGenerator: CPI2 URI is missing",
+          "solution": "Set the CPI2 URI in the URI map before processing the study record."
+        },
+        {
+          "id": "GBL_00036",
+          "detail": "StudyGenerator: Contact URI is missing",
+          "solution": "Set the Contact URI in the URI map before processing the study record."
+        },
+        {
+          "id": "GBL_00037",
+          "detail": "StudyGenerator: External source value is missing",
+          "solution": "Ensure the 'externalSource' column exists and contains valid values in the data file."
+        },
+        {
+          "id": "GBL_00038",
+          "detail": "StudyGenerator: Failed to replace URI prefix. URI: %s",
+          "solution": "Check that the URI follows the expected format and can be processed by URIUtils.replacePrefixEx."
+        },
+        {
+          "id": "GBL_00039",
+          "detail": "StudyGenerator: Failed to map column in StudyGenerator",
+          "solution": "Verify that all required template fields exist and mapCol is correctly initialized."
+        },
+        {
+          "id": "GBL_00040",
+          "detail": "BaseGenerator: no record of size greater than zero has been provided for ingestion.",
+          "solution": "Make sure that exists records greater than zero in the Object."
+        },
+        {
+          "id": "GBL_00041",
+          "detail": "CodeBookSlotGenerator: no records to process.",
+          "solution": "Make sure that exists records in the CodeBookSlot."
+        },
+        {
+          "id": "GBL_00042",
+          "detail": "CodeBookSlotGenerator: could not find a value for vstoi:belongsTo",
+          "solution": "Make sure that exists values in the Column vstoi:belongsTo "
+        },
+        {
+          "id": "GBL_00043",
+          "detail": "ComponentGenerator: no records to process.",
+          "solution": "Make sure that exists records in the Components."
+        },
+        {
+          "id": "GBL_00044",
+          "detail": "GenerationChain: %s",
+          "solution": "Chek logs to debug the error"
+        },
+        {
+          "id": "GBL_00045",
+          "detail": "NameSpaceGenerator: no NS Abbreviation has been provided.",
+          "solution": "Make sure that exists an NS Abbreviation"
+        },
+        {
+          "id": "GBL_00046",
+          "detail": "NameSpaceGenerator: NS Abbreviation cannot have captial letters.",
+          "solution": "Make sure that the NS Abbreviation hasn't any capital letter"
+        },
+        {
+          "id": "GBL_00047",
+          "detail": "NameSpaceGenerator: NS with URI %s was not created - it already exists.",
+          "solution": "Duplicated NS."
+        },
+        {
+          "id": "GBL_00048",
+          "detail": "NameSpaceGenerator: NS with Abbreviation %s was not created - it already exists.",
+          "solution": "Duplicated Abbreviation."
+        },
+        {
+          "id": "GBL_00049",
+          "detail": "The following URI is considered invalid: %s",
+          "solution": "Make sure that the URI is valid."
+        },
+        {
+          "id": "GBL_00050",
+          "detail": "OrganizationGenerator: could not find Postal Address for key=[ %s ]",
+          "solution": "Make sure that the Postal Address exists"
+        },
+        {
+          "id": "GBL_00051",
+          "detail": "OrganizationGenerator: No parent organization for %s",
+          "solution": "Make sure that the Organization has the selected parent"
+        },
+        {
+          "id": "GBL_00052",
+          "detail": "OrganizationGenerator: Could not find parent %s for organization %s ",
+          "solution": "Make sure that the Organization has the selected parent"
+        },
+        {
+          "id": "GBL_00053",
+          "detail": "PostalAddressGenerator: could not find following CITY [ %s ]",
+          "solution": "Make sure that the PostalAddress has a valid City"
+        },
+        {
+          "id": "GBL_00054",
+          "detail": "PostalAddressGenerator: could not find following STATE [ %s ]",
+          "solution": "Make sure that the PostalAddress has a valid State"
+        },
+        {
+          "id": "GBL_00055",
+          "detail": "PostalAddressGenerator: could not find following COUNTRY [ %s ]",
+          "solution": "Make sure that the PostalAddress has a valid Country"
+        },
+        {
+          "id": "GBL_00056",
+          "detail": "PostalAddressGenerator: PostalAddress for rowNumber=[ %s ] has either street or postalcode null or empty.",
+          "solution": "Make sure that the PostalAddress has a valid Country"
+        },
+        {
+          "id": "GBL_00057",
+          "detail": "PostalAddressGenerator: PostalAddress with street=[ %s ] and postalCode=[ %s ] already exist in triplestore.",
+          "solution": "Make sure that the PostalAddress has a valid Country"
+        },
+        {
+          "id": "GBL_00058",
+          "detail": "PostalAddressGenerator: PostalAddress with street=[ %s ] and postalCode=[ %s ] already exist in source file.",
+          "solution": "Make sure that the PostalAddress has a valid Country"
         }
+
       ]
     },
 
@@ -372,6 +573,126 @@
           "id": "INS_00005",
           "detail": "Unexpected sheet '%s' found in InfoSheet.",
           "solution": "Remove the unexpected sheet from the INS InfoSheet."
+        }
+      ]
+    },
+    "KGR": {
+      "file type": "KGR",
+      "content": [
+        {
+          "id": "KGR_00001",
+          "detail": "Ingesting PLACE — missing schema:containedInPlace with URI <%s>.",
+          "solution": "Ensure that the referenced containedInPlace entity exists and has been ingested before this record."
+        },
+        {
+          "id": "KGR_00002",
+          "detail": "Ingesting ORGANIZATION — missing schema:parentOrganization with URI <%s>.",
+          "solution": "Verify that the parent organization exists and has a valid URI."
+        },
+        {
+          "id": "KGR_00003",
+          "detail": "Ingesting ORGANIZATION/PERSON — missing schema:address with URI <%s>.",
+          "solution": "Ensure that the PostalAddress referenced by the schema:address field exists and is correctly defined."
+        },
+        {
+          "id": "KGR_00004",
+          "detail": "Ingesting PERSON — missing foaf:member with URI <%s>.",
+          "solution": "Make sure the referenced organization (foaf:member) exists before this record is processed."
+        },
+        {
+          "id": "KGR_00005",
+          "detail": "Ingesting POSTAL_ADDRESS — missing schema:addressLocality with URI <%s>.",
+          "solution": "Verify that the referenced City or locality has been ingested and is available."
+        },
+        {
+          "id": "KGR_00006",
+          "detail": "Ingesting POSTAL_ADDRESS — missing schema:addressRegion with URI <%s>.",
+          "solution": "Confirm that the referenced State or region exists in the database."
+        },
+        {
+          "id": "KGR_00007",
+          "detail": "Ingesting POSTAL_ADDRESS — missing schema:addressCountry with URI <%s>.",
+          "solution": "Ensure the referenced Country place has been created and is available for linkage."
+        },
+        {
+          "id": "KGR_00008",
+          "detail": "Could not find containedInPlace(Country) <%s> for place.",
+          "solution": "Ingest or create a Country record with the specified label before retrying."
+        },
+        {
+          "id": "KGR_00009",
+          "detail": "Could not find containedInPlace(State) <%s> for place.",
+          "solution": "Add or reference a valid State place entry with the given label."
+        },
+        {
+          "id": "KGR_00010",
+          "detail": "Could not find containedInPlace(City) <%s> for place.",
+          "solution": "Include or reference a City place entity that matches the specified label."
+        },
+        {
+          "id": "KGR_00011",
+          "detail": "Could not find parent organization <%s>.",
+          "solution": "Ensure the parent organization record has been ingested and has a valid URI."
+        },
+        {
+          "id": "KGR_00012",
+          "detail": "Could not find PostalAddress <%s> for organization/person.",
+          "solution": "Add or reference a valid PostalAddress that matches the given address or postal code."
+        },
+        {
+          "id": "KGR_00013",
+          "detail": "Could not find addressLocality <%s> for PostalAddress.",
+          "solution": "Include or reference the correct City entity in the repository."
+        },
+        {
+          "id": "KGR_00014",
+          "detail": "Could not find addressRegion <%s> for PostalAddress.",
+          "solution": "Make sure the referenced State or region exists in the database."
+        },
+        {
+          "id": "KGR_00015",
+          "detail": "Could not find addressCountry <%s> for PostalAddress.",
+          "solution": "Ensure the referenced Country entity exists in the repository."
+        },
+        {
+          "id": "KGR_00016",
+          "detail": "No foldername value has been provided.",
+          "solution": "Set a valid media folder name before attempting to copy media files."
+        },
+        {
+          "id": "KGR_00017",
+          "detail": "No URI value has been provided.",
+          "solution": "Ensure the current record includes a valid URI before copying media."
+        },
+        {
+          "id": "KGR_00018",
+          "detail": "No filename value has been provided.",
+          "solution": "Provide a valid filename in the hasco:hasImage field before running ingestion."
+        },
+        {
+          "id": "KGR_00019",
+          "detail": "Invalid file storage path.",
+          "solution": "Verify that the basePath (/var/hascoapi) exists and has appropriate permissions."
+        },
+        {
+          "id": "KGR_00020",
+          "detail": "Failed to create destination directory: <%s>.",
+          "solution": "Check file system permissions and ensure sufficient space to create directories."
+        },
+        {
+          "id": "KGR_00021",
+          "detail": "File not found at source path: <%s>.",
+          "solution": "Ensure the source media file exists in the expected input directory before ingestion."
+        },
+        {
+          "id": "KGR_00022",
+          "detail": "Failed to copy file: <%s>.",
+          "solution": "Verify that the source file is readable and destination directory is writable."
+        },
+        {
+          "id": "KGR_00023",
+          "detail": "Failed to create URI for element type <%s>.",
+          "solution": "Check the element type configuration and constants in Constants.java for the correct prefix mapping."
         }
       ]
     },
@@ -486,6 +807,27 @@
         }
       ]
     },
+    "STO": {
+      "file type": "STO",
+      "content": [
+        {
+          "id": "STO_00001",
+          "detail": "No mapping found for [%s] in getScopeUri().",
+          "solution": "Ensure that the referenced scope exists in mapContent for the current StudyObject."
+        },
+        {
+          "id": "STO_00002",
+          "detail": "No mapContent found for [%s] in getTimeScopeUri().",
+          "solution": "Verify that the timeScope key exists in the InfoSheet and corresponds to a valid StudyObjectCollection."
+        },
+        {
+          "id": "STO_00003",
+          "detail": "No mapContent found for [%s] in getSpaceScopeUri().",
+          "solution": "Check the spaceScope key in the InfoSheet and make sure it is properly defined."
+        }
+      ]
+    },
+
     "STR": {
       "file type": "STR",
       "content": [

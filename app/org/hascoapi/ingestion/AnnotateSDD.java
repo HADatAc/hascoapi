@@ -16,7 +16,7 @@ public class AnnotateSDD extends BaseAnnotator {
 
         Map<String, String> mapCatalog = loadCatalog(dataFile, Constants.MT_SDD);
         if (mapCatalog == null) {
-            dataFile.getLogger().printExceptionById("SDD_00001"); // "SDD InfoSheet validation failed"
+           // dataFile.getLogger().printExceptionById("SDD_00001"); // "SDD InfoSheet validation failed"
             return null;
         }
 

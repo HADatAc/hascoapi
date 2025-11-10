@@ -18,7 +18,8 @@ public class Constants {
     public static final String MT_KGR          = "KGR";
     public static final String MT_SDD          = "SDD";
     public static final String MT_STR         = "STR";
-
+    public static final String MT_STD         = "STD";
+    public static final String MT_SSD         = "SSD";
 
     public static final String TEST_KB = "http://hadatac.org/kb/test/";
 

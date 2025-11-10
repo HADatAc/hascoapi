@@ -12,7 +12,7 @@ public class AnnotateDP2 extends BaseAnnotator {
         // Load catalog with sheet validation
         Map<String, String> mapCatalog = loadCatalog(dataFile, Constants.MT_DP2);
         if (mapCatalog == null) {
-            dataFile.getLogger().printExceptionById("DP2_00001"); // "DP2 InfoSheet validation failed"
+          //  dataFile.getLogger().printExceptionById("DP2_00001"); // "DP2 InfoSheet validation failed"
             return null;
         }
 

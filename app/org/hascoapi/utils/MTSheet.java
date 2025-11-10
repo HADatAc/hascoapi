@@ -37,17 +37,27 @@ public class MTSheet {
                 "Components",
                 "SensingPerspective"
         ));
-
-        METADATA_SHEETS.put(Constants.MT_SDD, Arrays.asList(
-                "SDD_ID",
+        METADATA_SHEETS.put(Constants.MT_STD, Arrays.asList(
+                "hasStudyURI",
+                "hasStudyKG",
                 "hasDependencies",
-                "Data_Dictionary",
-                "Codebook",
-                "Code_Mappings",
-                "Imports",
-                "Timeline",
-                "Version"
+                "hasStudyDescription",
+                "hasEntityDesign",
+                "hasVariableDesign",
+                "hasVersion"
         ));
+
+        METADATA_SHEETS.put(Constants.MT_SSD, Arrays.asList(
+                "hasStudyURI",
+                "hasStudyKG",
+                "hasDependencies",
+                "hasStudyDescription",
+                "hasEntityDesign",
+                "hasVariableDesign",
+                "hasVersion"
+        ));
+
+
 
         METADATA_SHEETS.put(Constants.MT_DSG, Arrays.asList(
                 "hasStudyURI",
@@ -65,6 +75,16 @@ public class MTSheet {
                 "FileStream",
                 "MessageStream",
                 "MessageTopic"
+        ));
+        METADATA_SHEETS.put(Constants.MT_SDD, Arrays.asList(
+                "SDD_ID",
+                "hasDependencies",
+                "Data_Dictionary",
+                "Codebook",
+                "Code_Mappings",
+                "Imports",
+                "Timeline",
+                "Version"
         ));
     }
 

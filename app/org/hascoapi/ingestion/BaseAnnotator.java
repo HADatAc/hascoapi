@@ -16,12 +16,14 @@ public abstract class BaseAnnotator {
         // InfoSheet missing
         if (!recordFile.isValid()) {
             dataFile.getLogger().printExceptionByIdWithArgs("GBL_00005", mtType);
+            dataFile.setFileStatus(DataFile.ERROR);
             return null;
         }
 
         // InfoSheet empty
         if (recordFile.getRecords().isEmpty()) {
             dataFile.getLogger().printExceptionByIdWithArgs("GBL_00004", mtType);
+            dataFile.setFileStatus(DataFile.ERROR);
             return null;
         }
 
@@ -35,6 +37,7 @@ public abstract class BaseAnnotator {
             if (key != null && !key.trim().isEmpty()) {
                 mapCatalog.put(key.trim(), value != null ? value.trim() : "");
             }
+           // dataFile.getLogger().println("key: " + key + ", value: " + value);
         }
 
         // Validate sheet keys; return null if any errors found
