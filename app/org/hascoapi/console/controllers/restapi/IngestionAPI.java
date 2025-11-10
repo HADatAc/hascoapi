@@ -469,6 +469,8 @@ public class IngestionAPI extends Controller {
             System.out.println(errorMsg);
             return ok(ApiUtil.createResponse(errorMsg,false));
         }
+        System.out.println("Datafileuri: " + datafileuri);
+        System.out.println("Filename: " + filename);
         switch (elementtype) {
             case "ins":
                 INSGen.genByStatus(status,filename);
