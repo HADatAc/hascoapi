@@ -194,11 +194,11 @@ public class NameSpaces {
         // UNIT (QUDT)
         NameSpace UNIT_NAMESPACE = new NameSpace();
         UNIT_NAMESPACE.setLabel("unit");
-        UNIT_NAMESPACE.setUri("http://qudt.org/schema/qudt/");
+        UNIT_NAMESPACE.setUri("http://qudt.org/vocab/unit/");
         UNIT_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
         UNIT_NAMESPACE.setHascoTypeUri(HASCO.ONTOLOGY);
         UNIT_NAMESPACE.setSourceMime("text/turtle");
-        UNIT_NAMESPACE.setSource("http://qudt.org/schema/qudt/");
+        UNIT_NAMESPACE.setSource("http://qudt.org/vocab/unit/");
         UNIT_NAMESPACE.setComment("QUDT Schema");
         UNIT_NAMESPACE.setVersion("3.1.7");
         UNIT_NAMESPACE.setPermanent(true);
