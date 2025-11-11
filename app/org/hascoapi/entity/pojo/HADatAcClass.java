@@ -529,7 +529,7 @@ public class HADatAcClass extends HADatAcThing {
     public static List<HADatAcThing> findClassInstancesByKeyword(String classUri, String keyword) {
         //System.out.println("HADatAcClass.findClassInstancesByKeyword: " + classUri + "  " + keyword);
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                " SELECT ?uri " +
+                " SELECT DISTINCT ?uri " +
                 " WHERE { " +
                 " ?uri a <" + classUri + "> ; " +
                 "         rdfs:label ?label . " +
