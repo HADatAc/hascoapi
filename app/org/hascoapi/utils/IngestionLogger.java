@@ -98,10 +98,12 @@ public class IngestionLogger {
     }
 
     public void printExceptionById(String id) {
+        System.out.println("ExceptioById with Id=[" + id + "]");
         printException(id + ": " + ErrorDictionary.getDetailById(id));
     }
 
     public void printExceptionByIdWithArgs(String id, Object... args) {
+        System.out.println("ExceptioByIdWithArgs with Id=[" + id + "] and args=[]" + args + "]");
         printException(id + ": " + String.format(ErrorDictionary.getDetailById(id), args));
     }
 
