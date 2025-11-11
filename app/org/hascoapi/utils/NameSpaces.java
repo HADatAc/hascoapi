@@ -191,6 +191,20 @@ public class NameSpaces {
         VSTOI_NAMESPACE.setPriority(10);
         namespaces.add(VSTOI_NAMESPACE);
 
+        // UNIT (QUDT)
+        NameSpace UNIT_NAMESPACE = new NameSpace();
+        UNIT_NAMESPACE.setLabel("unit");
+        UNIT_NAMESPACE.setUri("http://qudt.org/schema/qudt/");
+        UNIT_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
+        UNIT_NAMESPACE.setHascoTypeUri(HASCO.ONTOLOGY);
+        UNIT_NAMESPACE.setSourceMime("text/turtle");
+        UNIT_NAMESPACE.setSource("http://qudt.org/schema/qudt/");
+        UNIT_NAMESPACE.setComment("QUDT Schema");
+        UNIT_NAMESPACE.setVersion("3.1.7");
+        UNIT_NAMESPACE.setPermanent(true);
+        UNIT_NAMESPACE.setPriority(11);
+        namespaces.add(UNIT_NAMESPACE);
+
         // Languages
         NameSpace lcc_639_1_NAMESPACE = new NameSpace();
         lcc_639_1_NAMESPACE.setLabel("lcc-639-1");
@@ -202,7 +216,7 @@ public class NameSpaces {
         lcc_639_1_NAMESPACE.setComment("Language codes from ISO 639-1, as expressed in https://www.w3schools.com/tags/ref_language_codes.asp");
         lcc_639_1_NAMESPACE.setVersion("1.0");
         lcc_639_1_NAMESPACE.setPermanent(true);
-        lcc_639_1_NAMESPACE.setPriority(11);
+        lcc_639_1_NAMESPACE.setPriority(12);
         namespaces.add(lcc_639_1_NAMESPACE);
 
         // FHIR
@@ -214,7 +228,7 @@ public class NameSpaces {
         FHIR_NAMESPACE.setComment("FHIR is a standard for health care data exchange, published by HL7.");
         FHIR_NAMESPACE.setVersion("R5");
         FHIR_NAMESPACE.setPermanent(true);
-        FHIR_NAMESPACE.setPriority(12);
+        FHIR_NAMESPACE.setPriority(13);
         namespaces.add(FHIR_NAMESPACE);
 
         // FOAF
@@ -228,7 +242,7 @@ public class NameSpaces {
         FOAF_NAMESPACE.setComment("Friend of a Friend (FOAF) vocabulary");
         FOAF_NAMESPACE.setVersion("0.1");
         FOAF_NAMESPACE.setPermanent(true);
-        FOAF_NAMESPACE.setPriority(13);
+        FOAF_NAMESPACE.setPriority(14);
         namespaces.add(FOAF_NAMESPACE);
 
         // SCHEMA
@@ -242,7 +256,7 @@ public class NameSpaces {
         SCHEMA_NAMESPACE.setComment("Schema Namespace");
         SCHEMA_NAMESPACE.setVersion("25.0");
         SCHEMA_NAMESPACE.setPermanent(true);
-        SCHEMA_NAMESPACE.setPriority(14);
+        SCHEMA_NAMESPACE.setPriority(15);
         namespaces.add(SCHEMA_NAMESPACE);
 
         // DEFAULT
@@ -254,7 +268,7 @@ public class NameSpaces {
         DEFAULT_NAMESPACE.setComment("Default Namespace");
         DEFAULT_NAMESPACE.setVersion("0.1");
         DEFAULT_NAMESPACE.setPermanent(true);
-        DEFAULT_NAMESPACE.setPriority(15);
+        DEFAULT_NAMESPACE.setPriority(16);
         namespaces.add(DEFAULT_NAMESPACE);
 
         // TEST
