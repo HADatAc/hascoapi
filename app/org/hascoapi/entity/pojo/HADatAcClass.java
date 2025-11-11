@@ -526,7 +526,20 @@ public class HADatAcClass extends HADatAcThing {
         return findClassesByQuery(queryString);
     }
 
-    public static List<HADatAcClass> findClassesByQuery(String queryString) {
+    public static List<HADatAcThing> findClassInstancesByKeyword(String classUri, String keyword) {
+        //System.out.println("HADatAcClass.findClassInstancesByKeyword: " + classUri + "  " + keyword);
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                " SELECT ?uri " +
+                " WHERE { " +
+                " ?uri a <" + classUri + "> ; " +
+                "         rdfs:label ?label . " +
+                " FILTER(CONTAINS(?label, \"" + keyword + "\")) " +
+                " } " +
+                " ORDER BY ?label "; 
+        return findInstancesByQuery(queryString);
+    }
+
+    private static List<HADatAcClass> findClassesByQuery(String queryString) {
         List<HADatAcClass> list = new ArrayList<HADatAcClass>();
         ResultSetRewindable resultsrw = SPARQLUtils.select(
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
@@ -541,6 +554,28 @@ public class HADatAcClass extends HADatAcThing {
                     HADatAcClass clazz = HADatAcClass.find(uri);
                     if (clazz != null) {
                         list.add(clazz);
+                    }
+                } 
+            }
+        }
+        return list;
+    }
+
+    private static List<HADatAcThing> findInstancesByQuery(String queryString) {
+        List<HADatAcThing> list = new ArrayList<HADatAcThing>();
+        ResultSetRewindable resultsrw = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+        if (!resultsrw.hasNext()) {
+            return null;
+        }
+        while (resultsrw.hasNext()) {
+            QuerySolution soln = resultsrw.next();
+            if (soln != null) {
+                if (soln.getResource("uri") != null && soln.getResource("uri").getURI() != null) {
+                    String uri = soln.getResource("uri").getURI();
+                    HADatAcThing thing = GenericInstance.find(uri);
+                    if (thing != null) {
+                        list.add(thing);
                     }
                 } 
             }
