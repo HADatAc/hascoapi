@@ -19,6 +19,7 @@ PREFIX tdb2:    <http://jena.apache.org/2016/tdb#>
 :service_store rdf:type :BaseService ;
     fuseki:name "store" ;
     fuseki:dataset :dataset_store ;
+    fuseki:allowCors true ;
     fuseki:endpoint [ fuseki:operation fuseki:query ; fuseki:name "" ] ;
     fuseki:endpoint [ fuseki:operation fuseki:query ; fuseki:name "sparql" ] ;
     fuseki:endpoint [ fuseki:operation fuseki:query ; fuseki:name "query" ] ;

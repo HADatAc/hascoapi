@@ -88,6 +88,7 @@ public class IngestionLogger {
      * Logs an exception using an error ID from the ErrorDictionary.
      */
     public void printExceptionById(String id) {
+        System.out.println("ExceptioById with Id=[" + id + "]");
         printException(id + ": " + ErrorDictionary.getDetailById(id));
     }
 
