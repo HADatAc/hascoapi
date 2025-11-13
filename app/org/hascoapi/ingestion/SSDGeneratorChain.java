@@ -11,7 +11,6 @@ public class SSDGeneratorChain extends GeneratorChain {
         if (this.getStudyUri() == null) {
             return;
         }
-        
         List<StudyObjectCollection> studySOCs = StudyObjectCollection.findStudyObjectCollectionsByStudy(this.getStudyUri());
         for (StudyObjectCollection soc: studySOCs) {
             //AnnotationLog.println("SOC has URI  " + oc.getUri() + " and label " + oc.getLabel(), file.getFile().getName());
@@ -19,6 +18,9 @@ public class SSDGeneratorChain extends GeneratorChain {
             if (labelResult == null) {
                 getDataFile().getLogger().println("Label for " + soc.getSOCReference() + ": ERROR could not find path to colletion with grounding label");
             } else {
+                /*
+                Bug here that if some character that isn't from UTF-8 is in the label , the program stuck here.
+                 */
                 getDataFile().getLogger().println("Label for " + soc.getSOCReference() + ": " + labelResult);
                 soc.setNamedGraph(getNamedGraphUri());
                 soc.saveRoleLabel(labelResult);

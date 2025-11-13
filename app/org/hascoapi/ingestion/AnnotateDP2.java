@@ -1,16 +1,18 @@
 package org.hascoapi.ingestion;
 
 import java.util.Map;
-
+import org.hascoapi.Constants;
 import org.hascoapi.entity.pojo.DataFile;
 
 public class AnnotateDP2 extends BaseAnnotator {
 
     public static GeneratorChain exec(DataFile dataFile, String templateFile, String status) {
-        System.out.println("Processing DP2 meta-template ...");
+        dataFile.getLogger().println("Processing DP2 meta-template ...");
 
-        Map<String, String> mapCatalog = loadCatalog(dataFile);
+        // Load catalog with sheet validation
+        Map<String, String> mapCatalog = loadCatalog(dataFile, Constants.MT_DP2);
         if (mapCatalog == null) {
+          //  dataFile.getLogger().printExceptionById("DP2_00001"); // "DP2 InfoSheet validation failed"
             return null;
         }
 
@@ -32,4 +34,3 @@ public class AnnotateDP2 extends BaseAnnotator {
         return chain;
     }
 }
-

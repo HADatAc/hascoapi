@@ -176,8 +176,9 @@ public class StudyObjectGenerator extends BaseGenerator {
                     return "";
                 }
             } else {
-        		System.out.println("[ERROR] StudyObjectGenerator: no mapping for [" + soc_scope + "] in getScopeUri()");
-        		return "";
+                // STO_00001: Missing mapping for soc_scope
+                dataFile.getLogger().printExceptionByIdWithArgs("STO_00001", soc_scope);
+                return "";
         	}
         } else {
         	return "";
@@ -201,8 +202,9 @@ public class StudyObjectGenerator extends BaseGenerator {
                         time_reference);
         		}
         	} else {
-        		System.out.println("[ERROR] StudyObjectGenerator: no mapContent for [" + soc_timescope + "] in getTimeScopeUri(). Record is " + rec);
-        		return "";
+                // STO_00002: Missing mapContent for soc_timescope
+                dataFile.getLogger().printExceptionByIdWithArgs("STO_00002", soc_timescope);
+                return "";
         	}
         } else {
             return "";
@@ -226,7 +228,8 @@ public class StudyObjectGenerator extends BaseGenerator {
                         space_reference);
         		}
         	} else {
-        		System.out.println("[ERROR] StudyObjectGenerator: no mapContent for [" + soc_spacescope + "] in getSpaceScopeUri(). Record is " + rec);
+                // STO_00003: Missing mapContent for soc_spacescope
+                dataFile.getLogger().printExceptionByIdWithArgs("STO_00003", soc_spacescope);
         		return "";
         	}
         } else {

@@ -74,7 +74,8 @@ public class OrganizationGenerator extends BaseGenerator {
 			if (URIUtils.isValidURI(cls)) {
 				return cls;
 			} else {
-				System.out.println("[WARNING] The following URI is considered invalid: " + cls);
+                dataFile.getLogger().printWarningByIdWithArgs("GBL_00049", cls);
+				//System.out.println("[WARNING] The following URI is considered invalid: " + cls);
 			}
 		} 
 		return "";
@@ -104,7 +105,8 @@ public class OrganizationGenerator extends BaseGenerator {
 			if (postalAddress != null && postalAddress.getUri() != null) {
 				return postalAddress.getUri();
 			} else {
-				System.out.println("[WARNING] OrganizationGenerator: could not find Postal Address for key=[" + addressKey + "]");
+                dataFile.getLogger().printWarningByIdWithArgs("GBL_00050", addressKey);
+				//System.out.println("[WARNING] OrganizationGenerator: could not find Postal Address for key=[" + addressKey + "]");
 			}
 		}
 		return "";
@@ -117,12 +119,14 @@ public class OrganizationGenerator extends BaseGenerator {
 	private String getParentOrganization(Record rec) {
 		String parentName = rec.getValueByColumnName(mapCol.get("ParentOrganization"));
 		if (parentName == null || parentName.isEmpty()) {
-			System.out.println("[WARNING] OrganizationGenerator: No parent organization for " + getName(rec));
+            dataFile.getLogger().printWarningByIdWithArgs("GBL_00051", getName(rec));
+			//System.out.println("[WARNING] OrganizationGenerator: No parent organization for " + getName(rec));
 			return "";
 		} else {
 			Organization parent = Organization.findByName(parentName);
 			if (parent == null) {
-				System.out.println("[ERROR] OrganizationGenerator: Could not find parent " + parentName + " for organization " + getName(rec));
+                dataFile.getLogger().printWarningByIdWithArgs("GBL_00052", parentName, getName(rec));
+				//System.out.println("[ERROR] OrganizationGenerator: Could not find parent " + parentName + " for organization " + getName(rec));
 				return "";
 			}
 			return parent.getUri();

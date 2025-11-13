@@ -28,7 +28,9 @@ public class ComponentGenerator extends BaseGenerator {
     public void createRows() throws Exception {    		
 
 		if (records == null) {
-			System.out.println("[ERROR] ComponentGenerator: no records to process.");
+			dataFile.getLogger().printExceptionById("GBL_00043" +
+                    "");
+            //System.out.println("[ERROR] ComponentGenerator: no records to process.");
             return;
         }
 

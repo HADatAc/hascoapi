@@ -74,14 +74,17 @@ public class NameSpaceGenerator extends BaseGenerator {
 
 		String nsAbbrev = getNSAbbreviation(record);
 		if (nsAbbrev == null || nsAbbrev.isEmpty()) {
-			throw new Exception("[ERROR] NameSpaceGenerator: no NS Abbreviation has been provided.");
+            dataFile.getLogger().printExceptionById("GBL_00045");
+			throw new Exception("GBL_00045");//"[ERROR] NameSpaceGenerator: no NS Abbreviation has been provided.");
 		}
 		if (nsAbbrev.matches(".*[A-Z].*")) {
-			throw new Exception("[ERROR] NameSpaceGenerator: NS Abbreviation cannot have captial letters.");
+            dataFile.getLogger().printExceptionById("GBL_00046");
+			throw new Exception("GBL_00046");//"[ERROR] NameSpaceGenerator: NS Abbreviation cannot have captial letters.");
 		}
 
 		if (NameSpace.find(nsUri) != null) {
-			System.out.println("[WARNING] NameSpaceGenerator: NS with URI [" + nsUri + "] was not created - it already exists.");
+            //dataFile.getLogger().printWarningByIdWithArgs("GBL_00047", nsUri);
+			System.out.println("WARNING GBL_00047");//"[WARNING] NameSpaceGenerator: NS with URI [" + nsUri + "] was not created - it already exists.");
 			return null;
 		}
 
@@ -102,6 +105,7 @@ public class NameSpaceGenerator extends BaseGenerator {
 		ns.setNumberOfLoadedTriples();
 
 		if (NameSpace.findInMemoryByAbbreviation(nsAbbrev) != null) {
+           // dataFile.getLogger().printWarningByIdWithArgs("GBL_00048", nsAbbrev);
 			System.out.println("[WARNING] NameSpaceGenerator: NS with Abbreviation [" + nsAbbrev + "] was not created - it already exists.");
 			return null;
 		}

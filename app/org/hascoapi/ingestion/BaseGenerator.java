@@ -241,7 +241,8 @@ public abstract class BaseGenerator {
         }
 
         if (rowNumber == 0) {
-            System.out.println("[WARNING] BaseGenerator: no record of size greater than zero has been provided for ingestion.");
+           dataFile.getLogger().printWarningById("GBL_00040");
+           // System.out.println("[WARNING] BaseGenerator: no record of size greater than zero has been provided for ingestion.");
             return;
         }
 
