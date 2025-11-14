@@ -19,6 +19,7 @@ import org.hascoapi.entity.pojo.STR;
 import org.hascoapi.entity.pojo.Study;
 import org.hascoapi.entity.pojo.Instrument;
 import org.hascoapi.entity.pojo.FundingScheme;
+import org.hascoapi.entity.pojo.Place;
 import org.hascoapi.entity.pojo.Project;
 import org.hascoapi.entity.pojo.Organization;
 import org.hascoapi.transform.mt.ins.INSGen;
@@ -485,6 +486,10 @@ public class IngestionAPI extends Controller {
     }
 
     public Result mtGenByElement(String elementtype, String datafileuri, String elementuri, String filename, String mediaFolder, String verifyUri) {
+        System.out.println("IngestionAPI.mtGenByElement");
+        System.out.println("  ElementType: [" + elementtype + "] DataFileUri: [" + datafileuri + "]");
+        System.out.println("  ElementUri: [" + elementuri + "] VerifyUri: [" + verifyUri + "]");
+
         if (elementtype == null || elementtype.isEmpty()) {
             String errorMsg = "[ERROR] IngestionAPI.mtGenByElement() requires elementtype";
             System.out.println(errorMsg);
@@ -500,6 +505,8 @@ public class IngestionAPI extends Controller {
             element = (HADatAcThing)Instrument.find(elementuri);
         } else if (elementtype.equals("organization")) {
             element = (HADatAcThing)Organization.find(elementuri);
+        } else if (elementtype.equals("place")) {
+            element = (HADatAcThing)Place.find(elementuri);
         } else if (elementtype.equals("project")) {
             element = (HADatAcThing)Project.find(elementuri);
         } else if (elementtype.equals("fundingscheme")) {
@@ -525,7 +532,11 @@ public class IngestionAPI extends Controller {
                 resp = INSGen.genByInstrument((Instrument)element,filename);
                 break;
             case "organization":
+                System.out.println("Calling KGR.genByOrganization()");
                 resp = KGRGen.genByOrganization((Organization)element,filename);
+                break;
+            case "place":
+                resp = KGRGen.genByPlace((Place)element,filename);
                 break;
             case "project":
                 resp = KGRGen.genByProject((Project)element,filename);

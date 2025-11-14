@@ -198,6 +198,7 @@ public class KGRGen {
     }
 
     public static String genByOrganization(Organization organization, String filename) {
+        System.out.println("KGRGen.genByOrganization()");
         if (organization == null) {
             return "";
         }
@@ -230,6 +231,26 @@ public class KGRGen {
             }            
         }
 
+        return KGRGen.save(helper, filename);
+    }
+
+    public static String genByPlace(Place place, String filename) {
+        System.out.println("KGRGen.genByPlace()");
+        if (place == null) {
+            return "";
+        }
+        System.out.println("KGRGen: genByPlace with place=[" + place.getLabel() + "]");
+        KGRGenHelper helper = new KGRGenHelper();
+        helper.workbook = KGRGen.create(filename);
+        System.out.println("KGRGen: genByPlace created file with filename=[" + filename + "]");
+        
+        helper.addPlace(place);
+ 
+        if (helper.places.size() > 0) {
+            for (Place plc : helper.places.values()) {
+                helper = KGRPlace.add(helper,plc);
+            }
+        }
         return KGRGen.save(helper, filename);
     }
 
