@@ -37,6 +37,18 @@ public class MTSheet {
                 "Components",
                 "SensingPerspective"
         ));
+
+        METADATA_SHEETS.put(Constants.MT_KGR, Arrays.asList(
+                "hasDependencies",
+                "FundingSchemes",
+                "Projects",
+                "ProjectOrganizations",
+                "Organizations",
+                "Persons",
+                "Places",
+                "PostalAddresses"
+        ));
+
         METADATA_SHEETS.put(Constants.MT_STD, Arrays.asList(
                 "hasStudyURI",
                 "hasStudyKG",
