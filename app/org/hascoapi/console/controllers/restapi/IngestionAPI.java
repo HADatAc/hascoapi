@@ -472,10 +472,10 @@ public class IngestionAPI extends Controller {
         }
         switch (elementtype) {
             case "ins":
-                INSGen.genByStatus(status,filename);
+                INSGen.genByStatus(status,filename,mediaFolder,verifyUri);
                 break;
             case "kgr":
-                KGRGen.genByStatus(status,filename);
+                KGRGen.genByStatus(status,filename,mediaFolder,verifyUri);
                 break;
             default:
                 String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() invalid elementtype=[" + elementtype + "]";
@@ -529,20 +529,20 @@ public class IngestionAPI extends Controller {
         String resp = "";
         switch (elementtype) {
             case "instrument":
-                resp = INSGen.genByInstrument((Instrument)element,filename);
+                resp = INSGen.genByInstrument((Instrument)element,filename,mediaFolder,verifyUri);
                 break;
             case "organization":
                 System.out.println("Calling KGR.genByOrganization()");
-                resp = KGRGen.genByOrganization((Organization)element,filename);
+                resp = KGRGen.genByOrganization((Organization)element,filename,mediaFolder,verifyUri);
                 break;
             case "place":
-                resp = KGRGen.genByPlace((Place)element,filename);
+                resp = KGRGen.genByPlace((Place)element,filename,mediaFolder,verifyUri);
                 break;
             case "project":
-                resp = KGRGen.genByProject((Project)element,filename);
+                resp = KGRGen.genByProject((Project)element,filename,mediaFolder,verifyUri);
                 break;
             case "fundingscheme":
-                resp = KGRGen.genByFundingScheme((FundingScheme)element,filename);
+                resp = KGRGen.genByFundingScheme((FundingScheme)element,filename,mediaFolder,verifyUri);
                 break;
             default:
                 String errorMsg = "[ERROR] IngestionAPI.mtGenByElement() invalid elementtype=[" + elementtype + "]";
@@ -579,10 +579,10 @@ public class IngestionAPI extends Controller {
         }
         switch (elementtype) {
             case "ins":
-                INSGen.genByManager(useremail, status, filename);
+                INSGen.genByManager(useremail, status, filename, mediaFolder, verifyUri);
                 break;
             case "kgr":
-                KGRGen.genByManager(useremail, status, filename);
+                KGRGen.genByManager(useremail, status, filename, mediaFolder, verifyUri);
                 break;
             default:
                 String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() invalid elementtype=[" + elementtype + "]";

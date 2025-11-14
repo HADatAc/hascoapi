@@ -24,14 +24,14 @@ public class AnnotateKGR extends BaseAnnotator {
         kgr.setTemplates(templateFile);
 
         String hasMediaFolder = mapCatalog.get("hasMediaFolder");
+        if (hasMediaFolder == null) {
+            dataFile.getLogger().printExceptionById("KGR_00002"); // "Missing hasMediaFolder parameter"
+            return null;
+        }
 
         // verifyUri parsing with error handling
         String rawVerifyUri = mapCatalog.get("verifyUri");
         boolean verifyUri;
-        if (rawVerifyUri == null) {
-            dataFile.getLogger().printExceptionById("KGR_00002"); // "Missing verifyUri parameter"
-            return null;
-        }
         rawVerifyUri = rawVerifyUri.toLowerCase();
         if ("true".equals(rawVerifyUri)) {
             verifyUri = true;
