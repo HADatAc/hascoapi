@@ -30,11 +30,11 @@ public class MTSheet {
         METADATA_SHEETS.put(Constants.MT_DP2, Arrays.asList(
                 "hasDependencies",
                 "Deployments",
-                "PlatformModels",
                 "Platforms",
+                "PlatformInstances",
                 "FieldsOfView",
-                "Instruments",
-                "Components",
+                "InstrumentInstances",
+                "ComponentInstances",
                 "SensingPerspective"
         ));
 
@@ -99,6 +99,8 @@ public class MTSheet {
                 "Version"
         ));
     }
+
+
 
     /**
      * Returns the list of sheet keys for a given metadata type (e.g., "INS", "DP2", etc.).

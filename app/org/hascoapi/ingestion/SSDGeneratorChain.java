@@ -21,7 +21,7 @@ public class SSDGeneratorChain extends GeneratorChain {
                 /*
                 Bug here that if some character that isn't from UTF-8 is in the label , the program stuck here.
                  */
-                getDataFile().getLogger().println("Label for " + soc.getSOCReference() + ": " + labelResult);
+               // getDataFile().getLogger().println("Label for " + soc.getSOCReference() + ": " + labelResult);
                 soc.setNamedGraph(getNamedGraphUri());
                 soc.saveRoleLabel(labelResult);
             }
