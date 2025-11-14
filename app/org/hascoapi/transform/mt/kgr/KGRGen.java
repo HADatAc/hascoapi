@@ -198,6 +198,7 @@ public class KGRGen {
     }
 
     public static String genByOrganization(Organization organization, String filename) {
+        System.out.println("KGRGen.genByOrganization()");
         if (organization == null) {
             return "";
         }
