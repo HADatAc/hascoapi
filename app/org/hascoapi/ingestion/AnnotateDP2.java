@@ -64,14 +64,13 @@ public class AnnotateDP2 extends BaseAnnotator {
     }
 
     private static boolean validateDP2Instances(DataFile dataFile, Map<String, String> mapCatalog) {
-        // Define which sheets and reference properties to validate
         Map<String, String> validations = new HashMap<>();
         validations.put("PlatformInstances", "a"); //hasPlatform
         validations.put("InstrumentInstances", "a"); //hasInstrument
         validations.put("ComponentInstances", "a"); //hasInstrument
 
-        // Obtain SPARQL endpoint from the active repository
-        String sparqlService = RepositoryInstance.getInstance().getHasDefaultNamespaceURL();
+        // FORÇANDO o endpoint do Fuseki
+        String sparqlService = "http://0.0.0.0:3030/store/sparql";
         boolean allValid = true;
 
         for (Map.Entry<String, String> entry : validations.entrySet()) {
@@ -88,24 +87,24 @@ public class AnnotateDP2 extends BaseAnnotator {
             if (!sheet.isValid()) continue;
             System.out.println("Passed sheetValid");
 
-            // Collect unique, valid URIs
             Set<String> urisToCheck = new HashSet<>();
             for (Record record : sheet.getRecords()) {
-              //  System.out.println("Entered getrecords");
                 String refUri = record.getValueByColumnName(property);
                 if (refUri != null && !refUri.trim().isEmpty()) {
                     refUri = refUri.trim();
-                    // Ensure URI is wrapped in <>
                     if (!refUri.startsWith("<")) {
                         refUri = "<" + refUri + ">";
                     }
-                    // Remove any trailing spaces inside <>
                     refUri = refUri.replaceAll("\\s+", "");
                     urisToCheck.add(refUri);
                 }
             }
 
-            // Build the SPARQL query safely
+            if (urisToCheck.isEmpty()) {
+                System.out.println("[INFO] No URIs found in sheet " + sheetKey + " to validate.");
+                continue;
+            }
+
             StringBuilder queryBuilder = new StringBuilder();
             queryBuilder.append("SELECT ?uri WHERE { VALUES ?uri { ");
             for (String uri : urisToCheck) {
@@ -113,26 +112,20 @@ public class AnnotateDP2 extends BaseAnnotator {
             }
             queryBuilder.append("} ?uri ?p ?o . }");
 
-
             String queryString = queryBuilder.toString();
             System.out.println("Doing the query");
             System.out.println("Query: " + queryString);
 
-            ResultSetRewindable results = SPARQLUtils.select(sparqlService, queryString);
-            System.out.println("Results:\n" + results);
-
             try {
-               /* ResultSetRewindable results = SPARQLUtils.select(sparqlService, queryString);
-                System.out.println("Results:\n" + results);
+                ResultSetRewindable results = SPARQLUtils.select(sparqlService, queryString);
+                System.out.println("Results obtained, checking each URI...");
 
-                */
-
-                // Check for missing references
                 for (String uri : urisToCheck) {
                     boolean found = false;
-                    results.reset(); // rewind to check all
+                    results.reset();
                     while (results.hasNext()) {
-                        if (results.next().getResource("uri").getURI().equals(uri.substring(1, uri.length() - 1))) {
+                        var qs = results.next();
+                        if (qs.contains("uri") && qs.getResource("uri").getURI().equals(uri.substring(1, uri.length() - 1))) {
                             found = true;
                             break;
                         }
@@ -156,6 +149,8 @@ public class AnnotateDP2 extends BaseAnnotator {
 
         return allValid;
     }
+
+
 
 
 
