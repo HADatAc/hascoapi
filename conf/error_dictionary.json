@@ -581,13 +581,13 @@
       "content": [
         {
           "id": "KGR_00001",
-          "detail": "Ingesting PLACE — missing schema:containedInPlace with URI <%s>.",
-          "solution": "Ensure that the referenced containedInPlace entity exists and has been ingested before this record."
+          "detail": "Parameter hasMediaFolder is missing in InfoSheet.",
+          "solution": "Add missing parameter to the KGR's InfoSheet."
         },
         {
           "id": "KGR_00002",
-          "detail": "Ingesting ORGANIZATION — missing schema:parentOrganization with URI <%s>.",
-          "solution": "Verify that the parent organization exists and has a valid URI."
+          "detail": "Parameter verifyUri is missing in InfoSheet.",
+          "solution": "Add missing parameter to the KGR's InfoSheet."
         },
         {
           "id": "KGR_00003",

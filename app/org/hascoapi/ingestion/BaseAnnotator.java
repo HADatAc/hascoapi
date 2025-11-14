@@ -75,7 +75,7 @@ public abstract class BaseAnnotator {
         for (String extra : providedSheets) {
             if (!expectedSheets.contains(extra)) {
                 // Log using JSON template: "Unexpected sheet key found: %s for metadata type %s"
-                dataFile.getLogger().printExceptionByIdWithArgs("GBL_00007", extra, mtType);
+                dataFile.getLogger().printWarningByIdWithArgs("GBL_00007", extra, mtType);
                 isValid = false;
             }
         }

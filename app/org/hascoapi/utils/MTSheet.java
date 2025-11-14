@@ -46,7 +46,9 @@ public class MTSheet {
                 "Organizations",
                 "Persons",
                 "Places",
-                "PostalAddresses"
+                "PostalAddresses",
+                "hasMediaFolder",
+                "verifyUri"
         ));
 
         METADATA_SHEETS.put(Constants.MT_STD, Arrays.asList(

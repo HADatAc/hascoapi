@@ -12,7 +12,7 @@ public class AnnotateKGR extends BaseAnnotator {
 
         Map<String, String> mapCatalog = loadCatalog(dataFile, Constants.MT_KGR);
         if (mapCatalog == null) {
-            dataFile.getLogger().printExceptionById("KGR_00001"); // "KGR InfoSheet validation failed"
+            dataFile.getLogger().printExceptionById("GLB_00005"); // "KGR InfoSheet validation failed"
             return null;
         }
 
@@ -25,7 +25,7 @@ public class AnnotateKGR extends BaseAnnotator {
 
         String hasMediaFolder = mapCatalog.get("hasMediaFolder");
         if (hasMediaFolder == null) {
-            dataFile.getLogger().printExceptionById("KGR_00002"); // "Missing hasMediaFolder parameter"
+            dataFile.getLogger().printExceptionById("KGR_00001"); // "Missing hasMediaFolder parameter"
             return null;
         }
 
@@ -38,7 +38,7 @@ public class AnnotateKGR extends BaseAnnotator {
         } else if ("false".equals(rawVerifyUri)) {
             verifyUri = false;
         } else {
-            dataFile.getLogger().printExceptionById("KGR_00003"); // "Invalid verifyUri parameter value"
+            dataFile.getLogger().printExceptionById("KGR_00002"); // "Invalid verifyUri parameter value"
             return null;
         }
 
