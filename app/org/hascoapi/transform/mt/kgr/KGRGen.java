@@ -236,10 +236,12 @@ public class KGRGen {
 
     private static KGRGenHelper addSubplace(KGRGenHelper helper, Place place) {
         List<Place> subPlaces = Place.findContainsPlace(place.getUri(),999999,0);
-        for (Place subPlace : subPlaces) {
-            helper.addPlace(subPlace);
-            helper = KGRGen.addSubplace(helper, subPlace);
-        } 
+        if (subPlaces != null) {
+            for (Place subPlace : subPlaces) {
+                helper.addPlace(subPlace);
+                helper = KGRGen.addSubplace(helper, subPlace);
+            } 
+        }
         return helper;
     }
 
