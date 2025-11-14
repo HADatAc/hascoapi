@@ -234,6 +234,15 @@ public class KGRGen {
         return KGRGen.save(helper, filename);
     }
 
+    private static KGRGenHelper addSubplace(KGRGenHelper helper, Place place) {
+        List<Place> subPlaces = Place.findContainsPlace(place.getUri(),999999,0);
+        for (Place subPlace : subPlaces) {
+            helper.addPlace(subPlace);
+            helper = KGRGen.addSubplace(helper, subPlace);
+        } 
+        return helper;
+    }
+
     public static String genByPlace(Place place, String filename) {
         System.out.println("KGRGen.genByPlace()");
         if (place == null) {
@@ -245,6 +254,7 @@ public class KGRGen {
         System.out.println("KGRGen: genByPlace created file with filename=[" + filename + "]");
         
         helper.addPlace(place);
+        helper = KGRGen.addSubplace(helper, place);
  
         if (helper.places.size() > 0) {
             for (Place plc : helper.places.values()) {
