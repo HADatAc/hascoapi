@@ -81,7 +81,6 @@ public class ConfigProp {
 	}
 
 
-
     /**
     public static String getBasePrefix() {
         return ConfigFactory.load().getString("hascoapi.community.ont_prefix");
