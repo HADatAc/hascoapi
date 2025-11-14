@@ -36,7 +36,7 @@ public class INSGen {
 
     public static String genByStatus(String status, String filename, String mediaFolder, String verifyUri) {
         INSGenHelper helper = new INSGenHelper();
-        helper.workbook = INSGen.create(filename);
+        helper.workbook = INSGen.create(filename, mediaFolder, verifyUri);
         String resp = "";
 
         GenericFindWithStatus<Instrument> instrumentQuery = new GenericFindWithStatus<Instrument>();
@@ -101,7 +101,7 @@ public class INSGen {
             return "";
         }
         INSGenHelper helper = new INSGenHelper();
-        helper.workbook = INSGen.create(filename);
+        helper.workbook = INSGen.create(filename, mediaFolder, verifyUri);
         
         helper = INSInstrument.add(helper,instrument);
         helper = INSSlotElement.addByInstrument(helper,instrument);
@@ -132,7 +132,7 @@ public class INSGen {
 
     public static String genByManager(String useremail, String status, String filename, String mediaFolder, String verifyUri) {
         INSGenHelper helper = new INSGenHelper();
-        helper.workbook = INSGen.create(filename);
+        helper.workbook = INSGen.create(filename, mediaFolder, verifyUri);
         boolean withCurrent = false; // this assures that the retrieval of just elements of the requested type.
 
         GenericFindWithStatus<Instrument> instrumentQuery = new GenericFindWithStatus<Instrument>();
@@ -189,7 +189,7 @@ public class INSGen {
         return INSGen.save(helper,filename);
     }
 
-    public static Workbook create(String filename) {
+    public static Workbook create(String filename, String mediaFolder, String verifyUri) {
 
         // Create a new workbook
         Workbook workbook = new XSSFWorkbook();
@@ -263,6 +263,18 @@ public class INSGen {
         isDataCell10_1.setCellValue("AnnotationStems");
         Cell isDataCell10_2 = isDataRow10.createCell(1);
         isDataCell10_2.setCellValue("#" + INSGen.ANNOTATION_STEMS);
+
+        Row isDataRow11 = infoSheet.createRow(11);
+        Cell isDataCell11_1 = isDataRow11.createCell(0);
+        isDataCell11_1.setCellValue("AnnotationStems");
+        Cell isDataCell11_2 = isDataRow11.createCell(1);
+        isDataCell11_2.setCellValue(mediaFolder);
+
+        Row isDataRow12 = infoSheet.createRow(12);
+        Cell isDataCell12_1 = isDataRow10.createCell(0);
+        isDataCell12_1.setCellValue("verifyUri");
+        Cell isDataCell12_2 = isDataRow10.createCell(1);
+        isDataCell12_2.setCellValue(verifyUri);
 
         // Create sheet named 'Namespaces'
         Sheet nsSheet = workbook.createSheet(INSGen.NAMESPACES);

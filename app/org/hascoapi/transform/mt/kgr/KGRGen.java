@@ -33,7 +33,7 @@ public class KGRGen {
 
     public static String genByStatus(String status, String filename, String mediaFolder, String verifyUri) {
         KGRGenHelper helper = new KGRGenHelper();
-        helper.workbook = KGRGen.create(filename);
+        helper.workbook = KGRGen.create(filename, mediaFolder, verifyUri);
         String resp = "";
 
         GenericFindWithStatus<FundingScheme> fundingSchemeQuery = new GenericFindWithStatus<FundingScheme>();
@@ -97,7 +97,7 @@ public class KGRGen {
         }
         System.out.println("KGRGen: genByFundingScheme with fundingScheme=[" + fundingScheme.getLabel() + "]");
         KGRGenHelper helper = new KGRGenHelper();
-        helper.workbook = KGRGen.create(filename);
+        helper.workbook = KGRGen.create(filename, mediaFolder, verifyUri);
         System.out.println("KGRGen: genByFundingSchme created file with filename=[" + filename + "]");
         
         helper.addFundingScheme(fundingScheme);
@@ -138,7 +138,7 @@ public class KGRGen {
         }
         System.out.println("KGRGen: genByProject with project=[" + project.getLabel() + "]");
         KGRGenHelper helper = new KGRGenHelper();
-        helper.workbook = KGRGen.create(filename);
+        helper.workbook = KGRGen.create(filename, mediaFolder, verifyUri);
         System.out.println("KGRGen: genByProject created file with filename=[" + filename + "]");
         
         helper = KGRProject.add(helper,project);
@@ -204,7 +204,7 @@ public class KGRGen {
         }
         System.out.println("KGRGen: genByOrganization with organization=[" + organization.getLabel() + "]");
         KGRGenHelper helper = new KGRGenHelper();
-        helper.workbook = KGRGen.create(filename);
+        helper.workbook = KGRGen.create(filename, mediaFolder, verifyUri);
         System.out.println("KGRGen: genByOrganization created file with filename=[" + filename + "]");
         
         helper.addOrganization(organization);
@@ -250,7 +250,7 @@ public class KGRGen {
         }
         System.out.println("KGRGen: genByPlace with place=[" + place.getLabel() + "]");
         KGRGenHelper helper = new KGRGenHelper();
-        helper.workbook = KGRGen.create(filename);
+        helper.workbook = KGRGen.create(filename, mediaFolder, verifyUri);
         System.out.println("KGRGen: genByPlace created file with filename=[" + filename + "]");
         
         helper.addPlace(place);
@@ -266,7 +266,7 @@ public class KGRGen {
 
     public static String genByManager(String useremail, String status, String filename, String mediaFolder, String verifyUri) {
         KGRGenHelper helper = new KGRGenHelper();
-        helper.workbook = KGRGen.create(filename);
+        helper.workbook = KGRGen.create(filename, mediaFolder, verifyUri);
         boolean withCurrent = false; // this assures that the retrieval of just elements of the requested type.
 
         GenericFindWithStatus<FundingScheme> fundingSchemeQuery = new GenericFindWithStatus<FundingScheme>();
@@ -315,7 +315,7 @@ public class KGRGen {
         return KGRGen.save(helper,filename);
     }
 
-    public static Workbook create(String filename) {
+    public static Workbook create(String filename, String mediaFolder, String verifyUri) {
 
         // Create a new workbook
         Workbook workbook = new XSSFWorkbook();
@@ -377,6 +377,18 @@ public class KGRGen {
         isDataCell8_1.setCellValue("PostalAddresses");
         Cell isDataCell8_2 = isDataRow8.createCell(1);
         isDataCell8_2.setCellValue("#" + KGRGen.POSTAL_ADDRESSES);
+
+        Row isDataRow9 = infoSheet.createRow(9);
+        Cell isDataCell9_1 = isDataRow9.createCell(0);
+        isDataCell9_1.setCellValue("hasMediaFolder");
+        Cell isDataCell9_2 = isDataRow9.createCell(1);
+        isDataCell9_2.setCellValue(mediaFolder);
+
+        Row isDataRow10 = infoSheet.createRow(10);
+        Cell isDataCell10_1 = isDataRow10.createCell(0);
+        isDataCell10_1.setCellValue("verifyUri");
+        Cell isDataCell10_2 = isDataRow10.createCell(1);
+        isDataCell10_2.setCellValue(verifyUri);
 
           // Create sheet named 'Namespaces'
         Sheet nsSheet = workbook.createSheet(KGRGen.NAMESPACES);
