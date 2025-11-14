@@ -19,6 +19,7 @@ import org.hascoapi.entity.pojo.STR;
 import org.hascoapi.entity.pojo.Study;
 import org.hascoapi.entity.pojo.Instrument;
 import org.hascoapi.entity.pojo.FundingScheme;
+import org.hascoapi.entity.pojo.Place;
 import org.hascoapi.entity.pojo.Project;
 import org.hascoapi.entity.pojo.Organization;
 import org.hascoapi.transform.mt.ins.INSGen;
