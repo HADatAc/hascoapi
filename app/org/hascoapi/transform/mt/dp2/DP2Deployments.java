@@ -34,25 +34,25 @@ public class DP2Deployments {
         Cell cell1 = newRow.createCell(0);
         cell1.setCellValue(URIUtils.replaceNameSpaceEx(deploy.getUri()));
 
-        // "hasco:hascoType"
+        // "a"
         Cell cell2 = newRow.createCell(1);
         cell2.setCellValue(URIUtils.replaceNameSpaceEx(deploy.getHascoTypeUri()));
 
-        // "rdfs:subClassOf"
-        Cell cell3 = newRow.createCell(2);
-        cell3.setCellValue(URIUtils.replaceNameSpaceEx(deploy.getSuperUri()));
-
         // "rdfs:label"
+        Cell cell3 = newRow.createCell(2);
+        cell3.setCellValue(URIUtils.replaceNameSpaceEx(deploy.getLabel()));
+
+        // "vstoi:hasPlatformInstance"
         Cell cell4 = newRow.createCell(3);
-        cell4.setCellValue(deploy.getLabel());
+        cell4.setCellValue(deploy.getPlatformInstanceUri());
 
-        // "vstoi:hasShortName"
+        // "vstoi:hasInstrumentInstance"
         Cell cell5 = newRow.createCell(4);
-        cell5.setCellValue(deploy.getHasShortName());
+        cell5.setCellValue(deploy.getInstrumentInstanceUri());
 
-        // "vstoi:hasLanguage",
+        // "vstoi:hasComponentInstance",
         Cell cell6 = newRow.createCell(5);
-        cell6.setCellValue(deploy.getHasLanguage());
+        cell6.setCellValue(deploy.getComponentInstanceUri());
 
         // "vstoi:hasVersion"
         Cell cell7 = newRow.createCell(6);
