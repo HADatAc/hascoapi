@@ -98,6 +98,7 @@ public class INSGen {
 
     public static String genByInstrument(Instrument instrument, String filename, String mediaFolder, String verifyUri) {
         if (instrument == null) {
+            System.out.println("[ERROR] INSGen: instrument is null");
             return "";
         }
         INSGenHelper helper = new INSGenHelper();

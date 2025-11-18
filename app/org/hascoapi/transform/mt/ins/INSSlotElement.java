@@ -2,19 +2,26 @@ package org.hascoapi.transform.mt.ins;
 
 import java.util.List;
 import java.util.ArrayList;
+
+import akka.dispatch.SingleConsumerOnlyUnboundedMailbox;
 import org.hascoapi.entity.pojo.Instrument;
 import org.hascoapi.entity.pojo.Container;
 import org.hascoapi.entity.pojo.Subcontainer;
 import org.hascoapi.entity.pojo.Component;
 import org.hascoapi.entity.pojo.ContainerSlot;
 import org.hascoapi.entity.pojo.SlotElement;
+import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.URIUtils;
 import org.apache.poi.ss.usermodel.*;
+import org.lwjgl.system.APIUtil;
+
+import static play.mvc.Results.ok;
 
 public class INSSlotElement {
 
     public static INSGenHelper addByInstrument(INSGenHelper helper, Instrument instrument) {
         if (instrument == null || instrument.getUri() == null) {
+            System.out.println("[ERROR] Instrument is null or Uri is null");
             return helper;
         }
         return INSSlotElement.addByContainer(helper, instrument, (Container)instrument); 
@@ -22,6 +29,7 @@ public class INSSlotElement {
 
     private static INSGenHelper addByContainer(INSGenHelper helper, Instrument instrument, Container container) {
         if (container == null) {
+            System.out.println("[WARNING] Container is null");
             return helper;
         }
         List<Container> containers = new ArrayList<Container>(); 
@@ -44,7 +52,9 @@ public class INSSlotElement {
     private static INSGenHelper add(INSGenHelper helper, SlotElement slotElement) {
 
         if (helper == null) {
+
             System.out.println("[ERROR] INSSlotElement: helper is null");
+
             return helper;
         }
 
