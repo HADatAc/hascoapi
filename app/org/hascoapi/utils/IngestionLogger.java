@@ -9,6 +9,7 @@ import org.hascoapi.entity.pojo.Stream;
 import org.hascoapi.entity.pojo.StreamTopic;
 import org.hascoapi.utils.Feedback;
 
+
 public class IngestionLogger {
 
     private String log = "";
@@ -54,11 +55,17 @@ public class IngestionLogger {
 
     public void setLog(String log) {
         this.log = log;
-        if (parent != null &&
-                parent.getNamedGraph() != null &&
-                !parent.getNamedGraph().isEmpty()) {
+        if (parent != null && 
+            parent.getNamedGraph() != null && 
+            !parent.getNamedGraph().isEmpty()) {
             parent.save();
         }
+        //if (stream != null) {
+        //    stream.save();
+        //}
+        //if (topic != null) {
+        //    topic.save();
+        //}
     }
 
     public void resetLog() {
@@ -66,6 +73,12 @@ public class IngestionLogger {
         if (parent != null) {
             parent.save();
         }
+        //if (stream != null) {
+        //    stream.save();
+        //}
+        //if (topic != null) {
+        //    topic.save();
+        //}
     }
 
     public void addLine(String newLine) {
@@ -84,31 +97,15 @@ public class IngestionLogger {
         }
     }
 
-    /**
-     * Logs an exception using an error ID from the ErrorDictionary.
-     */
     public void printExceptionById(String id) {
-        System.out.println("ExceptioById with Id=[" + id + "]");
         printException(id + ": " + ErrorDictionary.getDetailById(id));
     }
 
-    /**
-     * Logs an exception with arguments replacing placeholders in the error message template.
-     * Example: printExceptionByIdWithArgs("STR_00005", "ResponseOptions", "INS")
-     */
     public void printExceptionByIdWithArgs(String id, Object... args) {
-        String template = ErrorDictionary.getDetailById(id);
-        if (template == null) {
-            printException(id + ": [Unknown error ID]");
-            return;
-        }
-
-        String formatted = String.format(template, args);
-        printException(id + ": " + formatted);
+        printException(id + ": " + String.format(ErrorDictionary.getDetailById(id), args));
     }
 
     public void printException(Exception exception) {
-        System.out.println(exception.getMessage());
         addLine(Feedback.println(Feedback.WEB, "[ERROR] " + exception.getMessage()));
     }
 
@@ -120,29 +117,16 @@ public class IngestionLogger {
         printWarning(id + ": " + ErrorDictionary.getDetailById(id));
     }
 
-    /**
-     * Logs a warning with arguments replacing placeholders in the warning message template.
-     * Example: printWarningByIdWithArgs("GBL_00003", "Deployments")
-     */
     public void printWarningByIdWithArgs(String id, Object... args) {
-        System.out.println(id + ": " + ErrorDictionary.getDetailById(id));
-        String template = ErrorDictionary.getDetailById(id);
-        if (template == null) {
-            printWarning(id + ": [Unknown warning ID]");
-            return;
-        }
-
-        String formatted = String.format(template, args);
-        printWarning(id + ": " + formatted);
+        printWarning(id + ": " + String.format(ErrorDictionary.getDetailById(id), args));
     }
 
     public void printWarning(String message) {
-        System.out.println(message);
         addLine(Feedback.println(Feedback.WEB, "[WARNING] " + message));
     }
 
     public void println(String message) {
-        System.out.println(message);
         addLine(Feedback.println(Feedback.WEB, "[LOG] " + message));
     }
 }
+

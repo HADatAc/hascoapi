@@ -167,11 +167,8 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
             "     FILTER isIRI(?class) " +
             "     FILTER (CONTAINS(STR(?class), \"" + uri + "\")) " +
             "     FILTER NOT EXISTS { " +
-            "           ?class rdfs:subClassOf ?superclass . " +
-            "         FILTER ( " + 
-            "           isIRI(?superclass) && " +
-            "           !STRSTARTS(STR(?superclass),STR(hasco:)) && " +
-            "           ?superclass != owl:Thing) " +
+            "          ?class rdfs:subClassOf ?superclass . " +
+            "         FILTER (isIRI(?superclass) && ?superclass != owl:Thing) " +
             "    } " +
             " } " +
             " ORDER BY ?class ";
@@ -385,10 +382,9 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
             String endpointUrl = CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_GRAPH);
             GSPClient gspClient = new GSPClient(endpointUrl);
     
-            //if (address.equals("http://hadatac.org/ont/uberon/uberonpmsr.ttl")) {
-            //    System.out.println("Printing first 30 lines of ingested file");
-            //    NameSpace.printFirst30Lines(tripleFile);
-            //}
+            if (address.equals("http://hadatac.org/ont/uberon/uberonpmsr.ttl")) {
+                NameSpace.printFirst30Lines(tripleFile);
+            }
     
             gspClient.postFile(tripleFile, format.getDefaultMIMEType(), getUri());
             //System.out.println("Loaded triples from " + address + " \n");

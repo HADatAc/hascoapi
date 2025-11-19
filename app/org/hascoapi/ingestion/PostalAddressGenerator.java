@@ -85,8 +85,7 @@ public class PostalAddressGenerator extends BaseGenerator {
 		if (place != null && place.getUri() != null) {
 			return place.getUri();
 		} else {
-            dataFile.getLogger().printWarningByIdWithArgs("GBL_00053",locality);
-			//System.out.println("[WARNING] PostalAddressGenerator: could not find following CITY [" + locality + "]");
+			System.out.println("[WARNING] PostalAddressGenerator: could not find following CITY [" + locality + "]");
 		}
 		return "";
 	}
@@ -97,8 +96,7 @@ public class PostalAddressGenerator extends BaseGenerator {
 		if (place != null && place.getUri() != null) {
 			return place.getUri();
 		} else {
-            dataFile.getLogger().printWarningByIdWithArgs("GBL_00054",state);
-			//System.out.println("[WARNING] PostalAddressGenerator: could not find following STATE [" + state + "]");
+			System.out.println("[WARNING] PostalAddressGenerator: could not find following STATE [" + state + "]");
 		}
 		return "";
 	}
@@ -109,8 +107,7 @@ public class PostalAddressGenerator extends BaseGenerator {
 		if (place != null && place.getUri() != null) {
 			return place.getUri();
 		} else {
-            dataFile.getLogger().printWarningByIdWithArgs("GBL_00055",country);
-			//System.out.println("[WARNING] PostalAddressGenerator: could not find following COUNTRY [" + country + "]");
+			System.out.println("[WARNING] PostalAddressGenerator: could not find following COUNTRY [" + country + "]");
 		}
 		return "";
 	}
@@ -132,21 +129,18 @@ public class PostalAddressGenerator extends BaseGenerator {
 		String addressKey = street + "|" + postalCode;
 
 		if (street == null || street.isEmpty() || postalCode == null || postalCode.isEmpty()) {
-            dataFile.getLogger().printWarningByIdWithArgs("GBL_00056",rowNumber);
-			//System.out.println("[WARNING] PostalAddressGenerator: PostalAddress for rowNumber=[" + rowNumber + "] has either street or postalcode null or empty.");
+			System.out.println("[WARNING] PostalAddressGenerator: PostalAddress for rowNumber=[" + rowNumber + "] has either street or postalcode null or empty.");
 			return null;
 		}
 
 		PostalAddress postalAddress = PostalAddress.findByAddress(street, postalCode);
 		if (postalAddress != null) {
-            dataFile.getLogger().printWarningByIdWithArgs("GBL_00057",street,postalCode);
-			//System.out.println("[WARNING] PostalAddressGenerator: PostalAddress with street=[" + street + "] and postalCode=[" + postalCode + "] already exist in triplestore.");
+			System.out.println("[WARNING] PostalAddressGenerator: PostalAddress with street=[" + street + "] and postalCode=[" + postalCode + "] already exist in triplestore.");
 			return null;
 		}
 
 		if (addressKeyList.contains(addressKey)) {
-            dataFile.getLogger().printWarningByIdWithArgs("GBL_00058",street,postalCode);
-			//System.out.println("[WARNING] PostalAddressGenerator: PostalAddress with street=[" + street + "] and postalCode=[" + postalCode + "] already exist in source file.");
+			System.out.println("[WARNING] PostalAddressGenerator: PostalAddress with street=[" + street + "] and postalCode=[" + postalCode + "] already exist in source file.");
 			return null;
 		} else {
 			addressKeyList.add(addressKey);

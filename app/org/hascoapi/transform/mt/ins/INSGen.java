@@ -34,7 +34,7 @@ public class INSGen {
     public static final int PAGESIZE                = 20000;
     public static final int OFFSET                  = 0;
 
-    public static String genByStatus(String status, String filename, String mediaFolder, String verifyUri) {
+    public static String genByStatus(String status, String filename) {
         INSGenHelper helper = new INSGenHelper();
         helper.workbook = INSGen.create(filename);
         String resp = "";
@@ -96,7 +96,7 @@ public class INSGen {
         return INSGen.save(helper,filename);
     }
 
-    public static String genByInstrument(Instrument instrument, String filename, String mediaFolder, String verifyUri) {
+    public static String genByInstrument(Instrument instrument, String filename) {
         if (instrument == null) {
             return "";
         }
@@ -130,7 +130,7 @@ public class INSGen {
         return INSGen.save(helper, filename);
     }
 
-    public static String genByManager(String useremail, String status, String filename, String mediaFolder, String verifyUri) {
+    public static String genByManager(String useremail, String status, String filename) {
         INSGenHelper helper = new INSGenHelper();
         helper.workbook = INSGen.create(filename);
         boolean withCurrent = false; // this assures that the retrieval of just elements of the requested type.

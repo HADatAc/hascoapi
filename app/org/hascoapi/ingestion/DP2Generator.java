@@ -32,11 +32,11 @@ public class DP2Generator extends BaseGenerator {
 		}
 		
 		// Deployments
+		// PlatformModels
 		// Platforms
-		// PlatformsInstances
 		// FieldsOfView
-		// InstrumentInstances
-	    // ComponentInstances
+		// Instruments
+		// Detectors
 		// SensingPerspective
 		// MessageStream
 		// MessageTopic

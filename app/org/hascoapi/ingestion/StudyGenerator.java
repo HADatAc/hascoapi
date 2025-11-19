@@ -9,9 +9,6 @@ import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.utils.URIUtils;
 import org.hascoapi.vocabularies.HASCO;
 
-// Assuming a Logger class is available and passed in the constructor
-// import org.yourcompany.utils.Logger;
-
 public class StudyGenerator extends BaseGenerator {
 
     private String fileName;
@@ -26,47 +23,45 @@ public class StudyGenerator extends BaseGenerator {
 
     private String contactUri;
 
-
     public StudyGenerator(DataFile dataFile, String studyUri, String templateFile) {
         super(dataFile, studyUri, templateFile);
-        this.fileName = dataFile.getFilename();
+        this.fileName = dataFile.getFilename(); 
     }
 
     @Override
     public void initMapping() {
         //System.out.println("initMapping of StudyGenerator");
         try {
-            mapCol.clear();
-            mapCol.put("studyID", templates.getSTUDYID());
-            mapCol.put("studyTitle", templates.getSTUDYTITLE());
-            mapCol.put("studyAims", templates.getSTUDYAIMS());
-            mapCol.put("studySignificance", templates.getSTUDYSIGNIFICANCE());
-            mapCol.put("numSubjects", templates.getNUMSUBJECTS());
-            mapCol.put("numSamples", templates.getNUMSAMPLES());
-            mapCol.put("institution", templates.getINSTITUTION());
-            mapCol.put("PI", templates.getPI());
-            mapCol.put("PIAddress", templates.getPIADDRESS());
-            mapCol.put("PICity", templates.getPICITY());
-            mapCol.put("PIState", templates.getPISTATE());
-            mapCol.put("PIZipCode", templates.getPIZIPCODE());
-            mapCol.put("PIEmail", templates.getPIEMAIL());
-            mapCol.put("PIPhone", templates.getPIPHONE());
-            mapCol.put("CPI1FName", templates.getCPI1FNAME());
-            mapCol.put("CPI1LName", templates.getCPI1LNAME());
-            mapCol.put("CPI1Email", templates.getCPI1EMAIL());
-            mapCol.put("CPI2FName", templates.getCPI2FNAME());
-            mapCol.put("CPI2LName", templates.getCPI2LNAME());
-            mapCol.put("CPI2Email", templates.getCPI2EMAIL());
-            mapCol.put("contactFName", templates.getCONTACTFNAME());
-            mapCol.put("contactLName", templates.getCONTACTLNAME());
-            mapCol.put("contactEmail", templates.getCONTACTEMAIL());
-            mapCol.put("createdDate", templates.getCREATEDDATE());
-            mapCol.put("updatedDate", templates.getUPDATEDDATE());
-            mapCol.put("DCAccessBool", templates.getDCACCESSBOOL());
-            mapCol.put("externalSource", templates.getEXTSRC());
+        mapCol.clear();
+        mapCol.put("studyID", templates.getSTUDYID());
+        mapCol.put("studyTitle", templates.getSTUDYTITLE());
+        mapCol.put("studyAims", templates.getSTUDYAIMS());
+        mapCol.put("studySignificance", templates.getSTUDYSIGNIFICANCE());
+        mapCol.put("numSubjects", templates.getNUMSUBJECTS());
+        mapCol.put("numSamples", templates.getNUMSAMPLES());
+        mapCol.put("institution", templates.getINSTITUTION());
+        mapCol.put("PI", templates.getPI());
+        mapCol.put("PIAddress", templates.getPIADDRESS());
+        mapCol.put("PICity", templates.getPICITY());
+        mapCol.put("PIState", templates.getPISTATE());
+        mapCol.put("PIZipCode", templates.getPIZIPCODE());
+        mapCol.put("PIEmail", templates.getPIEMAIL());
+        mapCol.put("PIPhone", templates.getPIPHONE());
+        mapCol.put("CPI1FName", templates.getCPI1FNAME());
+        mapCol.put("CPI1LName", templates.getCPI1LNAME());
+        mapCol.put("CPI1Email", templates.getCPI1EMAIL());
+        mapCol.put("CPI2FName", templates.getCPI2FNAME());
+        mapCol.put("CPI2LName", templates.getCPI2LNAME());
+        mapCol.put("CPI2Email", templates.getCPI2EMAIL());
+        mapCol.put("contactFName", templates.getCONTACTFNAME());
+        mapCol.put("contactLName", templates.getCONTACTLNAME());
+        mapCol.put("contactEmail", templates.getCONTACTEMAIL());
+        mapCol.put("createdDate", templates.getCREATEDDATE());
+        mapCol.put("updatedDate", templates.getUPDATEDDATE());
+        mapCol.put("DCAccessBool", templates.getDCACCESSBOOL());
+        mapCol.put("externalSource", templates.getEXTSRC());
         } catch (Exception e) {
-            // e.printStackTrace();
-            logger.printExceptionByIdWithArgs("GBL_00039", e.getMessage());
+            e.printStackTrace();
         }
         //System.out.println("end initMapping");
     }
@@ -99,15 +94,15 @@ public class StudyGenerator extends BaseGenerator {
     }
 
     //private String getInstitutionUri(Record rec) {
-    //    return kbPrefix + "/OR" + rec.getValueByColumnName(mapCol.get("institution")).replaceAll(" ", "-").replaceAll(",", "").replaceAll("'", "");
+    //    return kbPrefix + "/OR" + rec.getValueByColumnName(mapCol.get("institution")).replaceAll(" ", "-").replaceAll(",", "").replaceAll("'", ""); 
     //}
 
     //private String getAgentUri(Record rec) {
-    //    return kbPrefix + "/PS" + rec.getValueByColumnName(mapCol.get("PI")).replaceAll(" ", "-");
+    //    return kbPrefix + "/PS" + rec.getValueByColumnName(mapCol.get("PI")).replaceAll(" ", "-"); 
     //}
 
     private String getExtSource(Record rec) {
-        return rec.getValueByColumnName(mapCol.get("externalSource"));
+        return rec.getValueByColumnName(mapCol.get("externalSource")); 
     }
 
     @Override
@@ -116,31 +111,21 @@ public class StudyGenerator extends BaseGenerator {
         String id = getId(rec);
         String title = getTitle(rec);
         if (rec.size() <= 0) {
-            /*
-                Removed log becuase of bug finded.
-             */
-            //logger.printExceptionById("GBL_00031"); // New logging
             return null;
         }
         if (uri == null || uri.isEmpty()) {
             //throw new Exception("[ERROR] StudyGenerator: No URI value has been found");
-            /*
-
-             */
-            //System.out.println("[ERROR] StudyGenerator: No URI value has been found");
-            logger.printExceptionById("GBL_00028"); // New logging
+            System.out.println("[ERROR] StudyGenerator: No URI value has been found");
             return null;
         }
         if (id == null || id.isEmpty()) {
             //throw new Exception("[ERROR] StudyGenerator: No ID value has been found");
-            //System.out.println("[ERROR] StudyGenerator: No ID value has been found");
-            logger.printExceptionById("GBL_00029"); // New logging
+            System.out.println("[ERROR] StudyGenerator: No ID value has been found");
             return null;
         }
         if (title == null || title.isEmpty()) {
             //throw new Exception("[ERROR] StudyGenerator: No TITLE value has been found");
-            //System.out.println("[ERROR] StudyGenerator: No TITLE value has been found");
-            logger.printExceptionById("GBL_00030"); // New logging
+            System.out.println("[ERROR] StudyGenerator: No TITLE value has been found");
             return null;
         }
         //System.out.println("Inside of StudyGenerator.createRow()");
@@ -159,24 +144,15 @@ public class StudyGenerator extends BaseGenerator {
             row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
             if (piUri != null && !piUri.isEmpty()) {
                 row.put("hasco:hasPI", piUri);
-            } else {
-                logger.printExceptionById("GBL_00032"); // New logging for missing PI
             }
             if (institutionUri != null && !institutionUri.isEmpty()) {
                 row.put("hasco:hasInstitution", institutionUri);
-            } else {
-                logger.printExceptionById("GBL_00033"); // New logging for missing Institution
             }
-            if(mapCol.get("externalSource") != null && rec.getValueByColumnName(mapCol.get("externalSource")) != null &&
+            if(mapCol.get("externalSource") != null && rec.getValueByColumnName(mapCol.get("externalSource")) != null && 
                     rec.getValueByColumnName(mapCol.get("externalSource")).length() > 0) {
                 row.put("hasco:hasExternalSource", getExtSource(rec));
             }
-
-            try {
-                setStudyUri(URIUtils.replacePrefixEx(getUri()));
-            } catch (Exception e) {
-                logger.printExceptionByIdWithArgs("GBL_00038", getUri()); // New logging for URI replacement error
-            }
+            setStudyUri(URIUtils.replacePrefixEx(getUri()));
         }
 
         return row;
@@ -190,14 +166,15 @@ public class StudyGenerator extends BaseGenerator {
     @Override
     public void preprocessuris(Map<String,String> uris) throws Exception {
         this.piUri = uris.get("piUri");
-        this.institutionUri = uris.get("piInstitutionUri");
-        this.cpi1Uri = uris.get("cpi1Uri");
-        this.cpi2Uri = uris.get("cpi2Uri");
-        this.contactUri = uris.get("contactUri");
-    }
-
+		this.institutionUri = uris.get("piInstitutionUri");
+		this.cpi1Uri = uris.get("cpi1Uri");
+		this.cpi2Uri = uris.get("cpi2Uri");
+		this.contactUri = uris.get("contactUri");
+	}
+	
     @Override
     public String getErrorMsg(Exception e) {
         return "Error in StudyGenerator: " + e.getMessage();
     }
 }
+
