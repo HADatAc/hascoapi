@@ -138,7 +138,8 @@ public class NameSpaces {
         SIO_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
         SIO_NAMESPACE.setHascoTypeUri(HASCO.ONTOLOGY);
         SIO_NAMESPACE.setSourceMime("application/rdf+xml");
-        SIO_NAMESPACE.setSource("https://raw.githubusercontent.com/MaastrichtU-IDS/semanticscience/master/ontology/sio.owl");
+        //SIO_NAMESPACE.setSource("https://raw.githubusercontent.com/MaastrichtU-IDS/semanticscience/master/ontology/sio.owl");
+        SIO_NAMESPACE.setSource("https://raw.githubusercontent.com/micheldumontier/semanticscience/master/ontology/sio/release/sio-release.owl");
         SIO_NAMESPACE.setComment("Semanticscience Integrated Ontology");
         SIO_NAMESPACE.setVersion("1.59");
         SIO_NAMESPACE.setPermanent(true);
@@ -169,9 +170,9 @@ public class NameSpaces {
         HASCO_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
         HASCO_NAMESPACE.setHascoTypeUri(HASCO.ONTOLOGY);
         HASCO_NAMESPACE.setSourceMime("text/turtle");
-        HASCO_NAMESPACE.setSource("https://hadatac.org/ont/hasco/1.2");
+        HASCO_NAMESPACE.setSource("https://hadatac.org/ont/hasco/");
         HASCO_NAMESPACE.setComment("Human-Aware Science Ontology");
-        HASCO_NAMESPACE.setVersion("1.0");
+        HASCO_NAMESPACE.setVersion("1.3");
         HASCO_NAMESPACE.setPermanent(true);
         HASCO_NAMESPACE.setPriority(9);
         namespaces.add(HASCO_NAMESPACE);
@@ -183,12 +184,26 @@ public class NameSpaces {
         VSTOI_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
         VSTOI_NAMESPACE.setHascoTypeUri(HASCO.ONTOLOGY);
         VSTOI_NAMESPACE.setSourceMime("text/turtle");
-        VSTOI_NAMESPACE.setSource("https://hadatac.org/ont/vstoi/0.9");
+        VSTOI_NAMESPACE.setSource("https://hadatac.org/ont/vstoi/");
         VSTOI_NAMESPACE.setComment("Virtual Terrestrial Solar Observatory - Instruments");
         VSTOI_NAMESPACE.setVersion("0.7");
         VSTOI_NAMESPACE.setPermanent(true);
         VSTOI_NAMESPACE.setPriority(10);
         namespaces.add(VSTOI_NAMESPACE);
+
+        // UNIT (QUDT)
+        NameSpace UNIT_NAMESPACE = new NameSpace();
+        UNIT_NAMESPACE.setLabel("unit");
+        UNIT_NAMESPACE.setUri("http://qudt.org/vocab/unit/");
+        UNIT_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
+        UNIT_NAMESPACE.setHascoTypeUri(HASCO.ONTOLOGY);
+        UNIT_NAMESPACE.setSourceMime("text/turtle");
+        UNIT_NAMESPACE.setSource("http://qudt.org/vocab/unit/");
+        UNIT_NAMESPACE.setComment("QUDT Schema");
+        UNIT_NAMESPACE.setVersion("3.1.7");
+        UNIT_NAMESPACE.setPermanent(true);
+        UNIT_NAMESPACE.setPriority(11);
+        namespaces.add(UNIT_NAMESPACE);
 
         // Languages
         NameSpace lcc_639_1_NAMESPACE = new NameSpace();
@@ -201,7 +216,7 @@ public class NameSpaces {
         lcc_639_1_NAMESPACE.setComment("Language codes from ISO 639-1, as expressed in https://www.w3schools.com/tags/ref_language_codes.asp");
         lcc_639_1_NAMESPACE.setVersion("1.0");
         lcc_639_1_NAMESPACE.setPermanent(true);
-        lcc_639_1_NAMESPACE.setPriority(11);
+        lcc_639_1_NAMESPACE.setPriority(12);
         namespaces.add(lcc_639_1_NAMESPACE);
 
         // FHIR
@@ -213,7 +228,7 @@ public class NameSpaces {
         FHIR_NAMESPACE.setComment("FHIR is a standard for health care data exchange, published by HL7.");
         FHIR_NAMESPACE.setVersion("R5");
         FHIR_NAMESPACE.setPermanent(true);
-        FHIR_NAMESPACE.setPriority(12);
+        FHIR_NAMESPACE.setPriority(13);
         namespaces.add(FHIR_NAMESPACE);
 
         // FOAF
@@ -227,7 +242,7 @@ public class NameSpaces {
         FOAF_NAMESPACE.setComment("Friend of a Friend (FOAF) vocabulary");
         FOAF_NAMESPACE.setVersion("0.1");
         FOAF_NAMESPACE.setPermanent(true);
-        FOAF_NAMESPACE.setPriority(13);
+        FOAF_NAMESPACE.setPriority(14);
         namespaces.add(FOAF_NAMESPACE);
 
         // SCHEMA
@@ -241,7 +256,7 @@ public class NameSpaces {
         SCHEMA_NAMESPACE.setComment("Schema Namespace");
         SCHEMA_NAMESPACE.setVersion("25.0");
         SCHEMA_NAMESPACE.setPermanent(true);
-        SCHEMA_NAMESPACE.setPriority(14);
+        SCHEMA_NAMESPACE.setPriority(15);
         namespaces.add(SCHEMA_NAMESPACE);
 
         // DEFAULT
@@ -253,7 +268,7 @@ public class NameSpaces {
         DEFAULT_NAMESPACE.setComment("Default Namespace");
         DEFAULT_NAMESPACE.setVersion("0.1");
         DEFAULT_NAMESPACE.setPermanent(true);
-        DEFAULT_NAMESPACE.setPriority(15);
+        DEFAULT_NAMESPACE.setPriority(16);
         namespaces.add(DEFAULT_NAMESPACE);
 
         // TEST
@@ -267,6 +282,20 @@ public class NameSpaces {
         TEST_NAMESPACE.setPermanent(true);
         TEST_NAMESPACE.setPriority(20);
         namespaces.add(TEST_NAMESPACE);
+
+        // BFO
+        NameSpace BFO_NAMESPACE = new NameSpace();
+        BFO_NAMESPACE.setLabel("bfo");
+        BFO_NAMESPACE.setUri("http://purl.obolibrary.org/obo/BFO_");
+        BFO_NAMESPACE.setTypeUri(HASCO.ONTOLOGY);
+        BFO_NAMESPACE.setHascoTypeUri(HASCO.ONTOLOGY);
+        BFO_NAMESPACE.setSourceMime("application/rdf+xml");
+        BFO_NAMESPACE.setSource("http://purl.obolibrary.org/obo/bfo.owl");
+        BFO_NAMESPACE.setComment("Basic Formal Ontology");
+        BFO_NAMESPACE.setVersion("2020");
+        BFO_NAMESPACE.setPermanent(true);
+        BFO_NAMESPACE.setPriority(21);
+        namespaces.add(BFO_NAMESPACE);
 
         System.out.println("NameSpaces: Initiating " + namespaces.size() + " pre-defined name spaces.");
 

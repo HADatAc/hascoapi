@@ -68,13 +68,13 @@ public class IngestionWorker {
             recordFile = new SpreadsheetRecordFile(file,dataFile.getFilename(),"InfoSheet");
         } else {
             dataFile.getLogger().printExceptionByIdWithArgs("GBL_00003", fileName);
-            System.out.println("[ERROR] IngestionWorker: invalid file extension.");
+           // System.out.println("[ERROR] IngestionWorker: invalid file extension.");
             return;
         }
 
         if (!recordFile.isValid()) {
-            dataFile.getLogger().printExceptionById("SDD_00001");
-            System.out.println("[ERROR] IngestionWorker: No InfoSheet in provided file.");
+            dataFile.getLogger().printExceptionById("GBL_00005");
+            //System.out.println("[ERROR] IngestionWorker: No InfoSheet in provided file.");
             return;
         }
 
@@ -214,9 +214,11 @@ public class IngestionWorker {
             System.out.print("Extracting NameSpace sheet from spreadsheet... ");
             nameSpaceRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), sheetName.replace("#",""));
             if (nameSpaceRecordFile == null) {
-                System.out.println("[WARNING] NameSpaceGenerator: nameSpaceRecordFile is NULL.");
+                dataFile.getLogger().printWarning("GBL_00009");
+                //System.out.println("[WARNING] NameSpaceGenerator: nameSpaceRecordFile is NULL.");
             } else if (nameSpaceRecordFile.getRecords() == null) {
-                System.out.println("[WARNING] NameSpaceGenerator: nameSpaceRecordFile.getRecords() is NULL.");
+                dataFile.getLogger().printWarning("GBL_00010");
+                //System.out.println("[WARNING] NameSpaceGenerator: nameSpaceRecordFile.getRecords() is NULL.");
             } else {
                 System.out.println("nameSpaceRecordFile has [" + nameSpaceRecordFile.getRecords().size() + "] rows");
                 dataFile.setRecordFile(nameSpaceRecordFile);
@@ -236,7 +238,8 @@ public class IngestionWorker {
                 return isSuccess;
             }
         } else {
-            System.out.println("[WARNING] NameSpaceGenerator: could not find any sheet inside of Metadata Template called [hasDependencies].");
+            dataFile.getLogger().printWarning("GBL_00011");
+            //System.out.println("[WARNING] NameSpaceGenerator: could not find any sheet inside of Metadata Template called [hasDependencies].");
         }
         return false;
     }
@@ -250,7 +253,8 @@ public class IngestionWorker {
             annotationStemDataFile = (DataFile)dataFile.clone();
             annotationDataFile = (DataFile)dataFile.clone();
         } catch (Exception e) {
-            System.out.println("[ERROR] IngestionWorker.annotationGen() - following error cloning dataFile: " + e.getMessage());
+            dataFile.getLogger().printExceptionByIdWithArgs("GBL_00012", e.getMessage());
+            //System.out.println("[ERROR] IngestionWorker.annotationGen() - following error cloning dataFile: " + e.getMessage());
             return false;
         }
         String sheetName = mapCatalog.get("AnnotationStems");
@@ -258,11 +262,13 @@ public class IngestionWorker {
             System.out.print("Extracting [AnnotationStems] sheet from spreadsheet... ");
             annotationStemRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), sheetName.replace("#",""));
             if (annotationStemRecordFile == null) {
-                System.out.println("[WARNING] 'AnnotationStems' sheet is missing.");
-                dataFile.getLogger().println("[WARNING] 'AnnotationStems' sheet is missing.");
+                dataFile.getLogger().printWarningByIdWithArgs("GBL_00013",sheetName);
+                //System.out.println("[WARNING] 'AnnotationStems' sheet is missing.");
+                //dataFile.getLogger().println("[WARNING] 'AnnotationStems' sheet is missing.");
                 return false;
             } else if (annotationStemRecordFile.getRecords() == null) {
-                System.out.println("[WARNING] annotationGen(): annotationStemRecordFile.getRecords() is NULL.");
+                dataFile.getLogger().printWarningByIdWithArgs("GBL_00014","annotationGen(): annotationStems");
+                //System.out.println("[WARNING] annotationGen(): annotationStemRecordFile.getRecords() is NULL.");
                 return false;
             }
             annotationStemDataFile.setRecordFile(annotationStemRecordFile);
@@ -272,11 +278,16 @@ public class IngestionWorker {
             System.out.print("Extracting [Annotations] sheet from spreadsheet... ");
             annotationRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), sheetName.replace("#",""));
             if (annotationRecordFile == null) {
+                dataFile.getLogger().printWarningByIdWithArgs("GBL_00015",sheetName);
+                /*
                 System.out.println("[WARNING] 'Annotations' sheet is missing.");
                 dataFile.getLogger().println("[WARNING] 'Annotations' sheet is missing.");
+
+                 */
                 return false;
             } else if (annotationRecordFile.getRecords() == null) {
-                System.out.println("[WARNING] annotationGen(): annotationRecordFile.getRecords() is NULL.");
+                dataFile.getLogger().printWarningByIdWithArgs("GBL_00014","annotationGen(): annotations");
+               // System.out.println("[WARNING] annotationGen(): annotationRecordFile.getRecords() is NULL.");
                 return false;
             }
             annotationDataFile.setRecordFile(annotationRecordFile);
@@ -298,6 +309,7 @@ public class IngestionWorker {
         if (isSuccess) {
             System.out.println("Done extracting annotationStem and annotation sheets. ");
         } else {
+            dataFile.getLogger().printWarningByIdWithArgs("GBL_00016","annotationStem and/or annotation");
             System.out.println("Failed to extract annotationStem and/or annotation sheets. ");
         }
         return isSuccess;
@@ -312,7 +324,8 @@ public class IngestionWorker {
             messageStreamDataFile = (DataFile)dataFile.clone();
             messageTopicDataFile = (DataFile)dataFile.clone();
         } catch (Exception e) {
-            System.out.println("[ERROR] IngestionWorker.messageGen() - following error cloning dataFile: " + e.getMessage());
+            dataFile.getLogger().printExceptionByIdWithArgs("GBL_00012", e.getMessage());
+            //System.out.println("[ERROR] IngestionWorker.messageGen() - following error cloning dataFile: " + e.getMessage());
             return false;
         }
         String sheetName = mapCatalog.get("MessageStream");
@@ -320,11 +333,16 @@ public class IngestionWorker {
             System.out.print("Extracting [MessageStream] sheet from spreadsheet... ");
             messageStreamRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), sheetName.replace("#",""));
             if (messageStreamRecordFile == null) {
+                dataFile.getLogger().printWarningByIdWithArgs("GBL_00013",sheetName);
+                /*
                 System.out.println("[WARNING] 'MessageStream' sheet is missing.");
                 dataFile.getLogger().println("[WARNING] 'MessageStream' sheet is missing.");
+
+                 */
                 return false;
             } else if (messageStreamRecordFile.getRecords() == null) {
-                System.out.println("[WARNING] messageGen(): MessageStreamRecordFile.getRecords() is NULL.");
+                dataFile.getLogger().printWarningByIdWithArgs("GBL_00014","messageGen(): messageStream");
+                //System.out.println("[WARNING] messageGen(): MessageStreamRecordFile.getRecords() is NULL.");
                 return false;
             }
             messageStreamDataFile.setRecordFile(messageStreamRecordFile);
@@ -334,11 +352,16 @@ public class IngestionWorker {
             System.out.print("Extracting [MessageTopic] sheet from spreadsheet... ");
             messageTopicRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), sheetName.replace("#",""));
             if (messageTopicRecordFile == null) {
+                dataFile.getLogger().printWarningByIdWithArgs("GBL_00015",sheetName);
+                /*
                 System.out.println("[WARNING] 'MessageTopic' sheet is missing.");
                 dataFile.getLogger().println("[WARNING] 'MessageTopic' sheet is missing.");
+
+                 */
                 return false;
             } else if (messageTopicRecordFile.getRecords() == null) {
-                System.out.println("[WARNING] messageGen(): messageTopicRecordFile.getRecords() is NULL.");
+                dataFile.getLogger().printWarningByIdWithArgs("GBL_00014","messageGen(): message");
+                //System.out.println("[WARNING] messageGen(): messageTopicRecordFile.getRecords() is NULL.");
                 return false;
             }
             messageTopicDataFile.setRecordFile(messageTopicRecordFile);
@@ -360,6 +383,7 @@ public class IngestionWorker {
         if (isSuccess) {
             System.out.println("Done extracting messageStream and messageTopic sheets. ");
         } else {
+            dataFile.getLogger().printWarningByIdWithArgs("GBL_00016","messageStream and/or messageTopic");
             System.out.println("Failed to extract messageStream and/or messageTopic sheets. ");
         }
         return isSuccess;
@@ -377,7 +401,8 @@ public class IngestionWorker {
             detectorsDataFile = (DataFile)dataFile.clone();
             sensingPerspectiveDataFile = (DataFile)dataFile.clone();
         } catch (Exception e) {
-            System.out.println("[ERROR] IngestionWorker.messageGen() - following error cloning dataFile: " + e.getMessage());
+            dataFile.getLogger().printExceptionByIdWithArgs("GBL_00012",e.getMessage());
+           // System.out.println("[ERROR] IngestionWorker.messageGen() - following error cloning dataFile: " + e.getMessage());
             return false;
         }
         String sheetName = mapCatalog.get("Instruments");
@@ -385,11 +410,16 @@ public class IngestionWorker {
             System.out.print("Extracting [Instruments] sheet from spreadsheet... ");
             instrumentsRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), sheetName.replace("#",""));
             if (instrumentsRecordFile == null) {
+                dataFile.getLogger().printWarningByIdWithArgs("GBL_00014",sheetName);
+                /*
                 System.out.println("[WARNING] 'Instruments' sheet is missing.");
                 dataFile.getLogger().println("[WARNING] 'Instruments' sheet is missing.");
+
+                 */
                 return false;
             } else if (instrumentsRecordFile.getRecords() == null) {
-                System.out.println("[WARNING] deployInstancesGen(): instrumentsRecordFile.getRecords() is NULL.");
+                dataFile.getLogger().printWarningByIdWithArgs("GBL_00014","deployInstancesGen(): instruments");
+                //System.out.println("[WARNING] deployInstancesGen(): instrumentsRecordFile.getRecords() is NULL.");
                 return false;
             }
             instrumentsDataFile.setRecordFile(instrumentsRecordFile);
@@ -399,11 +429,16 @@ public class IngestionWorker {
             System.out.print("Extracting [Detectors] sheet from spreadsheet... ");
             detectorsRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), sheetName.replace("#",""));
             if (detectorsRecordFile == null) {
+                dataFile.getLogger().printWarningByIdWithArgs("GBL_00015",sheetName);
+                /*
                 System.out.println("[WARNING] 'Detectors' sheet is missing.");
                 dataFile.getLogger().println("[WARNING] 'Detectors' sheet is missing.");
+
+                 */
                 return false;
             } else if (detectorsRecordFile.getRecords() == null) {
-                System.out.println("[WARNING] deployInstancesGen(): detectorsRecordFile.getRecords() is NULL.");
+                dataFile.getLogger().printWarningByIdWithArgs("GBL_00014","deployInstancesGen(): detectors");
+                // System.out.println("[WARNING] deployInstancesGen(): detectorsRecordFile.getRecords() is NULL.");
                 return false;
             }
             detectorsDataFile.setRecordFile(detectorsRecordFile);
@@ -413,10 +448,15 @@ public class IngestionWorker {
             System.out.print("Extracting [SensingPerspective] sheet from spreadsheet... ");
             sensingPerspectiveRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), sheetName.replace("#",""));
             if (sensingPerspectiveRecordFile == null) {
+                dataFile.getLogger().printWarningByIdWithArgs("GBL_00015",sheetName);
+                /*
                 System.out.println("[WARNING] 'SensingPerspective' sheet is missing.");
                 dataFile.getLogger().println("[WARNING] 'SensingPerspective' sheet is missing.");
+
+                 */
                 return false;
             } else if (sensingPerspectiveRecordFile.getRecords() == null) {
+                dataFile.getLogger().printWarningByIdWithArgs("GBL_00014"," deployInstancesGen(): sensingPerspective");
                 System.out.println("[WARNING] deployInstancesGen(): sensingPerspectiveRecordFile.getRecords() is NULL.");
                 return false;
             }
@@ -442,6 +482,7 @@ public class IngestionWorker {
         if (isSuccess) {
             System.out.println("Done extracting instruments, detectors and sensingPerspective sheets. ");
         } else {
+            dataFile.getLogger().printWarningByIdWithArgs("GBL_00016","instruments and/or detectors and/or sensingPerspective");
             System.out.println("Failed to extract instruments and/or detectors and/or sensingPerspective sheets. ");
         }
         return isSuccess;
@@ -466,11 +507,13 @@ public class IngestionWorker {
         }
 
         if (studyUri.equals("")) {
+            dataFile.getLogger().printWarningById("GBL_00017");
             System.out.println("IngestionWorker: failed to build studyUri - missing hasStudyURI portion of the URI in the InfoSheet");
             return null;
         }
 
         if (studyKG.equals("")) {
+            dataFile.getLogger().printWarningById("GBL_00018");
             System.out.println("IngestionWorker: failed to build studyUri - missing hasStudyKG portion of the URI in the InfoSheet");
             return null;
         }

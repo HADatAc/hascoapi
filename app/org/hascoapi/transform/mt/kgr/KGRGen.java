@@ -31,7 +31,7 @@ public class KGRGen {
     public static final int PAGESIZE                    = 20000;
     public static final int OFFSET                      = 0;
 
-    public static String genByStatus(String status, String filename) {
+    public static String genByStatus(String status, String filename, String mediaFolder, String verifyUri) {
         KGRGenHelper helper = new KGRGenHelper();
         helper.workbook = KGRGen.create(filename);
         String resp = "";
@@ -91,7 +91,7 @@ public class KGRGen {
         return helper;
     }
 
-    public static String genByFundingScheme(FundingScheme fundingScheme, String filename) {
+    public static String genByFundingScheme(FundingScheme fundingScheme, String filename, String mediaFolder, String verifyUri) {
         if (fundingScheme == null) {
             return "";
         }
@@ -132,7 +132,7 @@ public class KGRGen {
         return KGRGen.save(helper, filename);
     }
 
-    public static String genByProject(Project project, String filename) {
+    public static String genByProject(Project project, String filename, String mediaFolder, String verifyUri) {
         if (project == null) {
             return "";
         }
@@ -197,7 +197,8 @@ public class KGRGen {
         return helper;
     }
 
-    public static String genByOrganization(Organization organization, String filename) {
+    public static String genByOrganization(Organization organization, String filename, String mediaFolder, String verifyUri) {
+        System.out.println("KGRGen.genByOrganization()");
         if (organization == null) {
             return "";
         }
@@ -233,7 +234,37 @@ public class KGRGen {
         return KGRGen.save(helper, filename);
     }
 
-    public static String genByManager(String useremail, String status, String filename) {
+    private static KGRGenHelper addSubplace(KGRGenHelper helper, Place place) {
+        List<Place> subPlaces = Place.findContainsPlace(place.getUri(),999999,0);
+        for (Place subPlace : subPlaces) {
+            helper.addPlace(subPlace);
+            helper = KGRGen.addSubplace(helper, subPlace);
+        } 
+        return helper;
+    }
+
+    public static String genByPlace(Place place, String filename, String mediaFolder, String verifyUri) {
+        System.out.println("KGRGen.genByPlace()");
+        if (place == null) {
+            return "";
+        }
+        System.out.println("KGRGen: genByPlace with place=[" + place.getLabel() + "]");
+        KGRGenHelper helper = new KGRGenHelper();
+        helper.workbook = KGRGen.create(filename);
+        System.out.println("KGRGen: genByPlace created file with filename=[" + filename + "]");
+        
+        helper.addPlace(place);
+        helper = KGRGen.addSubplace(helper, place);
+ 
+        if (helper.places.size() > 0) {
+            for (Place plc : helper.places.values()) {
+                helper = KGRPlace.add(helper,plc);
+            }
+        }
+        return KGRGen.save(helper, filename);
+    }
+
+    public static String genByManager(String useremail, String status, String filename, String mediaFolder, String verifyUri) {
         KGRGenHelper helper = new KGRGenHelper();
         helper.workbook = KGRGen.create(filename);
         boolean withCurrent = false; // this assures that the retrieval of just elements of the requested type.

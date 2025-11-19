@@ -1,19 +1,18 @@
 package org.hascoapi.ingestion;
 
 import java.util.Map;
-
+import org.hascoapi.Constants;
 import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.entity.pojo.KGR;
 
 public class AnnotateKGR extends BaseAnnotator {
 
     public static GeneratorChain exec(DataFile dataFile, String templateFile, String status) {
-        System.out.println("AnnotateKGR.exec(): Processing KGR meta-template ...");
+        dataFile.getLogger().println("AnnotateKGR.exec(): Processing KGR meta-template ...");
 
-        System.out.println("AnnotateKGR.exec(): Build chain 1 of 9 - Reading catalog and template");
-
-        Map<String, String> mapCatalog = loadCatalog(dataFile);
+        Map<String, String> mapCatalog = loadCatalog(dataFile, Constants.MT_KGR);
         if (mapCatalog == null) {
+            dataFile.getLogger().printExceptionById("KGR_00001"); // "KGR InfoSheet validation failed"
             return null;
         }
 
@@ -21,51 +20,44 @@ public class AnnotateKGR extends BaseAnnotator {
         kgr.setHasDataFileUri(dataFile.getUri());
         kgr.setHasSIRManagerEmail(dataFile.getHasSIRManagerEmail());
 
-        System.out.println("DataFileUri: [" + dataFile.getUri() + "]");
-        System.out.println("DataFileUri: [" + kgr.getHasDataFileUri() + "]");
-
         IngestionWorker.nameSpaceGen(dataFile, mapCatalog, templateFile);
-
-        // the template is needed to process individual sheets
         kgr.setTemplates(templateFile);
 
         String hasMediaFolder = mapCatalog.get("hasMediaFolder");
-
-        // verifyUri parameter parsing with error handling
-        String rawVerifyUri = mapCatalog.get("verifyUri");
-        boolean verifyUri;
-        if (rawVerifyUri == null) {
-            dataFile.getLogger().printException("KGR file is missing verifyUri parameter.");
+        if (hasMediaFolder == null) {
+            dataFile.getLogger().printExceptionById("KGR_00002"); // "Missing hasMediaFolder parameter"
             return null;
         }
+
+        // verifyUri parsing with error handling
+        String rawVerifyUri = mapCatalog.get("verifyUri");
+        boolean verifyUri;
         rawVerifyUri = rawVerifyUri.toLowerCase();
         if ("true".equals(rawVerifyUri)) {
             verifyUri = true;
         } else if ("false".equals(rawVerifyUri)) {
             verifyUri = false;
         } else {
-            dataFile.getLogger().printException("verifyUri parameter in KGR must be `true` or `false`.");
+            dataFile.getLogger().printExceptionById("KGR_00003"); // "Invalid verifyUri parameter value"
             return null;
         }
 
-        System.out.println("AnnotateKGR.exec(): Build chain 2 of 9 - Creating empty generator chain");
         GeneratorChain chain = new GeneratorChain();
 
-        // Define sheets and corresponding generator types
         String[][] sheets = {
-            {"Places", "place"},
-            {"PostalAddresses", "postaladdress"},
-            {"Organizations", "organization"},
-            {"Persons", "person"},
-            {"Projects", "project"},
-            {"ProjectOrganizations", "projectorganization"},
-            {"FundingSchemes", "fundingscheme"}
+                {"Places", "place"},
+                {"PostalAddresses", "postaladdress"},
+                {"Organizations", "organization"},
+                {"Persons", "person"},
+                {"Projects", "project"},
+                {"ProjectOrganizations", "projectorganization"},
+                {"FundingSchemes", "fundingscheme"}
         };
 
         int aux = 2;
         for (String[] sheetInfo : sheets) {
-            System.out.println("AnnotateKGR.exec(): Build chain " + aux++ + " of 9 - Adding " + sheetInfo[0] + " generator into chain");
-            addKGRGeneratorIfSheetExists(dataFile, mapCatalog, sheetInfo[0], status, chain, sheetInfo[1], hasMediaFolder, verifyUri);
+            addKGRGeneratorIfSheetExists(dataFile, mapCatalog, sheetInfo[0], status, chain, sheetInfo[1],
+                    hasMediaFolder, verifyUri);
         }
 
         return chain;
@@ -76,14 +68,13 @@ public class AnnotateKGR extends BaseAnnotator {
                                                      String type, String hasMediaFolder, boolean verifyUri) {
         String sheetName = mapCatalog.get(sheetKey);
         if (sheetName == null || sheetName.trim().isEmpty()) {
-            warnSheetMissing(dataFile, sheetKey);
+            dataFile.getLogger().printWarningByIdWithArgs("KGR_00004", sheetKey);
             return;
         }
 
-        sheetName = sheetName.replace("#", "").trim();
-        RecordFile sheet = new SpreadsheetRecordFile(dataFile.getFile(), sheetName);
+        RecordFile sheet = new SpreadsheetRecordFile(dataFile.getFile(), sheetName.replace("#", "").trim());
         if (!sheet.isValid()) {
-            System.out.println("[WARNING] Sheet '" + sheetName + "' is invalid or empty.");
+            dataFile.getLogger().printWarningByIdWithArgs("KGR_00005", sheetKey);
             return;
         }
 
@@ -94,9 +85,7 @@ public class AnnotateKGR extends BaseAnnotator {
             gen.setNamedGraphUri(clonedFile.getUri());
             chain.addGenerator(gen);
         } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
+            dataFile.getLogger().printExceptionByIdWithArgs("GBL_00008", e.getMessage());
         }
     }
-
 }
-

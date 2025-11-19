@@ -2,6 +2,7 @@ package org.hascoapi.ingestion;
 
 import java.util.Map;
 
+import org.hascoapi.Constants;
 import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.entity.pojo.DOI;
 import org.hascoapi.entity.pojo.Study;
@@ -9,10 +10,10 @@ import org.hascoapi.entity.pojo.Study;
 public class AnnotateDOI extends BaseAnnotator {
 
     public static GeneratorChain exec(DataFile dataFile) {
-        System.out.println("Processing DOI file ...");
+        dataFile.getLogger().println("Processing DOI file ...");
 
         // Load and validate InfoSheet, build catalog
-        Map<String, String> mapCatalog = loadCatalog(dataFile);
+        Map<String, String> mapCatalog = loadCatalog(dataFile, Constants.MT_DOI);
         if (mapCatalog == null) {
             dataFile.getLogger().printExceptionById("DOI_00001");
             return null;

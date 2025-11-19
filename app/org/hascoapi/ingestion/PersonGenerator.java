@@ -75,7 +75,8 @@ public class PersonGenerator extends BaseGenerator {
 			if (URIUtils.isValidURI(cls)) {
 				return cls;
 			} else {
-				System.out.println("[WARNING] The following URI is considered invalid: " + cls);
+                dataFile.getLogger().printWarningByIdWithArgs("GBL_00049",cls);
+				//System.out.println("[WARNING] The following URI is considered invalid: " + cls);
 			}
 		} 
 		return "";

@@ -46,6 +46,7 @@ public class DataFile extends HADatAcThing implements Cloneable {
     public static final String PROCESSED_STD = "PROCESSED_STD";
     public static final String WORKING = "WORKING";
     public static final String WORKING_STD = "WORKING_STD";
+    public static final String ERROR = "ERROR";
 
     // Process status for downloader
     public static final String CREATING = "CREATING";

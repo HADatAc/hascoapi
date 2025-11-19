@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 import org.hascoapi.entity.pojo.Deployment;
 import org.hascoapi.entity.pojo.HADatAcClass;
+import org.hascoapi.entity.pojo.HADatAcThing;
 import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.HAScOMapper;
 import org.hascoapi.vocabularies.HASCO;
@@ -61,6 +62,24 @@ public class HAScOClassAPI extends Controller {
         List<HADatAcClass> results = HADatAcClass.findSubclassesByKeyword(superuri, keyword);
         if (results == null) {
             results = new ArrayList<HADatAcClass>();
+        }
+        ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL,HASCO.HASCO_CLASS);
+        JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
+        return ok(ApiUtil.createResponse(jsonObject, true));
+        //}
+    }
+
+    public Result getInstancesByKeyword(String classuri, String keyword){
+
+        if (classuri == null || classuri.isEmpty()) {
+            return ok(ApiUtil.createResponse("No classuri has been provided to retrieve instances", false));
+        }
+        if (keyword == null || keyword.isEmpty()) {
+            return ok(ApiUtil.createResponse("No keyword has been provided to retrieve instances", false));
+        }
+        List<HADatAcThing> results = HADatAcClass.findClassInstancesByKeyword(classuri, keyword);
+        if (results == null) {
+            results = new ArrayList<HADatAcThing>();
         }
         ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL,HASCO.HASCO_CLASS);
         JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
