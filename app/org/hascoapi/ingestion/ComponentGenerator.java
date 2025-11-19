@@ -76,6 +76,10 @@ public class ComponentGenerator extends BaseGenerator {
 		        String value = rec.getValueByColumnName(header);
 		        if (value != null && !value.isEmpty()) {
 		            row.put(header, value);
+					if (header.equals("rdfs:label")) {
+						row.put("vstoi:hasContent", value);
+						//System.out.println(header + "  " + value);
+					}
 		        }
 		    }
 		}
