@@ -62,6 +62,4 @@ public class SPARQLUtils {
             return resultsrw;
         }
     }
-
-
 }

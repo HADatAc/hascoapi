@@ -242,12 +242,11 @@ public class ValueGenerator extends BaseGenerator {
                 if (rowErrors < rowErrorsLimit) {
                     logger.addLine(Feedback.println(Feedback.WEB, String.format(
                     	"[ERROR] ValueGenerator: Could not retrieve Study Object for ID=[%s]",id)));
-                    logger.printExceptionByIdWithArgs("GBL_00019", id);
                 	rowErrors++;
                 	if (rowErrors == rowErrorsLimit) {
                         logger.addLine(Feedback.println(Feedback.WEB, String.format(
                         	"[ERROR] ValueGenerator: The reporting of ingestion issues has been halted. The limit of %s faulty rows has been exceeded.",rowErrorsLimit)));
-                        logger.printExceptionByIdWithArgs("GBL_00020", rowErrorsLimit);
+
                 	}
                 }
             }
@@ -474,7 +473,7 @@ public class ValueGenerator extends BaseGenerator {
 
                     if (reference != null && !reference.equals("")) {
                         if (objList.get(reference) == null) {
-                            logger.printExceptionByIdWithArgs("GBL_00022", reference);
+                            System.out.println("ValueGenerator: [ERROR] Processing objList for reference [" + reference + "]");
                         } else {
                             // from object list
                             objUri = objList.get(reference).get(StudyObject.STUDY_OBJECT_URI);
@@ -511,7 +510,7 @@ public class ValueGenerator extends BaseGenerator {
 
                             // from ground object
                             if (groundObj == null || groundObj.get(StudyObject.STUDY_OBJECT_URI) == null || groundObj.get(StudyObject.STUDY_OBJECT_URI).equals("")) {
-                                logger.printExceptionByIdWithArgs("GBL_00023", reference);
+                                System.out.println("ValueGenerator: [ERROR] Could not retrieve Ground Object for reference [" + reference + "]");
                             } else {
                                 value.setStudyObjectUri(groundObj.get(StudyObject.STUDY_OBJECT_URI));
                                 value.setStudyObjectTypeUri(groundObj.get(StudyObject.STUDY_OBJECT_TYPE));
@@ -520,8 +519,7 @@ public class ValueGenerator extends BaseGenerator {
                         }
                         //System.out.println("[ValueGenerator] For Id=[" + id + "] and reference=[" + reference + "] it was assigned Obj URI=[" + value.getObjectUri() + "]");
                     } else {
-                        //System.out.println("ValueGenerator: [ERROR]: could not find DASA reference for ID=[" + id + "]");
-                        logger.printExceptionByIdWithArgs("GBL_00021", id);
+                        System.out.println("ValueGenerator: [ERROR]: could not find DASA reference for ID=[" + id + "]");
                     }
 
                 }
@@ -591,20 +589,17 @@ public class ValueGenerator extends BaseGenerator {
              *   SET URI, OWNER AND DA URI         *
              *                                     *
              *=====================================*/
-            try {
-                if (mode == FILEMODE) {
-                    value.setUri(URIUtils.replacePrefixEx(value.getStudyUri()) + "/" +
-                            URIUtils.replaceNameSpaceEx(stream.getUri()).split(":")[1] + "/" +
-                            dasa.getLabel() + "/");
-                            //dataFile.getFileName() + "-" + totalCount++);
-                } else {
-                    value.setUri(URIUtils.replacePrefixEx(value.getStudyUri()) + "/" +
-                            URIUtils.replaceNameSpaceEx(stream.getUri()).split(":")[1] + "/" +
-                            dasa.getLabel() + "/" +
-                            stream.getLabel() + "-" + totalCount++);
-                }
-            } catch (Exception e) {
-                logger.printExceptionByIdWithArgs("GBL_00027", dasa.getLabel(), rowNumber);
+
+            if (mode == FILEMODE) {
+            	value.setUri(URIUtils.replacePrefixEx(value.getStudyUri()) + "/" +
+            			URIUtils.replaceNameSpaceEx(stream.getUri()).split(":")[1] + "/" +
+            			dasa.getLabel() + "/" );//+
+            			//dataFile.getFileName() + "-" + totalCount++);
+            } else {
+                value.setUri(URIUtils.replacePrefixEx(value.getStudyUri()) + "/" +
+                        URIUtils.replaceNameSpaceEx(stream.getUri()).split(":")[1] + "/" +
+                        dasa.getLabel() + "/" +
+                        stream.getLabel() + "-" + totalCount++);
             }
             // value.setOwnerUri(stream.getOwnerUri());
             // value.setAcquisitionUri(stream.getUri());

@@ -273,8 +273,8 @@ public class GenericFind<T> {
             return URIUtils.replaceNameSpace(SIO.ENTITY);
         } else if (clazz == Attribute.class) {
             return URIUtils.replaceNameSpace(SIO.ATTRIBUTE);
-        //} else if (clazz == Unit.class) {
-        //    return URIUtils.replaceNameSpace(SIO.UNIT);
+        } else if (clazz == Unit.class) {
+            return URIUtils.replaceNameSpace(SIO.UNIT);
         } 
         return null;
     }

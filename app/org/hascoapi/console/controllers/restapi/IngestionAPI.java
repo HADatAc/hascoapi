@@ -9,7 +9,6 @@ import org.hascoapi.Constants;
 import org.hascoapi.ingestion.IngestionWorker;
 import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.entity.pojo.GenericInstance;
-import org.hascoapi.entity.pojo.HADatAcThing;
 import org.hascoapi.entity.pojo.DP2;
 import org.hascoapi.entity.pojo.DSG;
 import org.hascoapi.entity.pojo.INS;
@@ -19,7 +18,6 @@ import org.hascoapi.entity.pojo.STR;
 import org.hascoapi.entity.pojo.Study;
 import org.hascoapi.entity.pojo.Instrument;
 import org.hascoapi.entity.pojo.FundingScheme;
-import org.hascoapi.entity.pojo.Place;
 import org.hascoapi.entity.pojo.Project;
 import org.hascoapi.entity.pojo.Organization;
 import org.hascoapi.transform.mt.ins.INSGen;
@@ -454,7 +452,7 @@ public class IngestionAPI extends Controller {
     
     }
 
-    public Result mtGenByStatus(String elementtype, String datafileuri, String status, String filename, String mediaFolder, String verifyUri) {
+    public Result mtGenByStatus(String elementtype, String status, String filename, String mediaFolder, String verifyUri) {
         if (elementtype == null || elementtype.isEmpty()) {
             String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() requires elementtype";
             System.out.println(errorMsg);
@@ -472,10 +470,10 @@ public class IngestionAPI extends Controller {
         }
         switch (elementtype) {
             case "ins":
-                INSGen.genByStatus(status,filename,mediaFolder,verifyUri);
+                INSGen.genByStatus(status,filename);
                 break;
             case "kgr":
-                KGRGen.genByStatus(status,filename,mediaFolder,verifyUri);
+                KGRGen.genByStatus(status,filename);
                 break;
             default:
                 String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() invalid elementtype=[" + elementtype + "]";
@@ -485,67 +483,35 @@ public class IngestionAPI extends Controller {
         return ok(ApiUtil.createResponse("", true));
     }
 
-    public Result mtGenByElement(String elementtype, String datafileuri, String elementuri, String filename, String mediaFolder, String verifyUri) {
-        System.out.println("IngestionAPI.mtGenByElement");
-        System.out.println("  ElementType: [" + elementtype + "] DataFileUri: [" + datafileuri + "]");
-        System.out.println("  ElementUri: [" + elementuri + "] VerifyUri: [" + verifyUri + "]");
-
+    public Result mtGenByInstrument(String elementtype, String instrumenturi, String filename, String mediaFolder, String verifyUri) {
         if (elementtype == null || elementtype.isEmpty()) {
-            String errorMsg = "[ERROR] IngestionAPI.mtGenByElement() requires elementtype";
+            String errorMsg = "[ERROR] IngestionAPI.mtGenByInstrument() requires elementtype";
             System.out.println(errorMsg);
             return ok(ApiUtil.createResponse(errorMsg,false));
         }
-        if (elementuri == null || elementuri.isEmpty()) {
-            String errorMsg = "[ERROR] IngestionAPI.mtGenByElement() requires elementuri";
+        if (instrumenturi == null || instrumenturi.isEmpty()) {
+            String errorMsg = "[ERROR] IngestionAPI.mtGenByInstrument() requires instrumenturi";
             System.out.println(errorMsg);
             return ok(ApiUtil.createResponse(errorMsg,false));
         }
-        HADatAcThing element = null;
-        if (elementtype.equals("instrument")) {
-            element = (HADatAcThing)Instrument.find(elementuri);
-        } else if (elementtype.equals("organization")) {
-            element = (HADatAcThing)Organization.find(elementuri);
-        } else if (elementtype.equals("place")) {
-            element = (HADatAcThing)Place.find(elementuri);
-        } else if (elementtype.equals("project")) {
-            element = (HADatAcThing)Project.find(elementuri);
-        } else if (elementtype.equals("fundingscheme")) {
-            element = (HADatAcThing)FundingScheme.find(elementuri);
-        } else {
-            String errorMsg = "[ERROR] IngestionAPI.mtGenByElement() has invalid elementtype";
-            System.out.println(errorMsg);
-            return ok(ApiUtil.createResponse(errorMsg,false));
-        }   
-        if (element == null) {
-            String errorMsg = "[ERROR] IngestionAPI.mtGenByElement() cannot retrieve element with uri=[" + elementuri + "]";
+        Instrument instrument = Instrument.find(instrumenturi);
+        if (instrument == null) {
+            String errorMsg = "[ERROR] IngestionAPI.mtGenByInstrument() cannot retrieve instrument with uri=[" + instrumenturi + "]";
             System.out.println(errorMsg);
             return ok(ApiUtil.createResponse(errorMsg,false));
         }
         if (filename == null || filename.isEmpty()) {
-            String errorMsg = "[ERROR] IngestionAPI.mtGenByElement() requires filename";
+            String errorMsg = "[ERROR] IngestionAPI.mtGenByInstrument() requires filename";
             System.out.println(errorMsg);
             return ok(ApiUtil.createResponse(errorMsg,false));
         }
         String resp = "";
         switch (elementtype) {
-            case "instrument":
-                resp = INSGen.genByInstrument((Instrument)element,filename,mediaFolder,verifyUri);
-                break;
-            case "organization":
-                System.out.println("Calling KGR.genByOrganization()");
-                resp = KGRGen.genByOrganization((Organization)element,filename,mediaFolder,verifyUri);
-                break;
-            case "place":
-                resp = KGRGen.genByPlace((Place)element,filename,mediaFolder,verifyUri);
-                break;
-            case "project":
-                resp = KGRGen.genByProject((Project)element,filename,mediaFolder,verifyUri);
-                break;
-            case "fundingscheme":
-                resp = KGRGen.genByFundingScheme((FundingScheme)element,filename,mediaFolder,verifyUri);
+            case "ins":
+                resp = INSGen.genByInstrument(instrument,filename);
                 break;
             default:
-                String errorMsg = "[ERROR] IngestionAPI.mtGenByElement() invalid elementtype=[" + elementtype + "]";
+                String errorMsg = "[ERROR] IngestionAPI.mtGenByInstrument() invalid elementtype=[" + elementtype + "]";
                 System.out.println(errorMsg);
                 return ok(ApiUtil.createResponse(errorMsg,false));
         }
@@ -556,7 +522,127 @@ public class IngestionAPI extends Controller {
         }
     }
 
-    public Result mtGenByManager(String elementtype, String datafileuri, String useremail, String status, String filename, String mediaFolder, String verifyUri) {
+    public Result mtGenByOrganization(String elementtype, String organizationuri, String filename, String mediaFolder, String verifyUri) {
+        System.out.println("IngestionAPI.mtGenByOrganization() with organizationUri = " + organizationuri);
+        if (elementtype == null || elementtype.isEmpty()) {
+             String errorMsg = "[ERROR] IngestionAPI.mtGenByOrganization() requires elementtype";
+             System.out.println(errorMsg);
+             return ok(ApiUtil.createResponse(errorMsg,false));
+         }
+         if (organizationuri == null || organizationuri.isEmpty()) {
+             String errorMsg = "[ERROR] IngestionAPI.mtGenByOrganization() requires organizationuri";
+             System.out.println(errorMsg);
+             return ok(ApiUtil.createResponse(errorMsg,false));
+         }
+         Organization organization = Organization.find(organizationuri);
+         if (organization == null) {
+             String errorMsg = "[ERROR] IngestionAPI.mtGenByorganization() cannot retrieve organization with uri=[" + organizationuri + "]";
+             System.out.println(errorMsg);
+             return ok(ApiUtil.createResponse(errorMsg,false));
+         }
+         if (filename == null || filename.isEmpty()) {
+             String errorMsg = "[ERROR] IngestionAPI.mtGenByOrganization() requires filename";
+             System.out.println(errorMsg);
+             return ok(ApiUtil.createResponse(errorMsg,false));
+         }
+         String resp = "";
+         switch (elementtype) {
+             case "kgr":
+                 resp = KGRGen.genByOrganization(organization,filename);
+                 break;
+             default:
+                 String errorMsg = "[ERROR] IngestionAPI.mtGenByOrganization() invalid elementtype=[" + elementtype + "]";
+                 System.out.println(errorMsg);
+                 return ok(ApiUtil.createResponse(errorMsg,false));
+         }
+         if (resp.equals("")) {
+             return ok(ApiUtil.createResponse(resp, true));
+         } else {
+             return ok(ApiUtil.createResponse(resp, false));
+         }
+     }
+ 
+     public Result mtGenByProject(String elementtype, String projecturi, String filename, String mediaFolder, String verifyUri) {
+       System.out.println("IngestionAPI.mtGenByProject() with projectUri = " + projecturi);
+       if (elementtype == null || elementtype.isEmpty()) {
+            String errorMsg = "[ERROR] IngestionAPI.mtGenByProject() requires elementtype";
+            System.out.println(errorMsg);
+            return ok(ApiUtil.createResponse(errorMsg,false));
+        }
+        if (projecturi == null || projecturi.isEmpty()) {
+            String errorMsg = "[ERROR] IngestionAPI.mtGenByProject() requires projecturi";
+            System.out.println(errorMsg);
+            return ok(ApiUtil.createResponse(errorMsg,false));
+        }
+        Project project = Project.find(projecturi);
+        if (project == null) {
+            String errorMsg = "[ERROR] IngestionAPI.mtGenByproject() cannot retrieve project with uri=[" + projecturi + "]";
+            System.out.println(errorMsg);
+            return ok(ApiUtil.createResponse(errorMsg,false));
+        }
+        if (filename == null || filename.isEmpty()) {
+            String errorMsg = "[ERROR] IngestionAPI.mtGenByProject() requires filename";
+            System.out.println(errorMsg);
+            return ok(ApiUtil.createResponse(errorMsg,false));
+        }
+        String resp = "";
+        switch (elementtype) {
+            case "kgr":
+                resp = KGRGen.genByProject(project,filename);
+                break;
+            default:
+                String errorMsg = "[ERROR] IngestionAPI.mtGenByProject() invalid elementtype=[" + elementtype + "]";
+                System.out.println(errorMsg);
+                return ok(ApiUtil.createResponse(errorMsg,false));
+        }
+        if (resp.equals("")) {
+            return ok(ApiUtil.createResponse(resp, true));
+        } else {
+            return ok(ApiUtil.createResponse(resp, false));
+        }
+    }
+
+    public Result mtGenByFundingScheme(String elementtype, String fundingschemeuri, String filename, String mediaFolder, String verifyUri) {
+        System.out.println("IngestionAPI.mtGenByFundingScheme() with fundingschemeUri = " + fundingschemeuri);
+        if (elementtype == null || elementtype.isEmpty()) {
+             String errorMsg = "[ERROR] IngestionAPI.mtGenByFundingScheme() requires elementtype";
+             System.out.println(errorMsg);
+             return ok(ApiUtil.createResponse(errorMsg,false));
+         }
+         if (fundingschemeuri == null || fundingschemeuri.isEmpty()) {
+             String errorMsg = "[ERROR] IngestionAPI.mtGenByFundingScheme() requires fundingschemeuri";
+             System.out.println(errorMsg);
+             return ok(ApiUtil.createResponse(errorMsg,false));
+         }
+         FundingScheme fundingScheme = FundingScheme.find(fundingschemeuri);
+         if (fundingScheme == null) {
+             String errorMsg = "[ERROR] IngestionAPI.mtGenByFundingScheme() cannot retrieve fundingScheme with uri=[" + fundingschemeuri + "]";
+             System.out.println(errorMsg);
+             return ok(ApiUtil.createResponse(errorMsg,false));
+         }
+         if (filename == null || filename.isEmpty()) {
+             String errorMsg = "[ERROR] IngestionAPI.mtGenByFundingScheme() requires filename";
+             System.out.println(errorMsg);
+             return ok(ApiUtil.createResponse(errorMsg,false));
+         }
+         String resp = "";
+         switch (elementtype) {
+             case "kgr":
+                 resp = KGRGen.genByFundingScheme(fundingScheme,filename);
+                 break;
+             default:
+                 String errorMsg = "[ERROR] IngestionAPI.mtGenByFundingSchme() invalid elementtype=[" + elementtype + "]";
+                 System.out.println(errorMsg);
+                 return ok(ApiUtil.createResponse(errorMsg,false));
+         }
+         if (resp.equals("")) {
+             return ok(ApiUtil.createResponse(resp, true));
+         } else {
+             return ok(ApiUtil.createResponse(resp, false));
+         }
+     }
+ 
+     public Result mtGenByManager(String elementtype, String useremail, String status, String filename, String mediaFolder, String verifyUri) {
         if (elementtype == null || elementtype.isEmpty()) {
             String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() requires elementtype";
             System.out.println(errorMsg);
@@ -579,10 +665,10 @@ public class IngestionAPI extends Controller {
         }
         switch (elementtype) {
             case "ins":
-                INSGen.genByManager(useremail, status, filename, mediaFolder, verifyUri);
+                INSGen.genByManager(useremail, status, filename);
                 break;
             case "kgr":
-                KGRGen.genByManager(useremail, status, filename, mediaFolder, verifyUri);
+                KGRGen.genByManager(useremail, status, filename);
                 break;
             default:
                 String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() invalid elementtype=[" + elementtype + "]";
@@ -592,39 +678,7 @@ public class IngestionAPI extends Controller {
         return ok(ApiUtil.createResponse("", true));
     }
 
-    public Result mtGetGenerated(String filename) {
-        // Validate filename
-        if (filename == null || filename.trim().isEmpty()) {
-            return badRequest(ApiUtil.createResponse(
-                "[ERROR] IngestionAPI.mtGetGenerated(): No filename provided.", false));
-        }
-
-        // Get ingestion base path
-        String basePath = ConfigProp.getPathIngestion();
-        if (basePath == null || basePath.trim().isEmpty()) {
-            System.err.println("[ERROR] IngestionAPI.mtGetGenerated(): Invalid ingestion path from ConfigProp.getPathIngestion()");
-            return internalServerError(ApiUtil.createResponse(
-                "[ERROR] IngestionAPI.mtGetGenerated(): Invalid file storage path.", false));
-        }
-
-        // Build file path (must match the save() method)
-        Path filePath = Paths.get(basePath, filename);
-        File file = filePath.toFile();
-
-        // Validate file existence
-        if (!file.exists() || !file.isFile()) {
-            System.err.println("[ERROR] IngestionAPI.mtGetGenerated(): File not found - " + filePath);
-            return notFound(ApiUtil.createResponse(
-                "[ERROR] IngestionAPI.mtGetGenerated(): File not found.", false));
-        }
-
-        // Serve file for download
-        return ok(file)
-            .as("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") // Proper MIME for Excel (XLSX)
-            .withHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
-    }
-
-    public Result getLog(String dataFileUri) {
+    public Result getLog(String dataFileUri){
         DataFile dataFile = DataFile.find(dataFileUri);
         if (dataFile == null) {
             return ok(ApiUtil.createResponse("unable to retrieve datafile for " + dataFileUri, false));

@@ -12,23 +12,28 @@ public class AnnotateSSD extends BaseAnnotator {
 
     /**
      * Processes an SSD (Semantic Study Design) file and produces a generator chain.
+     *
+     * @param dataFile     The input data file to annotate.
+     * @param studyUri     The study URI.
+     * @param templateFile The SSD meta-template reference (unused).
+     * @param status       Optional status string for logging.
+     * @return A GeneratorChain representing the annotation pipeline or null if failure occurs.
      */
     public static GeneratorChain exec(DataFile dataFile, String studyUri, String templateFile, String status) {
-        dataFile.getLogger().println("Processing DSG's SSD meta-template ...");
+        System.out.println("Processing DGS's SSD meta-template ...");
 
-        Map<String, String> mapCatalog = loadCatalog(dataFile, "SSD");
+        Map<String, String> mapCatalog = loadCatalog(dataFile);
         if (mapCatalog == null) {
-            // loadCatalog already registered the specific DSG error.
             return null;
         }
 
-        String namespace = mapCatalog.get("hasStudyKG");
-        dataFile.getLogger().println("AnnotateSSD: namespace value is [" + namespace + "]");
+        String namespace =  mapCatalog.get("hasStudyKG");
+        System.out.println("AnnotateSSD: namespace value is [" + namespace + "]");
 
         RecordFile ssdRecordFile = extractSSDRecordFile(dataFile, mapCatalog.get("hasEntityDesign"));
         if (ssdRecordFile == null || ssdRecordFile.getRecords().isEmpty()) {
-            // SSD sheet empty / invalid -> use DSG warning
-            dataFile.getLogger().printWarningById("DSG_00013");
+            System.out.println("[WARNING] SSD sheet is empty or invalid.");
+            dataFile.getLogger().println("[WARNING] SSD sheet is empty or invalid.");
             return new SSDGeneratorChain(); // Return empty chain to allow fallback
         }
 
@@ -47,73 +52,68 @@ public class AnnotateSSD extends BaseAnnotator {
 
         Study study = Study.find(studyUri);
         if (study == null) {
-            // Use DSG error for study not found (argument = studyUri)
-            dataFile.getLogger().printExceptionByIdWithArgs("DSG_00010", studyUri);
+            dataFile.getLogger().printExceptionByIdWithArgs("SSD_00005", studyUri);
             return null;
         }
 
         chain.setStudyUri(URIUtils.replacePrefixEx(studyUri));
-        dataFile.getLogger().println("DSG ingestion: The study URI [" + studyUri + "] is in the triple store.");
-        dataFile.getLogger().println("AnnotateSSD: Pre-processing StudyObjectGenerator. Study URI: " + study.getUri());
+        dataFile.getLogger().println("SSD ingestion: The study URI [" + studyUri + "] is in the triple store.");
+        System.out.println("AnnotateSSD: Pre-processing StudyObjectGenerator. Study URI: " + study.getUri());
 
-        dataFile.getLogger().println("AnnotateSSD: Catalog size: " + mapCatalog.size());
+        System.out.println("AnnotateSSD: Catalog size: " + mapCatalog.size());
         for (String sheetKey : mapCatalog.keySet()) {
             addStudyObjectGenerator(sheetKey, mapCatalog, mapContent, mapReferences, dataFile, chain, study, namespace);
         }
 
-        dataFile.getLogger().println("SSD Processing: Completed GeneratorChain.");
+        System.out.println("SSD Processing: Completed GeneratorChain.");
         return chain;
     }
 
     private static RecordFile extractSSDRecordFile(DataFile dataFile, String sheetNameRaw) {
         if (!dataFile.getFilename().endsWith(".xlsx")) {
-            // Use DSG exception with filename as argument
-            dataFile.getLogger().printExceptionByIdWithArgs("DSG_00006", dataFile.getFilename());
+            System.err.println("[ERROR] IngestionWorker: DSG file must have a .xlsx extension.");
             return null;
         }
 
         if (sheetNameRaw == null || sheetNameRaw.isEmpty()) {
-            // Missing sheet name for hasEntityDesign
-            dataFile.getLogger().printExceptionById("DSG_00007");
+            System.err.println("[ERROR] IngestionWorker: Missing sheet name for [hasEntityDesign].");
             return null;
         }
 
         try {
             String sheetName = sheetNameRaw.replace("#", "");
-            dataFile.getLogger().println("Extracting SSD sheet...");
+            System.out.print("Extracting SSD sheet... ");
             RecordFile ssdRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), sheetName);
 
             if (ssdRecordFile == null || ssdRecordFile.getRecords() == null) {
-                // Failed to load sheet
-                dataFile.getLogger().printExceptionById("DSG_00008");
+                System.err.println("[ERROR] Failed to load SSD sheet.");
                 return null;
             }
 
-            dataFile.getLogger().println("[" + ssdRecordFile.getRecords().size() + "] rows extracted.");
+            System.out.println("[" + ssdRecordFile.getRecords().size() + "] rows extracted.");
             return ssdRecordFile;
 
         } catch (Exception e) {
-            // Exception during extraction -> include message as argument
-            dataFile.getLogger().printExceptionByIdWithArgs("DSG_00009", e.getMessage());
+            System.err.println("[ERROR] Exception during SSD sheet extraction: " + e.getMessage());
             return null;
         }
     }
 
-    /*
-     *  Verifies if the SSD contains exactly one SOC that is of type SubjectGroup.
+    /* 
+     *  Verifies if the SSD contains exactly one SOC that is of type SubjectGroup.  
      */
     private static boolean validateSSDStructure(DataFile dataFile, RecordFile ssdRecordFile, String studyUri, SSDGeneratorChain chain, String namespace) {
         if (!ssdRecordFile.isValid()) {
-            dataFile.getLogger().printExceptionById("DSG_00014");
+            dataFile.getLogger().printException("SSD sheet is invalid.");
             return false;
         }
 
-        dataFile.getLogger().println("SSD Processing: Adding VirtualColumnGenerator.");
+        System.out.println("SSD Processing: Adding VirtualColumnGenerator.");
         VirtualColumnGenerator vcgen = new VirtualColumnGenerator(dataFile);
         vcgen.setStudyUri(studyUri);
         chain.addGenerator(vcgen);
 
-        dataFile.getLogger().println("SSD Processing: Adding SSDGenerator.");
+        System.out.println("SSD Processing: Adding SSDGenerator.");
         SSDGenerator socgen = new SSDGenerator(dataFile, namespace);
         socgen.setStudyUri(studyUri);
         chain.addGenerator(socgen);
@@ -127,14 +127,14 @@ public class AnnotateSSD extends BaseAnnotator {
         }
 
         if (subjectGroupCount == 0) {
-            // Use DSG error for missing SubjectGroup
-            dataFile.getLogger().printExceptionById("DSG_00011");
+            System.err.println("[ERROR] SSD Processing: No SubjectGroup found.");
+            dataFile.getLogger().printExceptionById("SSD_00006");
             return false;
         }
 
         if (subjectGroupCount > 1) {
-            // Use DSG error for multiple SubjectGroups
-            dataFile.getLogger().printExceptionById("DSG_00012");
+            System.err.println("[ERROR] SSD Processing: Multiple SubjectGroups found.");
+            dataFile.getLogger().printExceptionById("SSD_00007");
             return false;
         }
 
@@ -155,7 +155,7 @@ public class AnnotateSSD extends BaseAnnotator {
         if (sheetName == null || sheetName.isEmpty()) return;
 
         try {
-            dataFile.getLogger().println("Pre-processing SOC [" + sheetName + "]");
+            System.out.println("Pre-processing SOC [" + sheetName + "]");
             RecordFile sheet = new SpreadsheetRecordFile(dataFile.getFile(), sheetName.replace("#", ""));
 
             DataFile clonedFile = (DataFile) dataFile.clone();
@@ -163,15 +163,15 @@ public class AnnotateSSD extends BaseAnnotator {
 
             List<String> headers = content.get(key);
             if (headers == null) {
-                dataFile.getLogger().printExceptionByIdWithArgs("DSG_00015", key);
+                dataFile.getLogger().printException("No content for key [" + key + "]");
                 return;
             }
 
-            dataFile.getLogger().println("Adding StudyObjectGenerator...");
+            System.out.println("Adding StudyObjectGenerator...");
             chain.addGenerator(new StudyObjectGenerator(clonedFile, headers, content, references, chain.getStudyUri(), study.getId(), namespace));
 
         } catch (CloneNotSupportedException e) {
-            dataFile.getLogger().printExceptionByIdWithArgs("DSG_00016", e.getMessage());
+            e.printStackTrace();
         }
     }
 }

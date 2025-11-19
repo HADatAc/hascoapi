@@ -17,8 +17,7 @@ public class CodeBookSlotGenerator extends BaseGenerator {
     public void createRows() throws Exception {    		
 
 		if (records == null) {
-			dataFile.getLogger().printExceptionById("GBL_00041");
-            //System.out.println("[ERROR] CodeBookSlotGenerator: no records to process.");
+			System.out.println("[ERROR] CodeBookSlotGenerator: no records to process.");
             return;
         }
 
@@ -45,11 +44,7 @@ public class CodeBookSlotGenerator extends BaseGenerator {
 						belongsTo = (String)tempRow.get("vstoi:belongsTo");
 					}
 					if (belongsTo.isEmpty()) {
-                        //System.out.println("belongsTo is empty");
-						dataFile.getLogger().printWarningById("GBL_00042");
-                        //Temporary break , getting stuck
-                        break;
-                        //System.out.println("[ERROR] CodeBookSlotGenerator: could not find a value for vstoi:belongsTo");
+						System.out.println("[ERROR] CodeBookSlotGenerator: could not find a value for vstoi:belongsTo");
 					} else {
 						if (!belongsTo.equals(pastBelongsTo)) {
 							priority = 1;
