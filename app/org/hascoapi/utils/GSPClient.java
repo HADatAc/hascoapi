@@ -50,7 +50,7 @@ public class GSPClient {
                     .build();
             HttpResponse<String> response = HttpClient.newHttpClient()
                     .send(request, HttpResponse.BodyHandlers.ofString());
-            System.out.println("Resp: " + response.statusCode() + ". '" + response.body() + "'");
+            //System.out.println("Resp: " + response.statusCode() + ". '" + response.body() + "'");
         } catch (URISyntaxException | IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
