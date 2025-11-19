@@ -47,11 +47,11 @@ public class DP2Gen {
             }
         }
 
-        GenericFindWithStatus<Component> componentQuery = new GenericFindWithStatus<Component>();
-        List<Component> components = componentQuery.findByStatusWithPages(Component.class, status, PAGESIZE, OFFSET);
-        if (components != null) {
-            for (Component component: components) {
-                helper = INSComponent.add(helper,component);
+        GenericFindWithStatus<PlatformInstance> plataformInstancesQuery = new GenericFindWithStatus<PlatformInstance>();
+        List<PlatformInstance> platformInstances = plataformInstancesQuery.findByStatusWithPages(PlatformInstance.class, status, PAGESIZE, OFFSET);
+        if (platformInstances != null) {
+            for (PlatformInstance platformInstance: platformInstances) {
+                helper = DP2PlataformInstances.add(helper,platformInstance);
             }
         }
 

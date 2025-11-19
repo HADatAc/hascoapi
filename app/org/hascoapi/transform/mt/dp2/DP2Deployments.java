@@ -11,22 +11,20 @@ import org.hascoapi.utils.URIUtils;
 
 public class DP2Deployments {
     public static DP2GenHelper add(DP2GenHelper helper, Deployment deploy) {
-        /*
-        Alterar para campos do Deployment
-         */
 
         if (deploy == null) {
+            System.out.println("[WARNING] Deployment is null");
             return helper;
         }
 
-        // Get the "Instruments" sheet
-        Sheet instrumentSheet = helper.workbook.getSheet(INSGen.INSTRUMENTS);
+        // Get the "Deployments" sheet
+        Sheet deploymentSheet = helper.workbook.getSheet(DP2Gen.DEPLOYMENTS);
 
         // Calculate the index for the new row
-        int rowIndex = instrumentSheet.getLastRowNum() + 1;
+        int rowIndex = deploymentSheet.getLastRowNum() + 1;
 
         // Create the new row
-        Row newRow = instrumentSheet.createRow(rowIndex);
+        Row newRow = deploymentSheet.createRow(rowIndex);
 
         // Add data to the new row
 
@@ -52,51 +50,21 @@ public class DP2Deployments {
 
         // "vstoi:hasComponentInstance",
         Cell cell6 = newRow.createCell(5);
-        cell6.setCellValue(deploy.getComponentInstanceUri());
+        cell6.setCellValue(deploy.getComponentInstanceUri().toString());
 
-        // "vstoi:hasVersion"
+        // "vstoi:designedAtTime"
         Cell cell7 = newRow.createCell(6);
-        cell7.setCellValue(deploy.getHasVersion());
+        cell7.setCellValue(deploy.getDesignedAt());
 
-        // "hasco:hasMaker"
+        // "prov:startedAtTime"
         Cell cell8 = newRow.createCell(7);
-        cell8.setCellValue("");
+        cell8.setCellValue(deploy.getStartedAt());
 
-        // "rdfs:comment"
+        // "prov:endedAtTime"
         Cell cell9 = newRow.createCell(8);
-        cell9.setCellValue(deploy.getComment());
+        cell9.setCellValue(deploy.getEndedAt());
 
-        // "hasco:hasImage"
-        Cell cell10 = newRow.createCell(9);
-        cell10.setCellValue(deploy.getHasImageUri());
 
-        // "vstoi:maxLoggedMeasurements"
-        Cell cell11 = newRow.createCell(10);
-        cell11.setCellValue("");
-
-        // "vstoi:minOperatingTemperature",
-        Cell cell12 = newRow.createCell(11);
-        cell12.setCellValue("");
-
-        // "vstoi:maxOperatingTemperature"
-        Cell cell13 = newRow.createCell(12);
-        cell13.setCellValue("");
-
-        // "hasco:hasOperatingTemperatureUnit"
-        Cell cell14 = newRow.createCell(13);
-        cell14.setCellValue("");
-
-        // "hasco:hasWebDocument"};
-        Cell cell15 = newRow.createCell(14);
-        cell15.setCellValue(deploy.getHasWebDocument());
-
-        // "vstoi:hasFirst"
-        Cell cell16 = newRow.createCell(15);
-        String hasFirst = "";
-        if (deploy != null && deploy.getHasFirst() != null) {
-            hasFirst = URIUtils.replaceNameSpaceEx(deploy.getHasFirst());
-        }
-        cell16.setCellValue(hasFirst);
 
         return helper;
     }
