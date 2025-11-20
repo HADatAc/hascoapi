@@ -228,7 +228,7 @@ public class RepoPage extends Controller {
                 System.out.println("ingestAppOntology: appOntologyURI=[" + appOntology.getUri() + "]");
 
                 // Remove triples from the same named graph
-                appOntology.deleteTriples();
+               // appOntology.deleteTriples();
 
                 // Load triples from the newly saved local file
                 appOntology.loadTriples(permanentPath.toString(), false);
