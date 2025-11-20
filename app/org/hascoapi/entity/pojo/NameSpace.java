@@ -520,12 +520,15 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
     public static int deleteAll() {  return 0; }
 
     public static RDFFormat getRioFormat(String contentType) {
+        if (contentType == null) {
+            return RDFFormat.TURTLE;
+        }
         if (contentType.contains("turtle")) {
             return RDFFormat.TURTLE;
         } else if (contentType.contains("rdf+xml")) {
             return RDFFormat.RDFXML;
         } else {
-            return RDFFormat.NTRIPLES;
+            return RDFFormat.TURTLE;
         }
     }
 
