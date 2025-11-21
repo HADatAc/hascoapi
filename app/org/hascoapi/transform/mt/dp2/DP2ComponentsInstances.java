@@ -5,10 +5,23 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.hascoapi.entity.pojo.ComponentInstance;
 import org.hascoapi.entity.pojo.Deployment;
-import org.hascoapi.transform.mt.ins.INSGen;
+
 import org.hascoapi.utils.URIUtils;
 
 public class DP2ComponentsInstances {
+
+    public static void setHeaders(Sheet sheet) {
+        String[] headers = { "hasURI", "a", "rdfs:label", "vstoi:hasSerialNumber", "hasco:partOf" };
+        
+        Row row = sheet.createRow(0);
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = row.createCell(i);
+            cell.setCellValue(headers[i]);
+        }
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+    }
     public static DP2GenHelper add(DP2GenHelper helper, ComponentInstance componentInstance) {
 
         if (componentInstance == null) {
@@ -42,12 +55,7 @@ public class DP2ComponentsInstances {
         // "vstoi:hasSerialNumber"
         Cell cell4 = newRow.createCell(3);
         cell4.setCellValue(componentInstance.getHasSerialNumber());
-/*
-        // "vstoi:isInstrumentAttachment"
-        Cell cell5 = newRow.createCell(4);
-        cell5.setCellValue(componentInstance.);
 
- */
 
 
         return helper;

@@ -3,90 +3,80 @@ package org.hascoapi.transform.mt.dp2;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.hascoapi.entity.pojo.Codebook;
 import org.hascoapi.entity.pojo.ComponentInstance;
-import org.hascoapi.entity.pojo.ComponentStem;
+import org.hascoapi.entity.pojo.FieldOfView;
+import org.hascoapi.entity.pojo.Deployment;
 import org.hascoapi.utils.URIUtils;
 
 public class DP2SensingPerspective {
+
     /*
-     Verificar implementação pois não existe Sensing
-    */
-    /*
-    public static DP2GenHelper add(DP2GenHelper helper, Perspective Perspective) {
+    public static void setHeaders(Sheet sheet) {
+        String[] headers = { "hasURI", "a", "rdfs:label", "hasco:hasFieldOfView", "hasco:hasDeployment" };
+        
+        Row row = sheet.createRow(0);
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = row.createCell(i);
+            cell.setCellValue(headers[i]);
+        }
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+    }
 
-        if (helper == null) {
-            System.out.println("[ERROR] INSComponent: helper is null");
+    public static DP2GenHelper add(DP2GenHelper helper, SensingPerspective sensingPerspective) {
+
+        if (sensingPerspective == null) {
+            System.out.println("[WARNING] SensingPerspective is null");
             return helper;
         }
 
-        if (helper.workbook == null) {
-            System.out.println("[ERROR] INSComponent: helper's workbook is null");
-            return helper;
-        }
-
-        if (componentInstance == null) {
-            return helper;
-        }
-
-        // Get the "Components" sheet
-        Sheet componentSheet = helper.workbook.getSheet(DP2Gen.COMPONENTINSTANCES);
+        // Get the "SensingPerspective" sheet
+        Sheet sheet = helper.workbook.getSheet(DP2Gen.SENSINGPERSPECTIVE);
 
         // Calculate the index for the new row
-        int rowIndex = componentSheet.getLastRowNum() + 1;
+        int rowIndex = sheet.getLastRowNum() + 1;
 
         // Create the new row
-        Row newRow = componentSheet.createRow(rowIndex);
+        Row newRow = sheet.createRow(rowIndex);
 
         // 0 "hasURI"
         Cell cell1 = newRow.createCell(0);
-        cell1.setCellValue(URIUtils.replaceNameSpaceEx(componentInstance.getUri()));
+        cell1.setCellValue(URIUtils.replaceNameSpaceEx(sensingPerspective.getUri()));
 
-        // "hasco:hascoType"
+        // "a"
         Cell cell2 = newRow.createCell(1);
-        cell2.setCellValue(URIUtils.replaceNameSpaceEx(componentInstance.getHascoTypeUri()));
-
-        // "rdf:type"
-        Cell cell3 = newRow.createCell(2);
-        cell3.setCellValue(URIUtils.replaceNameSpaceEx(componentInstance.getTypeUri()));
+        cell2.setCellValue(URIUtils.replaceNameSpaceEx(sensingPerspective.getHascoTypeUri()));
 
         // "rdfs:label"
+        Cell cell3 = newRow.createCell(2);
+        cell3.setCellValue(sensingPerspective.getLabel());
+
+        // "hasco:hasFieldOfView"
         Cell cell4 = newRow.createCell(3);
-        cell4.setCellValue(componentInstance.getLabel());
+        if (sensingPerspective.getHasFieldOfView() != null) {
+            cell4.setCellValue(URIUtils.replaceNameSpaceEx(sensingPerspective.getHasFieldOfView()));
+            FieldOfView fieldOfView = FieldOfView.find(sensingPerspective.getHasFieldOfView());
+            if (fieldOfView != null) {
+                helper.fieldofview.put(fieldOfView.getUri(), fieldOfView);
+            }
+        } else {
+            cell4.setCellValue("");
+        }
 
-        // "vstoi:hasComponentStem"
+        // "hasco:hasDeployment"
         Cell cell5 = newRow.createCell(4);
-        cell5.setCellValue(URIUtils.replaceNameSpaceEx(componentInstance.getHasComponentStem()));
-        ComponentStem componentStem = null;
-        if (componentInstance.getHasComponentStem() != null && !componentInstance.getHasComponentStem().isEmpty()) {
-            componentStem = ComponentStem.find(componentInstance.getHasComponentStem());
-            if (componentStem != null) {
-                helper.componentStems.put(componentStem.getUri(),componentStem);
-            }
-        }
-
-        // "vstoi:hasCodebook",
-        Cell cell6 = newRow.createCell(5);
-        if (componentInstance != null && componentInstance.getHasCodebook() != null) {
-            cell6.setCellValue(URIUtils.replaceNameSpaceEx(componentInstance.getHasCodebook()));
-            Codebook codebook = Codebook.find(componentInstance.getHasCodebook());
-            if (codebook != null) {
-                helper.codebooks.put(codebook.getUri(),codebook);
+        if (sensingPerspective.getHasDeployment() != null) {
+            cell5.setCellValue(URIUtils.replaceNameSpaceEx(sensingPerspective.getHasDeployment()));
+            Deployment deployment = Deployment.find(sensingPerspective.getHasDeployment());
+            if (deployment != null) {
+                // Não há mapa para Deployment em DP2GenHelper, apenas adicionamos o URI
             }
         } else {
-            cell6.setCellValue("");
-        }
-
-        // "vstoi:isAttributeOf"
-        Cell cell7 = newRow.createCell(6);
-        if (componentInstance != null && componentInstance.getIsAttributeOf() != null) {
-            cell7.setCellValue(URIUtils.replaceNameSpaceEx(componentInstance.getIsAttributeOf()));
-        } else {
-            cell7.setCellValue("");
+            cell5.setCellValue("");
         }
 
         return helper;
-
     }
 
      */

@@ -391,23 +391,23 @@ public class IngestionWorker {
 
     public static boolean deployInstancesGen(DataFile dataFile, Map<String, String> mapCatalog, String templateFile) {
         RecordFile instrumentsRecordFile = null;
-        RecordFile detectorsRecordFile = null;
+        RecordFile componentsRecordFile = null;
         RecordFile sensingPerspectiveRecordFile = null;
         DataFile instrumentsDataFile;
-        DataFile detectorsDataFile;
+        DataFile componentsDataFile;
         DataFile sensingPerspectiveDataFile;
         try {
             instrumentsDataFile = (DataFile)dataFile.clone();
-            detectorsDataFile = (DataFile)dataFile.clone();
+            componentsDataFile = (DataFile)dataFile.clone();
             sensingPerspectiveDataFile = (DataFile)dataFile.clone();
         } catch (Exception e) {
             dataFile.getLogger().printExceptionByIdWithArgs("GBL_00012",e.getMessage());
            // System.out.println("[ERROR] IngestionWorker.messageGen() - following error cloning dataFile: " + e.getMessage());
             return false;
         }
-        String sheetName = mapCatalog.get("Instruments");
+        String sheetName = mapCatalog.get("InstrumentInstances");
         if (sheetName != null) {
-            System.out.print("Extracting [Instruments] sheet from spreadsheet... ");
+            System.out.print("Extracting [InstrumentInstances] sheet from spreadsheet... ");
             instrumentsRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), sheetName.replace("#",""));
             if (instrumentsRecordFile == null) {
                 dataFile.getLogger().printWarningByIdWithArgs("GBL_00014",sheetName);
@@ -418,17 +418,17 @@ public class IngestionWorker {
                  */
                 return false;
             } else if (instrumentsRecordFile.getRecords() == null) {
-                dataFile.getLogger().printWarningByIdWithArgs("GBL_00014","deployInstancesGen(): instruments");
+                dataFile.getLogger().printWarningByIdWithArgs("GBL_00014","deployInstancesGen(): instrumentInstances");
                 //System.out.println("[WARNING] deployInstancesGen(): instrumentsRecordFile.getRecords() is NULL.");
                 return false;
             }
             instrumentsDataFile.setRecordFile(instrumentsRecordFile);
         }
-        sheetName = mapCatalog.get("Detectors");
+        sheetName = mapCatalog.get("ComponentInstances");
         if (sheetName != null) {
-            System.out.print("Extracting [Detectors] sheet from spreadsheet... ");
-            detectorsRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), sheetName.replace("#",""));
-            if (detectorsRecordFile == null) {
+            System.out.print("Extracting [ComponentInstances] sheet from spreadsheet... ");
+            componentsRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), sheetName.replace("#",""));
+            if (componentsRecordFile == null) {
                 dataFile.getLogger().printWarningByIdWithArgs("GBL_00015",sheetName);
                 /*
                 System.out.println("[WARNING] 'Detectors' sheet is missing.");
@@ -436,12 +436,12 @@ public class IngestionWorker {
 
                  */
                 return false;
-            } else if (detectorsRecordFile.getRecords() == null) {
-                dataFile.getLogger().printWarningByIdWithArgs("GBL_00014","deployInstancesGen(): detectors");
-                // System.out.println("[WARNING] deployInstancesGen(): detectorsRecordFile.getRecords() is NULL.");
+            } else if (componentsRecordFile.getRecords() == null) {
+                dataFile.getLogger().printWarningByIdWithArgs("GBL_00014","deployInstancesGen(): componentinstances");
+                // System.out.println("[WARNING] deployInstancesGen(): componentsRecordFile.getRecords() is NULL.");
                 return false;
             }
-            detectorsDataFile.setRecordFile(detectorsRecordFile);
+            componentsDataFile.setRecordFile(componentsRecordFile);
         }
         sheetName = mapCatalog.get("SensingPerspective");
         if (sheetName != null) {
@@ -465,7 +465,7 @@ public class IngestionWorker {
 
         DP2Generator instrumentsGen = new DP2Generator("instrumentinstance",instrumentsDataFile);
         instrumentsGen.setNamedGraphUri(dataFile.getUri());
-        DP2Generator detectorsGen = new DP2Generator("detectorinstance",detectorsDataFile);
+        DP2Generator detectorsGen = new DP2Generator("componentinstance",componentsDataFile);
         detectorsGen.setNamedGraphUri(dataFile.getUri());
         DP2Generator sensingPerspectiveGen = new DP2Generator("sensingperspective",sensingPerspectiveDataFile);
         sensingPerspectiveGen.setNamedGraphUri(dataFile.getUri());
@@ -480,7 +480,7 @@ public class IngestionWorker {
             isSuccess = chain.generate();
         }
         if (isSuccess) {
-            System.out.println("Done extracting instruments, detectors and sensingPerspective sheets. ");
+            System.out.println("Done extracting instruments, components and sensingPerspective sheets. ");
         } else {
             dataFile.getLogger().printWarningByIdWithArgs("GBL_00016","instruments and/or detectors and/or sensingPerspective");
             System.out.println("Failed to extract instruments and/or detectors and/or sensingPerspective sheets. ");

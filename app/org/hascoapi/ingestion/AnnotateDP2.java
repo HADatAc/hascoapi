@@ -30,7 +30,8 @@ public class AnnotateDP2 extends BaseAnnotator {
 
         // Validate DP2 instance references
         if (!validateDP2Instances(dataFile, mapCatalog)) {
-            dataFile.getLogger().printExceptionById("DP2_00006"); // “One or more DP2 instance references are invalid”
+            System.out.println("Erro aqui");
+            dataFile.getLogger().printWarningById("DP2_00006"); // “One or more DP2 instance references are invalid”
             return null;
         }
         GeneratorChain chain = new GeneratorChain();
@@ -49,7 +50,7 @@ public class AnnotateDP2 extends BaseAnnotator {
                 /*
                 Adicionar linha de código que caso exista um plataform instance, este deve ser referente a um plataform existente.
                  */
-
+                System.out.println("log teste");
             } else if ("FieldsOfView".equalsIgnoreCase(sheet)) {
                 addCustomGeneratorIfSheetExists(dataFile, mapCatalog, sheet, status, chain,
                         (df, st) -> new DP2Generator("fieldofview", df));
@@ -69,8 +70,8 @@ public class AnnotateDP2 extends BaseAnnotator {
         validations.put("InstrumentInstances", "a"); //hasInstrument
         validations.put("ComponentInstances", "a"); //hasInstrument
 
-        // FORÇANDO o endpoint do Fuseki
         String sparqlService = "http://0.0.0.0:3030/store/sparql";
+
         boolean allValid = true;
 
         for (Map.Entry<String, String> entry : validations.entrySet()) {
@@ -81,11 +82,9 @@ public class AnnotateDP2 extends BaseAnnotator {
             System.out.println("SPARQL Endpoint: " + sparqlService + "\tSheet: " + sheetName + "\tProperty: " + property);
 
             if (sheetName == null) continue;
-            System.out.println("passed sheetnamenull");
 
             RecordFile sheet = new SpreadsheetRecordFile(dataFile.getFile(), sheetName.replace("#", ""));
             if (!sheet.isValid()) continue;
-            System.out.println("Passed sheetValid");
 
             Set<String> urisToCheck = new HashSet<>();
             for (Record record : sheet.getRecords()) {
@@ -132,7 +131,7 @@ public class AnnotateDP2 extends BaseAnnotator {
                     }
                     if (!found) {
                         System.out.println("No results found for " + uri);
-                        dataFile.getLogger().printExceptionByIdWithArgs(
+                        dataFile.getLogger().printWarningByIdWithArgs(
                                 "DP2_00007",
                                 String.format("Reference %s in sheet %s does not exist in the repository.", uri, sheetKey)
                         );
@@ -146,7 +145,7 @@ public class AnnotateDP2 extends BaseAnnotator {
                 allValid = false;
             }
         }
-
+        System.out.println("All valid: " + allValid);
         return allValid;
     }
 

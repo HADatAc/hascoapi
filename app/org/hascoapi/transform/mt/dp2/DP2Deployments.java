@@ -5,11 +5,24 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.hascoapi.entity.pojo.Deployment;
 import org.hascoapi.entity.pojo.Instrument;
-import org.hascoapi.transform.mt.ins.INSGen;
-import org.hascoapi.transform.mt.ins.INSGenHelper;
+
 import org.hascoapi.utils.URIUtils;
 
 public class DP2Deployments {
+
+    public static void setHeaders(Sheet sheet) {
+        String[] headers = { "hasURI", "a", "rdfs:label", "vstoi:hasPlatformInstance", "vstoi:hasInstrumentInstance", 
+                             "vstoi:hasComponentInstance", "vstoi:designedAtTime", "prov:startedAtTime", "prov:endedAtTime" };
+        
+        Row row = sheet.createRow(0);
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = row.createCell(i);
+            cell.setCellValue(headers[i]);
+        }
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+    }
     public static DP2GenHelper add(DP2GenHelper helper, Deployment deploy) {
 
         if (deploy == null) {

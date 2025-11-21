@@ -7,21 +7,33 @@ import org.hascoapi.entity.pojo.Codebook;
 import org.hascoapi.entity.pojo.Component;
 import org.hascoapi.entity.pojo.ComponentStem;
 import org.hascoapi.entity.pojo.Platform;
-import org.hascoapi.transform.mt.ins.INSGen;
-import org.hascoapi.transform.mt.ins.INSGenHelper;
+
 import org.hascoapi.utils.URIUtils;
 
 public class DP2Plataforms {
 
+    public static void setHeaders(Sheet sheet) {
+        String[] headers = { "hasURI", "a", "rdfs:subClassOf", "rdfs:label", "vstoi:hasComponentStem", "vstoi:hasCodebook", "vstoi:isAttributeOf" };
+        
+        Row row = sheet.createRow(0);
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = row.createCell(i);
+            cell.setCellValue(headers[i]);
+        }
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+    }
+
     public static DP2GenHelper add(DP2GenHelper helper, Platform platform) {
 
         if (helper == null) {
-            System.out.println("[ERROR] INSComponent: helper is null");
+            System.out.println("[ERROR] DP2Platforms: helper is null");
             return helper;
         }
 
         if (helper.workbook == null) {
-            System.out.println("[ERROR] INSComponent: helper's workbook is null");
+            System.out.println("[ERROR] DP2Platforms: helper's workbook is null");
             return helper;
         }
 
@@ -42,48 +54,29 @@ public class DP2Plataforms {
         Cell cell1 = newRow.createCell(0);
         cell1.setCellValue(URIUtils.replaceNameSpaceEx(platform.getUri()));
 
-        // "hasco:hascoType"
+        // "rdfs:subClassOf"
         Cell cell2 = newRow.createCell(1);
         cell2.setCellValue(URIUtils.replaceNameSpaceEx(platform.getHascoTypeUri()));
 
-        // "rdf:type"
-        Cell cell3 = newRow.createCell(2);
-        cell3.setCellValue(URIUtils.replaceNameSpaceEx(platform.getTypeUri()));
-
         // "rdfs:label"
+        Cell cell3 = newRow.createCell(2);
+        cell3.setCellValue(platform.getLabel());
+
+        // "hasco:hasMaker"
         Cell cell4 = newRow.createCell(3);
-        cell4.setCellValue(platform.getLabel());
+        cell4.setCellValue(""); // (platform.getHasMaker());
 
-        // "vstoi:hasComponentStem"
+        // "rdfs:comment",
         Cell cell5 = newRow.createCell(4);
-        cell5.setCellValue(URIUtils.replaceNameSpaceEx(platform.getHasComponentStem()));
-        ComponentStem componentStem = null;
-        if (platform.getHasComponentStem() != null && !platform.getHasComponentStem().isEmpty()) {
-            componentStem = ComponentStem.find(platform.getHasComponentStem());
-            if (componentStem != null) {
-                helper.componentStems.put(componentStem.getUri(),componentStem);
-            }
-        }
+        cell5.setCellValue(platform.getComment());
 
-        // "vstoi:hasCodebook",
+        // "hasco:hasImage"
         Cell cell6 = newRow.createCell(5);
-        if (platform != null && platform.getHasCodebook() != null) {
-            cell6.setCellValue(URIUtils.replaceNameSpaceEx(platform.getHasCodebook()));
-            Codebook codebook = Codebook.find(platform.getHasCodebook());
-            if (codebook != null) {
-                helper.codebooks.put(codebook.getUri(),codebook);
-            }
-        } else {
-            cell6.setCellValue("");
-        }
+        cell6.setCellValue(platform.getHasImageUri());
 
-        // "vstoi:isAttributeOf"
+        // "vstoi:hasWebDocumentation
         Cell cell7 = newRow.createCell(6);
-        if (platform != null && platform.getIsAttributeOf() != null) {
-            cell7.setCellValue(URIUtils.replaceNameSpaceEx(platform.getIsAttributeOf()));
-        } else {
-            cell7.setCellValue("");
-        }
+        cell7.setCellValue(platform.getHasWebDocument());
 
         return helper;
 
