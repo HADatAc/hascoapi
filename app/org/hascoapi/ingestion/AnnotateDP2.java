@@ -66,9 +66,9 @@ public class AnnotateDP2 extends BaseAnnotator {
 
     private static boolean validateDP2Instances(DataFile dataFile, Map<String, String> mapCatalog) {
         Map<String, String> validations = new HashMap<>();
-        validations.put("PlatformInstances", "a"); //hasPlatform
-        validations.put("InstrumentInstances", "a"); //hasInstrument
-        validations.put("ComponentInstances", "a"); //hasInstrument
+        validations.put("PlatformInstances", "hasPlatform"); //hasPlatform
+        validations.put("InstrumentInstances", "hasInstrument"); //hasInstrument
+        validations.put("ComponentInstances", "hasInstrument"); //hasInstrument
 
         String sparqlService = "http://0.0.0.0:3030/store/sparql";
 
