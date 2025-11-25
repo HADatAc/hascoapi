@@ -61,9 +61,6 @@ public class DP2InstrumentInstances {
         Cell cell4 = newRow.createCell(3);
         cell4.setCellValue(instrumentInstance.getHasSerialNumber());
 
-        /*
-        Checar com paulo
-         */
         // "skos:definition"
         Cell cell5 = newRow.createCell(3);
         cell5.setCellValue(instrumentInstance.getDescription());

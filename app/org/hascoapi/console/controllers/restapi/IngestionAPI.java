@@ -22,6 +22,7 @@ import org.hascoapi.entity.pojo.FundingScheme;
 import org.hascoapi.entity.pojo.Place;
 import org.hascoapi.entity.pojo.Project;
 import org.hascoapi.entity.pojo.Organization;
+import org.hascoapi.transform.mt.dp2.DP2Gen;
 import org.hascoapi.transform.mt.ins.INSGen;
 import org.hascoapi.transform.mt.kgr.KGRGen;
 import org.hascoapi.utils.ApiUtil;
@@ -455,6 +456,7 @@ public class IngestionAPI extends Controller {
     }
 
     public Result mtGenByStatus(String elementtype, String datafileuri, String status, String filename, String mediaFolder, String verifyUri) {
+        System.out.println("entrou no mt gen");
         if (elementtype == null || elementtype.isEmpty()) {
             String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() requires elementtype";
             System.out.println(errorMsg);
@@ -473,6 +475,10 @@ public class IngestionAPI extends Controller {
         switch (elementtype) {
             case "ins":
                 INSGen.genByStatus(status,filename,mediaFolder,verifyUri);
+                break;
+            case "dp2":
+                DP2Gen.genByStatus(status,filename,mediaFolder,verifyUri);
+                System.out.println("entrou no switch case");
                 break;
             case "kgr":
                 KGRGen.genByStatus(status,filename,mediaFolder,verifyUri);
