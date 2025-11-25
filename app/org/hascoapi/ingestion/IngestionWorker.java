@@ -494,9 +494,9 @@ public class IngestionWorker {
         if (dataFile.getRecordFile() != null) {
             for (Record record : dataFile.getRecordFile().getRecords()) {
                 if (record.getValueByColumnIndex(0).equals("hasStudyKG")) {
-                    if (record.getValueByColumnIndex(1) != null){
+                   // if (record.getValueByColumnIndex(1) != null){
                         studyKG = record.getValueByColumnIndex(1);
-                    }
+                    //}
                 }
                 if (record.getValueByColumnIndex(0).equals("hasStudyURI")) {
                     if (record.getValueByColumnIndex(1) != null){
