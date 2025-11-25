@@ -52,8 +52,7 @@ public class AnnotateSSD extends BaseAnnotator {
             return null;
         }
 
-        //chain.setStudyUri(URIUtils.replacePrefixEx(studyUri));
-        chain.setStudyUri(studyUri);
+        chain.setStudyUri(URIUtils.replacePrefixEx(studyUri));
         dataFile.getLogger().println("DSG ingestion: The study URI [" + studyUri + "] is in the triple store.");
         dataFile.getLogger().println("AnnotateSSD: Pre-processing StudyObjectGenerator. Study URI: " + study.getUri());
 

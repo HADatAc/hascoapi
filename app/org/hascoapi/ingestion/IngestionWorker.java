@@ -517,8 +517,15 @@ public class IngestionWorker {
             System.out.println("IngestionWorker: failed to build studyUri - missing hasStudyKG portion of the URI in the InfoSheet");
             return null;
         }
+        String finalStudyUri;
 
-        String finalStudyUri = studyKG + ":" + Constants.PREFIX_STUDY + "-" + studyUri;
+        if (!studyUri.contains(":")) {
+             finalStudyUri = studyKG + ":" + Constants.PREFIX_STUDY + "-" + studyUri;
+            System.out.println("IngestionWorker: building studyUri [" + finalStudyUri + "]");
+        }else {
+             finalStudyUri = Constants.PREFIX_STUDY + "-" + studyUri;
+            System.out.println("IngestionWorker: building studyUri [" + finalStudyUri + "]");
+        }
         finalStudyUri = URIUtils.replacePrefixEx(finalStudyUri);
 
         finalStudyUri = finalStudyUri.replace("#/","#");
