@@ -2,28 +2,18 @@ package org.hascoapi.console.controllers.restapi;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
-import org.hascoapi.Constants;
-import org.hascoapi.entity.pojo.ContainerSlot;
-import org.hascoapi.entity.pojo.Component;
-import org.hascoapi.entity.pojo.Instrument;
 import org.hascoapi.entity.pojo.Process;
 import org.hascoapi.entity.pojo.ProcessStem;
-import org.hascoapi.entity.pojo.RequiredInstrument;
 import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.HAScOMapper;
 import org.hascoapi.vocabularies.VSTOI;
 
-import play.mvc.Http;
+import org.hascoapi.simulation.WorkflowExecution;
 import play.mvc.Controller;
 import play.mvc.Result;
-import static org.hascoapi.Constants.*;
+
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
 
 
 public class ProcessAPI extends Controller {
@@ -100,5 +90,42 @@ public class ProcessAPI extends Controller {
         process.deleteWithTasks();
         return ok(ApiUtil.createResponse("PROCESS with URI [" + uri + "] has been deleted along with its TASKS", true));
     }
+
+    /*
+        Metodo que será utilizado para executar o simulador
+
+    */
+
+
+    public Result executeworkflow(String uri, String duration) {
+        /*
+        1- Metodo deve buscar qual process é baseado no uri
+        2- Depois deve buscar qual a TopTask deste process
+        3- Depois verificar se a task é abstrata ou executável, verificando se tem subtasks
+            3.1- Verifica o hasTemporalDependency e soma o tempo que deve ser executada
+        4- Caso tenha subtasks deve ir nelas e ver se teem subtasks.
+            4.1- Verifica se tem hasSuperTask para definir ordem
+            4.2- Verifica se teem hasTemporalDependency, se tiver, aloca parte do tempo da Supertask
+            4.3- Se tiver mais de um subtask, verifica o hasTemporalDependency e depois aloca o tempo restante da Supertask
+        5- Caso nao tenha subtasks deve executar esta task
+        6- Caso tenha mais de uma subtask deve ter uma ordem de execução
+        7- depois de executar deve retornar como executado e verificar se tem outra subtask para executar, caso tenha executa.
+        8- retorna uma mensagem opc-ua de que terminou o workflow
+         */
+        if (uri == null || uri.equals("")) {
+            System.out.println("[ERROR] No uri has been provided.");
+            return null;
+        }
+        WorkflowExecution processexec =  new WorkflowExecution();
+        Float durationfloat = Float.parseFloat(duration);
+        processexec.execute(uri,durationfloat);
+
+
+
+        return ok();
+
+    }
+
+
 
 }
