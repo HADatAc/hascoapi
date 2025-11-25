@@ -521,10 +521,10 @@ public class IngestionWorker {
 
         if (!studyUri.contains(":")) {
              finalStudyUri = studyKG + ":" + Constants.PREFIX_STUDY + "-" + studyUri;
-            System.out.println("IngestionWorker: building studyUri [" + finalStudyUri + "]");
+            System.out.println("IngestionWorker1: building studyUri [" + finalStudyUri + "]");
         }else {
              finalStudyUri = Constants.PREFIX_STUDY + "-" + studyUri;
-            System.out.println("IngestionWorker: building studyUri [" + finalStudyUri + "]");
+            System.out.println("IngestionWorker2: building studyUri [" + finalStudyUri + "]");
         }
         finalStudyUri = URIUtils.replacePrefixEx(finalStudyUri);
 
