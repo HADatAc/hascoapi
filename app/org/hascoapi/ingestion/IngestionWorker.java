@@ -523,7 +523,10 @@ public class IngestionWorker {
              finalStudyUri = studyKG + ":" + Constants.PREFIX_STUDY + "-" + studyUri;
             System.out.println("IngestionWorker1: building studyUri [" + finalStudyUri + "]");
         }else {
-             finalStudyUri = Constants.PREFIX_STUDY + "-" + studyUri;
+            String[] parts = studyUri.split(":", 2);
+            String namespace = parts[0];
+            String id = parts.length > 1 ? parts[1] : "";
+            finalStudyUri = namespace + ":" + Constants.PREFIX_STUDY + "-" + id;
             System.out.println("IngestionWorker2: building studyUri [" + finalStudyUri + "]");
         }
         finalStudyUri = URIUtils.replacePrefixEx(finalStudyUri);
