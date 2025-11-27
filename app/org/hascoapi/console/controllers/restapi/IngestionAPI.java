@@ -477,6 +477,7 @@ public class IngestionAPI extends Controller {
                 INSGen.genByStatus(status,filename,mediaFolder,verifyUri);
                 break;
             case "dp2":
+                System.out.println("entrou no dp2");
                 DP2Gen.genByStatus(status,filename,mediaFolder,verifyUri);
                 System.out.println("entrou no switch case");
                 break;
