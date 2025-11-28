@@ -1,0 +1,136 @@
+package org.hascoapi.transform.mt.dsg;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.List;
+import org.hascoapi.entity.pojo.Study;
+import org.hascoapi.entity.pojo.GenericFindWithStatus;
+import org.hascoapi.utils.ConfigProp;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+public class DSGGen {
+
+    public static final String INFOSHEET            = "InfoSheet";
+    public static final String NAMESPACES           = "Namespaces";
+    public static final String SSD                  = "SSD";
+    public static final String STD                  = "STD";
+    public static final String VD                   = "VD";
+    // Removida a constante SOC_NHANES_SUBJECTS
+
+    public static final int PAGESIZE                = 20000;
+    public static final int OFFSET                  = 0;
+
+    public static String genByStatus(String status, String filename, String mediaFolder, String verifyUri) {
+        DSGGenHelper helper = new DSGGenHelper();
+        helper.workbook = DSGGen.create(filename);
+        String resp = "";
+
+        // O DSG é a união de SSD e STD. O ponto de partida é o Study (STD).
+        GenericFindWithStatus<Study> studyQuery = new GenericFindWithStatus<Study>();
+        List<Study> studies = studyQuery.findByStatusWithPages(Study.class, status, PAGESIZE, OFFSET);
+        
+        if (studies != null) {
+            for (Study study: studies) {
+                // 1. Adiciona o Study (STD)
+                helper = DSGSTD.add(helper, study);
+                
+                // 2. Adiciona os EntityDesigns (SSD) associados ao Study
+                // A implementação de addByStudy em DSGSSD deve buscar os EntityDesigns
+                helper = DSGSSD.addByStudy(helper, study);
+                
+                // 3. Para cada EntityDesign, adiciona os VariableDesigns (VD)
+                // A implementação de addByEntityDesign em DSGVD deve buscar os VariableDesigns
+                //for (String edUri : helper.entityDesigns.keySet()) {
+                    // A chamada a get(edUri) pode retornar null se a chave não existir,
+                    // mas como a chave vem de keySet(), é seguro.
+                    // No entanto, a classe EntityDesign não existe no pojo original,
+                    // então esta parte depende da reintrodução da classe correta.
+                    // Por enquanto, mantemos a estrutura lógica.
+                    // helper = DSGVD.addByEntityDesign(helper, helper.entityDesigns.get(edUri));
+               // }
+                
+                // 4. Removida a lógica de DataAcquisition (folha de dados)
+            }
+        }
+
+        return DSGGen.save(helper, filename);
+    }
+
+    // Removido o método genByInstrument e genByManager, pois não foram solicitados.
+
+    public static Workbook create(String filename) {
+
+        DSGGenHelper helper = new DSGGenHelper();
+        // Cria um novo workbook
+        Workbook workbook = new XSSFWorkbook();
+
+        // Cria a folha 'InfoSheet'
+        Sheet infoSheet = workbook.createSheet(DSGGen.INFOSHEET);
+
+        // Cria o cabeçalho para InfoSheet
+        Row isHeaderRow = infoSheet.createRow(0);
+        Cell isHeaderCell1 = isHeaderRow.createCell(0);
+        isHeaderCell1.setCellValue("Attribute");
+        Cell isHeaderCell2 = isHeaderRow.createCell(1);
+        isHeaderCell2.setCellValue("Value");
+
+        // Adiciona as linhas de dependência (baseado no Excel fornecido)
+        Row dataRow1 = infoSheet.createRow(1);
+        dataRow1.createCell(0).setCellValue("hasDependencies");
+        dataRow1.createCell(1).setCellValue("#" + DSGGen.NAMESPACES);
+
+        Row dataRow2 = infoSheet.createRow(2);
+        dataRow2.createCell(0).setCellValue("hasStudyURI");
+        dataRow2.createCell(1).setCellValue(helper.getStudies().get(0).getUri());
+
+        Row dataRow3 = infoSheet.createRow(3);
+        dataRow3.createCell(0).setCellValue("hasStudyKG");
+        dataRow3.createCell(1).setCellValue("nhanes");
+
+        Row dataRow4 = infoSheet.createRow(4);
+        dataRow4.createCell(0).setCellValue("hasStudyDescription");
+        dataRow4.createCell(1).setCellValue("#" + DSGGen.STD);
+
+        Row dataRow5 = infoSheet.createRow(5);
+        dataRow5.createCell(0).setCellValue("hasEntityDesign");
+        dataRow5.createCell(1).setCellValue("#" + DSGGen.SSD);
+
+        Row dataRow6 = infoSheet.createRow(6);
+        dataRow6.createCell(0).setCellValue("hasVariableDesign");
+        dataRow6.createCell(1).setCellValue("#" + DSGGen.VD);
+
+        // Removida a linha de DataAcquisition
+
+        Row dataRow7 = infoSheet.createRow(7);
+        dataRow7.createCell(0).setCellValue("hasVersion");
+        dataRow7.createCell(1).setCellValue("1");
+
+        // Cria a folha 'Namespaces'
+        Sheet nsSheet = workbook.createSheet(DSGGen.NAMESPACES);
+        Row nsHeaderRow = nsSheet.createRow(0);
+        nsHeaderRow.createCell(0).setCellValue("hasPrefix");
+        nsHeaderRow.createCell(1).setCellValue("hasNameSpace");
+        // Outras colunas serão adicionadas pelo helper
+
+        // Cria as folhas de dados (SSD, STD, VD)
+        workbook.createSheet(DSGGen.SSD);
+        workbook.createSheet(DSGGen.STD);
+        workbook.createSheet(DSGGen.VD);
+
+        return workbook;
+    }
+
+    public static String save(DSGGenHelper helper, String filename) {
+        try {
+            FileOutputStream fileOut = new FileOutputStream(filename);
+            helper.workbook.write(fileOut);
+            fileOut.close();
+            helper.workbook.close();
+            return "SUCCESS";
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "FAILURE: " + e.getMessage();
+        }
+    }
+}
