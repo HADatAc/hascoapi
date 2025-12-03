@@ -150,7 +150,7 @@ public class IngestionWorker {
                 // Verify all referenced sheets in SSD before executing SSD annotation
                 System.out.println("IngestionWorker: verifying SSD referenced sheets before annotation.");
                 if (!verifySheetsInSSD(dataFile)) {
-                    dataFile.getLogger().printExceptionById("GBL_00001");
+                    dataFile.getLogger().printExceptionById("DSG_00022");
                     System.out.println("IngestionWorker: SSD verification failed. Aborting SSD annotation.");
                     return null;
                 }
@@ -203,7 +203,7 @@ public class IngestionWorker {
                     dataFile.getFile(), dataFile.getFilename(), sheetName);
             if (ref == null || ref.getRecords() == null) {
                 ok = false;
-                dataFile.getLogger().printWarningByIdWithArgs("GBL_00015", referencedSheet);
+                dataFile.getLogger().printExceptionByIdWithArgs("GBL_00015", referencedSheet);
                 System.out.println("SSD verification: referenced sheet '" + referencedSheet + "' does not exist or is unreadable.");
             }
         }
