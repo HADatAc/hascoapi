@@ -39,17 +39,7 @@ public class DSGGen {
                 // A implementação de addByStudy em DSGSSD deve buscar os EntityDesigns
                 helper = DSGSSD.addByStudy(helper, study);
                 
-                // 3. Para cada EntityDesign, adiciona os VariableDesigns (VD)
-                // A implementação de addByEntityDesign em DSGVD deve buscar os VariableDesigns
-                //for (String edUri : helper.entityDesigns.keySet()) {
-                    // A chamada a get(edUri) pode retornar null se a chave não existir,
-                    // mas como a chave vem de keySet(), é seguro.
-                    // No entanto, a classe EntityDesign não existe no pojo original,
-                    // então esta parte depende da reintrodução da classe correta.
-                    // Por enquanto, mantemos a estrutura lógica.
-                    // helper = DSGVD.addByEntityDesign(helper, helper.entityDesigns.get(edUri));
-               // }
-                
+
                 // 4. Removida a lógica de DataAcquisition (folha de dados)
             }
         }
@@ -57,7 +47,7 @@ public class DSGGen {
         return DSGGen.save(helper, filename);
     }
 
-    // Removido o método genByInstrument e genByManager, pois não foram solicitados.
+    // Removido o metodo genByInstrument e genByManager, pois não foram solicitados.
 
     public static Workbook create(String filename) {
 

@@ -39,7 +39,8 @@ public class DSGSSD {
         row.createCell(2).setCellValue(sdd.getHasVersion());
         row.createCell(3).setCellValue(sdd.getHasStatus());
         // Assumindo que o SDD tem getters para as propriedades abaixo,
-        // seguindo a lógica de metadados do hascoapi.
+
+        /*// seguindo a lógica de metadados do hascoapi.
         row.createCell(4).setCellValue(sdd.getStudyUri());
         row.createCell(5).setCellValue(sdd.getEntityUri());
         row.createCell(6).setCellValue(sdd.getAttributeUri());
@@ -48,7 +49,8 @@ public class DSGSSD {
         row.createCell(9).setCellValue(sdd.getInRelationToUri());
         row.createCell(10).setCellValue(sdd.getSourceUri());
         row.createCell(11).setCellValue(sdd.getOriginalId());
-        
+
+         */
         return helper;
     }
 

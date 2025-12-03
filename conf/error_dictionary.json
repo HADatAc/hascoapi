@@ -201,6 +201,11 @@
           "id": "DSG_00021",
           "detail": "SSD sheet is empty or invalid.",
           "solution": "Ensure the SSD sheet referenced by hasEntityDesign contains rows and valid structure."
+        },
+        {
+          "id": "DSG_00022",
+          "detail": "SSD verification failed. Aborting SSD annotation.",
+          "solution": "Verify if the SSD sheet contents conform to expected format and data types."
         }
       ]
     },

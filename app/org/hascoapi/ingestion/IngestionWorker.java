@@ -147,6 +147,13 @@ public class IngestionWorker {
                 chain.disposeChain();
             }
             if (bSucceed) {
+                // Verify all referenced sheets in SSD before executing SSD annotation
+                System.out.println("IngestionWorker: verifying SSD referenced sheets before annotation.");
+                if (!verifySheetsInSSD(dataFile)) {
+                    dataFile.getLogger().printExceptionById("GBL_00001");
+                    System.out.println("IngestionWorker: SSD verification failed. Aborting SSD annotation.");
+                    return null;
+                }
                 chain = AnnotateSSD.exec(dataFile, studyUri, templateFile, status);
             }
 
@@ -175,7 +182,34 @@ public class IngestionWorker {
 
         return chain;
     }
+    private static boolean verifySheetsInSSD(DataFile dataFile) {
+        System.out.println("SSD verification: starting referenced sheets check.");
+        SpreadsheetRecordFile ssdSheet = new SpreadsheetRecordFile(
+                dataFile.getFile(), dataFile.getFilename(), "SSD");
+        if (ssdSheet == null || ssdSheet.getRecords() == null || ssdSheet.getRecords().isEmpty()) {
+            dataFile.getLogger().printWarningByIdWithArgs("GBL_00014", "SSD verification: SSD sheet");
+            System.out.println("SSD verification: sheet 'SSD' not found or empty.");
+            return false;
+        }
 
+        boolean ok = true;
+        for (Record r : ssdSheet.getRecords()) {
+            String referencedSheet = r.getValueByColumnIndex(0);
+            if (referencedSheet == null || referencedSheet.trim().isEmpty()) {
+                continue;
+            }
+            String sheetName = referencedSheet.replace("#", "").trim();
+            SpreadsheetRecordFile ref = new SpreadsheetRecordFile(
+                    dataFile.getFile(), dataFile.getFilename(), sheetName);
+            if (ref == null || ref.getRecords() == null) {
+                ok = false;
+                dataFile.getLogger().printWarningByIdWithArgs("GBL_00015", referencedSheet);
+                System.out.println("SSD verification: referenced sheet '" + referencedSheet + "' does not exist or is unreadable.");
+            }
+        }
+        System.out.println("SSD verification: completed. Status: " + (ok ? "OK" : "FAILED"));
+        return ok;
+    }
     /*
      * Move any file that isMediaFile() into a media folder in processed files.
      * At the moment, no other kind of processing is performed by this code.

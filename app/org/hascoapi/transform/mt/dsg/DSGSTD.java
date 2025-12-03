@@ -38,7 +38,7 @@ public class DSGSTD {
             headerRow.createCell(22).setCellValue("Project Last Updated Date");
             headerRow.createCell(23).setCellValue("DC Access?");
         }
-        
+        /*
         // Lógica para adicionar o Study (STD)
         int rowNum = sheet.getLastRowNum() + 1;
         Row row = sheet.createRow(rowNum);
@@ -66,7 +66,9 @@ public class DSGSTD {
         row.createCell(21).setCellValue(study.getPublication());
         row.createCell(22).setCellValue(study.getDataFileUri()); // Assumindo que hasDataFile é getDataFileUri()
         row.createCell(23).setCellValue(study.getDataAcquisitionUri()); // Assumindo que hasDataAcquisition é getDataAcquisitionUri()
-        
+
+
+         */
         return helper;
     }
 

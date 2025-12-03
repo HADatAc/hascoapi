@@ -19,7 +19,7 @@ public class DSGVD {
             headerRow.createCell(2).setCellValue("hasConfoundingVariable");
             // ... (Assumindo que estas são as colunas principais para VD)
         }
-        
+        /*
         // Lógica para adicionar o StudyObject (VD)
         int rowNum = sheet.getLastRowNum() + 1;
         Row row = sheet.createRow(rowNum);
@@ -27,6 +27,8 @@ public class DSGVD {
         row.createCell(1).setCellValue(studyObject.getLabel());
         // Assumindo que StudyObject tem um getter para hasValueType
         row.createCell(2).setCellValue(studyObject.getValueTypeUri());
+
+         */
         
         return helper;
     }
