@@ -1,8 +1,6 @@
 package org.hascoapi.transform.mt.dsg;
 
-import java.util.List;
 import org.hascoapi.entity.pojo.Study;
-import org.hascoapi.entity.pojo.GenericFindWithStatus;
 import org.apache.poi.ss.usermodel.*;
 
 public class DSGSTD {
@@ -11,7 +9,6 @@ public class DSGSTD {
         Sheet sheet = helper.workbook.getSheet(DSGGen.STD);
         if (sheet == null) {
             sheet = helper.workbook.createSheet(DSGGen.STD);
-            // Colunas baseadas na estrutura de metadados de Study (STD)
             Row headerRow = sheet.createRow(0);
             headerRow.createCell(0).setCellValue("Study ID");
             headerRow.createCell(1).setCellValue("Title");
@@ -38,42 +35,54 @@ public class DSGSTD {
             headerRow.createCell(22).setCellValue("Project Last Updated Date");
             headerRow.createCell(23).setCellValue("DC Access?");
         }
-        /*
-        // Lógica para adicionar o Study (STD)
         int rowNum = sheet.getLastRowNum() + 1;
         Row row = sheet.createRow(rowNum);
-        row.createCell(0).setCellValue(study.getUri());
-        row.createCell(1).setCellValue(study.getLabel());
-        row.createCell(2).setCellValue(study.getHasVersion()); 
-        row.createCell(3).setCellValue(study.getHasStatus());
-        row.createCell(4).setCellValue(study.getTitle());
-        row.createCell(5).setCellValue(study.getProject());
-        row.createCell(6).setCellValue(study.getExternalSource());
-        row.createCell(7).setCellValue(study.getInstitutionUri());
-        row.createCell(8).setCellValue(study.getPiUri());
-        row.createCell(9).setCellValue(study.getStartedAt());
-        row.createCell(10).setCellValue(study.getEndedAt());
-        row.createCell(11).setCellValue(study.getHasSIRManagerEmail());
-        row.createCell(12).setCellValue(study.getComment()); // Assumindo que hasDescription é getComment()
-        row.createCell(13).setCellValue(study.getPurpose());
-        row.createCell(14).setCellValue(study.getMethod());
-        row.createCell(15).setCellValue(study.getLimitations());
-        row.createCell(16).setCellValue(study.getContact());
-        row.createCell(17).setCellValue(study.getFunding());
-        row.createCell(18).setCellValue(study.getLicense());
-        row.createCell(19).setCellValue(study.getAccess());
-        row.createCell(20).setCellValue(study.getCitation());
-        row.createCell(21).setCellValue(study.getPublication());
-        row.createCell(22).setCellValue(study.getDataFileUri()); // Assumindo que hasDataFile é getDataFileUri()
-        row.createCell(23).setCellValue(study.getDataAcquisitionUri()); // Assumindo que hasDataAcquisition é getDataAcquisitionUri()
+        // Map available Study fields; unknowns left blank
+        row.createCell(0).setCellValue(safe(study.getUri()));
+        // Prefer Title if available, otherwise label
+        String title = study.getTitle() != null ? study.getTitle() : study.getLabel();
+        row.createCell(1).setCellValue(safe(title));
+        // Use comment as a placeholder for Specific Aims and Significance if not modeled
+        row.createCell(2).setCellValue(safe(study.getComment()));
+        row.createCell(3).setCellValue("");
+        row.createCell(4).setCellValue(safe(study.getInstitutionUri()));
+        row.createCell(5).setCellValue(safe(study.getPiUri()));
+        row.createCell(6).setCellValue("");
+        row.createCell(7).setCellValue("");
+        row.createCell(8).setCellValue("");
+        row.createCell(9).setCellValue("");
+        row.createCell(10).setCellValue(safe(study.getHasSIRManagerEmail()));
+        row.createCell(11).setCellValue("");
+        row.createCell(12).setCellValue("");
+        row.createCell(13).setCellValue("");
+        row.createCell(14).setCellValue("");
+        row.createCell(15).setCellValue("");
+        row.createCell(16).setCellValue("");
+        row.createCell(17).setCellValue("");
+        row.createCell(18).setCellValue("");
+        row.createCell(19).setCellValue("");
+        row.createCell(20).setCellValue("");
+        row.createCell(21).setCellValue(safe(study.getStartedAt()));
+        row.createCell(22).setCellValue(safe(study.getEndedAt()));
+        row.createCell(23).setCellValue("");
 
-
-         */
+        // Update InfoSheet hasStudyURI with the current study
+        Sheet infoSheet = helper.workbook.getSheet(DSGGen.INFOSHEET);
+        if (infoSheet != null) {
+            Row studyUriRow = infoSheet.getRow(2);
+            if (studyUriRow == null) studyUriRow = infoSheet.createRow(2);
+            Cell valueCell = studyUriRow.getCell(1);
+            if (valueCell == null) valueCell = studyUriRow.createCell(1);
+            valueCell.setCellValue(safe(study.getUri()));
+        }
         return helper;
     }
 
+    private static String safe(String val) {
+        return val == null ? "" : val;
+    }
+
     public static DSGGenHelper addByStatus(DSGGenHelper helper, String status) {
-        // A lógica de busca real deve ser implementada aqui, usando GenericFindWithStatus<Study>
         return helper;
     }
 }

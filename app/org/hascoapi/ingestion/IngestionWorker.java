@@ -182,17 +182,17 @@ public class IngestionWorker {
 
         return chain;
     }
+    // Java
     private static boolean verifySheetsInSSD(DataFile dataFile) {
         System.out.println("SSD verification: starting referenced sheets check.");
         SpreadsheetRecordFile ssdSheet = new SpreadsheetRecordFile(
                 dataFile.getFile(), dataFile.getFilename(), "SSD");
-        if (ssdSheet == null || ssdSheet.getRecords() == null || ssdSheet.getRecords().isEmpty()) {
-            dataFile.getLogger().printWarningByIdWithArgs("GBL_00014", "SSD verification: SSD sheet");
+        if (ssdSheet == null || !ssdSheet.isValid() || ssdSheet.getRecords() == null || ssdSheet.getRecords().isEmpty()) {
+            dataFile.getLogger().printExceptionByIdWithArgs("GBL_00014", "SSD verification: SSD sheet");
             System.out.println("SSD verification: sheet 'SSD' not found or empty.");
             return false;
         }
 
-        boolean ok = true;
         for (Record r : ssdSheet.getRecords()) {
             String referencedSheet = r.getValueByColumnIndex(0);
             if (referencedSheet == null || referencedSheet.trim().isEmpty()) {
@@ -201,15 +201,18 @@ public class IngestionWorker {
             String sheetName = referencedSheet.replace("#", "").trim();
             SpreadsheetRecordFile ref = new SpreadsheetRecordFile(
                     dataFile.getFile(), dataFile.getFilename(), sheetName);
-            if (ref == null || ref.getRecords() == null) {
-                ok = false;
+
+            if (ref == null || !ref.isValid() || ref.getRecords() == null || ref.getRecords().isEmpty()) {
                 dataFile.getLogger().printExceptionByIdWithArgs("GBL_00015", referencedSheet);
-                System.out.println("SSD verification: referenced sheet '" + referencedSheet + "' does not exist or is unreadable.");
+                System.out.println("SSD verification: referenced sheet '" + referencedSheet + "' does not exist or is unreadable. Aborting.");
+                return false; // stop immediately on first missing/unreadable sheet
             }
         }
-        System.out.println("SSD verification: completed. Status: " + (ok ? "OK" : "FAILED"));
-        return ok;
+
+        System.out.println("SSD verification: completed. Status: OK");
+        return true;
     }
+
     /*
      * Move any file that isMediaFile() into a media folder in processed files.
      * At the moment, no other kind of processing is performed by this code.
