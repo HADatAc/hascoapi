@@ -2,6 +2,8 @@ package org.hascoapi.ingestion;
 
 import java.util.List;
 import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.entity.pojo.SSDSheet;
@@ -37,6 +39,13 @@ public class AnnotateSSD extends BaseAnnotator {
         mapCatalog = ssd.getCatalog();
         Map<String, List<String>> mapContent = ssd.getMapContent();
         Map<String, String> mapReferences = ssd.getMapReferences();
+
+        // New validation: if an SSD row declares scopes, enforce that the SOC sheet rows
+        // have corresponding scope IDs pointing to originalIDs in the referenced SOC sheet(s)
+        if (!validateScopeConsistency(dataFile, mapCatalog, mapContent)) {
+            dataFile.getLogger().println("SSD validation failed: scope IDs are missing or not found in referenced SOC sheets. Aborting SSD ingestion.");
+            return null;
+        }
 
         SSDGeneratorChain chain = new SSDGeneratorChain();
         chain.setNamedGraphUri(dataFile.getUri());
@@ -138,6 +147,145 @@ public class AnnotateSSD extends BaseAnnotator {
             return false;
         }
 
+        return true;
+    }
+
+    private static boolean validateScopeConsistency(
+            DataFile dataFile,
+            Map<String, String> mapCatalog,
+            Map<String, List<String>> mapContent
+    ) {
+        // mapCatalog: hasURI -> sheetName
+        // mapContent: hasURI -> [0:hasURI,1:type,2:hasScope,3:hasTimeScope,4:hasSpaceScope,5:role,6:hasSOCReference,7:grounding]
+        for (Map.Entry<String, List<String>> entry : mapContent.entrySet()) {
+            String socHasUri = entry.getKey();
+            List<String> list = entry.getValue();
+            if (list == null || list.size() < 5) continue;
+
+            String sheetName = mapCatalog.get(socHasUri);
+            if (sheetName == null || sheetName.trim().isEmpty()) continue; // no sheet to validate
+            String cleanSheet = sheetName.replace("#", "");
+
+            // Identify referenced scope SOCs by hasURI
+            String hasScopeHasUri = list.get(2) == null ? "" : list.get(2).trim();
+            String hasTimeHasUri = list.get(3) == null ? "" : list.get(3).trim();
+            String hasSpaceHasUri = list.get(4) == null ? "" : list.get(4).trim();
+
+            // If no scopes declared in SSD for this SOC, skip validation for this sheet
+            boolean requiresDomain = !hasScopeHasUri.isEmpty();
+            boolean requiresTime = !hasTimeHasUri.isEmpty();
+            boolean requiresSpace = !hasSpaceHasUri.isEmpty();
+            if (!requiresDomain && !requiresTime && !requiresSpace) {
+                continue;
+            }
+
+            // Load current SOC sheet
+            SpreadsheetRecordFile socSheet = new SpreadsheetRecordFile(
+                    dataFile.getFile(), dataFile.getFilename(), cleanSheet);
+            if (socSheet == null || !socSheet.isValid() || socSheet.getRecords() == null) {
+                dataFile.getLogger().println("SSD scope validation: could not load SOC sheet '" + cleanSheet + "'.");
+                return false;
+            }
+
+            // Build originalID lookups for referenced SOCs
+            Set<String> domainOriginals = new HashSet<>();
+            Set<String> timeOriginals = new HashSet<>();
+            Set<String> spaceOriginals = new HashSet<>();
+
+            if (requiresDomain) {
+                String domainSheetName = mapCatalog.get(hasScopeHasUri);
+                if (domainSheetName == null || domainSheetName.trim().isEmpty()) {
+                    dataFile.getLogger().println("SSD scope validation: hasScope references a SOC ('" + hasScopeHasUri + "') that has no sheet in SSD.");
+                    return false;
+                }
+                SpreadsheetRecordFile ref = new SpreadsheetRecordFile(
+                        dataFile.getFile(), dataFile.getFilename(), domainSheetName.replace("#", ""));
+                if (ref == null || !ref.isValid() || ref.getRecords() == null) {
+                    dataFile.getLogger().println("SSD scope validation: referenced scope sheet '" + domainSheetName + "' cannot be opened.");
+                    return false;
+                }
+                for (Record rr : ref.getRecords()) {
+                    String oid = rr.getValueByColumnName("originalID");
+                    if (oid != null && !oid.trim().isEmpty()) domainOriginals.add(oid.trim());
+                }
+            }
+            if (requiresTime) {
+                String timeSheetName = mapCatalog.get(hasTimeHasUri);
+                if (timeSheetName == null || timeSheetName.trim().isEmpty()) {
+                    dataFile.getLogger().println("SSD scope validation: hasTimeScope references a SOC ('" + hasTimeHasUri + "') that has no sheet in SSD.");
+                    return false;
+                }
+                SpreadsheetRecordFile ref = new SpreadsheetRecordFile(
+                        dataFile.getFile(), dataFile.getFilename(), timeSheetName.replace("#", ""));
+                if (ref == null || !ref.isValid() || ref.getRecords() == null) {
+                    dataFile.getLogger().println("SSD scope validation: referenced time scope sheet '" + timeSheetName + "' cannot be opened.");
+                    return false;
+                }
+                for (Record rr : ref.getRecords()) {
+                    String oid = rr.getValueByColumnName("originalID");
+                    if (oid != null && !oid.trim().isEmpty()) timeOriginals.add(oid.trim());
+                }
+            }
+            if (requiresSpace) {
+                String spaceSheetName = mapCatalog.get(hasSpaceHasUri);
+                if (spaceSheetName == null || spaceSheetName.trim().isEmpty()) {
+                    dataFile.getLogger().println("SSD scope validation: hasSpaceScope references a SOC ('" + hasSpaceHasUri + "') that has no sheet in SSD.");
+                    return false;
+                }
+                SpreadsheetRecordFile ref = new SpreadsheetRecordFile(
+                        dataFile.getFile(), dataFile.getFilename(), spaceSheetName.replace("#", ""));
+                if (ref == null || !ref.isValid() || ref.getRecords() == null) {
+                    dataFile.getLogger().println("SSD scope validation: referenced space scope sheet '" + spaceSheetName + "' cannot be opened.");
+                    return false;
+                }
+                for (Record rr : ref.getRecords()) {
+                    String oid = rr.getValueByColumnName("originalID");
+                    if (oid != null && !oid.trim().isEmpty()) spaceOriginals.add(oid.trim());
+                }
+            }
+
+            // Validate each row in current SOC sheet
+            for (Record row : socSheet.getRecords()) {
+                String originalId = row.getValueByColumnName("originalID");
+                if (originalId == null || originalId.trim().isEmpty()) {
+                    // skip blank rows
+                    continue;
+                }
+                if (requiresDomain) {
+                    String scopeId = row.getValueByColumnName("scopeID");
+                    if (scopeId == null || scopeId.trim().isEmpty()) {
+                        dataFile.getLogger().println("SSD scope validation: SOC sheet '" + cleanSheet + "' row originalID='" + originalId + "' is missing scopeID while hasScope is set in SSD.");
+                        return false;
+                    }
+                    if (!domainOriginals.contains(scopeId.trim())) {
+                        dataFile.getLogger().println("SSD scope validation: SOC sheet '" + cleanSheet + "' row originalID='" + originalId + "' has scopeID='" + scopeId + "' not found in referenced SOC originalIDs.");
+                        return false;
+                    }
+                }
+                if (requiresTime) {
+                    String timeScopeId = row.getValueByColumnName("timeScopeID");
+                    if (timeScopeId == null || timeScopeId.trim().isEmpty()) {
+                        dataFile.getLogger().println("SSD scope validation: SOC sheet '" + cleanSheet + "' row originalID='" + originalId + "' is missing timeScopeID while hasTimeScope is set in SSD.");
+                        return false;
+                    }
+                    if (!timeOriginals.contains(timeScopeId.trim())) {
+                        dataFile.getLogger().println("SSD scope validation: SOC sheet '" + cleanSheet + "' row originalID='" + originalId + "' has timeScopeID='" + timeScopeId + "' not found in referenced SOC originalIDs.");
+                        return false;
+                    }
+                }
+                if (requiresSpace) {
+                    String spaceScopeId = row.getValueByColumnName("spaceScopeID");
+                    if (spaceScopeId == null || spaceScopeId.trim().isEmpty()) {
+                        dataFile.getLogger().println("SSD scope validation: SOC sheet '" + cleanSheet + "' row originalID='" + originalId + "' is missing spaceScopeID while hasSpaceScope is set in SSD.");
+                        return false;
+                    }
+                    if (!spaceOriginals.contains(spaceScopeId.trim())) {
+                        dataFile.getLogger().println("SSD scope validation: SOC sheet '" + cleanSheet + "' row originalID='" + originalId + "' has spaceScopeID='" + spaceScopeId + "' not found in referenced SOC originalIDs.");
+                        return false;
+                    }
+                }
+            }
+        }
         return true;
     }
 

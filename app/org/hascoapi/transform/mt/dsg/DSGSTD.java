@@ -42,7 +42,6 @@ public class DSGSTD {
         // Prefer Title if available, otherwise label
         String title = study.getTitle() != null ? study.getTitle() : study.getLabel();
         row.createCell(1).setCellValue(safe(title));
-        // Use comment as a placeholder for Specific Aims and Significance if not modeled
         row.createCell(2).setCellValue(safe(study.getComment()));
         row.createCell(3).setCellValue("");
         row.createCell(4).setCellValue(safe(study.getInstitutionUri()));
