@@ -43,7 +43,8 @@ public class AnnotateSSD extends BaseAnnotator {
         // New validation: if an SSD row declares scopes, enforce that the SOC sheet rows
         // have corresponding scope IDs pointing to originalIDs in the referenced SOC sheet(s)
         if (!validateScopeConsistency(dataFile, mapCatalog, mapContent)) {
-            dataFile.getLogger().println("SSD validation failed: scope IDs are missing or not found in referenced SOC sheets. Aborting SSD ingestion.");
+            // Replace plain log with dictionary-based exception for abort
+            dataFile.getLogger().printExceptionById("DSG_00022");
             return null;
         }
 
@@ -183,7 +184,7 @@ public class AnnotateSSD extends BaseAnnotator {
             SpreadsheetRecordFile socSheet = new SpreadsheetRecordFile(
                     dataFile.getFile(), dataFile.getFilename(), cleanSheet);
             if (socSheet == null || !socSheet.isValid() || socSheet.getRecords() == null) {
-                dataFile.getLogger().println("SSD scope validation: could not load SOC sheet '" + cleanSheet + "'.");
+                dataFile.getLogger().printExceptionByIdWithArgs("DSG_00019", "SOC sheet '" + cleanSheet + "'");
                 return false;
             }
 
@@ -195,13 +196,13 @@ public class AnnotateSSD extends BaseAnnotator {
             if (requiresDomain) {
                 String domainSheetName = mapCatalog.get(hasScopeHasUri);
                 if (domainSheetName == null || domainSheetName.trim().isEmpty()) {
-                    dataFile.getLogger().println("SSD scope validation: hasScope references a SOC ('" + hasScopeHasUri + "') that has no sheet in SSD.");
+                    dataFile.getLogger().printExceptionByIdWithArgs("GBL_00006", "hasScope", "DSG");
                     return false;
                 }
                 SpreadsheetRecordFile ref = new SpreadsheetRecordFile(
                         dataFile.getFile(), dataFile.getFilename(), domainSheetName.replace("#", ""));
                 if (ref == null || !ref.isValid() || ref.getRecords() == null) {
-                    dataFile.getLogger().println("SSD scope validation: referenced scope sheet '" + domainSheetName + "' cannot be opened.");
+                    dataFile.getLogger().printExceptionByIdWithArgs("DSG_00019", "referenced scope sheet '" + domainSheetName + "'");
                     return false;
                 }
                 for (Record rr : ref.getRecords()) {
@@ -212,13 +213,13 @@ public class AnnotateSSD extends BaseAnnotator {
             if (requiresTime) {
                 String timeSheetName = mapCatalog.get(hasTimeHasUri);
                 if (timeSheetName == null || timeSheetName.trim().isEmpty()) {
-                    dataFile.getLogger().println("SSD scope validation: hasTimeScope references a SOC ('" + hasTimeHasUri + "') that has no sheet in SSD.");
+                    dataFile.getLogger().printExceptionByIdWithArgs("GBL_00006", "hasTimeScope", "DSG");
                     return false;
                 }
                 SpreadsheetRecordFile ref = new SpreadsheetRecordFile(
                         dataFile.getFile(), dataFile.getFilename(), timeSheetName.replace("#", ""));
                 if (ref == null || !ref.isValid() || ref.getRecords() == null) {
-                    dataFile.getLogger().println("SSD scope validation: referenced time scope sheet '" + timeSheetName + "' cannot be opened.");
+                    dataFile.getLogger().printExceptionByIdWithArgs("DSG_00019", "referenced time scope sheet '" + timeSheetName + "'");
                     return false;
                 }
                 for (Record rr : ref.getRecords()) {
@@ -229,13 +230,13 @@ public class AnnotateSSD extends BaseAnnotator {
             if (requiresSpace) {
                 String spaceSheetName = mapCatalog.get(hasSpaceHasUri);
                 if (spaceSheetName == null || spaceSheetName.trim().isEmpty()) {
-                    dataFile.getLogger().println("SSD scope validation: hasSpaceScope references a SOC ('" + hasSpaceHasUri + "') that has no sheet in SSD.");
+                    dataFile.getLogger().printExceptionByIdWithArgs("GBL_00006", "hasSpaceScope", "DSG");
                     return false;
                 }
                 SpreadsheetRecordFile ref = new SpreadsheetRecordFile(
                         dataFile.getFile(), dataFile.getFilename(), spaceSheetName.replace("#", ""));
                 if (ref == null || !ref.isValid() || ref.getRecords() == null) {
-                    dataFile.getLogger().println("SSD scope validation: referenced space scope sheet '" + spaceSheetName + "' cannot be opened.");
+                    dataFile.getLogger().printExceptionByIdWithArgs("DSG_00019", "referenced space scope sheet '" + spaceSheetName + "'");
                     return false;
                 }
                 for (Record rr : ref.getRecords()) {
@@ -277,11 +278,12 @@ public class AnnotateSSD extends BaseAnnotator {
                 if (requiresSpace) {
                     String spaceScopeId = row.getValueByColumnName("spaceScopeID");
                     if (spaceScopeId == null || spaceScopeId.trim().isEmpty()) {
-                        dataFile.getLogger().println("SSD scope validation: SOC sheet '" + cleanSheet + "' row originalID='" + originalId + "' is missing spaceScopeID while hasSpaceScope is set in SSD.");
+                        // Replace plain log with dictionary-based exception the user requested
+                        dataFile.getLogger().printExceptionByIdWithArgs("DSG_00023", cleanSheet, originalId);
                         return false;
                     }
                     if (!spaceOriginals.contains(spaceScopeId.trim())) {
-                        dataFile.getLogger().println("SSD scope validation: SOC sheet '" + cleanSheet + "' row originalID='" + originalId + "' has spaceScopeID='" + spaceScopeId + "' not found in referenced SOC originalIDs.");
+                        dataFile.getLogger().printExceptionByIdWithArgs("DSG_00019", "spaceScopeID '" + spaceScopeId + "' not found in referenced SOC originalIDs");
                         return false;
                     }
                 }
@@ -333,4 +335,3 @@ public class AnnotateSSD extends BaseAnnotator {
         }
     }
 }
-
