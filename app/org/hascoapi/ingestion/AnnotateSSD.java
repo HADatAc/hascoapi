@@ -245,6 +245,7 @@ public class AnnotateSSD extends BaseAnnotator {
             }
 
             // Validate each row in current SOC sheet
+            int checkedRows = 0;
             for (Record row : socSheet.getRecords()) {
                 String originalId = row.getValueByColumnName("originalID");
                 if (originalId == null || originalId.trim().isEmpty()) {
@@ -284,7 +285,16 @@ public class AnnotateSSD extends BaseAnnotator {
                         return false;
                     }
                 }
+                // Successful validation for this row
+                checkedRows++;
             }
+            // Log successful validation summary for this SOC sheet
+            dataFile.getLogger().println(
+                "SSD scope validation: SOC sheet '" + cleanSheet + "' validated OK. Checked " + checkedRows + " row(s). " +
+                (requiresDomain ? "Domain scope OK. " : "") +
+                (requiresTime ? "Time scope OK. " : "") +
+                (requiresSpace ? "Space scope OK." : "")
+            );
         }
         return true;
     }
@@ -323,3 +333,4 @@ public class AnnotateSSD extends BaseAnnotator {
         }
     }
 }
+
