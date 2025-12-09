@@ -734,6 +734,21 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
 
         soc.setUri(uri);
 
+        // retrieve URIs of objects that are member of the collection (default and named graphs)
+        String ns = NameSpaces.getInstance().printSparqlNameSpaceList();
+        String q = ns +
+                "SELECT ?uriMember WHERE { \n" +
+                "  { ?uriMember hasco:isMemberOf <" + uri + "> . } UNION { GRAPH ?g { ?uriMember hasco:isMemberOf <" + uri + "> . } } \n" +
+                "}";
+        ResultSetRewindable resultsrwMember = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), q);
+        while (resultsrwMember.hasNext()) {
+            QuerySolution soln = resultsrwMember.next();
+            if (soln != null && soln.getResource("uriMember") != null && soln.getResource("uriMember").getURI() != null) {
+                String uriMemberStr = soln.getResource("uriMember").getURI();
+                soc.getObjectUris().add(uriMemberStr);
+            }
+        }
         return soc;
     }
 
@@ -956,6 +971,30 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
                 "   ?uri hasco:isMemberOf <" + studyUri + "> . \n" +
                 " } ";
         return findManyByQuery(queryString);
+    }
+
+    public static List<StudyObjectCollection> findStudyObjectCollectionsByStudyFlexible(String studyUri) {
+        if (studyUri == null || studyUri.isEmpty()) {
+            return new java.util.ArrayList<>();
+        }
+        String ns = NameSpaces.getInstance().printSparqlNameSpaceList();
+        String su = studyUri;
+        String q = ns +
+            "SELECT ?uri WHERE { \n" +
+            // Default graph branch: type + membership by URI or literal
+            "  { \n" +
+            "    { ?socType rdfs:subClassOf* hasco:StudyObjectCollection . } UNION { VALUES ?socType { hasco:SpaceCollection hasco:SubjectGroup } } \n" +
+            "    ?uri a ?socType . \n" +
+            "    { ?uri hasco:isMemberOf <" + su + "> . } UNION { ?uri hasco:isMemberOf ?m . FILTER (str(?m) = \"" + su + "\") } \n" +
+            "  } UNION \n" +
+            // Named graph branch: same patterns inside GRAPH ?g
+            "  { GRAPH ?g { \n" +
+            "    { ?socType rdfs:subClassOf* hasco:StudyObjectCollection . } UNION { VALUES ?socType { hasco:SpaceCollection hasco:SubjectGroup } } \n" +
+            "    ?uri a ?socType . \n" +
+            "    { ?uri hasco:isMemberOf <" + su + "> . } UNION { ?uri hasco:isMemberOf ?m2 . FILTER (str(?m2) = \"" + su + "\") } \n" +
+            "  } } \n" +
+            "}";
+        return findManyByQuery(q);
     }
 
     private static List<String> findStudyObjectCollectionUrisByStudy(String study_uri) {

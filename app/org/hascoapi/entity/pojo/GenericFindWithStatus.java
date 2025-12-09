@@ -372,5 +372,30 @@ public class GenericFindWithStatus<T> {
         return GenericFind.findTotalByQuery(queryString);
 	}
 
-}
 
+    /**
+     * Retrieve all studies (rdf:type subclass-of hasco:Study) with paging.
+     */
+    public List<T> findAllStudiesWithPages(int pageSize, int offset) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+        queryString += " SELECT ?uri WHERE { " +
+                " ?uri a ?t . ?t rdfs:subClassOf* hasco:Study . " +
+                " OPTIONAL { ?uri rdfs:label ?label . } " +
+                "}" +
+                " ORDER BY ASC(?label) " +
+                " LIMIT " + pageSize +
+                " OFFSET " + offset;
+        return GenericFind.findByQuery((Class<T>) Study.class, queryString);
+    }
+
+    /**
+     * Retrieve total count of all studies (rdf:type subclass-of hasco:Study).
+     */
+    public static int findTotalAllStudies() {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+        queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
+                " ?uri a ?t . ?t rdfs:subClassOf* hasco:Study . " +
+                "}";
+        return GenericFind.findTotalByQuery(queryString);
+    }
+}

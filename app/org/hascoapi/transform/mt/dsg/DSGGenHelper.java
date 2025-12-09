@@ -10,7 +10,7 @@ import org.apache.poi.ss.usermodel.*;
 
 public class DSGGenHelper {
 
-    public Map<String,NameSpace> namespaces;
+    public static Map<String,NameSpace> namespaces;
     public Map<String,Study> studies;
     public Map<String,SemanticDataDictionary> ssds; // Usando SemanticDataDictionary para SSD
     public Map<String,StudyObject> studyObjects; // Usando StudyObject para VD (Variable Design)
@@ -33,7 +33,7 @@ public class DSGGenHelper {
         }
     }
 
-    public Map<String, NameSpace> getNamespaces() {
+    public static Map<String, NameSpace> getNamespaces() {
         return namespaces;
     }
 
@@ -73,3 +73,4 @@ public class DSGGenHelper {
         this.workbook = workbook;
     }
 }
+

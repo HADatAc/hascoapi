@@ -483,6 +483,7 @@ public class IngestionAPI extends Controller {
                 System.out.println("entrou no switch case");
                 break;
             case "dsg":
+                System.out.println("Entrou no dsg");
                 DSGGen.genByStatus(status,filename,mediaFolder,verifyUri);
                 break;
             case "kgr":
@@ -539,6 +540,9 @@ public class IngestionAPI extends Controller {
         }
         String resp = "";
         switch (elementtype) {
+            case "study":
+                resp = DSGGen.genByStudy((Study)element,filename,mediaFolder,verifyUri);
+                break;
             case "instrument":
                 resp = INSGen.genByInstrument((Instrument)element,filename,mediaFolder,verifyUri);
                 break;
