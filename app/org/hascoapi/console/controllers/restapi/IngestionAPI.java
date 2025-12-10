@@ -599,6 +599,9 @@ public class IngestionAPI extends Controller {
             case "kgr":
                 KGRGen.genByManager(useremail, status, filename, mediaFolder, verifyUri);
                 break;
+            case "dsg":
+                DSGGen.genByManager(useremail, status, filename, mediaFolder, verifyUri);
+                break;
             default:
                 String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() invalid elementtype=[" + elementtype + "]";
                 System.out.println(errorMsg);

@@ -10,6 +10,7 @@ import org.hascoapi.entity.pojo.GenericFindWithStatus;
 import org.hascoapi.entity.pojo.NameSpace;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.hascoapi.utils.IngestionLogger;
 
 /*
 DSGGen builds an Excel workbook for studies:
@@ -150,6 +151,81 @@ public class DSGGen {
             return "FAILURE: saving workbook - " + t.getMessage();
         }
         System.out.println("[DSGGen] genByStudy END");
+        return saveResult;
+    }
+
+    public static String genByManager(String useremail, String status, String filename, String mediaFolder, String verifyUri) {
+        IngestionLogger logger = new IngestionLogger((org.hascoapi.entity.pojo.MessageTopic) null);
+        logger.println("[DSGGen] genByManager START status=" + status + ", useremail=" + useremail + ", filename=" + filename);
+
+        DSGGenHelper helper = new DSGGenHelper();
+        java.util.List<Study> studies = null;
+        boolean withCurrent = false; // retrieve just the elements of the requested status
+        try {
+            GenericFindWithStatus<Study> studyQuery = new GenericFindWithStatus<>();
+            logger.println("[DSGGen] Querying studies by manager with pageSize=" + PAGESIZE + ", offset=" + OFFSET);
+            studies = (java.util.List<Study>) (java.util.List<?>) studyQuery.findByStatusManagerEmailWithPages(Study.class, status, useremail, withCurrent, PAGESIZE, OFFSET);
+            logger.println("[DSGGen] Retrieved studies count=" + (studies == null ? 0 : studies.size()));
+        } catch (Throwable t) {
+            logger.printExceptionById("GBL_00032");
+            logger.printException("[DSGGen] ERROR fetching studies by manager: " + t.getMessage());
+            t.printStackTrace();
+            return "FAILURE: fetching studies by manager - " + t.getMessage();
+        }
+
+        try {
+            helper.workbook = DSGGen.create(filename, studies);
+            if (helper.workbook == null) {
+                logger.printException("[DSGGen] ERROR: workbook creation returned null");
+                return "FAILURE: workbook creation returned null";
+            }
+            logger.println("[DSGGen] Workbook created");
+        } catch (Throwable t) {
+            logger.printException("[DSGGen] ERROR creating workbook: " + t.getMessage());
+            t.printStackTrace();
+            return "FAILURE: creating workbook - " + t.getMessage();
+        }
+
+        if (studies != null && !studies.isEmpty()) {
+            logger.println("[DSGGen] Iterating studies to populate STD/SSD");
+            int idx = 0;
+            for (Study study : studies) {
+                idx++;
+                if (study == null) {
+                    logger.printWarning("[DSGGen] WARN: study[" + idx + "] is null, skipping");
+                    continue;
+                }
+                logger.println("[DSGGen] Processing study[" + idx + "] uri=" + study.getUri() + ", title=" + study.getTitle());
+                try {
+                    helper = DSGSTD.add(helper, study);
+                    logger.println("[DSGGen] STD added for study[" + idx + "]");
+                } catch (Throwable t) {
+                    logger.printException("[DSGGen] ERROR adding STD for study uri=" + study.getUri() + ": " + t.getMessage());
+                    t.printStackTrace();
+                }
+                try {
+                    helper = DSGSSD.addByStudy(helper, study);
+                    logger.println("[DSGGen] SSD added for study[" + idx + "]");
+                } catch (Throwable t) {
+                    logger.printException("[DSGGen] ERROR adding SSD for study uri=" + study.getUri() + ": " + t.getMessage());
+                    t.printStackTrace();
+                }
+            }
+        } else {
+            logger.printWarningByIdWithArgs("GBL_00003", "Studies");
+            logger.println("[DSGGen] No studies found for manager/status; STD/SSD population skipped");
+        }
+
+        String saveResult;
+        try {
+            saveResult = DSGGen.save(helper, filename);
+            logger.println("[DSGGen] Save result=" + saveResult);
+        } catch (Throwable t) {
+            logger.printException("[DSGGen] ERROR saving workbook: " + t.getMessage());
+            t.printStackTrace();
+            return "FAILURE: saving workbook - " + t.getMessage();
+        }
+        logger.println("[DSGGen] genByManager END");
         return saveResult;
     }
 
