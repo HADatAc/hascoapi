@@ -8,9 +8,10 @@ import java.util.Map;
 import org.hascoapi.entity.pojo.Study;
 import org.hascoapi.entity.pojo.GenericFindWithStatus;
 import org.hascoapi.entity.pojo.NameSpace;
+import org.hascoapi.entity.pojo.DataFile;
+import org.hascoapi.entity.pojo.DSG;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.hascoapi.utils.IngestionLogger;
 
 /*
 DSGGen builds an Excel workbook for studies:
@@ -38,11 +39,41 @@ public class DSGGen {
         DSGGenHelper helper = new DSGGenHelper();
         List<Study> studies = null;
         try {
-            GenericFindWithStatus<Study> studyQuery = new GenericFindWithStatus<>();
-            System.out.println("[DSGGen] Querying ALL studies with pageSize=" + PAGESIZE + ", offset=" + OFFSET);
-            // Per request: do not filter by status; get all studies
-            studies = (List<Study>) (List<?>) studyQuery.findAllStudiesWithPages(PAGESIZE, OFFSET);
-            System.out.println("[DSGGen] Retrieved studies count=" + (studies == null ? 0 : studies.size()));
+            // 1) Buscar todos os estudos por tipo
+            String diagQuery = org.hascoapi.utils.NameSpaces.getInstance().printSparqlNameSpaceList()
+                    + " SELECT ?uri WHERE { "
+                    + "   ?studyType rdfs:subClassOf* hasco:Study . "
+                    + "   ?uri a ?studyType . "
+                    + " }";
+            System.out.println("[DSGGen] Diagnostic SPARQL (all studies):\n" + diagQuery);
+            java.util.List<Study> allStudies = org.hascoapi.entity.pojo.GenericFind.findByQuery(Study.class, diagQuery);
+            System.out.println("[DSGGen] Diagnostic: total studies found=" + (allStudies == null ? 0 : allStudies.size()));
+
+            // 2) Filtrar por status "lógico" enquanto não há vstoi:hasStatus persistido
+            // Regra: se um Study não tem hasStatus explícito, vamos tratá-lo como Draft por padrão.
+            String requestedStatus = status == null ? "" : status.trim();
+            String draftStatus = org.hascoapi.vocabularies.VSTOI.DRAFT;
+
+            studies = new java.util.ArrayList<>();
+            if (allStudies != null) {
+                for (Study s : allStudies) {
+                    String rawStatus = s.getHasStatus();
+                    String effectiveStatus = (rawStatus == null || rawStatus.isEmpty()) ? draftStatus : rawStatus;
+
+                    System.out.println("  [DSGGen] Study diag: uri=" + s.getUri()
+                            + ", title=" + s.getTitle()
+                            + ", rawStatus=" + rawStatus
+                            + ", effectiveStatus=" + effectiveStatus);
+
+                    if (requestedStatus.isEmpty()) {
+                        // Sem filtro: inclui todos
+                        studies.add(s);
+                    } else if (effectiveStatus.equals(requestedStatus)) {
+                        studies.add(s);
+                    }
+                }
+            }
+            System.out.println("[DSGGen] Filtered studies by status; count=" + (studies == null ? 0 : studies.size()));
         } catch (Throwable t) {
             System.err.println("[DSGGen] ERROR fetching studies: " + t.getMessage());
             t.printStackTrace();
@@ -88,7 +119,7 @@ public class DSGGen {
                 }
             }
         } else {
-            System.out.println("[DSGGen] No studies found for status=" + status + "; STD/SSD population skipped");
+            System.out.println("[DSGGen] No studies found; STD/SSD population skipped");
         }
 
         String saveResult;
@@ -105,12 +136,12 @@ public class DSGGen {
     }
 
     public static String genByStudy(Study study, String filename, String mediaFolder, String verifyUri) {
-        System.out.println("[DSGGen] genByStudy START filename=" + filename);
-        DSGGenHelper helper = new DSGGenHelper();
         if (study == null) {
             System.err.println("[DSGGen] ERROR: study is null");
             return "FAILURE: study is null";
         }
+        System.out.println("[DSGGen] genByStudy START filename=" + filename + ", studyUri=" + study.getUri());
+        DSGGenHelper helper = new DSGGenHelper();
         try {
             java.util.List<Study> studies = new java.util.ArrayList<>();
             studies.add(study);
@@ -155,20 +186,17 @@ public class DSGGen {
     }
 
     public static String genByManager(String useremail, String status, String filename, String mediaFolder, String verifyUri) {
-        IngestionLogger logger = new IngestionLogger((org.hascoapi.entity.pojo.MessageTopic) null);
-        logger.println("[DSGGen] genByManager START status=" + status + ", useremail=" + useremail + ", filename=" + filename);
-
+        System.out.println("[DSGGen] genByManager START status=" + status + ", useremail=" + useremail + ", filename=" + filename);
         DSGGenHelper helper = new DSGGenHelper();
         java.util.List<Study> studies = null;
         boolean withCurrent = false; // retrieve just the elements of the requested status
         try {
             GenericFindWithStatus<Study> studyQuery = new GenericFindWithStatus<>();
-            logger.println("[DSGGen] Querying studies by manager with pageSize=" + PAGESIZE + ", offset=" + OFFSET);
+            System.out.println("[DSGGen] Querying studies by manager with pageSize=" + PAGESIZE + ", offset=" + OFFSET);
             studies = (java.util.List<Study>) (java.util.List<?>) studyQuery.findByStatusManagerEmailWithPages(Study.class, status, useremail, withCurrent, PAGESIZE, OFFSET);
-            logger.println("[DSGGen] Retrieved studies count=" + (studies == null ? 0 : studies.size()));
+            System.out.println("[DSGGen] Retrieved studies count=" + (studies == null ? 0 : studies.size()));
         } catch (Throwable t) {
-            logger.printExceptionById("GBL_00032");
-            logger.printException("[DSGGen] ERROR fetching studies by manager: " + t.getMessage());
+            System.err.println("[DSGGen] ERROR fetching studies by manager: " + t.getMessage());
             t.printStackTrace();
             return "FAILURE: fetching studies by manager - " + t.getMessage();
         }
@@ -176,56 +204,55 @@ public class DSGGen {
         try {
             helper.workbook = DSGGen.create(filename, studies);
             if (helper.workbook == null) {
-                logger.printException("[DSGGen] ERROR: workbook creation returned null");
+                System.err.println("[DSGGen] ERROR: workbook creation returned null");
                 return "FAILURE: workbook creation returned null";
             }
-            logger.println("[DSGGen] Workbook created");
+            System.out.println("[DSGGen] Workbook created");
         } catch (Throwable t) {
-            logger.printException("[DSGGen] ERROR creating workbook: " + t.getMessage());
+            System.err.println("[DSGGen] ERROR creating workbook: " + t.getMessage());
             t.printStackTrace();
             return "FAILURE: creating workbook - " + t.getMessage();
         }
 
         if (studies != null && !studies.isEmpty()) {
-            logger.println("[DSGGen] Iterating studies to populate STD/SSD");
+            System.out.println("[DSGGen] Iterating studies to populate STD/SSD");
             int idx = 0;
             for (Study study : studies) {
                 idx++;
                 if (study == null) {
-                    logger.printWarning("[DSGGen] WARN: study[" + idx + "] is null, skipping");
+                    System.out.println("[DSGGen] WARN: study[" + idx + "] is null, skipping");
                     continue;
                 }
-                logger.println("[DSGGen] Processing study[" + idx + "] uri=" + study.getUri() + ", title=" + study.getTitle());
+                System.out.println("[DSGGen] Processing study[" + idx + "] uri=" + study.getUri() + ", title=" + study.getTitle());
                 try {
                     helper = DSGSTD.add(helper, study);
-                    logger.println("[DSGGen] STD added for study[" + idx + "]");
+                    System.out.println("[DSGGen] STD added for study[" + idx + "]");
                 } catch (Throwable t) {
-                    logger.printException("[DSGGen] ERROR adding STD for study uri=" + study.getUri() + ": " + t.getMessage());
+                    System.err.println("[DSGGen] ERROR adding STD for study uri=" + study.getUri() + ": " + t.getMessage());
                     t.printStackTrace();
                 }
                 try {
                     helper = DSGSSD.addByStudy(helper, study);
-                    logger.println("[DSGGen] SSD added for study[" + idx + "]");
+                    System.out.println("[DSGGen] SSD added for study[" + idx + "]");
                 } catch (Throwable t) {
-                    logger.printException("[DSGGen] ERROR adding SSD for study uri=" + study.getUri() + ": " + t.getMessage());
+                    System.err.println("[DSGGen] ERROR adding SSD for study uri=" + study.getUri() + ": " + t.getMessage());
                     t.printStackTrace();
                 }
             }
         } else {
-            logger.printWarningByIdWithArgs("GBL_00003", "Studies");
-            logger.println("[DSGGen] No studies found for manager/status; STD/SSD population skipped");
+            System.out.println("[DSGGen] No studies found for manager/status; STD/SSD population skipped");
         }
 
         String saveResult;
         try {
             saveResult = DSGGen.save(helper, filename);
-            logger.println("[DSGGen] Save result=" + saveResult);
+            System.out.println("[DSGGen] Save result=" + saveResult);
         } catch (Throwable t) {
-            logger.printException("[DSGGen] ERROR saving workbook: " + t.getMessage());
+            System.err.println("[DSGGen] ERROR saving workbook: " + t.getMessage());
             t.printStackTrace();
             return "FAILURE: saving workbook - " + t.getMessage();
         }
-        logger.println("[DSGGen] genByManager END");
+        System.out.println("[DSGGen] genByManager END");
         return saveResult;
     }
 

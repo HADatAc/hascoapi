@@ -40,27 +40,46 @@ public class DSGSSD {
         add(helper, null);
         Sheet ssdSheet = helper.workbook.getSheet(DSGGen.SSD);
 
+        // Build a set of existing (sheet,hasURI) keys to avoid duplicates across previous studies
+        java.util.HashSet<String> existingKeys = new java.util.HashSet<>();
+        for (int r = 1; r <= ssdSheet.getLastRowNum(); r++) {
+            Row row = ssdSheet.getRow(r);
+            if (row == null) continue;
+            String sheetCell0 = getCellString(row.getCell(0));
+            String hasUri0 = getCellString(row.getCell(1));
+            if (!hasUri0.isEmpty()) {
+                existingKeys.add(sheetCell0 + "::" + hasUri0);
+            }
+        }
+
         // Fetch SOCs for the study (flexible: search in any named graph)
-        java.util.List<StudyObjectCollection> socs = org.hascoapi.entity.pojo.StudyObjectCollection.findStudyObjectCollectionsByStudyFlexible(study.getUri());
+        java.util.List<StudyObjectCollection> socs = org.hascoapi.entity.pojo.StudyObjectCollection
+                .findStudyObjectCollectionsByStudyFlexible(study.getUri());
         int socCount = (socs == null) ? 0 : socs.size();
         System.out.println("[DSGSSD] Study uri=" + study.getUri() + "; found SOC count=" + socCount);
         if (socs == null || socs.isEmpty()) {
             return helper;
         }
 
-        java.util.HashSet<String> seenHasUri = new java.util.HashSet<>();
+        // Track keys added in this call to avoid adding same SOC twice for this study
+        java.util.HashSet<String> seenKeys = new java.util.HashSet<>();
 
         for (StudyObjectCollection soc : socs) {
             if (soc == null) { continue; }
-            // Derive SSD row values according to requested header order
             String rawSheetName = deriveSheetName(soc);
             String sheetCell = rawSheetName.isEmpty() ? "" : ("#" + rawSheetName);
             String hasURI = deriveHasURI(soc);
-            if (seenHasUri.contains(hasURI)) {
-                System.out.println("[DSGSSD] Skipping duplicate SOC hasURI=" + hasURI);
+            String key = sheetCell + "::" + hasURI;
+
+            if (existingKeys.contains(key)) {
+                System.out.println("[DSGSSD] Skipping SSD duplicate already in sheet key=" + key);
                 continue;
             }
-            seenHasUri.add(hasURI);
+            if (seenKeys.contains(key)) {
+                System.out.println("[DSGSSD] Skipping SSD duplicate in this run key=" + key);
+                continue;
+            }
+            seenKeys.add(key);
 
             String type = URIUtils.replacePrefixEx(safe(soc.getTypeUri()));
             String hasSOCReference = safe(soc.getSOCReference());
@@ -73,22 +92,21 @@ public class DSGSSD {
             String hasSpaceScope = deriveHasUriList(soc.getSpaceScopeUris());
             String source = ""; // not available on StudyObjectCollection
 
-            // Append SSD row per new header order
             int rowNum = ssdSheet.getLastRowNum() + 1;
             Row row = ssdSheet.createRow(rowNum);
-            row.createCell(0).setCellValue(sheetCell);          // sheet (with '#')
-            row.createCell(1).setCellValue(hasURI);             // hasURI
-            row.createCell(2).setCellValue(type);               // type
-            row.createCell(3).setCellValue(hasSOCReference);    // hasSOCReference
-            row.createCell(4).setCellValue(comment);            // comment
-            row.createCell(5).setCellValue(label);              // label
-            row.createCell(6).setCellValue(definition);         // definition
-            row.createCell(7).setCellValue(groundingLabel);     // groundingLabel
-            row.createCell(8).setCellValue(hasScope);           // hasScope
-            row.createCell(9).setCellValue(hasTimeScope);       // hasTimeScope
-            row.createCell(10).setCellValue(hasSpaceScope);     // hasSpaceScope
-            row.createCell(11).setCellValue(source);            // source
-            System.out.println("[DSGSSD] Added SSD row for SOC uri=" + safe(soc.getUri()) + ", sheetCell=" + sheetCell + ", hasURI=" + hasURI);
+            row.createCell(0).setCellValue(sheetCell);
+            row.createCell(1).setCellValue(hasURI);
+            row.createCell(2).setCellValue(type);
+            row.createCell(3).setCellValue(hasSOCReference);
+            row.createCell(4).setCellValue(comment);
+            row.createCell(5).setCellValue(label);
+            row.createCell(6).setCellValue(definition);
+            row.createCell(7).setCellValue(groundingLabel);
+            row.createCell(8).setCellValue(hasScope);
+            row.createCell(9).setCellValue(hasTimeScope);
+            row.createCell(10).setCellValue(hasSpaceScope);
+            row.createCell(11).setCellValue(source);
+            System.out.println("[DSGSSD] Added SSD row for SOC uri=" + safe(soc.getUri()) + ", key=" + key);
 
             // If sheet cell provided, create the SOC sheet and populate details
             if (!rawSheetName.isEmpty()) {
@@ -138,6 +156,16 @@ public class DSGSSD {
             // ignore sizing issues
         }
         return helper;
+    }
+
+    private static String getCellString(Cell cell) {
+        if (cell == null) return "";
+        switch (cell.getCellType()) {
+            case STRING:  return safe(cell.getStringCellValue());
+            case NUMERIC: return String.valueOf((long)cell.getNumericCellValue());
+            case BOOLEAN: return String.valueOf(cell.getBooleanCellValue());
+            default:      return "";
+        }
     }
 
     private static String getGroundingLabelSafe(StudyObjectCollection soc) {
@@ -237,3 +265,4 @@ public class DSGSSD {
 
     private static String safe(String val) { return val == null ? "" : val; }
 }
+
