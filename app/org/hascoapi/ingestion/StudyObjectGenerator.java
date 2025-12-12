@@ -140,8 +140,12 @@ public class StudyObjectGenerator extends BaseGenerator {
         }
         auxstr = auxstr.replaceAll("\\s+","");
         //System.out.println("StudyObjectGenerator: getOriginalID(2) = [" + auxstr + "]");
-        
-        //auxstr = auxstr.replaceAll("(?<=^\\d+)\\.0*$", "");
+
+        auxstr = auxstr.replace(' ', '_');
+        //System.out.println("StudyObjectGenerator: getOriginalID(2) = [" + auxstr + "]");
+
+
+    //auxstr = auxstr.replaceAll("(?<=^\\d+)\\.0*$", "");
         //System.out.println("StudyObjectGenerator: getOriginalID(3) = [" + auxstr + "]");
         return auxstr;
     }
