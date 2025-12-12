@@ -2,6 +2,7 @@ package org.hascoapi.transform.mt.dsg;
 
 import org.hascoapi.entity.pojo.Study;
 import org.apache.poi.ss.usermodel.*;
+import org.hascoapi.utils.URIUtils;
 
 public class DSGSTD {
 
@@ -38,14 +39,15 @@ public class DSGSTD {
         int rowNum = sheet.getLastRowNum() + 1;
         Row row = sheet.createRow(rowNum);
         // Map available Study fields; unknowns left blank
-        row.createCell(0).setCellValue(safe(study.getUri()));
+        String studyUriAbbrev = URIUtils.replaceNameSpaceEx(safe(study.getUri()));
+        row.createCell(0).setCellValue(studyUriAbbrev);
         // Prefer Title if available, otherwise label
         String title = study.getTitle() != null ? study.getTitle() : study.getLabel();
         row.createCell(1).setCellValue(safe(title));
         row.createCell(2).setCellValue(safe(study.getComment()));
         row.createCell(3).setCellValue("");
-        row.createCell(4).setCellValue(safe(study.getInstitutionUri()));
-        row.createCell(5).setCellValue(safe(study.getPiUri()));
+        row.createCell(4).setCellValue(URIUtils.replaceNameSpaceEx(safe(study.getInstitutionUri())));
+        row.createCell(5).setCellValue(URIUtils.replaceNameSpaceEx(safe(study.getPiUri())));
         row.createCell(6).setCellValue("");
         row.createCell(7).setCellValue("");
         row.createCell(8).setCellValue("");
@@ -65,14 +67,14 @@ public class DSGSTD {
         row.createCell(22).setCellValue(safe(study.getEndedAt()));
         row.createCell(23).setCellValue("");
 
-        // Update InfoSheet hasStudyURI with the current study
+        // Update InfoSheet hasStudyURI with the current study (abreviado)
         Sheet infoSheet = helper.workbook.getSheet(DSGGen.INFOSHEET);
         if (infoSheet != null) {
             Row studyUriRow = infoSheet.getRow(2);
             if (studyUriRow == null) studyUriRow = infoSheet.createRow(2);
             Cell valueCell = studyUriRow.getCell(1);
             if (valueCell == null) valueCell = studyUriRow.createCell(1);
-            valueCell.setCellValue(safe(study.getUri()));
+            valueCell.setCellValue(studyUriAbbrev);
         }
         return helper;
     }

@@ -68,7 +68,8 @@ public class DSGSSD {
             if (soc == null) { continue; }
             String rawSheetName = deriveSheetName(soc);
             String sheetCell = rawSheetName.isEmpty() ? "" : ("#" + rawSheetName);
-            String hasURI = deriveHasURI(soc);
+            // hasURI deve ser abreviado com prefixo
+            String hasURI = URIUtils.replaceNameSpaceEx(deriveHasURI(soc));
             String key = sheetCell + "::" + hasURI;
 
             if (existingKeys.contains(key)) {
@@ -81,15 +82,15 @@ public class DSGSSD {
             }
             seenKeys.add(key);
 
-            String type = URIUtils.replacePrefixEx(safe(soc.getTypeUri()));
+            String type = URIUtils.replaceNameSpaceEx(safe(soc.getTypeUri()));
             String hasSOCReference = safe(soc.getSOCReference());
             String comment = safe(soc.getComment());
             String label = safe(soc.getLabel());
             String definition = ""; // not available on StudyObjectCollection
             String groundingLabel = safe(getGroundingLabelSafe(soc));
-            String hasScope = deriveHasUriFromSocUri(soc.getHasScopeUri());
-            String hasTimeScope = deriveHasUriList(soc.getTimeScopeUris());
-            String hasSpaceScope = deriveHasUriList(soc.getSpaceScopeUris());
+            String hasScope = URIUtils.replaceNameSpaceEx(deriveHasUriFromSocUri(soc.getHasScopeUri()));
+            String hasTimeScope = URIUtils.replaceNameSpaceEx(deriveHasUriList(soc.getTimeScopeUris()));
+            String hasSpaceScope = URIUtils.replaceNameSpaceEx(deriveHasUriList(soc.getSpaceScopeUris()));
             String source = ""; // not available on StudyObjectCollection
 
             int rowNum = ssdSheet.getLastRowNum() + 1;
@@ -137,7 +138,7 @@ public class DSGSSD {
                         int r = socSheet.getLastRowNum() + 1;
                         Row sr = socSheet.createRow(r);
                         sr.createCell(0).setCellValue(originalId);
-                        sr.createCell(1).setCellValue(URIUtils.replacePrefixEx(safe(obj.getTypeUri())));
+                        sr.createCell(1).setCellValue(URIUtils.replaceNameSpaceEx(URIUtils.replacePrefixEx(safe(obj.getTypeUri()))));
                         // Map object scopes to originalIDs
                         sr.createCell(2).setCellValue(joinOriginalIds(obj.getScopeUris()));
                         sr.createCell(3).setCellValue(joinOriginalIds(obj.getTimeScopeUris()));
@@ -265,4 +266,3 @@ public class DSGSSD {
 
     private static String safe(String val) { return val == null ? "" : val; }
 }
-

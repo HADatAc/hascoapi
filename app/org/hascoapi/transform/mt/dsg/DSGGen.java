@@ -12,6 +12,7 @@ import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.entity.pojo.DSG;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.hascoapi.utils.URIUtils;
 
 /*
 DSGGen builds an Excel workbook for studies:
@@ -280,7 +281,8 @@ public class DSGGen {
             Study first = studies.get(0);
             studyUri = first.getUri() != null && !first.getUri().isEmpty() ? first.getUri() : safe(first.getTitle());
         }
-        dataRow2.createCell(1).setCellValue(studyUri);
+        // Abreviar URI com prefixo, se aplicável
+        dataRow2.createCell(1).setCellValue(URIUtils.replaceNameSpaceEx(studyUri));
 
         Row dataRow3 = infoSheet.createRow(3);
         dataRow3.createCell(0).setCellValue("hasStudyKG");
