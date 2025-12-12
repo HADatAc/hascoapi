@@ -108,14 +108,18 @@ public class StudyObjectGenerator extends BaseGenerator {
 
     private String getLabel(Record rec) {
         String originalID = rec.getValueByColumnName(mapCol.get("originalID"));
+
         if (URIUtils.isValidURI(originalID)) {
             return URIUtils.getBaseName(originalID);
         }
-        
+
+        // Versão usada no label: substituir espaços simples por underscore
+        String labelId = originalID == null ? "" : originalID.replace(' ', '_');
+
         if (getSoc() != null && getSoc().getRoleLabel() != null && !getSoc().getRoleLabel().equals("")) {
-    		return getSoc().getRoleLabel() + " " + originalID;
-    	}
-        
+            return getSoc().getRoleLabel() + " " + labelId;
+        }
+
         String auxstr = uriMap.get(soc_type);
         if (auxstr == null) {
             auxstr = "";
@@ -124,9 +128,9 @@ public class StudyObjectGenerator extends BaseGenerator {
         }
 
         if (auxstr.contains("SBJ")) {
-            return auxstr + " " + originalID;
+            return auxstr + " " + labelId;
         }
-        return auxstr + " " + originalID + " - " + study_id;
+        return auxstr + " " + labelId + " - " + study_id;
     }
 
     private String getOriginalID(Record rec) {
@@ -134,15 +138,12 @@ public class StudyObjectGenerator extends BaseGenerator {
         //System.out.println("StudyObjectGenerator: getOriginalID(1) = [" + auxstr + "]");
         if (auxstr == null) {
             return "";
-        } 
+        }
         if (URIUtils.isValidURI(auxstr)) {
             return "";
         }
         auxstr = auxstr.replaceAll("\\s+","");
-        //System.out.println("StudyObjectGenerator: getOriginalID(2) = [" + auxstr + "]");
-
-        auxstr = auxstr.replace(' ', '_');
-        //System.out.println("StudyObjectGenerator: getOriginalID(2) = [" + auxstr + "]");
+        //System.out.println("StudyObjectGenerator: getOriginalID(2) = [" + auxstr + "]");;
 
 
     //auxstr = auxstr.replaceAll("(?<=^\\d+)\\.0*$", "");
@@ -196,10 +197,10 @@ public class StudyObjectGenerator extends BaseGenerator {
         		String returnedValue = rec.getValueByColumnName(mapCol.get("timeScopeID"));
         		// the value returned by getValueByColumnName may be an URI or an original.
         		if (URIUtils.isValidURI(returnedValue)) {
-        			// if returned value is an URI, this function returns the URI with expanded namespace 
+        			// if returned value is an URI, this function returns the URI with expanded namespace
         			return URIUtils.replacePrefixEx(returnedValue);
         		} else {
-        			// if returned value is not an URI, this function composes an URI according to SDD convention 
+        			// if returned value is not an URI, this function composes an URI according to SDD convention
                     return Utils.uriPlainGen("studyobject",
                         rec.getValueByColumnName(mapCol.get("timeScopeID")).replaceAll("(?<=^\\d+)\\.0*$", ""),
                         this.namespace,
@@ -222,10 +223,10 @@ public class StudyObjectGenerator extends BaseGenerator {
         		String returnedValue = rec.getValueByColumnName(mapCol.get("spaceScopeID"));
         		// the value returned by getValueByColumnName may be an URI or an original.
         		if (URIUtils.isValidURI(returnedValue)) {
-        			// if returned value is an URI, this function returns the URI with expanded namespace 
+        			// if returned value is an URI, this function returns the URI with expanded namespace
         			return URIUtils.replacePrefixEx(returnedValue);
         		} else {
-        			// if returned value is not an URI, this function composes an URI according to SDD convention 
+        			// if returned value is not an URI, this function composes an URI according to SDD convention
                     return Utils.uriPlainGen("studyobject",
                         rec.getValueByColumnName(mapCol.get("spaceScopeID")).replaceAll("(?<=^\\d+)\\.0*$", ""),
                         this.namespace,
