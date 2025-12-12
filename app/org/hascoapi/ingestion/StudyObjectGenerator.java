@@ -96,10 +96,14 @@ public class StudyObjectGenerator extends BaseGenerator {
     }
 
     private String getUri(Record rec) {
-        return Utils.uriPlainGen("studyobject",
-            rec.getValueByColumnName(mapCol.get("originalID")),
-            this.namespace,
-            this.soc_reference);
+        String originalID = rec.getValueByColumnName(mapCol.get("originalID"));
+        // Sanitiza o identificador para uso em URI: trim, colapsa whitespace e troca espaços por underscore
+        String localId = "";
+        if (originalID != null) {
+            localId = originalID.trim().replaceAll("\\s+", " ");
+            localId = localId.replace(' ', '_');
+        }
+        return Utils.uriPlainGen("studyobject", localId, this.namespace, this.soc_reference);
     }
 
     private String getType(Record rec) {
