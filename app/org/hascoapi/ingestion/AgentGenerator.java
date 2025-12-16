@@ -173,11 +173,29 @@ public class AgentGenerator extends BaseGenerator {
 	}
 	
 	private String getPIGivenName(Record rec) {
-		return rec.getValueByColumnName(mapCol.get("PI")).substring(0, getPIFullName(rec).indexOf(' '));
+		String fullName = getPIFullName(rec);
+		if (fullName == null || fullName.isEmpty()) {
+			return "";
+		}
+		int spaceIndex = fullName.indexOf(' ');
+		if (spaceIndex == -1) {
+			// No space found, treat entire name as given name
+			return fullName;
+		}
+		return fullName.substring(0, spaceIndex);
 	}
 	
 	private String getPIFamilyName(Record rec) {
-		return rec.getValueByColumnName(mapCol.get("PI")).substring(getPIFullName(rec).indexOf(' ') + 1);
+		String fullName = getPIFullName(rec);
+		if (fullName == null || fullName.isEmpty()) {
+			return "";
+		}
+		int spaceIndex = fullName.indexOf(' ');
+		if (spaceIndex == -1) {
+			// No space found, return empty string for family name
+			return "";
+		}
+		return fullName.substring(spaceIndex + 1);
 	}
 	
 	private String getPIMBox(Record rec) {

@@ -230,6 +230,36 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
         return null;
     }
 
+	/**
+	 * Validates and sanitizes a string to ensure it's a valid SPARQL prefix identifier.
+	 * Valid prefixes must start with a letter and contain only letters, digits, underscores, and hyphens.
+	 * @param prefix The prefix string to validate
+	 * @return A valid prefix string, or null if the input cannot be sanitized
+	 */
+	private static String sanitizePrefix(String prefix) {
+		if (prefix == null || prefix.isEmpty()) {
+			return null;
+		}
+		
+		// Remove language tags (e.g., @es, @en)
+		String sanitized = prefix.replaceAll("@[a-z]{2}(-[A-Z]{2})?$", "");
+		
+		// Replace spaces and invalid characters with underscores or remove them
+		sanitized = sanitized.replaceAll("[^a-zA-Z0-9_-]", "_");
+		
+		// Ensure it starts with a letter
+		if (!sanitized.isEmpty() && !Character.isLetter(sanitized.charAt(0))) {
+			sanitized = "ns_" + sanitized;
+		}
+		
+		// Check if the result is valid
+		if (sanitized.isEmpty() || !sanitized.matches("[a-zA-Z][a-zA-Z0-9_-]*")) {
+			return null;
+		}
+		
+		return sanitized;
+	}
+
 	public static NameSpace find(String uri) {
  		if (uri == null || uri.isEmpty()) {
 			return null;
@@ -245,6 +275,10 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
 		} else {
             ns = new NameSpace();
 		}
+
+		// Temporary variables to handle priority between rdfs:label and hasco:hasAbbreviation
+		String rdfsLabel = null;
+		String hascoAbbreviation = null;
 
 		// Iterate over results
 		while (resultSet.hasNext()) {
@@ -263,7 +297,11 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
 				//System.out.println("Predicate: " + predicate + " | Object: " + object);
 
 				if (predicate.equals(RDFS.LABEL)) {
-					ns.setLabel(object);
+					// Store rdfs:label but don't use it directly as prefix
+					rdfsLabel = object;
+				} else if (predicate.equals(HASCO.HAS_ABBREVIATION)) {
+					// Prefer hasAbbreviation for the prefix label
+					hascoAbbreviation = object;
 				} else if (predicate.equals(RDF.TYPE)) {
 					ns.setTypeUri(object); 
 				} else if (predicate.equals(HASCO.HASCO_TYPE)) {
@@ -274,8 +312,6 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
 					ns.setHasImageUri(object);
 				} else if (predicate.equals(HASCO.HAS_WEB_DOCUMENT)) {
 					ns.setHasWebDocument(object);
-				} else if (predicate.equals(HASCO.HAS_ABBREVIATION)) {
-					ns.setLabel(object);
 				} else if (predicate.equals(HASCO.HAS_SOURCE)) {
 					ns.setSource(object);
 				} else if (predicate.equals(HASCO.HAS_SOURCE_MIME)) {
@@ -287,6 +323,24 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
 				}
 			}
 		}
+
+		// Set the label with priority: hasAbbreviation > sanitized rdfs:label > generated prefix
+		String finalLabel = null;
+		if (hascoAbbreviation != null && !hascoAbbreviation.isEmpty()) {
+			finalLabel = sanitizePrefix(hascoAbbreviation);
+		}
+		if (finalLabel == null && rdfsLabel != null && !rdfsLabel.isEmpty()) {
+			finalLabel = sanitizePrefix(rdfsLabel);
+		}
+		if (finalLabel == null) {
+			// Generate a prefix from the URI as last resort
+			String uriPart = uri.replaceAll("[^a-zA-Z0-9]", "_");
+			if (uriPart.length() > 20) {
+				uriPart = uriPart.substring(0, 20);
+			}
+			finalLabel = "ns_" + uriPart;
+		}
+		ns.setLabel(finalLabel);
 
         ns.setNumberOfLoadedTriples();
 
