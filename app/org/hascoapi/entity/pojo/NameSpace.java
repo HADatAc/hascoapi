@@ -528,9 +528,10 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
         } else if (contentType.contains("rdf+xml")) {
             return RDFFormat.RDFXML;
         } else {
-            return RDFFormat.TURTLE;
+            return RDFFormat.NTRIPLES;
         }
     }
+
 
     @Override
     public int compareTo(NameSpace another) {

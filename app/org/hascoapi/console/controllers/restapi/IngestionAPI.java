@@ -457,7 +457,6 @@ public class IngestionAPI extends Controller {
     }
 
     public Result mtGenByStatus(String elementtype, String datafileuri, String status, String filename, String mediaFolder, String verifyUri) {
-        System.out.println("entrou no mt gen");
         if (elementtype == null || elementtype.isEmpty()) {
             String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() requires elementtype";
             System.out.println(errorMsg);
@@ -478,12 +477,9 @@ public class IngestionAPI extends Controller {
                 INSGen.genByStatus(status,filename,mediaFolder,verifyUri);
                 break;
             case "dp2":
-                System.out.println("entrou no dp2");
                 DP2Gen.genByStatus(status,filename,mediaFolder,verifyUri);
-                System.out.println("entrou no switch case");
                 break;
             case "dsg":
-                System.out.println("Entrou no dsg");
                 DSGGen.genByStatus(status,filename,mediaFolder,verifyUri);
                 break;
             case "kgr":

@@ -171,14 +171,11 @@ public class DP2Gen {
 
     public static String genByStatus(String status, String filename, String mediaFolder, String verifyUri) {
         DP2GenHelper helper = new DP2GenHelper();
-        System.out.println("status: " + status);
         helper.workbook = DP2Gen.create(filename);
-        System.out.println("Passou o helper.workbook");
 
         GenericFindWithStatus<Deployment> deploymentQuery = new GenericFindWithStatus<Deployment>();
         List<Deployment> deployments = deploymentQuery.findByStatusWithPages(Deployment.class, status, PAGESIZE, OFFSET);
         if (deployments != null) {
-            System.out.println("Entrou no primeiro if");
             for (Deployment deployment: deployments) {
                 helper = DP2Deployments.add(helper,deployment);
             }
@@ -187,7 +184,6 @@ public class DP2Gen {
         GenericFindWithStatus<Platform> platformQuery = new GenericFindWithStatus<Platform>();
         List<Platform> platforms = platformQuery.findByStatusWithPages(Platform.class, status, PAGESIZE, OFFSET);
         if (platforms != null) {
-            System.out.println("Entrou no 2 if");
             for (Platform platform: platforms) {
                 helper = DP2Plataforms.add(helper,platform);
             }
@@ -196,7 +192,6 @@ public class DP2Gen {
         GenericFindWithStatus<PlatformInstance> plataformInstancesQuery = new GenericFindWithStatus<PlatformInstance>();
         List<PlatformInstance> platformInstances = plataformInstancesQuery.findByStatusWithPages(PlatformInstance.class, status, PAGESIZE, OFFSET);
         if (platformInstances != null) {
-            System.out.println("Entrou no 3 if");
             for (PlatformInstance platformInstance: platformInstances) {
                 helper = DP2PlataformInstances.add(helper,platformInstance);
             }
@@ -205,7 +200,6 @@ public class DP2Gen {
         GenericFindWithStatus<InstrumentInstance> instrumentInstanceQuery = new GenericFindWithStatus<InstrumentInstance>();
         List<InstrumentInstance> instrumentInstances = instrumentInstanceQuery.findByStatusWithPages(InstrumentInstance.class, status, PAGESIZE, OFFSET);
         if (instrumentInstances != null) {
-            System.out.println("Entrou no 4 if");
             for (InstrumentInstance instrumentInstance: instrumentInstances) {
                 helper = DP2InstrumentInstances.add(helper,instrumentInstance);
             }
@@ -213,7 +207,6 @@ public class DP2Gen {
         GenericFindWithStatus<ComponentInstance> componentInstanceQuery = new GenericFindWithStatus<ComponentInstance>();
         List<ComponentInstance> componentInstances = componentInstanceQuery.findByStatusWithPages(ComponentInstance.class, status, PAGESIZE, OFFSET);
         if (componentInstances != null) {
-            System.out.println("Entrou no 5 if");
             for (ComponentInstance componentInstance: componentInstances) {
                 helper = DP2ComponentsInstances.add(helper,componentInstance);
             }
@@ -221,7 +214,6 @@ public class DP2Gen {
         GenericFindWithStatus<FieldOfView> fieldOfViewQuery = new GenericFindWithStatus<FieldOfView>();
         List<FieldOfView> fieldsOfView = fieldOfViewQuery.findByStatusWithPages(FieldOfView.class, status, PAGESIZE, OFFSET);
         if (fieldsOfView != null) {
-            System.out.println("Entrou no 6 if");
             for (FieldOfView fieldOfView: fieldsOfView) {
                 helper = DP2FieldsOfView.add(helper,fieldOfView);
             }
@@ -236,7 +228,6 @@ public class DP2Gen {
         }
 
          */
-        System.out.println("Terminou e vai salvar");
         return DP2Gen.save(helper,filename);
     }
 

@@ -223,7 +223,6 @@ public class RepoPage extends Controller {
                 DataFileAPI.saveFile(tempFile, permanentPath);
 
                 NameSpace appOntology = NameSpaces.getInstance().getAppOntology();
-                appOntology.setSourceMime("text/turtle");
 
                 System.out.println("ingestAppOntology: filename=[" + permanentPath + "]");
                 System.out.println("ingestAppOntology: appOntologyURI=[" + appOntology.getUri() + "]");
