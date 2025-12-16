@@ -57,7 +57,7 @@ public class PlatformInstance extends VSTOIInstance {
     @PropertyField(uri="hasco:hasThirdCoordinateUnit")
     private String thirdCoordinateUnit;
 
-    @PropertyField(uri="hasco:hasThirdCoordinateCharecteritic")
+    @PropertyField(uri="hasco:hasThirdCoordinateCharacteristic")
     private String thirdCoordinateCharacteristic;
 
     @PropertyField(uri="hasco:partOf")
