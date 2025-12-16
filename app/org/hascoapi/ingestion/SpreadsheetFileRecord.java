@@ -94,7 +94,7 @@ public class SpreadsheetFileRecord implements Record {
             }
             break;
         case BOOLEAN:
-            strCellValue = new Boolean(cell.getBooleanCellValue()).toString();
+            strCellValue = Boolean.toString(cell.getBooleanCellValue());
             break;
         case BLANK:
             strCellValue = "";

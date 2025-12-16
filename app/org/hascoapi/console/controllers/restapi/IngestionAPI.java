@@ -71,17 +71,9 @@ public class IngestionAPI extends Controller {
         System.out.println(" ");
         System.out.println("== NEW " + elementType + " =========================================================== ");
         System.out.println("IngestionAPI.ingest() with elementUri = " + elementUri);
-
+        System.out.println("Request content-type: " + request.contentType().orElse("not specified"));
+        System.out.println("Request has body: " + request.hasBody());
         System.out.println("templateFile :" + templateFile());
-
-        // Get the uploaded file
-        File file = request.body().asRaw().asFile();
-
-        if (file == null) {
-            return ok(ApiUtil.createResponse("No file has been provided for ingestion.", false));
-        }
-
-        System.out.println("IngestionAPI.ingest(): API has received file content");
 
         if (!elementType.equals("dp2") && 
             !elementType.equals("dsg") &&
@@ -132,15 +124,90 @@ public class IngestionAPI extends Controller {
             }
             dataFile = DataFile.find(str.getHasDataFileUri());
         }
-        if (dataFile != null) {
-            dataFile.setLastProcessTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
-            dataFile.setFileStatus(DataFile.WORKING);
-            dataFile.getLogger().resetLog();
-            dataFile.save();
-            System.out.println("IngestionAPI.ingest(): API has read DataFile from triplestore");
-        } 
-        File filePerm = this.saveFileAsPermanent(file,dataFile.getFilename());
-        if (dataFile != null & filePerm != null) {
+        
+        if (dataFile == null) {
+            return ok(ApiUtil.createResponse("IngestionAPI.ingest(): File FAILED to be ingested: could not retrieve DataFile.",false));
+        }
+        
+        System.out.println("IngestionAPI.ingest(): DataFile retrieved - URI: " + dataFile.getUri() + ", Filename: " + dataFile.getFilename());
+        
+        File fileToIngest = null;
+        
+        // Try to get file from request body first (legacy Drupal workflow)
+        File fileFromRequest = null;
+        if (request.body() != null && request.body().asRaw() != null) {
+            fileFromRequest = request.body().asRaw().asFile();
+        }
+        
+        System.out.println("IngestionAPI.ingest(): request.body().asRaw().asFile() returned: " + 
+            (fileFromRequest == null ? "null" : fileFromRequest.getAbsolutePath() + " (exists: " + fileFromRequest.exists() + ", size: " + fileFromRequest.length() + " bytes)"));
+        
+        if (fileFromRequest != null && fileFromRequest.exists() && fileFromRequest.length() > 0) {
+            System.out.println("IngestionAPI.ingest(): Using file from request body (legacy workflow) - " + fileFromRequest.getAbsolutePath());
+            fileToIngest = fileFromRequest;
+        } else {
+            // New workflow: retrieve the file from the file system (uploaded in step 2 via uploadFile)
+            if (fileFromRequest != null) {
+                System.out.println("IngestionAPI.ingest(): Request body contains invalid/empty file, ignoring and looking for pre-uploaded file");
+            } else {
+                System.out.println("IngestionAPI.ingest(): No file in request body, looking for pre-uploaded file");
+            }
+            
+            String basePath = config.getString("hascoapi.paths.ingestion");
+            if (basePath == null || basePath.trim().isEmpty()) {
+                System.out.println("[ERROR] IngestionAPI.ingest(): Invalid file storage path from config.");
+                return internalServerError(ApiUtil.createResponse("[ERROR] IngestionAPI.ingest(): Invalid file storage path.", false));
+            }
+            
+            // Validate DataFile properties
+            if (dataFile.getUri() == null || dataFile.getUri().trim().isEmpty()) {
+                System.out.println("[ERROR] IngestionAPI.ingest(): DataFile URI is null or empty");
+                return ok(ApiUtil.createResponse("DataFile URI is invalid. Cannot locate uploaded file.", false));
+            }
+            
+            if (dataFile.getFilename() == null || dataFile.getFilename().trim().isEmpty()) {
+                System.out.println("[ERROR] IngestionAPI.ingest(): DataFile filename is null or empty");
+                return ok(ApiUtil.createResponse("DataFile filename is invalid. Cannot locate uploaded file.", false));
+            }
+            
+            // uploadFile() saves to resources/{dataFileUriTerm}/{filename}, so we use dataFile.getUri()
+            String uriTerm = org.hascoapi.utils.URIUtils.uriLastSegment(dataFile.getUri());
+            Path uploadedFilePath = Paths.get(basePath, Constants.RESOURCE_FOLDER, uriTerm, dataFile.getFilename());
+            File uploadedFile = uploadedFilePath.toFile();
+            
+            System.out.println("IngestionAPI.ingest(): Looking for file at path: " + uploadedFilePath.toAbsolutePath());
+            
+            // Wait for file to be available (uploadFile is async)
+            int maxRetries = 10;
+            int retryDelay = 500; // milliseconds
+            for (int i = 0; i < maxRetries && !uploadedFile.exists(); i++) {
+                try {
+                    System.out.println("IngestionAPI.ingest(): Waiting for file to be available... (attempt " + (i + 1) + "/" + maxRetries + ")");
+                    Thread.sleep(retryDelay);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
+            
+            if (!uploadedFile.exists()) {
+                System.out.println("[ERROR] IngestionAPI.ingest(): Uploaded file not found at: " + uploadedFilePath);
+                return ok(ApiUtil.createResponse("File not found. Please upload the file before triggering ingestion.", false));
+            }
+            
+            System.out.println("IngestionAPI.ingest(): Found uploaded file at: " + uploadedFilePath);
+            fileToIngest = uploadedFile;
+        }
+        
+        dataFile.setLastProcessTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
+        dataFile.setFileStatus(DataFile.WORKING);
+        dataFile.getLogger().resetLog();
+        dataFile.save();
+        System.out.println("IngestionAPI.ingest(): API has read DataFile from triplestore");
+        
+        // Copy file to ingestion directory for processing
+        File filePerm = this.saveFileAsPermanent(fileToIngest, dataFile.getFilename());
+        if (filePerm != null) {
             final DataFile finalDataFile = dataFile; 
             CompletableFuture.runAsync(() -> {
                 IngestionWorker.ingest(finalDataFile, filePerm, templateFile(), status);

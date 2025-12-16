@@ -253,7 +253,12 @@ public class SSDGenerator extends BaseGenerator {
 
     @Override
     public HADatAcThing createObject(Record rec, int rowNumber, String selector) throws Exception {
-            if (!URIUtils.replacePrefixEx(getUri(rec)).equals(studyUri)) {
+            String uri = getUri(rec);
+            if (uri == null || uri.isEmpty()) {
+                System.out.println("[ERROR] SSDGenerator.createObject(): getUri() returned null/empty for row " + rowNumber);
+                return null;
+            }
+            if (!URIUtils.replacePrefixEx(uri).equals(studyUri)) {
                 HADatAcThing obj = createObjectCollection(rec);
                 return obj;
             }

@@ -31,7 +31,9 @@ public class AnnotateSSD extends BaseAnnotator {
         if (ssdRecordFile == null || ssdRecordFile.getRecords().isEmpty()) {
             // SSD sheet empty / invalid -> use DSG warning
             dataFile.getLogger().printWarningById("DSG_00013");
-            return new SSDGeneratorChain(); // Return empty chain to allow fallback
+            SSDGeneratorChain emptyChain = new SSDGeneratorChain();
+            emptyChain.setDataFile(dataFile);
+            return emptyChain; // Return empty chain to allow fallback
         }
 
         dataFile.setRecordFile(ssdRecordFile);
@@ -49,6 +51,7 @@ public class AnnotateSSD extends BaseAnnotator {
         }
 
         SSDGeneratorChain chain = new SSDGeneratorChain();
+        chain.setDataFile(dataFile);
         chain.setNamedGraphUri(dataFile.getUri());
 
         if (!validateSSDStructure(dataFile, ssdRecordFile, studyUri, chain, namespace)) {
@@ -67,8 +70,17 @@ public class AnnotateSSD extends BaseAnnotator {
         dataFile.getLogger().println("AnnotateSSD: Pre-processing StudyObjectGenerator. Study URI: " + study.getUri());
 
         dataFile.getLogger().println("AnnotateSSD: Catalog size: " + mapCatalog.size());
-        for (String sheetKey : mapCatalog.keySet()) {
-            addStudyObjectGenerator(sheetKey, mapCatalog, mapContent, mapReferences, dataFile, chain, study, namespace);
+        try {
+            for (String sheetKey : mapCatalog.keySet()) {
+                System.out.println("AnnotateSSD: Processing sheet key: " + sheetKey);
+                addStudyObjectGenerator(sheetKey, mapCatalog, mapContent, mapReferences, dataFile, chain, study, namespace);
+                System.out.println("AnnotateSSD: Completed processing sheet key: " + sheetKey);
+            }
+        } catch (Exception e) {
+            System.out.println("AnnotateSSD: ERROR during StudyObjectGenerator preprocessing");
+            e.printStackTrace();
+            dataFile.getLogger().println("ERROR during SSD processing: " + e.getMessage());
+            return null;
         }
 
         dataFile.getLogger().println("SSD Processing: Completed GeneratorChain.");
