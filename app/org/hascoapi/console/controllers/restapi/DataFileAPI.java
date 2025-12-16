@@ -51,6 +51,10 @@ public class DataFileAPI extends Controller {
      * Handles file upload and saves it permanently.
      */
     public Result uploadFile(String elementUri, String filename, Http.Request request) {
+        System.out.println("DataFileAPI.uploadFile() called with elementUri: " + elementUri + ", filename: " + filename);
+        System.out.println("Request content-type: " + request.contentType().orElse("not specified"));
+        System.out.println("Request has body: " + request.hasBody());
+        
         if (elementUri == null || elementUri.trim().isEmpty()) {
             return ok(ApiUtil.createResponse("[ERROR] DataFileAPI.uploadFile(): No elementUri value has been provided.", false));
         }
@@ -66,6 +70,9 @@ public class DataFileAPI extends Controller {
         }
 
         File tempFile = request.body().asRaw().asFile();
+        System.out.println("DataFileAPI.uploadFile(): request.body().asRaw().asFile() returned: " + 
+            (tempFile == null ? "null" : tempFile.getAbsolutePath() + " (exists: " + tempFile.exists() + ", size: " + tempFile.length() + " bytes)"));
+            
         if (tempFile == null) {
             return ok(ApiUtil.createResponse("[ERROR] DataFileAPI.uploadFile(): No file has been provided for ingestion.", false));
         }
@@ -81,6 +88,8 @@ public class DataFileAPI extends Controller {
     
         // Generate the permanent file path
         Path permanentPath = destinationDir.resolve(filename);
+        
+        System.out.println("DataFileAPI.uploadFile(): Scheduling async save to: " + permanentPath);
     
         // Save file asynchronously to avoid blocking request handling
         CompletableFuture.runAsync(() -> DataFileAPI.saveFile(tempFile, permanentPath));

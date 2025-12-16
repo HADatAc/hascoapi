@@ -104,24 +104,39 @@ public class IngestionWorker {
         }
 
         if (chain != null) {
-            System.out.println("IngestionWorker: chain.generate() STARTED.");
-            bSucceed = chain.generate();
-            System.out.println("IngestionWorker: chain.generate() ENDED. Response: [" + bSucceed + "]");
-            chain.disposeChain();
+            try {
+                System.out.println("IngestionWorker: chain.generate() STARTED.");
+                bSucceed = chain.generate();
+                System.out.println("IngestionWorker: chain.generate() ENDED. Response: [" + bSucceed + "]");
+                chain.disposeChain();
+            } catch (Exception e) {
+                System.out.println("IngestionWorker: ERROR during chain.generate()");
+                e.printStackTrace();
+                dataFile.getLogger().println("ERROR during ingestion: " + e.getMessage());
+                bSucceed = false;
+            }
         }
 
         if (bSucceed) {
 
-            // if chain includes PVGenerator, executes PVGenerator.generateOthers()
-            if (chain.getPV()) {
-                PVGenerator.generateOthers(chain.getCodebookFile(), chain.getSddName(), ConfigProp.getKbPrefix());
+            try {
+                // if chain includes PVGenerator, executes PVGenerator.generateOthers()
+                if (chain.getPV()) {
+                    PVGenerator.generateOthers(chain.getCodebookFile(), chain.getSddName(), ConfigProp.getKbPrefix());
+                }
+
+                dataFile.setFileStatus(DataFile.PROCESSED);
+                dataFile.setCompletionTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
+                dataFile.setStudyUri(chain.getStudyUri());
+                dataFile.save();
+                System.out.println("IngestionWorker: DataFile status set to PROCESSED");
+            } catch (Exception e) {
+                System.out.println("IngestionWorker: ERROR during finalization");
+                e.printStackTrace();
             }
 
-            dataFile.setFileStatus(DataFile.PROCESSED);
-            dataFile.setCompletionTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
-            dataFile.setStudyUri(chain.getStudyUri());
-            dataFile.save();
-
+        } else {
+            System.out.println("IngestionWorker: Ingestion FAILED. DataFile status remains: " + dataFile.getFileStatus());
         }
 
         //if (dataFile.getFileStatus().equals(DataFile.PROCESSED_STD)) {
