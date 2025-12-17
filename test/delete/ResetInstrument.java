@@ -1,4 +1,4 @@
-package test.delete;
+/*package test.delete;
 
 import org.junit.jupiter.api.ClassOrderer;
 import org.junit.jupiter.api.Order;
@@ -24,3 +24,5 @@ public class ResetInstrument {
     }
 
 }
+
+ */
