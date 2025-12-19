@@ -97,6 +97,15 @@ public class IngestionWorker {
 
         boolean bSucceed = false;
         GeneratorChain chain = getGeneratorChain(dataFile, studyUri, templateFile, status);
+
+        // If no chain was produced, log and exit gracefully
+        if (chain == null) {
+            dataFile.getLogger().println("IngestionWorker: No generator chain produced. Aborting ingestion gracefully.");
+            System.out.println("IngestionWorker: No generator chain produced. Aborting ingestion gracefully.");
+            return;
+        }
+
+        // Only set study URI if a chain was produced
         if (studyUri == null || studyUri.isEmpty()) {
             chain.setStudyUri("");
         } else {
