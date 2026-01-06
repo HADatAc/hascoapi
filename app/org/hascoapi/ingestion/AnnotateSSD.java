@@ -323,27 +323,70 @@ public class AnnotateSSD extends BaseAnnotator {
             Study study,
             String namespace
     ) {
+        if (key == null || key.trim().isEmpty()) {
+            return;
+        }
+        // These catalog keys are configuration, not SOC sheet keys
+        if ("hasStudyKG".equals(key) || "hasEntityDesign".equals(key) || "hasDependencies".equals(key)) {
+            return;
+        }
+        if (catalog == null || dataFile == null || chain == null || study == null) {
+            // Nothing we can do without these
+            return;
+        }
+        if (namespace == null || namespace.trim().isEmpty()) {
+            dataFile.getLogger().printExceptionByIdWithArgs("DSG_00016", "Missing namespace (hasStudyKG) for key=" + key);
+            return;
+        }
+
         String sheetName = catalog.get(key);
-        if (sheetName == null || sheetName.isEmpty()) return;
+        if (sheetName == null || sheetName.isEmpty()) {
+            return;
+        }
+
+        // Only process SOC sheets in this phase (these are the Study Object Collection sheets)
+        if (!sheetName.startsWith("SOC-")) {
+            return;
+        }
 
         try {
             dataFile.getLogger().println("Pre-processing SOC [" + sheetName + "]");
-            RecordFile sheet = new SpreadsheetRecordFile(dataFile.getFile(), sheetName.replace("#", ""));
+            // SpreadsheetRecordFile expects (file, filename, sheetName)
+            RecordFile sheet = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), sheetName.replace("#", ""));
 
             DataFile clonedFile = (DataFile) dataFile.clone();
             clonedFile.setRecordFile(sheet);
 
+            if (content == null) {
+                dataFile.getLogger().printExceptionByIdWithArgs("DSG_00016", "SSD content map is null while processing key=" + key);
+                return;
+            }
+
             List<String> headers = content.get(key);
+            if (headers == null) {
+                // Some spreadsheets may key content by sheetName rather than by hasURI; try that as fallback.
+                headers = content.get(sheetName);
+            }
             if (headers == null) {
                 dataFile.getLogger().printExceptionByIdWithArgs("DSG_00015", key);
                 return;
             }
 
             dataFile.getLogger().println("Adding StudyObjectGenerator...");
-            chain.addGenerator(new StudyObjectGenerator(clonedFile, headers, content, references, chain.getStudyUri(), study.getId(), namespace));
+            chain.addGenerator(new StudyObjectGenerator(
+                    clonedFile,
+                    headers,
+                    content,
+                    references,
+                    chain.getStudyUri(),
+                    study.getId(),
+                    namespace));
 
         } catch (CloneNotSupportedException e) {
             dataFile.getLogger().printExceptionByIdWithArgs("DSG_00016", e.getMessage());
+        } catch (Exception e) {
+            // Defensive: don't crash the whole ingestion because one SOC couldn't be preprocessed
+            dataFile.getLogger().printExceptionByIdWithArgs("DSG_00016", "Exception preprocessing SOC key=" + key + ": " + e.getMessage());
         }
     }
 }

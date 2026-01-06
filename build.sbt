@@ -69,7 +69,17 @@ libraryDependencies ++= Seq(
   "ca.uhn.hapi.fhir" % "hapi-fhir-base" % "6.6.1",
   "ca.uhn.hapi.fhir" % "hapi-fhir-structures-r4" % "6.6.1",
   "ch.qos.logback" % "logback-classic" % "1.4.8",
-  "net.aichler" % "jupiter-interface" % "0.11.1" % Test ,
+
+  // JUnit 5 runner for sbt (already used by this build)
+  "net.aichler" % "jupiter-interface" % "0.11.1" % Test,
+
+  // JUnit Jupiter API/Engine + Parameterized Tests (needed by @ParameterizedTest / @ValueSource)
+  "org.junit.jupiter" % "junit-jupiter-api" % "5.10.2" % Test,
+  "org.junit.jupiter" % "junit-jupiter-engine" % "5.10.2" % Test,
+  "org.junit.jupiter" % "junit-jupiter-params" % "5.10.2" % Test,
+
+  // Mockito (needed by static imports from org.mockito.Mockito.*)
+  "org.mockito" % "mockito-core" % "5.12.0" % Test,
 
   //For Java > 8
   "javax.xml.bind" % "jaxb-api" % "2.3.1",
