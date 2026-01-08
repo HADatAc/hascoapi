@@ -67,7 +67,9 @@ public class KGR extends MetadataTemplate {
         Statement statement;
         RDFNode object;
         
-        String queryString = "DESCRIBE <" + uri + ">";
+        // Strip any existing angle brackets to prevent double-encoding
+        String cleanUri = URIUtils.stripAngleBrackets(uri);
+        String queryString = "DESCRIBE <" + cleanUri + ">";
         Model model = SPARQLUtils.describe(CollectionUtil.getCollectionPath(
                 CollectionUtil.Collection.SPARQL_QUERY), queryString);
         

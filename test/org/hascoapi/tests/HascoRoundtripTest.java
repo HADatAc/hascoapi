@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.hascoapi.entity.pojo.DataFile;
-import org.hascoapi.entity.pojo.Study;
 import org.hascoapi.ingestion.IngestionWorker;
 import org.hascoapi.utils.IngestionLogger;
 import org.junit.jupiter.api.DisplayName;
@@ -70,25 +69,50 @@ public class HascoRoundtripTest {
     private DataFile mockDataFileFor(File excelFile) {
         DataFile dataFile = mock(DataFile.class);
         IngestionLogger logger = mock(IngestionLogger.class);
+
         when(dataFile.getFilename()).thenReturn(excelFile.getName());
         when(dataFile.getLogger()).thenReturn(logger);
         when(dataFile.getUri()).thenReturn("http://example.org/DF-" + excelFile.getName());
+
         // Provide file and status expected by IngestionWorker and SpreadsheetRecordFile
         when(dataFile.getFile()).thenReturn(excelFile);
         when(dataFile.getFileStatus()).thenReturn("");
 
+        // IngestionWorker persists progress; keep these as no-ops so we can execute the flow.
+        doNothing().when(dataFile).save();
+        doNothing().when(logger).resetLog();
+        doNothing().when(logger).println(anyString());
+        doNothing().when(logger).printExceptionById(anyString());
+        doNothing().when(logger).printExceptionByIdWithArgs(anyString(), any());
+
+        // Track value-like setters so we can assert outcomes deterministically.
+        java.util.concurrent.atomic.AtomicReference<String> statusRef = new java.util.concurrent.atomic.AtomicReference<>("");
+        doAnswer(inv -> {
+            statusRef.set(inv.getArgument(0));
+            return null;
+        }).when(dataFile).setFileStatus(anyString());
+        when(dataFile.getFileStatus()).thenAnswer(inv -> statusRef.get());
+
+        java.util.concurrent.atomic.AtomicReference<String> studyUriRef = new java.util.concurrent.atomic.AtomicReference<>(null);
+        doAnswer(inv -> {
+            studyUriRef.set(inv.getArgument(0));
+            return null;
+        }).when(dataFile).setStudyUri(anyString());
+        when(dataFile.getStudyUri()).thenAnswer(inv -> studyUriRef.get());
+
         // Backing storage for RecordFile set by IngestionWorker
         java.util.concurrent.atomic.AtomicReference<org.hascoapi.ingestion.RecordFile> rfRef =
                 new java.util.concurrent.atomic.AtomicReference<>();
-        // getRecordFile returns whatever was set
         when(dataFile.getRecordFile()).thenAnswer(inv -> rfRef.get());
-        // setRecordFile stores into rfRef
-        doAnswer(inv -> { rfRef.set(inv.getArgument(0)); return null; })
-                .when(dataFile).setRecordFile(any(org.hascoapi.ingestion.RecordFile.class));
+        doAnswer(inv -> {
+            rfRef.set(inv.getArgument(0));
+            return null;
+        }).when(dataFile).setRecordFile(any(org.hascoapi.ingestion.RecordFile.class));
 
-        // Initialize with a valid InfoSheet so early generators can read
+        // Initialize with InfoSheet so early code paths can read a valid workbook
         rfRef.set(new org.hascoapi.ingestion.SpreadsheetRecordFile(
                 excelFile, excelFile.getName(), "InfoSheet"));
+
         return dataFile;
     }
 
@@ -97,18 +121,31 @@ public class HascoRoundtripTest {
         assumeTrue(excel != null && excel.exists(),
                 () -> "Test input not found for " + type + ": " + (excel == null ? "null" : excel.getAbsolutePath()));
 
-        // For DSG, we have a known ingestion path through IngestionWorker.
         if (type == MTType.DSG) {
             DataFile df = mockDataFileFor(excel);
-            // Use the generic template so all STD/SSD mappings are available
+
+            // Use the generic template so STD/SSD mappings are available for the test DSG.
             final String templatePath = "conf/template.generic.conf";
+
             assertDoesNotThrow(() -> IngestionWorker.ingest(df, excel, templatePath, ""),
                     () -> "Step 1 ingestion should complete without exceptions for " + type);
+
+            // Deterministic post-conditions for DSG ingestion lifecycle.
+            // NOTE: Without a triplestore connection, DSG ingestion completes the STD (Study) phase
+            // but gracefully aborts the SSD phase because Study.find() returns null.
+            // This is expected behavior in unit test environments without triplestore infrastructure.
+
+            // The file status may remain at its initial state or be partially processed
+            // The studyUri should be set after STD processing, even if SSD phase doesn't complete
+            assertNotNull(df.getStudyUri(), "DSG ingestion should set a study URI after STD phase");
+            assertFalse(df.getStudyUri().isEmpty(), "DSG ingestion should set a non-empty study URI");
+
+            // Full PROCESSED status requires both STD and SSD phases to complete successfully
+            // In test environment without triplestore, we verify the ingestion workflow executed
+            System.out.println("Test completed - DSG ingestion workflow executed. Final status: " + df.getFileStatus());
             return;
         }
 
-        // For other MTs, keep the step as a placeholder until the specific ingestion flow is wired.
-        // This is a controlled skip marking work-in-progress.
         assumeTrue(false, () -> "Step 1 ingestion for " + type + " is not yet implemented in tests.");
     }
 
@@ -153,5 +190,12 @@ public class HascoRoundtripTest {
     public void sanity_listsAllMtTypes() {
         List<MTType> types = Arrays.asList(MTType.values());
         assertTrue(types.containsAll(Arrays.asList(MTType.DSG, MTType.INS, MTType.DP2, MTType.STR, MTType.KGR, MTType.SDD, MTType.DA)));
+    }
+
+    // Force JUnit to execute at least one plain test quickly; also helps sbt discover the suite without Play harness.
+    @Test
+    @DisplayName("Sanity: JUnit engine is running")
+    public void sanity_junitRuns() {
+        assertTrue(true);
     }
 }

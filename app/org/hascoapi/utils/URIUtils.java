@@ -23,6 +23,36 @@ public class URIUtils {
         return str.startsWith("http");
     }
 
+    /**
+     * Removes angle brackets from the beginning and end of a URI string.
+     * This prevents double-encoding when URIs are already wrapped in brackets.
+     * Also handles URL-encoded angle brackets (%3C and %3E).
+     *
+     * @param uri The URI string that may have angle brackets
+     * @return The URI without leading/trailing angle brackets
+     */
+    public static String stripAngleBrackets(String uri) {
+        if (uri == null || uri.isEmpty()) {
+            return uri;
+        }
+
+        // First, decode any URL-encoded angle brackets
+        String decoded = uri;
+        try {
+            // Check if the URI contains URL-encoded angle brackets
+            if (uri.contains("%3C") || uri.contains("%3E") ||
+                uri.contains("%3c") || uri.contains("%3e")) {
+                decoded = java.net.URLDecoder.decode(uri, "UTF-8");
+            }
+        } catch (java.io.UnsupportedEncodingException e) {
+            // UTF-8 is always supported, but handle just in case
+            System.err.println("[WARNING] stripAngleBrackets: Failed to decode URI: " + e.getMessage());
+        }
+
+        // Then remove literal angle brackets
+        return decoded.replaceAll("^<+|>+$", "");
+    }
+
     public static boolean isAbbreviatedURI(String str) {
         if (str.trim().split(" ").length >= 2){
             return false;

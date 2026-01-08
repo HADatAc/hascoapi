@@ -124,14 +124,34 @@ public class DSGSSD {
 
                 // Populate SOC objects (deduplicate by originalID)
                 java.util.HashSet<String> seenOriginalIds = new java.util.HashSet<>();
+
+                // First check if objectUris is populated
+                java.util.List<String> objectUris = soc.getObjectUris();
+                int uriCount = (objectUris == null) ? 0 : objectUris.size();
+                System.out.println("[DSGSSD] SOC=" + rawSheetName + " (uri=" + safe(soc.getUri()) + "); objectUris count=" + uriCount);
+
+                if (objectUris != null && !objectUris.isEmpty()) {
+                    System.out.println("[DSGSSD] Object URIs for SOC " + rawSheetName + ":");
+                    for (String objUri : objectUris) {
+                        System.out.println("[DSGSSD]   - " + objUri);
+                    }
+                }
+
                 java.util.List<StudyObject> objects = soc.getObjects();
                 int objCount = (objects == null) ? 0 : objects.size();
-                System.out.println("[DSGSSD] SOC=" + rawSheetName + "; objects count=" + objCount);
+                System.out.println("[DSGSSD] SOC=" + rawSheetName + "; resolved objects count=" + objCount);
+
                 if (objects != null) {
                     for (StudyObject obj : objects) {
-                        if (obj == null) { continue; }
+                        if (obj == null) {
+                            System.out.println("[DSGSSD] WARNING: null object in list for SOC " + rawSheetName);
+                            continue;
+                        }
                         String originalId = safe(obj.getOriginalId());
+                        System.out.println("[DSGSSD] Processing object: uri=" + safe(obj.getUri()) + ", originalId=" + originalId);
+
                         if (!originalId.isEmpty() && seenOriginalIds.contains(originalId)) {
+                            System.out.println("[DSGSSD] Skipping duplicate originalId: " + originalId);
                             continue;
                         }
                         seenOriginalIds.add(originalId);
@@ -143,7 +163,10 @@ public class DSGSSD {
                         sr.createCell(2).setCellValue(joinOriginalIds(obj.getScopeUris()));
                         sr.createCell(3).setCellValue(joinOriginalIds(obj.getTimeScopeUris()));
                         sr.createCell(4).setCellValue(joinOriginalIds(obj.getSpaceScopeUris()));
+                        System.out.println("[DSGSSD] Added row for object originalId=" + originalId);
                     }
+                } else {
+                    System.out.println("[DSGSSD] WARNING: No objects returned from soc.getObjects() for SOC " + rawSheetName);
                 }
             }
         }

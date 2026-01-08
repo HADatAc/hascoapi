@@ -58,9 +58,34 @@ public class AnnotateSSD extends BaseAnnotator {
             return null;
         }
 
-        Study study = Study.find(studyUri);
+        // Try to find the study with retry logic to allow triplestore to sync
+        Study study = null;
+        int maxRetries = 5;
+        int retryDelay = 500; // milliseconds
+
+        for (int attempt = 0; attempt < maxRetries; attempt++) {
+            study = Study.find(studyUri);
+            if (study != null) {
+                break;
+            }
+
+            if (attempt < maxRetries - 1) {
+                System.out.println("AnnotateSSD: Study not found on attempt " + (attempt + 1) +
+                                 ", retrying in " + retryDelay + "ms... (URI: " + studyUri + ")");
+                try {
+                    Thread.sleep(retryDelay);
+                    retryDelay *= 2; // Exponential backoff
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
+        }
+
         if (study == null) {
             // Use DSG error for study not found (argument = studyUri)
+            System.out.println("AnnotateSSD: Study not found after " + maxRetries +
+                             " attempts. URI: " + studyUri);
             dataFile.getLogger().printExceptionByIdWithArgs("DSG_00010", studyUri);
             return null;
         }
@@ -331,7 +356,6 @@ public class AnnotateSSD extends BaseAnnotator {
             return;
         }
         if (catalog == null || dataFile == null || chain == null || study == null) {
-            // Nothing we can do without these
             return;
         }
         if (namespace == null || namespace.trim().isEmpty()) {
@@ -345,20 +369,28 @@ public class AnnotateSSD extends BaseAnnotator {
         }
 
         // Only process SOC sheets in this phase (these are the Study Object Collection sheets)
-        if (!sheetName.startsWith("SOC-")) {
+        // SheetName may have a # prefix (e.g., "#SOC-LOCATION"), so check without the prefix
+        String cleanSheetName = sheetName.startsWith("#") ? sheetName.substring(1) : sheetName;
+        if (!cleanSheetName.startsWith("SOC-")) {
             return;
         }
 
         try {
+            System.out.println("Pre-processing SOC [" + cleanSheetName + "]");
             dataFile.getLogger().println("Pre-processing SOC [" + sheetName + "]");
+
             // SpreadsheetRecordFile expects (file, filename, sheetName)
             RecordFile sheet = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), sheetName.replace("#", ""));
 
-            DataFile clonedFile = (DataFile) dataFile.clone();
-            clonedFile.setRecordFile(sheet);
+            // Store the current RecordFile temporarily
+            RecordFile originalRecordFile = dataFile.getRecordFile();
+
+            // Temporarily set the SOC sheet as the current RecordFile
+            dataFile.setRecordFile(sheet);
 
             if (content == null) {
                 dataFile.getLogger().printExceptionByIdWithArgs("DSG_00016", "SSD content map is null while processing key=" + key);
+                dataFile.setRecordFile(originalRecordFile); // Restore
                 return;
             }
 
@@ -369,12 +401,14 @@ public class AnnotateSSD extends BaseAnnotator {
             }
             if (headers == null) {
                 dataFile.getLogger().printExceptionByIdWithArgs("DSG_00015", key);
+                dataFile.setRecordFile(originalRecordFile); // Restore
                 return;
             }
 
+            System.out.println("Adding StudyObjectGenerator for SOC [" + cleanSheetName + "]...");
             dataFile.getLogger().println("Adding StudyObjectGenerator...");
             chain.addGenerator(new StudyObjectGenerator(
-                    clonedFile,
+                    dataFile,
                     headers,
                     content,
                     references,
@@ -382,9 +416,12 @@ public class AnnotateSSD extends BaseAnnotator {
                     study.getId(),
                     namespace));
 
-        } catch (CloneNotSupportedException e) {
-            dataFile.getLogger().printExceptionByIdWithArgs("DSG_00016", e.getMessage());
+            // Restore the original RecordFile
+            dataFile.setRecordFile(originalRecordFile);
+
         } catch (Exception e) {
+            System.out.println("[ERROR] Exception preprocessing SOC key=" + key + ": " + e.getMessage());
+            e.printStackTrace();
             // Defensive: don't crash the whole ingestion because one SOC couldn't be preprocessed
             dataFile.getLogger().printExceptionByIdWithArgs("DSG_00016", "Exception preprocessing SOC key=" + key + ": " + e.getMessage());
         }
