@@ -126,7 +126,16 @@ public class HascoRoundtripTest {
     private static final java.util.concurrent.atomic.AtomicReference<String> LAST_INGESTED_STUDY_URI =
             new java.util.concurrent.atomic.AtomicReference<>(null);
 
+    private static final String STEP_SEPARATOR = "---------------------------------------------------------------------------------------";
+
+    private static void printStepBanner(String message) {
+        System.out.println("\n" + STEP_SEPARATOR);
+        System.out.println(message);
+        System.out.println(STEP_SEPARATOR + "\n");
+    }
+
     private void step1_ingest(MTType type) {
+        printStepBanner("STEP 1/3 - INGEST (Excel -> Triplestore) - MT=" + type);
         File excel = getMtExcel(type);
         assumeTrue(excel != null && excel.exists(),
                 () -> "Test input not found for " + type + ": " + (excel == null ? "null" : excel.getAbsolutePath()));
@@ -144,7 +153,13 @@ public class HascoRoundtripTest {
             assertFalse(df.getStudyUri().isEmpty(), "DSG ingestion should set a non-empty study URI");
             LAST_INGESTED_STUDY_URI.set(df.getStudyUri());
 
+            // Post-ingest check: validate that triples exist in the triplestore for what we just ingested.
+            // We use a conservative "minimum" check so the environment can contain more data.
+            assertDoesNotThrow(() -> assertStudyGraphPresentAfterIngestViaSparql(excel, df.getStudyUri()),
+                    "Post-ingest SPARQL validation should not throw");
+
             System.out.println("Test completed - DSG ingestion workflow executed. Final status: " + df.getFileStatus());
+            printStepBanner("STEP 1/3 - DONE - MT=" + type + " studyUri=" + df.getStudyUri());
             return;
         }
 
@@ -152,6 +167,7 @@ public class HascoRoundtripTest {
     }
 
     private void step2_regenerate_and_compare(MTType type) {
+        printStepBanner("STEP 2/3 - REGENERATE & COMPARE (Triplestore -> Excel; compare) - MT=" + type);
         if (type == MTType.DSG) {
             // Step 2 (DSG only): regenerate a DSG workbook from the triplestore.
             //
@@ -211,6 +227,7 @@ public class HascoRoundtripTest {
 
             System.out.println("Step2 DSG regenerated workbook: " + out.getAbsolutePath());
             System.out.println("Step2 DSG copied to workspace: " + generatedCopy.getAbsolutePath());
+            printStepBanner("STEP 2/3 - DONE - MT=" + type + " result=" + result);
             return;
         }
 
@@ -219,6 +236,7 @@ public class HascoRoundtripTest {
     }
 
     private void step3_reset_and_deterministic_reingest(MTType type) {
+        printStepBanner("STEP 3/3 - RESET & DETERMINISTIC RE-INGEST (fresh -> identical/superset) - MT=" + type);
         if (type == MTType.DSG) {
             // Contract for DSG step3:
             // 1) Validate regenerated DSG is a superset of the ingested DSG (same study, may contain more).
@@ -298,6 +316,7 @@ public class HascoRoundtripTest {
             System.out.println("Step3 DSG: validated superset and deterministic regeneration.\n  base="
                     + ingestedExcel.getAbsolutePath() + "\n  regen1=" + regeneratedWorkspaceCopy.getAbsolutePath()
                     + "\n  regen2=" + out2Copy.getAbsolutePath());
+            printStepBanner("STEP 3/3 - DONE - MT=" + type + " regenerated2=" + regenerated2);
             return;
         }
 
@@ -473,6 +492,7 @@ public class HascoRoundtripTest {
     @ValueSource(strings = { "DSG", "INS", "DP2", "STR", "KGR", "SDD", "DA" })
     public void step1_allMTs_ingest(String mtName) {
         MTType type = MTType.valueOf(mtName);
+        printStepBanner("TEST ENTRYPOINT: step1_allMTs_ingest (MT=" + type + ")");
         step1_ingest(type);
     }
 
@@ -481,6 +501,7 @@ public class HascoRoundtripTest {
     @ValueSource(strings = { "DSG", "INS", "DP2", "STR", "KGR", "SDD", "DA" })
     public void step2_allMTs_regenerate_and_compare(String mtName) {
         MTType type = MTType.valueOf(mtName);
+        printStepBanner("TEST ENTRYPOINT: step2_allMTs_regenerate_and_compare (MT=" + type + ")");
         step2_regenerate_and_compare(type);
     }
 
@@ -489,6 +510,7 @@ public class HascoRoundtripTest {
     @ValueSource(strings = { "DSG", "INS", "DP2", "STR", "KGR", "SDD", "DA" })
     public void step3_allMTs_reset_and_deterministic_reingest(String mtName) {
         MTType type = MTType.valueOf(mtName);
+        printStepBanner("TEST ENTRYPOINT: step3_allMTs_reset_and_deterministic_reingest (MT=" + type + ")");
         step3_reset_and_deterministic_reingest(type);
     }
 
@@ -693,5 +715,59 @@ public class HascoRoundtripTest {
         // If/when you want to WIPE EVERYTHING from the triplestore (dangerous), wire it here.
         // For now we keep it commented to avoid accidental data loss.
         // wipeTriplestoreEverything();
+    }
+
+    private static void assertStudyGraphPresentAfterIngestViaSparql(File ingestedDsg, String studyUriFromDataFile) {
+        // Contract:
+        // - Confirm the Study URI exists in triplestore (at least one triple mentioning it).
+        // - Confirm the minimum SOC count implied by the workbook exists.
+        // This is deliberately conservative and environment-friendly.
+
+        // Verify the triplestore knows about the study URI.
+        long studyMention = sparqlCount(
+                "SELECT (COUNT(*) AS ?tot) WHERE { { <" + studyUriFromDataFile + "> ?p ?o } UNION { ?s ?p <" + studyUriFromDataFile + "> } }"
+        );
+        assertTrue(studyMention > 0,
+                "Expected at least one triple mentioning the ingested study URI, but found none for: " + studyUriFromDataFile);
+
+        // Expected minimum SOC count derived from the workbook.
+        java.util.Map<String, java.util.Set<String>> fp = extractDsgFingerprint(ingestedDsg);
+        long expectedSocMin = fp.getOrDefault("SSD", java.util.Collections.emptySet()).stream()
+                .filter(s -> s.startsWith("#SOC-"))
+                .count();
+
+        // Count SOC membership in triplestore.
+        long actualSoc = sparqlCount(
+                "PREFIX hasco: <http://hadatac.org/ont/hasco/> \n" +
+                        "SELECT (COUNT(DISTINCT ?soc) AS ?tot) WHERE { \n" +
+                        "  ?soc hasco:isMemberOf <" + studyUriFromDataFile + "> .\n" +
+                        "  ?soc hasco:hascoType <http://hadatac.org/ont/hasco/StudyObjectCollection> .\n" +
+                        "}"
+        );
+
+        System.out.println("Step1 post-ingest SPARQL diag: study=" + studyUriFromDataFile
+                + " expectedSocMin=" + expectedSocMin + " actualSoc=" + actualSoc);
+
+        assertTrue(actualSoc >= expectedSocMin,
+                "Post-ingest: Triplestore should have at least the SOCs implied by the ingested workbook. expectedMin="
+                        + expectedSocMin + " actual=" + actualSoc);
+
+        // Optional: if StudyObjects are directly linked to the study, we can sanity-check the count too.
+        long expectedObjMin = fp.getOrDefault("SOC", java.util.Collections.emptySet()).size();
+        long actualObj = sparqlCount(
+                "PREFIX hasco: <http://hadatac.org/ont/hasco/> \n" +
+                        "SELECT (COUNT(DISTINCT ?obj) AS ?tot) WHERE { \n" +
+                        "  ?obj hasco:isMemberOf <" + studyUriFromDataFile + "> .\n" +
+                        "  ?obj hasco:hascoType <http://hadatac.org/ont/hasco/StudyObject> .\n" +
+                        "}"
+        );
+
+        // In some deployments objects aren't directly memberOf the study (they may be memberOf the SOC).
+        // So we only assert the minimum if the query returns non-zero.
+        if (actualObj > 0) {
+            assertTrue(actualObj >= expectedObjMin,
+                    "Post-ingest: expected at least the StudyObjects implied by the workbook when counted by memberOf. expectedMin="
+                            + expectedObjMin + " actual=" + actualObj);
+        }
     }
 }

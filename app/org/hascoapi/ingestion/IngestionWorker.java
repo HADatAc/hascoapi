@@ -87,7 +87,8 @@ public class IngestionWorker {
             studyUri = getStudyUri(dataFile);
 
             // Getting study URI from InfoSheet
-            if (studyUri == "" || studyUri == null) {
+            // NOTE: do NOT use '==' for string emptiness checks; that can be non-deterministic.
+            if (studyUri == null || studyUri.isEmpty()) {
                 studyUri = dataFile.getUri().replace(Constants.PREFIX_DATAFILE, Constants.PREFIX_STUDY);
             }
 
@@ -171,6 +172,14 @@ public class IngestionWorker {
                 chain.disposeChain();
             }
             if (bSucceed) {
+                // Barrier: on a fresh triplestore, the Study created by STD may not be
+                // immediately readable by SSD (Study.find). Wait deterministically.
+                if (!waitForStudyVisible(studyUri, 15000 /*ms*/)) {
+                    dataFile.getLogger().println("DSG ingestion: Study not visible after STD commit; aborting SSD phase. studyUri=" + studyUri);
+                    dataFile.getLogger().printExceptionByIdWithArgs("DSG_00010", studyUri);
+                    return null;
+                }
+
                 // Verify all referenced sheets in SSD before executing SSD annotation
                 System.out.println("IngestionWorker: verifying SSD referenced sheets before annotation.");
                 if (!verifySheetsInSSD(dataFile)) {
@@ -206,6 +215,46 @@ public class IngestionWorker {
 
         return chain;
     }
+
+    /**
+     * Wait until the Study created by STD is visible in the triplestore.
+     * This prevents flaky first-run DSG ingestion where SSD runs before the
+     * triplestore makes the new Study readable.
+     */
+    private static boolean waitForStudyVisible(String studyUri, long timeoutMs) {
+        if (studyUri == null || studyUri.trim().isEmpty()) {
+            return false;
+        }
+        long deadline = System.currentTimeMillis() + timeoutMs;
+        long sleepMs = 150;
+        int attempt = 0;
+
+        while (System.currentTimeMillis() < deadline) {
+            attempt++;
+            try {
+                Study s = Study.find(studyUri);
+                if (s != null) {
+                    System.out.println("IngestionWorker: Study visible after STD. attempts=" + attempt + " uri=" + studyUri);
+                    return true;
+                }
+            } catch (Exception e) {
+                // ignore and retry; transient Fuseki hiccups can happen right after startup
+            }
+
+            System.out.println("IngestionWorker: waiting for Study visibility (attempt " + attempt + ") uri=" + studyUri + " sleepMs=" + sleepMs);
+            try {
+                Thread.sleep(sleepMs);
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+                return false;
+            }
+            sleepMs = Math.min(1000, sleepMs * 2);
+        }
+
+        System.out.println("IngestionWorker: TIMEOUT waiting for Study visibility. uri=" + studyUri + " timeoutMs=" + timeoutMs);
+        return false;
+    }
+
     // Java
     private static boolean verifySheetsInSSD(DataFile dataFile) {
         System.out.println("SSD verification: starting referenced sheets check.");
@@ -567,19 +616,26 @@ public class IngestionWorker {
             }
         }
 
-        if (studyUri.equals("")) {
+        if (studyUri == null || studyUri.isEmpty()) {
             dataFile.getLogger().printWarningById("GBL_00017");
             System.out.println("IngestionWorker: failed to build studyUri - missing hasStudyURI portion of the URI in the InfoSheet");
             return null;
         }
 
-        if (studyKG.equals("")) {
+        // If InfoSheet already provides a full URI, use it as-is.
+        // This avoids accidental double-prefixing like "ahead:STD-http://...".
+        String trimmedStudyUri = studyUri.trim();
+        if (trimmedStudyUri.startsWith("http://") || trimmedStudyUri.startsWith("https://")) {
+            return trimmedStudyUri.replace("#/", "#");
+        }
+
+        if (studyKG == null || studyKG.isEmpty()) {
             dataFile.getLogger().printWarningById("GBL_00018");
             System.out.println("IngestionWorker: failed to build studyUri - missing hasStudyKG portion of the URI in the InfoSheet");
             return null;
         }
 
-        String finalStudyUri = studyKG + ":" + Constants.PREFIX_STUDY + "-" + studyUri;
+        String finalStudyUri = studyKG + ":" + Constants.PREFIX_STUDY + "-" + trimmedStudyUri;
         finalStudyUri = URIUtils.replacePrefixEx(finalStudyUri);
 
         finalStudyUri = finalStudyUri.replace("#/","#");

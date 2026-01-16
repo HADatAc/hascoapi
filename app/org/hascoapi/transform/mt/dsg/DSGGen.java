@@ -8,8 +8,6 @@ import java.util.Map;
 import org.hascoapi.entity.pojo.Study;
 import org.hascoapi.entity.pojo.GenericFindWithStatus;
 import org.hascoapi.entity.pojo.NameSpace;
-import org.hascoapi.entity.pojo.DataFile;
-import org.hascoapi.entity.pojo.DSG;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.hascoapi.utils.URIUtils;
@@ -50,31 +48,59 @@ public class DSGGen {
             java.util.List<Study> allStudies = org.hascoapi.entity.pojo.GenericFind.findByQuery(Study.class, diagQuery);
             System.out.println("[DSGGen] Diagnostic: total studies found=" + (allStudies == null ? 0 : allStudies.size()));
 
-            // 2) Filtrar por status "lógico" enquanto não há vstoi:hasStatus persistido
-            // Regra: se um Study não tem hasStatus explícito, vamos tratá-lo como Draft por padrão.
             String requestedStatus = status == null ? "" : status.trim();
             String draftStatus = org.hascoapi.vocabularies.VSTOI.DRAFT;
 
-            studies = new java.util.ArrayList<>();
+            // Normalize/deduplicate studies by canonical URI (skip malformed IRIs)
+            java.util.Map<String, Study> byCanonicalUri = new java.util.LinkedHashMap<>();
+
             if (allStudies != null) {
                 for (Study s : allStudies) {
+                    if (s == null || s.getUri() == null) {
+                        continue;
+                    }
+
+                    String canonicalUri = canonicalizeStudyUri(s.getUri());
+                    if (canonicalUri == null || canonicalUri.isEmpty()) {
+                        System.out.println("  [DSGGen] Study diag: uri=" + s.getUri() + " (INVALID/UNUSABLE URI) -> skipped");
+                        continue;
+                    }
+
+                    // Apply status filter using effective status
                     String rawStatus = s.getHasStatus();
                     String effectiveStatus = (rawStatus == null || rawStatus.isEmpty()) ? draftStatus : rawStatus;
 
                     System.out.println("  [DSGGen] Study diag: uri=" + s.getUri()
+                            + " (canonical=" + canonicalUri + ")"
                             + ", title=" + s.getTitle()
                             + ", rawStatus=" + rawStatus
                             + ", effectiveStatus=" + effectiveStatus);
 
+                    boolean include;
                     if (requestedStatus.isEmpty()) {
-                        // Sem filtro: inclui todos
-                        studies.add(s);
-                    } else if (effectiveStatus.equals(requestedStatus)) {
-                        studies.add(s);
+                        include = true;
+                    } else {
+                        include = effectiveStatus.equals(requestedStatus);
+                    }
+                    if (!include) {
+                        continue;
+                    }
+
+                    // Prefer http(s) variant if any duplicates map to same canonical
+                    Study existing = byCanonicalUri.get(canonicalUri);
+                    if (existing == null) {
+                        byCanonicalUri.put(canonicalUri, s);
+                    } else {
+                        String existingUri = existing.getUri() == null ? "" : existing.getUri();
+                        if (!existingUri.startsWith("http") && canonicalUri.startsWith("http")) {
+                            byCanonicalUri.put(canonicalUri, s);
+                        }
                     }
                 }
             }
-            System.out.println("[DSGGen] Filtered studies by status; count=" + (studies == null ? 0 : studies.size()));
+
+            studies = new java.util.ArrayList<>(byCanonicalUri.values());
+            System.out.println("[DSGGen] Filtered+normalized studies by status; count=" + (studies == null ? 0 : studies.size()));
         } catch (Throwable t) {
             System.err.println("[DSGGen] ERROR fetching studies: " + t.getMessage());
             t.printStackTrace();
@@ -121,6 +147,14 @@ public class DSGGen {
             }
         } else {
             System.out.println("[DSGGen] No studies found; STD/SSD population skipped");
+        }
+
+        // After populating the workbook, keep only the namespaces that are actually referenced.
+        try {
+            pruneUnusedNamespaces(helper.workbook);
+        } catch (Throwable t) {
+            System.err.println("[DSGGen] WARN: failed to prune unused namespaces: " + t.getMessage());
+            t.printStackTrace();
         }
 
         String saveResult;
@@ -170,6 +204,14 @@ public class DSGGen {
             System.out.println("[DSGGen] SSD added");
         } catch (Throwable t) {
             System.err.println("[DSGGen] ERROR adding SSD: " + t.getMessage());
+            t.printStackTrace();
+        }
+
+        // After populating the workbook, keep only the namespaces that are actually referenced.
+        try {
+            pruneUnusedNamespaces(helper.workbook);
+        } catch (Throwable t) {
+            System.err.println("[DSGGen] WARN: failed to prune unused namespaces: " + t.getMessage());
             t.printStackTrace();
         }
 
@@ -242,6 +284,14 @@ public class DSGGen {
             }
         } else {
             System.out.println("[DSGGen] No studies found for manager/status; STD/SSD population skipped");
+        }
+
+        // After populating the workbook, keep only the namespaces that are actually referenced.
+        try {
+            pruneUnusedNamespaces(helper.workbook);
+        } catch (Throwable t) {
+            System.err.println("[DSGGen] WARN: failed to prune unused namespaces: " + t.getMessage());
+            t.printStackTrace();
         }
 
         String saveResult;
@@ -456,5 +506,231 @@ public class DSGGen {
             }
         }
         return resp;
+    }
+
+    private static void pruneUnusedNamespaces(Workbook workbook) {
+        if (workbook == null) {
+            return;
+        }
+
+        Sheet nsSheet = workbook.getSheet(NAMESPACES);
+        if (nsSheet == null) {
+            return;
+        }
+
+        java.util.Set<String> usedPrefixes = collectUsedPrefixes(workbook);
+
+        // Always keep some common base prefixes (even if not explicitly used) to reduce surprises.
+        usedPrefixes.add("rdf");
+        usedPrefixes.add("rdfs");
+        usedPrefixes.add("owl");
+        usedPrefixes.add("xsd");
+
+        // Namespaces sheet columns: 0=hasPrefix, 1=hasNameSpace, 2=hasFormat, 3=hasSource
+        // We delete rows whose prefix isn't used.
+        java.util.List<Integer> rowsToRemove = new java.util.ArrayList<>();
+        int last = nsSheet.getLastRowNum();
+        for (int r = 1; r <= last; r++) {
+            Row row = nsSheet.getRow(r);
+            if (row == null) {
+                continue;
+            }
+            Cell prefixCell = row.getCell(0);
+            String prefix = getCellString(prefixCell);
+            if (prefix == null || prefix.trim().isEmpty()) {
+                rowsToRemove.add(r);
+                continue;
+            }
+            String normPrefix = prefix.trim();
+            if (normPrefix.endsWith(":")) {
+                normPrefix = normPrefix.substring(0, normPrefix.length() - 1);
+            }
+            normPrefix = normPrefix.trim().toLowerCase();
+
+            if (!usedPrefixes.contains(normPrefix)) {
+                rowsToRemove.add(r);
+            }
+        }
+
+        if (rowsToRemove.isEmpty()) {
+            System.out.println("[DSGGen] Namespaces pruning: no unused rows detected");
+            return;
+        }
+
+        // Remove from bottom to top to keep indexes stable
+        java.util.Collections.sort(rowsToRemove);
+        java.util.Collections.reverse(rowsToRemove);
+        for (int rowIndex : rowsToRemove) {
+            removeRow(nsSheet, rowIndex);
+        }
+
+        System.out.println("[DSGGen] Namespaces pruning: keptPrefixes=" + usedPrefixes + " removedRows=" + rowsToRemove.size());
+    }
+
+    private static java.util.Set<String> collectUsedPrefixes(Workbook workbook) {
+        java.util.Set<String> used = new java.util.HashSet<>();
+        if (workbook == null) {
+            return used;
+        }
+
+        for (int s = 0; s < workbook.getNumberOfSheets(); s++) {
+            Sheet sheet = workbook.getSheetAt(s);
+            if (sheet == null) continue;
+            String sheetName = sheet.getSheetName();
+            // Skip Namespaces sheet itself to avoid self-inclusion.
+            if (NAMESPACES.equals(sheetName)) {
+                continue;
+            }
+
+            for (int r = 0; r <= sheet.getLastRowNum(); r++) {
+                Row row = sheet.getRow(r);
+                if (row == null) continue;
+                short lastCell = row.getLastCellNum();
+                if (lastCell < 0) continue;
+
+                for (int c = 0; c < lastCell; c++) {
+                    Cell cell = row.getCell(c);
+                    if (cell == null) continue;
+                    String v = getCellString(cell);
+                    if (v == null || v.isEmpty()) continue;
+
+                    // Find occurrences of prefix-like patterns, e.g., "ahead:STD-...", "hasco:Study".
+                    // We keep this simple: scan for token chars before ':' and add them.
+                    extractPrefixesFromText(v, used);
+                }
+            }
+        }
+
+        // Some DSG generators write full URIs. In those cases, also infer common prefixes by URI patterns.
+        // Example: http://hadatac.org/ont/arrowhead/ -> ahead
+        //          http://hadatac.org/ont/hasco/ -> hasco
+        //          http://purl.obolibrary.org/obo/PATO_ -> pato
+        //          http://hadatac.org/ont/vstoi# -> vstoi
+        // NOTE: this inference is best-effort.
+        // (We do not remove any prefix that is explicitly used by prefix: patterns.)
+        // ...could be added here if needed.
+
+        return used;
+    }
+
+    private static void extractPrefixesFromText(String text, java.util.Set<String> used) {
+        if (text == null || text.isEmpty() || used == null) {
+            return;
+        }
+        // Tokenize by whitespace and common punctuation.
+        // We intentionally keep ':' inside tokens so we can detect prefix:localName patterns.
+        String[] tokens = text.split("[\\s\\(\\)\\[\\]\\{\\}\\\"'\\,;]+"
+        );
+        for (String t : tokens) {
+            if (t == null) continue;
+            int idx = t.indexOf(':');
+            if (idx <= 0) continue;
+            String prefix = t.substring(0, idx).trim();
+            if (prefix.isEmpty()) continue;
+            // exclude URL schemes like http:
+            if (prefix.equalsIgnoreCase("http") || prefix.equalsIgnoreCase("https")) continue;
+            // ensure prefix looks like a namespace prefix
+            if (!prefix.matches("[A-Za-z_][A-Za-z0-9_\\-]*")) continue;
+            used.add(prefix.toLowerCase());
+        }
+    }
+
+    private static String getCellString(Cell cell) {
+        if (cell == null) return "";
+        try {
+            CellType type = cell.getCellType();
+            if (type == CellType.FORMULA) {
+                type = cell.getCachedFormulaResultType();
+            }
+            switch (type) {
+                case STRING:
+                    return cell.getStringCellValue() == null ? "" : cell.getStringCellValue().trim();
+                case NUMERIC:
+                    double d = cell.getNumericCellValue();
+                    long l = (long) d;
+                    return (d == l) ? Long.toString(l) : Double.toString(d);
+                case BOOLEAN:
+                    return Boolean.toString(cell.getBooleanCellValue());
+                default:
+                    return "";
+            }
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    private static void removeRow(Sheet sheet, int rowIndex) {
+        if (sheet == null) return;
+        int lastRowNum = sheet.getLastRowNum();
+        if (rowIndex < 0 || rowIndex > lastRowNum) return;
+
+        Row row = sheet.getRow(rowIndex);
+        if (row != null) {
+            sheet.removeRow(row);
+        }
+
+        // Shift rows up to fill the gap
+        if (rowIndex < lastRowNum) {
+            sheet.shiftRows(rowIndex + 1, lastRowNum, -1);
+        }
+    }
+
+    /**
+     * Attempts to convert various polluted URI representations into a canonical, safe URI.
+     * Handles cases like:
+     *  - "%3Cahead:STD-...%3E" (URL-encoded angle brackets)
+     *  - "%3C%3Cahead:STD-...%3E%3E" (double angle brackets)
+     *  - already prefixed URIs like "ahead:STD-..."
+     * Returns null when the value can't be made into a usable URI.
+     */
+    private static String canonicalizeStudyUri(String uri) {
+        if (uri == null) {
+            return null;
+        }
+        String s = uri.trim();
+        if (s.isEmpty()) {
+            return null;
+        }
+
+        // Best-effort URL-decode (handles %3C, %3E, etc). Do it twice to handle double-encoding.
+        for (int i = 0; i < 2; i++) {
+            if (s.contains("%")) {
+                try {
+                    s = java.net.URLDecoder.decode(s, java.nio.charset.StandardCharsets.UTF_8.name());
+                } catch (Exception e) {
+                    // ignore and proceed
+                }
+            }
+        }
+
+        // Strip surrounding angle brackets if present (one or many)
+        while (s.startsWith("<") && s.endsWith(">") && s.length() > 2) {
+            s = s.substring(1, s.length() - 1).trim();
+        }
+
+        // Fix previous bug patterns like "#/" -> "#"
+        s = s.replace("#/", "#");
+
+        // If it is a prefixed URI, expand to full URI (after namespaces are loaded)
+        try {
+            String expanded = URIUtils.replacePrefixEx(s);
+            if (expanded != null && !expanded.isEmpty()) {
+                s = expanded;
+            }
+        } catch (Exception e) {
+            // ignore
+        }
+
+        // Accept either full http(s) URIs or known-prefix-like forms (for envs without namespaces loaded)
+        if (s.startsWith("http://") || s.startsWith("https://")) {
+            return s;
+        }
+        // If still looks like prefixed, keep it (some code uses it), but ensure it isn't still bracketed/encoded
+        // NOTE: '-' inside a character class doesn't need escaping if placed at the end or in its own group.
+        if (s.matches("^[A-Za-z_][A-Za-z0-9_-]*:.*")) {
+            return s;
+        }
+
+        return null;
     }
 }

@@ -21,10 +21,37 @@ public class NameSpaceGenerator extends BaseGenerator {
 		try {
 			System.out.println("initMapping of NameSpaceGenerator");
 			mapCol.clear();
-			mapCol.put("nsAbbrev", templates.getNSABBREV());
-			mapCol.put("nsUri", templates.getNSNAME());
-			mapCol.put("nsFormat", templates.getNSFORMAT());
-			mapCol.put("nsSource", templates.getNSSOURCE());
+
+			// The 'Namespaces' sheet created by generators and used by tests uses these headers:
+			//   hasPrefix, hasNameSpace, hasFormat, hasSource
+			// The generic template (conf/template.generic.conf) doesn't define nsAbbrev/nsName/etc,
+			// so relying on Templates here can yield null mappings and ingest 0 namespaces.
+			mapCol.put("nsAbbrev", "hasPrefix");
+			mapCol.put("nsUri", "hasNameSpace");
+			mapCol.put("nsFormat", "hasFormat");
+			mapCol.put("nsSource", "hasSource");
+
+			// Backward-compatible fallback: if a different template provides legacy labels,
+			// prefer them (only when they are non-null/non-empty).
+			if (templates != null) {
+				String nsAbbrev = templates.getNSABBREV();
+				String nsName = templates.getNSNAME();
+				String nsFormat = templates.getNSFORMAT();
+				String nsSource = templates.getNSSOURCE();
+
+				if (nsAbbrev != null && !nsAbbrev.trim().isEmpty()) {
+					mapCol.put("nsAbbrev", nsAbbrev);
+				}
+				if (nsName != null && !nsName.trim().isEmpty()) {
+					mapCol.put("nsUri", nsName);
+				}
+				if (nsFormat != null && !nsFormat.trim().isEmpty()) {
+					mapCol.put("nsFormat", nsFormat);
+				}
+				if (nsSource != null && !nsSource.trim().isEmpty()) {
+					mapCol.put("nsSource", nsSource);
+				}
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
