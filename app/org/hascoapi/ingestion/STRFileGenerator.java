@@ -22,6 +22,7 @@ import org.hascoapi.entity.pojo.Study;
 import org.hascoapi.entity.pojo.SDD;
 import org.hascoapi.entity.pojo.SDDAttribute;
 import org.hascoapi.entity.pojo.SDDObject;
+import org.hascoapi.entity.pojo.SemanticDataDictionary;
 import org.hascoapi.Constants;
 import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.entity.pojo.Deployment;
@@ -77,19 +78,87 @@ public class STRFileGenerator extends BaseGenerator {
     }
 
     private String getSDDName(Record rec) {
-        String SDDName = rec.getValueByColumnName(templates.getDATADICTIONARYNAME()).equalsIgnoreCase("NULL")?
-                "" : rec.getValueByColumnName(templates.getDATADICTIONARYNAME());
+        String raw = rec.getValueByColumnName(templates.getDATADICTIONARYNAME());
 
-        //System.out.println("\n\nSTRGenerator SDDName: " + rec.getValueByColumnName(templates.getDATADICTIONARYNAME())+"\n\n ");
-        return SDDName.replace("SDD-","");
+        // Fallback: for FILESTREAM, 'data dict' is commonly column B (index 1).
+        // Do NOT fall back to column A because that's usually 'da name' and will corrupt SDD lookup.
+        if ((raw == null || raw.trim().isEmpty()) && rec != null) {
+            String byIndex = rec.getValueByColumnIndex(1); // Excel B
+            if (byIndex != null && !byIndex.trim().isEmpty()) {
+                raw = byIndex;
+                try {
+                    dataFile.getLogger().println("[DEBUG] STRFileGenerator: DataDictionaryName read using fallback column index 1 (Excel B)");
+                } catch (Exception ignored) {}
+            }
+        }
+
+        if (raw == null) {
+            return "";
+        }
+
+        String cleaned = raw.replace('\u00A0', ' ').trim();
+        if (cleaned.equalsIgnoreCase("NULL")) {
+            return "";
+        }
+
+        // Keep legacy behavior: remove leading 'SDD-' if present
+        // return cleaned.replace("SDD-", "");
+        // IMPORTANT: FILESTREAM may provide an abbreviated URI (e.g., ahead:SDDICT123...).
+        // Do not strip prefixes here; downstream uses URIUtils.replacePrefixEx.
+        return cleaned;
     }
 
     private String getDeployment(Record rec) {
-        return rec.getValueByColumnName(templates.getDEPLOYMENTURI());
+        String raw = rec.getValueByColumnName(templates.getDEPLOYMENTURI());
+
+        // Fallback: user confirmed Deployment URI is in column C (0-based index 2)
+        // and the header label may not match template.conf ("deployment uri").
+        if ((raw == null || raw.trim().isEmpty()) && rec != null) {
+            String byIndex = rec.getValueByColumnIndex(2);
+            if (byIndex != null && !byIndex.trim().isEmpty()) {
+                raw = byIndex;
+                try {
+                    dataFile.getLogger().println("[DEBUG] STRFileGenerator: DeploymentUri read using fallback column index 2 (Excel C)");
+                } catch (Exception ignored) {}
+            }
+        }
+
+        if (raw == null) {
+            return "";
+        }
+
+        String deployment = raw.replace('\u00A0', ' ').trim();
+        if (deployment.equalsIgnoreCase("NULL")) {
+            return "";
+        }
+        return deployment;
     }
 
     private String getCellScope(Record rec) {
-        return rec.getValueByColumnName(templates.getCELLSCOPE());
+        String raw = rec.getValueByColumnName(templates.getCELLSCOPE());
+
+        // Fallback: some STR FILESTREAM templates place CellScope in column D (0-based index 3)
+        // and/or the sheet header label may differ from template.conf."cell scope".
+        if ((raw == null || raw.trim().isEmpty()) && rec != null) {
+            String byIndex = rec.getValueByColumnIndex(3);
+            if (byIndex != null && !byIndex.trim().isEmpty()) {
+                raw = byIndex;
+                // lightweight debug so we can see it's using the fallback
+                try {
+                    dataFile.getLogger().println("[DEBUG] STRFileGenerator: CellScope read using fallback column index 3 (Excel D)");
+                } catch (Exception ignored) {}
+            }
+        }
+
+        if (raw == null) {
+            return "";
+        }
+        // Normalize: Excel sometimes provides whitespace or "NULL"; treat as empty.
+        String cellScope = raw.replace('\u00A0', ' ').trim(); // normalize non-breaking space
+        if (cellScope.equalsIgnoreCase("NULL")) {
+            return "";
+        }
+        return cellScope;
     }
 
     private String getOwnerEmail(Record rec) {
@@ -106,37 +175,19 @@ public class STRFileGenerator extends BaseGenerator {
         return rec.getValueByColumnName(URIUtils.replacePrefixEx(templates.getPERMISSIONURI()));
     }
 
-    /** 
-    $uri = Utils::uriGen('stream');
-
-    $stream = [
-      'uri'                       => $uri,
-      'typeUri'                   => HASCO::STREAM,
-      'hascoTypeUri'              => HASCO::STREAM,
-      'label'                     => 'Stream',
-      'method'                    => $form_state->getValue('stream_method'),
-      'permissionUri'             => $form_state->getValue('permission_uri'),
-      'deploymentUri'             => $deployment,
-      'hasVersion'                => $form_state->getValue('stream_version') ?? 1,
-      'comment'                   => $form_state->getValue('stream_description'),
-      'canUpdate'                 => [$email],
-      'designedAt'                => $timestamp,
-      'studyUri'                  => Utils::uriFromAutocomplete($form_state->getValue('stream_study')),
-      'semanticDataDictionaryUri' => Utils::uriFromAutocomplete($form_state->getValue('stream_semanticdatadictionary')),
-      'hasSIRManagerEmail'        => $email,
-      'hasStreamStatus'           => HASCO::DRAFT,
-    ];
-
-    if ($method === 'files') {
-      $stream['datasetPattern'] = $form_state->getValue('stream_datafile_pattern');
-      $stream['cellScopeUri']    = [$form_state->getValue('stream_cell_scope_uri')];
-      $stream['cellScopeName']   = [$form_state->getValue('stream_cell_scope_name')];
-      $stream['messageProtocol']  = '';
-      $stream['messageIP']        = '';
-      $stream['messagePort']      = '';
-      $stream['messageArchiveId'] = '';
-      // $stream['messageHeader']    = '';
-    */
+    /**
+     * Reference (legacy PHP ingestion shape):
+     *
+     * if ($method === 'files') {
+     *   $stream['datasetPattern']   = $form_state->getValue('stream_datafile_pattern');
+     *   $stream['cellScopeUri']     = [$form_state->getValue('stream_cell_scope_uri')];
+     *   $stream['cellScopeName']    = [$form_state->getValue('stream_cell_scope_name')];
+     *   $stream['messageProtocol']  = '';
+     *   $stream['messageIP']        = '';
+     *   $stream['messagePort']      = '';
+     *   $stream['messageArchiveId'] = '';
+     * }
+     */
 
     public String createStreamUri() throws Exception {
 
@@ -149,7 +200,7 @@ public class STRFileGenerator extends BaseGenerator {
 
     @Override
     public Map<String, Object> createRow(Record rec, int rowNumber) throws Exception {
-    	Map<String, Object> row = new HashMap<String, Object>();
+        Map<String, Object> row = new HashMap<String, Object>();
 		//dataFile.getLogger().println("STRFileGenerator: At createRow. Row Number " + rowNumber + "  record size: " + rec.size());
 		//row.put("hasURI", kbPrefix + "DA-" + getSTRName(rec));
 		row.put("hasURI", createStreamUri());
@@ -213,7 +264,7 @@ public class STRFileGenerator extends BaseGenerator {
         String cellScopeStr = getCellScope(rec);
         String[] cellList = null;
         String[] elementList = null;
-        if (cellScopeStr != null && !cellScopeStr.equals("")) {
+        if (cellScopeStr != null && !cellScopeStr.trim().isEmpty()) {
             if (!cellScopeStr.startsWith("<")) {
                 dataFile.getLogger().printExceptionById("STR_00022");
                 throw new Exception();
@@ -262,38 +313,134 @@ public class STRFileGenerator extends BaseGenerator {
 
         // DEPLOYMENT
         if (row.get("hasco:hasDeployment") == null || ((String)row.get("hasco:hasDeployment")).isEmpty()) {
-            dataFile.getLogger().printExceptionByIdWithArgs("STR_00022");
+            dataFile.getLogger().printExceptionById("STR_00021");
             throw new Exception();
         }
         stream.setDeploymentUri(URIUtils.replacePrefixEx((String)row.get("hasco:hasDeployment")));
         Deployment deployment = Deployment.find(stream.getDeploymentUri());
         if (deployment == null) {
-            dataFile.getLogger().printExceptionByIdWithArgs("STR_00022");
+            dataFile.getLogger().printExceptionByIdWithArgs("STR_00013", stream.getDeploymentUri());
             throw new Exception();
         }
         dataFile.getLogger().println("createStr [6/7] - Specified deployment: [" + stream.getDeploymentUri() + "]");
 
         // SDD
-	    if (getSDDName(rec) == null || getSDDName(rec).isEmpty()) {
-            dataFile.getLogger().printExceptionById("STR_00021");
-            throw new Exception();
-	    }
-        stream.setSemanticDataDictionaryUri(URIUtils.replacePrefixEx((String)row.get("hasco:hasSDD")));
-        SDD schema = SDD.find(stream.getSemanticDataDictionaryUri());
-        if (schema == null) {
-            dataFile.getLogger().printExceptionByIdWithArgs("STR_00035", stream.getSemanticDataDictionaryUri());
+        String sddToken = getSDDName(rec);
+        if (sddToken == null || sddToken.isEmpty()) {
+            dataFile.getLogger().println("[DEBUG] STRFileGenerator: DataDictionary resolved empty for row " + rowNumber + ". (Check FILESTREAM column 'data dict'/B)");
+            dataFile.getLogger().printExceptionById("STR_00020");
             throw new Exception();
         }
+
+        SemanticDataDictionary semanticSdd = resolveSemanticDataDictionary(sddToken);
+        if (semanticSdd == null) {
+            // Report the direct expansion as the primary attempted URI (best hint for users)
+            String expanded = URIUtils.replacePrefixEx(sddToken);
+            dataFile.getLogger().printExceptionByIdWithArgs("STR_00035", expanded);
+            throw new Exception();
+        }
+
+        stream.setSemanticDataDictionaryUri(semanticSdd.getUri());
+        // Stream resolves SemanticDataDictionary lazily via semanticDataDictionaryUri
         dataFile.getLogger().println("createStr [7/7] - Specified SDD: [" + stream.getSemanticDataDictionaryUri() + "]");
 
-	    if (!isFileStreamValid(stream)) {
+        if (!isFileStreamValid(stream)) {
             throw new Exception();
-	    }
+        }
         return stream;
     }
 
+    private SemanticDataDictionary resolveSemanticDataDictionary(String token) {
+        if (token == null) {
+            return null;
+        }
+        String cleaned = token.replace('\u00A0', ' ').trim();
+        if (cleaned.isEmpty() || cleaned.equalsIgnoreCase("NULL")) {
+            return null;
+        }
+
+        // If the sheet provides only an ID (SDD_ID) without a prefix/URI, resolve by hasco:uriId.
+        if (!cleaned.contains(":") && !cleaned.startsWith("http")) {
+            SemanticDataDictionary byId = SemanticDataDictionary.findByUriIdQuiet(cleaned);
+            if (byId != null) {
+                return byId;
+            }
+        }
+
+        // Build candidate URIs to try.
+        List<String> candidates = new ArrayList<>();
+
+        // 1) Direct expansion (handles hadatac:SDD..., ahead:SDDICT..., full URI...)
+        candidates.add(URIUtils.replacePrefixEx(cleaned));
+
+        // 2) If token looks like SDDICT*, try mapping to SDD* (some datasets mint SDD from SDDICT id)
+        //    Example: hadatac:SDDICT123 -> hadatac:SDD123
+        if (cleaned.contains("SDDICT")) {
+            candidates.add(URIUtils.replacePrefixEx(cleaned.replace("SDDICT", "SDD")));
+        }
+
+        // 3) If token looks like SDD*, try mapping to SDDICT* (older ingestions)
+        if (cleaned.contains("SDD") && !cleaned.contains("SDDICT")) {
+            candidates.add(URIUtils.replacePrefixEx(cleaned.replace("SDD", "SDDICT")));
+        }
+
+        // 4) Also try kbPrefix variants if the token is abbreviated and expansion didn't help.
+        //    (ConfigProp.getKbPrefix() typically ends with '/ont/hadatac#' or '/ont/hadatac#/')
+        String kb = ConfigProp.getKbPrefix();
+        if (kb != null && !kb.isEmpty()) {
+            // If kb ends without '#', add it.
+            String kbHash = kb.endsWith("#") || kb.endsWith("#/") ? kb : (kb + "#");
+            // Prefer '#/' form too because both appear in logs.
+            String kbHashSlash = kb.endsWith("#/") ? kb : (kb.endsWith("#") ? (kb + "/") : (kb + "#/"));
+
+            // If token is like "SDD123" without namespace
+            if (!cleaned.contains(":") && !cleaned.startsWith("http")) {
+                candidates.add(kbHash + cleaned);
+                candidates.add(kbHashSlash + cleaned);
+            }
+
+            // If token is abbreviated like "hadatac:SDD123" but NameSpaces might not include it
+            if (cleaned.startsWith("hadatac:")) {
+                candidates.add(kbHash + cleaned.substring("hadatac:".length()));
+                candidates.add(kbHashSlash + cleaned.substring("hadatac:".length()));
+            }
+        }
+
+        // Try to load
+        for (String uri : candidates) {
+            if (uri == null || uri.isEmpty()) {
+                continue;
+            }
+            SemanticDataDictionary sdd = SemanticDataDictionary.findQuiet(uri);
+            if (sdd != null) {
+                return sdd;
+            }
+        }
+
+        // Final attempt: if token is a prefixed form but still didn't resolve,
+        // try using the local name as SDD_ID.
+        String maybeId = cleaned;
+        if (cleaned.contains(":")) {
+            maybeId = cleaned.substring(cleaned.indexOf(':') + 1);
+        }
+        SemanticDataDictionary byId = SemanticDataDictionary.findByUriIdQuiet(maybeId);
+        if (byId != null) {
+            return byId;
+        }
+
+        return null;
+    }
+
     public boolean isFileStreamValid(Stream str) {
-    	boolean resp = true;
+        boolean resp = true;
+
+        // Ensure semantic data dictionary can be loaded to avoid NPEs
+        SemanticDataDictionary sdd = str.getSemanticDataDictionary();
+        if (sdd == null) {
+            dataFile.getLogger().printExceptionByIdWithArgs("STR_00035", str.getSemanticDataDictionaryUri());
+            return false;
+        }
+
         //Record record = dataFile.getRecordFile().getRecords().get(0);
         //String studyName = record.getValueByColumnName("Study ID");
         //String studyUri = URIUtils.replacePrefixEx(ConfigProp.getKbPrefix() + "STD-" + studyName);
@@ -329,7 +476,7 @@ public class STRFileGenerator extends BaseGenerator {
         Map<String, String> dasoPL = new HashMap<String, String>();
         List<SDDObject> dasos = new ArrayList<SDDObject>();
         List<String> roles = new ArrayList<String>();
-        for (SDDAttribute attr : str.getSemanticDataDictionary().getAttributes()) {
+        for (SDDAttribute attr : sdd.getAttributes()) {
             if (attr.getObjectViewLabel().length() > 0) {
                 if (!roles.contains(attr.getObjectViewLabel())) {
                     roles.add(attr.getObjectViewLabel());
@@ -523,8 +670,12 @@ public class STRFileGenerator extends BaseGenerator {
 
     @Override
     public String getErrorMsg(Exception e) {
-        return "Error in STRFileGenerator: " + e.getMessage();
+        // Avoid returning "null" when the exception has no message.
+        String msg = (e == null ? null : e.getMessage());
+        if (msg == null || msg.trim().isEmpty()) {
+            msg = (e == null ? "unknown" : e.getClass().getSimpleName());
+        }
+        return "Error in STRFileGenerator: " + msg;
     }
 
 }
-

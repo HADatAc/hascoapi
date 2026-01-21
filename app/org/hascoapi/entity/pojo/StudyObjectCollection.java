@@ -979,23 +979,30 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         if (studyUri == null || studyUri.isEmpty()) {
             return new java.util.ArrayList<>();
         }
+
         String ns = NameSpaces.getInstance().printSparqlNameSpaceList();
-        String su = studyUri;
+        String su = URIUtils.replacePrefixEx(studyUri);
+
+        // We want all SOCs that are members of the given Study.
+        // Some deployments store these triples either in the default repository graph
+        // or inside a named graph (e.g., the metadata template's DataFile graph).
+        //
+        // IMPORTANT: keep each branch self-contained (type + membership) to avoid
+        // accidental variable mixing across UNION branches.
         String q = ns +
-            "SELECT ?uri WHERE { \n" +
-            // Default graph branch: type + membership by URI or literal
-            "  { \n" +
-            "    { ?socType rdfs:subClassOf* hasco:StudyObjectCollection . } UNION { VALUES ?socType { hasco:SpaceCollection hasco:SubjectGroup } } \n" +
-            "    ?uri a ?socType . \n" +
-            "    { ?uri hasco:isMemberOf <" + su + "> . } UNION { ?uri hasco:isMemberOf ?m . FILTER (str(?m) = \"" + su + "\") } \n" +
-            "  } UNION \n" +
-            // Named graph branch: same patterns inside GRAPH ?g
-            "  { GRAPH ?g { \n" +
-            "    { ?socType rdfs:subClassOf* hasco:StudyObjectCollection . } UNION { VALUES ?socType { hasco:SpaceCollection hasco:SubjectGroup } } \n" +
-            "    ?uri a ?socType . \n" +
-            "    { ?uri hasco:isMemberOf <" + su + "> . } UNION { ?uri hasco:isMemberOf ?m2 . FILTER (str(?m2) = \"" + su + "\") } \n" +
-            "  } } \n" +
-            "}";
+                "SELECT DISTINCT ?uri WHERE { \n" +
+                "  { \n" +
+                "    ?uri hasco:isMemberOf <" + su + "> . \n" +
+                "    ?uri hasco:hascoType <" + HASCO.STUDY_OBJECT_COLLECTION + "> . \n" +
+                "  } \n" +
+                "  UNION \n" +
+                "  { GRAPH ?g { \n" +
+                "      ?uri hasco:isMemberOf <" + su + "> . \n" +
+                "      ?uri hasco:hascoType <" + HASCO.STUDY_OBJECT_COLLECTION + "> . \n" +
+                "    } \n" +
+                "  } \n" +
+                "} ORDER BY ASC(STR(?uri))";
+
         return findManyByQuery(q);
     }
 

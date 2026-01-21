@@ -54,7 +54,11 @@ public class MetadataTemplate extends HADatAcThing {
     }
     public void setHasDataFileUri(String hasDataFileUri) {
         this.hasDataFileUri = hasDataFileUri;
-        this.setNamedGraph(hasDataFileUri);
+        // Only set the named graph if we actually have a valid DataFile URI.
+        // Otherwise we risk saving metadata "outside named graph".
+        if (hasDataFileUri != null && !hasDataFileUri.trim().isEmpty()) {
+            this.setNamedGraph(hasDataFileUri);
+        }
     }
     public DataFile getHasDataFile() {
         if (this.hasDataFileUri == null) {

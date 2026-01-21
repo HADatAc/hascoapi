@@ -55,8 +55,15 @@ public class STRInfoGenerator extends BaseGenerator{
         }
         // This is on the infosheet
         for (Record record : file.getRecords()) {
-            mapCatalog.put(record.getValueByColumnIndex(0), record.getValueByColumnIndex(1));
-            System.out.println("STR's mapCatalog: [" + record.getValueByColumnIndex(0) + "]  [" + record.getValueByColumnIndex(1) + "]");
+            String key = record.getValueByColumnIndex(0);
+            String value = record.getValueByColumnIndex(1);
+            if (key == null || key.trim().isEmpty()) {
+                continue;
+            }
+            String k = key.trim();
+            String v = value != null ? value.trim() : "";
+            mapCatalog.put(k, v);
+            System.out.println("STR's mapCatalog: [" + k + "]  [" + v + "]");
         }
     }
 

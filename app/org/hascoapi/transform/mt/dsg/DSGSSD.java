@@ -40,7 +40,9 @@ public class DSGSSD {
         add(helper, null);
         Sheet ssdSheet = helper.workbook.getSheet(DSGGen.SSD);
 
-        // Build a set of existing (sheet,hasURI) keys to avoid duplicates across previous studies
+        // Build a set of existing keys to avoid duplicates across previous runs.
+        // IMPORTANT: do NOT key on abbreviated hasURI, because it may collapse distinct SOCs (e.g., different OCL_* URIs).
+        // We key on the stable SOC URI tail that is written in the hasURI column.
         java.util.HashSet<String> existingKeys = new java.util.HashSet<>();
         for (int r = 1; r <= ssdSheet.getLastRowNum(); r++) {
             Row row = ssdSheet.getRow(r);
@@ -61,16 +63,41 @@ public class DSGSSD {
             return helper;
         }
 
+        // De-duplicate SOCs by canonical URI before writing any rows.
+        // The flexible finder can return duplicates across graphs; those duplicates were causing
+        // legitimate SOCs to be skipped later due to repeated keys.
+        java.util.LinkedHashMap<String, StudyObjectCollection> uniqueSocsByUri = new java.util.LinkedHashMap<>();
+        for (StudyObjectCollection soc : socs) {
+            if (soc == null) continue;
+            String fullUri = safe(org.hascoapi.utils.URIUtils.replacePrefixEx(soc.getUri()));
+            if (fullUri.isEmpty()) {
+                continue;
+            }
+            // keep the first occurrence to preserve stable ordering
+            uniqueSocsByUri.putIfAbsent(fullUri, soc);
+        }
+        if (uniqueSocsByUri.size() != socCount) {
+            System.out.println("[DSGSSD] NOTE: SOC list contained duplicates; uniqueByUri=" + uniqueSocsByUri.size() + " original=" + socCount);
+        }
+
         // Track keys added in this call to avoid adding same SOC twice for this study
         java.util.HashSet<String> seenKeys = new java.util.HashSet<>();
 
-        for (StudyObjectCollection soc : socs) {
-            if (soc == null) { continue; }
+        for (StudyObjectCollection soc : uniqueSocsByUri.values()) {
+            if (soc == null) {
+                continue;
+            }
+
             String rawSheetName = deriveSheetName(soc);
             String sheetCell = rawSheetName.isEmpty() ? "" : ("#" + rawSheetName);
-            // hasURI deve ser abreviado com prefixo
-            String hasURI = URIUtils.replaceNameSpaceEx(deriveHasURI(soc));
-            String key = sheetCell + "::" + hasURI;
+
+            // hasURI value written to the sheet should be a stable, human-ish identifier.
+            // We use the URI tail (after stripping any OCL_ prefix), NOT an abbreviated prefix form.
+            String hasURIValue = deriveHasURI(soc);
+
+            // DEDUP KEY: based on sheet + hasURIValue to keep consistent with what we store in the sheet.
+            // This prevents false duplicates when different SOCs collapse to the same abbreviated prefix.
+            String key = sheetCell + "::" + hasURIValue;
 
             if (existingKeys.contains(key)) {
                 System.out.println("[DSGSSD] Skipping SSD duplicate already in sheet key=" + key);
@@ -96,7 +123,7 @@ public class DSGSSD {
             int rowNum = ssdSheet.getLastRowNum() + 1;
             Row row = ssdSheet.createRow(rowNum);
             row.createCell(0).setCellValue(sheetCell);
-            row.createCell(1).setCellValue(hasURI);
+            row.createCell(1).setCellValue(hasURIValue);
             row.createCell(2).setCellValue(type);
             row.createCell(3).setCellValue(hasSOCReference);
             row.createCell(4).setCellValue(comment);

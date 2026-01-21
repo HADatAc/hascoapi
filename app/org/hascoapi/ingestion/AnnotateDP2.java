@@ -41,16 +41,15 @@ public class AnnotateDP2 extends BaseAnnotator {
 
         for (String sheet : dp2Sheets) {
             if ("Platforms".equalsIgnoreCase(sheet)) {
+                // Platforms = platform (types)
                 addCustomGeneratorIfSheetExists(dataFile, mapCatalog, sheet, status, chain,
                         (df, st) -> new DP2Generator("platform", df));
 
             } else if ("PlatformInstances".equalsIgnoreCase(sheet)) {
+                // PlatformInstances = platforminstance
                 addCustomGeneratorIfSheetExists(dataFile, mapCatalog, sheet, status, chain,
                         (df, st) -> new DP2Generator("platforminstance", df));
-                /*
-                Adicionar linha de código que caso exista um plataform instance, este deve ser referente a um plataform existente.
-                 */
-                System.out.println("log teste");
+
             } else if ("FieldsOfView".equalsIgnoreCase(sheet)) {
                 addCustomGeneratorIfSheetExists(dataFile, mapCatalog, sheet, status, chain,
                         (df, st) -> new DP2Generator("fieldofview", df));

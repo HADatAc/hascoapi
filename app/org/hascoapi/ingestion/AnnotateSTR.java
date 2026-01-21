@@ -38,49 +38,50 @@ public class AnnotateSTR extends BaseAnnotator {
 
         // Verify required sheets exist, else log error and return null
         if (!mapCatalog.containsKey(STRInfoGenerator.FILESTREAM)) {
-            dataFile.getLogger().printExceptionById("STR_00005");
+            dataFile.getLogger().printExceptionById("STR_00004"); // FileStream sheet missing
             return null;
         }
         if (!mapCatalog.containsKey(STRInfoGenerator.MESSAGESTREAM)) {
-            dataFile.getLogger().printExceptionById("STR_00006");
+            dataFile.getLogger().printExceptionById("STR_00005"); // MessageStream sheet missing
             return null;
         }
         if (!mapCatalog.containsKey(STRInfoGenerator.MESSAGETOPIC)) {
-            dataFile.getLogger().printExceptionById("STR_00016");
+            dataFile.getLogger().printExceptionById("STR_00015"); // MessageTopic sheet missing
             return null;
         }
 
         // Load each sheet as RecordFile
-        RecordFile fileStreamRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), mapCatalog.get(STRInfoGenerator.FILESTREAM).replace("#", ""));
-        RecordFile messageStreamRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), mapCatalog.get(STRInfoGenerator.MESSAGESTREAM).replace("#", ""));
-        RecordFile messageTopicRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), mapCatalog.get(STRInfoGenerator.MESSAGETOPIC).replace("#", ""));
+        RecordFile fileStreamRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), mapCatalog.get(STRInfoGenerator.FILESTREAM).replace("#", "").trim());
+        RecordFile messageStreamRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), mapCatalog.get(STRInfoGenerator.MESSAGESTREAM).replace("#", "").trim());
+        RecordFile messageTopicRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), mapCatalog.get(STRInfoGenerator.MESSAGETOPIC).replace("#", "").trim());
 
         // Validate rows presence across streams and topics
         if (fileStreamRecordFile.getNumberOfRows() <= 0 && messageStreamRecordFile.getNumberOfRows() <= 0) {
-            dataFile.getLogger().printExceptionById("STR_00007");
+            dataFile.getLogger().printExceptionById("STR_00006");
             return null;
         }
         if ((messageStreamRecordFile.getNumberOfRows() <= 0 && messageTopicRecordFile.getNumberOfRows() > 0) ||
             (messageStreamRecordFile.getNumberOfRows() > 0 && messageTopicRecordFile.getNumberOfRows() <= 0)) {
-            dataFile.getLogger().printExceptionById("STR_00010");
+            dataFile.getLogger().printExceptionById("STR_00009");
             return null;
         }
 
         GeneratorChain chain = new GeneratorChain();
+        chain.setDataFile(dataFile);
         chain.setStudyUri(strStudy.getUri());
 
         DateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         String startTime = isoFormat.format(new Date());
 
-        // Add STRFileGenerator if fileStream sheet is valid
-        if (fileStreamRecordFile.getNumberOfRows() > 1 && fileStreamRecordFile.getRecords().size() > 0) {
+        // Add STRFileGenerator if fileStream sheet is valid (requires at least one non-empty record)
+        if (fileStreamRecordFile.getRecords() != null && !fileStreamRecordFile.getRecords().isEmpty()) {
             STRFileGenerator fileGen = new STRFileGenerator(dataFile, strStudy, fileStreamRecordFile, startTime, strVersion, templateFile);
             fileGen.setNamedGraphUri(dataFile.getUri());
             chain.addGenerator(fileGen);
         }
 
-        // Add STRMessageGenerator if messageStream sheet is valid
-        if (messageStreamRecordFile.getNumberOfRows() > 1 && messageStreamRecordFile.getRecords().size() > 0) {
+        // Add STRMessageGenerator if messageStream sheet is valid (requires at least one non-empty record)
+        if (messageStreamRecordFile.getRecords() != null && !messageStreamRecordFile.getRecords().isEmpty()) {
             STRMessageGenerator messageGen = new STRMessageGenerator(dataFile, strStudy, messageStreamRecordFile, startTime);
             if (!messageGen.isValid()) {
                 dataFile.getLogger().printExceptionByIdWithArgs(messageGen.getErrorMessage(), messageGen.getErrorArgument());
@@ -89,8 +90,8 @@ public class AnnotateSTR extends BaseAnnotator {
             chain.addGenerator(messageGen);
         }
 
-        // Add STRTopicGenerator if messageTopic sheet is valid
-        if (messageTopicRecordFile.getNumberOfRows() > 1 && messageTopicRecordFile.getRecords().size() > 0) {
+        // Add STRTopicGenerator if messageTopic sheet is valid (requires at least one non-empty record)
+        if (messageTopicRecordFile.getRecords() != null && !messageTopicRecordFile.getRecords().isEmpty()) {
             STRTopicGenerator topicGen = new STRTopicGenerator(dataFile, messageTopicRecordFile, startTime);
             if (!topicGen.isValid()) {
                 dataFile.getLogger().printExceptionByIdWithArgs(topicGen.getErrorMessage(), topicGen.getErrorArgument());
@@ -102,4 +103,3 @@ public class AnnotateSTR extends BaseAnnotator {
         return chain;
     }
 }
-

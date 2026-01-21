@@ -34,10 +34,10 @@ public abstract class BaseAnnotator {
         for (Record record : recordFile.getRecords()) {
             String key = record.getValueByColumnIndex(0);
             String value = record.getValueByColumnIndex(1);
-            if (key != null && !key.trim().isEmpty()) {
-                mapCatalog.put(key.trim(), value != null ? value.trim() : "");
+            if (key == null || key.trim().isEmpty()) {
+                continue;
             }
-           // dataFile.getLogger().println("key: " + key + ", value: " + value);
+            mapCatalog.put(key.trim(), value != null ? value.trim() : "");
         }
 
         // Validate sheet keys; return null if any errors found
@@ -62,21 +62,24 @@ public abstract class BaseAnnotator {
 
         boolean isValid = true;
 
-        // Missing expected sheets
+        // Missing expected sheets (always an error)
         for (String required : expectedSheets) {
             if (!providedSheets.contains(required)) {
-                // Log using JSON template: "Missing required sheet key: %s for metadata type %s"
                 dataFile.getLogger().printExceptionByIdWithArgs("GBL_00006", required, mtType);
                 isValid = false;
             }
         }
 
-        // Extra sheets not expected for this metadata type
+        // Extra sheets: for DP2, treat as optional (warning) instead of failing ingestion.
         for (String extra : providedSheets) {
             if (!expectedSheets.contains(extra)) {
-                // Log using JSON template: "Unexpected sheet key found: %s for metadata type %s"
-                dataFile.getLogger().printExceptionByIdWithArgs("GBL_00007", extra, mtType);
-                isValid = false;
+                if (mtType != null && mtType.equalsIgnoreCase(org.hascoapi.Constants.MT_DP2)) {
+                    // DP2 templates evolve and can include optional tabs; don't fail ingestion.
+                    dataFile.getLogger().printWarningByIdWithArgs("GBL_00007", extra, mtType);
+                } else {
+                    dataFile.getLogger().printExceptionByIdWithArgs("GBL_00007", extra, mtType);
+                    isValid = false;
+                }
             }
         }
 

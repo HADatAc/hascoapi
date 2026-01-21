@@ -120,11 +120,14 @@ public class GeneratorChain {
                 generator.postprocess();
                 uris = generator.postprocessuris();
             } catch (Exception e) {
-                getDataFile().getLogger().printExceptionByIdWithArgs("GBL_00044", generator.getErrorMsg(e));
-                //System.out.println("[ERROR] GenerationChain: " + generator.getErrorMsg(e));
+                // Use the generator's logger instead of chain dataFile (which may be null).
+                if (generator.getLogger() != null) {
+                    generator.getLogger().printExceptionByIdWithArgs("GBL_00044", generator.getErrorMsg(e));
+                    generator.getLogger().printException(generator.getErrorMsg(e));
+                } else if (getDataFile() != null && getDataFile().getLogger() != null) {
+                    getDataFile().getLogger().printExceptionByIdWithArgs("GBL_00044", generator.getErrorMsg(e));
+                }
                 e.printStackTrace();
-
-                generator.getLogger().printException(generator.getErrorMsg(e));
                 return false;
             }
             System.out.println("GeneratorChain: Ended execution of generator of type [" + generator.getClass().getSimpleName() + " of element type " + elementType + "]");

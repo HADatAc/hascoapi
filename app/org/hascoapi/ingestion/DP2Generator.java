@@ -30,7 +30,15 @@ public class DP2Generator extends BaseGenerator {
 				}
 		    }
 		}
-		
+
+		// Accept common alias: some spreadsheets use 'uri' instead of 'hasURI'
+		if (!row.containsKey("hasURI")) {
+			Object alt = row.get("uri");
+			if (alt != null && !alt.toString().trim().isEmpty()) {
+				row.put("hasURI", alt.toString().trim());
+			}
+		}
+
 		// Deployments
 		// Platforms
 		// PlatformsInstances
@@ -62,10 +70,13 @@ public class DP2Generator extends BaseGenerator {
 			row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
 		}
 
-		if (row.containsKey("hasURI") && !row.get("hasURI").toString().trim().isEmpty()) {
+		if (row.containsKey("hasURI") && row.get("hasURI") != null && !row.get("hasURI").toString().trim().isEmpty()) {
 		    return row;
 		}
-		
+
+		// Make the failure mode visible in logs to prevent "0 rows" surprises.
+		//System.out.println("[WARNING] DP2Generator(" + this.getElementType() + "): skipping row " + rowNumber + " because hasURI is missing/empty");
+
 		return null;
 	}
 

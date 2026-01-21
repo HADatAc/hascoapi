@@ -629,6 +629,13 @@ public class IngestionWorker {
             return trimmedStudyUri.replace("#/", "#");
         }
 
+        // If InfoSheet provides a compact URI (CURIE) like "ahead:EOL-AVL-SNL", treat it as final.
+        // This prevents generating "ahead:STD-ahead:EOL-AVL-SNL".
+        if (trimmedStudyUri.contains(":")) {
+            String resolved = URIUtils.replacePrefixEx(trimmedStudyUri);
+            return resolved.replace("#/", "#");
+        }
+
         if (studyKG == null || studyKG.isEmpty()) {
             dataFile.getLogger().printWarningById("GBL_00018");
             System.out.println("IngestionWorker: failed to build studyUri - missing hasStudyKG portion of the URI in the InfoSheet");

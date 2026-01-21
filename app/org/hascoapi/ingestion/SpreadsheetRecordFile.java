@@ -163,8 +163,18 @@ public class SpreadsheetRecordFile implements RecordFile {
                 headers = new ArrayList<>(currentRow);
                 isHeaderRow = false;
             } else {
-                rowRecords.add(new SimpleRecord(new ArrayList<>(currentRow), headers));
-                rowCount++;
+                // Skip rows that are entirely empty (common in formatted Excel sheets).
+                boolean allEmpty = true;
+                for (String v : currentRow) {
+                    if (v != null && !v.trim().isEmpty()) {
+                        allEmpty = false;
+                        break;
+                    }
+                }
+                if (!allEmpty) {
+                    rowRecords.add(new SimpleRecord(new ArrayList<>(currentRow), headers));
+                    rowCount++;
+                }
             }
         }
 

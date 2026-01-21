@@ -718,13 +718,10 @@ public class SemanticDataDictionary extends HADatAcThing {
         //System.out.println("SemanticDataDictionary.find() with URI: " + sddUri);
 
         if (SemanticDataDictionary.getCache().get(sddUri) != null) {
-        	
             SemanticDataDictionary sdd = SemanticDataDictionary.getCache().get(sddUri);
             sdd.getAttributes();
             return sdd;
         }
-
-        //System.out.println("Looking for data acquisition sdd " + sddUri);
 
         if (sddUri == null || sddUri.equals("")) {
             System.out.println("[ERROR] at SemanticDataDictionary.java. URI blank or null.");
@@ -735,7 +732,7 @@ public class SemanticDataDictionary extends HADatAcThing {
 
         if (sdd == null) {
             System.out.println("[ERROR] at SemanticDataDictionary.java. Could not find sdd for uri: <" + sddUri + ">");
-        	return null;
+            return null;
         }
 
         sdd.setAttributes(SDDAttribute.findUriBySchema(sddUri));
@@ -745,7 +742,38 @@ public class SemanticDataDictionary extends HADatAcThing {
         sdd.getAttributes();
         sdd.getObjects();
         sdd.getPossibleValues();
-        SemanticDataDictionary.getCache().put(sddUri,sdd);
+        SemanticDataDictionary.getCache().put(sddUri, sdd);
+        return sdd;
+    }
+
+    /**
+     * Same as {@link #find(String)} but without printing ERROR lines when the SDD isn't found.
+     * Useful when trying multiple candidate URIs.
+     */
+    public static SemanticDataDictionary findQuiet(String sddUri) {
+        if (SemanticDataDictionary.getCache().get(sddUri) != null) {
+            SemanticDataDictionary sdd = SemanticDataDictionary.getCache().get(sddUri);
+            sdd.getAttributes();
+            return sdd;
+        }
+
+        if (sddUri == null || sddUri.equals("")) {
+            return null;
+        }
+
+        SemanticDataDictionary sdd = SemanticDataDictionary.findCoreProperties(sddUri);
+        if (sdd == null) {
+            return null;
+        }
+
+        sdd.setAttributes(SDDAttribute.findUriBySchema(sddUri));
+        sdd.setObjects(SDDObject.findUriBySchema(sddUri));
+        sdd.setPossibleValues(PossibleValue.findUriBySchema(sddUri));
+
+        sdd.getAttributes();
+        sdd.getObjects();
+        sdd.getPossibleValues();
+        SemanticDataDictionary.getCache().put(sddUri, sdd);
         return sdd;
     }
 
@@ -835,6 +863,62 @@ public class SemanticDataDictionary extends HADatAcThing {
         }
         super.deleteFromTripleStore();
         SemanticDataDictionary.resetCache();
+    }
+
+    /**
+     * Resolve a SemanticDataDictionary by its hasco:uriId value (often called SDD_ID).
+     */
+    public static SemanticDataDictionary findByUriId(String sddId) {
+        if (sddId == null || sddId.trim().isEmpty()) {
+            System.out.println("[ERROR] at SemanticDataDictionary.java. uriId blank or null.");
+            return null;
+        }
+        String id = sddId.replace('\u00A0', ' ').trim();
+
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList()
+                + " SELECT ?sdd WHERE { "
+                + "   ?sdd hasco:uriId \"" + id.replace("\\", "\\\\").replace("\"", "\\\"") + "\" . "
+                + " } LIMIT 1";
+
+        ResultSetRewindable resultsrw = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+        if (resultsrw != null && resultsrw.hasNext()) {
+            QuerySolution soln = resultsrw.next();
+            if (soln.get("sdd") != null) {
+                return SemanticDataDictionary.find(soln.get("sdd").toString());
+            }
+        }
+
+        System.out.println("[ERROR] at SemanticDataDictionary.java. Could not find sdd for hasco:uriId: \"" + id + "\"");
+        return null;
+    }
+
+    /**
+     * Quiet variant of {@link #findByUriId(String)} without printing ERROR lines.
+     */
+    public static SemanticDataDictionary findByUriIdQuiet(String sddId) {
+        if (sddId == null || sddId.trim().isEmpty()) {
+            return null;
+        }
+        String id = sddId.replace('\u00A0', ' ').trim();
+
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList()
+                + " SELECT ?sdd WHERE { "
+                + "   ?sdd hasco:uriId \"" + id.replace("\\", "\\\\").replace("\"", "\\\"") + "\" . "
+                + " } LIMIT 1";
+
+        ResultSetRewindable resultsrw = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+        if (resultsrw != null && resultsrw.hasNext()) {
+            QuerySolution soln = resultsrw.next();
+            if (soln.get("sdd") != null) {
+                return SemanticDataDictionary.findQuiet(soln.get("sdd").toString());
+            }
+        }
+
+        return null;
     }
 
 }

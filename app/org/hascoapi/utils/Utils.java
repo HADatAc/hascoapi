@@ -265,12 +265,19 @@ public class Utils {
             System.out.println("[ERROR] Utils.uriHashGen(): elementType not provided.");
             return null;
         }
-        
+
         String repoUri = null;
         if (namespace != null) {
             repoUri = namespace;
         } else {
-            repoUri = RepositoryInstance.getInstance().getHasDefaultNamespaceURL();
+            // Prefer repository default namespace URL, but fall back to DEFAULT_REPOSITORY
+            // to avoid returning null and breaking object creation flows.
+            if (RepositoryInstance.getInstance() != null) {
+                repoUri = RepositoryInstance.getInstance().getHasDefaultNamespaceURL();
+            }
+        }
+        if (repoUri == null || repoUri.isEmpty()) {
+            repoUri = Constants.DEFAULT_REPOSITORY;
         }
         if (repoUri == null || repoUri.isEmpty()) {
             System.out.println("[ERROR] Utils.uriPlainGen(): no baseURL found for current repository.");

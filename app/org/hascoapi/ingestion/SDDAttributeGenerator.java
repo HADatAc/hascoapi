@@ -36,7 +36,8 @@ public class SDDAttributeGenerator extends BaseGenerator {
     Map<String, String> currentHasEntity = new HashMap<String, String>();
 
     public SDDAttributeGenerator(DataFile dataFile, String sddUri, String sddName, Map<String, String> codeMap, List<Map<String, List<String>>> merging, String templateFile) {
-        super(dataFile);
+        // Ensure BaseGenerator creates Templates with the same templateFile so initMapping() is safe.
+        super(dataFile, null, templateFile);
         //System.out.println("SDDAttributeGenerator (START)");
         System.out.println("SDDAttributeGenerator: SDDUri = [" + sddUri + "]");
         this.codeMap = codeMap;
@@ -50,10 +51,8 @@ public class SDDAttributeGenerator extends BaseGenerator {
         logger.println("[Merged Attributes] : " + mergedEA.keySet());
         logger.println("[Derived Attributes] : " + mergedAA.keySet());
 
-        //System.out.println("[Merged Attributes] : " + mergedEA.keySet());
-        //System.out.println("[Derived Attributes] : " + mergedAA.keySet());
-
-        initMapping();
+        // BaseGenerator already called initMapping() in its constructor; calling it again is redundant and
+        // can hide ordering bugs if templates are not ready.
 
         for (Record rec : file.getRecords()) {
             List<String> tmp = new ArrayList<String>();
@@ -71,6 +70,16 @@ public class SDDAttributeGenerator extends BaseGenerator {
     @Override
     public void initMapping() {
         try {
+            // Make sure templates is available even when initMapping() is invoked from BaseGenerator constructor.
+            if (templates == null) {
+                templates = this.templates;
+            }
+            if (templates == null) {
+                // best-effort fallback: avoid NPE; actual missing template will be caught later as missing columns
+                System.out.println("[WARNING] SDDAttributeGenerator.initMapping(): Templates is null; mapping may be incomplete");
+                return;
+            }
+
             mapCol.clear();
             mapCol.put("Label", templates.getLABEL());
             mapCol.put("AttributeType", templates.getATTRIBUTETYPE());
@@ -83,6 +92,13 @@ public class SDDAttributeGenerator extends BaseGenerator {
             mapCol.put("InRelationTo", templates.getINRELATIONTO());
             mapCol.put("WasDerivedFrom", templates.getWASDERIVEDFROM());       
             mapCol.put("WasGeneratedBy", templates.getWASGENERATEDBY());
+
+            // Guard against null template values to prevent NPEs later when calling .trim()
+            for (Map.Entry<String, String> entry : new HashMap<>(mapCol).entrySet()) {
+                if (entry.getValue() == null) {
+                    mapCol.put(entry.getKey(), "");
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
