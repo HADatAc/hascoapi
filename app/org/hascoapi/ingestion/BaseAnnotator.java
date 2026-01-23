@@ -96,22 +96,43 @@ public abstract class BaseAnnotator {
                                                           GeneratorChain chain,
                                                           GeneratorFactory factory) {
         String sheetName = mapCatalog.get(sheetKey);
-        if (sheetName == null) {
+        if (sheetName == null || sheetName.trim().isEmpty()) {
             warnSheetMissing(dataFile, sheetKey);
             return;
         }
 
         RecordFile sheet = new SpreadsheetRecordFile(dataFile.getFile(), sheetName.replace("#", ""));
+        if (sheet == null || !sheet.isValid() || sheet.getRecords() == null) {
+            warnSheetMissing(dataFile, sheetKey);
+            return;
+        }
+
+        // If the sheet exists but is empty, treat it as optional and just skip it.
+        if (sheet.getRecords().isEmpty()) {
+            dataFile.getLogger().println("addCustomGeneratorIfSheetExists(): sheet '" + sheetKey + "' is empty; skipping.");
+            return;
+        }
+
         try {
             DataFile clonedFile = (DataFile) dataFile.clone();
+            if (clonedFile == null) {
+                dataFile.getLogger().println("addCustomGeneratorIfSheetExists(): failed to clone DataFile for sheet '" + sheetKey + "'; skipping.");
+                return;
+            }
             clonedFile.setRecordFile(sheet);
 
             BaseGenerator generator = factory.create(clonedFile, status);
+            if (generator == null) {
+                dataFile.getLogger().println("addCustomGeneratorIfSheetExists(): generator factory returned null for sheet '" + sheetKey + "'; skipping.");
+                return;
+            }
             generator.setNamedGraphUri(clonedFile.getUri());
             chain.addGenerator(generator);
 
         } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
+            dataFile.getLogger().println("addCustomGeneratorIfSheetExists(): clone not supported; skipping sheet '" + sheetKey + "'.");
+        } catch (Exception e) {
+            dataFile.getLogger().println("addCustomGeneratorIfSheetExists(): unexpected error for sheet '" + sheetKey + "': " + e.getMessage());
         }
     }
 

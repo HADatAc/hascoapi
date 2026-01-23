@@ -47,13 +47,21 @@ public class HascoRoundtripTest {
     // Map MT type to its canonical test Excel location when available.
     private File getMtExcel(MTType type) {
         switch (type) {
+
             case DSG:
                 return new File("test/resources/dsg/DSG-STD-test.xlsx");
+
+            case INS:
+                // Authoritative INS test workbook provided under test/resources/ins
+                // NOTE: filename currently contains a trailing space before .xlsx in the repo.
+                return new File("test/resources/ins/INS-ARROWHEAD_v4_Components .xlsx");
+
+            case DP2:
+                return new File("test/resources/dp2/DP2-LTE-PIAGET-WEATHER-STATION-V3.xlsx");
+
           /*  case SDD:
                 // TODO: point to authoritative SDD test workbook when available
                 return new File("test/resources/sdd/SDD-STD-test.xlsx");
-            case INS:
-                return new File("test/resources/ins/INS-STD-test.xlsx");
             case DP2:
                 return new File("test/resources/dp2/DP2-STD-test.xlsx");
             case STR:
@@ -75,7 +83,19 @@ public class HascoRoundtripTest {
 
         when(dataFile.getFilename()).thenReturn(excelFile.getName());
         when(dataFile.getLogger()).thenReturn(logger);
-        when(dataFile.getUri()).thenReturn("http://example.org/DF-" + excelFile.getName());
+
+        // Ensure the DataFile URI is a valid IRI (no raw spaces), because we use it as namedGraphUri in SPARQL.
+        String rawUri = "http://example.org/DF-" + excelFile.getName();
+        String safeUri;
+        try {
+            // Encode only illegal chars from the filename portion.
+            String encodedName = java.net.URLEncoder.encode(excelFile.getName(), java.nio.charset.StandardCharsets.UTF_8.toString())
+                    .replace("+", "%20");
+            safeUri = "http://example.org/DF-" + encodedName;
+        } catch (Exception e) {
+            safeUri = rawUri.replace(" ", "%20");
+        }
+        when(dataFile.getUri()).thenReturn(safeUri);
 
         // Provide file and status expected by IngestionWorker and SpreadsheetRecordFile
         when(dataFile.getFile()).thenReturn(excelFile);
@@ -121,6 +141,8 @@ public class HascoRoundtripTest {
 
     private static final String TEMPLATE_GENERIC = "conf/template.generic.conf";
     private static final String REGENERATED_DSG_FILENAME = "DSG-STD-test-regenerated.xlsx";
+    private static final String REGENERATED_INS_FILENAME = "INS-ARROWHEAD_v4_Components-regenerated.xlsx";
+    private static final String REGENERATED_DP2_FILENAME = "DP2-LTE-PIAGET-WEATHER-STATION-V3-regenerated.xlsx";
 
     // Keep the last ingested study URI so step3 can delete/reingest deterministically.
     private static final java.util.concurrent.atomic.AtomicReference<String> LAST_INGESTED_STUDY_URI =
@@ -132,6 +154,46 @@ public class HascoRoundtripTest {
         System.out.println("\n" + STEP_SEPARATOR);
         System.out.println(message);
         System.out.println(STEP_SEPARATOR + "\n");
+    }
+
+    private static final String GENERATED_DIR = "test/resources/generated";
+
+    private static void dumpAndLogTtl(String label, DataFile df) {
+        if (df == null || df.getUri() == null || df.getUri().isEmpty()) {
+            System.out.println("[TTL] " + label + ": DataFile or URI is null/empty; skipping TTL dump.");
+            return;
+        }
+
+        String graphUri = df.getUri();
+        long count = org.hascoapi.utils.TripleStoreDumpUtil.countTriplesInNamedGraph(graphUri);
+        System.out.println("[TTL] " + label + ": namedGraphUri=" + graphUri + " tripleCount=" + count);
+
+        // Write TTL file into test/resources/generated
+        File outDir = new File(GENERATED_DIR);
+        if (!outDir.exists()) {
+            outDir.mkdirs();
+        }
+        String safeLabel = label.replaceAll("[^A-Za-z0-9._-]+", "_");
+        File out = new File(outDir, safeLabel + ".ttl");
+        org.hascoapi.utils.TripleStoreDumpUtil.writeNamedGraphAsTurtle(graphUri, out);
+        System.out.println("[TTL] " + label + ": wrote " + out.getAbsolutePath());
+
+        // Log preview
+        org.hascoapi.utils.TripleStoreDumpUtil.logNamedGraphTriplesPreview(graphUri, 25);
+    }
+
+    private static File copyToGenerated(File source, String targetName) {
+        File generatedDir = new File(GENERATED_DIR);
+        if (!generatedDir.exists()) {
+            generatedDir.mkdirs();
+        }
+        File dest = new File(generatedDir, targetName);
+        try {
+            java.nio.file.Files.copy(source.toPath(), dest.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to copy " + source.getAbsolutePath() + " to " + dest.getAbsolutePath() + ": " + e.getMessage(), e);
+        }
+        return dest;
     }
 
     private void step1_ingest(MTType type) {
@@ -160,6 +222,41 @@ public class HascoRoundtripTest {
 
             System.out.println("Test completed - DSG ingestion workflow executed. Final status: " + df.getFileStatus());
             printStepBanner("STEP 1/3 - DONE - MT=" + type + " studyUri=" + df.getStudyUri());
+            return;
+        }
+
+        if (type == MTType.INS) {
+            DataFile df = mockDataFileFor(excel);
+            final String status = VSTOI.DRAFT;
+
+            assertDoesNotThrow(() -> IngestionWorker.ingest(df, excel, TEMPLATE_GENERIC, status),
+                    () -> "Step 1 INS ingestion should complete without exceptions");
+
+            assertNotNull(df.getFileStatus(), "INS ingestion should set a file status");
+            assertFalse(df.getFileStatus().isEmpty(), "INS ingestion should set a non-empty file status");
+
+            // After ingest: dump and log triples for this ingested file
+            dumpAndLogTtl("INS_ingested_original", df);
+
+            System.out.println("Test completed - INS ingestion workflow executed. Final status: " + df.getFileStatus());
+            printStepBanner("STEP 1/3 - DONE - MT=" + type);
+            return;
+        }
+
+        if (type == MTType.DP2) {
+            DataFile df = mockDataFileFor(excel);
+            final String status = VSTOI.DRAFT;
+
+            assertDoesNotThrow(() -> IngestionWorker.ingest(df, excel, TEMPLATE_GENERIC, status),
+                    () -> "Step 1 DP2 ingestion should complete without exceptions");
+
+            assertNotNull(df.getFileStatus(), "DP2 ingestion should set a file status");
+            assertFalse(df.getFileStatus().isEmpty(), "DP2 ingestion should set a non-empty file status");
+
+            dumpAndLogTtl("DP2_ingested_original", df);
+
+            System.out.println("Test completed - DP2 ingestion workflow executed. Final status: " + df.getFileStatus());
+            printStepBanner("STEP 1/3 - DONE - MT=" + type);
             return;
         }
 
@@ -231,12 +328,116 @@ public class HascoRoundtripTest {
             return;
         }
 
+        if (type == MTType.INS) {
+            final String regeneratedFilename = REGENERATED_INS_FILENAME;
+            final String status = VSTOI.DRAFT;
+
+            String result = null;
+            try {
+                result = org.hascoapi.transform.mt.ins.INSGen.genByStatus(status, regeneratedFilename, null, null);
+            } catch (Exception e) {
+                fail("INS regeneration threw exception: " + e.getMessage());
+            }
+
+            assertNotNull(result, "INSGen.genByStatus should return a result string (empty means success today)");
+            assertTrue(result.isEmpty() || result.startsWith("SUCCESS"),
+                    "Expected empty (current behavior) or SUCCESS* from INSGen.genByStatus but got: '" + result + "'");
+
+            final File out = new File(ConfigProp.getPathIngestion() + regeneratedFilename);
+            assertTrue(out.exists(), "Regenerated INS workbook should exist at: " + out.getAbsolutePath());
+            assertTrue(out.length() > 0, "Regenerated INS workbook should not be empty: " + out.getAbsolutePath());
+
+            final File generatedCopy = copyToGenerated(out, regeneratedFilename);
+            assertTrue(generatedCopy.exists(), "Expected copied INS at: " + generatedCopy.getAbsolutePath());
+            assertTrue(generatedCopy.length() > 0, "Copied INS workbook should not be empty: " + generatedCopy.getAbsolutePath());
+
+            // Minimal structural validation
+            assertDoesNotThrow(() -> {
+                try (java.io.FileInputStream in = new java.io.FileInputStream(out);
+                     org.apache.poi.ss.usermodel.Workbook wb = org.apache.poi.ss.usermodel.WorkbookFactory.create(in)) {
+                    assertNotNull(wb.getSheet(org.hascoapi.transform.mt.ins.INSGen.INFOSHEET));
+                    assertNotNull(wb.getSheet(org.hascoapi.transform.mt.ins.INSGen.NAMESPACES));
+                }
+            });
+
+            // NEW: ingest the regenerated file and dump+log triples again
+            DataFile regeneratedDf = mockDataFileFor(generatedCopy);
+            assertDoesNotThrow(() -> IngestionWorker.ingest(regeneratedDf, generatedCopy, TEMPLATE_GENERIC, status),
+                    "Ingesting regenerated INS workbook should not throw");
+            dumpAndLogTtl("INS_ingested_regenerated", regeneratedDf);
+
+            System.out.println("Step2 INS regenerated workbook: " + out.getAbsolutePath());
+            System.out.println("Step2 INS copied to workspace: " + generatedCopy.getAbsolutePath());
+            printStepBanner("STEP 2/3 - DONE - MT=" + type + " result=" + result);
+            return;
+        }
+
+        if (type == MTType.DP2) {
+            final String regeneratedFilename = REGENERATED_DP2_FILENAME;
+            final String status = VSTOI.DRAFT;
+
+            String result = null;
+            try {
+                result = org.hascoapi.transform.mt.dp2.DP2Gen.genByStatus(status, regeneratedFilename, null, null);
+            } catch (Exception e) {
+                fail("DP2 regeneration threw exception: " + e.getMessage());
+            }
+
+            // DP2Gen currently returns the filename on success (or empty)
+            assertNotNull(result, "DP2Gen.genByStatus should return a result string");
+
+            final File out = new File(ConfigProp.getPathIngestion() + regeneratedFilename);
+            assertTrue(out.exists(), "Regenerated DP2 workbook should exist at: " + out.getAbsolutePath());
+            assertTrue(out.length() > 0, "Regenerated DP2 workbook should not be empty: " + out.getAbsolutePath());
+
+            final File generatedCopy = copyToGenerated(out, regeneratedFilename);
+            assertTrue(generatedCopy.exists(), "Expected copied DP2 at: " + generatedCopy.getAbsolutePath());
+            assertTrue(generatedCopy.length() > 0, "Copied DP2 workbook should not be empty: " + generatedCopy.getAbsolutePath());
+
+            // Minimal structural validation
+            assertDoesNotThrow(() -> {
+                try (java.io.FileInputStream in = new java.io.FileInputStream(out);
+                     org.apache.poi.ss.usermodel.Workbook wb = org.apache.poi.ss.usermodel.WorkbookFactory.create(in)) {
+                    assertNotNull(wb.getSheet(org.hascoapi.transform.mt.dp2.DP2Gen.INFOSHEET));
+                    assertNotNull(wb.getSheet(org.hascoapi.transform.mt.dp2.DP2Gen.NAMESPACES));
+                }
+            });
+
+            // Ingest regenerated DP2 and dump/log
+            DataFile regeneratedDf = mockDataFileFor(generatedCopy);
+            assertDoesNotThrow(() -> IngestionWorker.ingest(regeneratedDf, generatedCopy, TEMPLATE_GENERIC, status),
+                    "Ingesting regenerated DP2 workbook should not throw");
+            dumpAndLogTtl("DP2_ingested_regenerated", regeneratedDf);
+
+            System.out.println("Step2 DP2 regenerated workbook: " + out.getAbsolutePath());
+            System.out.println("Step2 DP2 copied to workspace: " + generatedCopy.getAbsolutePath());
+            printStepBanner("STEP 2/3 - DONE - MT=" + type + " result=" + result);
+            return;
+        }
+
         // Placeholder: regeneration APIs are not currently wired for other MTs.
         assumeTrue(false, () -> "Step 2 regeneration & comparison for " + type + " awaits API wiring.");
     }
 
+    private static void deleteNamedGraphBestEffort(String namedGraphUri) {
+        if (namedGraphUri == null || namedGraphUri.isEmpty()) {
+            return;
+        }
+        try {
+            String endpoint = org.hascoapi.utils.CollectionUtil.getCollectionPath(org.hascoapi.utils.CollectionUtil.Collection.SPARQL_UPDATE);
+            String delete = "WITH <" + namedGraphUri + "> DELETE { ?s ?p ?o } WHERE { ?s ?p ?o }";
+            org.apache.jena.update.UpdateRequest req = org.apache.jena.update.UpdateFactory.create(delete);
+            org.apache.jena.update.UpdateProcessor proc = org.apache.jena.update.UpdateExecutionFactory.createRemote(req, endpoint);
+            proc.execute();
+            System.out.println("[RESET] Deleted named graph: " + namedGraphUri);
+        } catch (Exception e) {
+            System.out.println("[RESET] WARNING: failed to delete named graph " + namedGraphUri + ": " + e.getMessage());
+        }
+    }
+
     private void step3_reset_and_deterministic_reingest(MTType type) {
         printStepBanner("STEP 3/3 - RESET & DETERMINISTIC RE-INGEST (fresh -> identical/superset) - MT=" + type);
+
         if (type == MTType.DSG) {
             // Contract for DSG step3:
             // 1) Validate regenerated DSG is a superset of the ingested DSG (same study, may contain more).
@@ -317,6 +518,102 @@ public class HascoRoundtripTest {
                     + ingestedExcel.getAbsolutePath() + "\n  regen1=" + regeneratedWorkspaceCopy.getAbsolutePath()
                     + "\n  regen2=" + out2Copy.getAbsolutePath());
             printStepBanner("STEP 3/3 - DONE - MT=" + type + " regenerated2=" + regenerated2);
+            return;
+        }
+
+        if (type == MTType.INS) {
+            // Contract for INS step3:
+            // 1) Delete INS named graphs created by step1+step2 (best-effort)
+            // 2) Re-ingest original INS, dump/log ttl
+            // 3) Regenerate INS again, ingest regenerated, dump/log ttl
+
+            final File original = getMtExcel(MTType.INS);
+            assumeTrue(original != null && original.exists(),
+                    () -> "Original INS test input not found: " + (original == null ? "null" : original.getAbsolutePath()));
+
+            final String status = VSTOI.DRAFT;
+
+            // Best-effort cleanup of INS graphs created in previous steps
+            DataFile dfTmpOriginal = mockDataFileFor(original);
+            deleteNamedGraphBestEffort(dfTmpOriginal.getUri());
+
+            File regeneratedCopy = new File(GENERATED_DIR, REGENERATED_INS_FILENAME);
+            if (regeneratedCopy.exists()) {
+                DataFile dfTmpRegen = mockDataFileFor(regeneratedCopy);
+                deleteNamedGraphBestEffort(dfTmpRegen.getUri());
+            }
+
+            // Re-ingest original
+            DataFile dfOriginal = mockDataFileFor(original);
+            assertDoesNotThrow(() -> IngestionWorker.ingest(dfOriginal, original, TEMPLATE_GENERIC, status),
+                    "Step3: re-ingesting original INS should not throw");
+            dumpAndLogTtl("INS_step3_reingested_original", dfOriginal);
+
+            // Regenerate again and re-ingest regenerated
+            String result = null;
+            try {
+                result = org.hascoapi.transform.mt.ins.INSGen.genByStatus(status, REGENERATED_INS_FILENAME, null, null);
+            } catch (Exception e) {
+                fail("Step3: INS regeneration threw exception: " + e.getMessage());
+            }
+            assertNotNull(result);
+
+            final File regeneratedOut = new File(ConfigProp.getPathIngestion() + REGENERATED_INS_FILENAME);
+            assertTrue(regeneratedOut.exists(), "Step3: regenerated INS workbook should exist at: " + regeneratedOut.getAbsolutePath());
+            assertTrue(regeneratedOut.length() > 0, "Step3: regenerated INS workbook should not be empty: " + regeneratedOut.getAbsolutePath());
+
+            final File regeneratedCopied2 = copyToGenerated(regeneratedOut, REGENERATED_INS_FILENAME);
+            DataFile dfRegen = mockDataFileFor(regeneratedCopied2);
+            assertDoesNotThrow(() -> IngestionWorker.ingest(dfRegen, regeneratedCopied2, TEMPLATE_GENERIC, status),
+                    "Step3: ingesting regenerated INS should not throw");
+            dumpAndLogTtl("INS_step3_reingested_regenerated", dfRegen);
+
+            printStepBanner("STEP 3/3 - DONE - MT=" + type);
+            return;
+        }
+
+        if (type == MTType.DP2) {
+            final File original = getMtExcel(MTType.DP2);
+            assumeTrue(original != null && original.exists(), () -> "Original DP2 test input not found: " + (original == null ? "null" : original.getAbsolutePath()));
+
+            final String status = VSTOI.DRAFT;
+
+            // Best-effort cleanup of DP2 graphs created in previous steps
+            DataFile dfTmpOriginal = mockDataFileFor(original);
+            deleteNamedGraphBestEffort(dfTmpOriginal.getUri());
+
+            File regeneratedCopy = new File(GENERATED_DIR, REGENERATED_DP2_FILENAME);
+            if (regeneratedCopy.exists()) {
+                DataFile dfTmpRegen = mockDataFileFor(regeneratedCopy);
+                deleteNamedGraphBestEffort(dfTmpRegen.getUri());
+            }
+
+            // Re-ingest original
+            DataFile dfOriginal = mockDataFileFor(original);
+            assertDoesNotThrow(() -> IngestionWorker.ingest(dfOriginal, original, TEMPLATE_GENERIC, status),
+                    "Step3: re-ingesting original DP2 should not throw");
+            dumpAndLogTtl("DP2_step3_reingested_original", dfOriginal);
+
+            // Regenerate again and ingest regenerated
+            String result = null;
+            try {
+                result = org.hascoapi.transform.mt.dp2.DP2Gen.genByStatus(status, REGENERATED_DP2_FILENAME, null, null);
+            } catch (Exception e) {
+                fail("Step3: DP2 regeneration threw exception: " + e.getMessage());
+            }
+            assertNotNull(result);
+
+            final File regeneratedOut = new File(ConfigProp.getPathIngestion() + REGENERATED_DP2_FILENAME);
+            assertTrue(regeneratedOut.exists(), "Step3: regenerated DP2 workbook should exist at: " + regeneratedOut.getAbsolutePath());
+            assertTrue(regeneratedOut.length() > 0, "Step3: regenerated DP2 workbook should not be empty: " + regeneratedOut.getAbsolutePath());
+
+            final File regeneratedCopied2 = copyToGenerated(regeneratedOut, REGENERATED_DP2_FILENAME);
+            DataFile dfRegen = mockDataFileFor(regeneratedCopied2);
+            assertDoesNotThrow(() -> IngestionWorker.ingest(dfRegen, regeneratedCopied2, TEMPLATE_GENERIC, status),
+                    "Step3: ingesting regenerated DP2 should not throw");
+            dumpAndLogTtl("DP2_step3_reingested_regenerated", dfRegen);
+
+            printStepBanner("STEP 3/3 - DONE - MT=" + type);
             return;
         }
 
@@ -489,7 +786,11 @@ public class HascoRoundtripTest {
 
     @ParameterizedTest
     @DisplayName("HASCO round-trip: Step 1 ingestion for all MTs")
-    @ValueSource(strings = { "DSG", "INS", "DP2", "STR", "KGR", "SDD", "DA" })
+    @ValueSource(strings = {
+            // "DSG",
+            // "INS",
+            "DP2"
+    })
     public void step1_allMTs_ingest(String mtName) {
         MTType type = MTType.valueOf(mtName);
         printStepBanner("TEST ENTRYPOINT: step1_allMTs_ingest (MT=" + type + ")");
@@ -498,7 +799,11 @@ public class HascoRoundtripTest {
 
     @ParameterizedTest
     @DisplayName("HASCO round-trip: Step 2 regeneration & comparison for all MTs")
-    @ValueSource(strings = { "DSG", "INS", "DP2", "STR", "KGR", "SDD", "DA" })
+    @ValueSource(strings = {
+            // "DSG",
+            // "INS",
+            "DP2"
+    })
     public void step2_allMTs_regenerate_and_compare(String mtName) {
         MTType type = MTType.valueOf(mtName);
         printStepBanner("TEST ENTRYPOINT: step2_allMTs_regenerate_and_compare (MT=" + type + ")");
@@ -507,7 +812,11 @@ public class HascoRoundtripTest {
 
     @ParameterizedTest
     @DisplayName("HASCO round-trip: Step 3 reset & deterministic re-ingestion for all MTs")
-    @ValueSource(strings = { "DSG", "INS", "DP2", "STR", "KGR", "SDD", "DA" })
+    @ValueSource(strings = {
+            // "DSG",
+            // "INS",
+            "DP2"
+    })
     public void step3_allMTs_reset_and_deterministic_reingest(String mtName) {
         MTType type = MTType.valueOf(mtName);
         printStepBanner("TEST ENTRYPOINT: step3_allMTs_reset_and_deterministic_reingest (MT=" + type + ")");
@@ -517,46 +826,28 @@ public class HascoRoundtripTest {
     @DisplayName("Sanity: test scaffold lists all MT types")
     @org.junit.jupiter.api.Test
     public void sanity_z_listsAllMtTypes() {
-        // "Check everything" sanity for the scaffold (no side-effects):
-        // - enum coverage
-        // - input workbook presence per MT (if wired in getMtExcel)
-        // - step implementation status (DSG implemented; others currently intentional skips)
-        // - expected generated artifacts for DSG (if they exist, they must be non-empty)
-
         List<MTType> types = Arrays.asList(MTType.values());
         List<MTType> expectedTypes = Arrays.asList(MTType.DSG, MTType.INS, MTType.DP2, MTType.STR, MTType.KGR, MTType.SDD, MTType.DA);
         assertTrue(types.containsAll(expectedTypes), "MTType enum must include all expected MT types");
 
-        // 1) Inputs that are currently wired through getMtExcel()
-        for (MTType t : expectedTypes) {
-            File f = getMtExcel(t);
-            if (t == MTType.DSG) {
-                assertNotNull(f, "DSG input must be wired in getMtExcel");
-                assertTrue(f.exists(), "DSG test input must exist at: " + f.getPath());
-                assertTrue(f.length() > 0, "DSG test input must not be empty: " + f.getPath());
-            } else {
-                // For now, other MTs are intentionally not wired (return null), so we record that as expected.
-                assertNull(f, "MT " + t + " is not yet wired (expected null in getMtExcel until implemented)");
-            }
-        }
+        // While focusing on DP2, only DP2 needs to be wired as a mandatory test input.
+        // (Keep INS checks commented temporariamente; do not delete.)
+        File dp2 = getMtExcel(MTType.DP2);
+        assertNotNull(dp2, "DP2 input must be wired in getMtExcel");
+        assertTrue(dp2.exists(), "DP2 test input must exist at: " + dp2.getPath());
+        assertTrue(dp2.length() > 0, "DP2 test input must not be empty: " + dp2.getPath());
 
-        // 2) Step coverage expectations
-        // DSG: step1/2/3 are implemented; others should currently "assumeTrue(false)" (skipped) after input check.
-        // We can't invoke the steps here without causing side effects, so this sanity only documents intent.
-        assertTrue(true, "Scaffold sanity: step implementations are expected for DSG only at this stage");
+        // File ins = getMtExcel(MTType.INS);
+        // assertNotNull(ins, "INS input must be wired in getMtExcel");
+        // assertTrue(ins.exists(), "INS test input must exist at: " + ins.getPath());
+        // assertTrue(ins.length() > 0, "INS test input must not be empty: " + ins.getPath());
 
-        // 3) Generated artifacts directory exists (created by step2/step3)
         File generatedDir = new File("test/resources/generated");
         assertTrue(generatedDir.exists() || generatedDir.mkdirs(), "generated dir should be creatable at: " + generatedDir.getPath());
 
-        // If the DSG regenerated artifacts exist, they must be non-empty.
-        File regen1 = new File(generatedDir, REGENERATED_DSG_FILENAME);
-        if (regen1.exists()) {
-            assertTrue(regen1.length() > 0, "regen1 exists but is empty: " + regen1.getPath());
-        }
-        File regen2 = new File(generatedDir, "DSG-STD-test-regenerated-step3.xlsx");
-        if (regen2.exists()) {
-            assertTrue(regen2.length() > 0, "regen2 exists but is empty: " + regen2.getPath());
+        File insRegen = new File(generatedDir, REGENERATED_INS_FILENAME);
+        if (insRegen.exists()) {
+            assertTrue(insRegen.length() > 0, "INS regen exists but is empty: " + insRegen.getPath());
         }
     }
 

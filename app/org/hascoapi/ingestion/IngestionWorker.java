@@ -364,62 +364,72 @@ public class IngestionWorker {
             annotationDataFile = (DataFile)dataFile.clone();
         } catch (Exception e) {
             dataFile.getLogger().printExceptionByIdWithArgs("GBL_00012", e.getMessage());
-            //System.out.println("[ERROR] IngestionWorker.annotationGen() - following error cloning dataFile: " + e.getMessage());
             return false;
         }
+
+        boolean hasAnyAnnotationSheet = false;
+
         String sheetName = mapCatalog.get("AnnotationStems");
         if (sheetName != null) {
             System.out.print("Extracting [AnnotationStems] sheet from spreadsheet... ");
-            annotationStemRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), sheetName.replace("#",""));
-            if (annotationStemRecordFile == null) {
-                dataFile.getLogger().printWarningByIdWithArgs("GBL_00013",sheetName);
-                //System.out.println("[WARNING] 'AnnotationStems' sheet is missing.");
-                //dataFile.getLogger().println("[WARNING] 'AnnotationStems' sheet is missing.");
-                return false;
-            } else if (annotationStemRecordFile.getRecords() == null) {
-                dataFile.getLogger().printWarningByIdWithArgs("GBL_00014","annotationGen(): annotationStems");
-                //System.out.println("[WARNING] annotationGen(): annotationStemRecordFile.getRecords() is NULL.");
-                return false;
+            annotationStemRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), sheetName.replace("#", ""));
+
+            // SpreadsheetRecordFile is never null, but may be invalid when the sheet doesn't exist.
+            if (annotationStemRecordFile == null || !annotationStemRecordFile.isValid() || annotationStemRecordFile.getRecords() == null) {
+                // Treat missing/invalid sheet as absent (skip), not as a hard failure.
+                annotationStemRecordFile = null;
+            } else if (annotationStemRecordFile.getRecords().isEmpty()) {
+                // Empty sheet: treat as absent.
+                annotationStemRecordFile = null;
+            } else {
+                annotationStemDataFile.setRecordFile(annotationStemRecordFile);
+                hasAnyAnnotationSheet = true;
             }
-            annotationStemDataFile.setRecordFile(annotationStemRecordFile);
         }
+
         sheetName = mapCatalog.get("Annotations");
         if (sheetName != null) {
             System.out.print("Extracting [Annotations] sheet from spreadsheet... ");
-            annotationRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), sheetName.replace("#",""));
-            if (annotationRecordFile == null) {
-                dataFile.getLogger().printWarningByIdWithArgs("GBL_00015",sheetName);
-                /*
-                System.out.println("[WARNING] 'Annotations' sheet is missing.");
-                dataFile.getLogger().println("[WARNING] 'Annotations' sheet is missing.");
+            annotationRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), sheetName.replace("#", ""));
 
-                 */
-                return false;
-            } else if (annotationRecordFile.getRecords() == null) {
-                dataFile.getLogger().printWarningByIdWithArgs("GBL_00014","annotationGen(): annotations");
-               // System.out.println("[WARNING] annotationGen(): annotationRecordFile.getRecords() is NULL.");
-                return false;
+            if (annotationRecordFile == null || !annotationRecordFile.isValid() || annotationRecordFile.getRecords() == null) {
+                annotationRecordFile = null;
+            } else if (annotationRecordFile.getRecords().isEmpty()) {
+                annotationRecordFile = null;
+            } else {
+                annotationDataFile.setRecordFile(annotationRecordFile);
+                hasAnyAnnotationSheet = true;
             }
-            annotationDataFile.setRecordFile(annotationRecordFile);
         }
 
-        INSGenerator annotationStemGen = new INSGenerator("annotationstem",annotationStemDataFile, status);
-        annotationStemGen.setNamedGraphUri(dataFile.getUri());
-        INSGenerator annotationGen = new INSGenerator("annotation",annotationDataFile, status);
-        annotationGen.setNamedGraphUri(dataFile.getUri());
+        // If the template doesn't include annotation sheets (or the workbook doesn't provide them),
+        // skip annotation generation gracefully.
+        if (!hasAnyAnnotationSheet) {
+            dataFile.getLogger().println("annotationGen(): no AnnotationStems/Annotations sheet configured; skipping annotation generation.");
+            return true;
+        }
 
         GeneratorChain chain = new GeneratorChain();
         chain.setNamedGraphUri(dataFile.getUri());
-        chain.addGenerator(annotationStemGen);
-        chain.addGenerator(annotationGen);
-        boolean isSuccess = false;
-        if (chain != null) {
-            isSuccess = chain.generate();
+
+        if (annotationStemRecordFile != null) {
+            INSGenerator annotationStemGen = new INSGenerator("annotationstem", annotationStemDataFile, status);
+            annotationStemGen.setNamedGraphUri(dataFile.getUri());
+            chain.addGenerator(annotationStemGen);
         }
+        if (annotationRecordFile != null) {
+            INSGenerator annotationGen = new INSGenerator("annotation", annotationDataFile, status);
+            annotationGen.setNamedGraphUri(dataFile.getUri());
+            chain.addGenerator(annotationGen);
+        }
+
+        boolean isSuccess = false;
+        isSuccess = chain.generate();
+
         if (isSuccess) {
             System.out.println("Done extracting annotationStem and annotation sheets. ");
         } else {
-            dataFile.getLogger().printWarningByIdWithArgs("GBL_00016","annotationStem and/or annotation");
+            dataFile.getLogger().printWarningByIdWithArgs("GBL_00016", "annotationStem and/or annotation");
             System.out.println("Failed to extract annotationStem and/or annotation sheets. ");
         }
         return isSuccess;
@@ -438,54 +448,59 @@ public class IngestionWorker {
             //System.out.println("[ERROR] IngestionWorker.messageGen() - following error cloning dataFile: " + e.getMessage());
             return false;
         }
+
         String sheetName = mapCatalog.get("MessageStream");
         if (sheetName != null) {
             System.out.print("Extracting [MessageStream] sheet from spreadsheet... ");
-            messageStreamRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), sheetName.replace("#",""));
-            if (messageStreamRecordFile == null) {
-                dataFile.getLogger().printWarningByIdWithArgs("GBL_00013",sheetName);
-                /*
-                System.out.println("[WARNING] 'MessageStream' sheet is missing.");
-                dataFile.getLogger().println("[WARNING] 'MessageStream' sheet is missing.");
-
-                 */
-                return false;
-            } else if (messageStreamRecordFile.getRecords() == null) {
-                dataFile.getLogger().printWarningByIdWithArgs("GBL_00014","messageGen(): messageStream");
-                //System.out.println("[WARNING] messageGen(): MessageStreamRecordFile.getRecords() is NULL.");
-                return false;
+            messageStreamRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), sheetName.replace("#", ""));
+            if (messageStreamRecordFile == null || !messageStreamRecordFile.isValid() || messageStreamRecordFile.getRecords() == null) {
+                dataFile.getLogger().printWarningByIdWithArgs("GBL_00014", "messageGen(): messageStream");
+                messageStreamRecordFile = null;
+            } else {
+                messageStreamDataFile.setRecordFile(messageStreamRecordFile);
             }
-            messageStreamDataFile.setRecordFile(messageStreamRecordFile);
         }
+
         sheetName = mapCatalog.get("MessageTopic");
-        if (mapCatalog.get("MessageTopic") != null) {
+        if (sheetName != null) {
             System.out.print("Extracting [MessageTopic] sheet from spreadsheet... ");
-            messageTopicRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), sheetName.replace("#",""));
-            if (messageTopicRecordFile == null) {
-                dataFile.getLogger().printWarningByIdWithArgs("GBL_00015",sheetName);
-                /*
-                System.out.println("[WARNING] 'MessageTopic' sheet is missing.");
-                dataFile.getLogger().println("[WARNING] 'MessageTopic' sheet is missing.");
-
-                 */
-                return false;
-            } else if (messageTopicRecordFile.getRecords() == null) {
-                dataFile.getLogger().printWarningByIdWithArgs("GBL_00014","messageGen(): message");
-                //System.out.println("[WARNING] messageGen(): messageTopicRecordFile.getRecords() is NULL.");
-                return false;
+            messageTopicRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), sheetName.replace("#", ""));
+            if (messageTopicRecordFile == null || !messageTopicRecordFile.isValid() || messageTopicRecordFile.getRecords() == null) {
+                dataFile.getLogger().printWarningByIdWithArgs("GBL_00014", "messageGen(): messageTopic");
+                messageTopicRecordFile = null;
+            } else {
+                messageTopicDataFile.setRecordFile(messageTopicRecordFile);
             }
-            messageTopicDataFile.setRecordFile(messageTopicRecordFile);
         }
 
-        DP2Generator messageStreamGen = new DP2Generator("messagestream",messageStreamDataFile);
-        messageStreamGen.setNamedGraphUri(dataFile.getUri());
-        DP2Generator messageTopicGen = new DP2Generator("messagetopic",messageTopicDataFile);
-        messageTopicGen.setNamedGraphUri(dataFile.getUri());
+        DP2Generator messageStreamGen = null;
+        DP2Generator messageTopicGen = null;
+
+        if (messageStreamRecordFile != null) {
+            messageStreamGen = new DP2Generator("messagestream", messageStreamDataFile);
+            messageStreamGen.setNamedGraphUri(dataFile.getUri());
+        }
+
+        if (messageTopicRecordFile != null) {
+            messageTopicGen = new DP2Generator("messagetopic", messageTopicDataFile);
+            messageTopicGen.setNamedGraphUri(dataFile.getUri());
+        }
+
+        // If the workbook doesn't define any of these sheets, there's nothing to do here.
+        if (messageStreamGen == null && messageTopicGen == null) {
+            System.out.println("No DP2 message sheets found (MessageStream/MessageTopic); skipping messageGen.");
+            return true;
+        }
 
         GeneratorChain chain = new GeneratorChain();
         chain.setNamedGraphUri(dataFile.getUri());
-        chain.addGenerator(messageStreamGen);
-        chain.addGenerator(messageTopicGen);
+        if (messageStreamGen != null) {
+            chain.addGenerator(messageStreamGen);
+        }
+        if (messageTopicGen != null) {
+            chain.addGenerator(messageTopicGen);
+        }
+
         boolean isSuccess = false;
         if (chain != null) {
             isSuccess = chain.generate();
@@ -493,7 +508,7 @@ public class IngestionWorker {
         if (isSuccess) {
             System.out.println("Done extracting messageStream and messageTopic sheets. ");
         } else {
-            dataFile.getLogger().printWarningByIdWithArgs("GBL_00016","messageStream and/or messageTopic");
+            dataFile.getLogger().printWarningByIdWithArgs("GBL_00016", "messageStream and/or messageTopic");
             System.out.println("Failed to extract messageStream and/or messageTopic sheets. ");
         }
         return isSuccess;
@@ -515,76 +530,96 @@ public class IngestionWorker {
            // System.out.println("[ERROR] IngestionWorker.messageGen() - following error cloning dataFile: " + e.getMessage());
             return false;
         }
+
         String sheetName = mapCatalog.get("InstrumentInstances");
         if (sheetName != null) {
             System.out.print("Extracting [InstrumentInstances] sheet from spreadsheet... ");
-            instrumentsRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), sheetName.replace("#",""));
-            if (instrumentsRecordFile == null) {
-                dataFile.getLogger().printWarningByIdWithArgs("GBL_00014",sheetName);
-                /*
-                System.out.println("[WARNING] 'Instruments' sheet is missing.");
-                dataFile.getLogger().println("[WARNING] 'Instruments' sheet is missing.");
-
-                 */
-                return false;
-            } else if (instrumentsRecordFile.getRecords() == null) {
-                dataFile.getLogger().printWarningByIdWithArgs("GBL_00014","deployInstancesGen(): instrumentInstances");
-                //System.out.println("[WARNING] deployInstancesGen(): instrumentsRecordFile.getRecords() is NULL.");
-                return false;
+            try {
+                instrumentsRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), sheetName.replace("#", ""));
+            } catch (Exception e) {
+                dataFile.getLogger().println("deployInstancesGen(): exception reading InstrumentInstances sheet: " + e.getMessage());
+                instrumentsRecordFile = null;
             }
-            instrumentsDataFile.setRecordFile(instrumentsRecordFile);
+
+            if (instrumentsRecordFile == null || !instrumentsRecordFile.isValid() || instrumentsRecordFile.getRecords() == null || instrumentsRecordFile.getRecords().isEmpty()) {
+                dataFile.getLogger().printWarningByIdWithArgs("GBL_00014", "deployInstancesGen(): instrumentInstances");
+                instrumentsRecordFile = null; // treat as absent
+            } else {
+                instrumentsDataFile.setRecordFile(instrumentsRecordFile);
+            }
         }
+
         sheetName = mapCatalog.get("ComponentInstances");
         if (sheetName != null) {
             System.out.print("Extracting [ComponentInstances] sheet from spreadsheet... ");
-            componentsRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), sheetName.replace("#",""));
-            if (componentsRecordFile == null) {
-                dataFile.getLogger().printWarningByIdWithArgs("GBL_00015",sheetName);
-                /*
-                System.out.println("[WARNING] 'Detectors' sheet is missing.");
-                dataFile.getLogger().println("[WARNING] 'Detectors' sheet is missing.");
-
-                 */
-                return false;
-            } else if (componentsRecordFile.getRecords() == null) {
-                dataFile.getLogger().printWarningByIdWithArgs("GBL_00014","deployInstancesGen(): componentinstances");
-                // System.out.println("[WARNING] deployInstancesGen(): componentsRecordFile.getRecords() is NULL.");
-                return false;
+            try {
+                componentsRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), sheetName.replace("#", ""));
+            } catch (Exception e) {
+                dataFile.getLogger().println("deployInstancesGen(): exception reading ComponentInstances sheet: " + e.getMessage());
+                componentsRecordFile = null;
             }
-            componentsDataFile.setRecordFile(componentsRecordFile);
+
+            if (componentsRecordFile == null || !componentsRecordFile.isValid() || componentsRecordFile.getRecords() == null || componentsRecordFile.getRecords().isEmpty()) {
+                dataFile.getLogger().printWarningByIdWithArgs("GBL_00014", "deployInstancesGen(): componentInstances");
+                componentsRecordFile = null; // treat as absent
+            } else {
+                componentsDataFile.setRecordFile(componentsRecordFile);
+            }
         }
+
         sheetName = mapCatalog.get("SensingPerspective");
         if (sheetName != null) {
             System.out.print("Extracting [SensingPerspective] sheet from spreadsheet... ");
-            sensingPerspectiveRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), sheetName.replace("#",""));
-            if (sensingPerspectiveRecordFile == null) {
-                dataFile.getLogger().printWarningByIdWithArgs("GBL_00015",sheetName);
-                /*
-                System.out.println("[WARNING] 'SensingPerspective' sheet is missing.");
-                dataFile.getLogger().println("[WARNING] 'SensingPerspective' sheet is missing.");
-
-                 */
-                return false;
-            } else if (sensingPerspectiveRecordFile.getRecords() == null) {
-                dataFile.getLogger().printWarningByIdWithArgs("GBL_00014"," deployInstancesGen(): sensingPerspective");
-                System.out.println("[WARNING] deployInstancesGen(): sensingPerspectiveRecordFile.getRecords() is NULL.");
-                return false;
+            try {
+                sensingPerspectiveRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), sheetName.replace("#", ""));
+            } catch (Exception e) {
+                dataFile.getLogger().println("deployInstancesGen(): exception reading SensingPerspective sheet: " + e.getMessage());
+                sensingPerspectiveRecordFile = null;
             }
-            sensingPerspectiveDataFile.setRecordFile(sensingPerspectiveRecordFile);
+
+            if (sensingPerspectiveRecordFile == null || !sensingPerspectiveRecordFile.isValid() || sensingPerspectiveRecordFile.getRecords() == null || sensingPerspectiveRecordFile.getRecords().isEmpty()) {
+                dataFile.getLogger().printWarningByIdWithArgs("GBL_00014", "deployInstancesGen(): sensingPerspective");
+                sensingPerspectiveRecordFile = null; // treat as absent
+            } else {
+                sensingPerspectiveDataFile.setRecordFile(sensingPerspectiveRecordFile);
+            }
         }
 
-        DP2Generator instrumentsGen = new DP2Generator("instrumentinstance",instrumentsDataFile);
-        instrumentsGen.setNamedGraphUri(dataFile.getUri());
-        DP2Generator detectorsGen = new DP2Generator("componentinstance",componentsDataFile);
-        detectorsGen.setNamedGraphUri(dataFile.getUri());
-        DP2Generator sensingPerspectiveGen = new DP2Generator("sensingperspective",sensingPerspectiveDataFile);
-        sensingPerspectiveGen.setNamedGraphUri(dataFile.getUri());
+        DP2Generator instrumentsGen = null;
+        DP2Generator detectorsGen = null;
+        DP2Generator sensingPerspectiveGen = null;
+
+        if (instrumentsRecordFile != null) {
+            instrumentsGen = new DP2Generator("instrumentinstance", instrumentsDataFile);
+            instrumentsGen.setNamedGraphUri(dataFile.getUri());
+        }
+        if (componentsRecordFile != null) {
+            detectorsGen = new DP2Generator("componentinstance", componentsDataFile);
+            detectorsGen.setNamedGraphUri(dataFile.getUri());
+        }
+        if (sensingPerspectiveRecordFile != null) {
+            sensingPerspectiveGen = new DP2Generator("sensingperspective", sensingPerspectiveDataFile);
+            sensingPerspectiveGen.setNamedGraphUri(dataFile.getUri());
+        }
+
+        // If the workbook doesn't define any of these sheets, there's nothing to do here.
+        if (instrumentsGen == null && detectorsGen == null && sensingPerspectiveGen == null) {
+            System.out.println("No DP2 instance sheets found (InstrumentInstances/ComponentInstances/SensingPerspective); skipping deployInstancesGen.");
+            return true;
+        }
 
         GeneratorChain chain = new GeneratorChain();
         chain.setNamedGraphUri(dataFile.getUri());
-        chain.addGenerator(instrumentsGen);
-        chain.addGenerator(detectorsGen);
-        chain.addGenerator(sensingPerspectiveGen);
+        if (instrumentsGen != null) {
+            chain.addGenerator(instrumentsGen);
+        }
+        if (detectorsGen != null) {
+            chain.addGenerator(detectorsGen);
+        }
+        if (sensingPerspectiveGen != null) {
+            chain.addGenerator(sensingPerspectiveGen);
+        }
+
         boolean isSuccess = false;
         if (chain != null) {
             isSuccess = chain.generate();

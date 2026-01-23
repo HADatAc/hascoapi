@@ -19,19 +19,23 @@ public class AnnotateDP2 extends BaseAnnotator {
         // Load catalog with sheet validation
         Map<String, String> mapCatalog = loadCatalog(dataFile, Constants.MT_DP2);
         if (mapCatalog == null) {
-            // dataFile.getLogger().printExceptionById("DP2_00001"); // "DP2 InfoSheet validation failed"
             return null;
         }
 
         // Generate namespace, messages, and deploy instances
-        IngestionWorker.nameSpaceGen(dataFile, mapCatalog, templateFile);
-        IngestionWorker.messageGen(dataFile, mapCatalog, templateFile);
-        IngestionWorker.deployInstancesGen(dataFile, mapCatalog, templateFile);
+        boolean okNS = IngestionWorker.nameSpaceGen(dataFile, mapCatalog, templateFile);
+        boolean okMsg = IngestionWorker.messageGen(dataFile, mapCatalog, templateFile);
+        boolean okDeploy = IngestionWorker.deployInstancesGen(dataFile, mapCatalog, templateFile);
+
+        // If any of the pre-generators failed, stop here to avoid downstream NPEs or partial/invalid validation.
+        if (!okNS || !okMsg || !okDeploy) {
+            dataFile.getLogger().printWarningById("DP2_00006");
+            return null;
+        }
 
         // Validate DP2 instance references
         if (!validateDP2Instances(dataFile, mapCatalog)) {
-            System.out.println("Erro aqui");
-            dataFile.getLogger().printWarningById("DP2_00006"); // “One or more DP2 instance references are invalid”
+            dataFile.getLogger().printWarningById("DP2_00006");
             return null;
         }
         GeneratorChain chain = new GeneratorChain();
@@ -57,6 +61,18 @@ public class AnnotateDP2 extends BaseAnnotator {
             } else if ("Deployments".equalsIgnoreCase(sheet)) {
                 addCustomGeneratorIfSheetExists(dataFile, mapCatalog, sheet, status, chain,
                         (df, st) -> new DP2Generator("deployment", df));
+
+            } else if ("InstrumentInstances".equalsIgnoreCase(sheet)) {
+                addCustomGeneratorIfSheetExists(dataFile, mapCatalog, sheet, status, chain,
+                        (df, st) -> new DP2Generator("instrumentinstance", df));
+
+            } else if ("ComponentInstances".equalsIgnoreCase(sheet)) {
+                addCustomGeneratorIfSheetExists(dataFile, mapCatalog, sheet, status, chain,
+                        (df, st) -> new DP2Generator("componentinstance", df));
+
+            } else if ("SensingPerspective".equalsIgnoreCase(sheet)) {
+                addCustomGeneratorIfSheetExists(dataFile, mapCatalog, sheet, status, chain,
+                        (df, st) -> new DP2Generator("sensingperspective", df));
             }
         }
 

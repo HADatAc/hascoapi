@@ -92,6 +92,15 @@ public class DP2Gen {
         workbook.createSheet(COMPONENTINSTANCES);
         workbook.createSheet(SENSINGPERSPECTIVE);
 
+        // IMPORTANT: set headers for each sheet so add() methods write into the correct columns
+        DP2Deployments.setHeaders(workbook.getSheet(DEPLOYMENTS));
+        DP2Plataforms.setHeaders(workbook.getSheet(PLATFORMS));
+        DP2PlataformInstances.setHeaders(workbook.getSheet(PLATFORMINTANCES));
+        DP2FieldsOfView.setHeaders(workbook.getSheet(FIELDSOFVIEW));
+        DP2InstrumentInstances.setHeaders(workbook.getSheet(INSTRUMENTINSTANCES));
+        DP2ComponentsInstances.setHeaders(workbook.getSheet(COMPONENTINSTANCES));
+        // DP2SensingPerspective headers are not implemented yet
+
         return workbook;
     }
 
@@ -101,22 +110,43 @@ public class DP2Gen {
         }
 
         Sheet namespacesSheet = helper.workbook.getSheet(NAMESPACES);
-        Row row = namespacesSheet.createRow(0);
-        Cell cell0 = row.createCell(0);
-        cell0.setCellValue("prefix");
-        Cell cell1 = row.createCell(1);
-        cell1.setCellValue("uri");
 
+        // Expected DP2 namespace sheet schema
+        Row row = namespacesSheet.createRow(0);
+        row.createCell(0).setCellValue("hasPrefix");
+        row.createCell(1).setCellValue("hasNameSpace");
+        row.createCell(2).setCellValue("hasFormat");
+        row.createCell(3).setCellValue("hasSource");
+
+        // Always include required prefixes first (so the workbook is self-contained)
         int rowIndex = 1;
+        rowIndex = writeNamespaceRow(namespacesSheet, rowIndex, "ahead", "http://hadatac.org/ont/arrowhead/", "text/turtle", "http://hadatac.org/ont/arrowhead/");
+        rowIndex = writeNamespaceRow(namespacesSheet, rowIndex, "vstoi", "http://hadatac.org/ont/vstoi#", "text/turtle", "http://hadatac.org/ont/vstoi#");
+
+        // Then include anything collected during generation (avoid duplicates by prefix)
+        java.util.Set<String> seenPrefixes = new java.util.HashSet<>();
+        seenPrefixes.add("ahead");
+        seenPrefixes.add("vstoi");
+
         for (NameSpace namespace: helper.namespaces.values()) {
-            Row newRow = namespacesSheet.createRow(rowIndex);
-            Cell newCell0 = newRow.createCell(0);
-            newCell0.setCellValue(namespace.getLabel());
-            Cell newCell1 = newRow.createCell(1);
-            newCell1.setCellValue(namespace.getUri());
-            rowIndex++;
+            if (namespace == null) continue;
+            String prefix = namespace.getLabel();
+            String nsUri = namespace.getUri();
+            if (prefix == null) continue;
+            if (seenPrefixes.contains(prefix)) continue;
+            seenPrefixes.add(prefix);
+
+            rowIndex = writeNamespaceRow(namespacesSheet, rowIndex, prefix, nsUri, "text/turtle", nsUri);
         }
-        
+    }
+
+    private static int writeNamespaceRow(Sheet sheet, int rowIndex, String prefix, String nsUri, String format, String source) {
+        Row newRow = sheet.createRow(rowIndex);
+        newRow.createCell(0).setCellValue(prefix == null ? "" : prefix);
+        newRow.createCell(1).setCellValue(nsUri == null ? "" : nsUri);
+        newRow.createCell(2).setCellValue(format == null ? "" : format);
+        newRow.createCell(3).setCellValue(source == null ? "" : source);
+        return rowIndex + 1;
     }
 
     public static String save(DP2GenHelper helper, String filename) {
@@ -171,7 +201,17 @@ public class DP2Gen {
 
     public static String genByStatus(String status, String filename, String mediaFolder, String verifyUri) {
         DP2GenHelper helper = new DP2GenHelper();
-        helper.workbook = DP2Gen.create(filename);
+
+        // Ensure we save into the ingestion path if a relative filename was provided.
+        String outFilename = filename;
+        if (outFilename != null && !outFilename.isEmpty()) {
+            java.io.File f = new java.io.File(outFilename);
+            if (!f.isAbsolute()) {
+                outFilename = ConfigProp.getPathIngestion() + outFilename;
+            }
+        }
+
+        helper.workbook = DP2Gen.create(outFilename);
 
         GenericFindWithStatus<Deployment> deploymentQuery = new GenericFindWithStatus<Deployment>();
         List<Deployment> deployments = deploymentQuery.findByStatusWithPages(Deployment.class, status, PAGESIZE, OFFSET);
@@ -228,12 +268,21 @@ public class DP2Gen {
         }
 
          */
-        return DP2Gen.save(helper,filename);
+        return DP2Gen.save(helper,outFilename);
     }
 
     public static String genByManager(String useremail, String status, String filename, String mediaFolder, String verifyUri) {
         DP2GenHelper helper = new DP2GenHelper();
-        helper.workbook = DP2Gen.create(filename);
+
+        String outFilename = filename;
+        if (outFilename != null && !outFilename.isEmpty()) {
+            java.io.File f = new java.io.File(outFilename);
+            if (!f.isAbsolute()) {
+                outFilename = ConfigProp.getPathIngestion() + outFilename;
+            }
+        }
+
+        helper.workbook = DP2Gen.create(outFilename);
         boolean withCurrent = false; // this assures that the retrieval of just elements of the requested type.
 
         GenericFindWithStatus<Deployment> deploymentQuery = new GenericFindWithStatus<Deployment>();
@@ -291,6 +340,6 @@ public class DP2Gen {
         }
 
          */
-        return DP2Gen.save(helper,filename);
+        return DP2Gen.save(helper, outFilename);
     }
 }

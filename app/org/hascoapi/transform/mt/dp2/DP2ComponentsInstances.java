@@ -11,8 +11,8 @@ import org.hascoapi.utils.URIUtils;
 public class DP2ComponentsInstances {
 
     public static void setHeaders(Sheet sheet) {
-        String[] headers = { "hasURI", "a", "rdfs:label", "vstoi:hasSerialNumber", "hasco:partOf" };
-        
+        String[] headers = { "hasURI", "a", "rdfs:label", "vstoi:hasSerialNumber", "vstoi:isInstrumentAttachment" };
+
         Row row = sheet.createRow(0);
         for (int i = 0; i < headers.length; i++) {
             Cell cell = row.createCell(i);
@@ -22,6 +22,7 @@ public class DP2ComponentsInstances {
             sheet.autoSizeColumn(i);
         }
     }
+
     public static DP2GenHelper add(DP2GenHelper helper, ComponentInstance componentInstance) {
 
         if (componentInstance == null) {
@@ -56,7 +57,9 @@ public class DP2ComponentsInstances {
         Cell cell4 = newRow.createCell(3);
         cell4.setCellValue(componentInstance.getHasSerialNumber());
 
-
+        // "vstoi:isInstrumentAttachment" - not available in ComponentInstance yet
+        Cell cell5 = newRow.createCell(4);
+        cell5.setCellValue("");
 
         return helper;
     }

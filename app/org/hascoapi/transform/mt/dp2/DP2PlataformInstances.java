@@ -9,8 +9,23 @@ import org.hascoapi.utils.URIUtils;
 public class DP2PlataformInstances {
 
     public static void setHeaders(Sheet sheet) {
-        String[] headers = { "hasURI", "a", "rdfs:label", "vstoi:hasSerialNumber", "hasco:partOf" };
-        
+        String[] headers = {
+                "hasURI",
+                "a",
+                "rdfs:label",
+                "vstoi:hasSerialNumber",
+                "hasco:hasFirstCoordinate",
+                "hasco:hasFirstCoordinateUnit",
+                "hasco:hasFirstCoordinateCharacteristic",
+                "hasco:hasSecondCoordinate",
+                "hasco:hasSecondCoordinateUnit",
+                "hasco:hasSecondCoordinateCharacteristic",
+                "hasco:hasThirdCoordinate",
+                "hasco:hasThirdCoordinateUnit",
+                "hasco:hasThirdCoordinateCharacteristic",
+                "hasco:partOf"
+        };
+
         Row row = sheet.createRow(0);
         for (int i = 0; i < headers.length; i++) {
             Cell cell = row.createCell(i);
@@ -46,66 +61,29 @@ public class DP2PlataformInstances {
         // Create the new row
         Row newRow = platforminstancessheet.createRow(rowIndex);
 
-        // 0 "hasURI"
-        Cell cell1 = newRow.createCell(0);
-        cell1.setCellValue(URIUtils.replaceNameSpaceEx(platformInstance.getUri()));
+        newRow.createCell(0).setCellValue(URIUtils.replaceNameSpaceEx(platformInstance.getUri()));
+        newRow.createCell(1).setCellValue(URIUtils.replaceNameSpaceEx(platformInstance.getHascoTypeUri()));
+        newRow.createCell(2).setCellValue(platformInstance.getLabel());
+        newRow.createCell(3).setCellValue(platformInstance.getHasSerialNumber());
 
-        // "a"
-        Cell cell2 = newRow.createCell(1);
-        cell2.setCellValue(URIUtils.replaceNameSpaceEx(platformInstance.getHascoTypeUri()));
+        newRow.createCell(4).setCellValue(platformInstance.getFirstCoordinate());
+        newRow.createCell(5).setCellValue(platformInstance.getFirstCoordinateUnit());
+        newRow.createCell(6).setCellValue(platformInstance.getFirstCoordinateCharacteristic());
 
-        // "rdfs:label"
-        Cell cell3 = newRow.createCell(2);
-        cell3.setCellValue(platformInstance.getLabel());
+        newRow.createCell(7).setCellValue(platformInstance.getSecondCoordinate());
+        newRow.createCell(8).setCellValue(platformInstance.getSecondCoordinateUnit());
+        newRow.createCell(9).setCellValue(platformInstance.getSecondCoordinateCharacteristic());
 
-        // "vstoi:hasSerialNumber"
-        Cell cell4 = newRow.createCell(3);
-        cell4.setCellValue(platformInstance.getHasSerialNumber());
+        newRow.createCell(10).setCellValue(platformInstance.getThirdCoordinate());
+        newRow.createCell(11).setCellValue(platformInstance.getThirdCoordinateUnit());
+        newRow.createCell(12).setCellValue(platformInstance.getThirdCoordinateCharacteristic());
 
-        // "hasco:hasFirstCoordinate
-        Cell cell5 = newRow.createCell(3);
-        cell5.setCellValue(platformInstance.getFirstCoordinate());
-
-        // "hasco:hasFirstCoordinateUnit"
-        Cell cell6 = newRow.createCell(3);
-        cell6.setCellValue(platformInstance.getFirstCoordinateUnit());
-
-        // "hasco:hasFirstCoordinateCharacteristic
-        Cell cell7 = newRow.createCell(3);
-        cell7.setCellValue(platformInstance.getFirstCoordinateCharacteristic());
-
-        // "hasco:hasSecondCoordinate
-        Cell cell8 = newRow.createCell(3);
-        cell8.setCellValue(platformInstance.getSecondCoordinate());
-
-        // hasco:hasSecondCoordinateUnit
-        Cell cell9 = newRow.createCell(3);
-        cell9.setCellValue(platformInstance.getSecondCoordinateUnit());
-
-        // hasco:hasSecondCoordinateCharacteristic
-        Cell cell10 = newRow.createCell(3);
-        cell10.setCellValue(platformInstance.getSecondCoordinateCharacteristic());
-
-        // hasco:hasThirdCoordinate
-        Cell cell11 = newRow.createCell(3);
-        cell11.setCellValue(platformInstance.getThirdCoordinate());
-
-        // hasco:hasThirdCoordinateUnit
-        Cell cell12 = newRow.createCell(3);
-        cell12.setCellValue(platformInstance.getThirdCoordinateUnit());
-
-        // hasco:hasThirdCoordinateCharacteristic
-        Cell cell13 = newRow.createCell(3);
-        cell13.setCellValue(platformInstance.getThirdCoordinateCharacteristic());
-
-        // "hasco:partOf"
-        Cell cell14 = newRow.createCell(4);
+        Cell partOfCell = newRow.createCell(13);
         if (platformInstance.getPartOf() != null) {
-            cell14.setCellValue(URIUtils.replaceNameSpaceEx(platformInstance.getPartOf()));
+            partOfCell.setCellValue(URIUtils.replaceNameSpaceEx(platformInstance.getPartOf()));
         } else {
-            cell14.setCellValue("");
+            partOfCell.setCellValue("");
         }
-
 
         return helper;
 

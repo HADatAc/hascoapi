@@ -9,8 +9,8 @@ import org.hascoapi.utils.URIUtils;
 public class DP2InstrumentInstances {
 
     public static void setHeaders(Sheet sheet) {
-        String[] headers = { "hasURI", "a", "rdfs:label", "vstoi:hasSerialNumber", "hasco:partOf" };
-        
+        String[] headers = { "hasURI", "a", "rdfs:label", "vstoi:hasSerialNumber", "skos:definition", "owl:sameAs" };
+
         Row row = sheet.createRow(0);
         for (int i = 0; i < headers.length; i++) {
             Cell cell = row.createCell(i);
@@ -20,6 +20,7 @@ public class DP2InstrumentInstances {
             sheet.autoSizeColumn(i);
         }
     }
+
     public static DP2GenHelper add(DP2GenHelper helper, InstrumentInstance instrumentInstance) {
 
         if (helper == null) {
@@ -45,29 +46,12 @@ public class DP2InstrumentInstances {
         // Create the new row
         Row newRow = instrumentinstancessheet.createRow(rowIndex);
 
-        // 0 "hasURI"
-        Cell cell1 = newRow.createCell(0);
-        cell1.setCellValue(URIUtils.replaceNameSpaceEx(instrumentInstance.getUri()));
-
-        // "a"
-        Cell cell2 = newRow.createCell(1);
-        cell2.setCellValue(URIUtils.replaceNameSpaceEx(instrumentInstance.getHascoTypeUri()));
-
-        // "rdfs:label"
-        Cell cell3 = newRow.createCell(2);
-        cell3.setCellValue(instrumentInstance.getLabel());
-
-        // "vstoi:hasSerialNumber"
-        Cell cell4 = newRow.createCell(3);
-        cell4.setCellValue(instrumentInstance.getHasSerialNumber());
-
-        // "skos:definition"
-        Cell cell5 = newRow.createCell(3);
-        cell5.setCellValue(instrumentInstance.getDescription());
-
-        // "owl:sameAs"
-        Cell cell6 = newRow.createCell(3);
-        cell6.setCellValue("");
+        newRow.createCell(0).setCellValue(URIUtils.replaceNameSpaceEx(instrumentInstance.getUri()));
+        newRow.createCell(1).setCellValue(URIUtils.replaceNameSpaceEx(instrumentInstance.getHascoTypeUri()));
+        newRow.createCell(2).setCellValue(instrumentInstance.getLabel());
+        newRow.createCell(3).setCellValue(instrumentInstance.getHasSerialNumber());
+        newRow.createCell(4).setCellValue(instrumentInstance.getDescription());
+        newRow.createCell(5).setCellValue(""); // owl:sameAs not currently available
 
         return helper;
 

@@ -29,6 +29,8 @@ public class SpreadsheetRecordFile implements RecordFile {
     private List<String> headers = new ArrayList<>();
     private final List<Record> records = new ArrayList<>();
 
+    private boolean sheetFoundAndParsed = false;
+
     public SpreadsheetRecordFile(File file) {
         this(file, "", "");
     }
@@ -50,6 +52,7 @@ public class SpreadsheetRecordFile implements RecordFile {
 
         if (file == null || !file.exists() || !file.canRead()) {
             System.err.println("SpreadsheetRecordFile.init() failed: file is invalid.");
+            sheetFoundAndParsed = false;
             return false;
         }
 
@@ -92,14 +95,17 @@ public class SpreadsheetRecordFile implements RecordFile {
             if (!found) {
                 System.err.println("SpreadsheetRecordFile: could not found sheet with the following name: [" + sheetName + "]");
             }
-            //System.out.println("SpreadsheetRecordFile: end of search for sheetName = [" + sheetName + "]");
+
+            sheetFoundAndParsed = found;
+
         } catch (Exception e) {
             System.err.println("Error reading spreadsheet: " + e.getMessage());
             e.printStackTrace();
+            sheetFoundAndParsed = false;
             return false;
         }
 
-        return true;
+        return sheetFoundAndParsed;
     }
 
     @Override
@@ -139,7 +145,9 @@ public class SpreadsheetRecordFile implements RecordFile {
 
     @Override
     public boolean isValid() {
-        return file.exists() && file.canRead();
+        // Valid means: file can be read AND (when a sheetName is provided) that sheet was found and parsed.
+        // This matches how callers use SpreadsheetRecordFile in ingestion flows.
+        return file != null && file.exists() && file.canRead() && sheetFoundAndParsed;
     }
 
     // ================================
