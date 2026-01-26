@@ -40,6 +40,11 @@ public abstract class BaseAnnotator {
             mapCatalog.put(key.trim(), value != null ? value.trim() : "");
         }
 
+        // DP2: sanitize/repair common InfoSheet mapping issues by preferring actual sheet tabs.
+        if (mtType != null && mtType.equalsIgnoreCase(org.hascoapi.Constants.MT_DP2)) {
+            sanitizeDp2Catalog(dataFile, mapCatalog);
+        }
+
         // Validate sheet keys; return null if any errors found
         boolean valid = validateSheetKeys(dataFile, mapCatalog, mtType);
         if (!valid) {
@@ -96,19 +101,43 @@ public abstract class BaseAnnotator {
                                                           GeneratorChain chain,
                                                           GeneratorFactory factory) {
         String sheetName = mapCatalog.get(sheetKey);
+        dataFile.getLogger().println("[DP2 DEBUG] addCustomGeneratorIfSheetExists: key='" + sheetKey + "' catalogValue='" + sheetName + "'");
+
         if (sheetName == null || sheetName.trim().isEmpty()) {
             warnSheetMissing(dataFile, sheetKey);
             return;
         }
 
-        RecordFile sheet = new SpreadsheetRecordFile(dataFile.getFile(), sheetName.replace("#", ""));
+        String normalized = sheetName.replace("#", "").trim();
+
+        // Prefer the real sheetKey tab when the catalog is miswired.
+        // DP2 templates in the wild sometimes contain wrong InfoSheet mappings.
+        // If the workbook has a sheet with the same name as the key and it has rows, override.
+        if (!normalized.equalsIgnoreCase(sheetKey)) {
+            RecordFile keySheetProbe = new SpreadsheetRecordFile(dataFile.getFile(), sheetKey);
+            if (keySheetProbe != null && keySheetProbe.isValid() && keySheetProbe.getRecords() != null && !keySheetProbe.getRecords().isEmpty()) {
+                dataFile.getLogger().println("[DP2 DEBUG] overriding catalog mapping for key='" + sheetKey + "' from '" + normalized + "' to sheetKey because sheetKey exists and is non-empty");
+                normalized = sheetKey;
+            }
+        }
+
+        // Resolve the sheet
+        RecordFile sheet = new SpreadsheetRecordFile(dataFile.getFile(), normalized);
+        if (sheet == null || !sheet.isValid()) {
+            dataFile.getLogger().println("[DP2 DEBUG] sheet not valid for catalogValue='" + normalized + "' (key='" + sheetKey + "'). Trying fallback to sheetKey as sheet name.");
+            sheet = new SpreadsheetRecordFile(dataFile.getFile(), sheetKey);
+        }
+
         if (sheet == null || !sheet.isValid() || sheet.getRecords() == null) {
+            dataFile.getLogger().println("[DP2 DEBUG] sheet still invalid after fallback. key='" + sheetKey + "' tried='" + normalized + "' and fallback='" + sheetKey + "'");
             warnSheetMissing(dataFile, sheetKey);
             return;
         }
 
-        // If the sheet exists but is empty, treat it as optional and just skip it.
-        if (sheet.getRecords().isEmpty()) {
+        int recordCount = sheet.getRecords().size();
+        dataFile.getLogger().println("[DP2 DEBUG] sheet resolved for key='" + sheetKey + "' recordCount=" + recordCount);
+
+        if (recordCount == 0) {
             dataFile.getLogger().println("addCustomGeneratorIfSheetExists(): sheet '" + sheetKey + "' is empty; skipping.");
             return;
         }
@@ -142,5 +171,78 @@ public abstract class BaseAnnotator {
     public static void warnSheetMissing(DataFile dataFile, String sheetKey) {
         // JSON template example: "Sheet %s was not found in the InfoSheet catalog."
         dataFile.getLogger().printWarningByIdWithArgs("GBL_00006", sheetKey);
+    }
+
+    /**
+     * DP2 templates are frequently delivered with incorrect InfoSheet mappings.
+     * This method repairs core DP2 mappings by preferring real workbook tabs.
+     */
+    private static void sanitizeDp2Catalog(DataFile dataFile, Map<String, String> mapCatalog) {
+        if (dataFile == null || dataFile.getFile() == null || mapCatalog == null) return;
+
+        // Only repair for known DP2 core tabs
+        List<String> keys = Arrays.asList(
+                "Deployments",
+                "Platforms",
+                "PlatformInstances",
+                "InstrumentInstances",
+                "ComponentInstances",
+                "FieldsOfView",
+                "SensingPerspective",
+                "MessageStream",
+                "MessageTopic",
+                "Namespace",
+                "Namespaces",
+                "hasDependencies"
+        );
+
+        for (String key : keys) {
+            if (!mapCatalog.containsKey(key)) continue;
+            String raw = mapCatalog.get(key);
+            String mapped = raw == null ? "" : raw.replace("#", "").trim();
+
+            // Probe the mapped sheet (if any) and the key sheet.
+            SpreadsheetRecordFile mappedProbe = (mapped.isEmpty()) ? null : new SpreadsheetRecordFile(dataFile.getFile(), mapped);
+            SpreadsheetRecordFile keyProbe = new SpreadsheetRecordFile(dataFile.getFile(), key);
+
+            boolean mappedOk = mappedProbe != null && mappedProbe.isValid() && mappedProbe.getRecords() != null && !mappedProbe.getRecords().isEmpty();
+            boolean keyOk = keyProbe != null && keyProbe.isValid() && keyProbe.getRecords() != null && !keyProbe.getRecords().isEmpty();
+
+            // If mapping is wrong/missing but the key tab exists, fix it.
+            if (!mappedOk && keyOk) {
+                dataFile.getLogger().println("[DP2 DEBUG] sanitizeDp2Catalog: fixing key='" + key + "' from '" + raw + "' to '#" + key + "' (key tab exists and is non-empty)");
+                mapCatalog.put(key, "#" + key);
+            }
+        }
+
+        // Extra: detect the specific rotation seen in logs and repair it.
+        // FieldsOfView -> InstrumentInstances, InstrumentInstances -> ComponentInstances, ComponentInstances -> FieldsOfView
+        String fov = norm(mapCatalog.get("FieldsOfView"));
+        String ins = norm(mapCatalog.get("InstrumentInstances"));
+        String comp = norm(mapCatalog.get("ComponentInstances"));
+        if ("InstrumentInstances".equalsIgnoreCase(fov) && "ComponentInstances".equalsIgnoreCase(ins) && "FieldsOfView".equalsIgnoreCase(comp)) {
+            dataFile.getLogger().println("[DP2 DEBUG] sanitizeDp2Catalog: detected rotated mappings for FieldsOfView/InstrumentInstances/ComponentInstances; repairing to identity mappings");
+            mapCatalog.put("FieldsOfView", "#FieldsOfView");
+            mapCatalog.put("InstrumentInstances", "#InstrumentInstances");
+            mapCatalog.put("ComponentInstances", "#ComponentInstances");
+        }
+
+        // Namespace sheet key differences: some DP2 files use 'Namespace' others 'Namespaces' as the actual tab.
+        // Make hasDependencies point to whichever exists.
+        String hasDeps = mapCatalog.get("hasDependencies");
+        if (hasDeps == null || hasDeps.trim().isEmpty()) {
+            // If catalog doesn't define it, choose a best-effort default
+            SpreadsheetRecordFile ns1 = new SpreadsheetRecordFile(dataFile.getFile(), "Namespace");
+            SpreadsheetRecordFile ns2 = new SpreadsheetRecordFile(dataFile.getFile(), "Namespaces");
+            if (ns1.isValid()) {
+                mapCatalog.put("hasDependencies", "#Namespace");
+            } else if (ns2.isValid()) {
+                mapCatalog.put("hasDependencies", "#Namespaces");
+            }
+        }
+    }
+
+    private static String norm(String v) {
+        return v == null ? "" : v.replace("#", "").trim();
     }
 }

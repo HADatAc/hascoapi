@@ -52,3 +52,38 @@
 @prefix xml:          <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd:          <http://www.w3.org/2001/XMLSchema#> .
 @prefix xsp:          <http://www.owl-ontologies.com/2005/08/07/xsp.owl#> .
+
+ahead:INI-WS-AHEAD-00003
+        rdf:type                  "hadatac:INS1761569547551081" ;
+        rdfs:label                "Indoor Weather Station SN:00003" ;
+        hasco:hascoType           vstoi:InstrumentInstance ;
+        vstoi:hasSIRManagerEmail  "NULL" ;
+        vstoi:hasSerialNumber     "00003" .
+
+ahead:INI-WS-AHEAD-00001
+        rdf:type                  "hadatac:INS1761569547551081" ;
+        rdfs:label                "Indoor Weather Station  SN:00001" ;
+        hasco:hascoType           vstoi:InstrumentInstance ;
+        vstoi:hasSIRManagerEmail  "NULL" ;
+        vstoi:hasSerialNumber     "00001" .
+
+ahead:INI-WS-AHEAD-00004
+        rdf:type                  "hadatac:INS1761569547551081" ;
+        rdfs:label                "Outdoor Weather Station SN:00004" ;
+        hasco:hascoType           vstoi:InstrumentInstance ;
+        vstoi:hasSIRManagerEmail  "NULL" ;
+        vstoi:hasSerialNumber     "00004" .
+
+ahead:INI-WS-AHEAD-00002
+        rdf:type                  "hadatac:INS1761569547551081" ;
+        rdfs:label                "Outdoor Weather Station SN:00002" ;
+        hasco:hascoType           vstoi:InstrumentInstance ;
+        vstoi:hasSIRManagerEmail  "NULL" ;
+        vstoi:hasSerialNumber     "00002" .
+
+ahead:INI-WS-AHEAD-00005
+        rdf:type                  "hadatac:INS1761569547551081" ;
+        rdfs:label                "Indoor Weather Station SN:00005" ;
+        hasco:hascoType           vstoi:InstrumentInstance ;
+        vstoi:hasSIRManagerEmail  "NULL" ;
+        vstoi:hasSerialNumber     "00005" .

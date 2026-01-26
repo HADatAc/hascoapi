@@ -297,7 +297,7 @@ public class IngestionAPI extends Controller {
             return false;
         }
     }
-    
+
     public Result uningestDataFile(String dataFileUri) {
         DataFile dataFile = DataFile.find(dataFileUri);
         if (dataFile != null) {
@@ -347,7 +347,7 @@ public class IngestionAPI extends Controller {
         }
 
         if (mtType == null) {
-            String errorMsg = "[ERROR] IngestionAPI.uningestMetadataTemplate(): metadataTemplateUri " + metadataTemplateUri + 
+            String errorMsg = "[ERROR] IngestionAPI.uningestMetadataTemplate(): metadataTemplateUri " + metadataTemplateUri +
                 " returned no valid metadata template type. ";
             System.out.println(errorMsg);
             return ok(ApiUtil.createResponse(errorMsg,false));
@@ -426,7 +426,15 @@ public class IngestionAPI extends Controller {
             // Delete API copy of metadata template
             boolean deletedFile = this.deletePermanentFile(dataFile.getFilename());
 
-            // Uningest Datafile content
+            // IMPORTANT: DP2 MT is stored outside the DataFile named graph (typically in the repository default graph).
+            // Deleting only the DataFile graph leaves the DP2 MT behind, so generation keeps seeing stale DP2s.
+            try {
+                dp2.delete();
+            } catch (Exception e) {
+                System.out.println("[WARNING] IngestionAPI.uningestMetadataTemplate(): failed to delete DP2 MT resource (best-effort): " + e.getMessage());
+            }
+
+            // Uningest Datafile content (deletes the DataFile named graph)
             dataFile.delete();
 
             String msg = "IngestionAPI.uningestMetadataTemplate(): successfully ingested metadataTemplateUri " + metadataTemplateUri;
@@ -516,11 +524,11 @@ public class IngestionAPI extends Controller {
 
         }
 
-        String errorMsg = "[ERROR] IngestionAPI.uningestMetadataTemplate(): metadataTemplateUri " + metadataTemplateUri + 
+        String errorMsg = "[ERROR] IngestionAPI.uningestMetadataTemplate(): metadataTemplateUri " + metadataTemplateUri +
             " returned template that cannot be uningested.";
         System.out.println(errorMsg);
         return ok(ApiUtil.createResponse(errorMsg,false));
-    
+
     }
 
     public Result mtGenByStatus(String elementtype, String datafileuri, String status, String filename, String mediaFolder, String verifyUri) {
@@ -544,7 +552,8 @@ public class IngestionAPI extends Controller {
                 INSGen.genByStatus(status,filename,mediaFolder,verifyUri);
                 break;
             case "dp2":
-                DP2Gen.genByStatus(status,filename,mediaFolder,verifyUri);
+                // DP2 status is held at the DP2 MT level; scope generation by the DataFile URI.
+                DP2Gen.genByStatus(datafileuri, status, filename, mediaFolder, verifyUri);
                 break;
             case "dsg":
                 DSGGen.genByStatus(status,filename,mediaFolder,verifyUri);
@@ -743,3 +752,4 @@ public class IngestionAPI extends Controller {
     }
 
 }
+

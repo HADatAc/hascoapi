@@ -135,9 +135,11 @@ public class DataFile extends HADatAcThing implements Cloneable {
         logger = new IngestionLogger(this);
     }
 
-    public Object clone()throws CloneNotSupportedException {
-        return (DataFile)super.clone();
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return (DataFile) super.clone();
     }
+
 
     @Override
     public int hashCode() {
@@ -756,7 +758,6 @@ public class DataFile extends HADatAcThing implements Cloneable {
 
         return findOneByQuery(queryString);
     }
-    
 
 
 }

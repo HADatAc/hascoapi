@@ -9,6 +9,7 @@ import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.ResultSetFactory;
 import org.apache.jena.query.ResultSetRewindable;
 import org.apache.jena.rdf.model.Model;
+import org.hascoapi.utils.URIUtils;
 
 public class SPARQLUtils {
 
@@ -63,5 +64,28 @@ public class SPARQLUtils {
         }
     }
 
+    public static String describe(String uri) {
+        // Robustify: avoid unresolved prefixed names by expanding to absolute URI
+        String target = uri;
+        if (target != null) {
+            target = target.trim();
+            try {
+                // If it's a prefixed name (e.g., ahead:DPL-WS-001), expand it.
+                if (!target.startsWith("<") && !URIUtils.isValidURI(target)) {
+                    target = URIUtils.replacePrefixEx(target);
+                }
+            } catch (Exception e) {
+                // keep original; we'll wrap later if needed
+            }
+            if (!target.startsWith("<") && URIUtils.isValidURI(target)) {
+                target = "<" + target + ">";
+            }
+        }
+
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                "DESCRIBE " + target;
+
+        return select("http://localhost:8890/sparql", queryString).toString();
+    }
 
 }
