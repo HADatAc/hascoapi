@@ -522,18 +522,53 @@ public class KGRGen {
 
 
     public static String save(KGRGenHelper helper, String filename) {
-        // Define the permanent file path
-        String pathString = ConfigProp.getPathIngestion() + filename;
+        System.out.println("\n========== KGRGen.save() START ==========");
+        System.out.println("  Input filename: [" + filename + "]");
+
+        // Get the base path from config
+        String basePath = ConfigProp.getPathIngestion();
+        System.out.println("  ConfigProp.getPathIngestion(): [" + basePath + "]");
+
+        // Normalize the path for Windows
+        if (basePath != null && !basePath.isEmpty()) {
+            basePath = basePath.replace("/", java.io.File.separator);
+            if (!basePath.endsWith(java.io.File.separator)) {
+                basePath += java.io.File.separator;
+            }
+            System.out.println("  Normalized basePath: [" + basePath + "]");
+        } else {
+            basePath = "";
+            System.err.println("  ⚠️ WARNING: basePath is null or empty!");
+        }
+
+        // Construct full path
+        String pathString = basePath + filename;
+        System.out.println("  Full pathString: [" + pathString + "]");
+
+        // Convert to absolute path
+        java.io.File outputFile = new java.io.File(pathString);
+        String absolutePath = outputFile.getAbsolutePath();
+        System.out.println("  Absolute path: [" + absolutePath + "]");
+
+        // Ensure parent directory exists
+        if (outputFile.getParentFile() != null && !outputFile.getParentFile().exists()) {
+            System.out.println("  Creating parent directory...");
+            outputFile.getParentFile().mkdirs();
+        }
 
         String resp = "";
         // Write the workbook content to a file
-        try (FileOutputStream fileOut = new FileOutputStream(pathString)) {
+        try (FileOutputStream fileOut = new FileOutputStream(outputFile)) {
             helper.workbook.write(fileOut);
-            System.out.println("KGR workbook saved successfully!");
+            System.out.println("✅ KGR workbook saved successfully!");
+            System.out.println("  File size: " + outputFile.length() + " bytes");
+            System.out.println("========== KGRGen.save() END (SUCCESS) ==========\n");
         } catch (IOException e) {
             resp = "Error occurred while writing the workbook: " + e.getMessage();
-            System.out.println("Error occurred while writing the workbook: " + e.getMessage());
-        } 
+            System.err.println("❌ Error occurred while writing the workbook: " + e.getMessage());
+            e.printStackTrace();
+            System.out.println("========== KGRGen.save() END (FAILURE) ==========\n");
+        }
 
         return resp;
     }

@@ -475,27 +475,59 @@ public class DSGGen {
     private static String safe(String v) { return v == null ? "" : v; }
 
     public static String save(DSGGenHelper helper, String filename) {
+        System.out.println("\n========== DSGGen.save() START ==========");
+        System.out.println("  Input filename: [" + filename + "]");
+
         String basePath;
         try {
             basePath = org.hascoapi.utils.ConfigProp.getPathIngestion();
+            System.out.println("  ConfigProp.getPathIngestion(): [" + basePath + "]");
         } catch (Throwable t) {
             System.err.println("[DSGGen] ERROR reading ingestion path: " + t.getMessage());
             t.printStackTrace();
             basePath = ""; // fallback to current working directory
         }
-        String pathString = (basePath == null ? "" : basePath) + filename;
+
+        // Normalize the path for Windows
+        if (basePath != null && !basePath.isEmpty()) {
+            basePath = basePath.replace("/", java.io.File.separator);
+            if (!basePath.endsWith(java.io.File.separator)) {
+                basePath += java.io.File.separator;
+            }
+            System.out.println("  Normalized basePath: [" + basePath + "]");
+        } else {
+            basePath = "";
+        }
+
+        String pathString = basePath + filename;
+        System.out.println("  Full pathString: [" + pathString + "]");
+
+        // Convert to absolute path and ensure directory exists
+        java.io.File outputFile = new java.io.File(pathString);
+        System.out.println("  Absolute path: [" + outputFile.getAbsolutePath() + "]");
+
+        if (outputFile.getParentFile() != null && !outputFile.getParentFile().exists()) {
+            System.out.println("  Creating parent directory...");
+            outputFile.getParentFile().mkdirs();
+        }
+
         String resp = "SUCCESS";
-        System.out.println("[DSGGen] Saving workbook to: " + pathString);
-        try (FileOutputStream fileOut = new FileOutputStream(pathString)) {
+        System.out.println("[DSGGen] Saving workbook to: " + outputFile.getAbsolutePath());
+        try (FileOutputStream fileOut = new FileOutputStream(outputFile)) {
             if (helper == null || helper.workbook == null) {
                 System.err.println("[DSGGen] ERROR: helper or workbook is null");
+                System.out.println("========== DSGGen.save() END (FAILURE) ==========\n");
                 return "FAILURE: helper or workbook is null";
             }
             helper.workbook.write(fileOut);
-            System.out.println("[DSGGen] DSG workbook saved successfully!");
+            System.out.println("✅ [DSGGen] DSG workbook saved successfully!");
+            System.out.println("  File size: " + outputFile.length() + " bytes");
+            System.out.println("========== DSGGen.save() END (SUCCESS) ==========\n");
         } catch (IOException e) {
             resp = "FAILURE: Error writing workbook - " + e.getMessage();
             System.err.println("[DSGGen] " + resp);
+            e.printStackTrace();
+            System.out.println("========== DSGGen.save() END (FAILURE) ==========\n");
         } finally {
             try {
                 if (helper != null && helper.workbook != null) {

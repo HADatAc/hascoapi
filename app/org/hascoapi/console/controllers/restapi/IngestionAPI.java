@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
+import org.hascoapi.entity.pojo.WKF;
 import org.hascoapi.Constants;
 import org.hascoapi.ingestion.IngestionWorker;
 import org.hascoapi.entity.pojo.DataFile;
@@ -29,6 +30,7 @@ import org.hascoapi.transform.mt.kgr.KGRGen;
 import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.ConfigProp;
 import org.hascoapi.utils.HAScOMapper;
+import org.hascoapi.utils.URIUtils;
 import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.VSTOI;
 import com.typesafe.config.Config;
@@ -56,7 +58,7 @@ import javax.inject.Inject;
 public class IngestionAPI extends Controller {
 
     private final Config config;
-    
+
     @Inject
     public IngestionAPI(Config config) {
         this.config = config;
@@ -75,17 +77,20 @@ public class IngestionAPI extends Controller {
         System.out.println("Request has body: " + request.hasBody());
         System.out.println("templateFile :" + templateFile());
 
-        if (!elementType.equals("dp2") && 
+        if (!elementType.equals("dp2") &&
             !elementType.equals("dsg") &&
             !elementType.equals("ins") &&
             !elementType.equals("kgr") &&
-            !elementType.equals("sdd") && 
-            !elementType.equals("str")) {
+            !elementType.equals("sdd") &&
+            !elementType.equals("str") &&
+            !elementType.equals("wkf")) {
 
             return ok(ApiUtil.createResponse("Could not find ingestion procedure for element type " + elementType,false));
         }
 
         System.out.println("IngestionAPI.ingest(): inside elementType=[" + elementType + "]");
+        System.out.println("IngestionAPI.ingest(): Retrieving MT instance and DataFile for element type: " + elementType);
+
         DataFile dataFile = null;
         if (elementType.equals("dp2")) {
             DP2 dp2 = DP2.find(elementUri);
@@ -123,92 +128,147 @@ public class IngestionAPI extends Controller {
                 return ok(ApiUtil.createResponse("IngestionAPI.ingest(): File FAILED to be ingested: could not retrieve " + elementType + ". ",false));
             }
             dataFile = DataFile.find(str.getHasDataFileUri());
+        } else if (elementType.equals("wkf")) {
+            WKF wkf = WKF.find(elementUri);
+            if (wkf == null) {
+                return ok(ApiUtil.createResponse("IngestionAPI.ingest(): File FAILED to be ingested: could not retrieve " + elementType + ". ",false));
+            }
+            dataFile = DataFile.find(wkf.getHasDataFileUri());
         }
-        
+
         if (dataFile == null) {
             return ok(ApiUtil.createResponse("IngestionAPI.ingest(): File FAILED to be ingested: could not retrieve DataFile.",false));
         }
-        
+
         System.out.println("IngestionAPI.ingest(): DataFile retrieved - URI: " + dataFile.getUri() + ", Filename: " + dataFile.getFilename());
-        
+
         File fileToIngest = null;
-        
-        // Try to get file from request body first (legacy Drupal workflow)
-        File fileFromRequest = null;
-        if (request.body() != null && request.body().asRaw() != null) {
-            fileFromRequest = request.body().asRaw().asFile();
-        }
-        
-        System.out.println("IngestionAPI.ingest(): request.body().asRaw().asFile() returned: " + 
-            (fileFromRequest == null ? "null" : fileFromRequest.getAbsolutePath() + " (exists: " + fileFromRequest.exists() + ", size: " + fileFromRequest.length() + " bytes)"));
-        
-        if (fileFromRequest != null && fileFromRequest.exists() && fileFromRequest.length() > 0) {
-            System.out.println("IngestionAPI.ingest(): Using file from request body (legacy workflow) - " + fileFromRequest.getAbsolutePath());
-            fileToIngest = fileFromRequest;
-        } else {
-            // New workflow: retrieve the file from the file system (uploaded in step 2 via uploadFile)
-            if (fileFromRequest != null) {
-                System.out.println("IngestionAPI.ingest(): Request body contains invalid/empty file, ignoring and looking for pre-uploaded file");
+
+        // FIRST: Check if file already exists in filesystem (pre-uploaded in resources/{DFL...}/)
+        String basePath = config.getString("hascoapi.paths.ingestion");
+        if (basePath != null && dataFile.getUri() != null && dataFile.getFilename() != null) {
+            String uriTerm = URIUtils.uriLastSegment(dataFile.getUri());
+            Path preUploadedPath = Paths.get(basePath, Constants.RESOURCE_FOLDER, uriTerm, dataFile.getFilename());
+            File preUploadedFile = preUploadedPath.toFile();
+
+            System.out.println("IngestionAPI.ingest(): Checking for pre-uploaded file at: " + preUploadedPath.toAbsolutePath());
+            if (preUploadedFile.exists() && preUploadedFile.length() > 0) {
+                System.out.println("IngestionAPI.ingest(): Found pre-uploaded file!");
+                fileToIngest = preUploadedFile;
             } else {
-                System.out.println("IngestionAPI.ingest(): No file in request body, looking for pre-uploaded file");
+                System.out.println("IngestionAPI.ingest(): Pre-uploaded file NOT found or empty (exists: " + preUploadedFile.exists() + ", size: " + (preUploadedFile.exists() ? preUploadedFile.length() : "N/A") + ")");
             }
-            
-            String basePath = config.getString("hascoapi.paths.ingestion");
+        }
+
+        // SECOND: If not pre-uploaded, try to get file from request body
+        if (fileToIngest == null) {
+            File fileFromRequest = null;
+
+            // Try asRaw() first (legacy workflow)
+            if (request.body() != null && request.body().asRaw() != null) {
+                fileFromRequest = request.body().asRaw().asFile();
+            }
+
+            // Try asMultipartFormData() if asRaw() failed
+            if (fileFromRequest == null && request.body() != null && request.body().asMultipartFormData() != null) {
+                play.mvc.Http.MultipartFormData multipart = request.body().asMultipartFormData();
+                play.mvc.Http.MultipartFormData.FilePart<Object> filePart = multipart.getFile("file");
+
+                if (filePart != null) {
+                    Object fileObj = filePart.getRef();
+                    if (fileObj instanceof File) {
+                        fileFromRequest = (File) fileObj;
+                    } else if (fileObj instanceof play.api.libs.Files.TemporaryFile) {
+                        play.api.libs.Files.TemporaryFile tempFile = (play.api.libs.Files.TemporaryFile) fileObj;
+                        fileFromRequest = tempFile.path().toFile();
+                    }
+                }
+            }
+
+            // Try asBytes() if both asRaw() and multipart failed
+            if (fileFromRequest == null && request.body() != null && request.body().asBytes() != null) {
+                akka.util.ByteString bytes = request.body().asBytes();
+
+                if (bytes != null && bytes.size() > 0) {
+                    try {
+                        // Create temp file from bytes
+                        Path tempPath = Files.createTempFile("upload-", "-" + dataFile.getFilename());
+                        Files.write(tempPath, bytes.toArray());
+                        fileFromRequest = tempPath.toFile();
+                    } catch (IOException e) {
+                        System.err.println("[ERROR] IngestionAPI.ingest(): Failed to create temp file from bytes: " + e.getMessage());
+                    }
+                }
+            }
+
+            // Use fileFromRequest if we successfully extracted it from body
+            if (fileFromRequest != null && fileFromRequest.exists() && fileFromRequest.length() > 0) {
+                fileToIngest = fileFromRequest;
+            }
+        } // End of: if (fileToIngest == null)
+
+        // THIRD: If still no file, try the old fallback logic (wait for uploaded file)
+        if (fileToIngest == null) {
+            System.out.println("IngestionAPI.ingest(): No file found, will wait for uploaded file in filesystem...");
+
             if (basePath == null || basePath.trim().isEmpty()) {
                 System.out.println("[ERROR] IngestionAPI.ingest(): Invalid file storage path from config.");
                 return internalServerError(ApiUtil.createResponse("[ERROR] IngestionAPI.ingest(): Invalid file storage path.", false));
             }
-            
+
             // Validate DataFile properties
             if (dataFile.getUri() == null || dataFile.getUri().trim().isEmpty()) {
                 System.out.println("[ERROR] IngestionAPI.ingest(): DataFile URI is null or empty");
                 return ok(ApiUtil.createResponse("DataFile URI is invalid. Cannot locate uploaded file.", false));
             }
-            
+
             if (dataFile.getFilename() == null || dataFile.getFilename().trim().isEmpty()) {
                 System.out.println("[ERROR] IngestionAPI.ingest(): DataFile filename is null or empty");
                 return ok(ApiUtil.createResponse("DataFile filename is invalid. Cannot locate uploaded file.", false));
             }
-            
-            // uploadFile() saves to resources/{dataFileUriTerm}/{filename}, so we use dataFile.getUri()
-            String uriTerm = org.hascoapi.utils.URIUtils.uriLastSegment(dataFile.getUri());
+
+            // Extract the URI last segment (DFL{id}) to build the correct path
+            String uriTerm = URIUtils.uriLastSegment(dataFile.getUri());
             Path uploadedFilePath = Paths.get(basePath, Constants.RESOURCE_FOLDER, uriTerm, dataFile.getFilename());
             File uploadedFile = uploadedFilePath.toFile();
-            
+
             System.out.println("IngestionAPI.ingest(): Looking for file at path: " + uploadedFilePath.toAbsolutePath());
-            
+
             // Wait for file to be available (uploadFile is async)
-            int maxRetries = 10;
-            int retryDelay = 500; // milliseconds
-            for (int i = 0; i < maxRetries && !uploadedFile.exists(); i++) {
+            // Increased to 20 attempts with 1 second delay = 20 seconds total wait time
+            int maxRetries = 20;
+            int retryDelay = 1000; // milliseconds
+            for (int i = 0; i < maxRetries && (!uploadedFile.exists() || uploadedFile.length() == 0); i++) {
                 try {
-                    System.out.println("IngestionAPI.ingest(): Waiting for file to be available... (attempt " + (i + 1) + "/" + maxRetries + ")");
+                    if (i == 0 || i % 5 == 0) { // Log every 5 attempts to reduce noise
+                        System.out.println("IngestionAPI.ingest(): Waiting for file... (attempt " + (i + 1) + "/" + maxRetries + ")");
+                    }
                     Thread.sleep(retryDelay);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break;
                 }
             }
-            
-            if (!uploadedFile.exists()) {
-                System.out.println("[ERROR] IngestionAPI.ingest(): Uploaded file not found at: " + uploadedFilePath);
-                return ok(ApiUtil.createResponse("File not found. Please upload the file before triggering ingestion.", false));
+
+            if (!uploadedFile.exists() || uploadedFile.length() == 0) {
+                System.out.println("[ERROR] IngestionAPI.ingest(): File not found or empty after " + maxRetries + " attempts at: " + uploadedFilePath);
+                return ok(ApiUtil.createResponse("File not found or upload not completed. Please ensure the file was uploaded before triggering ingestion.", false));
             }
-            
-            System.out.println("IngestionAPI.ingest(): Found uploaded file at: " + uploadedFilePath);
+
+            System.out.println("IngestionAPI.ingest(): Found uploaded file at: " + uploadedFilePath + " (size: " + uploadedFile.length() + " bytes)");
             fileToIngest = uploadedFile;
         }
-        
+
         dataFile.setLastProcessTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
         dataFile.setFileStatus(DataFile.WORKING);
         dataFile.getLogger().resetLog();
         dataFile.save();
         System.out.println("IngestionAPI.ingest(): API has read DataFile from triplestore");
-        
-        // Copy file to ingestion directory for processing
-        File filePerm = this.saveFileAsPermanent(fileToIngest, dataFile.getFilename());
+
+        // Copy file to correct ingestion directory (resources/{DFL...}/) for processing
+        File filePerm = this.saveFileAsPermanent(fileToIngest, dataFile);
         if (filePerm != null) {
-            final DataFile finalDataFile = dataFile; 
+            final DataFile finalDataFile = dataFile;
             CompletableFuture.runAsync(() -> {
                 IngestionWorker.ingest(finalDataFile, filePerm, templateFile(), status);
             });
@@ -223,58 +283,159 @@ public class IngestionAPI extends Controller {
     }
 
     /**
-     * Copies a temporary file to a permanent file
+     * Copies a temporary file to a permanent file in the resources/{DFL...}/ directory
+     * This ensures the file is in the same location where ingest() looks for it
      *
      * @param tempFile The temporary file to be copied.
-     * @param fileName Name of the permanent copy.
+     * @param dataFile The DataFile object containing URI and filename information.
      * @return The permanent file if the copy is successful, null otherwise.
      */
-    public File saveFileAsPermanent(File tempFile, String fileName) {
-        if (tempFile == null || fileName == null || fileName.trim().isEmpty()) {
-            System.out.println("[ERROR] Invalid input: tempFile or fileName is null/empty.");
+    public File saveFileAsPermanent(File tempFile, DataFile dataFile) {
+        if (tempFile == null || dataFile == null) {
+            System.out.println("[ERROR] saveFileAsPermanent(): tempFile or dataFile is null.");
             return null;
         }
 
-        String destinationDir = config.getString("hascoapi.paths.ingestion");
-        if (destinationDir == null || destinationDir.trim().isEmpty()) {
-            System.out.println("[ERROR] ConfigProp.getPathIngestion() returned an invalid path.");
+        if (dataFile.getUri() == null || dataFile.getUri().trim().isEmpty()) {
+            System.out.println("[ERROR] saveFileAsPermanent(): DataFile URI is null or empty.");
             return null;
         }
 
-        Path permanentPath = Paths.get(destinationDir, fileName);
+        if (dataFile.getFilename() == null || dataFile.getFilename().trim().isEmpty()) {
+            System.out.println("[ERROR] saveFileAsPermanent(): DataFile filename is null or empty.");
+            return null;
+        }
+
+        String basePath = config.getString("hascoapi.paths.ingestion");
+        if (basePath == null || basePath.trim().isEmpty()) {
+            System.out.println("[ERROR] saveFileAsPermanent(): Invalid base path from config.");
+            return null;
+        }
+
+        // Extract URI last segment (e.g., DFL1770641907769921)
+        String uriTerm = URIUtils.uriLastSegment(dataFile.getUri());
+
+        // Build target directory: basePath/resources/{DFL...}/
+        Path targetDir = Paths.get(basePath, Constants.RESOURCE_FOLDER, uriTerm);
+
+        // Build target file path: basePath/resources/{DFL...}/filename.xlsx
+        Path targetFile = targetDir.resolve(dataFile.getFilename());
 
         try {
-            // Ensure the destination directory exists
-            Files.createDirectories(permanentPath.getParent());
+            // Create directory structure if it doesn't exist
+            Files.createDirectories(targetDir);
+            System.out.println("[INFO] saveFileAsPermanent(): Target directory created/verified: " + targetDir);
 
-            // Define file copy options
-            CopyOption[] options = {
-                StandardCopyOption.REPLACE_EXISTING,
-                StandardCopyOption.COPY_ATTRIBUTES
-            };
-
-            // Copy the file
-            Files.copy(tempFile.toPath(), permanentPath, options);
-            //System.out.println("File successfully saved to: " + permanentPath);
-
-            // Optionally delete temp file manually
-            if (!tempFile.delete()) {
-                System.out.println("[ERROR] Failed to delete temporary file: " + tempFile.getAbsolutePath());
+            // If the file already exists in the correct location, don't overwrite it
+            if (targetFile.toFile().exists() && targetFile.toFile().length() > 0) {
+                System.out.println("[INFO] saveFileAsPermanent(): File already exists at target location: " + targetFile);
+                return targetFile.toFile();
             }
 
-            return permanentPath.toFile();
+            // Copy the file to the permanent location
+            Files.copy(
+                tempFile.toPath(),
+                targetFile,
+                StandardCopyOption.REPLACE_EXISTING,
+                StandardCopyOption.COPY_ATTRIBUTES
+            );
+
+            System.out.println("[SUCCESS] saveFileAsPermanent(): File saved to: " + targetFile);
+
+            // Only delete temp file if it's NOT already in the resources folder
+            // (to avoid deleting the file we just saved)
+            if (!tempFile.getAbsolutePath().contains(Constants.RESOURCE_FOLDER)) {
+                if (!tempFile.delete()) {
+                    System.out.println("[WARN] saveFileAsPermanent(): Failed to delete temp file: " + tempFile.getAbsolutePath());
+                } else {
+                    System.out.println("[INFO] saveFileAsPermanent(): Temp file deleted: " + tempFile.getAbsolutePath());
+                }
+            } else {
+                System.out.println("[INFO] saveFileAsPermanent(): Temp file is in resources folder, not deleting.");
+            }
+
+            return targetFile.toFile();
+
         } catch (IOException e) {
-            System.out.println("[ERROR] While saving file: " + e.getMessage());
+            System.out.println("[ERROR] saveFileAsPermanent(): Failed to save file: " + e.getMessage());
+            e.printStackTrace();
             return null;
         }
     }
 
     /**
-     * Deletes a permanent file.
+     * Deletes a permanent file in the resources/{DFL...}/ directory.
+     *
+     * @param dataFile The DataFile object containing URI and filename information.
+     * @return true if the file was successfully deleted, false otherwise.
+     */
+    public boolean deletePermanentFile(DataFile dataFile) {
+        if (dataFile == null) {
+            System.err.println("[ERROR] IngestionAPI.deletePermanentFile(): DataFile is null.");
+            return false;
+        }
+
+        if (dataFile.getUri() == null || dataFile.getUri().trim().isEmpty()) {
+            System.err.println("[ERROR] IngestionAPI.deletePermanentFile(): DataFile URI is null or empty.");
+            return false;
+        }
+
+        if (dataFile.getFilename() == null || dataFile.getFilename().trim().isEmpty()) {
+            System.err.println("[ERROR] IngestionAPI.deletePermanentFile(): DataFile filename is null or empty.");
+            return false;
+        }
+
+        String basePath = config.getString("hascoapi.paths.ingestion");
+        if (basePath == null || basePath.trim().isEmpty()) {
+            System.err.println("[ERROR] IngestionAPI.deletePermanentFile(): Invalid base path from config.");
+            return false;
+        }
+
+        // Extract URI last segment (e.g., DFL1770641907769921)
+        String uriTerm = URIUtils.uriLastSegment(dataFile.getUri());
+
+        // Build file path: basePath/resources/{DFL...}/filename.xlsx
+        Path filePath = Paths.get(basePath, Constants.RESOURCE_FOLDER, uriTerm, dataFile.getFilename());
+        File permanentFile = filePath.toFile();
+
+        // Check if the file exists
+        if (permanentFile.exists()) {
+            // Attempt to delete the file
+            boolean isDeleted = permanentFile.delete();
+            if (isDeleted) {
+                System.out.println("[INFO] IngestionAPI.deletePermanentFile(): File successfully deleted: " + filePath);
+
+                // Try to delete the parent directory if it's empty
+                File parentDir = permanentFile.getParentFile();
+                if (parentDir != null && parentDir.isDirectory()) {
+                    String[] contents = parentDir.list();
+                    if (contents != null && contents.length == 0) {
+                        if (parentDir.delete()) {
+                            System.out.println("[INFO] IngestionAPI.deletePermanentFile(): Empty directory deleted: " + parentDir);
+                        }
+                    }
+                }
+
+                return true;
+            } else {
+                System.err.println("[ERROR] IngestionAPI.deletePermanentFile(): Failed to delete file: " + filePath);
+                return false;
+            }
+        } else {
+            System.err.println("[WARN] IngestionAPI.deletePermanentFile(): File does not exist: " + filePath);
+            return false;
+        }
+    }
+
+    /**
+     * Deletes a permanent file (legacy method - kept for backward compatibility).
+     * WARNING: This method uses the old path structure and may not work correctly.
+     * Use deletePermanentFile(DataFile dataFile) instead.
      *
      * @param fileName The name of the file to be deleted.
      * @return true if the file was successfully deleted, false otherwise.
      */
+    @Deprecated
     public boolean deletePermanentFile(String fileName) {
 
         // Define the permanent file path
@@ -343,6 +504,9 @@ public class IngestionAPI extends Controller {
             } else if (mtRaw.getHascoTypeUri().equals(HASCO.STR)) {
                 mtType = HASCO.STR;
                 System.out.println("IngestionAPI.uningestMetadataTemplate() read STR");
+            } else if (mtRaw.getHascoTypeUri().equals(HASCO.WKF)) {
+                mtType = HASCO.WKF;
+                System.out.println("IngestionAPI.uningestMetadataTemplate() read WKF");
             }
         }
 
@@ -370,7 +534,7 @@ public class IngestionAPI extends Controller {
             System.out.println("IngestionAPI.ingest(): API has able to retrieve KGR from triplestore");
 
             // Delete API copy of metadata template
-            boolean deletedFile = this.deletePermanentFile(dataFile.getFilename());
+            boolean deletedFile = this.deletePermanentFile(dataFile);
 
             // Uningest Datafile content
             dataFile.delete();
@@ -397,7 +561,7 @@ public class IngestionAPI extends Controller {
             System.out.println("IngestionAPI.ingest(): API has able to retrieve DSG from triplestore");
 
             // Delete API copy of metadata template
-            boolean deletedFile = this.deletePermanentFile(dataFile.getFilename());
+            boolean deletedFile = this.deletePermanentFile(dataFile);
 
             // Uningest Datafile content
             dataFile.delete();
@@ -424,7 +588,7 @@ public class IngestionAPI extends Controller {
             System.out.println("IngestionAPI.ingest(): API has able to retrieve DP2 from triplestore");
 
             // Delete API copy of metadata template
-            boolean deletedFile = this.deletePermanentFile(dataFile.getFilename());
+            boolean deletedFile = this.deletePermanentFile(dataFile);
 
             // IMPORTANT: DP2 MT is stored outside the DataFile named graph (typically in the repository default graph).
             // Deleting only the DataFile graph leaves the DP2 MT behind, so generation keeps seeing stale DP2s.
@@ -459,7 +623,7 @@ public class IngestionAPI extends Controller {
             System.out.println("IngestionAPI.ingest(): API has able to retrieve DSG from triplestore");
 
             // Delete API copy of metadata template
-            boolean deletedFile = this.deletePermanentFile(dataFile.getFilename());
+            boolean deletedFile = this.deletePermanentFile(dataFile);
 
             // Uningest Datafile content
             dataFile.delete();
@@ -486,7 +650,7 @@ public class IngestionAPI extends Controller {
             System.out.println("IngestionAPI.ingest(): API has able to retrieve SDD from triplestore");
 
             // Delete API copy of metadata template
-            boolean deletedFile = this.deletePermanentFile(dataFile.getFilename());
+            boolean deletedFile = this.deletePermanentFile(dataFile);
 
             // Uningest Datafile content
             dataFile.delete();
@@ -513,12 +677,61 @@ public class IngestionAPI extends Controller {
             System.out.println("IngestionAPI.ingest(): API has able to retrieve STR from triplestore");
 
             // Delete API copy of metadata template
-            boolean deletedFile = this.deletePermanentFile(dataFile.getFilename());
+            boolean deletedFile = this.deletePermanentFile(dataFile);
 
             // Uningest Datafile content
             dataFile.delete();
 
             String msg = "IngestionAPI.uningestMetadataTemplate(): successfully ingested metadataTemplateUri " + metadataTemplateUri;
+            System.out.println(msg);
+            return ok(ApiUtil.createResponse(msg,true));
+
+        } else if (mtType.equals(HASCO.WKF)) {
+
+            System.out.println("=== IngestionAPI.uningestMetadataTemplate() WKF BRANCH ===");
+            System.out.println("  metadataTemplateUri: " + metadataTemplateUri);
+
+            WKF wkf = WKF.find(metadataTemplateUri);
+            if (wkf == null) {
+                String errorMsg = "[ERROR] IngestionAPI.uningestMetadataTemplate() unable to retrieve WKF with metadataTemplateUri = " + metadataTemplateUri;
+                System.out.println(errorMsg);
+                return ok(ApiUtil.createResponse(errorMsg,false));
+            }
+
+            System.out.println("  WKF found: " + wkf.getLabel());
+            System.out.println("  WKF DataFileURI: " + wkf.getHasDataFileUri());
+
+            DataFile dataFile = DataFile.find(wkf.getHasDataFileUri());
+            if (dataFile == null) {
+                String errorMsg = "[ERROR] IngestionAPI.uningestMetadataTemplate() unable to retrieve WKF's dataFile = " + wkf.getHasDataFileUri();
+                System.out.println(errorMsg);
+                return ok(ApiUtil.createResponse(errorMsg,false));
+            }
+
+            System.out.println("  DataFile found: " + dataFile.getFilename());
+            System.out.println("IngestionAPI.uningestMetadataTemplate(): API has able to retrieve WKF from triplestore");
+
+            // Delete API copy of metadata template
+            System.out.println("  Calling deletePermanentFile()...");
+            boolean deletedFile = this.deletePermanentFile(dataFile);
+            System.out.println("  deletePermanentFile() returned: " + deletedFile);
+
+            // IMPORTANT: WKF MT is stored outside the DataFile named graph (typically in the repository default graph).
+            // Deleting only the DataFile graph leaves the WKF MT behind, so generation keeps seeing stale WKFs.
+            try {
+                System.out.println("  Calling wkf.delete()...");
+                wkf.delete();
+                System.out.println("IngestionAPI.uningestMetadataTemplate(): WKF MT resource deleted from triplestore");
+            } catch (Exception e) {
+                System.out.println("[WARNING] IngestionAPI.uningestMetadataTemplate(): failed to delete WKF MT resource (best-effort): " + e.getMessage());
+            }
+
+            // Uningest Datafile content (deletes the named graph)
+            System.out.println("  Calling dataFile.delete()...");
+            dataFile.delete();
+            System.out.println("  dataFile.delete() completed");
+
+            String msg = "IngestionAPI.uningestMetadataTemplate(): successfully uningested metadataTemplateUri " + metadataTemplateUri;
             System.out.println(msg);
             return ok(ApiUtil.createResponse(msg,true));
 
@@ -531,42 +744,153 @@ public class IngestionAPI extends Controller {
 
     }
 
+    // Health check endpoint to verify routes are loaded
+    public Result mtGenHealthCheck() {
+        System.out.println("[HEALTH CHECK] mtGenHealthCheck() called - routes are loaded!");
+        return ok(ApiUtil.createResponse("DP2 generation routes are active", true));
+    }
+
     public Result mtGenByStatus(String elementtype, String datafileuri, String status, String filename, String mediaFolder, String verifyUri) {
+        System.out.println("\n========== IngestionAPI.mtGenByStatus() START ==========");
+        System.out.println("✓ mtGenByStatus endpoint was called successfully!");
+        System.out.println("Parameters:");
+        System.out.println("  elementtype: [" + elementtype + "]");
+        System.out.println("  datafileuri: [" + datafileuri + "]");
+        System.out.println("  status: [" + status + "]");
+        System.out.println("  filename: [" + filename + "]");
+        System.out.println("  mediaFolder: [" + mediaFolder + "]");
+        System.out.println("  verifyUri: [" + verifyUri + "]");
+
+        // DEBUG: Check ConfigProp path
+        try {
+            String configPath = ConfigProp.getPathIngestion();
+            System.out.println("  ConfigProp.getPathIngestion(): [" + configPath + "]");
+            java.io.File testDir = new java.io.File(configPath);
+            System.out.println("  Path exists: " + testDir.exists());
+            System.out.println("  Path is directory: " + testDir.isDirectory());
+            System.out.println("  Path can write: " + testDir.canWrite());
+        } catch (Exception e) {
+            System.err.println("  ❌ ERROR getting ingestion path: " + e.getMessage());
+            e.printStackTrace();
+        }
+
         if (elementtype == null || elementtype.isEmpty()) {
             String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() requires elementtype";
             System.out.println(errorMsg);
+            System.out.println("========== IngestionAPI.mtGenByStatus() END (ERROR) ==========\n");
             return ok(ApiUtil.createResponse(errorMsg,false));
         }
         if (status == null || status.isEmpty()) {
             String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() requires status";
             System.out.println(errorMsg);
+            System.out.println("========== IngestionAPI.mtGenByStatus() END (ERROR) ==========\n");
             return ok(ApiUtil.createResponse(errorMsg,false));
         }
         if (filename == null || filename.isEmpty()) {
             String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() requires filename";
             System.out.println(errorMsg);
+            System.out.println("========== IngestionAPI.mtGenByStatus() END (ERROR) ==========\n");
             return ok(ApiUtil.createResponse(errorMsg,false));
         }
-        switch (elementtype) {
-            case "ins":
-                INSGen.genByStatus(status,filename,mediaFolder,verifyUri);
-                break;
-            case "dp2":
-                // DP2 status is held at the DP2 MT level; scope generation by the DataFile URI.
-                DP2Gen.genByStatus(datafileuri, status, filename, mediaFolder, verifyUri);
-                break;
-            case "dsg":
-                DSGGen.genByStatus(status,filename,mediaFolder,verifyUri);
-                break;
-            case "kgr":
-                KGRGen.genByStatus(status,filename,mediaFolder,verifyUri);
-                break;
-            default:
-                String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() invalid elementtype=[" + elementtype + "]";
-                System.out.println(errorMsg);
-                return ok(ApiUtil.createResponse(errorMsg,false));
+
+        System.out.println("✓ All required parameters present");
+        System.out.println("→ Calling generator for elementtype: " + elementtype);
+        String generationResult = null;
+
+        try {
+            switch (elementtype) {
+                case "ins":
+                    System.out.println("  Calling INSGen.genByStatus()...");
+                    generationResult = INSGen.genByStatus(status,filename,mediaFolder,verifyUri);
+                    System.out.println("  INSGen.genByStatus() returned: [" + generationResult + "]");
+                    break;
+                case "dp2":
+                    // DP2 status is held at the DP2 MT level; scope generation by the DataFile URI.
+                    System.out.println("  Calling DP2Gen.genByStatus()...");
+                    generationResult = DP2Gen.genByStatus(datafileuri, status, filename, mediaFolder, verifyUri);
+                    System.out.println("  DP2Gen.genByStatus() returned: [" + generationResult + "]");
+                    break;
+                case "dsg":
+                    System.out.println("  Calling DSGGen.genByStatus()...");
+                    generationResult = DSGGen.genByStatus(status,filename,mediaFolder,verifyUri);
+                    System.out.println("  DSGGen.genByStatus() returned: [" + generationResult + "]");
+                    break;
+                case "kgr":
+                    System.out.println("  Calling KGRGen.genByStatus()...");
+                    generationResult = KGRGen.genByStatus(status,filename,mediaFolder,verifyUri);
+                    System.out.println("  KGRGen.genByStatus() returned: [" + generationResult + "]");
+                    break;
+                case "wkf":
+                    System.out.println("  WKF generation requested...");
+                    String errorMsg = "WKF generation (WKFGen.java) is not implemented yet. " +
+                                     "Only ingestion is currently supported for WKF. " +
+                                     "To implement: create WKFGen.java similar to DP2Gen.java with methods to generate Excel from triple store data.";
+                    System.out.println("  ❌ ERROR: " + errorMsg);
+                    System.out.println("========== IngestionAPI.mtGenByStatus() END (NOT IMPLEMENTED) ==========\n");
+                    return ok(ApiUtil.createResponse(errorMsg, false));
+                default:
+                    String errorMsg2 = "[ERROR] IngestionAPI.mtGenByStatus() invalid elementtype=[" + elementtype + "]. " +
+                                      "Supported types: ins, dp2, dsg, kgr. Note: wkf generation not yet implemented.";
+                    System.out.println(errorMsg2);
+                    System.out.println("========== IngestionAPI.mtGenByStatus() END (ERROR) ==========\n");
+                    return ok(ApiUtil.createResponse(errorMsg2,false));
+            }
+        } catch (Exception e) {
+            System.err.println("  ❌ EXCEPTION during generation:");
+            System.err.println("     Exception type: " + e.getClass().getName());
+            System.err.println("     Message: " + e.getMessage());
+            e.printStackTrace();
+            System.out.println("========== IngestionAPI.mtGenByStatus() END (EXCEPTION) ==========\n");
+            return ok(ApiUtil.createResponse("Generation failed with exception: " + e.getMessage(), false));
         }
-        return ok(ApiUtil.createResponse("", true));
+
+        System.out.println("  Generation result: [" + generationResult + "]");
+        System.out.println("  Generation result is null: " + (generationResult == null));
+        System.out.println("  Generation result is empty: " + (generationResult != null && generationResult.isEmpty()));
+        System.out.println("  Generation result length: " + (generationResult != null ? generationResult.length() : "N/A"));
+
+        // Check if generation failed (contains "Error" or "FAILURE")
+        boolean isFailed = generationResult != null &&
+                          (generationResult.toLowerCase().contains("error") ||
+                           generationResult.toLowerCase().contains("failure"));
+
+        if (isFailed) {
+            System.out.println("  ❌ Generation FAILED: " + generationResult);
+            System.out.println("========== IngestionAPI.mtGenByStatus() END (FAILURE) ==========\n");
+            return ok(ApiUtil.createResponse(generationResult, false));
+        }
+
+        // IMPORTANT: Ensure we always return a valid filename, never null
+        // Empty string, null, or "SUCCESS" means generation worked but didn't return path
+        if (generationResult == null || generationResult.isEmpty() ||
+            generationResult.equals("SUCCESS") || generationResult.equals("null")) {
+            System.out.println("  ⚠️ WARNING: Generator returned null/empty/SUCCESS: [" + generationResult + "]");
+            System.out.println("  → Using filename parameter as fallback: [" + filename + "]");
+
+            // Safety check: filename itself might be "null" string or null
+            if (filename == null || filename.isEmpty() || filename.equals("null")) {
+                String errorMsg = "[ERROR] Generator returned null/empty AND filename parameter is invalid: [" + filename + "]";
+                System.err.println(errorMsg);
+                System.out.println("========== IngestionAPI.mtGenByStatus() END (ERROR) ==========\n");
+                return ok(ApiUtil.createResponse(errorMsg, false));
+            }
+
+            generationResult = filename; // Use the filename that was passed in
+        }
+
+        System.out.println("✓ Generation completed successfully");
+        System.out.println("  Final filename for response: [" + generationResult + "]");
+        System.out.println("========== IngestionAPI.mtGenByStatus() END (SUCCESS) ==========\n");
+
+        // FINAL SAFETY CHECK: Never return null or "null" string
+        if (generationResult == null || generationResult.equals("null")) {
+            String safeResponse = "generated-file.xlsx"; // Ultimate fallback
+            System.err.println("⚠️ CRITICAL: Final response was null, using fallback: " + safeResponse);
+            return ok(ApiUtil.createResponse(safeResponse, true));
+        }
+
+        // Return the filename so the client knows what file to download
+        return ok(ApiUtil.createResponse(generationResult, true));
     }
 
     public Result mtGenByElement(String elementtype, String datafileuri, String elementuri, String filename, String mediaFolder, String verifyUri) {

@@ -98,6 +98,14 @@ public class MTSheet {
                 "Timeline",
                 "Version"
         ));
+
+        METADATA_SHEETS.put(Constants.MT_WKF, Arrays.asList(
+                "hasDependencies",
+                "ProcessStems",
+                "Processes",
+                "Tasks",
+                "RequiredInstruments"
+        ));
     }
 
 

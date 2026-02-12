@@ -106,6 +106,9 @@ public class Utils {
             case "str":
                 shortPrefix = Constants.PREFIX_STR;
                 break;
+            case "wkf":
+                shortPrefix = Constants.PREFIX_WKF;
+                break;
             case "ins":
                 shortPrefix = Constants.PREFIX_INS;
                 break;

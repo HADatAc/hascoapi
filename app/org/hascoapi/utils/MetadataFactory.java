@@ -24,17 +24,12 @@ public class MetadataFactory {
 
         if (rows == null) {
             System.out.println("[ERROR] MetadataFactory.createModel() received null ROWS");
-        } //else {
-        //    System.out.println("MetadataFactory.createModel() received ROWS with [" + rows.size() + "] entries");
-        //}
+        }
         if (namedGraphUri == null || namedGraphUri.isEmpty()) {
             System.out.println("[ERROR] MetadataFactory.createModel() received null namedGraphUri");
-        } //else {
-         //   System.out.println("MetadataFactory.createModel() received namedGraphUri [" + namedGraphUri + "]");
-        //}
-        //System.out.println("MetadataFactory.createModel() received MODEL " + model);
+        }
+
         if (model == null) {
-            // Create a empty model
             ModelFactory modelFactory = new LinkedHashModelFactory();
             model = modelFactory.createEmptyModel();
         }
@@ -45,41 +40,37 @@ public class MetadataFactory {
             namedGraph = factory.createIRI(namedGraphUri);
         }
 
-        //System.out.println("Number of rows: " + rows.size());
+        int rowIndex = 0;
         for (Map<String, Object> row : rows) {
+            rowIndex++;
             if (row == null || row.get("hasURI") == null) {
-                System.out.println("[ERROR] MetadataFactory.createModel() failed because the 'hasURI' row is missing");
+                System.out.println("[ERROR] Row " + rowIndex + " - MetadataFactory.createModel() failed because the 'hasURI' is missing");
             } else {
-                // debug
-                if (row.get("hasURI").toString().contains("ZBFA")) {
-                    int x = 1;
-                }
-                // end of debug
-                IRI sub = factory.createIRI(URIUtils.replacePrefixEx((String)row.get("hasURI")));
+                String subjectURI = (String)row.get("hasURI");
+
+
+                IRI sub = factory.createIRI(URIUtils.replacePrefixEx(subjectURI));
+
+                int propertyCount = 0;
                 for (String key : row.keySet()) {
 
                     if ("hasURI".equals(key)) continue;
+
+                    propertyCount++;
 
                     IRI pred = null;
                     if ("a".equals(key)) {
                         pred = factory.createIRI(URIUtils.replacePrefixEx("rdf:type"));
                     } else {
-                        //System.out.println("MetadataFactory: Key " + key);
                         pred = factory.createIRI(URIUtils.replacePrefixEx(key));
                     }
 
-                    //if ( pred != null && pred.getLocalName().contains("hasAttribute") ) {
-                    //    addAttributeListToModel(model, key, row, sub, pred, namedGraph);
-                    //    continue;
-                    //}
-
-                    //String cellValue = (String)row.get(key);
                     String cellValue = null;
                     Object raw = row.get(key);
                     if (raw instanceof List) {
                         List<?> list = (List<?>) raw;
                         if (!list.isEmpty()) {
-                            cellValue = list.get(0).toString();  // Use first value
+                            cellValue = list.get(0).toString();
                         }
                     } else if (raw != null) {
                         cellValue = raw.toString();
@@ -92,7 +83,6 @@ public class MetadataFactory {
                             System.out.println("[WARNING] Triple (" + sub + "," + pred + "," + obj + ") is default named graph.");
                         } else {
                             model.add(sub, pred, obj, (Resource)namedGraph);
-                            //System.out.println("Triple (" + sub + "," + pred + "," + obj + ")");
                         }
                     } else {
                         if (cellValue == null) {
@@ -107,7 +97,8 @@ public class MetadataFactory {
                             model.add(sub, pred, obj, (Resource)namedGraph);
                         }
                     }
-                } // end of for-loop
+                }
+
                 if (property_lists != null && property_lists.size() > 0) {
                     for (Map.Entry<String, List<String>> entry : property_lists.entrySet()) {
                         String predRaw = (String)entry.getKey();
@@ -122,7 +113,6 @@ public class MetadataFactory {
                                         System.out.println("[WARNING] Triple (" + sub + "," + pred + "," + obj + ") is default named graph.");
                                     } else {
                                         model.add(sub, pred, obj, (Resource)namedGraph);
-                                        //System.out.println("Triple (" + sub + "," + pred + "," + obj + ")");
                                     }
                                 } else {
                                     if (objRaw == null) {
@@ -142,6 +132,7 @@ public class MetadataFactory {
                 }
             }
         }
+
 
         return model;
     }

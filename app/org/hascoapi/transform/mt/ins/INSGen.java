@@ -439,26 +439,61 @@ public class INSGen {
 
 
     public static String save(INSGenHelper helper, String filename) {
-        // Define the permanent file path
-        String pathString = ConfigProp.getPathIngestion() + filename;
+        System.out.println("\n========== INSGen.save() START ==========");
+        System.out.println("  Input filename: [" + filename + "]");
+
+        // Get the base path from config
+        String basePath = ConfigProp.getPathIngestion();
+        System.out.println("  ConfigProp.getPathIngestion(): [" + basePath + "]");
+
+        // Normalize the path for Windows
+        if (basePath != null && !basePath.isEmpty()) {
+            // Replace forward slashes with system separator
+            basePath = basePath.replace("/", java.io.File.separator);
+
+            // Ensure it ends with separator
+            if (!basePath.endsWith(java.io.File.separator)) {
+                basePath += java.io.File.separator;
+            }
+
+            System.out.println("  Normalized basePath: [" + basePath + "]");
+        } else {
+            basePath = "";
+            System.err.println("  ⚠️ WARNING: basePath is null or empty!");
+        }
+
+        // Construct full path
+        String pathString = basePath + filename;
+        System.out.println("  Full pathString: [" + pathString + "]");
+
+        // Convert to absolute path
+        java.io.File outputFile = new java.io.File(pathString);
+        String absolutePath = outputFile.getAbsolutePath();
+        System.out.println("  Absolute path: [" + absolutePath + "]");
+        System.out.println("  Parent directory: [" + outputFile.getParent() + "]");
+        System.out.println("  Parent exists: " + (outputFile.getParentFile() != null && outputFile.getParentFile().exists()));
+
+        // Ensure parent directory exists
+        if (outputFile.getParentFile() != null && !outputFile.getParentFile().exists()) {
+            System.out.println("  Creating parent directory...");
+            boolean created = outputFile.getParentFile().mkdirs();
+            System.out.println("  Directory created: " + created);
+        }
 
         String resp = "";
         // Write the workbook content to a file
-        try (FileOutputStream fileOut = new FileOutputStream(pathString)) {
+        try (FileOutputStream fileOut = new FileOutputStream(outputFile)) {
             helper.workbook.write(fileOut);
-            System.out.println("INS workbook save successfully!");
+            System.out.println("✅ INS workbook saved successfully!");
+            System.out.println("  File size: " + outputFile.length() + " bytes");
+            System.out.println("========== INSGen.save() END (SUCCESS) ==========\n");
         } catch (IOException e) {
             resp = "Error occurred while writing the workbook: " + e.getMessage();
-            System.out.println("Error occurred while writing the workbook: " + e.getMessage());
-        } 
-            //finally {
-            // Close the workbook to release resources
-            //try {
-            //    workbook.close();
-            //} catch (IOException e) {
-            //    e.printStackTrace();
-            //}
-        
+            System.err.println("❌ Error occurred while writing the workbook: " + e.getMessage());
+            e.printStackTrace();
+            System.out.println("========== INSGen.save() END (FAILURE) ==========\n");
+        }
+
         return resp;
     }
 }

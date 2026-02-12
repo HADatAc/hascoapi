@@ -1009,6 +1009,112 @@
           "solution": "For the identified SDD, make sure the SDD file is properly ingested. "
         }
       ]
+    },
+
+    "WKF": {
+      "file type": "WKF",
+      "content": [
+        {
+          "id": "WKF_00001",
+          "detail": "Missing InfoSheet.",
+          "solution": "Ensure that the WKF spreadsheet includes a sheet called 'InfoSheet'."
+        },
+        {
+          "id": "WKF_00002",
+          "detail": "InfoSheet has no records.",
+          "solution": "Ensure that the InfoSheet contains at least one record."
+        },
+        {
+          "id": "WKF_00003",
+          "detail": "Missing or extra sheet(s) in InfoSheet for WKF metadata.",
+          "solution": "Ensure that all required sheets are present and no unexpected sheets are included. Expected sheets are: hasDependencies, ProcessStems, Processes, Tasks, RequiredInstruments."
+        },
+        {
+          "id": "WKF_00004",
+          "detail": "Sheet '%s' is missing in WKF file.",
+          "solution": "Add the missing sheet to the WKF file. Required sheets: ProcessStems, Processes, Tasks, RequiredInstruments."
+        },
+        {
+          "id": "WKF_00005",
+          "detail": "Failed to generate namespaces for WKF file.",
+          "solution": "Ensure the Namespaces sheet is properly formatted with hasPrefix and hasNameSpace columns."
+        },
+        {
+          "id": "WKF_00006",
+          "detail": "Failed to generate messages for WKF file.",
+          "solution": "Check the file structure and ensure all required metadata is present."
+        },
+        {
+          "id": "WKF_00007",
+          "detail": "No valid sheets found for ingestion in WKF file.",
+          "solution": "Ensure at least one data sheet (ProcessStems, Processes, Tasks, or RequiredInstruments) is present and not empty."
+        },
+        {
+          "id": "WKF_00008",
+          "detail": "Unknown sheet '%s' found in WKF file.",
+          "solution": "Remove unexpected sheets or verify the sheet name matches one of: ProcessStems, Processes, Tasks, RequiredInstruments."
+        },
+        {
+          "id": "WKF_00009",
+          "detail": "ProcessStem <%s> is missing required field: %s.",
+          "solution": "Ensure all ProcessStems have required fields: uri, rdfs:label, vstoi:hasStatus."
+        },
+        {
+          "id": "WKF_00010",
+          "detail": "Process <%s> is missing required field: %s.",
+          "solution": "Ensure all Processes have required fields: uri, rdfs:label, vstoi:hasTopTask, vstoi:hasStatus."
+        },
+        {
+          "id": "WKF_00011",
+          "detail": "Task <%s> is missing required field: %s.",
+          "solution": "Ensure all Tasks have required fields: uri, rdfs:label, vstoi:hasStatus."
+        },
+        {
+          "id": "WKF_00012",
+          "detail": "RequiredInstrument <%s> is missing required field: vstoi:usesInstrument.",
+          "solution": "Ensure all RequiredInstruments reference a valid Instrument URI in the vstoi:usesInstrument field."
+        },
+        {
+          "id": "WKF_00013",
+          "detail": "Process <%s> references non-existent top task <%s>.",
+          "solution": "Ensure the Task referenced in vstoi:hasTopTask exists in the Tasks sheet."
+        },
+        {
+          "id": "WKF_00014",
+          "detail": "Task <%s> references non-existent supertask <%s>.",
+          "solution": "Ensure the Task referenced in vstoi:hasSupertask exists in the Tasks sheet."
+        },
+        {
+          "id": "WKF_00015",
+          "detail": "Task <%s> references non-existent subtask <%s>.",
+          "solution": "Ensure all Tasks referenced in vstoi:hasSubtask exist in the Tasks sheet."
+        },
+        {
+          "id": "WKF_00016",
+          "detail": "RequiredInstrument <%s> references non-existent instrument <%s>.",
+          "solution": "Ensure the Instrument referenced in vstoi:usesInstrument has been ingested before this WKF file."
+        },
+        {
+          "id": "WKF_00017",
+          "detail": "Task <%s> references non-existent required instrument <%s>.",
+          "solution": "Ensure all RequiredInstruments referenced in vstoi:hasRequiredInstrument exist in the RequiredInstruments sheet."
+        },
+        {
+          "id": "WKF_00018",
+          "detail": "Circular dependency detected in task hierarchy starting at task <%s>.",
+          "solution": "Review the task hierarchy (hasSupertask/hasSubtask) to ensure there are no circular references."
+        },
+        {
+          "id": "WKF_00019",
+          "detail": "Invalid temporal dependency type '%s' for task <%s>.",
+          "solution": "Use a valid temporal dependency type from the VSTOI vocabulary (e.g., FS, SS, FF, SF)."
+        },
+        {
+          "id": "WKF_00020",
+          "detail": "Failed to load catalog for WKF file.",
+          "solution": "Ensure the InfoSheet is properly formatted and contains valid sheet references."
+        }
+      ]
     }
   }
 }

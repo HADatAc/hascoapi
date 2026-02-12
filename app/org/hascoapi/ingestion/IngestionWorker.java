@@ -217,6 +217,9 @@ public class IngestionWorker {
         } else if (fileName.startsWith("SDD-")) {
             chain = AnnotateSDD.exec(dataFile, templateFile);
 
+        } else if (fileName.startsWith("WKF-")) {
+            chain = AnnotateWKF.exec(dataFile, templateFile, status);
+
         } else if (fileName.startsWith("DOI-")) {
             chain = AnnotateDOI.exec(dataFile);
 

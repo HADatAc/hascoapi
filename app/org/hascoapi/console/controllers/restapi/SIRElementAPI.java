@@ -520,7 +520,25 @@ public class SIRElementAPI extends Controller {
                 message = e.getMessage();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
-        } 
+        } else if (clazz == WKF.class) {
+            try {
+                WKF object;
+                object = (WKF)objectMapper.readValue(json, clazz);
+                // Set default status if not provided
+                if (object.getHasStatus() == null || object.getHasStatus().isEmpty()) {
+                    object.setHasStatus("DRAFT");
+                    System.out.println("[WKF] Status not provided, setting to DRAFT");
+                }
+                System.out.println("[WKF] Saving WKF with URI: " + object.getUri());
+                System.out.println("[WKF] Status: " + object.getHasStatus());
+                System.out.println("[WKF] Version: " + object.getHasVersion());
+                System.out.println("[WKF] DataFile: " + object.getHasDataFileUri());
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
+        }
         if (!success) {
             return ok(ApiUtil.createResponse("Error processing JSON: " + message, false));
         }
@@ -850,7 +868,13 @@ public class SIRElementAPI extends Controller {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
-        } 
+        } else if (clazz == WKF.class) {
+            WKF object = WKF.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
+        }
         return ok(ApiUtil.createResponse("Element with URI [" + uri + "] has been deleted", true));
     }
 
@@ -965,6 +989,10 @@ public class SIRElementAPI extends Controller {
             GenericFind<INS> query = new GenericFind<INS>();
             List<INS> results = query.findByKeywordWithPages(INS.class,keyword, pageSize, offset);
             return INSAPI.getINSs(results);
+        }  else if (elementType.equals("wkf")) {
+            GenericFind<WKF> query = new GenericFind<WKF>();
+            List<WKF> results = query.findByKeywordWithPages(WKF.class,keyword, pageSize, offset);
+            return WKFAPI.getWKFs(results);
         }  else if (elementType.equals("da")) {
             GenericFind<DA> query = new GenericFind<DA>();
             List<DA> results = query.findByKeywordWithPages(DA.class,keyword, pageSize, offset);
@@ -1369,7 +1397,11 @@ public class SIRElementAPI extends Controller {
             GenericFind<Task> query = new GenericFind<Task>();
             List<Task> results = query.findByManagerEmailWithPages(Task.class, managerEmail, pageSize, offset);
             return TaskAPI.getTasks(results);
-        } 
+        }  else if (elementType.equals("wkf")) {
+            GenericFind<WKF> query = new GenericFind<WKF>();
+            List<WKF> results = query.findByManagerEmailWithPages(WKF.class, managerEmail, pageSize, offset);
+            return WKFAPI.getWKFs(results);
+        }
         return ok("[getElementsByManagerEmail] No valid element type.");
 
     }
@@ -1449,6 +1481,10 @@ public class SIRElementAPI extends Controller {
             GenericFindWithStatus<INS> query = new GenericFindWithStatus<INS>();
             List<INS> results = query.findByStatusWithPages(INS.class, hasStatus, pageSize, offset);
             return INSAPI.getINSs(results);
+        }  else if (elementType.equals("wkf")) {
+            GenericFindWithStatus<WKF> query = new GenericFindWithStatus<WKF>();
+            List<WKF> results = query.findByStatusWithPages(WKF.class, hasStatus, pageSize, offset);
+            return WKFAPI.getWKFs(results);
         }  else if (elementType.equals("da")) {
             GenericFindWithStatus<DA> query = new GenericFindWithStatus<DA>();
             List<DA> results = query.findByStatusWithPages(DA.class, hasStatus, pageSize, offset);
@@ -1633,6 +1669,10 @@ public class SIRElementAPI extends Controller {
             GenericFindWithStatus<INS> query = new GenericFindWithStatus<INS>();
             List<INS> results = query.findByStatusManagerEmailWithPages(INS.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return INSAPI.getINSs(results);
+        }  else if (elementType.equals("wkf")) {
+            GenericFindWithStatus<WKF> query = new GenericFindWithStatus<WKF>();
+            List<WKF> results = query.findByStatusManagerEmailWithPages(WKF.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
+            return WKFAPI.getWKFs(results);
         }  else if (elementType.equals("da")) {
             GenericFindWithStatus<DA> query = new GenericFindWithStatus<DA>();
             List<DA> results = query.findByStatusManagerEmailWithPages(DA.class, hasStatus, managerEmail, withCurrent, pageSize, offset);

@@ -139,6 +139,8 @@ public class GenericFind<T> {
             return Unit.class;
         } else if (elementType.equals("virtualcolumn")) {
             return VirtualColumn.class;
+        } else if (elementType.equals("wkf")) {
+            return WKF.class;
         }
         return null;
     }
@@ -227,6 +229,8 @@ public class GenericFind<T> {
             return URIUtils.replaceNameSpace(SCHEMA.PROJECT);
         } else if (clazz == Task.class) {
             return URIUtils.replaceNameSpace(VSTOI.TASK);
+        } else if (clazz == WKF.class) {
+            return URIUtils.replaceNameSpace(HASCO.WKF);
         }
         return null;
     }
@@ -254,7 +258,8 @@ public class GenericFind<T> {
             clazz == DA.class ||
             clazz == DD.class ||
             clazz == KGR.class ||
-            clazz == DSG.class) {
+            clazz == DSG.class ||
+            clazz == WKF.class) {
             return true;
         }
         return false;
@@ -832,6 +837,7 @@ public class GenericFind<T> {
 				" ORDER BY ASC(?label) " +
 				" LIMIT " + pageSize +
 				" OFFSET " + offset;
+
 		return findByQuery(clazz, queryString);
 	}
 
@@ -997,7 +1003,6 @@ public class GenericFind<T> {
      **************************************************************************************/
 
     public static <T> List<T> findByQuery(Class clazz,String queryString) {
-        //System.out.println("FindByQuery: query = [" + queryString + "]");
         List<T> list = new ArrayList<T>();
         ResultSetRewindable resultsrw = SPARQLUtils.select(
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
@@ -1011,7 +1016,6 @@ public class GenericFind<T> {
             if (soln != null) {
                 if (soln.getResource("uri") != null && soln.getResource("uri").getURI() != null) {
                     String uri = soln.getResource("uri").getURI();
-                    //System.out.println("FindByQuery: retrieved uri = [" + uri + "]");
                     T element = findElement(clazz, uri);
                     if (element != null) {                        
                       list.add(element);
@@ -1021,7 +1025,8 @@ public class GenericFind<T> {
                 }
             }
         }
-        //System.out.println("FindByQuery: total size of list = [" + list.size() + "]");
+
+
         return list;
     }
 
@@ -1132,6 +1137,8 @@ public class GenericFind<T> {
             return (T)Task.find(uri);
         } else if (clazz == VirtualColumn.class) {
             return (T)VirtualColumn.find(uri);
+        } else if (clazz == WKF.class) {
+            return (T)WKF.find(uri);
         }
 
         return null;

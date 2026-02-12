@@ -176,12 +176,29 @@ GET     /hascoapi/api/ingestion/:dataFileUri/log                                
 
 # MT GENERATION METHODS
 
+# Health check endpoint (for testing if routes are loaded)
+GET     /api/mt/gen/health                                                                                                   org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenHealthCheck()
+GET     /hascoapi/api/mt/gen/health                                                                                          org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenHealthCheck()
+
+# Standard routes (with /hascoapi/ prefix)
 GET     /hascoapi/api/mt/gen/perstatus/:elementtype/:datafileuri/:status/:filename/:mediafolder/:verifyuri                   org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenByStatus(elementtype : String, datafileuri : String, status: String, filename: String, mediafolder : String, verifyuri : String)
+POST    /hascoapi/api/mt/gen/perstatus/:elementtype/:datafileuri/:status/:filename/:mediafolder/:verifyuri                   org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenByStatus(elementtype : String, datafileuri : String, status: String, filename: String, mediafolder : String, verifyuri : String)
 GET     /hascoapi/api/mt/gen/perelement/:elementtype/:datafileuri/:elementuri/:filename/:mediafolder/:verifyuri              org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenByElement(elementtype : String, datafileuri : String, elementuri: String, filename: String, mediafolder : String, verifyuri : String)
+POST    /hascoapi/api/mt/gen/perelement/:elementtype/:datafileuri/:elementuri/:filename/:mediafolder/:verifyuri              org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenByElement(elementtype : String, datafileuri : String, elementuri: String, filename: String, mediafolder : String, verifyuri : String)
 GET     /hascoapi/api/mt/gen/peruser/:elementtype/:datafileuri/:useremail/:status/:filename/:mediafolder/:verifyuri          org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenByManager(elementtype : String, datafileuri : String, useremail: String, status: String, filename: String, mediafolder : String, verifyuri : String)
+POST    /hascoapi/api/mt/gen/peruser/:elementtype/:datafileuri/:useremail/:status/:filename/:mediafolder/:verifyuri          org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenByManager(elementtype : String, datafileuri : String, useremail: String, status: String, filename: String, mediafolder : String, verifyuri : String)
 POST    /hascoapi/api/mt/get/generated/:filename                                                                             org.hascoapi.console.controllers.restapi.IngestionAPI.mtGetGenerated(filename: String)
 
-# REVIEWING METHODS 
+# Legacy routes (without /hascoapi/ prefix) - for backward compatibility with old front-end code
+GET     /api/mt/gen/perstatus/:elementtype/:datafileuri/:status/:filename/:mediafolder/:verifyuri                            org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenByStatus(elementtype : String, datafileuri : String, status: String, filename: String, mediafolder : String, verifyuri : String)
+POST    /api/mt/gen/perstatus/:elementtype/:datafileuri/:status/:filename/:mediafolder/:verifyuri                            org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenByStatus(elementtype : String, datafileuri : String, status: String, filename: String, mediafolder : String, verifyuri : String)
+GET     /api/mt/gen/perelement/:elementtype/:datafileuri/:elementuri/:filename/:mediafolder/:verifyuri                       org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenByElement(elementtype : String, datafileuri : String, elementuri: String, filename: String, mediafolder : String, verifyuri : String)
+POST    /api/mt/gen/perelement/:elementtype/:datafileuri/:elementuri/:filename/:mediafolder/:verifyuri                       org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenByElement(elementtype : String, datafileuri : String, elementuri: String, filename: String, mediafolder : String, verifyuri : String)
+GET     /api/mt/gen/peruser/:elementtype/:datafileuri/:useremail/:status/:filename/:mediafolder/:verifyuri                   org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenByManager(elementtype : String, datafileuri : String, useremail: String, status: String, filename: String, mediafolder : String, verifyuri : String)
+POST    /api/mt/gen/peruser/:elementtype/:datafileuri/:useremail/:status/:filename/:mediafolder/:verifyuri                   org.hascoapi.console.controllers.restapi.IngestionAPI.mtGenByManager(elementtype : String, datafileuri : String, useremail: String, status: String, filename: String, mediafolder : String, verifyuri : String)
+POST    /api/mt/get/generated/:filename                                                                                      org.hascoapi.console.controllers.restapi.IngestionAPI.mtGetGenerated(filename: String)
+
+# REVIEWING METHODS
 
 GET     /hascoapi/api/review/pending                                                org.hascoapi.console.controllers.restapi.SIRElementAPI.pendingReviews
 POST    /hascoapi/api/review/recursive/:instrumentUri/:status                       org.hascoapi.console.controllers.restapi.InstrumentAPI.updateReviewsRecursive(instrumentUri: String, status: String)

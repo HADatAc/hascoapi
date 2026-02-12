@@ -51,50 +51,280 @@ public class DataFileAPI extends Controller {
      * Handles file upload and saves it permanently.
      */
     public Result uploadFile(String elementUri, String filename, Http.Request request) {
-        System.out.println("DataFileAPI.uploadFile() called with elementUri: " + elementUri + ", filename: " + filename);
-        System.out.println("Request content-type: " + request.contentType().orElse("not specified"));
-        System.out.println("Request has body: " + request.hasBody());
-        
+        System.out.println("\n=== DataFileAPI.uploadFile() START ===");
+        System.out.println("[INFO] DataFileAPI.uploadFile() called with:");
+        System.out.println("  elementUri: " + elementUri);
+        System.out.println("  filename: " + filename);
+        System.out.println("  Request content-type: " + request.contentType().orElse("not specified"));
+        System.out.println("  Request has body: " + request.hasBody());
+        System.out.println("  Request method: " + request.method());
+        System.out.println("  Request path: " + request.path());
+        System.out.println("  Request headers:");
+        request.getHeaders().toMap().forEach((key, values) -> {
+            System.out.println("    " + key + ": " + String.join(", ", values));
+        });
+
         if (elementUri == null || elementUri.trim().isEmpty()) {
+            System.out.println("[ERROR] DataFileAPI.uploadFile(): No elementUri provided");
             return ok(ApiUtil.createResponse("[ERROR] DataFileAPI.uploadFile(): No elementUri value has been provided.", false));
         }
     
         if (filename == null || filename.trim().isEmpty()) {
+            System.out.println("[ERROR] DataFileAPI.uploadFile(): No filename provided");
             return ok(ApiUtil.createResponse("[ERROR] DataFileAPI.uploadFile(): No value for filename has been provided.", false));
         }
     
-        GenericInstance instance = GenericInstance.find(elementUri);
-        if (instance == null) {
-            System.out.println("[ERROR] DataFileAPI.uploadFile(): No generic instance found for uri [" + elementUri + "]");
-            return ok(ApiUtil.createResponse("[ERROR] DataFileAPI.uploadFile(): No generic instance found for uri [" + elementUri + "]", false));
+        // Try to find typed instance dynamically using reflection
+        // This allows us to get the correct hasDataFileUri from MetadataTemplate subclasses
+        String dataFileUri = null;
+        Object typedInstance = null;
+
+        // First, get a generic instance to check the hascoType
+        GenericInstance genericCheck = GenericInstance.find(elementUri);
+        if (genericCheck == null) {
+            System.out.println("[ERROR] DataFileAPI.uploadFile(): No instance found for uri [" + elementUri + "]");
+            return ok(ApiUtil.createResponse("[ERROR] DataFileAPI.uploadFile(): No instance found for uri [" + elementUri + "]", false));
         }
 
-        File tempFile = request.body().asRaw().asFile();
-        System.out.println("DataFileAPI.uploadFile(): request.body().asRaw().asFile() returned: " + 
-            (tempFile == null ? "null" : tempFile.getAbsolutePath() + " (exists: " + tempFile.exists() + ", size: " + tempFile.length() + " bytes)"));
-            
-        if (tempFile == null) {
+        String hascoTypeUri = genericCheck.getHascoTypeUri();
+        System.out.println("[DEBUG] DataFileAPI.uploadFile(): hascoTypeUri: " + hascoTypeUri);
+
+        // Extract the type name from hascoTypeUri (e.g., "WKF" from "http://hadatac.org/ont/hasco/WKF")
+        if (hascoTypeUri != null && !hascoTypeUri.trim().isEmpty()) {
+            String typeName = URIUtils.uriLastSegment(hascoTypeUri);
+            System.out.println("[DEBUG] DataFileAPI.uploadFile(): Extracted type name: " + typeName);
+
+            // Try to load the class dynamically
+            try {
+                String className = "org.hascoapi.entity.pojo." + typeName;
+                Class<?> typeClass = Class.forName(className);
+                System.out.println("[DEBUG] DataFileAPI.uploadFile(): Found class: " + className);
+
+                // Try to call the static find method
+                java.lang.reflect.Method findMethod = typeClass.getMethod("find", String.class);
+                typedInstance = findMethod.invoke(null, elementUri);
+
+                if (typedInstance != null) {
+                    System.out.println("[INFO] DataFileAPI.uploadFile(): ✅ Found typed instance: " + typeName);
+
+                    // Try to get hasDataFileUri from the typed instance
+                    try {
+                        java.lang.reflect.Method getDataFileUriMethod = typeClass.getMethod("getHasDataFileUri");
+                        Object dataFileUriObj = getDataFileUriMethod.invoke(typedInstance);
+                        if (dataFileUriObj != null && !dataFileUriObj.toString().trim().isEmpty()) {
+                            dataFileUri = dataFileUriObj.toString();
+                            System.out.println("[INFO] DataFileAPI.uploadFile(): ✅ Got DataFile URI from typed instance: " + dataFileUri);
+                        }
+                    } catch (NoSuchMethodException e) {
+                        System.out.println("[DEBUG] DataFileAPI.uploadFile(): Type " + typeName + " doesn't have getHasDataFileUri() method");
+                    }
+                }
+            } catch (ClassNotFoundException e) {
+                System.out.println("[DEBUG] DataFileAPI.uploadFile(): Class not found for type: " + typeName + ", will use GenericInstance");
+            } catch (Exception e) {
+                System.out.println("[WARN] DataFileAPI.uploadFile(): Error finding typed instance: " + e.getMessage());
+            }
+        }
+
+        // Use genericCheck as fallback
+        GenericInstance instance = (typedInstance == null) ? genericCheck : null;
+        if (instance != null) {
+            System.out.println("[INFO] DataFileAPI.uploadFile(): Using GenericInstance as fallback");
+        }
+
+        // Try multiple ways to extract the file from the request
+        File tempFile = null;
+
+        // Try 1: asRaw() - for direct binary uploads
+        if (request.body() != null && request.body().asRaw() != null) {
+            tempFile = request.body().asRaw().asFile();
+            System.out.println("[DEBUG] DataFileAPI.uploadFile(): Tried asRaw().asFile(): " +
+                (tempFile == null ? "null" : tempFile.getAbsolutePath() + " (exists: " + tempFile.exists() + ", size: " + tempFile.length() + " bytes)"));
+        }
+
+        // Try 2: asMultipartFormData() - for form-based uploads
+        if (tempFile == null && request.body() != null && request.body().asMultipartFormData() != null) {
+            play.mvc.Http.MultipartFormData<?> multipart = request.body().asMultipartFormData();
+            play.mvc.Http.MultipartFormData.FilePart<?> filePart = multipart.getFile("file");
+
+            if (filePart != null) {
+                Object fileObj = filePart.getRef();
+                if (fileObj instanceof File) {
+                    tempFile = (File) fileObj;
+                    System.out.println("[DEBUG] DataFileAPI.uploadFile(): Got file from multipart (File): " + tempFile.getAbsolutePath());
+                } else if (fileObj instanceof play.api.libs.Files.TemporaryFile) {
+                    play.api.libs.Files.TemporaryFile scalaTemp = (play.api.libs.Files.TemporaryFile) fileObj;
+                    tempFile = scalaTemp.path().toFile();
+                    System.out.println("[DEBUG] DataFileAPI.uploadFile(): Got file from multipart (TemporaryFile): " + tempFile.getAbsolutePath());
+                }
+            } else {
+                System.out.println("[DEBUG] DataFileAPI.uploadFile(): multipart.getFile('file') returned null");
+            }
+        }
+
+        // Try 3: asBytes() - for byte array uploads
+        if (tempFile == null && request.body() != null && request.body().asBytes() != null) {
+            akka.util.ByteString bytes = request.body().asBytes();
+            if (bytes != null && !bytes.isEmpty()) {
+                try {
+                    Path tempPath = Files.createTempFile("upload-", "-" + filename);
+                    Files.write(tempPath, bytes.toArray());
+                    tempFile = tempPath.toFile();
+                    System.out.println("[DEBUG] DataFileAPI.uploadFile(): Created temp file from bytes: " + tempFile.getAbsolutePath() + " (" + tempFile.length() + " bytes)");
+                } catch (IOException e) {
+                    System.out.println("[ERROR] DataFileAPI.uploadFile(): Failed to create temp file from bytes: " + e.getMessage());
+                }
+            }
+        }
+
+        if (tempFile == null || !tempFile.exists() || tempFile.length() == 0) {
+            System.out.println("[ERROR] DataFileAPI.uploadFile(): No valid file in request body");
+            System.out.println("[ERROR]   tempFile: " + tempFile);
+            System.out.println("[ERROR]   hasBody: " + request.hasBody());
+            System.out.println("[ERROR]   content-type: " + request.contentType().orElse("not set"));
             return ok(ApiUtil.createResponse("[ERROR] DataFileAPI.uploadFile(): No file has been provided for ingestion.", false));
         }
-    
+
+        System.out.println("[SUCCESS] DataFileAPI.uploadFile(): File extracted successfully - " + tempFile.getAbsolutePath() + " (" + tempFile.length() + " bytes)");
+
+        // Get DataFile URI - CRITICAL: Must use DataFile URI, not element URI!
+        // Already obtained above if typed instance found, otherwise try reflection
+
+        if (dataFileUri == null || dataFileUri.trim().isEmpty()) {
+            // Try to get from GenericInstance using reflection
+            if (instance != null) {
+                // First, check if element has a DataFile association via getHasDataFileUri method
+                try {
+                    java.lang.reflect.Method getDataFileMethod = instance.getClass().getMethod("getHasDataFileUri");
+                    Object dataFileUriObj = getDataFileMethod.invoke(instance);
+                    if (dataFileUriObj != null && !dataFileUriObj.toString().trim().isEmpty()) {
+                        dataFileUri = dataFileUriObj.toString();
+                        System.out.println("[INFO] DataFileAPI.uploadFile(): Got DataFile URI from element.getHasDataFileUri(): " + dataFileUri);
+                    }
+                } catch (NoSuchMethodException e) {
+                    System.out.println("[DEBUG] DataFileAPI.uploadFile(): Element doesn't have getHasDataFileUri() method");
+                } catch (Exception e) {
+                    System.out.println("[WARN] DataFileAPI.uploadFile(): Error calling getHasDataFileUri(): " + e.getMessage());
+                }
+
+                // If not found, check if element has hasDataFile property
+                if (dataFileUri == null || dataFileUri.trim().isEmpty()) {
+                    try {
+                        java.lang.reflect.Method getDataFileMethod = instance.getClass().getMethod("getHasDataFile");
+                        Object dataFileObj = getDataFileMethod.invoke(instance);
+                        if (dataFileObj != null) {
+                            // It's a DataFile object, get its URI
+                            java.lang.reflect.Method getUriMethod = dataFileObj.getClass().getMethod("getUri");
+                            Object uriObj = getUriMethod.invoke(dataFileObj);
+                            if (uriObj != null && !uriObj.toString().trim().isEmpty()) {
+                                dataFileUri = uriObj.toString();
+                                System.out.println("[INFO] DataFileAPI.uploadFile(): Got DataFile URI from element.getHasDataFile().getUri(): " + dataFileUri);
+                            }
+                        }
+                    } catch (NoSuchMethodException e) {
+                        System.out.println("[DEBUG] DataFileAPI.uploadFile(): Element doesn't have getHasDataFile() method");
+                    } catch (Exception e) {
+                        System.out.println("[WARN] DataFileAPI.uploadFile(): Error calling getHasDataFile(): " + e.getMessage());
+                    }
+                }
+
+                // If still not found, check the hascoType to determine if this IS a DataFile
+                if (dataFileUri == null || dataFileUri.trim().isEmpty()) {
+                    String hascoType = instance.getHascoTypeUri();
+                    System.out.println("[DEBUG] DataFileAPI.uploadFile(): Checking hascoType: " + hascoType);
+
+                    if (hascoType != null && hascoType.contains("DataFile")) {
+                        // This element IS a DataFile
+                        dataFileUri = elementUri;
+                        System.out.println("[INFO] DataFileAPI.uploadFile(): Element IS a DataFile, using elementUri: " + dataFileUri);
+                    }
+                }
+            }
+        } else {
+            System.out.println("[INFO] DataFileAPI.uploadFile(): ✅ DataFile URI already obtained from typed instance: " + dataFileUri);
+        }
+
+        if (dataFileUri == null || dataFileUri.trim().isEmpty()) {
+            System.out.println("[ERROR] DataFileAPI.uploadFile(): Could not determine DataFile URI");
+            System.out.println("[ERROR]   Element URI: " + elementUri);
+            System.out.println("[ERROR]   Element hascoType: " + instance.getHascoTypeUri());
+            return ok(ApiUtil.createResponse("[ERROR] DataFileAPI.uploadFile(): Could not determine DataFile URI from element.", false));
+        }
+
+        System.out.println("[INFO] DataFileAPI.uploadFile(): ✅ Using DataFile URI: " + dataFileUri);
+
+        // CRITICAL: Force DFL prefix - convert WKF/INS/etc to DFL
+        String uriSegment = URIUtils.uriLastSegment(dataFileUri);
+        if (uriSegment == null || uriSegment.isEmpty()) {
+            System.out.println("[ERROR] DataFileAPI.uploadFile(): Could not extract URI segment from: " + dataFileUri);
+            return ok(ApiUtil.createResponse("[ERROR] DataFileAPI.uploadFile(): Invalid DataFile URI.", false));
+        }
+
+        String uriTerm = uriSegment;
+
+        // If URI doesn't start with DFL, FORCE it to be DFL
+        if (!uriTerm.startsWith("DFL")) {
+            System.out.println("[WARN] DataFileAPI.uploadFile(): URI segment doesn't start with DFL: " + uriTerm);
+
+            // Extract the numeric/timestamp part and force DFL prefix
+            String numericPart = uriTerm.replaceFirst("^[A-Z]+", ""); // Remove prefix (WKF, INS, etc)
+            uriTerm = "DFL" + numericPart;
+
+            System.out.println("[FIX] DataFileAPI.uploadFile(): ✅ Forced DFL prefix: " + uriTerm);
+
+            // Update dataFileUri to match
+            String baseUri = dataFileUri.substring(0, dataFileUri.lastIndexOf('/') + 1);
+            dataFileUri = baseUri + uriTerm;
+            System.out.println("[FIX] DataFileAPI.uploadFile(): ✅ Updated DataFile URI: " + dataFileUri);
+        }
+
         String basePath = ConfigProp.getPathIngestion();
         if (basePath == null || basePath.trim().isEmpty()) {
             System.out.println("[ERROR] DataFileAPI.uploadFile(): Invalid file storage path from ConfigProp.getPathIngestion()");
-            return internalServerError(ApiUtil.createResponse("[ERROR] DataFileAPI.uploadFile(): Invalid file storage path.", false));
+            return ok(ApiUtil.createResponse("[ERROR] DataFileAPI.uploadFile(): Invalid file storage path.", false));
         }
-    
-        String uriTerm = URIUtils.uriLastSegment(elementUri);
         Path destinationDir = Paths.get(basePath, Constants.RESOURCE_FOLDER, uriTerm);
     
         // Generate the permanent file path
         Path permanentPath = destinationDir.resolve(filename);
         
-        System.out.println("DataFileAPI.uploadFile(): Scheduling async save to: " + permanentPath);
-    
-        // Save file asynchronously to avoid blocking request handling
-        CompletableFuture.runAsync(() -> DataFileAPI.saveFile(tempFile, permanentPath));
-    
-        return ok(ApiUtil.createResponse("File upload in progress. It will be saved shortly.", true));
+        System.out.println("DataFileAPI.uploadFile(): Will save to: " + permanentPath);
+        System.out.println("DataFileAPI.uploadFile(): destinationDir: " + destinationDir);
+        System.out.println("DataFileAPI.uploadFile(): uriTerm: " + uriTerm);
+
+        // Save file SYNCHRONOUSLY to ensure it's available immediately
+        // This prevents race conditions where ingest() is called before the file is saved
+        try {
+            System.out.println("[INFO] DataFileAPI.uploadFile(): Saving file synchronously...");
+
+            // Create directories
+            Files.createDirectories(destinationDir);
+            System.out.println("[INFO] DataFileAPI.uploadFile(): Directories created: " + destinationDir);
+
+            // Copy file
+            Files.copy(tempFile.toPath(), permanentPath, StandardCopyOption.REPLACE_EXISTING);
+            System.out.println("[SUCCESS] DataFileAPI.uploadFile(): File saved to: " + permanentPath);
+            System.out.println("[SUCCESS] DataFileAPI.uploadFile(): File exists: " + Files.exists(permanentPath));
+            System.out.println("[SUCCESS] DataFileAPI.uploadFile(): File size: " + Files.size(permanentPath) + " bytes");
+
+            // Only delete temp file if it's NOT in the resources folder (to avoid deleting what we just saved)
+            if (tempFile.exists() && !tempFile.getAbsolutePath().contains("resources")) {
+                if (tempFile.delete()) {
+                    System.out.println("[INFO] DataFileAPI.uploadFile(): Temp file deleted: " + tempFile.getAbsolutePath());
+                } else {
+                    System.out.println("[WARN] DataFileAPI.uploadFile(): Failed to delete temp file: " + tempFile.getAbsolutePath());
+                }
+            }
+
+        } catch (IOException e) {
+            System.out.println("[ERROR] DataFileAPI.uploadFile(): Failed to save file: " + e.getMessage());
+            e.printStackTrace();
+            return internalServerError(ApiUtil.createResponse("[ERROR] Failed to save file: " + e.getMessage(), false));
+        }
+
+        System.out.println("=== DataFileAPI.uploadFile() END (file saved successfully) ===");
+
+        return ok(ApiUtil.createResponse("File uploaded and saved successfully.", true));
     }
 
     /**
@@ -169,17 +399,41 @@ public class DataFileAPI extends Controller {
      * Saves a file to a permanent location and handles errors.
      */
     public static void saveFile(File tempFile, Path permanentPath) {
+        System.out.println("[DEBUG] DataFileAPI.saveFile() START");
+        System.out.println("[DEBUG] tempFile: " + (tempFile != null ? tempFile.getAbsolutePath() : "null"));
+        System.out.println("[DEBUG] tempFile exists: " + (tempFile != null && tempFile.exists()));
+        System.out.println("[DEBUG] tempFile size: " + (tempFile != null && tempFile.exists() ? tempFile.length() : "N/A"));
+        System.out.println("[DEBUG] permanentPath: " + permanentPath);
+
         try {
+            if (tempFile == null || !tempFile.exists()) {
+                System.out.println("[ERROR] DataFileAPI.saveFile(): tempFile is null or doesn't exist!");
+                return;
+            }
+
+            System.out.println("[DEBUG] Creating directories: " + permanentPath.getParent());
             Files.createDirectories(permanentPath.getParent());
+
+            System.out.println("[DEBUG] Copying file from " + tempFile.toPath() + " to " + permanentPath);
             Files.copy(tempFile.toPath(), permanentPath, StandardCopyOption.REPLACE_EXISTING);
-            System.out.println("File successfully saved to: " + permanentPath);
+
+            System.out.println("[SUCCESS] File successfully saved to: " + permanentPath);
+            System.out.println("[SUCCESS] File exists: " + Files.exists(permanentPath));
+            System.out.println("[SUCCESS] File size: " + Files.size(permanentPath));
+
         } catch (IOException e) {
-            System.out.println("Error saving file: " + e.getMessage());
+            System.out.println("[ERROR] DataFileAPI.saveFile(): Error saving file: " + e.getMessage());
+            e.printStackTrace();
         } finally {
-            if (tempFile.exists() && !tempFile.delete()) {
-                System.out.println("Failed to delete temporary file: " + tempFile.getAbsolutePath());
+            if (tempFile != null && tempFile.exists()) {
+                if (!tempFile.delete()) {
+                    System.out.println("[WARN] DataFileAPI.saveFile(): Failed to delete temporary file: " + tempFile.getAbsolutePath());
+                } else {
+                    System.out.println("[INFO] DataFileAPI.saveFile(): Temporary file deleted: " + tempFile.getAbsolutePath());
+                }
             }
         }
+        System.out.println("[DEBUG] DataFileAPI.saveFile() END");
     }
 
     /**

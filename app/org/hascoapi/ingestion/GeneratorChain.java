@@ -90,36 +90,56 @@ public class GeneratorChain {
 
     public boolean generate(boolean bCommit) {
         if (!isValid()) {
+            System.out.println("[ERROR] GeneratorChain is not valid, aborting generation");
             return false;
         }
-        //System.out.println("GeneratorChain: Executing [NORMAL] generator chain.");
+        System.out.println("\n========================================");
+        System.out.println("GeneratorChain: Executing [NORMAL] generator chain");
+        System.out.println("Number of generators: " + chain.size());
+        System.out.println("Named Graph URI: " + getNamedGraphUri());
+        System.out.println("Commit mode: " + (bCommit ? "YES" : "NO"));
+        System.out.println("========================================\n");
 
         //int i = 0;
         //for (BaseGenerator generator : chain) {
         //    log.info("GeneratorChain: Position " + i++ + " has generator of type [" + generator.getClass(). getSimpleName() + "]");
         //}
 
+        int generatorIndex = 0;
         for (BaseGenerator generator : chain) {
+            generatorIndex++;
             String elementType = generator.getElementType();
             if (elementType == null || elementType.isEmpty()) {
-                elementType = "";
-            } else {
-                elementType = " (" + elementType + ")";
+                elementType = "NONE";
             }
-            System.out.println("GeneratorChain: Executing generator of type [" + generator.getClass().getSimpleName() + " of element type " + elementType + "]");
-            //System.out.println("GeneratorChain: Named Graph is [" + generator.getNamedGraphUri() + "]");
+            System.out.println("\n╔══════════════════════════════════════════════════════════════");
+            System.out.println("║ GENERATOR [" + generatorIndex + "/" + chain.size() + "]: " + generator.getClass().getSimpleName());
+            System.out.println("║ Element Type: " + elementType);
+            System.out.println("║ Named Graph: " + generator.getNamedGraphUri());
+            System.out.println("╚══════════════════════════════════════════════════════════════");
+
             try {
-                //System.out.println("  - GenerationChain: PreProcess");
+                System.out.println("  → Step 1/5: PreProcess");
                 generator.preprocess();
                 generator.preprocessuris(uris);
-                //System.out.println("\n\n- GenerationChain: CreateRows");
+
+                System.out.println("  → Step 2/5: CreateRows");
                 generator.createRows();
-                //System.out.println("\n\n- GenerationChain: CreateObjects");
+                System.out.println("  ✓ Created " + generator.getRows().size() + " rows");
+
+                System.out.println("  → Step 3/5: CreateObjects");
                 generator.createObjects();
-                //System.out.println("\n\n- GenerationChain:PostProcess");
+                System.out.println("  ✓ Created " + generator.getObjects().size() + " objects");
+
+                System.out.println("  → Step 4/5: PostProcess");
                 generator.postprocess();
                 uris = generator.postprocessuris();
+
+                System.out.println("  ✓ Generator completed successfully");
+                System.out.println("  ✓ Generator completed successfully");
             } catch (Exception e) {
+                System.out.println("  ✗ GENERATOR FAILED with exception:");
+                System.out.println("     " + e.getClass().getSimpleName() + ": " + e.getMessage());
                 // Use the generator's logger instead of chain dataFile (which may be null).
                 if (generator.getLogger() != null) {
                     generator.getLogger().printExceptionByIdWithArgs("GBL_00044", generator.getErrorMsg(e));
@@ -130,22 +150,38 @@ public class GeneratorChain {
                 e.printStackTrace();
                 return false;
             }
-            System.out.println("GeneratorChain: Ended execution of generator of type [" + generator.getClass().getSimpleName() + " of element type " + elementType + "]");
+            System.out.println("╚══════════════════════════════════════════════════════════════\n");
         }
 
         if (!bCommit) {
+            System.out.println("\n[INFO] Commit phase SKIPPED (bCommit=false)\n");
             return true;
         }
 
-        System.out.println("GeneratorChain: Starting commits.");
+        System.out.println("\n========================================");
+        System.out.println("GeneratorChain: Starting COMMIT PHASE");
+        System.out.println("========================================\n");
 
         // Commit if no errors occurred
+        generatorIndex = 0;
         for (BaseGenerator generator : chain) {
+            generatorIndex++;
             String elementType = generator.getElementType();
-            System.out.println("GeneratorChain: Started commit of generator of type [" + generator.getClass().getSimpleName() + " " + elementType + "]");
-            System.out.println("GeneratorChain: Number of Rows [" + generator.getRows().size() + "]");
+            if (elementType == null || elementType.isEmpty()) {
+                elementType = "NONE";
+            }
+            System.out.println("\n╔══════════════════════════════════════════════════════════════");
+            System.out.println("║ COMMIT [" + generatorIndex + "/" + chain.size() + "]: " + generator.getClass().getSimpleName());
+            System.out.println("║ Element Type: " + elementType);
+            System.out.println("╚══════════════════════════════════════════════════════════════");
+            System.out.println("  Rows to commit: " + generator.getRows().size());
+            System.out.println("  Objects to commit: " + generator.getObjects().size());
+            System.out.println("  Rows to commit: " + generator.getRows().size());
+            System.out.println("  Objects to commit: " + generator.getObjects().size());
+
             if (!getNamedGraphUri().isEmpty()) {
                 generator.setNamedGraphUri(getNamedGraphUri());
+                System.out.println("  Set named graph from chain: " + getNamedGraphUri());
             }
             if (!generator.getStudyUri().isEmpty()) {
                 setStudyUri(generator.getStudyUri());
@@ -157,19 +193,30 @@ public class GeneratorChain {
 
             try {
                 if (generator.getRows().size() > 0){
+                    System.out.println("  → Committing " + generator.getRows().size() + " rows to triple store...");
                     generator.commitRowsToTripleStore(generator.getRows());
+                    System.out.println("  ✓ Rows committed successfully");
+                } else {
+                    System.out.println("  ℹ No rows to commit");
                 }
                 if (generator.getObjects().size() > 0){
+                    System.out.println("  → Committing " + generator.getObjects().size() + " objects to triple store...");
                     generator.commitObjectsToTripleStore(generator.getObjects());
+                    System.out.println("  ✓ Objects committed successfully");
+                } else {
+                    System.out.println("  ℹ No objects to commit");
                 }
             } catch (Exception e) {
+                System.out.println("  ✗ COMMIT FAILED with exception:");
+                System.out.println("     " + e.getClass().getSimpleName() + ": " + e.getMessage());
                 System.out.println(generator.getErrorMsg(e));
                 e.printStackTrace();
 
                 generator.getLogger().printException(generator.getErrorMsg(e));
                 return false;
             }
-            System.out.println("GeneratorChain: Finished commit of generator of type [" + generator.getClass().getSimpleName() + " " + elementType + "]");
+            System.out.println("╚══════════════════════════════════════════════════════════════\n");
+            System.out.println("╚══════════════════════════════════════════════════════════════\n");
         }
 
         for (BaseGenerator generator : chain) {
@@ -178,7 +225,11 @@ public class GeneratorChain {
             }
         }
         postprocess();
-        System.out.println("GeneratorChain: Ended [NORMAL] execution of generator chain.");
+
+        System.out.println("\n========================================");
+        System.out.println("GeneratorChain: COMPLETED SUCCESSFULLY");
+        System.out.println("Final Study URI: " + getStudyUri());
+        System.out.println("========================================\n");
 
         return true;
     }

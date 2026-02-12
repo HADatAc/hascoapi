@@ -20,6 +20,7 @@ public class Constants {
     public static final String MT_STR         = "STR";
     public static final String MT_STD         = "STD";
     public static final String MT_SSD         = "SSD";
+    public static final String MT_WKF         ="WKF" ;
 
     public static final String TEST_KB = "http://hadatac.org/kb/test/";
 
@@ -108,7 +109,8 @@ public class Constants {
     public static final String PREFIX_STREAM_TOPIC               = "STP";
     public static final String PREFIX_SUBCONTAINER               = "SCT";
     public static final String PREFIX_VIRTUAL_COLUMN             = "VCO";
-  
+    public static final String PREFIX_WKF                        = "WKF";
+
     /*
     public static final String PREFIX_ANNOTATION                 = "AN";
     public static final String PREFIX_ANNOTATION_STEM            = "AS";

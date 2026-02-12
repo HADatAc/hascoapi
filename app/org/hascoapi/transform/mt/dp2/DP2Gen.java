@@ -150,25 +150,58 @@ public class DP2Gen {
     }
 
     public static String save(DP2GenHelper helper, String filename) {
+        System.out.println("\n========== DP2Gen.save() START ==========");
+        System.out.println("  filename parameter: " + filename);
+
         if (helper == null) {
+            System.out.println("  ✗ helper is NULL, returning empty string");
             return "";
         }
         if (helper.workbook == null) {
+            System.out.println("  ✗ workbook is NULL, returning empty string");
             return "";
         }
+
+        System.out.println("  ✓ helper and workbook are valid");
+
         // Save namespaces
+        System.out.println("  → Saving namespaces...");
         DP2Gen.saveNamespaces(helper);
+        System.out.println("  ✓ Namespaces saved");
 
         try {
-            FileOutputStream fileOut = new FileOutputStream(filename);
+            java.io.File outputFile = new java.io.File(filename);
+            System.out.println("  Output file absolute path: " + outputFile.getAbsolutePath());
+            System.out.println("  Output file parent directory: " + outputFile.getParent());
+            System.out.println("  Parent directory exists: " + (outputFile.getParentFile() != null && outputFile.getParentFile().exists()));
+
+            // Ensure parent directory exists
+            if (outputFile.getParentFile() != null && !outputFile.getParentFile().exists()) {
+                System.out.println("  Creating parent directory...");
+                boolean created = outputFile.getParentFile().mkdirs();
+                System.out.println("  Parent directory created: " + created);
+            }
+
+            System.out.println("  → Writing workbook to file...");
+            FileOutputStream fileOut = new FileOutputStream(outputFile);
             helper.workbook.write(fileOut);
             fileOut.close();
             helper.workbook.close();
+
+            System.out.println("  ✓ File written successfully");
+            System.out.println("  File size: " + outputFile.length() + " bytes");
+            System.out.println("  File exists: " + outputFile.exists());
+            System.out.println("  File can read: " + outputFile.canRead());
+            System.out.println("========== DP2Gen.save() END (SUCCESS) ==========\n");
+
+            return filename;
         } catch (IOException e) {
+            System.err.println("  ✗ IOException during file write:");
+            System.err.println("     " + e.getClass().getSimpleName() + ": " + e.getMessage());
             e.printStackTrace();
+            System.out.println("========== DP2Gen.save() END (FAILURE) ==========\n");
             return "Error: " + e.getMessage();
         }
-        return filename;
     }
 
     public static final int PAGESIZE                = 20000;
@@ -213,6 +246,13 @@ public class DP2Gen {
      * 2) Fetch DP2 elements by hasco:hasDataFile (not by vstoi:hasStatus)
      */
     public static String genByStatus(String dataFileUri, String status, String filename, String mediaFolder, String verifyUri) {
+        System.out.println("\n========== DP2Gen.genByStatus() START ==========");
+        System.out.println("Input parameters:");
+        System.out.println("  dataFileUri: " + dataFileUri);
+        System.out.println("  status: " + status);
+        System.out.println("  filename: " + filename);
+        System.out.println("  mediaFolder: " + mediaFolder);
+
         DP2GenHelper helper = new DP2GenHelper();
 
         // Normalize filename so mtGetGenerated() can always retrieve it from ConfigProp.getPathIngestion().
@@ -220,17 +260,43 @@ public class DP2Gen {
         if (baseName != null) {
             baseName = new java.io.File(baseName).getName();
         }
+        System.out.println("  baseName (after extraction): " + baseName);
 
         String basePath = ConfigProp.getPathIngestion();
-        if (basePath == null) {
+        System.out.println("  basePath (from ConfigProp): " + basePath);
+
+        if (basePath == null || basePath.trim().isEmpty()) {
             basePath = "";
         }
-        if (!basePath.isEmpty() && !basePath.endsWith("/")) {
-            basePath = basePath + "/";
+
+        // Normalize path separators for the current OS
+        if (!basePath.isEmpty()) {
+            basePath = basePath.replace("/", java.io.File.separator).replace("\\", java.io.File.separator);
+            if (!basePath.endsWith(java.io.File.separator)) {
+                basePath = basePath + java.io.File.separator;
+            }
+        }
+        System.out.println("  basePath (normalized): " + basePath);
+
+        // Build the full output path
+        String outFilename;
+        if (basePath.isEmpty()) {
+            outFilename = baseName;
+        } else {
+            // Ensure the directory exists
+            java.io.File dir = new java.io.File(basePath);
+            if (!dir.exists()) {
+                System.out.println("  Creating directory: " + dir.getAbsolutePath());
+                boolean created = dir.mkdirs();
+                if (!created) {
+                    System.err.println("[ERROR] Failed to create directory: " + dir.getAbsolutePath());
+                }
+            }
+            outFilename = basePath + baseName;
         }
 
-        String outFilename = basePath + baseName;
-        System.out.println("DP2Gen.genByStatus: writing workbook to: " + outFilename);
+        System.out.println("  outFilename (final): " + outFilename);
+        System.out.println("  outFilename (absolute): " + new java.io.File(outFilename).getAbsolutePath());
 
         helper.workbook = DP2Gen.create(outFilename);
 
@@ -547,7 +613,13 @@ public class DP2Gen {
             }
         }
 
-        return DP2Gen.save(helper, outFilename);
+        System.out.println("\n→ All data added to workbook, calling save()...");
+        System.out.println("  Output filename: " + outFilename);
+        String saveResult = DP2Gen.save(helper, outFilename);
+        System.out.println("  Save result: " + saveResult);
+        System.out.println("========== DP2Gen.genByStatus() END ==========\n");
+
+        return saveResult;
     }
 
 
