@@ -342,13 +342,25 @@ public class DP2Gen {
                         include = effective.equals(requestedStatus);
                     }
 
-                    // If caller provided an explicit original datafile URI filter, apply it.
-                    // BUT: ignore it if it matches the dp2's own hasDataFile (we are likely looking at
-                    // the freshly-created DP2 MT for this generation request).
+                    // CRITICAL FIX: Instead of blindly excluding all DP2s with matching dataFileUri,
+                    // we check if the DP2's named graph has actual content (triples).
+                    // An empty graph means it's the freshly-created DP2 for this generation request.
                     if (include && requestedDataFileUriCanonical != null && !requestedDataFileUriCanonical.isEmpty()) {
                         if (dfCanonical != null && dfCanonical.equals(requestedDataFileUriCanonical)) {
-                            // self-reference; skip it
-                            include = false;
+                            // Same dataFileUri - check if graph has content
+                            try {
+                                int tripleCount = graphTripleCount(ns, dfCanonical);
+                                if (tripleCount == 0) {
+                                    // Empty graph = freshly created DP2, skip it
+                                    System.out.println("    → Skipping " + d.getUri() + " (empty graph, likely fresh creation)");
+                                    include = false;
+                                } else {
+                                    System.out.println("    → Including " + d.getUri() + " (graph has " + tripleCount + " triples)");
+                                }
+                            } catch (Exception ex) {
+                                System.out.println("    → Error checking graph for " + d.getUri() + ": " + ex.getMessage());
+                                include = false;
+                            }
                         } else if (dataFileUri != null && !dataFileUri.trim().isEmpty()) {
                             // keep the old behavior only if we actually want to constrain to another df
                             // (use canonical comparisons)
@@ -384,9 +396,52 @@ public class DP2Gen {
             return DP2Gen.save(helper, outFilename);
         }
 
-        DP2 dp2 = dp2s.get(0);
+        System.out.println("[DEBUG] Found " + dp2s.size() + " DP2 candidates after filtering:");
+        for (int i = 0; i < dp2s.size(); i++) {
+            DP2 d = dp2s.get(i);
+            System.out.println("  [" + i + "] URI: " + d.getUri() + " | hasDataFileUri: " + d.getHasDataFileUri() + " | status: " + d.getHasStatus());
+        }
+
+        // CRITICAL FIX: If multiple DP2s exist, prefer the one that has been INGESTED (PROCESSED status)
+        DP2 dp2 = null;
+        DP2 processedDP2 = null;
+
+        for (DP2 candidate : dp2s) {
+            DataFile df = DataFile.find(candidate.getHasDataFileUri());
+            if (df != null) {
+                System.out.println("[DP2Gen] Checking candidate " + candidate.getUri() + " -> DataFile status: " + df.getFileStatus());
+                if ("PROCESSED".equalsIgnoreCase(df.getFileStatus())) {
+                    processedDP2 = candidate;
+                    System.out.println("[DP2Gen] ✓ Found PROCESSED candidate: " + candidate.getUri());
+                    break; // Found the ingested one, use it!
+                }
+            }
+        }
+
+        // If we found a processed one, use it; otherwise fall back to first
+        if (processedDP2 != null) {
+            dp2 = processedDP2;
+            System.out.println("[DP2Gen] SMART SELECTION: Using PROCESSED DP2: " + dp2.getUri());
+        } else {
+            dp2 = dp2s.get(0);
+            System.out.println("[DP2Gen] WARNING: No PROCESSED DP2 found, using first candidate: " + dp2.getUri());
+        }
         String scopedDataFileUri = dp2.getHasDataFileUri();
         System.out.println("DP2Gen.genByStatus: resolved dp2=" + dp2.getUri() + " hasDataFile=" + canonicalizeUri(scopedDataFileUri) + " hasStatus=" + dp2.getHasStatus());
+
+        // CRITICAL DEBUG: Check if this DataFile has been INGESTED
+        DataFile dataFile = DataFile.find(scopedDataFileUri);
+        if (dataFile != null) {
+            System.out.println("[DP2Gen] CRITICAL: DataFile status = " + dataFile.getFileStatus());
+            System.out.println("[DP2Gen] CRITICAL: DataFile filename = " + dataFile.getFilename());
+            if (!"PROCESSED".equalsIgnoreCase(dataFile.getFileStatus())) {
+                System.out.println("[DP2Gen] ERROR: DataFile has NOT been ingested yet! Status is: " + dataFile.getFileStatus());
+                System.out.println("[DP2Gen] ERROR: You must INGEST the DP2 file before generating. The triple store is empty.");
+                System.out.println("[DP2Gen] ERROR: Go to the DP2 list and click 'Ingest' first, then try generating again.");
+            }
+        } else {
+            System.out.println("[DP2Gen] ERROR: Could not find DataFile with URI: " + scopedDataFileUri);
+        }
 
         String canonicalDataFileUri = canonicalizeUri(scopedDataFileUri);
         if (canonicalDataFileUri == null || canonicalDataFileUri.trim().isEmpty()) {
@@ -399,14 +454,14 @@ public class DP2Gen {
         System.out.println("DP2Gen.genByStatus(scoped): graphUri(https)=" + graphUriHttps);
         System.out.println("DP2Gen.genByStatus(scoped): graphUri(http)=" + graphUriHttp);
 
-        // IMPORTANT: DP2 ingestion stores type as hasco:hascoType (often as prefixed string),
-        // not necessarily rdf:type. So generation must query by hasco:hascoType.
-        final String htDeployment = "?uri hasco:hascoType \"vstoi:Deployment\" .";
-        final String htPlatform = "?uri hasco:hascoType \"vstoi:Platform\" .";
-        final String htPlatformInstance = "?uri hasco:hascoType \"vstoi:PlatformInstance\" .";
-        final String htInstrumentInstance = "?uri hasco:hascoType \"vstoi:InstrumentInstance\" .";
-        final String htComponentInstance = "?uri hasco:hascoType \"vstoi:ComponentInstance\" .";
-        final String htFieldOfView = "?uri hasco:hascoType \"vstoi:FieldOfView\" .";
+        // IMPORTANT: DP2 ingestion stores type as hasco:hascoType as URI (not string literal),
+        // not necessarily rdf:type. So generation must query by hasco:hascoType with URI value.
+        final String htDeployment = "?uri hasco:hascoType vstoi:Deployment .";
+        final String htPlatform = "?uri hasco:hascoType vstoi:Platform .";
+        final String htPlatformInstance = "?uri hasco:hascoType vstoi:PlatformInstance .";
+        final String htInstrumentInstance = "?uri hasco:hascoType vstoi:InstrumentInstance .";
+        final String htComponentInstance = "?uri hasco:hascoType vstoi:ComponentInstance .";
+        final String htFieldOfView = "?uri hasco:hascoType vstoi:FieldOfView .";
 
         java.util.List<Deployment> deployments = null;
         java.util.List<Platform> platforms = null;
@@ -427,16 +482,27 @@ public class DP2Gen {
 
             String qDeploymentsGraph = ns + " SELECT DISTINCT ?uri WHERE { GRAPH <" + graphUri + "> { "
                     + htDeployment + " OPTIONAL { ?uri rdfs:label ?label . } } } ORDER BY ASC(?label) LIMIT " + PAGESIZE + " OFFSET " + OFFSET;
+            System.out.println("[DP2Gen] QUERY Deployments (graph https): " + qDeploymentsGraph);
+
             String qPlatformsGraph = ns + " SELECT DISTINCT ?uri WHERE { GRAPH <" + graphUri + "> { "
                     + htPlatform + " OPTIONAL { ?uri rdfs:label ?label . } } } ORDER BY ASC(?label) LIMIT " + PAGESIZE + " OFFSET " + OFFSET;
+            System.out.println("[DP2Gen] QUERY Platforms (graph https): " + qPlatformsGraph);
+
             String qPlatformInstancesGraph = ns + " SELECT DISTINCT ?uri WHERE { GRAPH <" + graphUri + "> { "
                     + htPlatformInstance + " OPTIONAL { ?uri rdfs:label ?label . } } } ORDER BY ASC(?label) LIMIT " + PAGESIZE + " OFFSET " + OFFSET;
+            System.out.println("[DP2Gen] QUERY PlatformInstances (graph https): " + qPlatformInstancesGraph);
+
             String qInstrumentInstancesGraph = ns + " SELECT DISTINCT ?uri WHERE { GRAPH <" + graphUri + "> { "
                     + htInstrumentInstance + " OPTIONAL { ?uri rdfs:label ?label . } } } ORDER BY ASC(?label) LIMIT " + PAGESIZE + " OFFSET " + OFFSET;
+            System.out.println("[DP2Gen] QUERY InstrumentInstances (graph https): " + qInstrumentInstancesGraph);
+
             String qComponentInstancesGraph = ns + " SELECT DISTINCT ?uri WHERE { GRAPH <" + graphUri + "> { "
                     + htComponentInstance + " OPTIONAL { ?uri rdfs:label ?label . } } } ORDER BY ASC(?label) LIMIT " + PAGESIZE + " OFFSET " + OFFSET;
+            System.out.println("[DP2Gen] QUERY ComponentInstances (graph https): " + qComponentInstancesGraph);
+
             String qFieldsOfViewGraph = ns + " SELECT DISTINCT ?uri WHERE { GRAPH <" + graphUri + "> { "
                     + htFieldOfView + " OPTIONAL { ?uri rdfs:label ?label . } } } ORDER BY ASC(?label) LIMIT " + PAGESIZE + " OFFSET " + OFFSET;
+            System.out.println("[DP2Gen] QUERY FieldsOfView (graph https): " + qFieldsOfViewGraph);
 
             deployments = org.hascoapi.entity.pojo.GenericFind.findByQuery(Deployment.class, qDeploymentsGraph);
             platforms = org.hascoapi.entity.pojo.GenericFind.findByQuery(Platform.class, qPlatformsGraph);
@@ -521,6 +587,106 @@ public class DP2Gen {
         if (!gotAny) {
             System.out.println("[DP2Gen] graph-scoped empty; trying hasco:hasDataFile scoping using dataFileUri=" + canonicalDataFileUri);
 
+            // DEBUG: Let's see what's ACTUALLY in the named graph
+            System.out.println("[DP2Gen] DEBUG: About to query named graph: " + graphUriHttps);
+            String debugQuery = ns + " SELECT (COUNT(*) as ?count) WHERE { GRAPH <" + graphUriHttps + "> { ?s ?p ?o } }";
+            System.out.println("[DP2Gen] DEBUG: Query = " + debugQuery);
+            try {
+                org.apache.jena.query.ResultSet rs = org.hascoapi.utils.SPARQLUtils.select(
+                    org.hascoapi.utils.CollectionUtil.getCollectionPath(org.hascoapi.utils.CollectionUtil.Collection.SPARQL_QUERY),
+                    debugQuery);
+                if (rs.hasNext()) {
+                    org.apache.jena.query.QuerySolution sol = rs.next();
+                    int count = sol.getLiteral("count").getInt();
+                    System.out.println("[DP2Gen] DEBUG: Named graph <" + graphUriHttps + "> has " + count + " triples");
+                }
+            } catch (Exception e) {
+                System.out.println("[DP2Gen] DEBUG: Could not count triples: " + e.getMessage());
+                e.printStackTrace();
+            }
+
+            // DEBUG: Let's see if there are ANY deployments anywhere with hasDataFile
+            String debugQuery2 = ns + " SELECT ?uri ?dataFile WHERE { ?uri a ?type . ?type rdfs:subClassOf* vstoi:Deployment . OPTIONAL { ?uri hasco:hasDataFile ?dataFile } } LIMIT 10";
+            System.out.println("[DP2Gen] DEBUG: Deployment query = " + debugQuery2);
+            try {
+                org.apache.jena.query.ResultSet rs = org.hascoapi.utils.SPARQLUtils.select(
+                    org.hascoapi.utils.CollectionUtil.getCollectionPath(org.hascoapi.utils.CollectionUtil.Collection.SPARQL_QUERY),
+                    debugQuery2);
+                System.out.println("[DP2Gen] DEBUG: Sample deployments in system:");
+                while (rs.hasNext()) {
+                    org.apache.jena.query.QuerySolution sol = rs.next();
+                    String uri = sol.getResource("uri") != null ? sol.getResource("uri").getURI() : "null";
+                    String df = sol.getResource("dataFile") != null ? sol.getResource("dataFile").getURI() : "null";
+                    System.out.println("  - Deployment: " + uri + " | hasDataFile: " + df);
+                }
+            } catch (Exception e) {
+                System.out.println("[DP2Gen] DEBUG: Could not query sample deployments: " + e.getMessage());
+                e.printStackTrace();
+            }
+
+            // DEBUG: Now let's check the CORRECT dataFile that HAS data: DFL1770641324417771
+            String knownGoodDataFile = "https://hadatac.org/ont/hadatac#/DFL1770641324417771";
+            System.out.println("[DP2Gen] DEBUG: Checking KNOWN GOOD dataFile: " + knownGoodDataFile);
+
+            String debugQuery3 = ns + " SELECT (COUNT(*) as ?count) WHERE { GRAPH <" + knownGoodDataFile + "> { ?s ?p ?o } }";
+            System.out.println("[DP2Gen] DEBUG: Query for known good = " + debugQuery3);
+            try {
+                org.apache.jena.query.ResultSet rs = org.hascoapi.utils.SPARQLUtils.select(
+                    org.hascoapi.utils.CollectionUtil.getCollectionPath(org.hascoapi.utils.CollectionUtil.Collection.SPARQL_QUERY),
+                    debugQuery3);
+                if (rs.hasNext()) {
+                    org.apache.jena.query.QuerySolution sol = rs.next();
+                    int count = sol.getLiteral("count").getInt();
+                    System.out.println("[DP2Gen] DEBUG: Known good named graph has " + count + " triples");
+                }
+            } catch (Exception e) {
+                System.out.println("[DP2Gen] DEBUG: Could not count known good triples: " + e.getMessage());
+                e.printStackTrace();
+            }
+
+            // DEBUG: Let's query deployments FROM the known good dataFile
+            String debugQuery4 = ns + " SELECT ?uri WHERE { GRAPH <" + knownGoodDataFile + "> { ?uri a ?type . ?type rdfs:subClassOf* vstoi:Deployment } } LIMIT 10";
+            System.out.println("[DP2Gen] DEBUG: Deployments in known good graph query = " + debugQuery4);
+            try {
+                org.apache.jena.query.ResultSet rs = org.hascoapi.utils.SPARQLUtils.select(
+                    org.hascoapi.utils.CollectionUtil.getCollectionPath(org.hascoapi.utils.CollectionUtil.Collection.SPARQL_QUERY),
+                    debugQuery4);
+                System.out.println("[DP2Gen] DEBUG: Deployments in known good graph:");
+                int deployCount = 0;
+                while (rs.hasNext()) {
+                    org.apache.jena.query.QuerySolution sol = rs.next();
+                    String uri = sol.getResource("uri") != null ? sol.getResource("uri").getURI() : "null";
+                    System.out.println("  - Deployment: " + uri);
+                    deployCount++;
+                }
+                System.out.println("[DP2Gen] DEBUG: Found " + deployCount + " deployments in known good graph");
+            } catch (Exception e) {
+                System.out.println("[DP2Gen] DEBUG: Could not query known good deployments: " + e.getMessage());
+                e.printStackTrace();
+            }
+
+            // DEBUG: NOW test with hasco:hascoType pattern (how DP2 actually stores data!)
+            String debugQuery5 = ns + " SELECT ?uri ?hascoType WHERE { GRAPH <" + knownGoodDataFile + "> { ?uri hasco:hascoType ?hascoType } } LIMIT 20";
+            System.out.println("[DP2Gen] DEBUG: Entities with hasco:hascoType in known good graph query = " + debugQuery5);
+            try {
+                org.apache.jena.query.ResultSet rs = org.hascoapi.utils.SPARQLUtils.select(
+                    org.hascoapi.utils.CollectionUtil.getCollectionPath(org.hascoapi.utils.CollectionUtil.Collection.SPARQL_QUERY),
+                    debugQuery5);
+                System.out.println("[DP2Gen] DEBUG: Entities with hasco:hascoType in known good graph:");
+                int entityCount = 0;
+                while (rs.hasNext()) {
+                    org.apache.jena.query.QuerySolution sol = rs.next();
+                    String uri = sol.getResource("uri") != null ? sol.getResource("uri").getURI() : "null";
+                    String hascoType = sol.get("hascoType") != null ? sol.get("hascoType").toString() : "null";
+                    System.out.println("  - Entity: " + uri + " | hascoType: " + hascoType);
+                    entityCount++;
+                }
+                System.out.println("[DP2Gen] DEBUG: Found " + entityCount + " entities with hasco:hascoType in known good graph");
+            } catch (Exception e) {
+                System.out.println("[DP2Gen] DEBUG: Could not query known good entities with hascoType: " + e.getMessage());
+                e.printStackTrace();
+            }
+
             String qDeploymentsDf = ns + " SELECT DISTINCT ?uri WHERE { " + htDeployment +
                     " ?uri hasco:hasDataFile <" + canonicalDataFileUri + "> . OPTIONAL { ?uri rdfs:label ?label . } } ORDER BY ASC(?label) LIMIT " + PAGESIZE + " OFFSET " + OFFSET;
             String qPlatformsDf = ns + " SELECT DISTINCT ?uri WHERE { " + htPlatform +
@@ -584,32 +750,56 @@ public class DP2Gen {
 
         if (deployments != null) {
             for (Deployment deployment : deployments) {
-                helper = DP2Deployments.add(helper, deployment);
+                if (deployment != null) {
+                    helper = DP2Deployments.add(helper, deployment);
+                } else {
+                    System.out.println("[DP2Gen] WARNING: Skipping null deployment");
+                }
             }
         }
         if (platforms != null) {
             for (Platform platform : platforms) {
-                helper = DP2Plataforms.add(helper, platform);
+                if (platform != null) {
+                    helper = DP2Plataforms.add(helper, platform);
+                } else {
+                    System.out.println("[DP2Gen] WARNING: Skipping null platform");
+                }
             }
         }
         if (platformInstances != null) {
             for (PlatformInstance platformInstance : platformInstances) {
-                helper = DP2PlataformInstances.add(helper, platformInstance);
+                if (platformInstance != null) {
+                    helper = DP2PlataformInstances.add(helper, platformInstance);
+                } else {
+                    System.out.println("[DP2Gen] WARNING: Skipping null platformInstance");
+                }
             }
         }
         if (instrumentInstances != null) {
             for (InstrumentInstance instrumentInstance : instrumentInstances) {
-                helper = DP2InstrumentInstances.add(helper, instrumentInstance);
+                if (instrumentInstance != null) {
+                    helper = DP2InstrumentInstances.add(helper, instrumentInstance);
+                } else {
+                    System.out.println("[DP2Gen] WARNING: Skipping null instrumentInstance");
+                }
             }
         }
         if (componentInstances != null) {
             for (ComponentInstance componentInstance : componentInstances) {
-                helper = DP2ComponentsInstances.add(helper, componentInstance);
+                if (componentInstance != null) {
+                    helper = DP2ComponentsInstances.add(helper, componentInstance);
+                } else {
+                    System.out.println("[DP2Gen] WARNING: Skipping null componentInstance");
+                }
             }
         }
         if (fieldsOfView != null) {
             for (FieldOfView fieldOfView : fieldsOfView) {
-                helper = DP2FieldsOfView.add(helper, fieldOfView);
+                if (fieldOfView != null) {
+                    helper = DP2FieldsOfView.add(helper, fieldOfView);
+                } else {
+                    System.out.println("[DP2Gen] WARNING: Skipping null fieldOfView");
+                }
             }
         }
 

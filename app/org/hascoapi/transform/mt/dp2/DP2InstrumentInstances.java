@@ -46,11 +46,11 @@ public class DP2InstrumentInstances {
         // Create the new row
         Row newRow = instrumentinstancessheet.createRow(rowIndex);
 
-        newRow.createCell(0).setCellValue(URIUtils.replaceNameSpaceEx(instrumentInstance.getUri()));
-        newRow.createCell(1).setCellValue(URIUtils.replaceNameSpaceEx(instrumentInstance.getHascoTypeUri()));
-        newRow.createCell(2).setCellValue(instrumentInstance.getLabel());
-        newRow.createCell(3).setCellValue(instrumentInstance.getHasSerialNumber());
-        newRow.createCell(4).setCellValue(instrumentInstance.getDescription());
+        newRow.createCell(0).setCellValue(instrumentInstance.getUri() != null ? URIUtils.replaceNameSpaceEx(instrumentInstance.getUri()) : "");
+        newRow.createCell(1).setCellValue(instrumentInstance.getHascoTypeUri() != null ? URIUtils.replaceNameSpaceEx(instrumentInstance.getHascoTypeUri()) : "");
+        newRow.createCell(2).setCellValue(instrumentInstance.getLabel() != null ? instrumentInstance.getLabel() : "");
+        newRow.createCell(3).setCellValue(instrumentInstance.getHasSerialNumber() != null ? instrumentInstance.getHasSerialNumber() : "");
+        newRow.createCell(4).setCellValue(instrumentInstance.getDescription() != null ? instrumentInstance.getDescription() : "");
         newRow.createCell(5).setCellValue(""); // owl:sameAs not currently available
 
         return helper;

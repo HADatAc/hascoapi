@@ -35,13 +35,13 @@ public class DP2Deployments {
         int rowIndex = deploymentSheet.getLastRowNum() + 1;
         Row newRow = deploymentSheet.createRow(rowIndex);
 
-        newRow.createCell(0).setCellValue(URIUtils.replaceNameSpaceEx(deploy.getUri()));
-        newRow.createCell(1).setCellValue(URIUtils.replaceNameSpaceEx(deploy.getHascoTypeUri()));
-        newRow.createCell(2).setCellValue(URIUtils.replaceNameSpaceEx(deploy.getLabel()));
+        newRow.createCell(0).setCellValue(deploy.getUri() != null ? URIUtils.replaceNameSpaceEx(deploy.getUri()) : "");
+        newRow.createCell(1).setCellValue(deploy.getHascoTypeUri() != null ? URIUtils.replaceNameSpaceEx(deploy.getHascoTypeUri()) : "");
+        newRow.createCell(2).setCellValue(deploy.getLabel() != null ? URIUtils.replaceNameSpaceEx(deploy.getLabel()) : "");
 
         // Use CURIE style for object references
-        newRow.createCell(3).setCellValue(URIUtils.replaceNameSpaceEx(deploy.getPlatformInstanceUri()));
-        newRow.createCell(4).setCellValue(URIUtils.replaceNameSpaceEx(deploy.getInstrumentInstanceUri()));
+        newRow.createCell(3).setCellValue(deploy.getPlatformInstanceUri() != null ? URIUtils.replaceNameSpaceEx(deploy.getPlatformInstanceUri()) : "");
+        newRow.createCell(4).setCellValue(deploy.getInstrumentInstanceUri() != null ? URIUtils.replaceNameSpaceEx(deploy.getInstrumentInstanceUri()) : "");
 
         java.util.List<String> comps = deploy.getComponentInstanceUri();
         if (comps == null || comps.isEmpty()) {
@@ -57,9 +57,9 @@ public class DP2Deployments {
             newRow.createCell(5).setCellValue(joined);
         }
 
-        newRow.createCell(6).setCellValue(deploy.getDesignedAt());
-        newRow.createCell(7).setCellValue(deploy.getStartedAt());
-        newRow.createCell(8).setCellValue(deploy.getEndedAt());
+        newRow.createCell(6).setCellValue(deploy.getDesignedAt() != null ? deploy.getDesignedAt() : "");
+        newRow.createCell(7).setCellValue(deploy.getStartedAt() != null ? deploy.getStartedAt() : "");
+        newRow.createCell(8).setCellValue(deploy.getEndedAt() != null ? deploy.getEndedAt() : "");
 
         return helper;
     }

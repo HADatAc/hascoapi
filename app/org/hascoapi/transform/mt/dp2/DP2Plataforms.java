@@ -42,16 +42,16 @@ public class DP2Plataforms {
         int rowIndex = platformSheet.getLastRowNum() + 1;
         Row newRow = platformSheet.createRow(rowIndex);
 
-        newRow.createCell(0).setCellValue(URIUtils.replaceNameSpaceEx(platform.getUri()));
-        newRow.createCell(1).setCellValue(URIUtils.replaceNameSpaceEx(platform.getSuperUri()));
-        newRow.createCell(2).setCellValue(platform.getLabel());
+        newRow.createCell(0).setCellValue(platform.getUri() != null ? URIUtils.replaceNameSpaceEx(platform.getUri()) : "");
+        newRow.createCell(1).setCellValue(platform.getSuperUri() != null ? URIUtils.replaceNameSpaceEx(platform.getSuperUri()) : "");
+        newRow.createCell(2).setCellValue(platform.getLabel() != null ? platform.getLabel() : "");
 
         // Maker isn't wired on Platform in this project, keep blank for now
         newRow.createCell(3).setCellValue("");
 
-        newRow.createCell(4).setCellValue(platform.getComment());
-        newRow.createCell(5).setCellValue(platform.getHasImageUri());
-        newRow.createCell(6).setCellValue(platform.getHasWebDocument());
+        newRow.createCell(4).setCellValue(platform.getComment() != null ? platform.getComment() : "");
+        newRow.createCell(5).setCellValue(platform.getHasImageUri() != null ? platform.getHasImageUri() : "");
+        newRow.createCell(6).setCellValue(platform.getHasWebDocument() != null ? platform.getHasWebDocument() : "");
 
         return helper;
     }

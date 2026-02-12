@@ -61,22 +61,22 @@ public class DP2PlataformInstances {
         // Create the new row
         Row newRow = platforminstancessheet.createRow(rowIndex);
 
-        newRow.createCell(0).setCellValue(URIUtils.replaceNameSpaceEx(platformInstance.getUri()));
-        newRow.createCell(1).setCellValue(URIUtils.replaceNameSpaceEx(platformInstance.getHascoTypeUri()));
-        newRow.createCell(2).setCellValue(platformInstance.getLabel());
-        newRow.createCell(3).setCellValue(platformInstance.getHasSerialNumber());
+        newRow.createCell(0).setCellValue(platformInstance.getUri() != null ? URIUtils.replaceNameSpaceEx(platformInstance.getUri()) : "");
+        newRow.createCell(1).setCellValue(platformInstance.getHascoTypeUri() != null ? URIUtils.replaceNameSpaceEx(platformInstance.getHascoTypeUri()) : "");
+        newRow.createCell(2).setCellValue(platformInstance.getLabel() != null ? platformInstance.getLabel() : "");
+        newRow.createCell(3).setCellValue(platformInstance.getHasSerialNumber() != null ? platformInstance.getHasSerialNumber() : "");
 
-        newRow.createCell(4).setCellValue(platformInstance.getFirstCoordinate());
-        newRow.createCell(5).setCellValue(platformInstance.getFirstCoordinateUnit());
-        newRow.createCell(6).setCellValue(platformInstance.getFirstCoordinateCharacteristic());
+        newRow.createCell(4).setCellValue(platformInstance.getFirstCoordinate() != null ? platformInstance.getFirstCoordinate().toString() : "");
+        newRow.createCell(5).setCellValue(platformInstance.getFirstCoordinateUnit() != null ? platformInstance.getFirstCoordinateUnit() : "");
+        newRow.createCell(6).setCellValue(platformInstance.getFirstCoordinateCharacteristic() != null ? platformInstance.getFirstCoordinateCharacteristic() : "");
 
-        newRow.createCell(7).setCellValue(platformInstance.getSecondCoordinate());
-        newRow.createCell(8).setCellValue(platformInstance.getSecondCoordinateUnit());
-        newRow.createCell(9).setCellValue(platformInstance.getSecondCoordinateCharacteristic());
+        newRow.createCell(7).setCellValue(platformInstance.getSecondCoordinate() != null ? platformInstance.getSecondCoordinate().toString() : "");
+        newRow.createCell(8).setCellValue(platformInstance.getSecondCoordinateUnit() != null ? platformInstance.getSecondCoordinateUnit() : "");
+        newRow.createCell(9).setCellValue(platformInstance.getSecondCoordinateCharacteristic() != null ? platformInstance.getSecondCoordinateCharacteristic() : "");
 
-        newRow.createCell(10).setCellValue(platformInstance.getThirdCoordinate());
-        newRow.createCell(11).setCellValue(platformInstance.getThirdCoordinateUnit());
-        newRow.createCell(12).setCellValue(platformInstance.getThirdCoordinateCharacteristic());
+        newRow.createCell(10).setCellValue(platformInstance.getThirdCoordinate() != null ? platformInstance.getThirdCoordinate().toString() : "");
+        newRow.createCell(11).setCellValue(platformInstance.getThirdCoordinateUnit() != null ? platformInstance.getThirdCoordinateUnit() : "");
+        newRow.createCell(12).setCellValue(platformInstance.getThirdCoordinateCharacteristic() != null ? platformInstance.getThirdCoordinateCharacteristic() : "");
 
         Cell partOfCell = newRow.createCell(13);
         if (platformInstance.getPartOf() != null) {

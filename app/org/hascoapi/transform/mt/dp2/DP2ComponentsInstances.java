@@ -43,19 +43,19 @@ public class DP2ComponentsInstances {
 
         // 0 "hasURI"
         Cell cell1 = newRow.createCell(0);
-        cell1.setCellValue(URIUtils.replaceNameSpaceEx(componentInstance.getUri()));
+        cell1.setCellValue(componentInstance.getUri() != null ? URIUtils.replaceNameSpaceEx(componentInstance.getUri()) : "");
 
         // "a"
         Cell cell2 = newRow.createCell(1);
-        cell2.setCellValue(URIUtils.replaceNameSpaceEx(componentInstance.getHascoTypeUri()));
+        cell2.setCellValue(componentInstance.getHascoTypeUri() != null ? URIUtils.replaceNameSpaceEx(componentInstance.getHascoTypeUri()) : "");
 
         // "rdfs:label"
         Cell cell3 = newRow.createCell(2);
-        cell3.setCellValue(URIUtils.replaceNameSpaceEx(componentInstance.getLabel()));
+        cell3.setCellValue(componentInstance.getLabel() != null ? URIUtils.replaceNameSpaceEx(componentInstance.getLabel()) : "");
 
         // "vstoi:hasSerialNumber"
         Cell cell4 = newRow.createCell(3);
-        cell4.setCellValue(componentInstance.getHasSerialNumber());
+        cell4.setCellValue(componentInstance.getHasSerialNumber() != null ? componentInstance.getHasSerialNumber() : "");
 
         // "vstoi:isInstrumentAttachment" - not available in ComponentInstance yet
         Cell cell5 = newRow.createCell(4);

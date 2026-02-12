@@ -5,7 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
+import org.apache.jena.update.UpdateFactory;
 import org.hascoapi.entity.pojo.WKF;
+import org.hascoapi.entity.pojo.NameSpace;
+import org.hascoapi.transform.mt.wkf.WKFGen;
+import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.Constants;
 import org.hascoapi.ingestion.IngestionWorker;
 import org.hascoapi.entity.pojo.DataFile;
@@ -27,10 +31,7 @@ import org.hascoapi.transform.mt.dp2.DP2Gen;
 import org.hascoapi.transform.mt.dsg.DSGGen;
 import org.hascoapi.transform.mt.ins.INSGen;
 import org.hascoapi.transform.mt.kgr.KGRGen;
-import org.hascoapi.utils.ApiUtil;
-import org.hascoapi.utils.ConfigProp;
-import org.hascoapi.utils.HAScOMapper;
-import org.hascoapi.utils.URIUtils;
+import org.hascoapi.utils.*;
 import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.VSTOI;
 import com.typesafe.config.Config;
@@ -38,6 +39,11 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import static org.hascoapi.Constants.*;
+
+import org.apache.jena.update.UpdateExecutionFactory;
+import org.apache.jena.update.UpdateFactory;
+import org.apache.jena.update.UpdateProcessor;
+import org.apache.jena.update.UpdateRequest;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -533,13 +539,14 @@ public class IngestionAPI extends Controller {
 
             System.out.println("IngestionAPI.ingest(): API has able to retrieve KGR from triplestore");
 
-            // Delete API copy of metadata template
-            boolean deletedFile = this.deletePermanentFile(dataFile);
-
-            // Uningest Datafile content
+            // Delete the named graph (ingested data) but keep the DataFile metadata
             dataFile.delete();
 
-            String msg = "IngestionAPI.uningestMetadataTemplate(): successfully ingested metadataTemplateUri " + metadataTemplateUri;
+            // Reset DataFile to UNPROCESSED status (keep the file and metadata)
+            dataFile.resetForUnprocessed();
+            dataFile.save();
+
+            String msg = "IngestionAPI.uningestMetadataTemplate(): successfully uningest metadataTemplateUri " + metadataTemplateUri;
             System.out.println(msg);
             return ok(ApiUtil.createResponse(msg,true));
 
@@ -560,13 +567,14 @@ public class IngestionAPI extends Controller {
 
             System.out.println("IngestionAPI.ingest(): API has able to retrieve DSG from triplestore");
 
-            // Delete API copy of metadata template
-            boolean deletedFile = this.deletePermanentFile(dataFile);
-
-            // Uningest Datafile content
+            // Delete the named graph (ingested data) but keep the DataFile metadata
             dataFile.delete();
 
-            String msg = "IngestionAPI.uningestMetadataTemplate(): successfully ingested metadataTemplateUri " + metadataTemplateUri;
+            // Reset DataFile to UNPROCESSED status (keep the file and metadata)
+            dataFile.resetForUnprocessed();
+            dataFile.save();
+
+            String msg = "IngestionAPI.uningestMetadataTemplate(): successfully uningest metadataTemplateUri " + metadataTemplateUri;
             System.out.println(msg);
             return ok(ApiUtil.createResponse(msg,true));
 
@@ -587,9 +595,6 @@ public class IngestionAPI extends Controller {
 
             System.out.println("IngestionAPI.ingest(): API has able to retrieve DP2 from triplestore");
 
-            // Delete API copy of metadata template
-            boolean deletedFile = this.deletePermanentFile(dataFile);
-
             // IMPORTANT: DP2 MT is stored outside the DataFile named graph (typically in the repository default graph).
             // Deleting only the DataFile graph leaves the DP2 MT behind, so generation keeps seeing stale DP2s.
             try {
@@ -598,10 +603,14 @@ public class IngestionAPI extends Controller {
                 System.out.println("[WARNING] IngestionAPI.uningestMetadataTemplate(): failed to delete DP2 MT resource (best-effort): " + e.getMessage());
             }
 
-            // Uningest Datafile content (deletes the DataFile named graph)
+            // Delete the named graph (ingested data) but keep the DataFile metadata
             dataFile.delete();
 
-            String msg = "IngestionAPI.uningestMetadataTemplate(): successfully ingested metadataTemplateUri " + metadataTemplateUri;
+            // Reset DataFile to UNPROCESSED status (keep the file and metadata)
+            dataFile.resetForUnprocessed();
+            dataFile.save();
+
+            String msg = "IngestionAPI.uningestMetadataTemplate(): successfully uningest metadataTemplateUri " + metadataTemplateUri;
             System.out.println(msg);
             return ok(ApiUtil.createResponse(msg,true));
 
@@ -620,15 +629,16 @@ public class IngestionAPI extends Controller {
                 return ok(ApiUtil.createResponse(errorMsg,false));
             }
 
-            System.out.println("IngestionAPI.ingest(): API has able to retrieve DSG from triplestore");
+            System.out.println("IngestionAPI.ingest(): API has able to retrieve INS from triplestore");
 
-            // Delete API copy of metadata template
-            boolean deletedFile = this.deletePermanentFile(dataFile);
-
-            // Uningest Datafile content
+            // Delete the named graph (ingested data) but keep the DataFile metadata
             dataFile.delete();
 
-            String msg = "IngestionAPI.uningestMetadataTemplate(): successfully ingested metadataTemplateUri " + metadataTemplateUri;
+            // Reset DataFile to UNPROCESSED status (keep the file and metadata)
+            dataFile.resetForUnprocessed();
+            dataFile.save();
+
+            String msg = "IngestionAPI.uningestMetadataTemplate(): successfully uningest metadataTemplateUri " + metadataTemplateUri;
             System.out.println(msg);
             return ok(ApiUtil.createResponse(msg,true));
 
@@ -649,13 +659,14 @@ public class IngestionAPI extends Controller {
 
             System.out.println("IngestionAPI.ingest(): API has able to retrieve SDD from triplestore");
 
-            // Delete API copy of metadata template
-            boolean deletedFile = this.deletePermanentFile(dataFile);
-
-            // Uningest Datafile content
+            // Delete the named graph (ingested data) but keep the DataFile metadata
             dataFile.delete();
 
-            String msg = "IngestionAPI.uningestMetadataTemplate(): successfully ingested metadataTemplateUri " + metadataTemplateUri;
+            // Reset DataFile to UNPROCESSED status (keep the file and metadata)
+            dataFile.resetForUnprocessed();
+            dataFile.save();
+
+            String msg = "IngestionAPI.uningestMetadataTemplate(): successfully uningest metadataTemplateUri " + metadataTemplateUri;
             System.out.println(msg);
             return ok(ApiUtil.createResponse(msg,true));
 
@@ -676,13 +687,14 @@ public class IngestionAPI extends Controller {
 
             System.out.println("IngestionAPI.ingest(): API has able to retrieve STR from triplestore");
 
-            // Delete API copy of metadata template
-            boolean deletedFile = this.deletePermanentFile(dataFile);
-
-            // Uningest Datafile content
+            // Delete the named graph (ingested data) but keep the DataFile metadata
             dataFile.delete();
 
-            String msg = "IngestionAPI.uningestMetadataTemplate(): successfully ingested metadataTemplateUri " + metadataTemplateUri;
+            // Reset DataFile to UNPROCESSED status (keep the file and metadata)
+            dataFile.resetForUnprocessed();
+            dataFile.save();
+
+            String msg = "IngestionAPI.uningestMetadataTemplate(): successfully uningest metadataTemplateUri " + metadataTemplateUri;
             System.out.println(msg);
             return ok(ApiUtil.createResponse(msg,true));
 
@@ -711,27 +723,52 @@ public class IngestionAPI extends Controller {
             System.out.println("  DataFile found: " + dataFile.getFilename());
             System.out.println("IngestionAPI.uningestMetadataTemplate(): API has able to retrieve WKF from triplestore");
 
-            // Delete API copy of metadata template
-            System.out.println("  Calling deletePermanentFile()...");
-            boolean deletedFile = this.deletePermanentFile(dataFile);
-            System.out.println("  deletePermanentFile() returned: " + deletedFile);
+            // IMPORTANT: UNINGEST should NOT delete the physical file!
+            // It should only:
+            // 1. Delete the ingested content from the named graph (but keep WKF and DataFile metadata)
+            // 2. Reset the DataFile status to UNPROCESSED
+            // This allows the user to re-ingest the same file later.
 
-            // IMPORTANT: WKF MT is stored outside the DataFile named graph (typically in the repository default graph).
-            // Deleting only the DataFile graph leaves the WKF MT behind, so generation keeps seeing stale WKFs.
+            // CRITICAL FIX: DO NOT delete the entire named graph!
+            // The WKF metadata is stored IN THE SAME named graph as the ingested content!
+            // If we delete everything, the WKF disappears from the listing because it loses hasco:hasDataFile.
+            //
+            // Instead, we delete ONLY the ingested content (ResponseOptions, Codebooks, Components, etc.)
+            // and preserve the WKF and DataFile metadata.
+            System.out.println("  Deleting ONLY ingested content from named graph: " + dataFile.getUri());
+            System.out.println("  (Preserving WKF and DataFile metadata in the same graph)");
+
+            String namedGraphUri = dataFile.getUri();
+            String wkfUri = wkf.getUri();
+
+            // Build a SPARQL DELETE query that excludes WKF and DataFile triples
+            String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+            queryString += "WITH <" + namedGraphUri + "> ";
+            queryString += "DELETE { ?s ?p ?o } WHERE { ";
+            queryString += "  ?s ?p ?o . ";
+            queryString += "  FILTER(?s != <" + wkfUri + "> && ?s != <" + namedGraphUri + ">) ";
+            queryString += "} ";
+
             try {
-                System.out.println("  Calling wkf.delete()...");
-                wkf.delete();
-                System.out.println("IngestionAPI.uningestMetadataTemplate(): WKF MT resource deleted from triplestore");
+                UpdateRequest req = UpdateFactory.create(queryString);
+                UpdateProcessor processor = UpdateExecutionFactory.createRemote(req,
+                        CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
+                processor.execute();
+                System.out.println("  ✓ Ingested content deleted successfully");
+                System.out.println("  ✓ WKF metadata preserved: " + wkfUri);
+                System.out.println("  ✓ DataFile metadata preserved: " + namedGraphUri);
             } catch (Exception e) {
-                System.out.println("[WARNING] IngestionAPI.uningestMetadataTemplate(): failed to delete WKF MT resource (best-effort): " + e.getMessage());
+                System.out.println("  [ERROR] Failed to delete ingested content: " + e.getMessage());
+                e.printStackTrace();
             }
 
-            // Uningest Datafile content (deletes the named graph)
-            System.out.println("  Calling dataFile.delete()...");
-            dataFile.delete();
-            System.out.println("  dataFile.delete() completed");
+            // Reset DataFile to UNPROCESSED status (keep the file and metadata)
+            System.out.println("  Resetting DataFile to UNPROCESSED...");
+            dataFile.resetForUnprocessed();
+            dataFile.save();
+            System.out.println("  DataFile reset to UNPROCESSED and saved");
 
-            String msg = "IngestionAPI.uningestMetadataTemplate(): successfully uningested metadataTemplateUri " + metadataTemplateUri;
+            String msg = "IngestionAPI.uningestMetadataTemplate(): successfully uningest metadataTemplateUri " + metadataTemplateUri;
             System.out.println(msg);
             return ok(ApiUtil.createResponse(msg,true));
 
@@ -1023,6 +1060,9 @@ public class IngestionAPI extends Controller {
                 break;
             case "dsg":
                 DSGGen.genByManager(useremail, status, filename, mediaFolder, verifyUri);
+                break;
+            case "wkf":
+                WKFGen.genByManager(useremail, status, filename, mediaFolder, verifyUri);
                 break;
             default:
                 String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() invalid elementtype=[" + elementtype + "]";
