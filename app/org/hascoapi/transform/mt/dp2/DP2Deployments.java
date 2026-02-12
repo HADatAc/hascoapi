@@ -11,8 +11,10 @@ import org.hascoapi.utils.URIUtils;
 public class DP2Deployments {
 
     public static void setHeaders(Sheet sheet) {
+        // Fix: Remove vstoi:hasComponentInstance, vstoi:designedAtTime, prov:startedAtTime, prov:endedAtTime
+        // Fix: Add vstoi:hasDeploymentTime
         String[] headers = { "hasURI", "a", "rdfs:label", "vstoi:hasPlatformInstance", "vstoi:hasInstrumentInstance",
-                "vstoi:hasComponentInstance", "vstoi:designedAtTime", "prov:startedAtTime", "prov:endedAtTime" };
+                "vstoi:hasDeploymentTime" };
 
         Row row = sheet.createRow(0);
         for (int i = 0; i < headers.length; i++) {
@@ -37,29 +39,20 @@ public class DP2Deployments {
 
         newRow.createCell(0).setCellValue(deploy.getUri() != null ? URIUtils.replaceNameSpaceEx(deploy.getUri()) : "");
         newRow.createCell(1).setCellValue(deploy.getHascoTypeUri() != null ? URIUtils.replaceNameSpaceEx(deploy.getHascoTypeUri()) : "");
-        newRow.createCell(2).setCellValue(deploy.getLabel() != null ? URIUtils.replaceNameSpaceEx(deploy.getLabel()) : "");
+
+        // Fix: Label format should be "Deployment of Instância de [Instrument Name]"
+        String label = deploy.getLabel() != null ? deploy.getLabel() : "";
+        if (!label.isEmpty() && !label.startsWith("Deployment of ")) {
+            label = "Deployment of " + label;
+        }
+        newRow.createCell(2).setCellValue(label);
 
         // Use CURIE style for object references
         newRow.createCell(3).setCellValue(deploy.getPlatformInstanceUri() != null ? URIUtils.replaceNameSpaceEx(deploy.getPlatformInstanceUri()) : "");
         newRow.createCell(4).setCellValue(deploy.getInstrumentInstanceUri() != null ? URIUtils.replaceNameSpaceEx(deploy.getInstrumentInstanceUri()) : "");
 
-        java.util.List<String> comps = deploy.getComponentInstanceUri();
-        if (comps == null || comps.isEmpty()) {
-            newRow.createCell(5).setCellValue("");
-        } else if (comps.size() == 1) {
-            newRow.createCell(5).setCellValue(URIUtils.replaceNameSpaceEx(comps.get(0)));
-        } else {
-            String joined = comps.stream()
-                    .filter(s -> s != null && !s.isEmpty())
-                    .map(URIUtils::replaceNameSpaceEx)
-                    .reduce((a, b) -> a + ";" + b)
-                    .orElse("");
-            newRow.createCell(5).setCellValue(joined);
-        }
-
-        newRow.createCell(6).setCellValue(deploy.getDesignedAt() != null ? deploy.getDesignedAt() : "");
-        newRow.createCell(7).setCellValue(deploy.getStartedAt() != null ? deploy.getStartedAt() : "");
-        newRow.createCell(8).setCellValue(deploy.getEndedAt() != null ? deploy.getEndedAt() : "");
+        // Fix: Add vstoi:hasDeploymentTime (can be empty)
+        newRow.createCell(5).setCellValue("");
 
         return helper;
     }

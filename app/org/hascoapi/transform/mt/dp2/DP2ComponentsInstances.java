@@ -11,7 +11,8 @@ import org.hascoapi.utils.URIUtils;
 public class DP2ComponentsInstances {
 
     public static void setHeaders(Sheet sheet) {
-        String[] headers = { "hasURI", "a", "rdfs:label", "vstoi:hasSerialNumber", "vstoi:isInstrumentAttachment" };
+        // Fix: Remove vstoi:isInstrumentAttachment
+        String[] headers = { "hasURI", "a", "rdfs:label", "vstoi:hasSerialNumber" };
 
         Row row = sheet.createRow(0);
         for (int i = 0; i < headers.length; i++) {
@@ -26,7 +27,7 @@ public class DP2ComponentsInstances {
     public static DP2GenHelper add(DP2GenHelper helper, ComponentInstance componentInstance) {
 
         if (componentInstance == null) {
-            System.out.println("[WARNING] Deployment is null");
+            System.out.println("[WARNING] ComponentInstance is null");
             return helper;
         }
 
@@ -45,9 +46,9 @@ public class DP2ComponentsInstances {
         Cell cell1 = newRow.createCell(0);
         cell1.setCellValue(componentInstance.getUri() != null ? URIUtils.replaceNameSpaceEx(componentInstance.getUri()) : "");
 
-        // "a"
+        // "a" - CRITICAL FIX: Use typeUri (the actual Component class from INS) instead of hascoTypeUri (generic vstoi:ComponentInstance)
         Cell cell2 = newRow.createCell(1);
-        cell2.setCellValue(componentInstance.getHascoTypeUri() != null ? URIUtils.replaceNameSpaceEx(componentInstance.getHascoTypeUri()) : "");
+        cell2.setCellValue(componentInstance.getTypeUri() != null ? URIUtils.replaceNameSpaceEx(componentInstance.getTypeUri()) : "");
 
         // "rdfs:label"
         Cell cell3 = newRow.createCell(2);
@@ -57,9 +58,6 @@ public class DP2ComponentsInstances {
         Cell cell4 = newRow.createCell(3);
         cell4.setCellValue(componentInstance.getHasSerialNumber() != null ? componentInstance.getHasSerialNumber() : "");
 
-        // "vstoi:isInstrumentAttachment" - not available in ComponentInstance yet
-        Cell cell5 = newRow.createCell(4);
-        cell5.setCellValue("");
 
         return helper;
     }

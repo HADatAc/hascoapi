@@ -69,10 +69,15 @@ public class DP2Generator extends BaseGenerator {
 		row.put("hasco:hasDataFile", this.dataFile.getUri());
 		System.out.println("Added hasco:hasDataFile: " + this.dataFile.getUri());
 
-		// - persist status consistently (optional; some older flows may pass null)
-		if (this.status != null && !this.status.trim().isEmpty()) {
+		// - persist status: FIRST check if the Excel column has vstoi:hasStatus
+		//   ONLY use parameter status as fallback if column is empty
+		String statusFromColumn = rec.getValueByColumnName("vstoi:hasStatus");
+		if (statusFromColumn != null && !statusFromColumn.trim().isEmpty()) {
+			row.put("vstoi:hasStatus", URIUtils.replaceNameSpaceEx(statusFromColumn.trim()));
+			System.out.println("Added vstoi:hasStatus from Excel column: " + URIUtils.replaceNameSpaceEx(statusFromColumn.trim()));
+		} else if (this.status != null && !this.status.trim().isEmpty()) {
 			row.put("vstoi:hasStatus", URIUtils.replaceNameSpaceEx(this.status.trim()));
-			System.out.println("Added vstoi:hasStatus: " + URIUtils.replaceNameSpaceEx(this.status.trim()));
+			System.out.println("Added vstoi:hasStatus from parameter (fallback): " + URIUtils.replaceNameSpaceEx(this.status.trim()));
 		}
 
 		// Ensure rdf:type is present for downstream retrieval (many SPARQL queries use rdf:type)

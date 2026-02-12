@@ -12,7 +12,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 public class DP2Gen {
 
     public static final String INFOSHEET                 = "InfoSheet";
-    public static final String NAMESPACES                = "Namespaces";
+    public static final String NAMESPACE                 = "Namespace";  // Changed from "Namespaces" to singular
     public static final String DEPLOYMENTS               = "Deployments";
     public static final String PLATFORMS                 = "Platforms";
     public static final String PLATFORMINTANCES          = "PlatformInstances";
@@ -38,7 +38,7 @@ public class DP2Gen {
         Cell isDataCell1_1 = dataRow1.createCell(0);
         isDataCell1_1.setCellValue("hasDependencies");
         Cell isDataCell1_2 = dataRow1.createCell(1);
-        isDataCell1_2.setCellValue("#" + NAMESPACES);
+        isDataCell1_2.setCellValue("#" + NAMESPACE);  // Changed to singular
 
         Row dataRow2 = infoSheet.createRow(2);
         Cell isDataCell2_1 = dataRow2.createCell(0);
@@ -83,7 +83,7 @@ public class DP2Gen {
         isDataCell8_2.setCellValue("#" + SENSINGPERSPECTIVE);
 
         // Create sheets
-        workbook.createSheet(NAMESPACES);
+        workbook.createSheet(NAMESPACE);  // Changed to singular
         workbook.createSheet(DEPLOYMENTS);
         workbook.createSheet(PLATFORMS);
         workbook.createSheet(PLATFORMINTANCES);
@@ -109,7 +109,7 @@ public class DP2Gen {
             return;
         }
 
-        Sheet namespacesSheet = helper.workbook.getSheet(NAMESPACES);
+        Sheet namespacesSheet = helper.workbook.getSheet(NAMESPACE);
 
         // Expected DP2 namespace sheet schema
         Row row = namespacesSheet.createRow(0);

@@ -10,7 +10,7 @@ import org.hascoapi.utils.URIUtils;
 public class DP2Plataforms {
 
     public static void setHeaders(Sheet sheet) {
-        String[] headers = { "hasURI", "rdfs:subClassOf", "rdfs:label", "hasco:hasMaker", "rdfs:comment", "hasco:hasImage", "vstoi:hasWebDocumentation" };
+        String[] headers = { "hasURI", "rdfs:subClassOf", "rdfs:label", "vstoi:hasMaker", "rdfs:comment", "hasco:hasImage", "vstoi:hasWebDocumentation" };
 
         Row row = sheet.createRow(0);
         for (int i = 0; i < headers.length; i++) {
@@ -46,8 +46,8 @@ public class DP2Plataforms {
         newRow.createCell(1).setCellValue(platform.getSuperUri() != null ? URIUtils.replaceNameSpaceEx(platform.getSuperUri()) : "");
         newRow.createCell(2).setCellValue(platform.getLabel() != null ? platform.getLabel() : "");
 
-        // Maker isn't wired on Platform in this project, keep blank for now
-        newRow.createCell(3).setCellValue("");
+        // Get maker from Platform object
+        newRow.createCell(3).setCellValue(platform.getHasMaker() != null ? URIUtils.replaceNameSpaceEx(platform.getHasMaker()) : "");
 
         newRow.createCell(4).setCellValue(platform.getComment() != null ? platform.getComment() : "");
         newRow.createCell(5).setCellValue(platform.getHasImageUri() != null ? platform.getHasImageUri() : "");

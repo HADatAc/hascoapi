@@ -44,6 +44,9 @@ public class Platform extends HADatAcClass implements Comparable<Platform> {
     @PropertyField(uri="vstoi:hasSIRManagerEmail")
     private String hasSIRManagerEmail;
 
+    @PropertyField(uri="vstoi:hasMaker")
+    private String hasMaker;
+
     public Platform(String uri,
             String typeUri,
             String label,
@@ -83,6 +86,13 @@ public class Platform extends HADatAcClass implements Comparable<Platform> {
     }
     public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
         this.hasSIRManagerEmail = hasSIRManagerEmail;
+    }
+
+    public String getHasMaker() {
+        return this.hasMaker;
+    }
+    public void setHasMaker(String hasMaker) {
+        this.hasMaker = hasMaker;
     }
 
     public List<Platform> getImmediateSubPlatforms() {
@@ -167,6 +177,8 @@ public class Platform extends HADatAcClass implements Comparable<Platform> {
                 platform.setHasVersion(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
                 platform.setHasSIRManagerEmail(str);
+            } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_MAKER)) {
+                platform.setHasMaker(str);
             }
         }
 
