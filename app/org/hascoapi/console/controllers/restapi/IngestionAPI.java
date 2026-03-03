@@ -31,6 +31,7 @@ import org.hascoapi.transform.mt.dp2.DP2Gen;
 import org.hascoapi.transform.mt.dsg.DSGGen;
 import org.hascoapi.transform.mt.ins.INSGen;
 import org.hascoapi.transform.mt.kgr.KGRGen;
+import org.hascoapi.transform.mt.sdd.SDDGen;
 import org.hascoapi.utils.*;
 import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.VSTOI;
@@ -857,6 +858,11 @@ public class IngestionAPI extends Controller {
                     generationResult = KGRGen.genByStatus(status,filename,mediaFolder,verifyUri);
                     System.out.println("  KGRGen.genByStatus() returned: [" + generationResult + "]");
                     break;
+                case "sdd":
+                    System.out.println("  Calling SDDGen.genByStatus()...");
+                    generationResult = SDDGen.genByStatus(datafileuri, status, filename, mediaFolder);
+                    System.out.println("  SDDGen.genByStatus() returned: [" + generationResult + "]");
+                    break;
                 case "wkf":
                     System.out.println("  WKF generation requested...");
                     String errorMsg = "WKF generation (WKFGen.java) is not implemented yet. " +
@@ -867,7 +873,7 @@ public class IngestionAPI extends Controller {
                     return ok(ApiUtil.createResponse(errorMsg, false));
                 default:
                     String errorMsg2 = "[ERROR] IngestionAPI.mtGenByStatus() invalid elementtype=[" + elementtype + "]. " +
-                                      "Supported types: ins, dp2, dsg, kgr. Note: wkf generation not yet implemented.";
+                                      "Supported types: ins, dp2, dsg, kgr, sdd, wkf.";
                     System.out.println(errorMsg2);
                     System.out.println("========== IngestionAPI.mtGenByStatus() END (ERROR) ==========\n");
                     return ok(ApiUtil.createResponse(errorMsg2,false));
