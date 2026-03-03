@@ -52,12 +52,12 @@ public class HascoRoundtripTest {
                 return new File("test/resources/dsg/DSG-STD-test.xlsx");
 
             case INS:
-                // Authoritative INS test workbook provided under test/resources/ins
-                // NOTE: filename currently contains a trailing space before .xlsx in the repo.
-                return new File("test/resources/ins/INS-ARROWHEAD_v4_Components .xlsx");
+                // Authoritative INS test workbook for PMSR Simulators
+                return new File("test/resources/ins/INS-PMSR-Simulators.xlsx");
 
             case DP2:
-                return new File("test/resources/dp2/DP2-LTE-PIAGET-WEATHER-STATION-V3.xlsx");
+                // Authoritative DP2 test workbook for PMSR
+                return new File("test/resources/dp2/DP2-PMSR.xlsx");
 
           /*  case SDD:
                 // TODO: point to authoritative SDD test workbook when available
@@ -141,8 +141,8 @@ public class HascoRoundtripTest {
 
     private static final String TEMPLATE_GENERIC = "conf/template.generic.conf";
     private static final String REGENERATED_DSG_FILENAME = "DSG-STD-test-regenerated.xlsx";
-    private static final String REGENERATED_INS_FILENAME = "INS-ARROWHEAD_v4_Components-regenerated.xlsx";
-    private static final String REGENERATED_DP2_FILENAME = "DP2-LTE-PIAGET-WEATHER-STATION-V3-regenerated.xlsx";
+    private static final String REGENERATED_INS_FILENAME = "INS-PMSR-Simulators-regenerated.xlsx";
+    private static final String REGENERATED_DP2_FILENAME = "DP2-PMSR-regenerated.xlsx";
 
     // Keep the last ingested study URI so step3 can delete/reingest deterministically.
     private static final java.util.concurrent.atomic.AtomicReference<String> LAST_INGESTED_STUDY_URI =
@@ -399,7 +399,7 @@ public class HascoRoundtripTest {
                 try (java.io.FileInputStream in = new java.io.FileInputStream(out);
                      org.apache.poi.ss.usermodel.Workbook wb = org.apache.poi.ss.usermodel.WorkbookFactory.create(in)) {
                     assertNotNull(wb.getSheet(org.hascoapi.transform.mt.dp2.DP2Gen.INFOSHEET));
-                    assertNotNull(wb.getSheet(org.hascoapi.transform.mt.dp2.DP2Gen.NAMESPACES));
+                    assertNotNull(wb.getSheet(org.hascoapi.transform.mt.dp2.DP2Gen.NAMESPACE));
                 }
             });
 
@@ -787,8 +787,8 @@ public class HascoRoundtripTest {
     @ParameterizedTest
     @DisplayName("HASCO round-trip: Step 1 ingestion for all MTs")
     @ValueSource(strings = {
-            // "DSG",
-            // "INS",
+            // "DSG",  // Temporarily disabled
+            "INS",
             "DP2"
     })
     public void step1_allMTs_ingest(String mtName) {
@@ -800,8 +800,8 @@ public class HascoRoundtripTest {
     @ParameterizedTest
     @DisplayName("HASCO round-trip: Step 2 regeneration & comparison for all MTs")
     @ValueSource(strings = {
-            // "DSG",
-            // "INS",
+            // "DSG",  // Temporarily disabled
+            "INS",
             "DP2"
     })
     public void step2_allMTs_regenerate_and_compare(String mtName) {
@@ -813,8 +813,8 @@ public class HascoRoundtripTest {
     @ParameterizedTest
     @DisplayName("HASCO round-trip: Step 3 reset & deterministic re-ingestion for all MTs")
     @ValueSource(strings = {
-            // "DSG",
-            // "INS",
+            // "DSG",  // Temporarily disabled
+            "INS",
             "DP2"
     })
     public void step3_allMTs_reset_and_deterministic_reingest(String mtName) {
@@ -830,17 +830,16 @@ public class HascoRoundtripTest {
         List<MTType> expectedTypes = Arrays.asList(MTType.DSG, MTType.INS, MTType.DP2, MTType.STR, MTType.KGR, MTType.SDD, MTType.DA);
         assertTrue(types.containsAll(expectedTypes), "MTType enum must include all expected MT types");
 
-        // While focusing on DP2, only DP2 needs to be wired as a mandatory test input.
-        // (Keep INS checks commented temporariamente; do not delete.)
+        // Verify INS and DP2 inputs are present
         File dp2 = getMtExcel(MTType.DP2);
         assertNotNull(dp2, "DP2 input must be wired in getMtExcel");
         assertTrue(dp2.exists(), "DP2 test input must exist at: " + dp2.getPath());
         assertTrue(dp2.length() > 0, "DP2 test input must not be empty: " + dp2.getPath());
 
-        // File ins = getMtExcel(MTType.INS);
-        // assertNotNull(ins, "INS input must be wired in getMtExcel");
-        // assertTrue(ins.exists(), "INS test input must exist at: " + ins.getPath());
-        // assertTrue(ins.length() > 0, "INS test input must not be empty: " + ins.getPath());
+        File ins = getMtExcel(MTType.INS);
+        assertNotNull(ins, "INS input must be wired in getMtExcel");
+        assertTrue(ins.exists(), "INS test input must exist at: " + ins.getPath());
+        assertTrue(ins.length() > 0, "INS test input must not be empty: " + ins.getPath());
 
         File generatedDir = new File("test/resources/generated");
         assertTrue(generatedDir.exists() || generatedDir.mkdirs(), "generated dir should be creatable at: " + generatedDir.getPath());

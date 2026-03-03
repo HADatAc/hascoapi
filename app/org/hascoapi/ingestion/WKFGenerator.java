@@ -37,12 +37,18 @@ public class WKFGenerator extends BaseGenerator {
     public Map<String, Object> createRow(Record rec, int rowNumber) throws Exception {
         Map<String, Object> row = new HashMap<>();
 
+        // Debug: Log what we're processing
+        System.out.println("[WKFGenerator.createRow] Row #" + rowNumber + ", elementType=" + this.getElementType());
+
         // First, copy all data from the Excel record (like INSGenerator does)
         for (String header : file.getHeaders()) {
             if (!header.trim().isEmpty()) {
                 String value = rec.getValueByColumnName(header);
                 if (value != null && !value.isEmpty()) {
                     row.put(header, value);
+                    if ("hasURI".equals(header)) {
+                        System.out.println("[WKFGenerator.createRow] hasURI from Excel: " + value);
+                    }
                 }
             }
         }
@@ -71,6 +77,13 @@ public class WKFGenerator extends BaseGenerator {
         // Add data file reference
         row.put("hasco:hasDataFile", this.dataFile.getUri());
         row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
+
+        // Debug: Show what will be committed
+        if (row.containsKey("hasURI")) {
+            System.out.println("[WKFGenerator.createRow] Final hasURI: " + row.get("hasURI"));
+            System.out.println("[WKFGenerator.createRow] DataFile URI: " + this.dataFile.getUri());
+            System.out.println("[WKFGenerator.createRow] Element type: " + elementType);
+        }
 
         // CRITICAL: Only return row if it has a URI (like INSGenerator does)
         if (row.containsKey("hasURI") && !row.get("hasURI").toString().trim().isEmpty()) {
