@@ -92,6 +92,12 @@ public class DataFile extends HADatAcThing implements Cloneable {
     @PropertyField(uri = "hasco:hasDataset")
     private String datasetUri = "";
 
+    @PropertyField(uri = "hasco:hasDasocDataAcquisition")
+    private String dasocDataAcquisitionUri = "";
+
+    @PropertyField(uri = "hasco:hasDasocSOC")
+    private String dasocSOCUri = "";
+
     @PropertyField(uri = "hasco:hasCompletionPercentage")
     private int completionPercentage = 0;
 
@@ -365,6 +371,20 @@ public class DataFile extends HADatAcThing implements Cloneable {
         this.datasetUri = datasetUri;
     }
 
+    public String getDasocDataAcquisitionUri() {
+        return dasocDataAcquisitionUri;
+    }
+    public void setDasocDataAcquisitionUri(String dasocDataAcquisitionUri) {
+        this.dasocDataAcquisitionUri = dasocDataAcquisitionUri;
+    }
+
+    public String getDasocSOCUri() {
+        return dasocSOCUri;
+    }
+    public void setDasocSOCUri(String dasocSOCUri) {
+        this.dasocSOCUri = dasocSOCUri;
+    }
+
     public String getFilename() {
         return filename;
     }
@@ -471,6 +491,44 @@ public class DataFile extends HADatAcThing implements Cloneable {
         UpdateProcessor processor = UpdateExecutionFactory.createRemote(
             request, CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
         processor.execute();
+        
+        // Also delete the associated DASOC graph (DA URI + "-dasoc" suffix) if it exists
+        // This is for DA-SOC-* files where DASOC data is stored separately to prevent DA.save() from deleting it
+        try {
+            // Find the DataAcquisition URI associated with this DataFile
+            String daQueryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                "SELECT ?daUri WHERE { \n" +
+                "  GRAPH ?g { \n" +
+                "    ?daUri hasco:hasDataFile <" + this.getUri() + "> . \n" +
+                "  } \n" +
+                "} LIMIT 1";
+            
+            ResultSetRewindable daResults = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), daQueryString);
+            
+            if (daResults.hasNext()) {
+                QuerySolution soln = daResults.next();
+                if (soln != null && soln.getResource("daUri") != null) {
+                    String daUri = soln.getResource("daUri").getURI();
+                    String dasocGraphUri = daUri + "-dasoc";
+                    
+                    // Delete the DASOC graph
+                    String dasocDeleteQuery = "DELETE WHERE { \n" +
+                        "    GRAPH <" + dasocGraphUri + "> { ?s ?p ?o . } \n" +
+                        "} ";
+                    
+                    UpdateRequest dasocRequest = UpdateFactory.create(dasocDeleteQuery);
+                    UpdateProcessor dasocProcessor = UpdateExecutionFactory.createRemote(
+                        dasocRequest, CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
+                    dasocProcessor.execute();
+                    
+                    System.out.println("Deleted DASOC graph: " + dasocGraphUri);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("[WARNING] Failed to delete DASOC graph: " + e.getMessage());
+            // Continue with regular deletion even if DASOC graph deletion fails
+        }
     }
 
     public void resetForUnprocessed() {
@@ -482,6 +540,7 @@ public class DataFile extends HADatAcThing implements Cloneable {
 
     public static DataFile create(String id, String filename, String hasSIRManagerEmail, String status) {
         DataFile dataFile = new DataFile(id, filename);
+        dataFile.setTypeUri("http://hadatac.org/ont/hasco/DataFile");
         dataFile.setHasSIRManagerEmail(hasSIRManagerEmail);
         dataFile.setFileStatus(status);
         dataFile.setSubmissionTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));

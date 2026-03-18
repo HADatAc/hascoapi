@@ -1,0 +1,26 @@
+[info] welcome to sbt 1.7.2 (Homebrew Java 17.0.16)
+[info] loading settings for project hascoapi-build from plugins.sbt,sbt-ui.sbt ...
+[info] loading project definition from /Users/pp3223/git/hascoapi/project
+[info] loading settings for project root from build.sbt ...
+[info]   __              __
+[info]   \ \     ____   / /____ _ __  __
+[info]    \ \   / __ \ / // __ `// / / /
+[info]    / /  / /_/ // // /_/ // /_/ /
+[info]   /_/  / .___//_/ \__,_/ \__, /
+[info]       /_/               /____/
+[info] 
+[info] Version 2.8.19 running Java 17.0.16
+[info] 
+[info] Play is run entirely by the community. Please consider contributing and/or donating:
+[info] https://www.playframework.com/sponsors
+[info] 
+[info] Running Play on Java 17 is experimental. Tweaks are necessary:
+[info] https://github.com/playframework/playframework/releases/2.8.15
+[info] 
+
+[35m--- (Running the application, auto-reloading is enabled) ---[0m
+
+[[37minfo[0m] p.c.s.AkkaHttpServer - Listening for HTTP on /[0:0:0:0:0:0:0:0]:9001
+
+[32m(Server started, use Enter to stop and go back to the console...)[0m
+

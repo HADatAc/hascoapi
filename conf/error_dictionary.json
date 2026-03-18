@@ -47,6 +47,52 @@
       ]
     },
 
+    "DASOC": {
+      "file type": "DASOC",
+      "content": [
+        {
+          "id": "DASOC_00001",
+          "detail": "StudyObjectCollection <%s> not found",
+          "solution": "Ensure the SOC has been properly ingested before attempting DASOC ingestion"
+        },
+        {
+          "id": "DASOC_00002",
+          "detail": "No objects found in StudyObjectCollection <%s>",
+          "solution": "Verify the SOC contains study objects with originalID values"
+        },
+        {
+          "id": "DASOC_00003",
+          "detail": "Original ID '%s' not found in SOC at row %d",
+          "solution": "Check that the originalID in the CSV matches objects in the SOC"
+        },
+        {
+          "id": "DASOC_00004",
+          "detail": "Invalid object URI found: %s",
+          "solution": "Ensure all object URIs in the SOC are properly formatted (must start with http:// or https://)"
+        },
+        {
+          "id": "DASOC_00005",
+          "detail": "Duplicate originalID found: '%s' (keeping first occurrence)",
+          "solution": "Remove duplicate originalID values from the StudyObjectCollection"
+        },
+        {
+          "id": "DASOC_00006",
+          "detail": "CSV file must have at least 2 columns (originalID + at least one property)",
+          "solution": "Add property columns to the CSV file. First column should be originalID, remaining columns should be property URIs"
+        },
+        {
+          "id": "DASOC_00007",
+          "detail": "Error processing row %d: %s",
+          "solution": "Check the CSV format and data values at the identified row"
+        },
+        {
+          "id": "DASOC_00008",
+          "detail": "URL decoding error for URI: %s",
+          "solution": "Ensure the URI is properly URL-encoded"
+        }
+      ]
+    },
+
     "DPL": {
       "file type": "DPL",
       "content": [
