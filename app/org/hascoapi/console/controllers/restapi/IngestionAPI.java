@@ -12,6 +12,7 @@ import org.hascoapi.transform.mt.wkf.WKFGen;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.Constants;
 import org.hascoapi.ingestion.IngestionWorker;
+import org.hascoapi.entity.pojo.DA;
 import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.entity.pojo.GenericInstance;
 import org.hascoapi.entity.pojo.HADatAcThing;
@@ -34,9 +35,18 @@ import org.hascoapi.transform.mt.kgr.KGRGen;
 import org.hascoapi.transform.mt.sdd.SDDGen;
 import org.hascoapi.transform.mt.soc.SOCGen;
 import org.hascoapi.utils.*;
+import org.hascoapi.utils.ApiUtil;
+import org.hascoapi.utils.CollectionUtil;
+import org.hascoapi.utils.ConfigProp;
+import org.hascoapi.utils.HAScOMapper;
+import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.VSTOI;
 import com.typesafe.config.Config;
+import org.apache.jena.update.UpdateExecutionFactory;
+import org.apache.jena.update.UpdateFactory;
+import org.apache.jena.update.UpdateProcessor;
+import org.apache.jena.update.UpdateRequest;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -85,6 +95,10 @@ public class IngestionAPI extends Controller {
         System.out.println("Request has body: " + request.hasBody());
         System.out.println("templateFile :" + templateFile());
 
+        // NOTE: "da" is NOT an official element type in hascoapi
+        // It is ONLY allowed here for DA-SOC-* files (DASOC ingestion)
+        // IngestionWorker validates filename must start with "DA-SOC-"
+        // General DA ingestion is not supported at this time
         if (!elementType.equals("dp2") &&
             !elementType.equals("dsg") &&
             !elementType.equals("ins") &&
@@ -112,6 +126,47 @@ public class IngestionAPI extends Controller {
                 return ok(ApiUtil.createResponse("IngestionAPI.ingest(): File FAILED to be ingested: could not retrieve " + elementType + ". ",false));
             }
             dataFile = DataFile.find(dsg.getHasDataFileUri());
+        } else if (elementType.equals("da")) {
+            // IMPORTANT: "da" is accepted ONLY for DA-SOC-* files
+            // IngestionWorker enforces DA-SOC-* filename validation
+            System.out.println("\n=== [INGESTION PATH] IngestionAPI.ingest() ===");
+            System.out.println("[INGESTION PATH] Element Type: da");
+            System.out.println("[INGESTION PATH] Element URI: " + elementUri);
+
+            DA da = DA.find(elementUri);
+            if (da == null) {
+                // For DA-SOC files, the DA may not exist yet - AnnotateDASOC will create it
+                // Create a temporary DataFile to hold the upload and trigger processing
+                System.out.println("[INGESTION PATH] DA not found, creating placeholder DataFile for DA-SOC processing");
+
+                // Extract filename from query parameter (passed by ess-hub-a)
+                String filename = request.getQueryString("filename");
+                if (filename == null || filename.isEmpty()) {
+                    filename = "DA-SOC-UNKNOWN.csv";
+                }
+                System.out.println("[INGESTION PATH] Filename from query parameter: " + filename);
+
+                // Create temporary DataFile with unique ID
+                String dataFileId = "DFL" + System.currentTimeMillis();
+                dataFile = DataFile.create(dataFileId, filename, "", DataFile.UNPROCESSED);
+                String tempUri = ConfigProp.getKbPrefix() + dataFileId;
+                dataFile.setUri(tempUri);
+                dataFile.setNamedGraph(tempUri); // Set named graph to allow saving
+                dataFile.setDasocDataAcquisitionUri(elementUri); // Store DA URI for AnnotateDASOC
+                dataFile.save();
+
+                System.out.println("[INGESTION PATH] Created placeholder DataFile: " + dataFile.getUri());
+                System.out.println("[INGESTION PATH] Stored DA URI in DataFile: " + elementUri);
+                System.out.println("[INGESTION PATH] Filename: " + filename);
+            } else {
+                dataFile = DataFile.find(da.getHasDataFileUri());
+                if (dataFile != null) {
+                    // Ensure DA URI is set for DASOC processing
+                    dataFile.setDasocDataAcquisitionUri(elementUri);
+                    dataFile.save();
+                    System.out.println("[INGESTION PATH] Found existing DA, stored DA URI in DataFile: " + elementUri);
+                }
+            }
         } else if (elementType.equals("ins")) {
             INS ins = INS.find(elementUri);
             if (ins == null) {
@@ -1124,6 +1179,208 @@ public class IngestionAPI extends Controller {
             return ok(ApiUtil.createResponse("unable to retrieve the log for datafile with uri " + dataFileUri, false));
         }
         return ok(ApiUtil.createResponse(dataFile.getLogger().getLog(), true));
+    }
+
+    /**
+     * Uningest DASOC (Data Acquisition - Study Object Collection)
+     * Removes all triples that were added by DASOC ingestion from the named graph
+     *
+     * @param daUri URI of the DataAcquisition containing the DASOC data
+     * @return Result indicating success/failure
+     */
+    public Result uningestDASOC(String daUri) {
+        System.out.println(" ");
+        System.out.println(" ");
+        System.out.println("== UNINGEST DASOC =========================================================== ");
+        System.out.println("IngestionAPI.uningestDASOC() with daUri = " + daUri);
+
+        // Validate inputs
+        if (daUri == null || daUri.isEmpty()) {
+            String errorMsg = "[ERROR] IngestionAPI.uningestDASOC(): No DataAcquisition URI has been provided.";
+            System.out.println(errorMsg);
+            return ok(ApiUtil.createResponse(errorMsg, false));
+        }
+
+        // Find DA
+        DA da = DA.find(daUri);
+        if (da == null) {
+            String errorMsg = "[ERROR] IngestionAPI.uningestDASOC(): Unable to retrieve DA with URI = " + daUri;
+            System.out.println(errorMsg);
+            return ok(ApiUtil.createResponse(errorMsg, false));
+        }
+
+        // Get associated DataFile
+        DataFile dataFile = null;
+        if (da.getHasDataFileUri() != null && !da.getHasDataFileUri().isEmpty()) {
+            dataFile = DataFile.find(da.getHasDataFileUri());
+        }
+
+        // Delete all triples from the named graph (DA URI)
+        // DASOC stores all its triples in a named graph using the DA URI
+        try {
+            String queryString = "";
+            queryString += NameSpaces.getInstance().printSparqlNameSpaceList();
+            queryString += "WITH <" + daUri + "> ";
+            queryString += "DELETE { ?s ?p ?o } WHERE { ?s ?p ?o . } ";
+
+            System.out.println("IngestionAPI.uningestDASOC(): Deleting all triples from named graph <" + daUri + ">");
+
+            UpdateRequest req = UpdateFactory.create(queryString);
+            UpdateProcessor processor = UpdateExecutionFactory.createRemote(req,
+                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
+            processor.execute();
+
+            System.out.println("IngestionAPI.uningestDASOC(): Successfully deleted triples from named graph");
+
+            // Update DataFile status if it exists
+            if (dataFile != null) {
+                dataFile.setFileStatus(DataFile.UNPROCESSED);
+                dataFile.getLogger().println("DASOC data uningested successfully from DA: " + daUri);
+                dataFile.save();
+                System.out.println("IngestionAPI.uningestDASOC(): DataFile status reset to UNPROCESSED");
+            }
+
+            String msg = "IngestionAPI.uningestDASOC(): Successfully uningested DASOC data from DA URI " + daUri;
+            System.out.println(msg);
+            return ok(ApiUtil.createResponse(msg, true));
+
+        } catch (Exception e) {
+            String errorMsg = "[ERROR] IngestionAPI.uningestDASOC(): Exception while deleting named graph: " + e.getMessage();
+            System.err.println(errorMsg);
+            e.printStackTrace();
+
+            if (dataFile != null) {
+                dataFile.getLogger().printException("Failed to uningest DASOC: " + e.getMessage());
+                try {
+                    dataFile.save();
+                } catch (Exception saveEx) {
+                    System.err.println("[ERROR] Could not save DataFile after uningest failure: " + saveEx.getMessage());
+                }
+            }
+
+            return ok(ApiUtil.createResponse(errorMsg, false));
+        }
+    }
+
+    /**
+     * Ingest DASOC (Data Acquisition - Study Object Collection) CSV file
+     * This endpoint adds properties to existing Study Objects in a SOC
+     *
+     * @param daUri URI of the DataAcquisition being created
+     * @param socUri URI of the StudyObjectCollection containing the objects
+     * @param request HTTP request containing the CSV file
+     * @return Result indicating success/failure
+     */
+    public Result ingestDASOC(String daUri, String socUri, Http.Request request) {
+        System.out.println(" ");
+        System.out.println(" ");
+        System.out.println("== NEW DASOC =========================================================== ");
+        System.out.println("IngestionAPI.ingestDASOC() with daUri = " + daUri);
+        System.out.println("IngestionAPI.ingestDASOC() with socUri = " + socUri);
+        System.out.println("Request content-type: " + request.contentType().orElse("not specified"));
+        System.out.println("Request has body: " + request.hasBody());
+
+        // Validate inputs
+        if (daUri == null || daUri.isEmpty()) {
+            return ok(ApiUtil.createResponse("DataAcquisition URI is required for DASOC ingestion", false));
+        }
+
+        if (socUri == null || socUri.isEmpty()) {
+            return ok(ApiUtil.createResponse("StudyObjectCollection URI is required for DASOC ingestion", false));
+        }
+
+        // Get DA and retrieve its associated DataFile
+        DA da = DA.find(daUri);
+        if (da == null) {
+            return ok(ApiUtil.createResponse(
+                "IngestionAPI.ingestDASOC(): File FAILED to be ingested: could not retrieve DA.",
+                false));
+        }
+
+        DataFile dataFile = DataFile.find(da.getHasDataFileUri());
+        if (dataFile == null) {
+            return ok(ApiUtil.createResponse(
+                "IngestionAPI.ingestDASOC(): File FAILED to be ingested: could not retrieve DataFile.",
+                false));
+        }
+
+        System.out.println("IngestionAPI.ingestDASOC(): DataFile retrieved - URI: " + dataFile.getUri() +
+            ", Filename: " + dataFile.getFilename());
+
+        // Get file from request body or file system
+        File file = request.body().asRaw().asFile();
+        if (file == null) {
+            // Try to get from file system
+            String basePath = config.getString("hascoapi.paths.ingestion");
+            if (basePath != null && !basePath.trim().isEmpty() &&
+                dataFile.getFilename() != null && !dataFile.getFilename().isEmpty()) {
+
+                String uriTerm = org.hascoapi.utils.URIUtils.uriLastSegment(dataFile.getUri());
+                Path uploadedFilePath = Paths.get(basePath, Constants.RESOURCE_FOLDER, uriTerm, dataFile.getFilename());
+                file = uploadedFilePath.toFile();
+
+                if (!file.exists()) {
+                    return ok(ApiUtil.createResponse(
+                        "No file provided in request and uploaded file not found at: " + uploadedFilePath,
+                        false));
+                }
+            } else {
+                return ok(ApiUtil.createResponse("No file has been provided for DASOC ingestion.", false));
+            }
+        }
+
+        System.out.println("IngestionAPI.ingestDASOC(): File retrieved, preparing for ingestion");
+
+        // Set status in DataFile
+        dataFile.setLastProcessTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
+        dataFile.setFileStatus(DataFile.WORKING);
+        dataFile.getLogger().resetLog();
+        dataFile.save();
+
+        // Run DASOC ingestion asynchronously
+        final DataFile finalDataFile = dataFile;
+        final File finalFile = file;
+        final String finalDaUri = daUri;
+        final String finalSocUri = socUri;
+
+        CompletableFuture.runAsync(() -> {
+            try {
+                System.out.println("IngestionAPI.ingestDASOC(): Starting asynchronous DASOC ingestion");
+                org.hascoapi.ingestion.AnnotateDASOC.IngestionResult result =
+                    org.hascoapi.ingestion.AnnotateDASOC.exec(finalDataFile, finalFile, finalDaUri, finalSocUri);
+
+                System.out.println("IngestionAPI.ingestDASOC(): " + result.toString());
+
+                if (result.isSuccess()) {
+                    finalDataFile.setFileStatus(DataFile.PROCESSED);
+                    finalDataFile.getLogger().println(
+                        String.format("✅ DASOC ingestion completed successfully: %d rows processed",
+                            result.getRowCount()));
+                } else {
+                    finalDataFile.setFileStatus(DataFile.ERROR);
+                    finalDataFile.getLogger().printException(
+                        String.format("❌ DASOC ingestion failed: %s", result.getErrorMessage()));
+                }
+
+                finalDataFile.save();
+
+            } catch (Exception e) {
+                System.err.println("IngestionAPI.ingestDASOC(): Exception during ingestion: " + e.getMessage());
+                e.printStackTrace();
+                finalDataFile.setFileStatus(DataFile.ERROR);
+                finalDataFile.getLogger().printException("DASOC ingestion exception: " + e.getMessage());
+                try {
+                    finalDataFile.save();
+                } catch (Exception saveEx) {
+                    System.err.println("Failed to save DataFile after error: " + saveEx.getMessage());
+                }
+            }
+        });
+
+        System.out.println("IngestionAPI.ingestDASOC(): DASOC ingestion submitted asynchronously");
+        return ok(ApiUtil.createResponse(
+            "DASOC file submitted for ingestion. Check file's log for ingestion status.",
+            true));
     }
 
 }
