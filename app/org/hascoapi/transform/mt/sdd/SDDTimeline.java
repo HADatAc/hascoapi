@@ -10,13 +10,20 @@ import org.hascoapi.utils.URIUtils;
  *
  * The Timeline defines the temporal context of the data collection,
  * often linking to time-related ontologies.
+ *
+ * Timeline objects must have hasco:hasRole hasco:TimeRole to be included here.
+ * Virtual objects (??instant, ??observation, etc.) belong in Dictionary Mapping, NOT Timeline.
+ *
+ * Timeline supports Start, End, and Unit fields for temporal modeling.
  */
 public class SDDTimeline {
 
     /**
      * Set headers for the Timeline sheet.
      *
-     * Columns: Name, Label, Entity, Role, inRelationTo, Relation
+     * Columns: Name, Label, Type, Start, End, Unit
+     *
+     * This matches the original SDD template structure.
      */
     public static void setHeaders(Sheet sheet) {
         if (sheet == null) {
@@ -28,19 +35,24 @@ public class SDDTimeline {
 
         headerRow.createCell(col++).setCellValue("Name");
         headerRow.createCell(col++).setCellValue("Label");
-        headerRow.createCell(col++).setCellValue("Entity");
-        headerRow.createCell(col++).setCellValue("Role");
-        headerRow.createCell(col++).setCellValue("inRelationTo");
-        headerRow.createCell(col++).setCellValue("Relation");
+        headerRow.createCell(col++).setCellValue("Type");
+        headerRow.createCell(col++).setCellValue("Start");
+        headerRow.createCell(col++).setCellValue("End");
+        headerRow.createCell(col++).setCellValue("Unit");
     }
 
     /**
      * Add a row to the Timeline sheet from an SDDObject.
+     *
+     * Timeline objects must have hasco:hasRole hasco:TimeRole.
+     * Retrieves Start, End, and Unit values from SDDObject properties.
      */
     public static void add(Sheet sheet, SDDGenHelper helper, SDDObject obj) {
         if (sheet == null || obj == null) {
             return;
         }
+
+        System.out.println("[SDDTimeline] Adding timeline object: " + obj.getUri());
 
         // Find next available row
         int rowNum = sheet.getLastRowNum() + 1;
@@ -55,48 +67,56 @@ public class SDDTimeline {
         }
         col++;
 
-        // Label - human-readable label
-        String label = obj.getLabel();
+        // Label - human-readable description (stored in rdfs:comment)
+        String label = obj.getComment();
         if (label != null && !label.isEmpty()) {
             row.createCell(col).setCellValue(label);
         }
         col++;
 
-        // Entity - the ontological class
-        String entity = obj.getEntity();
-        if (entity != null && !entity.isEmpty()) {
-            String entityShort = URIUtils.replacePrefixEx(entity);
-            row.createCell(col).setCellValue(entityShort);
-            helper.registerPrefixFromUri(entityShort);
+        // Type - the ontological class/type - USE PREFIXED FORM
+        String type = obj.getEntity();
+        if (type != null && !type.isEmpty()) {
+            String typeShort;
+            if (helper != null) {
+                // Auto-detect and register namespace if it's a full URI
+                typeShort = helper.registerAndConvertFullUri(type);
+            } else {
+                typeShort = URIUtils.replaceNameSpaceEx(type);
+            }
+            row.createCell(col).setCellValue(typeShort);
         }
         col++;
 
-        // Role - the role of the entity
-        String role = obj.getRole();
-        if (role != null && !role.isEmpty()) {
-            String roleShort = URIUtils.replacePrefixEx(role);
-            row.createCell(col).setCellValue(roleShort);
-            helper.registerPrefixFromUri(roleShort);
+        // Start - temporal start value
+        String start = obj.getHasStart();
+        if (start != null && !start.isEmpty()) {
+            row.createCell(col).setCellValue(start);
         }
         col++;
 
-        // inRelationTo - the target of the relation
-        String inRelationTo = obj.getInRelationTo();
-        if (inRelationTo != null && !inRelationTo.isEmpty()) {
-            String inRelShort = URIUtils.replacePrefixEx(inRelationTo);
-            row.createCell(col).setCellValue(inRelShort);
-            helper.registerPrefixFromUri(inRelShort);
+        // End - temporal end value
+        String end = obj.getHasEnd();
+        if (end != null && !end.isEmpty()) {
+            row.createCell(col).setCellValue(end);
         }
         col++;
 
-        // Relation - the relationship to other entities
-        String relation = obj.getRelation();
-        if (relation != null && !relation.isEmpty()) {
-            String relationShort = URIUtils.replacePrefixEx(relation);
-            row.createCell(col).setCellValue(relationShort);
-            helper.registerPrefixFromUri(relationShort);
+        // Unit - temporal unit - USE PREFIXED FORM
+        String unit = obj.getHasUnit();
+        if (unit != null && !unit.isEmpty()) {
+            String unitShort;
+            if (helper != null) {
+                // Auto-detect and register namespace if it's a full URI
+                unitShort = helper.registerAndConvertFullUri(unit);
+            } else {
+                unitShort = URIUtils.replaceNameSpaceEx(unit);
+            }
+            row.createCell(col).setCellValue(unitShort);
         }
         col++;
+
+        System.out.println("[SDDTimeline] Timeline object added at row " + rowNum);
     }
 }
 

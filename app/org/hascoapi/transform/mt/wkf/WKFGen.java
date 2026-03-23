@@ -33,12 +33,22 @@ public class WKFGen {
     public static final int OFFSET                      = 0;
 
     public static String genByStatus(String status, String filename, String mediaFolder, String verifyUri) {
+        return genByStatus(status, filename, mediaFolder, verifyUri, null);
+    }
+
+    public static String genByStatus(String status, String filename, String mediaFolder, String verifyUri, String excludeDataFileUri) {
         System.out.println("[WKFGen] genByStatus START status=" + status + ", filename=" + filename);
+        if (excludeDataFileUri != null && !excludeDataFileUri.trim().isEmpty()) {
+            System.out.println("[WKFGen] Will exclude WKF with DataFile URI: " + excludeDataFileUri);
+        }
         WKFGenHelper helper = new WKFGenHelper();
         List<WKF> wkfs = null;
+
+        final String ns = org.hascoapi.utils.NameSpaces.getInstance().printSparqlNameSpaceList();
+
         try {
             // 1) Buscar todos os WKFs por tipo
-            String diagQuery = org.hascoapi.utils.NameSpaces.getInstance().printSparqlNameSpaceList()
+            String diagQuery = ns
                     + " SELECT ?uri WHERE { "
                     + "   ?wkfType rdfs:subClassOf* hasco:WKF . "
                     + "   ?uri a ?wkfType . "
@@ -49,6 +59,12 @@ public class WKFGen {
 
             String requestedStatus = status == null ? "" : status.trim();
             String draftStatus = org.hascoapi.vocabularies.VSTOI.DRAFT;
+
+            // Normalize the excludeDataFileUri for comparison
+            String normalizedExcludeDataFileUri = null;
+            if (excludeDataFileUri != null && !excludeDataFileUri.trim().isEmpty()) {
+                normalizedExcludeDataFileUri = excludeDataFileUri.trim().toLowerCase();
+            }
 
             // Normalize/deduplicate WKFs by canonical URI
             java.util.Map<String, WKF> byCanonicalUri = new java.util.LinkedHashMap<>();
@@ -66,22 +82,73 @@ public class WKFGen {
                     }
 
                     // Apply status filter using effective status
+                    // IMPORTANT: WKF.getHasStatus() returns short form ("DRAFT")
+                    // but frontend sends full URI ("http://hadatac.org/ont/vstoi#Draft")
+                    // We need to normalize both for comparison
                     String rawStatus = w.getHasStatus();
                     String effectiveStatus = (rawStatus == null || rawStatus.isEmpty()) ? draftStatus : rawStatus;
+
+                    // Normalize effective status to full URI if it's in short form
+                    if (effectiveStatus != null && !effectiveStatus.contains("://")) {
+                        // It's a short form like "DRAFT", convert to full URI
+                        effectiveStatus = org.hascoapi.vocabularies.VSTOI.VSTOI + effectiveStatus;
+                    }
 
                     System.out.println("  [WKFGen] WKF diag: uri=" + w.getUri()
                             + " (canonical=" + canonicalUri + ")"
                             + ", label=" + w.getLabel()
                             + ", rawStatus=" + rawStatus
-                            + ", effectiveStatus=" + effectiveStatus);
+                            + ", effectiveStatus=" + effectiveStatus
+                            + ", requestedStatus=" + requestedStatus);
 
                     boolean include;
                     if (requestedStatus.isEmpty()) {
                         include = true;
                     } else {
-                        include = effectiveStatus.equals(requestedStatus);
+                        // Compare normalized URIs (CASE-INSENSITIVE to handle DRAFT vs Draft)
+                        include = effectiveStatus.equalsIgnoreCase(requestedStatus);
                     }
                     if (!include) {
+                        System.out.println("    → Skipping " + w.getUri() + " (status mismatch)");
+                        continue;
+                    }
+
+                    // CRITICAL FIX: Exclude the WKF that matches the DataFile URI being generated
+                    // This prevents self-reference when generating a WKF from the just-created metadata
+                    if (normalizedExcludeDataFileUri != null && w.getHasDataFileUri() != null) {
+                        String wkfDataFileUri = w.getHasDataFileUri().trim().toLowerCase();
+                        if (wkfDataFileUri.equals(normalizedExcludeDataFileUri)) {
+                            System.out.println("    → Skipping " + w.getUri() + " (matches excludeDataFileUri: " + excludeDataFileUri + ")");
+                            continue;
+                        }
+                    }
+
+                    // Check if the WKF's named graph has actual content.
+                    // An empty graph (or only metadata triples) means it's a freshly-created WKF for this generation request.
+                    if (w.getHasDataFileUri() != null && !w.getHasDataFileUri().trim().isEmpty()) {
+                        try {
+                            String dataFileUri = w.getHasDataFileUri();
+                            System.out.println("    [WKFGen] Checking graph content for WKF " + w.getUri());
+                            System.out.println("    [WKFGen]   DataFile URI: " + dataFileUri);
+
+                            int tripleCount = graphTripleCount(ns, dataFileUri);
+                            System.out.println("    [WKFGen]   Graph triple count: " + tripleCount);
+
+                            // A WKF that was just created will have only metadata triples (~10-15 triples)
+                            // A WKF that was ingested will have many more (50+ triples from tasks, processes, etc.)
+                            if (tripleCount < 20) {
+                                System.out.println("    → Skipping " + w.getUri() + " (graph has only " + tripleCount + " triples, likely fresh creation)");
+                                continue;
+                            } else {
+                                System.out.println("    → Including " + w.getUri() + " (graph has " + tripleCount + " triples)");
+                            }
+                        } catch (Exception ex) {
+                            System.out.println("    → Error checking graph for " + w.getUri() + ": " + ex.getMessage());
+                            ex.printStackTrace();
+                            continue;
+                        }
+                    } else {
+                        System.out.println("    → Skipping " + w.getUri() + " (no DataFile URI)");
                         continue;
                     }
 
@@ -383,7 +450,15 @@ public class WKFGen {
 
         Row dataRow6 = infoSheet.createRow(6);
         dataRow6.createCell(0).setCellValue("hasVersion");
-        dataRow6.createCell(1).setCellValue("1"); // Placeholder version
+        // Get version from the first WKF if available
+        String versionValue = "1"; // default
+        if (wkfs != null && !wkfs.isEmpty() && wkfs.get(0) != null) {
+            String wkfVersion = wkfs.get(0).getHasVersion();
+            if (wkfVersion != null && !wkfVersion.trim().isEmpty()) {
+                versionValue = wkfVersion;
+            }
+        }
+        dataRow6.createCell(1).setCellValue(versionValue);
 
         // Create sheet named 'Namespaces'
         Sheet nsSheet = workbook.createSheet(WKFGen.NAMESPACES);
@@ -711,5 +786,35 @@ public class WKFGen {
         // Convert to lowercase for comparison
         normalized = normalized.toLowerCase();
         return normalized;
+    }
+
+    /**
+     * Counts the number of triples in a named graph.
+     * Used to distinguish between freshly created WKFs (few triples) and ingested WKFs (many triples).
+     *
+     * @param ns The SPARQL namespace prefix declarations
+     * @param graphUri The URI of the named graph to check
+     * @return The number of triples in the graph, or -1 if an error occurs
+     */
+    private static int graphTripleCount(String ns, String graphUri) {
+        try {
+            String q = ns + " SELECT (COUNT(*) AS ?tot) WHERE { GRAPH <" + graphUri + "> { ?s ?p ?o } }";
+            System.out.println("    [WKFGen] Triple count query: " + q);
+            org.apache.jena.query.ResultSetRewindable rs = org.hascoapi.utils.SPARQLUtils.select(
+                    org.hascoapi.utils.CollectionUtil.getCollectionPath(org.hascoapi.utils.CollectionUtil.Collection.SPARQL_QUERY), q);
+            if (rs != null && rs.hasNext()) {
+                org.apache.jena.query.QuerySolution soln = rs.next();
+                int count = soln.getLiteral("tot").getInt();
+                System.out.println("    [WKFGen] Triple count result: " + count);
+                return count;
+            } else {
+                System.out.println("    [WKFGen] Triple count query returned no results");
+                return 0;
+            }
+        } catch (Exception e) {
+            System.err.println("    [WKFGen] ERROR in graphTripleCount: " + e.getMessage());
+            e.printStackTrace();
+            return -1;
+        }
     }
 }

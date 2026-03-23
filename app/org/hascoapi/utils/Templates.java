@@ -153,18 +153,18 @@ public class Templates {
     public String getMESSAGEPORT() { return iniConfig.getSection("STR").getString("MessagePort"); }
     public String getMESSAGENAME() { return iniConfig.getSection("STR").getString("MessageName"); }
 
-    // SDDA, SDDE, SDDO Template (Part of SDD)
-    public String getLABEL() { return iniConfig.getSection("SDDA").getString("Label"); }     // also in PV
-    public String getATTRIBUTETYPE() { return iniConfig.getSection("SDDA").getString("AttributeType"); }
-    public String getATTTRIBUTEOF() { return iniConfig.getSection("SDDA").getString("AttributeOf"); }
-    public String getUNIT() { return iniConfig.getSection("SDDA").getString("Unit"); }
-    public String getTIME() { return iniConfig.getSection("SDDA").getString("Time"); }
-    public String getENTITY() { return iniConfig.getSection("SDDA").getString("Entity"); }
-    public String getROLE() { return iniConfig.getSection("SDDA").getString("Role"); }
-    public String getRELATION() { return iniConfig.getSection("SDDA").getString("Relation"); }
-    public String getINRELATIONTO() { return iniConfig.getSection("SDDA").getString("InRelationTo"); }
-    public String getWASDERIVEDFROM() { return iniConfig.getSection("SDDA").getString("WasDerivedFrom"); }
-    public String getWASGENERATEDBY() { return iniConfig.getSection("SDDA").getString("WasGeneratedBy"); }
+    // DASA, DASE, DASO Template (Part of SDD)
+    public String getLABEL() { return iniConfig.getSection("DASA").getString("Label"); }     // also in PV
+    public String getATTRIBUTETYPE() { return iniConfig.getSection("DASA").getString("AttributeType"); }
+    public String getATTTRIBUTEOF() { return iniConfig.getSection("DASA").getString("AttributeOf"); }
+    public String getUNIT() { return iniConfig.getSection("DASA").getString("Unit"); }
+    public String getTIME() { return iniConfig.getSection("DASA").getString("Time"); }
+    public String getENTITY() { return iniConfig.getSection("DASA").getString("Entity"); }
+    public String getROLE() { return iniConfig.getSection("DASA").getString("Role"); }
+    public String getRELATION() { return iniConfig.getSection("DASA").getString("Relation"); }
+    public String getINRELATIONTO() { return iniConfig.getSection("DASA").getString("InRelationTo"); }
+    public String getWASDERIVEDFROM() { return iniConfig.getSection("DASA").getString("WasDerivedFrom"); }
+    public String getWASGENERATEDBY() { return iniConfig.getSection("DASA").getString("WasGeneratedBy"); }
 
     // PV Template (Part of SDD)
     public String getCODE() { return iniConfig.getSection("PV").getString("Code"); }

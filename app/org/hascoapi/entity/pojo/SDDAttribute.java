@@ -244,7 +244,14 @@ public class SDDAttribute extends HADatAcThing {
         if (entity == null || entity.equals("")) {
             this.entityLabel = "";
         } else {
-            this.entityLabel = FirstLabel.getPrettyLabel(entity);
+            try {
+                this.entityLabel = FirstLabel.getPrettyLabel(entity);
+            } catch (Exception e) {
+                // Handle malformed URIs (e.g., invalid percent encoding)
+                System.out.println("[WARNING] SDDAttribute.setEntity(): Could not get label for entity URI: " + entity);
+                System.out.println("[WARNING]   Error: " + e.getMessage());
+                this.entityLabel = "";
+            }
         }
     }
     @JsonIgnore
@@ -300,7 +307,19 @@ public class SDDAttribute extends HADatAcThing {
     public void setAttribute(String attribute) {
         this.attribute = attribute;
         this.isMeta = true;
-        /* 
+        if (attribute == null || attribute.equals("")) {
+            this.attributeLabel = "";
+        } else {
+            try {
+                this.attributeLabel = FirstLabel.getPrettyLabel(attribute);
+            } catch (Exception e) {
+                // Handle malformed URIs (e.g., invalid percent encoding)
+                System.out.println("[WARNING] SDDAttribute.setAttribute(): Could not get label for attribute URI: " + attribute);
+                System.out.println("[WARNING]   Error: " + e.getMessage());
+                this.attributeLabel = "";
+            }
+        }
+        /*
         if (!SemanticDataDictionary.METASDDA.contains(URIUtils.replaceNameSpaceEx(attr))) {
             this.isMeta = false;
         }
@@ -364,7 +383,14 @@ public class SDDAttribute extends HADatAcThing {
         if (unit == null || unit.equals("")) {
             this.unitLabel = "";
         } else {
-            this.unitLabel = FirstLabel.getPrettyLabel(unit);
+            try {
+                this.unitLabel = FirstLabel.getPrettyLabel(unit);
+            } catch (Exception e) {
+                // Handle malformed URIs (e.g., invalid percent encoding)
+                System.out.println("[WARNING] SDDAttribute.setUnit(): Could not get label for unit URI: " + unit);
+                System.out.println("[WARNING]   Error: " + e.getMessage());
+                this.unitLabel = "";
+            }
         }
     }
     @JsonIgnore

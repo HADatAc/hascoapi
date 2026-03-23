@@ -56,11 +56,46 @@ public class AnnotateSDD extends BaseAnnotator {
             dataFile.getLogger().printWarningById("SDD_00017");
         }
 
+        // Read Codebook sheet if it exists
+        if (mapCatalog.containsKey("Codebook") && mapCatalog.get("Codebook") != null && !mapCatalog.get("Codebook").isEmpty()) {
+            String codebookSheetName = mapCatalog.get("Codebook").replace("#", "");
+            dataFile.getLogger().println("Reading Codebook sheet: " + codebookSheetName);
+            RecordFile codebookRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), codebookSheetName);
+            if (codebookRecordFile.isValid()) {
+                if (sdd.readCodebook(codebookRecordFile)) {
+                    dataFile.getLogger().println("Codebook data loaded successfully from " + codebookSheetName);
+                } else {
+                    dataFile.getLogger().println("Codebook sheet is empty or invalid");
+                }
+            } else {
+                dataFile.getLogger().printWarningByIdWithArgs("SDD_00019", "Codebook sheet not found: " + codebookSheetName);
+            }
+        }
+
+        // Read Timeline sheet if it exists
+        if (mapCatalog.containsKey("Timeline") && mapCatalog.get("Timeline") != null && !mapCatalog.get("Timeline").isEmpty()) {
+            String timelineSheetName = mapCatalog.get("Timeline").replace("#", "");
+            dataFile.getLogger().println("Reading Timeline sheet: " + timelineSheetName);
+            RecordFile timelineRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), timelineSheetName);
+            if (timelineRecordFile.isValid()) {
+                if (sdd.readTimeline(timelineRecordFile)) {
+                    dataFile.getLogger().println("Timeline data loaded successfully from " + timelineSheetName);
+                } else {
+                    dataFile.getLogger().println("Timeline sheet is empty or invalid");
+                }
+            } else {
+                dataFile.getLogger().printWarningByIdWithArgs("SDD_00019", "Timeline sheet not found: " + timelineSheetName);
+            }
+        }
+
         IngestionWorker.nameSpaceGen(dataFile, mapCatalog, templateFile);
 
         GeneratorChain chain = new GeneratorChain();
         chain.setNamedGraphUri(dataFile.getUri());
         chain.setPV(true);
+
+        // Create SDDAttributeGenerator and store reference to get labelToUriMap later
+        final SDDAttributeGenerator[] sddAttributeGeneratorRef = new SDDAttributeGenerator[1];
 
         // first Data_Dictionary -> SDDAttributeGenerator
         addCustomGeneratorIfSheetExists(dataFile, mapCatalog, "Data_Dictionary", "", chain, (df, status) -> {
@@ -68,8 +103,10 @@ public class AnnotateSDD extends BaseAnnotator {
                 DataFile clonedFile = (DataFile) df.clone();
                 SDD localSdd = new SDD(clonedFile, templateFile);
                 localSdd.readDataDictionary(clonedFile.getRecordFile(), clonedFile);
-                return new SDDAttributeGenerator(clonedFile, sddUri, sddId, sdd.getCodeMapping(),
+                SDDAttributeGenerator generator = new SDDAttributeGenerator(clonedFile, sddUri, sddId, sdd.getCodeMapping(),
                         localSdd.readDDforEAmerge(clonedFile.getRecordFile()), templateFile);
+                sddAttributeGeneratorRef[0] = generator; // Store reference
+                return generator;
             } catch (CloneNotSupportedException e) {
                 dataFile.getLogger().printExceptionByIdWithArgs("SDD_00020", e.getMessage());
                 return null;
@@ -93,7 +130,27 @@ public class AnnotateSDD extends BaseAnnotator {
                 DataFile clonedFile = (DataFile) df.clone();
                 chain.setCodebookFile(clonedFile);
                 chain.setSddName(URIUtils.replacePrefixEx(sddUri));
-                return new PVGenerator(clonedFile, sddUri, sddId, sdd.getMapAttrObj(), sdd.getCodeMapping());
+
+                // Use the labelToUriMap from SDDAttributeGenerator if available
+                Map<String, String> labelToUriMap = (sddAttributeGeneratorRef[0] != null)
+                    ? sddAttributeGeneratorRef[0].getLabelToUriMap()
+                    : new HashMap<String, String>();
+
+                dataFile.getLogger().println("[AnnotateSDD] Passing labelToUriMap to PVGenerator with " + labelToUriMap.size() + " entries");
+
+                return new PVGenerator(clonedFile, sddUri, sddId, labelToUriMap, sdd.getCodeMapping());
+            } catch (CloneNotSupportedException e) {
+                dataFile.getLogger().printExceptionByIdWithArgs("SDD_00020", e.getMessage());
+                return null;
+            }
+        });
+
+// Timeline -> TimelineGenerator
+        addCustomGeneratorIfSheetExists(dataFile, mapCatalog, "Timeline", "", chain, (df, status) -> {
+            try {
+                DataFile clonedFile = (DataFile) df.clone();
+                dataFile.getLogger().println("[AnnotateSDD] Creating TimelineGenerator for Timeline sheet");
+                return new TimelineGenerator(clonedFile, sddUri, sddId);
             } catch (CloneNotSupportedException e) {
                 dataFile.getLogger().printExceptionByIdWithArgs("SDD_00020", e.getMessage());
                 return null;
@@ -108,6 +165,7 @@ public class AnnotateSDD extends BaseAnnotator {
         row.put("a", "hasco:SemanticDataDictionary");
         row.put("hasco:hascoType", "hasco:SemanticDataDictionary");
         row.put("rdfs:label", sddId);
+        row.put("hasco:uriId", sddId);  // CRITICAL: Save the SDD_ID for generation
         row.put("rdfs:comment", "Generated from SDD file [" + dataFile.getFilename() + "]");
         row.put("vstoi:hasVersion", sddVersion);
         row.put("vstoi:hasSIRManagerEmail", dataFile.getHasSIRManagerEmail());

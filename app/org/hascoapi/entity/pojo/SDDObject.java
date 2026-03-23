@@ -88,6 +88,16 @@ public class SDDObject extends HADatAcThing {
 
     private String alternativeName = "";
 
+    // Timeline-specific properties
+    @PropertyField(uri = "hasco:hasStart")
+    private String hasStart;
+
+    @PropertyField(uri = "hasco:hasEnd")
+    private String hasEnd;
+
+    @PropertyField(uri = "hasco:hasUnit")
+    private String hasUnit;
+
     /**************
      * 
      *    CACHE
@@ -318,10 +328,32 @@ public class SDDObject extends HADatAcThing {
     }
 
     public String getHasSIRManagerEmail() {
-        return this.hasSIRManagerEmail;
+        return hasSIRManagerEmail;
     }
     public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
         this.hasSIRManagerEmail = hasSIRManagerEmail;
+    }
+
+    // Timeline-specific getters and setters
+    public String getHasStart() {
+        return hasStart;
+    }
+    public void setHasStart(String hasStart) {
+        this.hasStart = hasStart;
+    }
+
+    public String getHasEnd() {
+        return hasEnd;
+    }
+    public void setHasEnd(String hasEnd) {
+        this.hasEnd = hasEnd;
+    }
+
+    public String getHasUnit() {
+        return hasUnit;
+    }
+    public void setHasUnit(String hasUnit) {
+        this.hasUnit = hasUnit;
     }
 
     @JsonIgnore
@@ -388,6 +420,12 @@ public class SDDObject extends HADatAcThing {
 					sddo.setWasDerivedFrom(string);
                 } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
 					sddo.setHasSIRManagerEmail(string);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_START)) {
+					sddo.setHasStart(string);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_END)) {
+					sddo.setHasEnd(string);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_UNIT)) {
+					sddo.setHasUnit(string);
 				}
 			}
 		}

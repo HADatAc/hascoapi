@@ -547,6 +547,8 @@ public class SDD extends MetadataTemplate {
                 sdd.setHasVersion(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
                 sdd.setHasSIRManagerEmail(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_URI_ID)) {
+                sdd.setIdLabel(str);
             }
         }
 

@@ -159,9 +159,15 @@ public class SpreadsheetRecordFile implements RecordFile {
         private boolean isHeaderRow = true;
 
         private int rowCount = 0;
+        private int consecutiveEmptyRows = 0;
+        private static final int MAX_CONSECUTIVE_EMPTY_ROWS = 5;
+        private boolean shouldStopProcessing = false;
 
         @Override
         public void startRow(int rowNum) {
+            if (shouldStopProcessing) {
+                return;
+            }
             currentRow.clear();
             if (!isHeaderRow) {
                 System.out.println("  [SheetHandler] Starting data row " + (rowNum + 1));
@@ -170,6 +176,10 @@ public class SpreadsheetRecordFile implements RecordFile {
 
         @Override
         public void endRow(int rowNum) {
+            if (shouldStopProcessing) {
+                return;
+            }
+
             if (isHeaderRow) {
                 headers = new ArrayList<>(currentRow);
                 isHeaderRow = false;
@@ -187,15 +197,26 @@ public class SpreadsheetRecordFile implements RecordFile {
                     System.out.println("  [SheetHandler] Row " + (rowNum + 1) + " data: " + currentRow);
                     rowRecords.add(new SimpleRecord(new ArrayList<>(currentRow), headers));
                     rowCount++;
+                    consecutiveEmptyRows = 0; // reset counter
                     System.out.println("  [SheetHandler] ✓ Added record #" + rowCount);
                 } else {
-                    System.out.println("  [SheetHandler] ✗ Skipped empty row " + (rowNum + 1));
+                    consecutiveEmptyRows++;
+                    System.out.println("  [SheetHandler] ✗ Skipped empty row " + (rowNum + 1) + " (consecutive: " + consecutiveEmptyRows + ")");
+
+                    if (consecutiveEmptyRows >= MAX_CONSECUTIVE_EMPTY_ROWS) {
+                        System.out.println("  [SheetHandler] ⚠ Reached " + MAX_CONSECUTIVE_EMPTY_ROWS + " consecutive empty rows. Stopping sheet parsing.");
+                        shouldStopProcessing = true;
+                    }
                 }
             }
         }
 
         @Override
         public void cell(String cellReference, String formattedValue, XSSFComment comment) {
+            if (shouldStopProcessing) {
+                return;
+            }
+
             int currentColIndex = (new CellReference(cellReference)).getCol();
 
             // Ensure the list is big enough

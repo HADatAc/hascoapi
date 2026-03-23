@@ -156,7 +156,10 @@ public class HASCO {
     public static final String HAS_TOTAL_RECEIVED_MESSAGES            = "http://hadatac.org/ont/hasco/hasTotalReceivedMessages";
     public static final String HAS_TOTAL_RECORDED_MESSAGES            = "http://hadatac.org/ont/hasco/hasTotalRecordedMessages";
     public static final String HAS_UNIT                               = "http://hadatac.org/ont/hasco/hasUnit";
+    public static final String HAS_START                              = "http://hadatac.org/ont/hasco/hasStart";
+    public static final String HAS_END                                = "http://hadatac.org/ont/hasco/hasEnd";
     public static final String HAS_URL                                = "http://hadatac.org/ont/hasco/hasURL";
+    public static final String HAS_URI_ID                             = "http://hadatac.org/ont/hasco/uriId";
     public static final String HAS_VALUE                              = "http://hadatac.org/ont/hasco/hasValue";
     public static final String HAS_VALUE_CLASS                        = "http://hadatac.org/ont/hasco/hasValueClass";
     public static final String HAS_VARIABLE                           = "http://hadatac.org/ont/hasco/hasVariable";

@@ -82,6 +82,28 @@ public class URIUtils {
         return false;
     }
 
+    /**
+     * Validates that a URI is well-formed according to RFC 3986.
+     * Checks for malformed percent-encoding and other syntax issues.
+     *
+     * @param uriString The URI string to validate
+     * @return true if the URI is well-formed, false otherwise
+     */
+    public static boolean isWellFormedURI(String uriString) {
+        if (uriString == null || uriString.trim().isEmpty()) {
+            return false;
+        }
+
+        try {
+            // Try to create a java.net.URI object - this will validate the syntax
+            URI uri = new URI(uriString);
+            return true;
+        } catch (Exception e) {
+            // URI syntax is invalid
+            return false;
+        }
+    }
+
     /*
      *  the method verifies if cellContent contains a set of URIs, which we call an object set. Returns true if
      *  the content is regarded to be an object set.
@@ -358,5 +380,32 @@ public class URIUtils {
         // Return the last segment
         return uri.substring(lastIndex + 1);
     }
-    
+
+    /**
+     * Ensures that a URI string uses either http:// or https:// scheme consistently.
+     * If the URI doesn't have a scheme, it remains unchanged.
+     * This is useful for normalizing URIs that may have been stored with different schemes.
+     *
+     * @param uri The URI string to normalize
+     * @return The normalized URI with consistent scheme, or the original string if no http(s) scheme is found
+     */
+    public static String ensureHttpsOrHttp(String uri) {
+        if (uri == null || uri.isEmpty()) {
+            return uri;
+        }
+
+        // If already using https, keep it
+        if (uri.startsWith("https://")) {
+            return uri;
+        }
+
+        // If using http, convert to https for consistency
+        if (uri.startsWith("http://")) {
+            return uri.replace("http://", "https://");
+        }
+
+        // Not an http(s) URI, return as-is
+        return uri;
+    }
+
 }

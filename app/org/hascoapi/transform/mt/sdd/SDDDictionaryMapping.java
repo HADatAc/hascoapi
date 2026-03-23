@@ -17,7 +17,7 @@ public class SDDDictionaryMapping {
      * Set headers for the Dictionary Mapping sheet.
      *
      * Columns: Column, Attribute, attributeOf, Unit, Time, Entity, Role, Relation,
-     * inRelationTo, wasDerivedFrom, wasGeneratedBy, hasPosition
+     * inRelationTo, wasDerivedFrom, wasGeneratedBy
      */
     public static void setHeaders(Sheet sheet) {
         if (sheet == null) {
@@ -38,7 +38,7 @@ public class SDDDictionaryMapping {
         headerRow.createCell(col++).setCellValue("inRelationTo");
         headerRow.createCell(col++).setCellValue("wasDerivedFrom");
         headerRow.createCell(col++).setCellValue("wasGeneratedBy");
-        headerRow.createCell(col++).setCellValue("hasPosition");
+        // hasPosition removed - not in original template
     }
 
     /**
@@ -59,106 +59,218 @@ public class SDDDictionaryMapping {
         String column = attr.getLabel();
         if (column != null && !column.isEmpty()) {
             row.createCell(col).setCellValue(column);
-            helper.registerPrefixFromUri(column);
         }
         col++;
 
-        // Attribute - the ontological property URI
-        String attribute = attr.getAttributeUri();
+        // Attribute - hasco:hasAttribute - USE PREFIXED FORM
+        String attribute = attr.getAttribute();
         if (attribute != null && !attribute.isEmpty()) {
-            String attrShort = URIUtils.replacePrefixEx(attribute);
+            String attrShort;
+            if (helper != null) {
+                attrShort = helper.registerAndConvertFullUri(attribute);
+            } else {
+                attrShort = URIUtils.replaceNameSpaceEx(attribute);
+            }
             row.createCell(col).setCellValue(attrShort);
-            helper.registerPrefixFromUri(attrShort);
         }
         col++;
 
-        // attributeOf - the entity this attribute describes
-        String attributeOf = attr.getAttributeOf();
+        // attributeOf - SDDAttribute points to an SDDObject via hasco:isVariableOf
+        // In practice, this is the contextual placeholder (e.g., ??weather). We'll use the object URI.
+        String attributeOf = attr.getObjectUri();
         if (attributeOf != null && !attributeOf.isEmpty()) {
-            String attrOfShort = URIUtils.replacePrefixEx(attributeOf);
+            String attrOfShort;
+            if (helper != null) {
+                attrOfShort = helper.registerAndConvertFullUri(attributeOf);
+            } else {
+                attrOfShort = URIUtils.replaceNameSpaceEx(attributeOf);
+            }
             row.createCell(col).setCellValue(attrOfShort);
-            helper.registerPrefixFromUri(attrOfShort);
         }
         col++;
 
-        // Unit - the unit of measure
+        // Unit - USE PREFIXED FORM
         String unit = attr.getUnit();
         if (unit != null && !unit.isEmpty()) {
-            String unitShort = URIUtils.replacePrefixEx(unit);
+            String unitShort;
+            if (helper != null) {
+                unitShort = helper.registerAndConvertFullUri(unit);
+            } else {
+                unitShort = URIUtils.replaceNameSpaceEx(unit);
+            }
             row.createCell(col).setCellValue(unitShort);
-            helper.registerPrefixFromUri(unitShort);
         }
         col++;
 
-        // Time - the time entity
-        String time = attr.getTime();
+        // Time - not explicitly modeled as a separate field in SDDAttribute.
+        // Use hasco:hasEvent (event URI) as the best approximation - USE PREFIXED FORM
+        String time = attr.getEventUri();
         if (time != null && !time.isEmpty()) {
-            String timeShort = URIUtils.replacePrefixEx(time);
+            String timeShort;
+            if (helper != null) {
+                timeShort = helper.registerAndConvertFullUri(time);
+            } else {
+                timeShort = URIUtils.replaceNameSpaceEx(time);
+            }
             row.createCell(col).setCellValue(timeShort);
-            helper.registerPrefixFromUri(timeShort);
         }
         col++;
 
-        // Entity - the ontological class of the entity
-        String entity = attr.getEntity();
-        if (entity != null && !entity.isEmpty()) {
-            String entityShort = URIUtils.replacePrefixEx(entity);
-            row.createCell(col).setCellValue(entityShort);
-            helper.registerPrefixFromUri(entityShort);
-        }
+        // Entity - LEAVE EMPTY for SDDAttributes (only populated for SDDObjects)
         col++;
 
-        // Role - the role of the entity
-        String role = attr.getRole();
-        if (role != null && !role.isEmpty()) {
-            String roleShort = URIUtils.replacePrefixEx(role);
-            row.createCell(col).setCellValue(roleShort);
-            helper.registerPrefixFromUri(roleShort);
-        }
+        // Role - not represented in SDDAttribute; leave blank
         col++;
 
-        // Relation - the relationship to other entities
+        // Relation - USE PREFIXED FORM
         String relation = attr.getRelation();
         if (relation != null && !relation.isEmpty()) {
-            String relationShort = URIUtils.replacePrefixEx(relation);
+            String relationShort;
+            if (helper != null) {
+                relationShort = helper.registerAndConvertFullUri(relation);
+            } else {
+                relationShort = URIUtils.replaceNameSpaceEx(relation);
+            }
             row.createCell(col).setCellValue(relationShort);
-            helper.registerPrefixFromUri(relationShort);
         }
         col++;
 
-        // inRelationTo - the target of the relation
+        // inRelationTo - USE PREFIXED FORM
         String inRelationTo = attr.getInRelationTo();
         if (inRelationTo != null && !inRelationTo.isEmpty()) {
-            String inRelShort = URIUtils.replacePrefixEx(inRelationTo);
+            String inRelShort;
+            if (helper != null) {
+                inRelShort = helper.registerAndConvertFullUri(inRelationTo);
+            } else {
+                inRelShort = URIUtils.replaceNameSpaceEx(inRelationTo);
+            }
             row.createCell(col).setCellValue(inRelShort);
-            helper.registerPrefixFromUri(inRelShort);
         }
         col++;
 
-        // wasDerivedFrom - provenance
+        // wasDerivedFrom - USE PREFIXED FORM
         String wasDerivedFrom = attr.getWasDerivedFrom();
         if (wasDerivedFrom != null && !wasDerivedFrom.isEmpty()) {
-            String derivedShort = URIUtils.replacePrefixEx(wasDerivedFrom);
+            String derivedShort;
+            if (helper != null) {
+                derivedShort = helper.registerAndConvertFullUri(wasDerivedFrom);
+            } else {
+                derivedShort = URIUtils.replaceNameSpaceEx(wasDerivedFrom);
+            }
             row.createCell(col).setCellValue(derivedShort);
-            helper.registerPrefixFromUri(derivedShort);
         }
         col++;
 
-        // wasGeneratedBy - provenance
-        String wasGeneratedBy = attr.getWasGeneratedBy();
-        if (wasGeneratedBy != null && !wasGeneratedBy.isEmpty()) {
-            String generatedShort = URIUtils.replacePrefixEx(wasGeneratedBy);
-            row.createCell(col).setCellValue(generatedShort);
-            helper.registerPrefixFromUri(generatedShort);
-        }
-        col++;
-
-        // hasPosition - the position in the data file
-        String hasPosition = attr.getHasPosition();
-        if (hasPosition != null && !hasPosition.isEmpty()) {
-            row.createCell(col).setCellValue(hasPosition);
-        }
+        // wasGeneratedBy - not in SDDAttribute; leave blank
         col++;
     }
-}
 
+    /**
+     * Add a row to the Dictionary Mapping sheet from an SDDObject.
+     * SDDObjects appear as rows with NO Attribute column (they define entities, not measurements).
+     */
+    public static void addObject(Sheet sheet, SDDGenHelper helper, org.hascoapi.entity.pojo.SDDObject obj) {
+        if (sheet == null || obj == null) {
+            System.out.println("[SDDDictionaryMapping] ERROR: Cannot add object - sheet or obj is null");
+            return;
+        }
+
+        System.out.println("[SDDDictionaryMapping] Adding SDDObject:");
+        System.out.println("  URI: " + obj.getUri());
+        System.out.println("  Label: " + obj.getLabel());
+        System.out.println("  Entity: " + obj.getEntity());
+        System.out.println("  Role: " + obj.getRole());
+        System.out.println("  Relation: " + obj.getRelation());
+        System.out.println("  InRelationTo: " + obj.getInRelationTo());
+
+        // Find next available row
+        int rowNum = sheet.getLastRowNum() + 1;
+        Row row = sheet.createRow(rowNum);
+
+        int col = 0;
+
+        // Column - the label of the object (e.g., ??weather, ??observation, ??instant)
+        String column = obj.getLabel();
+        if (column != null && !column.isEmpty()) {
+            row.createCell(col).setCellValue(column);
+            System.out.println("  Added Column: " + column);
+        }
+        col++;
+
+        // Attribute - EMPTY for SDDObjects
+        col++;
+
+        // attributeOf - EMPTY for SDDObjects
+        col++;
+
+        // Unit - EMPTY for SDDObjects
+        col++;
+
+        // Time - EMPTY for SDDObjects
+        col++;
+
+        // Entity - hasco:hasEntity (e.g., envo:01001079 for weather)
+        String entity = obj.getEntity();
+        if (entity != null && !entity.isEmpty()) {
+            String entityShort;
+            if (helper != null) {
+                entityShort = helper.registerAndConvertFullUri(entity);
+            } else {
+                entityShort = URIUtils.replaceNameSpaceEx(entity);
+            }
+            row.createCell(col).setCellValue(entityShort);
+            System.out.println("  Added Entity: " + entityShort);
+        }
+        col++;
+
+        // Role - hasco:hasRole (e.g., hasco:TimeRole)
+        String role = obj.getRole();
+        if (role != null && !role.isEmpty()) {
+            String roleShort;
+            if (helper != null) {
+                roleShort = helper.registerAndConvertFullUri(role);
+            } else {
+                roleShort = URIUtils.replaceNameSpaceEx(role);
+            }
+            row.createCell(col).setCellValue(roleShort);
+            System.out.println("  Added Role: " + roleShort);
+        }
+        col++;
+
+        // Relation - hasco:hasRelation
+        String relation = obj.getRelation();
+        if (relation != null && !relation.isEmpty()) {
+            String relationShort;
+            if (helper != null) {
+                relationShort = helper.registerAndConvertFullUri(relation);
+            } else {
+                relationShort = URIUtils.replaceNameSpaceEx(relation);
+            }
+            row.createCell(col).setCellValue(relationShort);
+            System.out.println("  Added Relation: " + relationShort);
+        }
+        col++;
+
+        // inRelationTo - hasco:inRelationTo
+        String inRelationTo = obj.getInRelationTo();
+        if (inRelationTo != null && !inRelationTo.isEmpty()) {
+            String inRelShort;
+            if (helper != null) {
+                inRelShort = helper.registerAndConvertFullUri(inRelationTo);
+            } else {
+                inRelShort = URIUtils.replaceNameSpaceEx(inRelationTo);
+            }
+            row.createCell(col).setCellValue(inRelShort);
+            System.out.println("  Added InRelationTo: " + inRelShort);
+        }
+        col++;
+
+        // wasDerivedFrom - EMPTY for SDDObjects
+        col++;
+
+        // wasGeneratedBy - EMPTY for SDDObjects
+        col++;
+
+        System.out.println("[SDDDictionaryMapping] SDDObject row added successfully at row " + rowNum);
+    }
+}

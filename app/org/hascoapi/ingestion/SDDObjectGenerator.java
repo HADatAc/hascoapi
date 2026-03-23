@@ -58,23 +58,30 @@ public class SDDObjectGenerator extends BaseGenerator {
 	}
 
 	private String getLabel(Record rec) {
-		return rec.getValueByColumnName(mapCol.get("Label"));
+		String value = rec.getValueByColumnName(mapCol.get("Label"));
+		return (value == null) ? "" : value.trim();
 	}
 
 	private String getAttribute(Record rec) {
-		return rec.getValueByColumnName(mapCol.get("AttributeType"));
+		String value = rec.getValueByColumnName(mapCol.get("AttributeType"));
+		return (value == null) ? "" : value.trim();
 	}
 
 	private String getUnit(Record rec) {
-		return rec.getValueByColumnName(mapCol.get("Unit"));
+		String value = rec.getValueByColumnName(mapCol.get("Unit"));
+		return (value == null) ? "" : value.trim();
 	}
 
 	private String getTime(Record rec) {
-		return rec.getValueByColumnName(mapCol.get("Time"));
+		String value = rec.getValueByColumnName(mapCol.get("Time"));
+		return (value == null) ? "" : value.trim();
 	}
 	
 	private String getEntity(Record rec) {
 		String entity = rec.getValueByColumnName(mapCol.get("Entity"));
+		if (entity != null) {
+			entity = entity.trim();
+		}
 		if (entity != null && entity.length() == 0) {
 		    return null;
 		} else {
@@ -88,16 +95,19 @@ public class SDDObjectGenerator extends BaseGenerator {
 	}
 
 	private String getRole(Record rec) {
-		return rec.getValueByColumnName(mapCol.get("Role"));
+		String value = rec.getValueByColumnName(mapCol.get("Role"));
+		return (value == null) ? "" : value.trim();
 	}
 
 	public String getRelation(Record rec) {
-		return rec.getValueByColumnName(mapCol.get("Relation"));
+		String value = rec.getValueByColumnName(mapCol.get("Relation"));
+		return (value == null) ? "" : value.trim();
 	}
 
 	public String getInRelationTo(Record rec) {
-		return rec.getValueByColumnName(mapCol.get("InRelationTo"));
-		/* 
+		String value = rec.getValueByColumnName(mapCol.get("InRelationTo"));
+		return (value == null) ? "" : value.trim();
+		/*
 		String inRelationTo = rec.getValueByColumnName(mapCol.get("InRelationTo"));
 		if (inRelationTo.length() == 0) {
 			return "";
@@ -114,6 +124,10 @@ public class SDDObjectGenerator extends BaseGenerator {
 	
 	public String getInRelationToString(Record rec) {
 		String inRelationTo = rec.getValueByColumnName(mapCol.get("InRelationTo"));
+		if (inRelationTo == null) {
+			return "";
+		}
+		inRelationTo = inRelationTo.trim();
 		if (inRelationTo.length() == 0) {
 			return "";
 		} else {
@@ -122,11 +136,13 @@ public class SDDObjectGenerator extends BaseGenerator {
 	}
 
 	private String getWasDerivedFrom(Record rec) {
-		return rec.getValueByColumnName(mapCol.get("WasDerivedFrom"));
+		String value = rec.getValueByColumnName(mapCol.get("WasDerivedFrom"));
+		return (value == null) ? "" : value.trim();
 	}
 
 	private String getWasGeneratedBy(Record rec) {
-		return rec.getValueByColumnName(mapCol.get("WasGeneratedBy"));
+		String value = rec.getValueByColumnName(mapCol.get("WasGeneratedBy"));
+		return (value == null) ? "" : value.trim();
 	}
    
 	public String getSDDName(){

@@ -41,7 +41,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 public class HascoRoundtripTest {
 
     private enum MTType {
-        DSG, INS, DP2, STR, KGR, SDD, DA
+        DSG, INS, DP2, WKF, STR, KGR, SDD, DA
     }
 
     // Map MT type to its canonical test Excel location when available.
@@ -58,6 +58,10 @@ public class HascoRoundtripTest {
             case DP2:
                 // Authoritative DP2 test workbook for PMSR
                 return new File("test/resources/dp2/DP2-PMSR.xlsx");
+
+            case WKF:
+                // Authoritative WKF test workbook for Weather Station Workflow
+                return new File("test/resources/wkf/WKF-WeatherStation.xlsx");
 
           /*  case SDD:
                 // TODO: point to authoritative SDD test workbook when available
@@ -143,6 +147,7 @@ public class HascoRoundtripTest {
     private static final String REGENERATED_DSG_FILENAME = "DSG-STD-test-regenerated.xlsx";
     private static final String REGENERATED_INS_FILENAME = "INS-PMSR-Simulators-regenerated.xlsx";
     private static final String REGENERATED_DP2_FILENAME = "DP2-PMSR-regenerated.xlsx";
+    private static final String REGENERATED_WKF_FILENAME = "WKF-WeatherStation-regenerated.xlsx";
 
     // Keep the last ingested study URI so step3 can delete/reingest deterministically.
     private static final java.util.concurrent.atomic.AtomicReference<String> LAST_INGESTED_STUDY_URI =
@@ -180,6 +185,294 @@ public class HascoRoundtripTest {
 
         // Log preview
         org.hascoapi.utils.TripleStoreDumpUtil.logNamedGraphTriplesPreview(graphUri, 25);
+
+        // NEW: Enhanced triple analysis
+        analyzeGraphStructure(graphUri, label);
+    }
+
+    /**
+     * NEW: Analyzes graph structure including:
+     * - Entity counts by type
+     * - Relationship completeness
+     * - Property value statistics
+     */
+    private static void analyzeGraphStructure(String graphUri, String label) {
+        System.out.println("\n[GRAPH ANALYSIS] " + label);
+        System.out.println("==========================================");
+
+        // 1. Entity counts by type
+        java.util.Map<String, Long> entityCounts = getEntityCountsByType(graphUri);
+        System.out.println("[ENTITY COUNTS BY TYPE]");
+        if (entityCounts.isEmpty()) {
+            System.out.println("  (no entities found)");
+        } else {
+            entityCounts.entrySet().stream()
+                    .sorted((e1, e2) -> e2.getValue().compareTo(e1.getValue()))
+                    .forEach(e -> System.out.println("  " + shortenUri(e.getKey()) + ": " + e.getValue()));
+        }
+
+        // 2. Relationship completeness
+        System.out.println("\n[RELATIONSHIP COMPLETENESS]");
+        checkRelationshipCompleteness(graphUri);
+
+        // 3. Property value statistics
+        System.out.println("\n[PROPERTY VALUE STATISTICS]");
+        getPropertyValueStatistics(graphUri);
+
+        System.out.println("==========================================\n");
+    }
+
+    /**
+     * Get count of entities grouped by their rdf:type
+     */
+    private static java.util.Map<String, Long> getEntityCountsByType(String graphUri) {
+        java.util.Map<String, Long> counts = new java.util.LinkedHashMap<>();
+        String query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
+                "SELECT ?type (COUNT(DISTINCT ?entity) AS ?count) WHERE { \n" +
+                "  GRAPH <" + graphUri + "> { \n" +
+                "    ?entity rdf:type ?type . \n" +
+                "  } \n" +
+                "} GROUP BY ?type ORDER BY DESC(?count)";
+
+        try {
+            String endpoint = org.hascoapi.utils.CollectionUtil.getCollectionPath(org.hascoapi.utils.CollectionUtil.Collection.SPARQL_QUERY);
+            org.apache.jena.query.ResultSetRewindable rs = org.hascoapi.utils.SPARQLUtils.select(endpoint, query);
+            while (rs != null && rs.hasNext()) {
+                org.apache.jena.query.QuerySolution sol = rs.next();
+                String type = sol.getResource("type") != null ? sol.getResource("type").getURI() : "unknown";
+                long count = sol.getLiteral("count") != null ? sol.getLiteral("count").getLong() : 0;
+                counts.put(type, count);
+            }
+        } catch (Exception e) {
+            System.out.println("  ERROR: Failed to query entity counts: " + e.getMessage());
+        }
+        return counts;
+    }
+
+    /**
+     * Check relationship completeness - identifies dangling references
+     */
+    private static void checkRelationshipCompleteness(String graphUri) {
+        // Check for object references that don't exist as subjects
+        String query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
+                "SELECT ?predicate (COUNT(DISTINCT ?object) AS ?danglingCount) WHERE { \n" +
+                "  GRAPH <" + graphUri + "> { \n" +
+                "    ?subject ?predicate ?object . \n" +
+                "    FILTER(isURI(?object)) \n" +
+                "    FILTER NOT EXISTS { \n" +
+                "      GRAPH <" + graphUri + "> { ?object ?p ?o } \n" +
+                "    } \n" +
+                "  } \n" +
+                "} GROUP BY ?predicate ORDER BY DESC(?danglingCount)";
+
+        try {
+            String endpoint = org.hascoapi.utils.CollectionUtil.getCollectionPath(org.hascoapi.utils.CollectionUtil.Collection.SPARQL_QUERY);
+            org.apache.jena.query.ResultSetRewindable rs = org.hascoapi.utils.SPARQLUtils.select(endpoint, query);
+
+            int danglingFound = 0;
+            while (rs != null && rs.hasNext()) {
+                org.apache.jena.query.QuerySolution sol = rs.next();
+                String predicate = sol.getResource("predicate") != null ? sol.getResource("predicate").getURI() : "unknown";
+                long count = sol.getLiteral("danglingCount") != null ? sol.getLiteral("danglingCount").getLong() : 0;
+                if (count > 0) {
+                    System.out.println("  DANGLING REFS via " + shortenUri(predicate) + ": " + count);
+                    danglingFound++;
+                }
+            }
+            if (danglingFound == 0) {
+                System.out.println("  ✓ All relationships complete (no dangling references)");
+            }
+        } catch (Exception e) {
+            System.out.println("  ERROR: Failed to check relationship completeness: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Get property value statistics
+     */
+    private static void getPropertyValueStatistics(String graphUri) {
+        String query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
+                "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +
+                "SELECT ?property (COUNT(*) AS ?valueCount) (COUNT(DISTINCT ?value) AS ?distinctValues) WHERE { \n" +
+                "  GRAPH <" + graphUri + "> { \n" +
+                "    ?subject ?property ?value . \n" +
+                "    FILTER(?property != rdf:type) \n" +
+                "  } \n" +
+                "} GROUP BY ?property ORDER BY DESC(?valueCount) LIMIT 15";
+
+        try {
+            String endpoint = org.hascoapi.utils.CollectionUtil.getCollectionPath(org.hascoapi.utils.CollectionUtil.Collection.SPARQL_QUERY);
+            org.apache.jena.query.ResultSetRewindable rs = org.hascoapi.utils.SPARQLUtils.select(endpoint, query);
+
+            while (rs != null && rs.hasNext()) {
+                org.apache.jena.query.QuerySolution sol = rs.next();
+                String property = sol.getResource("property") != null ? sol.getResource("property").getURI() : "unknown";
+                long valueCount = sol.getLiteral("valueCount") != null ? sol.getLiteral("valueCount").getLong() : 0;
+                long distinctValues = sol.getLiteral("distinctValues") != null ? sol.getLiteral("distinctValues").getLong() : 0;
+                System.out.println("  " + shortenUri(property) + ": " + valueCount + " values (" + distinctValues + " distinct)");
+            }
+        } catch (Exception e) {
+            System.out.println("  ERROR: Failed to get property statistics: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Shorten URI for display by removing common namespace prefixes
+     */
+    private static String shortenUri(String uri) {
+        if (uri == null) return "null";
+        return uri
+                .replace("http://hadatac.org/ont/hasco/", "hasco:")
+                .replace("http://hadatac.org/ont/vstoi#", "vstoi:")
+                .replace("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf:")
+                .replace("http://www.w3.org/2000/01/rdf-schema#", "rdfs:")
+                .replace("http://www.w3.org/ns/prov#", "prov:")
+                .replace("http://purl.obolibrary.org/obo/", "obo:")
+                .replace("http://pmsr.net/ont/pmsr#", "pmsr:")
+                .replace("https://hadatac.org/ont/hadatac#", "hadatac:");
+    }
+
+    /**
+     * NEW: Compare two named graphs and report missing/extra triples
+     * @param originalGraphUri Graph from original ingestion
+     * @param regeneratedGraphUri Graph from regenerated file ingestion
+     * @param mtType MT type name for logging
+     */
+    private static void compareGraphs(String originalGraphUri, String regeneratedGraphUri, String mtType) {
+        System.out.println("\n[GRAPH COMPARISON] " + mtType + " - Original vs Regenerated");
+        System.out.println("==========================================");
+        System.out.println("Original graph:     " + originalGraphUri);
+        System.out.println("Regenerated graph:  " + regeneratedGraphUri);
+
+        // Get triple counts
+        long originalCount = org.hascoapi.utils.TripleStoreDumpUtil.countTriplesInNamedGraph(originalGraphUri);
+        long regeneratedCount = org.hascoapi.utils.TripleStoreDumpUtil.countTriplesInNamedGraph(regeneratedGraphUri);
+        System.out.println("\nTriple counts:");
+        System.out.println("  Original:    " + originalCount);
+        System.out.println("  Regenerated: " + regeneratedCount);
+        System.out.println("  Difference:  " + (regeneratedCount - originalCount));
+
+        // Compare entity counts by type
+        System.out.println("\n[ENTITY COUNT COMPARISON BY TYPE]");
+        java.util.Map<String, Long> originalTypes = getEntityCountsByType(originalGraphUri);
+        java.util.Map<String, Long> regeneratedTypes = getEntityCountsByType(regeneratedGraphUri);
+
+        java.util.Set<String> allTypes = new java.util.HashSet<>();
+        allTypes.addAll(originalTypes.keySet());
+        allTypes.addAll(regeneratedTypes.keySet());
+
+        for (String type : allTypes) {
+            long origCount = originalTypes.getOrDefault(type, 0L);
+            long regenCount = regeneratedTypes.getOrDefault(type, 0L);
+            String status = origCount == regenCount ? "✓" : (regenCount > origCount ? "+" : "-");
+            System.out.println("  " + status + " " + shortenUri(type) + ": " + origCount + " -> " + regenCount);
+        }
+
+        // Find missing triples (in original but not in regenerated)
+        System.out.println("\n[MISSING TRIPLES] (in original but NOT in regenerated)");
+        java.util.List<String> missingTriples = findMissingTriples(originalGraphUri, regeneratedGraphUri);
+        if (missingTriples.isEmpty()) {
+            System.out.println("  ✓ No missing triples - regenerated contains all original data");
+        } else {
+            System.out.println("  Found " + missingTriples.size() + " missing triples (showing first 10):");
+            missingTriples.stream().limit(10).forEach(t -> System.out.println("    - " + t));
+        }
+
+        // Find extra triples (in regenerated but not in original)
+        System.out.println("\n[EXTRA TRIPLES] (in regenerated but NOT in original)");
+        java.util.List<String> extraTriples = findMissingTriples(regeneratedGraphUri, originalGraphUri);
+        if (extraTriples.isEmpty()) {
+            System.out.println("  ✓ No extra triples - regenerated matches original exactly");
+        } else {
+            System.out.println("  Found " + extraTriples.size() + " extra triples (showing first 10):");
+            extraTriples.stream().limit(10).forEach(t -> System.out.println("    + " + t));
+        }
+
+        // Property value equality check
+        System.out.println("\n[PROPERTY VALUE EQUALITY]");
+        comparePropertyValues(originalGraphUri, regeneratedGraphUri);
+
+        System.out.println("==========================================\n");
+    }
+
+    /**
+     * Find triples that exist in graph1 but not in graph2
+     */
+    private static java.util.List<String> findMissingTriples(String graph1Uri, String graph2Uri) {
+        java.util.List<String> missing = new java.util.ArrayList<>();
+
+        String query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
+                "SELECT ?s ?p ?o WHERE { \n" +
+                "  GRAPH <" + graph1Uri + "> { ?s ?p ?o } \n" +
+                "  FILTER NOT EXISTS { \n" +
+                "    GRAPH <" + graph2Uri + "> { ?s ?p ?o } \n" +
+                "  } \n" +
+                "} LIMIT 100";
+
+        try {
+            String endpoint = org.hascoapi.utils.CollectionUtil.getCollectionPath(org.hascoapi.utils.CollectionUtil.Collection.SPARQL_QUERY);
+            org.apache.jena.query.ResultSetRewindable rs = org.hascoapi.utils.SPARQLUtils.select(endpoint, query);
+
+            while (rs != null && rs.hasNext()) {
+                org.apache.jena.query.QuerySolution sol = rs.next();
+                String s = formatRdfNode(sol.get("s"));
+                String p = formatRdfNode(sol.get("p"));
+                String o = formatRdfNode(sol.get("o"));
+                missing.add(s + " " + p + " " + o);
+            }
+        } catch (Exception e) {
+            System.out.println("  ERROR: Failed to find missing triples: " + e.getMessage());
+        }
+        return missing;
+    }
+
+    /**
+     * Compare property values between two graphs for the same subjects
+     */
+    private static void comparePropertyValues(String graph1Uri, String graph2Uri) {
+        String query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" +
+                "SELECT ?property (COUNT(*) AS ?diffCount) WHERE { \n" +
+                "  { \n" +
+                "    GRAPH <" + graph1Uri + "> { ?s ?property ?v1 } \n" +
+                "    GRAPH <" + graph2Uri + "> { ?s ?property ?v2 } \n" +
+                "    FILTER(?v1 != ?v2) \n" +
+                "  } \n" +
+                "} GROUP BY ?property ORDER BY DESC(?diffCount)";
+
+        try {
+            String endpoint = org.hascoapi.utils.CollectionUtil.getCollectionPath(org.hascoapi.utils.CollectionUtil.Collection.SPARQL_QUERY);
+            org.apache.jena.query.ResultSetRewindable rs = org.hascoapi.utils.SPARQLUtils.select(endpoint, query);
+
+            int differencesFound = 0;
+            while (rs != null && rs.hasNext()) {
+                org.apache.jena.query.QuerySolution sol = rs.next();
+                String property = sol.getResource("property") != null ? sol.getResource("property").getURI() : "unknown";
+                long count = sol.getLiteral("diffCount") != null ? sol.getLiteral("diffCount").getLong() : 0;
+                if (count > 0) {
+                    System.out.println("  DIFFERENT VALUES for " + shortenUri(property) + ": " + count + " instances");
+                    differencesFound++;
+                }
+            }
+            if (differencesFound == 0) {
+                System.out.println("  ✓ All property values match between original and regenerated");
+            }
+        } catch (Exception e) {
+            System.out.println("  ERROR: Failed to compare property values: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Format RDF node for display
+     */
+    private static String formatRdfNode(org.apache.jena.rdf.model.RDFNode node) {
+        if (node == null) return "null";
+        if (node.isResource()) {
+            return "<" + shortenUri(node.asResource().getURI()) + ">";
+        }
+        if (node.isLiteral()) {
+            return "\"" + node.asLiteral().getString() + "\"";
+        }
+        return node.toString();
     }
 
     private static File copyToGenerated(File source, String targetName) {
@@ -256,6 +549,23 @@ public class HascoRoundtripTest {
             dumpAndLogTtl("DP2_ingested_original", df);
 
             System.out.println("Test completed - DP2 ingestion workflow executed. Final status: " + df.getFileStatus());
+            printStepBanner("STEP 1/3 - DONE - MT=" + type);
+            return;
+        }
+
+        if (type == MTType.WKF) {
+            DataFile df = mockDataFileFor(excel);
+            final String status = VSTOI.DRAFT;
+
+            assertDoesNotThrow(() -> IngestionWorker.ingest(df, excel, TEMPLATE_GENERIC, status),
+                    () -> "Step 1 WKF ingestion should complete without exceptions");
+
+            assertNotNull(df.getFileStatus(), "WKF ingestion should set a file status");
+            assertFalse(df.getFileStatus().isEmpty(), "WKF ingestion should set a non-empty file status");
+
+            dumpAndLogTtl("WKF_ingested_original", df);
+
+            System.out.println("Test completed - WKF ingestion workflow executed. Final status: " + df.getFileStatus());
             printStepBanner("STEP 1/3 - DONE - MT=" + type);
             return;
         }
@@ -415,6 +725,50 @@ public class HascoRoundtripTest {
             return;
         }
 
+        if (type == MTType.WKF) {
+            final String regeneratedFilename = REGENERATED_WKF_FILENAME;
+            final String status = VSTOI.DRAFT;
+
+            String result = null;
+            try {
+                result = org.hascoapi.transform.mt.wkf.WKFGen.genByStatus(status, regeneratedFilename, null, null);
+            } catch (Exception e) {
+                fail("WKF regeneration threw exception: " + e.getMessage());
+            }
+
+            assertNotNull(result, "WKFGen.genByStatus should return a result string");
+            assertTrue(result.equals("SUCCESS") || !result.isEmpty(),
+                    "Expected SUCCESS or non-empty from WKFGen.genByStatus but got: '" + result + "'");
+
+            final File out = new File(ConfigProp.getPathIngestion() + regeneratedFilename);
+            assertTrue(out.exists(), "Regenerated WKF workbook should exist at: " + out.getAbsolutePath());
+            assertTrue(out.length() > 0, "Regenerated WKF workbook should not be empty: " + out.getAbsolutePath());
+
+            final File generatedCopy = copyToGenerated(out, regeneratedFilename);
+            assertTrue(generatedCopy.exists(), "Expected copied WKF at: " + generatedCopy.getAbsolutePath());
+            assertTrue(generatedCopy.length() > 0, "Copied WKF workbook should not be empty: " + generatedCopy.getAbsolutePath());
+
+            // Minimal structural validation
+            assertDoesNotThrow(() -> {
+                try (java.io.FileInputStream in = new java.io.FileInputStream(out);
+                     org.apache.poi.ss.usermodel.Workbook wb = org.apache.poi.ss.usermodel.WorkbookFactory.create(in)) {
+                    assertNotNull(wb.getSheet(org.hascoapi.transform.mt.wkf.WKFGen.INFOSHEET));
+                    assertNotNull(wb.getSheet(org.hascoapi.transform.mt.wkf.WKFGen.NAMESPACES));
+                }
+            });
+
+            // Ingest regenerated WKF and dump/log
+            DataFile regeneratedDf = mockDataFileFor(generatedCopy);
+            assertDoesNotThrow(() -> IngestionWorker.ingest(regeneratedDf, generatedCopy, TEMPLATE_GENERIC, status),
+                    "Ingesting regenerated WKF workbook should not throw");
+            dumpAndLogTtl("WKF_ingested_regenerated", regeneratedDf);
+
+            System.out.println("Step2 WKF regenerated workbook: " + out.getAbsolutePath());
+            System.out.println("Step2 WKF copied to workspace: " + generatedCopy.getAbsolutePath());
+            printStepBanner("STEP 2/3 - DONE - MT=" + type + " result=" + result);
+            return;
+        }
+
         // Placeholder: regeneration APIs are not currently wired for other MTs.
         assumeTrue(false, () -> "Step 2 regeneration & comparison for " + type + " awaits API wiring.");
     }
@@ -568,6 +922,9 @@ public class HascoRoundtripTest {
                     "Step3: ingesting regenerated INS should not throw");
             dumpAndLogTtl("INS_step3_reingested_regenerated", dfRegen);
 
+            // NEW: Compare original vs regenerated graphs
+            compareGraphs(dfOriginal.getUri(), dfRegen.getUri(), "INS (Step3)");
+
             printStepBanner("STEP 3/3 - DONE - MT=" + type);
             return;
         }
@@ -612,6 +969,57 @@ public class HascoRoundtripTest {
             assertDoesNotThrow(() -> IngestionWorker.ingest(dfRegen, regeneratedCopied2, TEMPLATE_GENERIC, status),
                     "Step3: ingesting regenerated DP2 should not throw");
             dumpAndLogTtl("DP2_step3_reingested_regenerated", dfRegen);
+
+            // NEW: Compare original vs regenerated graphs
+            compareGraphs(dfOriginal.getUri(), dfRegen.getUri(), "DP2 (Step3)");
+
+            printStepBanner("STEP 3/3 - DONE - MT=" + type);
+            return;
+        }
+
+        if (type == MTType.WKF) {
+            final File original = getMtExcel(MTType.WKF);
+            assumeTrue(original != null && original.exists(), () -> "Original WKF test input not found: " + (original == null ? "null" : original.getAbsolutePath()));
+
+            final String status = VSTOI.DRAFT;
+
+            // Best-effort cleanup of WKF graphs created in previous steps
+            DataFile dfTmpOriginal = mockDataFileFor(original);
+            deleteNamedGraphBestEffort(dfTmpOriginal.getUri());
+
+            File regeneratedCopy = new File(GENERATED_DIR, REGENERATED_WKF_FILENAME);
+            if (regeneratedCopy.exists()) {
+                DataFile dfTmpRegen = mockDataFileFor(regeneratedCopy);
+                deleteNamedGraphBestEffort(dfTmpRegen.getUri());
+            }
+
+            // Re-ingest original
+            DataFile dfOriginal = mockDataFileFor(original);
+            assertDoesNotThrow(() -> IngestionWorker.ingest(dfOriginal, original, TEMPLATE_GENERIC, status),
+                    "Step3: re-ingesting original WKF should not throw");
+            dumpAndLogTtl("WKF_step3_reingested_original", dfOriginal);
+
+            // Regenerate again and ingest regenerated
+            String result = null;
+            try {
+                result = org.hascoapi.transform.mt.wkf.WKFGen.genByStatus(status, REGENERATED_WKF_FILENAME, null, null);
+            } catch (Exception e) {
+                fail("Step3: WKF regeneration threw exception: " + e.getMessage());
+            }
+            assertNotNull(result);
+
+            final File regeneratedOut = new File(ConfigProp.getPathIngestion() + REGENERATED_WKF_FILENAME);
+            assertTrue(regeneratedOut.exists(), "Step3: regenerated WKF workbook should exist at: " + regeneratedOut.getAbsolutePath());
+            assertTrue(regeneratedOut.length() > 0, "Step3: regenerated WKF workbook should not be empty: " + regeneratedOut.getAbsolutePath());
+
+            final File regeneratedCopied2 = copyToGenerated(regeneratedOut, REGENERATED_WKF_FILENAME);
+            DataFile dfRegen = mockDataFileFor(regeneratedCopied2);
+            assertDoesNotThrow(() -> IngestionWorker.ingest(dfRegen, regeneratedCopied2, TEMPLATE_GENERIC, status),
+                    "Step3: ingesting regenerated WKF should not throw");
+            dumpAndLogTtl("WKF_step3_reingested_regenerated", dfRegen);
+
+            // NEW: Compare original vs regenerated graphs
+            compareGraphs(dfOriginal.getUri(), dfRegen.getUri(), "WKF (Step3)");
 
             printStepBanner("STEP 3/3 - DONE - MT=" + type);
             return;
@@ -789,7 +1197,8 @@ public class HascoRoundtripTest {
     @ValueSource(strings = {
             // "DSG",  // Temporarily disabled
             "INS",
-            "DP2"
+            "DP2",
+            "WKF"
     })
     public void step1_allMTs_ingest(String mtName) {
         MTType type = MTType.valueOf(mtName);
@@ -802,7 +1211,8 @@ public class HascoRoundtripTest {
     @ValueSource(strings = {
             // "DSG",  // Temporarily disabled
             "INS",
-            "DP2"
+            "DP2",
+            "WKF"
     })
     public void step2_allMTs_regenerate_and_compare(String mtName) {
         MTType type = MTType.valueOf(mtName);
@@ -815,7 +1225,8 @@ public class HascoRoundtripTest {
     @ValueSource(strings = {
             // "DSG",  // Temporarily disabled
             "INS",
-            "DP2"
+            "DP2",
+            "WKF"
     })
     public void step3_allMTs_reset_and_deterministic_reingest(String mtName) {
         MTType type = MTType.valueOf(mtName);
@@ -830,7 +1241,7 @@ public class HascoRoundtripTest {
         List<MTType> expectedTypes = Arrays.asList(MTType.DSG, MTType.INS, MTType.DP2, MTType.STR, MTType.KGR, MTType.SDD, MTType.DA);
         assertTrue(types.containsAll(expectedTypes), "MTType enum must include all expected MT types");
 
-        // Verify INS and DP2 inputs are present
+        // Verify INS, DP2, and WKF inputs are present
         File dp2 = getMtExcel(MTType.DP2);
         assertNotNull(dp2, "DP2 input must be wired in getMtExcel");
         assertTrue(dp2.exists(), "DP2 test input must exist at: " + dp2.getPath());
@@ -840,6 +1251,11 @@ public class HascoRoundtripTest {
         assertNotNull(ins, "INS input must be wired in getMtExcel");
         assertTrue(ins.exists(), "INS test input must exist at: " + ins.getPath());
         assertTrue(ins.length() > 0, "INS test input must not be empty: " + ins.getPath());
+
+        File wkf = getMtExcel(MTType.WKF);
+        assertNotNull(wkf, "WKF input must be wired in getMtExcel");
+        assertTrue(wkf.exists(), "WKF test input must exist at: " + wkf.getPath());
+        assertTrue(wkf.length() > 0, "WKF test input must not be empty: " + wkf.getPath());
 
         File generatedDir = new File("test/resources/generated");
         assertTrue(generatedDir.exists() || generatedDir.mkdirs(), "generated dir should be creatable at: " + generatedDir.getPath());

@@ -860,17 +860,14 @@ public class IngestionAPI extends Controller {
                     break;
                 case "sdd":
                     System.out.println("  Calling SDDGen.genByStatus()...");
-                    generationResult = SDDGen.genByStatus(datafileuri, status, filename, mediaFolder);
+                    generationResult = SDDGen.genByStatus(datafileuri, status, filename, mediaFolder, datafileuri);
                     System.out.println("  SDDGen.genByStatus() returned: [" + generationResult + "]");
                     break;
                 case "wkf":
-                    System.out.println("  WKF generation requested...");
-                    String errorMsg = "WKF generation (WKFGen.java) is not implemented yet. " +
-                                     "Only ingestion is currently supported for WKF. " +
-                                     "To implement: create WKFGen.java similar to DP2Gen.java with methods to generate Excel from triple store data.";
-                    System.out.println("  ❌ ERROR: " + errorMsg);
-                    System.out.println("========== IngestionAPI.mtGenByStatus() END (NOT IMPLEMENTED) ==========\n");
-                    return ok(ApiUtil.createResponse(errorMsg, false));
+                    System.out.println("  Calling WKFGen.genByStatus()...");
+                    generationResult = WKFGen.genByStatus(status, filename, mediaFolder, verifyUri, datafileuri);
+                    System.out.println("  WKFGen.genByStatus() returned: [" + generationResult + "]");
+                    break;
                 default:
                     String errorMsg2 = "[ERROR] IngestionAPI.mtGenByStatus() invalid elementtype=[" + elementtype + "]. " +
                                       "Supported types: ins, dp2, dsg, kgr, sdd, wkf.";

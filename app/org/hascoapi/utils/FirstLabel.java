@@ -32,6 +32,14 @@ public class FirstLabel {
             return "";
         }
 
+        // Validate URI is well-formed before using in SPARQL query
+        String uriToCheck = uri.startsWith("<") ? uri.substring(1, uri.length() - 1) : uri;
+        if (!URIUtils.isWellFormedURI(uriToCheck)) {
+            log.warn("Malformed URI provided for label retrieval: " + uri);
+            log.warn("  This URI has invalid syntax (e.g., improper percent-encoding)");
+            return "";
+        }
+
         if (uri.startsWith("http")) uri = "<" + uri.trim() + ">";
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 "SELECT ?graph ?label WHERE { \n" +

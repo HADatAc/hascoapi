@@ -111,17 +111,41 @@ public class PVGenerator extends BaseGenerator {
 		return rec.getValueByColumnName(mapCol.get("OtherFor"));
 	}
 
+	/**
+	 * Build the SDDAttribute URI for a given column name.
+	 * The PossibleValue must link to the actual SDDAttribute URI, not just the column name string.
+	 *
+	 * CRITICAL FIX: During the generator chain execution, SDDAttributes are created BEFORE PossibleValues,
+	 * but they are NOT YET COMMITTED to the triple store when PVGenerator runs.
+	 * Therefore, we CANNOT query the triple store for SDDAttributes.
+	 *
+	 * Instead, we use the mapAttrObj provided by the SDDAttributeGenerator, which contains
+	 * the mapping from column labels to their corresponding SDDAttribute URIs.
+	 *
+	 * The URI pattern is: https://hadatac.org/ont/hadatac#/SDDATT{timestamp}/{index}
+	 */
 	private String getPVvalue(Record rec) {
-		if ((getLabel(rec)).length() > 0) {
-			return getLabel(rec).replace(" ", "");
-			//if (mapAttrObj.containsKey(colNameInSDD) && mapAttrObj.get(colNameInSDD).length() > 0) {
-			//	return kbPrefix + "SDDA-" + sddName + "-" + getLabel(rec).trim().replace(" ", "").replace("_","-").replace("??", "");
-			//} else {
-			//	return kbPrefix + "SDDO-" + sddName + "-" + getLabel(rec).trim().replace(" ", "").replace("_","-").replace("??", "");
-			//}
-		} else {
+		String columnName = getLabel(rec);
+		if (columnName == null || columnName.isEmpty()) {
 			return "";
 		}
+
+		// Clean the column name
+		columnName = columnName.trim();
+
+		// First, try to find the URI in the mapAttrObj provided by SDDAttributeGenerator
+		if (mapAttrObj != null && mapAttrObj.containsKey(columnName)) {
+			String attrUri = mapAttrObj.get(columnName);
+			logger.println("[PVGenerator] Linked PossibleValue for column '" + columnName +
+				"' to SDDAttribute (via mapAttrObj): " + attrUri);
+			return attrUri;
+		}
+
+		// If not found in map, log warning and fall back to column name
+		// (This should not happen if the Codebook references valid columns from Dictionary Mapping)
+		logger.printWarningByIdWithArgs("PV_00001",
+			"Column '" + columnName + "' not found in SDDAttribute map. Codebook may reference non-existent column.");
+		return columnName.replace(" ", "");
 	}
 	
 	public List<String> createUris() throws Exception {
@@ -209,60 +233,94 @@ public class PVGenerator extends BaseGenerator {
     }
     
     public static void generateOthers(DataFile dataFile, String sddUri, String kbPrefix) {
-		IngestionLogger logger = dataFile.getLogger();
-		logger.println("PVPostGenerator: Processing additional knowledge for <" + sddUri + ">");
-		List<PossibleValue> codes = PossibleValue.findBySchema(sddUri);
-		List<String> subs = new ArrayList<String>();
-		logger.println("PVPostGenerator: Retrieved codes [" + codes.size() + "]");
-		for (PossibleValue code : codes) {
-			if (code.getHasOtherFor() != null && !code.getHasOtherFor().isEmpty()) {
-				String superDCTerm = generateDCTerms(code.getHasVariable(), code.getHasCode());
-				subs.clear();
-				//logger.println("SuperClass: [" + code.getHasOtherFor() + "]   Variable: [" + code.getHasSDDAUri() + "]");
-				//List<PossibleValue> variableCodes = PossibleValue.findByVariable(code.getHasSDDAUri());
-				List<PossibleValue> variableCodes = PossibleValue.findByVariable(code.getIsPossibleValueOf());
-				for (PossibleValue vc : variableCodes) {
-					if (vc.getHasClass() != null && !vc.getHasClass().isEmpty() && (vc.getHasOtherFor() == null || vc.getHasOtherFor().isEmpty() )) {
-						//System.out.println("      Variable: [" + code.getHasVariable() + "]    Class: [" + vc.getHasClass() + "]");
-						if (!subs.contains(vc.getHasClass())) {
-							subs.add(vc.getHasClass());
-						}
-						
-						// update the class inside vc as a subclass of super
-						generateOtherOther(code.getHasOtherFor(),vc,sddUri);
-						logger.println("        - added " + vc.getHasClass() + " as a subclass of " + code.getHasOtherFor());
-					}
-				}
-		        try { 
-		        	Collections.sort(subs);
-					String shaString = "Super=" + code.getHasOtherFor() + "|Sub=";
-		        	for (String sub : subs) {
-		        		shaString = shaString + sub;
-		        	}
-		        	String shaHash = hashWith256(shaString);
-					String harmonizedCodeHex = shaHash.substring(0,5);
-					String harmonizedCode = String.valueOf(Integer.parseInt(harmonizedCodeHex,16)); 
-					String newUri = URIUtils.replacePrefixEx(kbPrefix + shaHash);
-		            //System.out.println("      key:           [" + shaString + "]");  
-		            //System.out.println("      harmonizedCode [" + harmonizedCode + "]");  
-		            //System.out.println("      new uri        [" + newUri + "]");  
-		            
-		            // generate the 'other' class
-		            generateOther(newUri, harmonizedCode, code, sddUri);
-					logger.println("        - created 'other' class " + newUri + " as a subclass of " + code.getHasOtherFor());
-		            
-		            // associate the new 'other' class to the codebook element for the class
-		            code.setHasClass(newUri);
-		            code.setNamedGraph(sddUri);
-		            code.save();
-		        } 
-		        // For specifying wrong message digest algorithms  
-		        catch (Exception e) {  
-		            System.out.println("[ERROR] Generating sha-256: " + e);  
-		        }  
-			}
-		}
-		//System.out.println("PVPostGenerator: Additional knowledge derived from code book");
-	}
-	
+        // Defensive: PVGenerator is only meaningful for SDD codebooks.
+        // For other ingest flows, chain.getPV() should be false; but if it's true
+        // (or codebookFile/logger is missing) we must not crash finalization.
+        if (dataFile == null) {
+            System.out.println("[WARN] PVPostGenerator: dataFile is null; skipping PV post-processing.");
+            return;
+        }
+
+        IngestionLogger logger = dataFile.getLogger();
+        if (logger == null) {
+            System.out.println("[WARN] PVPostGenerator: dataFile logger is null; skipping PV post-processing. dataFileUri=" + dataFile.getUri());
+            return;
+        }
+
+        if (sddUri == null || sddUri.trim().isEmpty()) {
+            logger.println("[WARN] PVPostGenerator: sddUri is empty; skipping PV post-processing.");
+            return;
+        }
+
+        logger.println("PVPostGenerator: Processing additional knowledge for <" + sddUri + ">");
+
+        List<PossibleValue> codes = PossibleValue.findBySchema(sddUri);
+        if (codes == null) {
+            logger.println("[WARN] PVPostGenerator: PossibleValue.findBySchema returned null for schema=" + sddUri + "; skipping.");
+            return;
+        }
+
+        List<String> subs = new ArrayList<String>();
+        logger.println("PVPostGenerator: Retrieved codes [" + codes.size() + "]");
+        for (PossibleValue code : codes) {
+            if (code == null) {
+                continue;
+            }
+            if (code.getHasOtherFor() != null && !code.getHasOtherFor().isEmpty()) {
+                subs.clear();
+                // Defensive check: ensure code.getIsPossibleValueOf() is not null
+                if (code.getIsPossibleValueOf() == null || code.getIsPossibleValueOf().isEmpty()) {
+                    logger.println("[WARN] PVPostGenerator: code.getIsPossibleValueOf() is null or empty for code=" + code.getUri() + "; skipping.");
+                    continue;
+                }
+                List<PossibleValue> variableCodes = PossibleValue.findByVariable(code.getIsPossibleValueOf());
+                if (variableCodes == null) {
+                    continue;
+                }
+                for (PossibleValue vc : variableCodes) {
+                    if (vc == null) {
+                        continue;
+                    }
+                    if (vc.getHasClass() != null && !vc.getHasClass().isEmpty() && (vc.getHasOtherFor() == null || vc.getHasOtherFor().isEmpty())) {
+                        if (!subs.contains(vc.getHasClass())) {
+                            subs.add(vc.getHasClass());
+                        }
+
+                        // update the class inside vc as a subclass of super
+                        generateOtherOther(code.getHasOtherFor(), vc, sddUri);
+                        logger.println("        - added " + vc.getHasClass() + " as a subclass of " + code.getHasOtherFor());
+                    }
+                }
+                try {
+                    Collections.sort(subs);
+                    String shaString = "Super=" + code.getHasOtherFor() + "|Sub=";
+                    for (String sub : subs) {
+                        shaString = shaString + sub;
+                    }
+                    String shaHash = hashWith256(shaString);
+                    if (shaHash == null || shaHash.length() < 5) {
+                        logger.println("[WARN] PVPostGenerator: sha-256 returned invalid hash; skipping 'other' class generation for super=" + code.getHasOtherFor());
+                        continue;
+                    }
+                    String harmonizedCodeHex = shaHash.substring(0, 5);
+                    String harmonizedCode = String.valueOf(Integer.parseInt(harmonizedCodeHex, 16));
+                    String newUri = URIUtils.replacePrefixEx(kbPrefix + shaHash);
+
+                    // generate the 'other' class
+                    generateOther(newUri, harmonizedCode, code, sddUri);
+                    logger.println("        - created 'other' class " + newUri + " as a subclass of " + code.getHasOtherFor());
+
+                    // associate the new 'other' class to the codebook element for the class
+                    code.setHasClass(newUri);
+                    code.setNamedGraph(sddUri);
+                    code.save();
+                }
+                // For specifying wrong message digest algorithms
+                catch (Exception e) {
+                    logger.println("[ERROR] PVPostGenerator: error while generating sha-256 based 'other' class: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 }

@@ -12,12 +12,10 @@ import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.sparql.SPARQLRepository;
 import org.hascoapi.entity.pojo.DataFile;
+import org.hascoapi.utils.*;
 import org.hascoapi.utils.MetadataFactory;
-import org.hascoapi.utils.URIUtils;
 import org.hascoapi.utils.CollectionUtil;
-import org.hascoapi.utils.ConfigProp;
-import org.hascoapi.utils.NameSpaces;
-import org.hascoapi.utils.Templates;
+// import org.hascoapi.utils.Templates; // No longer needed - inherited from BaseGenerator
 
 public class SDDAttributeGenerator extends BaseGenerator {
 
@@ -27,13 +25,17 @@ public class SDDAttributeGenerator extends BaseGenerator {
     String sddUri = "";
     String filename = "";
     String managerEmail = "";
-    Templates templates;
+    // Templates templates; // REMOVED: This was shadowing BaseGenerator's templates field, causing null in initMapping()
     Map<String, String> codeMap;
     Map<String, List<String>> hasEntityMap = new HashMap<String, List<String>>();
     Map<String, List<String>> mergedEA = new HashMap<String, List<String>>();
     Map<String, List<String>> mergedAA = new HashMap<String, List<String>>();
     List<String> AttrList = new ArrayList<String>();
     Map<String, String> currentHasEntity = new HashMap<String, String>();
+
+    // Map of column label -> SDDAttribute URI (created during createRows)
+    // This will be used by PVGenerator to link PossibleValues to SDDAttributes
+    private Map<String, String> labelToUriMap = new HashMap<String, String>();
 
     public SDDAttributeGenerator(DataFile dataFile, String sddUri, String sddName, Map<String, String> codeMap, List<Map<String, List<String>>> merging, String templateFile) {
         // Ensure BaseGenerator creates Templates with the same templateFile so initMapping() is safe.
@@ -47,7 +49,7 @@ public class SDDAttributeGenerator extends BaseGenerator {
         this.mergedEA = merging.get(0);
         this.mergedAA = merging.get(1);
         this.fileName = dataFile.getFilename();
-        this.templates = new Templates(templateFile);
+        // this.templates = new Templates(templateFile); // REMOVED: BaseGenerator already initialized templates
         logger.println("[Merged Attributes] : " + mergedEA.keySet());
         logger.println("[Derived Attributes] : " + mergedAA.keySet());
 
@@ -70,13 +72,10 @@ public class SDDAttributeGenerator extends BaseGenerator {
     @Override
     public void initMapping() {
         try {
-            // Make sure templates is available even when initMapping() is invoked from BaseGenerator constructor.
+            // BaseGenerator's constructor already initialized templates from templateFile before calling initMapping()
+            // So we should use that templates field directly
             if (templates == null) {
-                templates = this.templates;
-            }
-            if (templates == null) {
-                // best-effort fallback: avoid NPE; actual missing template will be caught later as missing columns
-                System.out.println("[WARNING] SDDAttributeGenerator.initMapping(): Templates is null; mapping may be incomplete");
+                System.out.println("[ERROR] SDDAttributeGenerator.initMapping(): Templates is null after BaseGenerator initialization");
                 return;
             }
 
@@ -105,11 +104,13 @@ public class SDDAttributeGenerator extends BaseGenerator {
     }
 
     private String getLabel(Record rec) {
-        return rec.getValueByColumnName(mapCol.get("Label"));
+        String value = rec.getValueByColumnName(mapCol.get("Label"));
+        return (value == null) ? "" : value.trim();
     }
 
     private String getAttribute(Record rec) {
-        return rec.getValueByColumnName(mapCol.get("AttributeType"));
+        String value = rec.getValueByColumnName(mapCol.get("AttributeType"));
+        return (value == null) ? "" : value.trim();
     }
 
     private String getVariableOf(Record rec) {
@@ -125,17 +126,44 @@ public class SDDAttributeGenerator extends BaseGenerator {
 
     private String getUnit(Record rec) {
         String original = rec.getValueByColumnName(mapCol.get("Unit"));
+        if (original == null || original.isEmpty()) {
+            return "";
+        }
+        // Trim whitespace including newlines to prevent malformed URIs
+        original = original.trim();
+
+        // First check if it's already a valid URI
         if (URIUtils.isValidURI(original)) {
-            return original;
+            // Convert abbreviated URI to full URI
+            String fullUri = URIUtils.convertToWholeURI(original);
+            // Validate the full URI is well-formed
+            if (URIUtils.isWellFormedURI(fullUri)) {
+                return original;
+            } else {
+                System.out.println("[WARNING] SDDAttributeGenerator.getUnit(): Malformed URI after conversion: " + fullUri);
+                System.out.println("[WARNING]   Original value: '" + original + "'");
+                return "";
+            }
         } else if (codeMap.containsKey(original)) {
-            return codeMap.get(original);
+            // It's a code that needs to be looked up
+            String mappedUri = codeMap.get(original);
+            // Validate the mapped URI is well-formed
+            String fullUri = URIUtils.convertToWholeURI(mappedUri);
+            if (URIUtils.isWellFormedURI(fullUri)) {
+                return codeMap.get(original);
+            } else {
+                System.out.println("[WARNING] SDDAttributeGenerator.getUnit(): Malformed URI in codeMap: " + fullUri);
+                System.out.println("[WARNING]   Original value: '" + original + "', mapped to: '" + mappedUri + "'");
+                return "";
+            }
         }
 
         return "";
     }
 
     private String getTime(Record rec) {
-        return rec.getValueByColumnName(mapCol.get("Time").trim());
+        String value = rec.getValueByColumnName(mapCol.get("Time"));
+        return (value == null) ? "" : value.trim();
     }
 
     private String getEntity(Record rec) {
@@ -163,12 +191,14 @@ public class SDDAttributeGenerator extends BaseGenerator {
     }
 
     private String getRelation(Record rec) {
-        return rec.getValueByColumnName(mapCol.get("Relation"));
+        String value = rec.getValueByColumnName(mapCol.get("Relation"));
+        return (value == null) ? "" : value.trim();
     }
 
     private String getInRelationTo(Record rec) {
-        return rec.getValueByColumnName(mapCol.get("InRelationTo"));
-        /* 
+        String value = rec.getValueByColumnName(mapCol.get("InRelationTo"));
+        return (value == null) ? "" : value.trim();
+        /*
         if (inRelationTo.length() == 0) {
             return "";
         } else {
@@ -182,11 +212,16 @@ public class SDDAttributeGenerator extends BaseGenerator {
     }
 
     private String getWasDerivedFrom(Record rec) {
-        return rec.getValueByColumnName(mapCol.get("WasDerivedFrom"));
+        String value = rec.getValueByColumnName(mapCol.get("WasDerivedFrom"));
+        return (value == null) ? "" : value.trim();
     }
 
     private List<String> getListWasDerivedFrom(Record rec) {
         String derivedFrom = rec.getValueByColumnName(mapCol.get("WasDerivedFrom"));
+        if (derivedFrom == null) {
+            return new ArrayList<String>();
+        }
+        derivedFrom = derivedFrom.trim();
         List<String> list = new ArrayList<String>();
         if (derivedFrom.length() == 0) {
             return list;
@@ -236,9 +271,11 @@ public class SDDAttributeGenerator extends BaseGenerator {
     private String getWasGeneratedBy(Record rec) {
 
         String str = rec.getValueByColumnName(mapCol.get("WasGeneratedBy"));
-        if (str.length() == 0) {
+        if (str == null || str.trim().length() == 0) {
             return "";
-        } else if (checkCellUriRegistered(str)) {
+        }
+        str = str.trim();
+        if (checkCellUriRegistered(str)) {
             if (checkCellUriResolvable(str)) {
                 return str;
             }
@@ -267,22 +304,50 @@ public class SDDAttributeGenerator extends BaseGenerator {
         List<String> column_name = new ArrayList<String>();
         int rowNumber = 0;
 
+        System.out.println("[SDDAttributeGenerator] createRows() START - total records: " + records.size());
+        System.out.println("[SDDAttributeGenerator] Template mapping for AttributeType: '" + mapCol.get("AttributeType") + "'");
+
         for (Record record : records) {
 
             String attr = getAttribute(record);
+            String label = getLabel(record);
+
+            System.out.println("[SDDAttributeGenerator] Processing record #" + (rowNumber + 1) + ":");
+            System.out.println("[SDDAttributeGenerator]   label='" + label + "'");
+            System.out.println("[SDDAttributeGenerator]   attribute (from column '" + mapCol.get("AttributeType") + "')='" + attr + "'");
+            System.out.println("[SDDAttributeGenerator]   attribute is null: " + (attr == null));
+            System.out.println("[SDDAttributeGenerator]   attribute is empty: " + (attr != null && attr.equals("")));
+
             if ( attr  == null || attr.equals("")){
+                System.out.println("[SDDAttributeGenerator]   -> SKIPPED (empty attribute)");
                 if (column_name.contains(getLabel(record))){
+                    System.out.println("[SDDAttributeGenerator]   -> Creating relation row instead");
                     rows.add(createRelationRow(record, ++rowNumber));
                 }
                 continue;
             } else {
-                rows.add(createRow(record, ++rowNumber));
+                System.out.println("[SDDAttributeGenerator]   -> Creating SDDAttribute row");
+                Map<String, Object> newRow = createRow(record, ++rowNumber);
+                System.out.println("[SDDAttributeGenerator]   -> Row created with URI: " + newRow.get("hasURI"));
+                rows.add(newRow);
+                System.out.println("[SDDAttributeGenerator]   -> Rows list now has " + rows.size() + " rows");
+
+                // Store the mapping of column label -> SDDAttribute URI for PVGenerator
+                String columnLabel = getLabel(record);
+                String sddAttUri = (String) newRow.get("hasURI");
+                if (columnLabel != null && !columnLabel.isEmpty() && sddAttUri != null) {
+                    labelToUriMap.put(columnLabel, sddAttUri);
+                    System.out.println("[SDDAttributeGenerator]   -> Stored label->URI mapping: '" + columnLabel + "' -> '" + sddAttUri + "'");
+                }
+
                 //for (String item : getWasDerivedFrom(record)) {
                 //    rows.add(createDerivedFromRow(item, record));
                 //}
                 column_name.add(getLabel(record));
             }
         }
+
+        System.out.println("[SDDAttributeGenerator] createRows() END - total rows created: " + rows.size());
 
         /*if (mergedEA != null && mergedEA.keySet().size() > 0) {
             for (String attr : mergedEA.keySet()) {
@@ -492,6 +557,16 @@ public class SDDAttributeGenerator extends BaseGenerator {
     @Override
     public String getErrorMsg(Exception e) {
         return "Error in SDDAttributeGenerator: " + e.getMessage();
+    }
+
+    /**
+     * Get the mapping of column labels to their SDDAttribute URIs.
+     * This is used by PVGenerator to properly link PossibleValues to SDDAttributes.
+     *
+     * @return Map of column label -> SDDAttribute URI
+     */
+    public Map<String, String> getLabelToUriMap() {
+        return labelToUriMap;
     }
 
     @Override
