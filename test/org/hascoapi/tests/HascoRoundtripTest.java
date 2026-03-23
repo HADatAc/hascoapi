@@ -63,10 +63,11 @@ public class HascoRoundtripTest {
                 // Authoritative WKF test workbook for Weather Station Workflow
                 return new File("test/resources/wkf/WKF-WeatherStation.xlsx");
 
-          /*  case SDD:
-                // TODO: point to authoritative SDD test workbook when available
-                return new File("test/resources/sdd/SDD-STD-test.xlsx");
-            case DP2:
+            case SDD:
+                // Authoritative SDD test workbook for Health Monitoring
+                return new File("test/resources/sdd/SDD-health.xlsx");
+
+          /*  case DP2:
                 return new File("test/resources/dp2/DP2-STD-test.xlsx");
             case STR:
                 return new File("test/resources/str/STR-STD-test.xlsx");
@@ -148,6 +149,7 @@ public class HascoRoundtripTest {
     private static final String REGENERATED_INS_FILENAME = "INS-PMSR-Simulators-regenerated.xlsx";
     private static final String REGENERATED_DP2_FILENAME = "DP2-PMSR-regenerated.xlsx";
     private static final String REGENERATED_WKF_FILENAME = "WKF-WeatherStation-regenerated.xlsx";
+    private static final String REGENERATED_SDD_FILENAME = "SDD-health-regenerated.xlsx";
 
     // Keep the last ingested study URI so step3 can delete/reingest deterministically.
     private static final java.util.concurrent.atomic.AtomicReference<String> LAST_INGESTED_STUDY_URI =
@@ -570,6 +572,23 @@ public class HascoRoundtripTest {
             return;
         }
 
+        if (type == MTType.SDD) {
+            DataFile df = mockDataFileFor(excel);
+            final String status = VSTOI.DRAFT;
+
+            assertDoesNotThrow(() -> IngestionWorker.ingest(df, excel, TEMPLATE_GENERIC, status),
+                    () -> "Step 1 SDD ingestion should complete without exceptions");
+
+            assertNotNull(df.getFileStatus(), "SDD ingestion should set a file status");
+            assertFalse(df.getFileStatus().isEmpty(), "SDD ingestion should set a non-empty file status");
+
+            dumpAndLogTtl("SDD_ingested_original", df);
+
+            System.out.println("Test completed - SDD ingestion workflow executed. Final status: " + df.getFileStatus());
+            printStepBanner("STEP 1/3 - DONE - MT=" + type);
+            return;
+        }
+
         assumeTrue(false, () -> "Step 1 ingestion for " + type + " is not yet implemented in tests.");
     }
 
@@ -765,6 +784,52 @@ public class HascoRoundtripTest {
 
             System.out.println("Step2 WKF regenerated workbook: " + out.getAbsolutePath());
             System.out.println("Step2 WKF copied to workspace: " + generatedCopy.getAbsolutePath());
+            printStepBanner("STEP 2/3 - DONE - MT=" + type + " result=" + result);
+            return;
+        }
+
+        if (type == MTType.SDD) {
+            final String regeneratedFilename = REGENERATED_SDD_FILENAME;
+            final String status = VSTOI.DRAFT;
+
+            String result = null;
+            try {
+                // SDDGen.genByStatus(dataFileUri, status, filename, mediaFolder, excludeDataFileUri)
+                // For regeneration, we don't need to exclude any DataFile (no fresh creation happening)
+                result = org.hascoapi.transform.mt.sdd.SDDGen.genByStatus(null, status, regeneratedFilename, null, null);
+            } catch (Exception e) {
+                fail("SDD regeneration threw exception: " + e.getMessage());
+            }
+
+            assertNotNull(result, "SDDGen.genByStatus should return a result string");
+
+            // SDDGen.save writes to ConfigProp.getPathIngestion() + filename
+            final File out = new File(result);
+            assertTrue(out.exists(), "Regenerated SDD workbook should exist at: " + out.getAbsolutePath());
+            assertTrue(out.length() > 0, "Regenerated SDD workbook should not be empty: " + out.getAbsolutePath());
+
+            // Copy to test/resources/generated
+            final File generatedCopy = copyToGenerated(out, regeneratedFilename);
+            assertTrue(generatedCopy.exists(), "Expected copied SDD at: " + generatedCopy.getAbsolutePath());
+            assertTrue(generatedCopy.length() > 0, "Copied SDD workbook should not be empty: " + generatedCopy.getAbsolutePath());
+
+            // Minimal structural validation
+            assertDoesNotThrow(() -> {
+                try (java.io.FileInputStream in = new java.io.FileInputStream(out);
+                     org.apache.poi.ss.usermodel.Workbook wb = org.apache.poi.ss.usermodel.WorkbookFactory.create(in)) {
+                    assertNotNull(wb.getSheet(org.hascoapi.transform.mt.sdd.SDDGen.INFOSHEET));
+                    assertNotNull(wb.getSheet(org.hascoapi.transform.mt.sdd.SDDGen.NAMESPACES));
+                }
+            });
+
+            // Ingest regenerated SDD and dump/log
+            DataFile regeneratedDf = mockDataFileFor(generatedCopy);
+            assertDoesNotThrow(() -> IngestionWorker.ingest(regeneratedDf, generatedCopy, TEMPLATE_GENERIC, status),
+                    "Ingesting regenerated SDD workbook should not throw");
+            dumpAndLogTtl("SDD_ingested_regenerated", regeneratedDf);
+
+            System.out.println("Step2 SDD regenerated workbook: " + out.getAbsolutePath());
+            System.out.println("Step2 SDD copied to workspace: " + generatedCopy.getAbsolutePath());
             printStepBanner("STEP 2/3 - DONE - MT=" + type + " result=" + result);
             return;
         }
@@ -1025,6 +1090,54 @@ public class HascoRoundtripTest {
             return;
         }
 
+        if (type == MTType.SDD) {
+            final File original = getMtExcel(MTType.SDD);
+            assumeTrue(original != null && original.exists(), () -> "Original SDD test input not found: " + (original == null ? "null" : original.getAbsolutePath()));
+
+            final String status = VSTOI.DRAFT;
+
+            // Best-effort cleanup of SDD graphs created in previous steps
+            DataFile dfTmpOriginal = mockDataFileFor(original);
+            deleteNamedGraphBestEffort(dfTmpOriginal.getUri());
+
+            File regeneratedCopy = new File(GENERATED_DIR, REGENERATED_SDD_FILENAME);
+            if (regeneratedCopy.exists()) {
+                DataFile dfTmpRegen = mockDataFileFor(regeneratedCopy);
+                deleteNamedGraphBestEffort(dfTmpRegen.getUri());
+            }
+
+            // Re-ingest original
+            DataFile dfOriginal = mockDataFileFor(original);
+            assertDoesNotThrow(() -> IngestionWorker.ingest(dfOriginal, original, TEMPLATE_GENERIC, status),
+                    "Step3: re-ingesting original SDD should not throw");
+            dumpAndLogTtl("SDD_step3_reingested_original", dfOriginal);
+
+            // Regenerate again and ingest regenerated
+            String result = null;
+            try {
+                result = org.hascoapi.transform.mt.sdd.SDDGen.genByStatus(null, status, REGENERATED_SDD_FILENAME, null, null);
+            } catch (Exception e) {
+                fail("Step3: SDD regeneration threw exception: " + e.getMessage());
+            }
+            assertNotNull(result);
+
+            final File regeneratedOut = new File(ConfigProp.getPathIngestion() + REGENERATED_SDD_FILENAME);
+            assertTrue(regeneratedOut.exists(), "Step3: regenerated SDD workbook should exist at: " + regeneratedOut.getAbsolutePath());
+            assertTrue(regeneratedOut.length() > 0, "Step3: regenerated SDD workbook should not be empty: " + regeneratedOut.getAbsolutePath());
+
+            final File regeneratedCopied2 = copyToGenerated(regeneratedOut, REGENERATED_SDD_FILENAME);
+            DataFile dfRegen = mockDataFileFor(regeneratedCopied2);
+            assertDoesNotThrow(() -> IngestionWorker.ingest(dfRegen, regeneratedCopied2, TEMPLATE_GENERIC, status),
+                    "Step3: ingesting regenerated SDD should not throw");
+            dumpAndLogTtl("SDD_step3_reingested_regenerated", dfRegen);
+
+            // NEW: Compare original vs regenerated graphs
+            compareGraphs(dfOriginal.getUri(), dfRegen.getUri(), "SDD (Step3)");
+
+            printStepBanner("STEP 3/3 - DONE - MT=" + type);
+            return;
+        }
+
         // Placeholder: requires reset API for other MTs.
         assumeTrue(false, () -> "Step 3 reset & deterministic re-ingestion for " + type + " awaits reset API.");
     }
@@ -1198,7 +1311,8 @@ public class HascoRoundtripTest {
             // "DSG",  // Temporarily disabled
             "INS",
             "DP2",
-            "WKF"
+            "WKF",
+            "SDD"
     })
     public void step1_allMTs_ingest(String mtName) {
         MTType type = MTType.valueOf(mtName);
@@ -1212,7 +1326,8 @@ public class HascoRoundtripTest {
             // "DSG",  // Temporarily disabled
             "INS",
             "DP2",
-            "WKF"
+            "WKF",
+            "SDD"
     })
     public void step2_allMTs_regenerate_and_compare(String mtName) {
         MTType type = MTType.valueOf(mtName);
@@ -1226,7 +1341,8 @@ public class HascoRoundtripTest {
             // "DSG",  // Temporarily disabled
             "INS",
             "DP2",
-            "WKF"
+            "WKF",
+            "SDD"
     })
     public void step3_allMTs_reset_and_deterministic_reingest(String mtName) {
         MTType type = MTType.valueOf(mtName);
