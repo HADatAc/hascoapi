@@ -174,23 +174,42 @@ public class StudyObjectGenerator extends BaseGenerator {
     
     private String getScopeUri(Record rec) {
         if (soc_scope != null && !soc_scope.isEmpty()){
-        	if (mapContent.get(soc_scope) != null) {
-        		String scopeSOCtype = mapContent.get(soc_scope).get(1);
-        		if (scopeSOCtype.toLowerCase().contains("SubjectGroup".toLowerCase())) {
-                    return Utils.uriPlainGen("studyobject",
-                        rec.getValueByColumnName(mapCol.get("scopeID")).replaceAll("(?<=^\\d+)\\.0*$", ""),
-                        this.namespace,
-                        domain_reference);
-                } else {
-                    return "";
-                }
+	        if (mapContent.get(soc_scope) != null) {
+            	String returnedValue = rec.getValueByColumnName(mapCol.get("scopeID"));
+            	if (returnedValue == null) {
+            		dataFile.getLogger().println("[WARN] StudyObjectGenerator.getScopeUri(): scopeID is null for SOC [" + soc_uri + "] scopeSOC=[" + soc_scope + "]");
+            		return "";
+            	}
+            	returnedValue = returnedValue.trim();
+            	if (returnedValue.isEmpty()) {
+            		// no scope assigned if scopeID cell is blank
+            		return "";
+            	}
+            	if (domain_reference == null || domain_reference.isEmpty()) {
+            		// best-effort fallback: use referenced SOC's hasSOCReference (index 6)
+            		List<String> scopeSocRow = mapContent.get(soc_scope);
+            		if (scopeSocRow != null && scopeSocRow.size() > 6 && scopeSocRow.get(6) != null) {
+            			domain_reference = scopeSocRow.get(6);
+            		}
+            	}
+	        	// the value returned by getValueByColumnName may be an URI or an original.
+	        	if (URIUtils.isValidURI(returnedValue)) {
+	        		// if returned value is an URI, this function returns the URI with expanded namespace 
+	        		return URIUtils.replacePrefixEx(returnedValue);
+	        	} else {
+	        		// if returned value is not an URI, this function composes an URI according to SDD convention 
+		            return Utils.uriPlainGen("studyobject",
+		                returnedValue.replaceAll("(?<=^\\d+)\\.0*$", ""),
+		                this.namespace,
+		                domain_reference);
+	        	}
             } else {
                 // STO_00001: Missing mapping for soc_scope
                 dataFile.getLogger().printExceptionByIdWithArgs("STO_00001", soc_scope);
                 return "";
-        	}
+	        }
         } else {
-        	return "";
+	        return "";
         }
     }
 
@@ -270,9 +289,18 @@ public class StudyObjectGenerator extends BaseGenerator {
         
         //System.out.println("Domain soc: [" + domain_reference + "]  Time soc: [" + time_reference + "] Space soc: [" + space_reference + "]");
 
-        obj.addScopeUri(getScopeUri(record));
-        obj.addTimeScopeUri(getTimeScopeUri(record));
-        obj.addSpaceScopeUri(getSpaceScopeUri(record));
+        String scopeUri = getScopeUri(record);
+        if (scopeUri != null && !scopeUri.isEmpty()) {
+            obj.addScopeUri(scopeUri);
+        }
+        String timeScopeUri = getTimeScopeUri(record);
+        if (timeScopeUri != null && !timeScopeUri.isEmpty()) {
+            obj.addTimeScopeUri(timeScopeUri);
+        }
+        String spaceScopeUri = getSpaceScopeUri(record);
+        if (spaceScopeUri != null && !spaceScopeUri.isEmpty()) {
+            obj.addSpaceScopeUri(spaceScopeUri);
+        }
         
         return obj;
     }
