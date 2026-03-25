@@ -32,6 +32,7 @@ import org.hascoapi.transform.mt.dsg.DSGGen;
 import org.hascoapi.transform.mt.ins.INSGen;
 import org.hascoapi.transform.mt.kgr.KGRGen;
 import org.hascoapi.transform.mt.sdd.SDDGen;
+import org.hascoapi.transform.mt.soc.SOCGen;
 import org.hascoapi.utils.*;
 import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.VSTOI;
@@ -868,9 +869,16 @@ public class IngestionAPI extends Controller {
                     generationResult = WKFGen.genByStatus(status, filename, mediaFolder, verifyUri, datafileuri);
                     System.out.println("  WKFGen.genByStatus() returned: [" + generationResult + "]");
                     break;
+                case "soc":
+                    // SOC generation requires a study URI instead of datafileuri
+                    // The frontend should pass the study URI in the datafileuri parameter for SOC generation
+                    System.out.println("  Calling SOCGen.genByStudy()...");
+                    generationResult = SOCGen.genByStudy(datafileuri, filename, mediaFolder, verifyUri);
+                    System.out.println("  SOCGen.genByStudy() returned: [" + generationResult + "]");
+                    break;
                 default:
                     String errorMsg2 = "[ERROR] IngestionAPI.mtGenByStatus() invalid elementtype=[" + elementtype + "]. " +
-                                      "Supported types: ins, dp2, dsg, kgr, sdd, wkf.";
+                                      "Supported types: ins, dp2, dsg, kgr, sdd, wkf, soc.";
                     System.out.println(errorMsg2);
                     System.out.println("========== IngestionAPI.mtGenByStatus() END (ERROR) ==========\n");
                     return ok(ApiUtil.createResponse(errorMsg2,false));
