@@ -28,19 +28,42 @@ public class CSVRecordFile implements RecordFile {
     }
     
     private void init() {
+        System.out.println("CSVRecordFile.init() - Starting to parse file: " + (file != null ? file.getAbsolutePath() : "NULL"));
         try {
-            CSVParser parser = CSVFormat.DEFAULT.withHeader().parse(new FileReader(file));
+            // Use withAllowMissingColumnNames(true) to handle CSV files with empty trailing columns
+            CSVParser parser = CSVFormat.DEFAULT.withHeader().withAllowMissingColumnNames(true).parse(new FileReader(file));
             Map<String, Integer> headerMap = parser.getHeaderMap();
 
-            headers = new ArrayList<String>(headerMap.size());
+            // Find the maximum column index to properly size the headers list
+            int maxIndex = 0;
+            for (Integer index : headerMap.values()) {
+                if (index > maxIndex) {
+                    maxIndex = index;
+                }
+            }
+            
+            // Pre-fill headers list with empty strings up to maxIndex
+            headers = new ArrayList<String>(maxIndex + 1);
+            for (int i = 0; i <= maxIndex; i++) {
+                headers.add("");
+            }
+            
+            // Now set the actual header names at their correct positions
             for (String key : headerMap.keySet()) {
-                headers.add(headerMap.get(key).intValue(), key);
+                int index = headerMap.get(key).intValue();
+                headers.set(index, key);
             }
             
             numberOfRows = parser.getRecords().size();
+            System.out.println("CSVRecordFile.init() - Successfully parsed CSV: " + numberOfRows + " rows, " + headers.size() + " columns");
         } catch (FileNotFoundException e) {
+            System.out.println("[ERROR] CSVRecordFile.init() - FileNotFoundException: " + e.getMessage());
             e.printStackTrace();
         } catch (IOException e) {
+            System.out.println("[ERROR] CSVRecordFile.init() - IOException: " + e.getMessage());
+            e.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("[ERROR] CSVRecordFile.init() - Unexpected exception: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -49,7 +72,8 @@ public class CSVRecordFile implements RecordFile {
     public List<Record> getRecords() {
         List<CSVRecord> records = null;
         try {
-            records = CSVFormat.DEFAULT.withHeader().parse(new FileReader(file)).getRecords();
+            // Use withAllowMissingColumnNames(true) to match init() behavior
+            records = CSVFormat.DEFAULT.withHeader().withAllowMissingColumnNames(true).parse(new FileReader(file)).getRecords();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {

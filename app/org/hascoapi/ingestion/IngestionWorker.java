@@ -74,7 +74,13 @@ public class IngestionWorker {
         // file is rejected if it has an invalid extension
         RecordFile recordFile = null;
         if (fileName.endsWith(".csv")) {
+            System.out.println("IngestionWorker: Creating CSVRecordFile for: " + fileName);
+            System.out.println("IngestionWorker: File object passed to CSVRecordFile - Path: " + (file != null ? file.getAbsolutePath() : "NULL"));
+            System.out.println("IngestionWorker: File exists: " + (file != null && file.exists()));
+            System.out.println("IngestionWorker: File readable: " + (file != null && file.canRead()));
+            System.out.println("IngestionWorker: File size: " + (file != null && file.exists() ? file.length() + " bytes" : "N/A"));
             recordFile = new CSVRecordFile(file);
+            System.out.println("IngestionWorker: CSVRecordFile created, checking validity...");
         } else if (fileName.endsWith(".xlsx")) {
             recordFile = new SpreadsheetRecordFile(file,dataFile.getFilename(),"InfoSheet");
         } else {
@@ -83,13 +89,52 @@ public class IngestionWorker {
             return;
         }
 
+        System.out.println("\n=== [INGESTION PATH] IngestionWorker.ingest() ===");
+        System.out.println("[INGESTION PATH] DataFile: " + dataFile.getFilename());
+        System.out.println("[INGESTION PATH] DataFile URI: " + dataFile.getUri());
+        System.out.println("[INGESTION PATH] RecordFile isValid: " + (recordFile != null ? recordFile.isValid() : "recordFile is NULL"));
+        
         if (!recordFile.isValid()) {
+            System.out.println("[ERROR] RecordFile.isValid() returned FALSE - aborting ingestion");
             dataFile.getLogger().printExceptionById("GBL_00005");
             //System.out.println("[ERROR] IngestionWorker: No InfoSheet in provided file.");
             return;
         }
+        
+        System.out.println("✅ RecordFile is valid, continuing with ingestion");
 
         dataFile.setRecordFile(recordFile);
+
+        // Auto-detect SOC for DASOC files (DA-SOC-* pattern)
+        if (FilenameUtils.getBaseName(fileName).startsWith("DA-SOC-")) {
+            String baseName = FilenameUtils.getBaseName(fileName);
+            String socName = baseName.substring(7); // "DA-SOC-ENTERPRISE" -> "ENTERPRISE"
+            
+            System.out.println("[INGESTION PATH] Detected DASOC file pattern: DA-SOC-*");
+            System.out.println("[INGESTION PATH] Extracting SOC name: " + socName);
+            dataFile.getLogger().println("DASOC file detected - SOC name from filename: " + socName);
+            
+            // Try to find SOC by querying for objects with matching originalID pattern
+            String socUri = findSOCByName(socName);
+            if (socUri != null && !socUri.isEmpty()) {
+                dataFile.setDasocSOCUri(socUri);
+                dataFile.getLogger().println("✅ Auto-detected SOC URI: " + socUri);
+                System.out.println("[INGESTION PATH] Auto-detected SOC URI from triplestore: " + socUri);
+            } else {
+                // If not found, construct expected SOC URI using naming convention
+                String kbPrefix = ConfigProp.getKbPrefix();
+                if (kbPrefix != null && !kbPrefix.isEmpty()) {
+                    socUri = kbPrefix + "SOC-" + socName;
+                    dataFile.setDasocSOCUri(socUri);
+                    dataFile.getLogger().println("⚠️  SOC not found in triplestore, using convention-based URI: " + socUri);
+                    System.out.println("[INGESTION PATH] Using convention-based SOC URI: " + socUri);
+                } else {
+                    dataFile.getLogger().printWarning("Could not auto-detect SOC URI for: " + socName);
+                    System.out.println("[WARNING] IngestionWorker: Could not determine SOC URI for " + socName);
+                }
+            }
+            dataFile.save(); // Save SOC URI to DataFile
+        }
 
         // Setting study URI from dataFile
         String studyUri = "";
@@ -108,7 +153,14 @@ public class IngestionWorker {
         }
 
         boolean bSucceed = false;
+        System.out.println("\n=== About to call getGeneratorChain() ===");
+        System.out.println("DataFile filename: " + dataFile.getFilename());
+        System.out.println("StudyUri: " + (studyUri != null ? studyUri : "NULL"));
+
         GeneratorChain chain = getGeneratorChain(dataFile, studyUri, templateFile, effectiveStatus);
+
+        System.out.println("\n=== After getGeneratorChain() ===");
+        System.out.println("Chain is: " + (chain != null ? "NOT NULL" : "NULL"));
 
         // If no chain was produced, log and throw exception to fail fast (as requested)
         if (chain == null) {
@@ -117,6 +169,8 @@ public class IngestionWorker {
             System.out.println(msg);
             throw new RuntimeException(msg);
         }
+
+        System.out.println("Chain is valid: " + chain.isValid());
 
         // Only set study URI if a chain was produced
         if (studyUri == null || studyUri.isEmpty()) {
@@ -169,11 +223,33 @@ public class IngestionWorker {
     }
 
     public static GeneratorChain getGeneratorChain(DataFile dataFile, String studyUri, String templateFile, String status) {
+        System.out.println("\n=== [INGESTION PATH] IngestionWorker.getGeneratorChain() ===");
+        System.out.println("[INGESTION PATH] Determining generator for file: " + dataFile.getFilename());
+        System.out.println("[INGESTION PATH] Full filename: " + dataFile.getFilename());
+        
         GeneratorChain chain = null;
         String fileName = FilenameUtils.getBaseName(dataFile.getFilename());
+        System.out.println("[INGESTION PATH] Base filename (without extension): " + fileName);
+        System.out.println("[INGESTION PATH] Checking if starts with 'DA-SOC-': " + fileName.startsWith("DA-SOC-"));
 
-        if (fileName.startsWith("DA-")) {
-            chain = AnnotateDA.exec(dataFile);
+        // Check for DA-SOC files BEFORE general DA files
+        // DA-SOC files are DASOC (Data Acquisition - Study Object Collection) links
+        // They extend SOC content with properties that don't fit in DSG files
+        if (fileName.startsWith("DA-SOC-")) {
+            System.out.println("[INGESTION PATH] ✅ Matched DA-SOC-* pattern, routing to AnnotateDASOC");
+            System.out.println("[INGESTION PATH] Calling AnnotateDASOC.exec(dataFile)");
+            dataFile.getLogger().println("Processing as DASOC (Data Acquisition - Study Object Collection)");
+            chain = AnnotateDASOC.exec(dataFile);
+
+        } else if (fileName.startsWith("DA-")) {
+            // REJECT: General DA ingestion is not working at this time
+            // NOTE: DA-SOC is not yet an official element type in hascoapi
+            // Only DA-SOC-* files are supported through AnnotateDASOC
+            System.out.println("IngestionWorker: ERROR - General DA ingestion not supported");
+            dataFile.getLogger().printException("ERROR: General DA ingestion is not supported. Only DA-SOC-* files can be ingested.");
+            dataFile.setFileStatus(DataFile.UNPROCESSED);
+            dataFile.save();
+            return null; // No chain to process
 
         } else if (fileName.startsWith("DSG-")) {
             boolean bSucceed = false;
@@ -635,6 +711,51 @@ public class IngestionWorker {
     // Backward-compatible overload
     public static boolean deployInstancesGen(DataFile dataFile, Map<String, String> mapCatalog, String templateFile) {
         return deployInstancesGen(dataFile, mapCatalog, templateFile, null);
+    }
+
+    /**
+     * Find StudyObjectCollection URI by matching SOC name pattern.
+     * Queries triplestore for SOCs with labels or URIs containing the given name.
+     * 
+     * @param socName The SOC name extracted from filename (e.g., "ENTERPRISE", "API", "PRODUCT")
+     * @return SOC URI if found, null otherwise
+     */
+    public static String findSOCByName(String socName) {
+        if (socName == null || socName.isEmpty()) {
+            return null;
+        }
+        
+        try {
+            String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                "SELECT ?socUri WHERE { " +
+                "  ?socUri a hasco:StudyObjectCollection . " +
+                "  { ?socUri rdfs:label ?label . FILTER(CONTAINS(UCASE(?label), UCASE(\"" + socName + "\"))) } " +
+                "  UNION " +
+                "  { FILTER(CONTAINS(UCASE(STR(?socUri)), UCASE(\"SOC-" + socName + "\"))) } " +
+                "} LIMIT 1";
+            
+            System.out.println("IngestionWorker.findSOCByName(): Querying for SOC with name: " + socName);
+            
+            ResultSetRewindable resultsrw = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+            
+            if (resultsrw.hasNext()) {
+                QuerySolution soln = resultsrw.next();
+                if (soln != null && soln.getResource("socUri") != null) {
+                    String socUri = soln.getResource("socUri").getURI();
+                    System.out.println("IngestionWorker.findSOCByName(): Found SOC URI: " + socUri);
+                    return socUri;
+                }
+            }
+            
+            System.out.println("IngestionWorker.findSOCByName(): No SOC found for name: " + socName);
+            return null;
+            
+        } catch (Exception e) {
+            System.err.println("[ERROR] IngestionWorker.findSOCByName(): " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public static String getStudyUri(DataFile dataFile) {
