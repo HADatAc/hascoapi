@@ -40,6 +40,7 @@ import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.ConfigProp;
 import org.hascoapi.utils.HAScOMapper;
 import org.hascoapi.utils.NameSpaces;
+import org.hascoapi.utils.URIUtils;
 import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.VSTOI;
 import com.typesafe.config.Config;
