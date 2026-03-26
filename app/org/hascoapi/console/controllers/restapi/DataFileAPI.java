@@ -89,6 +89,13 @@ public class DataFileAPI extends Controller {
         String hascoTypeUri = genericCheck.getHascoTypeUri();
         System.out.println("[DEBUG] DataFileAPI.uploadFile(): hascoTypeUri: " + hascoTypeUri);
 
+        // If the provided elementUri already identifies a DataFile, we can use it directly.
+        // This is the common case for the Drupal frontend, which calls uploadFile(DFL_URI, filename).
+        if (hascoTypeUri != null && hascoTypeUri.contains("DataFile")) {
+            dataFileUri = elementUri;
+            System.out.println("[INFO] DataFileAPI.uploadFile(): Element is a DataFile; using elementUri as dataFileUri: " + dataFileUri);
+        }
+
         // Extract the type name from hascoTypeUri (e.g., "WKF" from "http://hadatac.org/ont/hasco/WKF")
         if (hascoTypeUri != null && !hascoTypeUri.trim().isEmpty()) {
             String typeName = URIUtils.uriLastSegment(hascoTypeUri);

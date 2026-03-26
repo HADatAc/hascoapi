@@ -71,6 +71,16 @@ public class URIUtils {
         if (str == null) {
             return false;
         }
+
+        String cleaned = str.trim();
+
+        // Accept well-formed absolute URIs (normal case in the API).
+        // This includes fragment paths such as '#/WKF123...'.
+        if ((cleaned.startsWith("http://") || cleaned.startsWith("https://")) && isWellFormedURI(cleaned)) {
+            return true;
+        }
+
+        // Accept abbreviated/prefixed URIs (e.g., "hasco:WKF" or "pmsr:WKF123")
         if (str.length() != replaceNameSpaceEx(str).length() ||
                 str.length() != replacePrefixEx(str).length()) {
             return true;

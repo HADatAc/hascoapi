@@ -257,10 +257,18 @@ public class IngestionAPI extends Controller {
         String basePath = config.getString("hascoapi.paths.ingestion");
         if (basePath != null && dataFile.getUri() != null && dataFile.getFilename() != null) {
             String uriTerm = URIUtils.uriLastSegment(dataFile.getUri());
-            Path preUploadedPath = Paths.get(basePath, Constants.RESOURCE_FOLDER, uriTerm, dataFile.getFilename());
-            File preUploadedFile = preUploadedPath.toFile();
-
-            System.out.println("IngestionAPI.ingest(): Checking for pre-uploaded file at: " + preUploadedPath.toAbsolutePath());
+            Path candidatePath;
+            File preUploadedFile;
+            Path filenamePath = Paths.get(dataFile.getFilename());
+            if (filenamePath.isAbsolute()) {
+                candidatePath = filenamePath;
+                preUploadedFile = candidatePath.toFile();
+                System.out.println("IngestionAPI.ingest(): [ABSOLUTE] Checking for pre-uploaded file at: " + candidatePath.toAbsolutePath());
+            } else {
+                candidatePath = Paths.get(basePath, Constants.RESOURCE_FOLDER, uriTerm, dataFile.getFilename());
+                preUploadedFile = candidatePath.toFile();
+                System.out.println("IngestionAPI.ingest(): [RELATIVE] Checking for pre-uploaded file at: " + candidatePath.toAbsolutePath());
+            }
             if (preUploadedFile.exists() && preUploadedFile.length() > 0) {
                 System.out.println("IngestionAPI.ingest(): Found pre-uploaded file!");
                 fileToIngest = preUploadedFile;
@@ -407,10 +415,18 @@ public class IngestionAPI extends Controller {
 
             // Extract the URI last segment (DFL{id}) to build the correct path
             String uriTerm = URIUtils.uriLastSegment(dataFile.getUri());
-            Path uploadedFilePath = Paths.get(basePath, Constants.RESOURCE_FOLDER, uriTerm, dataFile.getFilename());
+            Path uploadedFilePath;
+            Path filenamePath = Paths.get(dataFile.getFilename());
+            if (filenamePath.isAbsolute()) {
+                uploadedFilePath = filenamePath;
+                System.out.println("IngestionAPI.ingest(): [ABSOLUTE] Looking for file at path: " + uploadedFilePath.toAbsolutePath());
+            } else {
+                uploadedFilePath = Paths.get(basePath, Constants.RESOURCE_FOLDER, uriTerm, dataFile.getFilename());
+                System.out.println("IngestionAPI.ingest(): [RELATIVE] Looking for file at path: " + uploadedFilePath.toAbsolutePath());
+            }
             File uploadedFile = uploadedFilePath.toFile();
 
-            System.out.println("IngestionAPI.ingest(): Looking for file at path: " + uploadedFilePath.toAbsolutePath());
+            System.out.println("IngestionAPI.ingest(): Waiting for file to be available (uploadFile is async)...");
 
             // Wait for file to be available (uploadFile is async)
             // Increased to 20 attempts with 1 second delay = 20 seconds total wait time
@@ -430,7 +446,15 @@ public class IngestionAPI extends Controller {
 
             if (!uploadedFile.exists() || uploadedFile.length() == 0) {
                 System.out.println("[ERROR] IngestionAPI.ingest(): File not found or empty after " + maxRetries + " attempts at: " + uploadedFilePath);
-                return ok(ApiUtil.createResponse("File not found or upload not completed. Please ensure the file was uploaded before triggering ingestion.", false));
+                String errorMessage = "File not found or upload not completed.\n\n" +
+                    "Expected file location: " + uploadedFilePath.toAbsolutePath() + "\n\n" +
+                    "WORKFLOW REQUIRED:\n" +
+                    "1. Create WKF metadata: POST /hascoapi/api/wkf/create/{json}\n" +
+                    "2. Upload file: POST /hascoapi/api/uploadFile/{wkfUri}/{filename} (with multipart form data)\n" +
+                    "3. Trigger ingestion: POST /hascoapi/api/ingest/{status}/wkf/{wkfUri}\n\n" +
+                    "It appears step 2 (uploadFile) was not called. Please upload the file before triggering ingestion.\n\n" +
+                    "See docs/WKF-INGESTION-WORKFLOW.md for complete instructions.";
+                return ok(ApiUtil.createResponse(errorMessage, false));
             }
 
             System.out.println("IngestionAPI.ingest(): Found uploaded file at: " + uploadedFilePath + " (size: " + uploadedFile.length() + " bytes)");
