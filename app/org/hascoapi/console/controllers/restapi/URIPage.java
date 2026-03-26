@@ -35,6 +35,20 @@ public class URIPage extends Controller {
             return ok(ApiUtil.createResponse("[" + uri + "] is an invalid URI", false));
         }
 
+        // Handle URI sets (multiple URIs separated by semicolons)
+        // Example: "https://example.org/TSK1;https://example.org/TSK2;https://example.org/TSK3"
+        // This is common in WKF where a Process may have multiple Tasks
+        if (uri.contains(";")) {
+            System.out.println("[INFO] URIPage.getUri(): Detected URI set with semicolons, splitting...");
+            String[] uris = uri.split(";");
+            if (uris.length > 0) {
+                String firstUri = uris[0].trim();
+                System.out.println("[INFO] URIPage.getUri(): Using first URI from set: " + firstUri);
+                System.out.println("[INFO] URIPage.getUri(): Total URIs in set: " + uris.length);
+                uri = firstUri; // Use the first URI for the query
+            }
+        }
+
         HADatAcThing finalResult = URIPage.objectFromUri(uri);
         if (finalResult == null) {
             return ok(ApiUtil.createResponse("Uri [" + uri + "] returned no object from the knowledge graph", false));
