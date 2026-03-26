@@ -588,7 +588,6 @@ public class DataFile extends HADatAcThing implements Cloneable {
                 dataFile.setHascoTypeUri(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_FILE_ID)) {
                 dataFile.setId(str);
-                System.out.println("[DEBUG] DataFile.findByUri(): Loaded hasFileId from RDF: " + str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_FILE_VISIBLE_ID)) {
                 dataFile.setViewableId(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_FILE_EDITABLE_ID)) {
@@ -643,12 +642,6 @@ public class DataFile extends HADatAcThing implements Cloneable {
 
         dataFile.setUri(uri);
 
-        // DEBUG: Log final DataFile state
-        System.out.println("[DEBUG] DataFile.findByUri(): Completed loading DataFile:");
-        System.out.println("  URI: " + dataFile.getUri());
-        System.out.println("  ID (Drupal FID): " + (dataFile.getId() != null ? dataFile.getId() : "NULL - NOT SET!"));
-        System.out.println("  Filename: " + (dataFile.getFilename() != null ? dataFile.getFilename() : "NULL"));
-        System.out.println("  FileStatus: " + (dataFile.getFileStatus() != null ? dataFile.getFileStatus() : "NULL"));
 
         return dataFile;
     }

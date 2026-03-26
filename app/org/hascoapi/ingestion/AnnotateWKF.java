@@ -108,7 +108,6 @@ public class AnnotateWKF extends BaseAnnotator {
 
         System.out.println("✓ WKF: Generator chain validated successfully");
         System.out.println("========== AnnotateWKF.exec() END (SUCCESS) ==========\n");
-        dataFile.getLogger().addLine("WKF: Generator chain built successfully");
         return chain;
     }
 }

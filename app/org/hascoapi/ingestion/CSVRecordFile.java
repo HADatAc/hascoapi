@@ -130,8 +130,6 @@ public class CSVRecordFile implements RecordFile {
     
         if (headers == null || headers.isEmpty()) {
             System.err.println("[WARN] Headers are null or empty, cannot write headers or data correctly.");
-        } else {
-            System.out.println("[DEBUG] Headers: " + headers);
         }
     
         try (FileWriter fw = new FileWriter(file, true);
@@ -139,7 +137,6 @@ public class CSVRecordFile implements RecordFile {
     
             if (writeHeaders && headers != null && !headers.isEmpty()) {
                 String headerLine = String.join(",", headers);
-                System.out.println("[DEBUG] Writing headers: " + headerLine);
                 bw.write(headerLine);
                 bw.newLine();
             }
@@ -148,10 +145,7 @@ public class CSVRecordFile implements RecordFile {
             for (String header : headers) {
                 String value = record.getValueByColumnName(header);
                 if (value == null) {
-                    System.out.println("[DEBUG] Value for header [" + header + "] is null, substituindo por string vazia.");
                     value = "";
-                } else {
-                    System.out.println("[DEBUG] Value for header [" + header + "]: " + value);
                 }
     
                 if (value.contains(",") || value.contains("\"")) {
@@ -160,7 +154,6 @@ public class CSVRecordFile implements RecordFile {
                 values.add(value);
             }
             String line = String.join(",", values);
-            System.out.println("[DEBUG] Writing line: " + line);
             bw.write(line);
             bw.newLine();
     
