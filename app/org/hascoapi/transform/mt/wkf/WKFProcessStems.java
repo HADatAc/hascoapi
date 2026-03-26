@@ -72,8 +72,21 @@ public class WKFProcessStems {
 
             // Map ProcessStem fields to columns
             row.createCell(0).setCellValue(URIUtils.replaceNameSpaceEx(safe(ps.getUri())));
-            row.createCell(1).setCellValue(URIUtils.replaceNameSpaceEx(safe(ps.getTypeUri())));
-            row.createCell(2).setCellValue(URIUtils.replaceNameSpaceEx(safe(ps.getHascoTypeUri())));
+
+            // Fallback for TypeUri - if null/empty, use default vstoi:ProcessStem
+            String typeUri = ps.getTypeUri();
+            if (typeUri == null || typeUri.trim().isEmpty()) {
+                typeUri = "vstoi:ProcessStem";
+            }
+            row.createCell(1).setCellValue(URIUtils.replaceNameSpaceEx(typeUri));
+
+            // Fallback for HascoTypeUri - if null/empty, use default vstoi:ProcessStem
+            String hascoTypeUri = ps.getHascoTypeUri();
+            if (hascoTypeUri == null || hascoTypeUri.trim().isEmpty()) {
+                hascoTypeUri = "vstoi:ProcessStem";
+            }
+            row.createCell(2).setCellValue(URIUtils.replaceNameSpaceEx(hascoTypeUri));
+
             row.createCell(3).setCellValue(safe(ps.getLabel()));
             row.createCell(4).setCellValue(safe(ps.getComment()));
             row.createCell(5).setCellValue(safe(ps.getHasStatus()));
@@ -88,7 +101,7 @@ public class WKFProcessStems {
             row.createCell(14).setCellValue(URIUtils.replaceNameSpaceEx(safe(ps.getHasImageUri())));
             row.createCell(15).setCellValue(safe(ps.getHasWebDocument()));
 
-            System.out.println("[WKFProcessStems] Added ProcessStem row: uri=" + ps.getUri());
+            System.out.println("[WKFProcessStems] Added ProcessStem row: uri=" + ps.getUri() + ", typeUri=" + typeUri);
         }
 
         return helper;
@@ -111,8 +124,21 @@ public class WKFProcessStems {
 
         // Map ProcessStem fields to columns
         row.createCell(0).setCellValue(URIUtils.replaceNameSpaceEx(safe(ps.getUri())));
-        row.createCell(1).setCellValue(URIUtils.replaceNameSpaceEx(safe(ps.getTypeUri())));
-        row.createCell(2).setCellValue(URIUtils.replaceNameSpaceEx(safe(ps.getHascoTypeUri())));
+
+        // Fallback for TypeUri - if null/empty, use default vstoi:ProcessStem
+        String typeUri = ps.getTypeUri();
+        if (typeUri == null || typeUri.trim().isEmpty()) {
+            typeUri = "vstoi:ProcessStem";
+        }
+        row.createCell(1).setCellValue(URIUtils.replaceNameSpaceEx(typeUri));
+
+        // Fallback for HascoTypeUri - if null/empty, use default vstoi:ProcessStem
+        String hascoTypeUri = ps.getHascoTypeUri();
+        if (hascoTypeUri == null || hascoTypeUri.trim().isEmpty()) {
+            hascoTypeUri = "vstoi:ProcessStem";
+        }
+        row.createCell(2).setCellValue(URIUtils.replaceNameSpaceEx(hascoTypeUri));
+
         row.createCell(3).setCellValue(safe(ps.getLabel()));
         row.createCell(4).setCellValue(safe(ps.getComment()));
         row.createCell(5).setCellValue(safe(ps.getHasStatus()));
@@ -127,7 +153,7 @@ public class WKFProcessStems {
         row.createCell(14).setCellValue(URIUtils.replaceNameSpaceEx(safe(ps.getHasImageUri())));
         row.createCell(15).setCellValue(safe(ps.getHasWebDocument()));
 
-        System.out.println("[WKFProcessStems] Added ProcessStem row: uri=" + ps.getUri() + ", label=" + ps.getLabel());
+        System.out.println("[WKFProcessStems] Added ProcessStem row: uri=" + ps.getUri() + ", label=" + ps.getLabel() + ", typeUri=" + typeUri);
 
         return helper;
     }
