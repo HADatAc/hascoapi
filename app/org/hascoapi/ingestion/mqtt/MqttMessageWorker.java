@@ -144,7 +144,7 @@ public class MqttMessageWorker {
         }
     
         System.out.println("[DEBUG] Current StreamTopic status: " + streamTopic.getHasTopicStatus());
-    
+
         if (status.equals(HASCO.INACTIVE)) {
             System.out.println("[ERROR] MqttMessageWorker: Cannot change the status of StreamTopic " + streamTopicUri + " to INACTIVE");
             return false;
@@ -216,7 +216,7 @@ public class MqttMessageWorker {
         Record record = new JSONRecord(message, headers);
         String status = streamTopic.getHasTopicStatus();
         System.out.println("[DEBUG] Current topic in processMessage status: " + status);
-    
+
         if (status.equals(HASCO.RECORDING)) {
             String topicUri = streamTopic.getUri();
             System.out.println("[DEBUG] Attempting to record message for topicUri: " + topicUri);

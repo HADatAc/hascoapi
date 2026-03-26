@@ -101,7 +101,6 @@ public abstract class BaseAnnotator {
                                                           GeneratorChain chain,
                                                           GeneratorFactory factory) {
         String sheetName = mapCatalog.get(sheetKey);
-        dataFile.getLogger().println("[DP2 DEBUG] addCustomGeneratorIfSheetExists: key='" + sheetKey + "' catalogValue='" + sheetName + "'");
 
         if (sheetName == null || sheetName.trim().isEmpty()) {
             warnSheetMissing(dataFile, sheetKey);
@@ -116,7 +115,6 @@ public abstract class BaseAnnotator {
         if (!normalized.equalsIgnoreCase(sheetKey)) {
             RecordFile keySheetProbe = new SpreadsheetRecordFile(dataFile.getFile(), sheetKey);
             if (keySheetProbe != null && keySheetProbe.isValid() && keySheetProbe.getRecords() != null && !keySheetProbe.getRecords().isEmpty()) {
-                dataFile.getLogger().println("[DP2 DEBUG] overriding catalog mapping for key='" + sheetKey + "' from '" + normalized + "' to sheetKey because sheetKey exists and is non-empty");
                 normalized = sheetKey;
             }
         }
@@ -124,18 +122,15 @@ public abstract class BaseAnnotator {
         // Resolve the sheet
         RecordFile sheet = new SpreadsheetRecordFile(dataFile.getFile(), normalized);
         if (sheet == null || !sheet.isValid()) {
-            dataFile.getLogger().println("[DP2 DEBUG] sheet not valid for catalogValue='" + normalized + "' (key='" + sheetKey + "'). Trying fallback to sheetKey as sheet name.");
             sheet = new SpreadsheetRecordFile(dataFile.getFile(), sheetKey);
         }
 
         if (sheet == null || !sheet.isValid() || sheet.getRecords() == null) {
-            dataFile.getLogger().println("[DP2 DEBUG] sheet still invalid after fallback. key='" + sheetKey + "' tried='" + normalized + "' and fallback='" + sheetKey + "'");
             warnSheetMissing(dataFile, sheetKey);
             return;
         }
 
         int recordCount = sheet.getRecords().size();
-        dataFile.getLogger().println("[DP2 DEBUG] sheet resolved for key='" + sheetKey + "' recordCount=" + recordCount);
 
         if (recordCount == 0) {
             dataFile.getLogger().println("addCustomGeneratorIfSheetExists(): sheet '" + sheetKey + "' is empty; skipping.");
@@ -210,7 +205,6 @@ public abstract class BaseAnnotator {
 
             // If mapping is wrong/missing but the key tab exists, fix it.
             if (!mappedOk && keyOk) {
-                dataFile.getLogger().println("[DP2 DEBUG] sanitizeDp2Catalog: fixing key='" + key + "' from '" + raw + "' to '#" + key + "' (key tab exists and is non-empty)");
                 mapCatalog.put(key, "#" + key);
             }
         }
@@ -221,7 +215,6 @@ public abstract class BaseAnnotator {
         String ins = norm(mapCatalog.get("InstrumentInstances"));
         String comp = norm(mapCatalog.get("ComponentInstances"));
         if ("InstrumentInstances".equalsIgnoreCase(fov) && "ComponentInstances".equalsIgnoreCase(ins) && "FieldsOfView".equalsIgnoreCase(comp)) {
-            dataFile.getLogger().println("[DP2 DEBUG] sanitizeDp2Catalog: detected rotated mappings for FieldsOfView/InstrumentInstances/ComponentInstances; repairing to identity mappings");
             mapCatalog.put("FieldsOfView", "#FieldsOfView");
             mapCatalog.put("InstrumentInstances", "#InstrumentInstances");
             mapCatalog.put("ComponentInstances", "#ComponentInstances");

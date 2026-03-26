@@ -87,7 +87,6 @@ public class DataFileAPI extends Controller {
         }
 
         String hascoTypeUri = genericCheck.getHascoTypeUri();
-        System.out.println("[DEBUG] DataFileAPI.uploadFile(): hascoTypeUri: " + hascoTypeUri);
 
         // If the provided elementUri already identifies a DataFile, we can use it directly.
         // This is the common case for the Drupal frontend, which calls uploadFile(DFL_URI, filename).
@@ -99,13 +98,11 @@ public class DataFileAPI extends Controller {
         // Extract the type name from hascoTypeUri (e.g., "WKF" from "http://hadatac.org/ont/hasco/WKF")
         if (hascoTypeUri != null && !hascoTypeUri.trim().isEmpty()) {
             String typeName = URIUtils.uriLastSegment(hascoTypeUri);
-            System.out.println("[DEBUG] DataFileAPI.uploadFile(): Extracted type name: " + typeName);
 
             // Try to load the class dynamically
             try {
                 String className = "org.hascoapi.entity.pojo." + typeName;
                 Class<?> typeClass = Class.forName(className);
-                System.out.println("[DEBUG] DataFileAPI.uploadFile(): Found class: " + className);
 
                 // Try to call the static find method
                 java.lang.reflect.Method findMethod = typeClass.getMethod("find", String.class);
@@ -123,11 +120,11 @@ public class DataFileAPI extends Controller {
                             System.out.println("[INFO] DataFileAPI.uploadFile(): ✅ Got DataFile URI from typed instance: " + dataFileUri);
                         }
                     } catch (NoSuchMethodException e) {
-                        System.out.println("[DEBUG] DataFileAPI.uploadFile(): Type " + typeName + " doesn't have getHasDataFileUri() method");
+                        // Element doesn't have getHasDataFileUri() method
                     }
                 }
             } catch (ClassNotFoundException e) {
-                System.out.println("[DEBUG] DataFileAPI.uploadFile(): Class not found for type: " + typeName + ", will use GenericInstance");
+                // Class not found for type, will use GenericInstance
             } catch (Exception e) {
                 System.out.println("[WARN] DataFileAPI.uploadFile(): Error finding typed instance: " + e.getMessage());
             }
@@ -145,8 +142,6 @@ public class DataFileAPI extends Controller {
         // Try 1: asRaw() - for direct binary uploads
         if (request.body() != null && request.body().asRaw() != null) {
             tempFile = request.body().asRaw().asFile();
-            System.out.println("[DEBUG] DataFileAPI.uploadFile(): Tried asRaw().asFile(): " +
-                (tempFile == null ? "null" : tempFile.getAbsolutePath() + " (exists: " + tempFile.exists() + ", size: " + tempFile.length() + " bytes)"));
         }
 
         // Try 2: asMultipartFormData() - for form-based uploads
@@ -158,14 +153,10 @@ public class DataFileAPI extends Controller {
                 Object fileObj = filePart.getRef();
                 if (fileObj instanceof File) {
                     tempFile = (File) fileObj;
-                    System.out.println("[DEBUG] DataFileAPI.uploadFile(): Got file from multipart (File): " + tempFile.getAbsolutePath());
                 } else if (fileObj instanceof play.api.libs.Files.TemporaryFile) {
                     play.api.libs.Files.TemporaryFile scalaTemp = (play.api.libs.Files.TemporaryFile) fileObj;
                     tempFile = scalaTemp.path().toFile();
-                    System.out.println("[DEBUG] DataFileAPI.uploadFile(): Got file from multipart (TemporaryFile): " + tempFile.getAbsolutePath());
                 }
-            } else {
-                System.out.println("[DEBUG] DataFileAPI.uploadFile(): multipart.getFile('file') returned null");
             }
         }
 
@@ -177,7 +168,6 @@ public class DataFileAPI extends Controller {
                     Path tempPath = Files.createTempFile("upload-", "-" + filename);
                     Files.write(tempPath, bytes.toArray());
                     tempFile = tempPath.toFile();
-                    System.out.println("[DEBUG] DataFileAPI.uploadFile(): Created temp file from bytes: " + tempFile.getAbsolutePath() + " (" + tempFile.length() + " bytes)");
                 } catch (IOException e) {
                     System.out.println("[ERROR] DataFileAPI.uploadFile(): Failed to create temp file from bytes: " + e.getMessage());
                 }
@@ -209,7 +199,7 @@ public class DataFileAPI extends Controller {
                         System.out.println("[INFO] DataFileAPI.uploadFile(): Got DataFile URI from element.getHasDataFileUri(): " + dataFileUri);
                     }
                 } catch (NoSuchMethodException e) {
-                    System.out.println("[DEBUG] DataFileAPI.uploadFile(): Element doesn't have getHasDataFileUri() method");
+                    // Element doesn't have getHasDataFileUri() method
                 } catch (Exception e) {
                     System.out.println("[WARN] DataFileAPI.uploadFile(): Error calling getHasDataFileUri(): " + e.getMessage());
                 }
@@ -229,7 +219,7 @@ public class DataFileAPI extends Controller {
                             }
                         }
                     } catch (NoSuchMethodException e) {
-                        System.out.println("[DEBUG] DataFileAPI.uploadFile(): Element doesn't have getHasDataFile() method");
+                        // Element doesn't have getHasDataFile() method
                     } catch (Exception e) {
                         System.out.println("[WARN] DataFileAPI.uploadFile(): Error calling getHasDataFile(): " + e.getMessage());
                     }
@@ -238,7 +228,6 @@ public class DataFileAPI extends Controller {
                 // If still not found, check the hascoType to determine if this IS a DataFile
                 if (dataFileUri == null || dataFileUri.trim().isEmpty()) {
                     String hascoType = instance.getHascoTypeUri();
-                    System.out.println("[DEBUG] DataFileAPI.uploadFile(): Checking hascoType: " + hascoType);
 
                     if (hascoType != null && hascoType.contains("DataFile")) {
                         // This element IS a DataFile
