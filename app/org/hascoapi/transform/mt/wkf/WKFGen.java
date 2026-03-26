@@ -8,6 +8,7 @@ import java.util.Map;
 import org.hascoapi.entity.pojo.WKF;
 import org.hascoapi.entity.pojo.GenericFindWithStatus;
 import org.hascoapi.entity.pojo.NameSpace;
+import org.hascoapi.entity.pojo.ProcessStem;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -37,144 +38,18 @@ public class WKFGen {
     }
 
     public static String genByStatus(String status, String filename, String mediaFolder, String verifyUri, String excludeDataFileUri) {
-        System.out.println("[WKFGen] genByStatus START status=" + status + ", filename=" + filename);
-        if (excludeDataFileUri != null && !excludeDataFileUri.trim().isEmpty()) {
-            System.out.println("[WKFGen] Will exclude WKF with DataFile URI: " + excludeDataFileUri);
-        }
+        System.out.println("\n========== WKFGen.genByStatus() START ==========");
+        System.out.println("Input parameters:");
+        System.out.println("  status: " + status);
+        System.out.println("  filename: " + filename);
+        System.out.println("  excludeDataFileUri: " + excludeDataFileUri);
+
         WKFGenHelper helper = new WKFGenHelper();
-        List<WKF> wkfs = null;
 
-        final String ns = org.hascoapi.utils.NameSpaces.getInstance().printSparqlNameSpaceList();
-
+        // Create workbook with empty list (no WKF reference needed for status-based generation)
         try {
-            // 1) Buscar todos os WKFs por tipo
-            String diagQuery = ns
-                    + " SELECT ?uri WHERE { "
-                    + "   ?wkfType rdfs:subClassOf* hasco:WKF . "
-                    + "   ?uri a ?wkfType . "
-                    + " }";
-            System.out.println("[WKFGen] Diagnostic SPARQL (all WKFs):\n" + diagQuery);
-            java.util.List<WKF> allWkfs = org.hascoapi.entity.pojo.GenericFind.findByQuery(WKF.class, diagQuery);
-            System.out.println("[WKFGen] Diagnostic: total WKFs found=" + (allWkfs == null ? 0 : allWkfs.size()));
-
-            String requestedStatus = status == null ? "" : status.trim();
-            String draftStatus = org.hascoapi.vocabularies.VSTOI.DRAFT;
-
-            // Normalize the excludeDataFileUri for comparison
-            String normalizedExcludeDataFileUri = null;
-            if (excludeDataFileUri != null && !excludeDataFileUri.trim().isEmpty()) {
-                normalizedExcludeDataFileUri = excludeDataFileUri.trim().toLowerCase();
-            }
-
-            // Normalize/deduplicate WKFs by canonical URI
-            java.util.Map<String, WKF> byCanonicalUri = new java.util.LinkedHashMap<>();
-
-            if (allWkfs != null) {
-                for (WKF w : allWkfs) {
-                    if (w == null || w.getUri() == null) {
-                        continue;
-                    }
-
-                    String canonicalUri = canonicalizeWkfUri(w.getUri());
-                    if (canonicalUri == null || canonicalUri.isEmpty()) {
-                        System.out.println("  [WKFGen] WKF diag: uri=" + w.getUri() + " (INVALID/UNUSABLE URI) -> skipped");
-                        continue;
-                    }
-
-                    // Apply status filter using effective status
-                    // IMPORTANT: WKF.getHasStatus() returns short form ("DRAFT")
-                    // but frontend sends full URI ("http://hadatac.org/ont/vstoi#Draft")
-                    // We need to normalize both for comparison
-                    String rawStatus = w.getHasStatus();
-                    String effectiveStatus = (rawStatus == null || rawStatus.isEmpty()) ? draftStatus : rawStatus;
-
-                    // Normalize effective status to full URI if it's in short form
-                    if (effectiveStatus != null && !effectiveStatus.contains("://")) {
-                        // It's a short form like "DRAFT", convert to full URI
-                        effectiveStatus = org.hascoapi.vocabularies.VSTOI.VSTOI + effectiveStatus;
-                    }
-
-                    System.out.println("  [WKFGen] WKF diag: uri=" + w.getUri()
-                            + " (canonical=" + canonicalUri + ")"
-                            + ", label=" + w.getLabel()
-                            + ", rawStatus=" + rawStatus
-                            + ", effectiveStatus=" + effectiveStatus
-                            + ", requestedStatus=" + requestedStatus);
-
-                    boolean include;
-                    if (requestedStatus.isEmpty()) {
-                        include = true;
-                    } else {
-                        // Compare normalized URIs (CASE-INSENSITIVE to handle DRAFT vs Draft)
-                        include = effectiveStatus.equalsIgnoreCase(requestedStatus);
-                    }
-                    if (!include) {
-                        System.out.println("    → Skipping " + w.getUri() + " (status mismatch)");
-                        continue;
-                    }
-
-                    // CRITICAL FIX: Exclude the WKF that matches the DataFile URI being generated
-                    // This prevents self-reference when generating a WKF from the just-created metadata
-                    if (normalizedExcludeDataFileUri != null && w.getHasDataFileUri() != null) {
-                        String wkfDataFileUri = w.getHasDataFileUri().trim().toLowerCase();
-                        if (wkfDataFileUri.equals(normalizedExcludeDataFileUri)) {
-                            System.out.println("    → Skipping " + w.getUri() + " (matches excludeDataFileUri: " + excludeDataFileUri + ")");
-                            continue;
-                        }
-                    }
-
-                    // Check if the WKF's named graph has actual content.
-                    // An empty graph (or only metadata triples) means it's a freshly-created WKF for this generation request.
-                    if (w.getHasDataFileUri() != null && !w.getHasDataFileUri().trim().isEmpty()) {
-                        try {
-                            String dataFileUri = w.getHasDataFileUri();
-                            System.out.println("    [WKFGen] Checking graph content for WKF " + w.getUri());
-                            System.out.println("    [WKFGen]   DataFile URI: " + dataFileUri);
-
-                            int tripleCount = graphTripleCount(ns, dataFileUri);
-                            System.out.println("    [WKFGen]   Graph triple count: " + tripleCount);
-
-                            // A WKF that was just created will have only metadata triples (~10-15 triples)
-                            // A WKF that was ingested will have many more (50+ triples from tasks, processes, etc.)
-                            if (tripleCount < 20) {
-                                System.out.println("    → Skipping " + w.getUri() + " (graph has only " + tripleCount + " triples, likely fresh creation)");
-                                continue;
-                            } else {
-                                System.out.println("    → Including " + w.getUri() + " (graph has " + tripleCount + " triples)");
-                            }
-                        } catch (Exception ex) {
-                            System.out.println("    → Error checking graph for " + w.getUri() + ": " + ex.getMessage());
-                            ex.printStackTrace();
-                            continue;
-                        }
-                    } else {
-                        System.out.println("    → Skipping " + w.getUri() + " (no DataFile URI)");
-                        continue;
-                    }
-
-                    // Prefer http(s) variant if any duplicates map to same canonical
-                    WKF existing = byCanonicalUri.get(canonicalUri);
-                    if (existing == null) {
-                        byCanonicalUri.put(canonicalUri, w);
-                    } else {
-                        String existingUri = existing.getUri() == null ? "" : existing.getUri();
-                        if (!existingUri.startsWith("http") && canonicalUri.startsWith("http")) {
-                            byCanonicalUri.put(canonicalUri, w);
-                        }
-                    }
-                }
-            }
-
-            wkfs = new java.util.ArrayList<>(byCanonicalUri.values());
-            System.out.println("[WKFGen] Filtered+normalized WKFs by status; count=" + (wkfs == null ? 0 : wkfs.size()));
-        } catch (Throwable t) {
-            System.err.println("[WKFGen] ERROR fetching WKFs: " + t.getMessage());
-            t.printStackTrace();
-            return "FAILURE: fetching WKFs - " + t.getMessage();
-        }
-
-        try {
-            helper.workbook = WKFGen.create(filename, wkfs);
+            java.util.List<WKF> emptyList = new java.util.ArrayList<>();
+            helper.workbook = WKFGen.create(filename, emptyList);
             if (helper.workbook == null) {
                 System.err.println("[WKFGen] ERROR: workbook creation returned null");
                 return "FAILURE: workbook creation returned null";
@@ -186,47 +61,55 @@ public class WKFGen {
             return "FAILURE: creating workbook - " + t.getMessage();
         }
 
-        if (wkfs != null && !wkfs.isEmpty()) {
-            System.out.println("[WKFGen] Iterating WKFs to populate sheets");
-            int idx = 0;
-            for (WKF wkf : wkfs) {
-                idx++;
-                if (wkf == null) {
-                    System.out.println("[WKFGen] WARN: wkf[" + idx + "] is null, skipping");
-                    continue;
+        // Query ProcessStems by status and add them to the workbook
+        try {
+            GenericFindWithStatus<ProcessStem> processStemQuery = new GenericFindWithStatus<>();
+            List<ProcessStem> processStems = processStemQuery.findByStatusWithPages(ProcessStem.class, status, PAGESIZE, OFFSET);
+            if (processStems != null) {
+                System.out.println("[WKFGen] Found " + processStems.size() + " ProcessStems with status=" + status);
+                for (ProcessStem ps : processStems) {
+                    helper = WKFProcessStems.addProcessStem(helper, ps);
                 }
-                System.out.println("[WKFGen] Processing wkf[" + idx + "] uri=" + wkf.getUri() + ", label=" + wkf.getLabel());
-                try {
-                    helper = WKFProcessStems.addByWkf(helper, wkf);
-                    System.out.println("[WKFGen] ProcessStems added for wkf[" + idx + "]");
-                } catch (Throwable t) {
-                    System.err.println("[WKFGen] ERROR adding ProcessStems for wkf uri=" + wkf.getUri() + ": " + t.getMessage());
-                    t.printStackTrace();
-                }
-                try {
-                    helper = WKFProcesses.addByWkf(helper, wkf);
-                    System.out.println("[WKFGen] Processes added for wkf[" + idx + "]");
-                } catch (Throwable t) {
-                    System.err.println("[WKFGen] ERROR adding Processes for wkf uri=" + wkf.getUri() + ": " + t.getMessage());
-                    t.printStackTrace();
-                }
-                try {
-                    helper = WKFTasks.addByWkf(helper, wkf);
-                    System.out.println("[WKFGen] Tasks added for wkf[" + idx + "]");
-                } catch (Throwable t) {
-                    System.err.println("[WKFGen] ERROR adding Tasks for wkf uri=" + wkf.getUri() + ": " + t.getMessage());
-                    t.printStackTrace();
-                }
-                try {
-                    helper = WKFRequiredInstruments.addByWkf(helper, wkf);
-                    System.out.println("[WKFGen] RequiredInstruments added for wkf[" + idx + "]");
-                } catch (Throwable t) {
-                    System.err.println("[WKFGen] ERROR adding RequiredInstruments for wkf uri=" + wkf.getUri() + ": " + t.getMessage());
-                    t.printStackTrace();
-                }
+            } else {
+                System.out.println("[WKFGen] No ProcessStems found with status=" + status);
             }
-        } else {
-            System.out.println("[WKFGen] No WKFs found; sheet population skipped");
+        } catch (Throwable t) {
+            System.err.println("[WKFGen] ERROR querying ProcessStems: " + t.getMessage());
+            t.printStackTrace();
+        }
+
+        // Query Processes by status and add them to the workbook
+        try {
+            GenericFindWithStatus<org.hascoapi.entity.pojo.Process> processQuery = new GenericFindWithStatus<>();
+            List<org.hascoapi.entity.pojo.Process> processes = processQuery.findByStatusWithPages(org.hascoapi.entity.pojo.Process.class, status, PAGESIZE, OFFSET);
+            if (processes != null) {
+                System.out.println("[WKFGen] Found " + processes.size() + " Processes with status=" + status);
+                for (org.hascoapi.entity.pojo.Process proc : processes) {
+                    helper = WKFProcesses.addProcess(helper, proc);
+                }
+            } else {
+                System.out.println("[WKFGen] No Processes found with status=" + status);
+            }
+        } catch (Throwable t) {
+            System.err.println("[WKFGen] ERROR querying Processes: " + t.getMessage());
+            t.printStackTrace();
+        }
+
+        // Query Tasks by status and add them to the workbook
+        try {
+            GenericFindWithStatus<org.hascoapi.entity.pojo.Task> taskQuery = new GenericFindWithStatus<>();
+            List<org.hascoapi.entity.pojo.Task> tasks = taskQuery.findByStatusWithPages(org.hascoapi.entity.pojo.Task.class, status, PAGESIZE, OFFSET);
+            if (tasks != null) {
+                System.out.println("[WKFGen] Found " + tasks.size() + " Tasks with status=" + status);
+                for (org.hascoapi.entity.pojo.Task task : tasks) {
+                    helper = WKFTasks.addTask(helper, task);
+                }
+            } else {
+                System.out.println("[WKFGen] No Tasks found with status=" + status);
+            }
+        } catch (Throwable t) {
+            System.err.println("[WKFGen] ERROR querying Tasks: " + t.getMessage());
+            t.printStackTrace();
         }
 
         // After populating the workbook, keep only the namespaces that are actually referenced
@@ -246,7 +129,7 @@ public class WKFGen {
             t.printStackTrace();
             return "FAILURE: saving workbook - " + t.getMessage();
         }
-        System.out.println("[WKFGen] genByStatus END");
+        System.out.println("========== WKFGen.genByStatus() END ==========\n");
         return saveResult;
     }
 
@@ -319,6 +202,60 @@ public class WKFGen {
             return "FAILURE: saving workbook - " + t.getMessage();
         }
         System.out.println("[WKFGen] genByWkf END");
+        return saveResult;
+    }
+
+    public static String genByProcessStem(ProcessStem processStem, String filename, String mediaFolder, String verifyUri) {
+        if (processStem == null) {
+            System.err.println("[WKFGen] ERROR: processStem is null");
+            return "FAILURE: processStem is null";
+        }
+        System.out.println("[WKFGen] genByProcessStem START filename=" + filename + ", processStemUri=" + processStem.getUri());
+
+        WKFGenHelper helper = new WKFGenHelper();
+
+        try {
+            // Create an empty workbook
+            java.util.List<WKF> emptyList = new java.util.ArrayList<>();
+            helper.workbook = WKFGen.create(filename, emptyList);
+            if (helper.workbook == null) {
+                System.err.println("[WKFGen] ERROR: workbook creation returned null");
+                return "FAILURE: workbook creation returned null";
+            }
+            System.out.println("[WKFGen] Workbook created for ProcessStem template");
+        } catch (Throwable t) {
+            System.err.println("[WKFGen] ERROR creating workbook: " + t.getMessage());
+            t.printStackTrace();
+            return "FAILURE: creating workbook - " + t.getMessage();
+        }
+
+        // Add the ProcessStem to the ProcessStems sheet
+        try {
+            helper = WKFProcessStems.addProcessStem(helper, processStem);
+            System.out.println("[WKFGen] ProcessStem added: " + processStem.getLabel());
+        } catch (Throwable t) {
+            System.err.println("[WKFGen] ERROR adding ProcessStem: " + t.getMessage());
+            t.printStackTrace();
+        }
+
+        // After populating the workbook, keep only the namespaces that are actually referenced
+        try {
+            pruneUnusedNamespaces(helper.workbook);
+        } catch (Throwable t) {
+            System.err.println("[WKFGen] WARN: failed to prune unused namespaces: " + t.getMessage());
+            t.printStackTrace();
+        }
+
+        String saveResult;
+        try {
+            saveResult = WKFGen.save(helper, filename);
+            System.out.println("[WKFGen] Save result=" + saveResult);
+        } catch (Throwable t) {
+            System.err.println("[WKFGen] ERROR saving workbook: " + t.getMessage());
+            t.printStackTrace();
+            return "FAILURE: saving workbook - " + t.getMessage();
+        }
+        System.out.println("[WKFGen] genByProcessStem END");
         return saveResult;
     }
 
@@ -608,15 +545,16 @@ public class WKFGen {
 
         // Convert to absolute path and ensure directory exists
         java.io.File outputFile = new java.io.File(pathString);
-        System.out.println("  Absolute path: [" + outputFile.getAbsolutePath() + "]");
+        String absolutePath = outputFile.getAbsolutePath();
+        System.out.println("  Absolute path: [" + absolutePath + "]");
 
         if (outputFile.getParentFile() != null && !outputFile.getParentFile().exists()) {
             System.out.println("  Creating parent directory...");
-            outputFile.getParentFile().mkdirs();
+            boolean created = outputFile.getParentFile().mkdirs();
+            System.out.println("  Parent directory created: " + created);
         }
 
-        String resp = "SUCCESS";
-        System.out.println("[WKFGen] Saving workbook to: " + outputFile.getAbsolutePath());
+        System.out.println("[WKFGen] Saving workbook to: " + absolutePath);
         try (FileOutputStream fileOut = new FileOutputStream(outputFile)) {
             if (helper == null || helper.workbook == null) {
                 System.err.println("[WKFGen] ERROR: helper or workbook is null");
@@ -624,14 +562,20 @@ public class WKFGen {
                 return "FAILURE: helper or workbook is null";
             }
             helper.workbook.write(fileOut);
+            fileOut.flush(); // Ensure all data is written to disk
             System.out.println("✅ [WKFGen] WKF workbook saved successfully!");
             System.out.println("  File size: " + outputFile.length() + " bytes");
+            System.out.println("  File exists: " + outputFile.exists());
+            System.out.println("  File can read: " + outputFile.canRead());
+            System.out.println("  Returning filename: [" + filename + "]");
             System.out.println("========== WKFGen.save() END (SUCCESS) ==========\n");
+            return filename; // Return the filename on success (like SDDGen does)
         } catch (IOException e) {
-            resp = "FAILURE: Error writing workbook - " + e.getMessage();
-            System.err.println("[WKFGen] " + resp);
+            String errorMsg = "FAILURE: Error writing workbook - " + e.getMessage();
+            System.err.println("[WKFGen] " + errorMsg);
             e.printStackTrace();
             System.out.println("========== WKFGen.save() END (FAILURE) ==========\n");
+            return errorMsg;
         } finally {
             try {
                 if (helper != null && helper.workbook != null) {
@@ -641,7 +585,6 @@ public class WKFGen {
                 System.err.println("[WKFGen] WARN: error closing workbook: " + ioe.getMessage());
             }
         }
-        return resp;
     }
 
     private static void pruneUnusedNamespaces(Workbook workbook) {
