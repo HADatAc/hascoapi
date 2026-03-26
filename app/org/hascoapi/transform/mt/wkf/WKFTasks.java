@@ -102,6 +102,54 @@ public class WKFTasks {
         return helper;
     }
 
+    public static WKFGenHelper addTask(WKFGenHelper helper, Task t) {
+        if (t == null) {
+            System.out.println("[WKFTasks] WARN: addTask called with null Task; skipping");
+            return helper;
+        }
+
+        Sheet sheet = helper.workbook.getSheet(WKFGen.TASKS);
+        if (sheet == null) {
+            System.out.println("[WKFTasks] ERROR: Tasks sheet not found in workbook");
+            return helper;
+        }
+
+        int rowNum = sheet.getLastRowNum() + 1;
+        Row row = sheet.createRow(rowNum);
+
+        // Map Task fields to columns
+        row.createCell(0).setCellValue(URIUtils.replaceNameSpaceEx(safe(t.getUri())));
+        row.createCell(1).setCellValue(URIUtils.replaceNameSpaceEx(safe(t.getTypeUri())));
+        row.createCell(2).setCellValue(URIUtils.replaceNameSpaceEx(safe(t.getHascoTypeUri())));
+        row.createCell(3).setCellValue(safe(t.getLabel()));
+        row.createCell(4).setCellValue(safe(t.getComment()));
+        row.createCell(5).setCellValue(safe(t.getHasStatus()));
+        row.createCell(6).setCellValue(safe(t.getHasLanguage()));
+        row.createCell(7).setCellValue(safe(t.getHasVersion()));
+        row.createCell(8).setCellValue(URIUtils.replaceNameSpaceEx(safe(t.getWasDerivedFrom())));
+        row.createCell(9).setCellValue(safe(t.getHasReviewNote()));
+        row.createCell(10).setCellValue(safe(t.getHasSIRManagerEmail()));
+        row.createCell(11).setCellValue(safe(t.getHasEditorEmail()));
+        row.createCell(12).setCellValue(URIUtils.replaceNameSpaceEx(safe(t.getHasSupertaskUri())));
+
+        // hasSubtask is a list - join with pipes
+        String subtasksStr = joinUriList(t.getHasSubtaskUris());
+        row.createCell(13).setCellValue(subtasksStr);
+
+        row.createCell(14).setCellValue(safe(t.getHasTemporalDependency()));
+
+        // hasRequiredInstrument is a list - join with pipes
+        String requiredInstrumentsStr = joinUriList(t.getHasRequiredInstrumentUris());
+        row.createCell(15).setCellValue(requiredInstrumentsStr);
+
+        row.createCell(16).setCellValue(URIUtils.replaceNameSpaceEx(safe(t.getHasImageUri())));
+        row.createCell(17).setCellValue(safe(t.getHasWebDocument()));
+
+        System.out.println("[WKFTasks] Added Task row: uri=" + t.getUri() + ", label=" + t.getLabel());
+
+        return helper;
+    }
+
     private static String safe(String val) {
         return val == null ? "" : val;
     }

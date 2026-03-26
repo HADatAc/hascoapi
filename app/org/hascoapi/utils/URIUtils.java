@@ -117,6 +117,7 @@ public class URIUtils {
     /*
      *  the method verifies if cellContent contains a set of URIs, which we call an object set. Returns true if
      *  the content is regarded to be an object set.
+     *  Supports separators: comma (,), ampersand (&), semicolon (;)
      */
     public static boolean isObjectSet (String cellContent) {
 
@@ -134,6 +135,20 @@ public class URIUtils {
             }
             if(isValid){
                 cellContent = cellContent.replace("&", ", ");
+            }
+        } else if(cellContent.contains(";")){
+            // Support semicolon-separated URIs (common in WKF for RequiredComponents)
+            boolean isValid = true;
+            StringTokenizer st = new StringTokenizer(cellContent, ";");
+            while (st.hasMoreTokens()) {
+                String token = st.nextToken().trim();
+                if(!isAbbreviatedURI(token) && !isFullURI(token)){
+                    isValid = false;
+                    break;
+                }
+            }
+            if(isValid){
+                cellContent = cellContent.replace(";", ", ");
             }
         }
         // we need to tokanize the string and verify that the first token is an URI

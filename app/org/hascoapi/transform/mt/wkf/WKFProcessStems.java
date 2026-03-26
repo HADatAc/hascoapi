@@ -94,6 +94,44 @@ public class WKFProcessStems {
         return helper;
     }
 
+    public static WKFGenHelper addProcessStem(WKFGenHelper helper, ProcessStem ps) {
+        if (ps == null) {
+            System.out.println("[WKFProcessStems] WARN: addProcessStem called with null ProcessStem; skipping");
+            return helper;
+        }
+
+        Sheet sheet = helper.workbook.getSheet(WKFGen.PROCESSSTEMS);
+        if (sheet == null) {
+            System.out.println("[WKFProcessStems] ERROR: ProcessStems sheet not found in workbook");
+            return helper;
+        }
+
+        int rowNum = sheet.getLastRowNum() + 1;
+        Row row = sheet.createRow(rowNum);
+
+        // Map ProcessStem fields to columns
+        row.createCell(0).setCellValue(URIUtils.replaceNameSpaceEx(safe(ps.getUri())));
+        row.createCell(1).setCellValue(URIUtils.replaceNameSpaceEx(safe(ps.getTypeUri())));
+        row.createCell(2).setCellValue(URIUtils.replaceNameSpaceEx(safe(ps.getHascoTypeUri())));
+        row.createCell(3).setCellValue(safe(ps.getLabel()));
+        row.createCell(4).setCellValue(safe(ps.getComment()));
+        row.createCell(5).setCellValue(safe(ps.getHasStatus()));
+        row.createCell(6).setCellValue(safe(ps.getHasContent()));
+        row.createCell(7).setCellValue(safe(ps.getHasLanguage()));
+        row.createCell(8).setCellValue(safe(ps.getHasVersion()));
+        row.createCell(9).setCellValue(URIUtils.replaceNameSpaceEx(safe(ps.getWasDerivedFrom())));
+        row.createCell(10).setCellValue(URIUtils.replaceNameSpaceEx(safe(ps.getWasGeneratedBy())));
+        row.createCell(11).setCellValue(safe(ps.getHasReviewNote()));
+        row.createCell(12).setCellValue(safe(ps.getHasSIRManagerEmail()));
+        row.createCell(13).setCellValue(safe(ps.getHasEditorEmail()));
+        row.createCell(14).setCellValue(URIUtils.replaceNameSpaceEx(safe(ps.getHasImageUri())));
+        row.createCell(15).setCellValue(safe(ps.getHasWebDocument()));
+
+        System.out.println("[WKFProcessStems] Added ProcessStem row: uri=" + ps.getUri() + ", label=" + ps.getLabel());
+
+        return helper;
+    }
+
     private static String safe(String val) {
         return val == null ? "" : val;
     }
