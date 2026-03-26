@@ -632,9 +632,9 @@ public class HascoRoundtripTest {
                     "Failed to create generated output dir: " + generatedDir.getAbsolutePath());
             final File generatedCopy = new File(generatedDir, regeneratedFilename);
             assertDoesNotThrow(() -> java.nio.file.Files.copy(
-                    out.toPath(),
-                    generatedCopy.toPath(),
-                    java.nio.file.StandardCopyOption.REPLACE_EXISTING),
+                            out.toPath(),
+                            generatedCopy.toPath(),
+                            java.nio.file.StandardCopyOption.REPLACE_EXISTING),
                     "Copying regenerated DSG into test/resources/generated should not throw");
             assertTrue(generatedCopy.exists(), "Expected copied DSG at: " + generatedCopy.getAbsolutePath());
             assertTrue(generatedCopy.length() > 0, "Copied DSG workbook should not be empty: " + generatedCopy.getAbsolutePath());

@@ -251,6 +251,8 @@ public class URIPage extends Controller {
                 finalResult = Unit.find(uri);
             } else if (result.getHascoTypeUri().equals(HASCO.VIRTUAL_COLUMN)) {
                 finalResult = VirtualColumn.find(uri);
+            } else if (result.getHascoTypeUri().equals(HASCO.WKF)) {
+                finalResult = WKF.find(uri);
             } else if (result.getTypeUri().equals(OWL.CLASS)) {
                 finalResult = HADatAcClass.find(uri);
             } else {
