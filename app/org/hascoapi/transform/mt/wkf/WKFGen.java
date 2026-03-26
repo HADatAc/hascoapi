@@ -238,6 +238,101 @@ public class WKFGen {
             t.printStackTrace();
         }
 
+        // Get the named graph from the ProcessStem
+        // ProcessStems, Processes, and Tasks are stored in the same named graph
+        String namedGraph = processStem.getNamedGraph();
+        if (namedGraph == null || namedGraph.isEmpty()) {
+            System.out.println("[WKFGen] WARN: ProcessStem has no named graph, trying to infer from URI");
+            // Try to infer from URI pattern (some systems use URI as named graph)
+            namedGraph = processStem.getUri();
+        }
+
+        System.out.println("[WKFGen] Using named graph: " + namedGraph);
+
+        // Query and add all Processes from the same named graph
+        try {
+            String ns = org.hascoapi.utils.NameSpaces.getInstance().printSparqlNameSpaceList();
+            String processQuery = ns
+                    + " SELECT ?uri WHERE { "
+                    + "   GRAPH <" + namedGraph + "> { "
+                    + "     ?uri a vstoi:Process . "
+                    + "   } "
+                    + " }";
+
+            System.out.println("[WKFGen] Process query: " + processQuery);
+
+            List<org.hascoapi.entity.pojo.Process> processes = org.hascoapi.entity.pojo.GenericFind.findByQuery(
+                org.hascoapi.entity.pojo.Process.class, processQuery);
+
+            if (processes != null && !processes.isEmpty()) {
+                System.out.println("[WKFGen] Found " + processes.size() + " Processes in named graph");
+                for (org.hascoapi.entity.pojo.Process proc : processes) {
+                    helper = WKFProcesses.addProcess(helper, proc);
+                }
+            } else {
+                System.out.println("[WKFGen] No Processes found in named graph: " + namedGraph);
+            }
+        } catch (Throwable t) {
+            System.err.println("[WKFGen] ERROR querying/adding Processes: " + t.getMessage());
+            t.printStackTrace();
+        }
+
+        // Query and add all Tasks from the same named graph
+        try {
+            String ns = org.hascoapi.utils.NameSpaces.getInstance().printSparqlNameSpaceList();
+            String taskQuery = ns
+                    + " SELECT ?uri WHERE { "
+                    + "   GRAPH <" + namedGraph + "> { "
+                    + "     ?uri a vstoi:Task . "
+                    + "   } "
+                    + " }";
+
+            System.out.println("[WKFGen] Task query: " + taskQuery);
+
+            List<org.hascoapi.entity.pojo.Task> tasks = org.hascoapi.entity.pojo.GenericFind.findByQuery(
+                org.hascoapi.entity.pojo.Task.class, taskQuery);
+
+            if (tasks != null && !tasks.isEmpty()) {
+                System.out.println("[WKFGen] Found " + tasks.size() + " Tasks in named graph");
+                for (org.hascoapi.entity.pojo.Task task : tasks) {
+                    helper = WKFTasks.addTask(helper, task);
+                }
+            } else {
+                System.out.println("[WKFGen] No Tasks found in named graph: " + namedGraph);
+            }
+        } catch (Throwable t) {
+            System.err.println("[WKFGen] ERROR querying/adding Tasks: " + t.getMessage());
+            t.printStackTrace();
+        }
+
+        // Query and add RequiredInstruments from the same named graph
+        try {
+            String ns = org.hascoapi.utils.NameSpaces.getInstance().printSparqlNameSpaceList();
+            String reqInstQuery = ns
+                    + " SELECT ?uri WHERE { "
+                    + "   GRAPH <" + namedGraph + "> { "
+                    + "     ?uri a vstoi:RequiredInstrument . "
+                    + "   } "
+                    + " }";
+
+            System.out.println("[WKFGen] RequiredInstrument query: " + reqInstQuery);
+
+            List<org.hascoapi.entity.pojo.RequiredInstrument> reqInstruments = org.hascoapi.entity.pojo.GenericFind.findByQuery(
+                org.hascoapi.entity.pojo.RequiredInstrument.class, reqInstQuery);
+
+            if (reqInstruments != null && !reqInstruments.isEmpty()) {
+                System.out.println("[WKFGen] Found " + reqInstruments.size() + " RequiredInstruments in named graph");
+                for (org.hascoapi.entity.pojo.RequiredInstrument reqInst : reqInstruments) {
+                    helper = WKFRequiredInstruments.addRequiredInstrument(helper, reqInst);
+                }
+            } else {
+                System.out.println("[WKFGen] No RequiredInstruments found in named graph: " + namedGraph);
+            }
+        } catch (Throwable t) {
+            System.err.println("[WKFGen] ERROR querying/adding RequiredInstruments: " + t.getMessage());
+            t.printStackTrace();
+        }
+
         // After populating the workbook, keep only the namespaces that are actually referenced
         try {
             pruneUnusedNamespaces(helper.workbook);

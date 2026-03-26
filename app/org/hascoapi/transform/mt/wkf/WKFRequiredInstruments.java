@@ -89,6 +89,41 @@ public class WKFRequiredInstruments {
         return helper;
     }
 
+    public static WKFGenHelper addRequiredInstrument(WKFGenHelper helper, RequiredInstrument ri) {
+        if (ri == null) {
+            System.out.println("[WKFRequiredInstruments] WARN: addRequiredInstrument called with null RequiredInstrument; skipping");
+            return helper;
+        }
+
+        Sheet sheet = helper.workbook.getSheet(WKFGen.REQUIREDINSTRUMENTS);
+        if (sheet == null) {
+            System.out.println("[WKFRequiredInstruments] ERROR: RequiredInstruments sheet not found in workbook");
+            return helper;
+        }
+
+        int rowNum = sheet.getLastRowNum() + 1;
+        Row row = sheet.createRow(rowNum);
+
+        // Map RequiredInstrument fields to columns
+        row.createCell(0).setCellValue(URIUtils.replaceNameSpaceEx(safe(ri.getUri())));
+        row.createCell(1).setCellValue(URIUtils.replaceNameSpaceEx(safe(ri.getTypeUri())));
+        row.createCell(2).setCellValue(URIUtils.replaceNameSpaceEx(safe(ri.getHascoTypeUri())));
+        row.createCell(3).setCellValue(safe(ri.getLabel()));
+        row.createCell(4).setCellValue(safe(ri.getComment()));
+        row.createCell(5).setCellValue(URIUtils.replaceNameSpaceEx(safe(ri.getUsesInstrument())));
+
+        // hasRequiredComponent is a list - join with pipes
+        String componentsStr = joinUriList(ri.getHasRequiredComponents());
+        row.createCell(6).setCellValue(componentsStr);
+
+        row.createCell(7).setCellValue(URIUtils.replaceNameSpaceEx(safe(ri.getHasImageUri())));
+        row.createCell(8).setCellValue(safe(ri.getHasWebDocument()));
+
+        System.out.println("[WKFRequiredInstruments] Added RequiredInstrument row: uri=" + ri.getUri() + ", usesInstrument=" + ri.getUsesInstrument());
+
+        return helper;
+    }
+
     private static String safe(String val) {
         return val == null ? "" : val;
     }

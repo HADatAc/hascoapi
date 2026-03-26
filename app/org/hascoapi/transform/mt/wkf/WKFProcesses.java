@@ -108,8 +108,21 @@ public class WKFProcesses {
 
         // Map Process fields to columns
         row.createCell(0).setCellValue(URIUtils.replaceNameSpaceEx(safe(p.getUri())));
-        row.createCell(1).setCellValue(URIUtils.replaceNameSpaceEx(safe(p.getTypeUri())));
-        row.createCell(2).setCellValue(URIUtils.replaceNameSpaceEx(safe(p.getHascoTypeUri())));
+
+        // Fallback for TypeUri
+        String typeUri = p.getTypeUri();
+        if (typeUri == null || typeUri.trim().isEmpty()) {
+            typeUri = "vstoi:Process";
+        }
+        row.createCell(1).setCellValue(URIUtils.replaceNameSpaceEx(typeUri));
+
+        // Fallback for HascoTypeUri
+        String hascoTypeUri = p.getHascoTypeUri();
+        if (hascoTypeUri == null || hascoTypeUri.trim().isEmpty()) {
+            hascoTypeUri = "vstoi:Process";
+        }
+        row.createCell(2).setCellValue(URIUtils.replaceNameSpaceEx(hascoTypeUri));
+
         row.createCell(3).setCellValue(safe(p.getLabel()));
         row.createCell(4).setCellValue(safe(p.getComment()));
         row.createCell(5).setCellValue(safe(p.getHasStatus()));
@@ -123,7 +136,7 @@ public class WKFProcesses {
         row.createCell(13).setCellValue(URIUtils.replaceNameSpaceEx(safe(p.getHasImageUri())));
         row.createCell(14).setCellValue(safe(p.getHasWebDocument()));
 
-        System.out.println("[WKFProcesses] Added Process row: uri=" + p.getUri() + ", label=" + p.getLabel());
+        System.out.println("[WKFProcesses] Added Process row: uri=" + p.getUri() + ", label=" + p.getLabel() + ", typeUri=" + typeUri);
 
         return helper;
     }

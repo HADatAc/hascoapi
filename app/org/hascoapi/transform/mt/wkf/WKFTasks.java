@@ -119,8 +119,21 @@ public class WKFTasks {
 
         // Map Task fields to columns
         row.createCell(0).setCellValue(URIUtils.replaceNameSpaceEx(safe(t.getUri())));
-        row.createCell(1).setCellValue(URIUtils.replaceNameSpaceEx(safe(t.getTypeUri())));
-        row.createCell(2).setCellValue(URIUtils.replaceNameSpaceEx(safe(t.getHascoTypeUri())));
+
+        // Fallback for TypeUri
+        String typeUri = t.getTypeUri();
+        if (typeUri == null || typeUri.trim().isEmpty()) {
+            typeUri = "vstoi:Task";
+        }
+        row.createCell(1).setCellValue(URIUtils.replaceNameSpaceEx(typeUri));
+
+        // Fallback for HascoTypeUri
+        String hascoTypeUri = t.getHascoTypeUri();
+        if (hascoTypeUri == null || hascoTypeUri.trim().isEmpty()) {
+            hascoTypeUri = "vstoi:Task";
+        }
+        row.createCell(2).setCellValue(URIUtils.replaceNameSpaceEx(hascoTypeUri));
+
         row.createCell(3).setCellValue(safe(t.getLabel()));
         row.createCell(4).setCellValue(safe(t.getComment()));
         row.createCell(5).setCellValue(safe(t.getHasStatus()));
@@ -145,7 +158,7 @@ public class WKFTasks {
         row.createCell(16).setCellValue(URIUtils.replaceNameSpaceEx(safe(t.getHasImageUri())));
         row.createCell(17).setCellValue(safe(t.getHasWebDocument()));
 
-        System.out.println("[WKFTasks] Added Task row: uri=" + t.getUri() + ", label=" + t.getLabel());
+        System.out.println("[WKFTasks] Added Task row: uri=" + t.getUri() + ", label=" + t.getLabel() + ", typeUri=" + typeUri);
 
         return helper;
     }

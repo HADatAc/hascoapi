@@ -381,8 +381,23 @@ public class DataFileAPI extends Controller {
         File file = filePath.toFile();
     
         if (!file.exists() || !file.isFile()) {
-            System.out.println("[ERROR] DataFileAPI.downloadFile(): File not found - " + filePath);
-            return notFound(ApiUtil.createResponse("[ERROR] DataFileAPI.downloadFile(): File not found.", false));
+            System.out.println("[WARN] DataFileAPI.downloadFile(): File not found in resources folder - " + filePath);
+
+            // FALLBACK: Try to find generated file in root directory
+            // Generated files (WKF, SDD, INS, etc.) are saved directly in basePath, not in resources/{DFL}/
+            Path generatedFilePath = Paths.get(basePath, filename);
+            File generatedFile = generatedFilePath.toFile();
+
+            if (generatedFile.exists() && generatedFile.isFile()) {
+                System.out.println("[INFO] DataFileAPI.downloadFile(): Found generated file at - " + generatedFilePath);
+                file = generatedFile;
+                filePath = generatedFilePath;
+            } else {
+                System.out.println("[ERROR] DataFileAPI.downloadFile(): File not found in either location");
+                System.out.println("  - Tried resources: " + filePath);
+                System.out.println("  - Tried generated: " + generatedFilePath);
+                return notFound(ApiUtil.createResponse("[ERROR] DataFileAPI.downloadFile(): File not found.", false));
+            }
         }
     
         // Serve the file as a response
