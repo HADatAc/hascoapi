@@ -291,9 +291,42 @@ public class Task extends HADatAcThing implements Comparable<Task> {
                 } else if (predicate.equals(VSTOI.HAS_TEMPORAL_DEPENDENCY)) {
                     task.setHasTemporalDependency(object);
                 } else if (predicate.equals(VSTOI.HAS_REQUIRED_INSTRUMENT)) {
-                    task.addHasRequiredInstrumentUri(object);
+                    System.out.println("[Task.find] Found hasRequiredInstrument: [" + object + "]");
+                    // Split if the object contains multiple URIs separated by | or ;
+                    if (object != null && (object.contains("|") || object.contains(";"))) {
+                        System.out.println("[Task.find] WARN: hasRequiredInstrument contains separators - splitting into individual URIs");
+                        String[] uriParts;
+                        if (object.contains("|")) {
+                            uriParts = object.split("\\s*\\|\\s*");
+                        } else {
+                            uriParts = object.split("\\s*;\\s*");
+                        }
+                        for (String uriPart : uriParts) {
+                            if (uriPart != null && !uriPart.trim().isEmpty()) {
+                                System.out.println("[Task.find]   Adding URI: [" + uriPart.trim() + "]");
+                                task.addHasRequiredInstrumentUri(uriPart.trim());
+                            }
+                        }
+                    } else {
+                        task.addHasRequiredInstrumentUri(object);
+                    }
                 } else if (predicate.equals(VSTOI.HAS_SUBTASK)) {
-                    task.addHasSubtaskUri(object);
+                    // Split if the object contains multiple URIs separated by | or ;
+                    if (object != null && (object.contains("|") || object.contains(";"))) {
+                        String[] uriParts;
+                        if (object.contains("|")) {
+                            uriParts = object.split("\\s*\\|\\s*");
+                        } else {
+                            uriParts = object.split("\\s*;\\s*");
+                        }
+                        for (String uriPart : uriParts) {
+                            if (uriPart != null && !uriPart.trim().isEmpty()) {
+                                task.addHasSubtaskUri(uriPart.trim());
+                            }
+                        }
+                    } else {
+                        task.addHasSubtaskUri(object);
+                    }
                 }
             }
         }
