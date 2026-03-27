@@ -37,23 +37,23 @@ public class WKFGenerator extends BaseGenerator {
     public Map<String, Object> createRow(Record rec, int rowNumber) throws Exception {
         Map<String, Object> row = new HashMap<>();
 
-        // Debug: Log what we're processing
-        System.out.println("[WKFGenerator.createRow] Row #" + rowNumber + ", elementType=" + this.getElementType());
-
-        // First, copy all data from the Excel record (like INSGenerator does)
+        // Copy all data from the Excel record
         for (String header : file.getHeaders()) {
             if (!header.trim().isEmpty()) {
                 String value = rec.getValueByColumnName(header);
                 if (value != null && !value.isEmpty()) {
                     row.put(header, value);
-                    if ("hasURI".equals(header)) {
-                        System.out.println("[WKFGenerator.createRow] hasURI from Excel: " + value);
-                    }
                 }
             }
         }
 
         String elementType = this.getElementType();
+
+        // For Tasks: split concatenated multi-value properties into Lists
+        if (elementType.equals("task")) {
+            splitMultiValueProperty(row, "vstoi:hasRequiredInstrument");
+            splitMultiValueProperty(row, "vstoi:hasSubtask");
+        }
 
         // Add common metadata to all rows
         if (elementType.equals("processstem")) {
@@ -64,6 +64,8 @@ public class WKFGenerator extends BaseGenerator {
             row.put("hasco:hascoType", VSTOI.TASK);
         } else if (elementType.equals("requiredinstrument")) {
             row.put("hasco:hascoType", VSTOI.REQUIRED_INSTRUMENT);
+            // For RequiredInstruments: split concatenated components
+            splitMultiValueProperty(row, "vstoi:hasRequiredComponent");
         } else {
             this.dataFile.getLogger().printExceptionByIdWithArgs("GEN_00001", elementType);
             return null;
@@ -78,19 +80,61 @@ public class WKFGenerator extends BaseGenerator {
         row.put("hasco:hasDataFile", this.dataFile.getUri());
         row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
 
-        // Debug: Show what will be committed
-        if (row.containsKey("hasURI")) {
-            System.out.println("[WKFGenerator.createRow] Final hasURI: " + row.get("hasURI"));
-            System.out.println("[WKFGenerator.createRow] DataFile URI: " + this.dataFile.getUri());
-            System.out.println("[WKFGenerator.createRow] Element type: " + elementType);
-        }
-
-        // CRITICAL: Only return row if it has a URI (like INSGenerator does)
+        // Only return row if it has a URI
         if (row.containsKey("hasURI") && !row.get("hasURI").toString().trim().isEmpty()) {
             return row;
         }
 
+        System.out.println("[WKFGenerator] WARNING: Row #" + rowNumber + " missing hasURI for elementType=" + elementType + " - skipping");
         return null;
+    }
+
+    /**
+     * Split concatenated values (separated by ; or |) into a List for multi-value properties.
+     * This ensures MetadataFactory creates multiple triples instead of one literal triple.
+     */
+    private void splitMultiValueProperty(Map<String, Object> row, String propertyKey) {
+        Object value = row.get(propertyKey);
+        if (value == null) {
+            return;
+        }
+
+        String valueStr = value.toString().trim();
+        if (valueStr.isEmpty()) {
+            return;
+        }
+
+        // Check if value contains separators (semicolon or pipe)
+        if (valueStr.contains(";") || valueStr.contains("|")) {
+            java.util.List<String> uris = new java.util.ArrayList<>();
+            
+            // Split by semicolon or pipe, handling both separators
+            String[] parts;
+            if (valueStr.contains(";")) {
+                parts = valueStr.split("\\s*;\\s*");
+            } else {
+                parts = valueStr.split("\\s*\\|\\s*");
+            }
+
+            for (String part : parts) {
+                String cleanUri = part.trim();
+                // Decode URL encoding (e.g., %20 -> space, then trim again)
+                try {
+                    cleanUri = java.net.URLDecoder.decode(cleanUri, "UTF-8").trim();
+                } catch (Exception e) {
+                    // If decoding fails, use the original value
+                }
+                
+                if (!cleanUri.isEmpty()) {
+                    uris.add(cleanUri);
+                }
+            }
+
+            if (!uris.isEmpty()) {
+                row.put(propertyKey, uris);
+                System.out.println("[WKFGenerator] Split " + propertyKey + " into " + uris.size() + " values: " + uris);
+            }
+        }
     }
 
     @Override

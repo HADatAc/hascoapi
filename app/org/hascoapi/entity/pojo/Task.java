@@ -165,9 +165,38 @@ public class Task extends HADatAcThing implements Comparable<Task> {
             return resp;
         }
         for (String hasRequiredInstrumentUri : hasRequiredInstrumentUris) {
-            RequiredInstrument requiredInstrument = RequiredInstrument.find(hasRequiredInstrumentUri);
-            if (requiredInstrument != null) {
-                resp.add(requiredInstrument);
+            // Handle cases where multiple URIs are concatenated with separators (e.g., "URI1 ; URI2 ; URI3")
+            // This can happen when data is stored as a single string value
+            if (hasRequiredInstrumentUri != null && hasRequiredInstrumentUri.contains(";")) {
+                // Split by semicolon and trim whitespace
+                String[] uris = hasRequiredInstrumentUri.split("\\s*;\\s*");
+                for (String uri : uris) {
+                    if (uri != null && !uri.trim().isEmpty()) {
+                        RequiredInstrument requiredInstrument = RequiredInstrument.find(uri.trim());
+                        if (requiredInstrument != null) {
+                            resp.add(requiredInstrument);
+                        }
+                    }
+                }
+            } else if (hasRequiredInstrumentUri != null && hasRequiredInstrumentUri.contains("|")) {
+                // Also handle pipe separator (alternative format)
+                String[] uris = hasRequiredInstrumentUri.split("\\s*\\|\\s*");
+                for (String uri : uris) {
+                    if (uri != null && !uri.trim().isEmpty()) {
+                        RequiredInstrument requiredInstrument = RequiredInstrument.find(uri.trim());
+                        if (requiredInstrument != null) {
+                            resp.add(requiredInstrument);
+                        }
+                    }
+                }
+            } else {
+                // Single URI case (normal) - also trim to remove any leading/trailing whitespace
+                if (hasRequiredInstrumentUri != null && !hasRequiredInstrumentUri.trim().isEmpty()) {
+                    RequiredInstrument requiredInstrument = RequiredInstrument.find(hasRequiredInstrumentUri.trim());
+                    if (requiredInstrument != null) {
+                        resp.add(requiredInstrument);
+                    }
+                }
             }
         }
         return resp;

@@ -40,6 +40,9 @@ public class AnnotateDP2 extends BaseAnnotator {
         }
         GeneratorChain chain = new GeneratorChain();
 
+        // Set the named graph URI so data is stored in the DataFile's graph
+        chain.setNamedGraphUri(dataFile.getUri());
+
         // Get all sheet names for DP2 from MTSheet
         List<String> dp2Sheets = MTSheet.getSheetsForType(Constants.MT_DP2);
 
