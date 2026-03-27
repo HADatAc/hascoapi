@@ -2,6 +2,7 @@ package org.hascoapi.transform.mt.wkf;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -9,6 +10,7 @@ import org.hascoapi.entity.pojo.WKF;
 import org.hascoapi.entity.pojo.GenericFindWithStatus;
 import org.hascoapi.entity.pojo.NameSpace;
 import org.hascoapi.entity.pojo.ProcessStem;
+import org.hascoapi.entity.pojo.RequiredInstrument;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -96,6 +98,7 @@ public class WKFGen {
         }
 
         // Query Tasks by status and add them to the workbook
+        List<org.hascoapi.entity.pojo.Task> tasksFound = new java.util.ArrayList<>();
         try {
             GenericFindWithStatus<org.hascoapi.entity.pojo.Task> taskQuery = new GenericFindWithStatus<>();
             List<org.hascoapi.entity.pojo.Task> tasks = taskQuery.findByStatusWithPages(org.hascoapi.entity.pojo.Task.class, status, PAGESIZE, OFFSET);
@@ -103,12 +106,53 @@ public class WKFGen {
                 System.out.println("[WKFGen] Found " + tasks.size() + " Tasks with status=" + status);
                 for (org.hascoapi.entity.pojo.Task task : tasks) {
                     helper = WKFTasks.addTask(helper, task);
+                    tasksFound.add(task);
                 }
             } else {
                 System.out.println("[WKFGen] No Tasks found with status=" + status);
             }
         } catch (Throwable t) {
             System.err.println("[WKFGen] ERROR querying Tasks: " + t.getMessage());
+            t.printStackTrace();
+        }
+
+        // Query RequiredInstruments referenced by the Tasks found
+        try {
+            java.util.Set<String> requiredInstrumentUris = new java.util.HashSet<>();
+            
+            // Collect all RequiredInstrument URIs from all tasks
+            for (org.hascoapi.entity.pojo.Task task : tasksFound) {
+                List<String> riUris = task.getHasRequiredInstrumentUris();
+                System.out.println("[WKFGen] Task " + task.getUri() + " has " + (riUris == null ? 0 : riUris.size()) + " RequiredInstrument URIs");
+                if (riUris != null && !riUris.isEmpty()) {
+                    for (String riUri : riUris) {
+                        System.out.println("[WKFGen]   - " + riUri);
+                    }
+                    requiredInstrumentUris.addAll(riUris);
+                }
+            }
+            
+            if (!requiredInstrumentUris.isEmpty()) {
+                System.out.println("[WKFGen] Found " + requiredInstrumentUris.size() + " unique RequiredInstrument URI(s) referenced by Tasks");
+                
+                // Fetch each RequiredInstrument and add to workbook
+                for (String riUri : requiredInstrumentUris) {
+                    try {
+                        org.hascoapi.entity.pojo.RequiredInstrument ri = org.hascoapi.entity.pojo.RequiredInstrument.find(riUri);
+                        if (ri != null) {
+                            helper = WKFRequiredInstruments.addRequiredInstrument(helper, ri);
+                        } else {
+                            System.out.println("[WKFGen] WARN: RequiredInstrument not found: " + riUri);
+                        }
+                    } catch (Exception e) {
+                        System.err.println("[WKFGen] ERROR fetching RequiredInstrument " + riUri + ": " + e.getMessage());
+                    }
+                }
+            } else {
+                System.out.println("[WKFGen] No RequiredInstruments referenced by Tasks");
+            }
+        } catch (Throwable t) {
+            System.err.println("[WKFGen] ERROR querying RequiredInstruments: " + t.getMessage());
             t.printStackTrace();
         }
 

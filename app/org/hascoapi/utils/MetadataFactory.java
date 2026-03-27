@@ -65,36 +65,46 @@ public class MetadataFactory {
                         pred = factory.createIRI(URIUtils.replacePrefixEx(key));
                     }
 
-                    String cellValue = null;
+                    // Handle both single values and Lists
                     Object raw = row.get(key);
+                    List<String> cellValues = new java.util.ArrayList<>();
+                    
                     if (raw instanceof List) {
+                        // Process all elements in the list
                         List<?> list = (List<?>) raw;
-                        if (!list.isEmpty()) {
-                            cellValue = list.get(0).toString();
+                        for (Object item : list) {
+                            if (item != null) {
+                                cellValues.add(item.toString());
+                            }
                         }
                     } else if (raw != null) {
-                        cellValue = raw.toString();
+                        // Single value
+                        cellValues.add(raw.toString());
                     }
 
-                    if (URIUtils.isValidURI(cellValue)) {
-                        IRI obj = factory.createIRI(URIUtils.replacePrefixEx(cellValue));
-                        if (namedGraph == null) {
-                            model.add(sub, pred, obj);
-                            System.out.println("[WARNING] Triple (" + sub + "," + pred + "," + obj + ") is default named graph.");
-                        } else {
-                            model.add(sub, pred, obj, (Resource)namedGraph);
+                    // Create a triple for each value
+                    for (String cellValue : cellValues) {
+                        if (cellValue == null || cellValue.trim().isEmpty()) {
+                            continue;
                         }
-                    } else {
-                        if (cellValue == null) {
-                            cellValue = "NULL";
-                        }
-                        Literal obj = factory.createLiteral(
-                                cellValue.replace("\n", " ").replace("\r", " ").replace("\"", "''"));
-                        if (namedGraph == null) {
-                            model.add(sub, pred, obj);
-                            System.out.println("[WARNING] Triple (" + sub + "," + pred + "," + obj + ") is default named graph.");
+
+                        if (URIUtils.isValidURI(cellValue)) {
+                            IRI obj = factory.createIRI(URIUtils.replacePrefixEx(cellValue));
+                            if (namedGraph == null) {
+                                model.add(sub, pred, obj);
+                                System.out.println("[WARNING] Triple (" + sub + "," + pred + "," + obj + ") is default named graph.");
+                            } else {
+                                model.add(sub, pred, obj, (Resource)namedGraph);
+                            }
                         } else {
-                            model.add(sub, pred, obj, (Resource)namedGraph);
+                            Literal obj = factory.createLiteral(
+                                    cellValue.replace("\n", " ").replace("\r", " ").replace("\"", "''"));
+                            if (namedGraph == null) {
+                                model.add(sub, pred, obj);
+                                System.out.println("[WARNING] Triple (" + sub + "," + pred + "," + obj + ") is default named graph.");
+                            } else {
+                                model.add(sub, pred, obj, (Resource)namedGraph);
+                            }
                         }
                     }
                 }

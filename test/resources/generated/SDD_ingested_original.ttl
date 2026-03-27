@@ -83,10 +83,9 @@
 @prefix xsp:               <http://www.owl-ontologies.com/2005/08/07/xsp.owl#> .
 
 <http://example.org/DF-SDD-health.xlsx>
-        rdf:type                  hasco:SemanticDataDictionary ;
-        rdfs:comment              "Generated from SDD file [SDD-health.xlsx]" ;
-        rdfs:label                "SDD_PATIENT_HEALTH" ;
-        hasco:hascoType           hasco:SemanticDataDictionary ;
-        hasco:uriId               "SDD_PATIENT_HEALTH" ;
-        vstoi:hasSIRManagerEmail  "NULL" ;
-        vstoi:hasVersion          "1.0" .
+        rdf:type          hasco:SemanticDataDictionary ;
+        rdfs:comment      "Generated from SDD file [SDD-health.xlsx]" ;
+        rdfs:label        "SDD_PATIENT_HEALTH" ;
+        hasco:hascoType   hasco:SemanticDataDictionary ;
+        hasco:uriId       "SDD_PATIENT_HEALTH" ;
+        vstoi:hasVersion  "1.0" .

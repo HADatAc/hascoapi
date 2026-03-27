@@ -221,38 +221,25 @@ public abstract class BaseGenerator {
             System.out.println("[WARNING] BaseGenerator.createRows(): records is NULL");
             return;
         }
-        System.out.println("\n========== BaseGenerator.createRows() START ==========");
-        System.out.println("Generator type: " + this.getClass().getSimpleName());
-        System.out.println("Element type: " + this.getElementType());
-        System.out.println("Number of records: " + records.size());
+        System.out.println("[" + this.getClass().getSimpleName() + "] Processing " + records.size() + " records for elementType=" + this.getElementType());
 
         int rowNumber = 0;
         int skippedRows = 0;
         int validRows = 0;
         Record lastRecord = null;
         for (Record record : records) {
-            System.out.println("\n--- Processing record #" + (rowNumber + 1) + " ---");
             if (lastRecord != null && record.equals(lastRecord)) {
                 skippedRows++;
-                System.out.println("  ✗ Skipped (duplicate of previous record)");
             } else {
                 Map<String, Object> tempRow = createRow(record, ++rowNumber);
                 if (tempRow != null) {
                     rows.add(tempRow);
                     validRows++;
                     lastRecord = record;
-                    System.out.println("  ✓ Valid row created and added to rows list (total valid rows: " + validRows + ")");
-                } else {
-                    System.out.println("  ✗ createRow returned null (row not valid)");
                 }
             }
         }
-        if (skippedRows > 0) {
-            System.out.println("\nSkipped duplicate rows: " + skippedRows);
-        }
-        System.out.println("========== BaseGenerator.createRows() END ==========");
-        System.out.println("Total valid rows created: " + validRows);
-        System.out.println("Total rows in list: " + rows.size());
+        System.out.println("[" + this.getClass().getSimpleName() + "] Completed: " + validRows + " valid rows, " + skippedRows + " duplicates skipped");
     }
 
     public void createObjects() throws Exception {

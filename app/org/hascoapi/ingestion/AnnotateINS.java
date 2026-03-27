@@ -23,6 +23,9 @@ public class AnnotateINS extends BaseAnnotator {
         // Build generator chain
         GeneratorChain chain = new GeneratorChain();
 
+        // Set the named graph URI so data is stored in the DataFile's graph
+        chain.setNamedGraphUri(dataFile.getUri());
+
         addCustomGeneratorIfSheetExists(dataFile, mapCatalog, "ResponseOptions", status, chain,
                 (df, st) -> new INSGenerator("responseoption", df, st));
         addCustomGeneratorIfSheetExists(dataFile, mapCatalog, "CodeBooks", status, chain,

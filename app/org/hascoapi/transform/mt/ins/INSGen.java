@@ -442,6 +442,16 @@ public class INSGen {
         System.out.println("\n========== INSGen.save() START ==========");
         System.out.println("  Input filename: [" + filename + "]");
 
+        // Populate Namespaces sheet before saving
+        try {
+            System.out.println("  → Saving namespaces...");
+            populateNamespaces(helper.workbook);
+            System.out.println("  ✓ Namespaces saved");
+        } catch (Exception e) {
+            System.err.println("  ⚠️ WARNING: Failed to populate namespaces: " + e.getMessage());
+            e.printStackTrace();
+        }
+
         // Get the base path from config
         String basePath = ConfigProp.getPathIngestion();
         System.out.println("  ConfigProp.getPathIngestion(): [" + basePath + "]");
@@ -496,4 +506,43 @@ public class INSGen {
 
         return resp;
     }
+
+    /**
+     * Populate Namespaces sheet with in-memory namespace data
+     */
+    private static void populateNamespaces(Workbook workbook) {
+        Sheet nsSheet = workbook.getSheet(INSGen.NAMESPACES);
+        if (nsSheet == null) {
+            System.err.println("  ⚠️ Namespaces sheet not found!");
+            return;
+        }
+
+        // Get in-memory namespaces (ordered)
+        List<org.hascoapi.entity.pojo.NameSpace> inMem = org.hascoapi.entity.pojo.NameSpace.findInMemory();
+        if (inMem == null || inMem.isEmpty()) {
+            System.out.println("  ⚠️ No namespaces found in memory");
+            return;
+        }
+
+        // Populate namespace rows starting from row 1 (row 0 is header)
+        int nsRowNum = 1;
+        for (org.hascoapi.entity.pojo.NameSpace ns : inMem) {
+            Row row = nsSheet.createRow(nsRowNum++);
+            row.createCell(0).setCellValue(safe(ns.getLabel()));       // hasPrefix
+            row.createCell(1).setCellValue(safe(ns.getUri()));         // hasNameSpace
+            row.createCell(2).setCellValue(safe(ns.getSourceMime()));  // hasFormat
+            row.createCell(3).setCellValue(safe(ns.getSource()));      // hasSource
+        }
+
+        System.out.println("  ✓ Added " + (nsRowNum - 1) + " namespaces");
+    }
+
+    /**
+     * Helper method to safely convert null strings to empty strings
+     */
+    private static String safe(String val) {
+        return val == null ? "" : val;
+    }
 }
+
+

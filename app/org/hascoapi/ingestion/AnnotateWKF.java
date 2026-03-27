@@ -98,6 +98,10 @@ public class AnnotateWKF extends BaseAnnotator {
 
         System.out.println("✓ Generator chain built with " + generatorCount + " generators");
 
+        // Set the named graph URI so data is stored in the DataFile's graph
+        chain.setNamedGraphUri(dataFile.getUri());
+        System.out.println("✓ Named graph URI set to: " + dataFile.getUri());
+
         // Validate that at least one generator was added
         chain.setDataFile(dataFile);
         if (!chain.isValid()) {

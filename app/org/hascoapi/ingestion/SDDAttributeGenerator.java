@@ -303,41 +303,34 @@ public class SDDAttributeGenerator extends BaseGenerator {
         rows.clear();
         List<String> column_name = new ArrayList<String>();
         int rowNumber = 0;
+        int attributeRowsCreated = 0;
+        int relationRowsCreated = 0;
+        int skippedRows = 0;
 
-        System.out.println("[SDDAttributeGenerator] createRows() START - total records: " + records.size());
-        System.out.println("[SDDAttributeGenerator] Template mapping for AttributeType: '" + mapCol.get("AttributeType") + "'");
+        System.out.println("[SDDAttributeGenerator] Processing " + records.size() + " records");
 
         for (Record record : records) {
 
             String attr = getAttribute(record);
             String label = getLabel(record);
 
-            System.out.println("[SDDAttributeGenerator] Processing record #" + (rowNumber + 1) + ":");
-            System.out.println("[SDDAttributeGenerator]   label='" + label + "'");
-            System.out.println("[SDDAttributeGenerator]   attribute (from column '" + mapCol.get("AttributeType") + "')='" + attr + "'");
-            System.out.println("[SDDAttributeGenerator]   attribute is null: " + (attr == null));
-            System.out.println("[SDDAttributeGenerator]   attribute is empty: " + (attr != null && attr.equals("")));
-
             if ( attr  == null || attr.equals("")){
-                System.out.println("[SDDAttributeGenerator]   -> SKIPPED (empty attribute)");
+                skippedRows++;
                 if (column_name.contains(getLabel(record))){
-                    System.out.println("[SDDAttributeGenerator]   -> Creating relation row instead");
                     rows.add(createRelationRow(record, ++rowNumber));
+                    relationRowsCreated++;
                 }
                 continue;
             } else {
-                System.out.println("[SDDAttributeGenerator]   -> Creating SDDAttribute row");
                 Map<String, Object> newRow = createRow(record, ++rowNumber);
-                System.out.println("[SDDAttributeGenerator]   -> Row created with URI: " + newRow.get("hasURI"));
                 rows.add(newRow);
-                System.out.println("[SDDAttributeGenerator]   -> Rows list now has " + rows.size() + " rows");
+                attributeRowsCreated++;
 
                 // Store the mapping of column label -> SDDAttribute URI for PVGenerator
                 String columnLabel = getLabel(record);
                 String sddAttUri = (String) newRow.get("hasURI");
                 if (columnLabel != null && !columnLabel.isEmpty() && sddAttUri != null) {
                     labelToUriMap.put(columnLabel, sddAttUri);
-                    System.out.println("[SDDAttributeGenerator]   -> Stored label->URI mapping: '" + columnLabel + "' -> '" + sddAttUri + "'");
                 }
 
                 //for (String item : getWasDerivedFrom(record)) {
@@ -347,7 +340,7 @@ public class SDDAttributeGenerator extends BaseGenerator {
             }
         }
 
-        System.out.println("[SDDAttributeGenerator] createRows() END - total rows created: " + rows.size());
+        System.out.println("[SDDAttributeGenerator] Completed: " + attributeRowsCreated + " attributes, " + relationRowsCreated + " relations, " + skippedRows + " skipped");
 
         /*if (mergedEA != null && mergedEA.keySet().size() > 0) {
             for (String attr : mergedEA.keySet()) {

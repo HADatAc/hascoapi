@@ -36,10 +36,13 @@ public class WKFRequiredInstruments {
 
         System.out.println("[WKFRequiredInstruments] Querying RequiredInstruments for WKF uri=" + wkf.getUri() + ", namedGraph=" + namedGraph);
 
-        // Build SPARQL query to find RequiredInstruments in the named graph
+        // Build SPARQL query to find RequiredInstruments that are referenced by Tasks in the named graph
+        // First, find all Tasks in the graph, then find all RequiredInstruments they reference
         String queryString = org.hascoapi.utils.NameSpaces.getInstance().printSparqlNameSpaceList()
-                + " SELECT ?uri WHERE { "
+                + " SELECT DISTINCT ?uri WHERE { "
                 + "   GRAPH <" + namedGraph + "> { "
+                + "     ?task a vstoi:Task . "
+                + "     ?task vstoi:hasRequiredInstrument ?uri . "
                 + "     ?uri a vstoi:RequiredInstrument . "
                 + "   } "
                 + " }";
