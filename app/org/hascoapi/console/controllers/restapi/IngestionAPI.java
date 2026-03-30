@@ -1,15 +1,7 @@
 package org.hascoapi.console.controllers.restapi;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
-
-import org.apache.jena.update.UpdateFactory;
 import org.hascoapi.entity.pojo.WKF;
-import org.hascoapi.entity.pojo.NameSpace;
 import org.hascoapi.transform.mt.wkf.WKFGen;
-import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.Constants;
 import org.hascoapi.ingestion.IngestionWorker;
 import org.hascoapi.entity.pojo.DA;
@@ -38,11 +30,8 @@ import org.hascoapi.utils.*;
 import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.ConfigProp;
-import org.hascoapi.utils.HAScOMapper;
-import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.URIUtils;
 import org.hascoapi.vocabularies.HASCO;
-import org.hascoapi.vocabularies.VSTOI;
 import com.typesafe.config.Config;
 import org.apache.jena.update.UpdateExecutionFactory;
 import org.apache.jena.update.UpdateFactory;
@@ -51,22 +40,15 @@ import org.apache.jena.update.UpdateRequest;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import static org.hascoapi.Constants.*;
 
-import org.apache.jena.update.UpdateExecutionFactory;
-import org.apache.jena.update.UpdateFactory;
-import org.apache.jena.update.UpdateProcessor;
-import org.apache.jena.update.UpdateRequest;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.concurrent.CompletableFuture;
-import java.util.logging.Level;
 import java.io.File;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.concurrent.CompletableFuture;
+import java.util.logging.Level;
 import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Path;

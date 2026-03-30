@@ -2,41 +2,16 @@ package org.hascoapi.ingestion;
 
 import java.lang.String;
 import java.io.File;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.nio.file.Paths;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import javax.xml.stream.events.Namespace;
-
 import org.apache.commons.io.FilenameUtils;
-import org.apache.jena.query.QueryParseException;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSetRewindable;
-import org.apache.jena.update.UpdateExecutionFactory;
-import org.apache.jena.update.UpdateFactory;
-import org.apache.jena.update.UpdateProcessor;
-import org.apache.jena.update.UpdateRequest;
-import org.hascoapi.entity.pojo.Stream;
 import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.Constants;
-import org.hascoapi.entity.pojo.DOI;
-import org.hascoapi.entity.pojo.DP2;
-//import org.hascoapi.entity.pojo.DPL;
-import org.hascoapi.entity.pojo.SDD;
-import org.hascoapi.entity.pojo.SDDAttribute;
-import org.hascoapi.entity.pojo.SDDObject;
-import org.hascoapi.entity.pojo.SSDSheet;
 import org.hascoapi.entity.pojo.Study;
-import org.hascoapi.entity.pojo.StudyObjectCollection;
 import org.hascoapi.utils.URIUtils;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.ConfigProp;
@@ -157,20 +132,11 @@ public class IngestionWorker {
         System.out.println("DataFile filename: " + dataFile.getFilename());
         System.out.println("StudyUri: " + (studyUri != null ? studyUri : "NULL"));
 
-        GeneratorChain chain = getGeneratorChain(dataFile, studyUri, templateFile, status);
+        GeneratorChain chain = getGeneratorChain(dataFile, studyUri, templateFile, effectiveStatus);
 
         System.out.println("\n=== After getGeneratorChain() ===");
         System.out.println("Chain is: " + (chain != null ? "NOT NULL" : "NULL"));
-        if (chain != null) {
-            System.out.println("Chain is valid: " + chain.isValid());
-
-            if (studyUri == null || studyUri.isEmpty()) {
-                chain.setStudyUri("");
-            } else {
-                chain.setStudyUri(studyUri);
-            }
-        GeneratorChain chain = getGeneratorChain(dataFile, studyUri, templateFile, effectiveStatus);
-
+        
         // If no chain was produced, log and throw exception to fail fast (as requested)
         if (chain == null) {
             String msg = "IngestionWorker: No generator chain produced. Aborting ingestion gracefully.";
@@ -178,6 +144,8 @@ public class IngestionWorker {
             System.out.println(msg);
             throw new RuntimeException(msg);
         }
+        
+        System.out.println("Chain is valid: " + chain.isValid());
 
         // Only set study URI if a chain was produced
         if (studyUri == null || studyUri.isEmpty()) {
@@ -186,18 +154,16 @@ public class IngestionWorker {
             chain.setStudyUri(studyUri);
         }
 
-        if (chain != null) {
-            try {
-                System.out.println("IngestionWorker: chain.generate() STARTED.");
-                bSucceed = chain.generate();
-                System.out.println("IngestionWorker: chain.generate() ENDED. Response: [" + bSucceed + "]");
-                chain.disposeChain();
-            } catch (Exception e) {
-                System.out.println("IngestionWorker: ERROR during chain.generate()");
-                e.printStackTrace();
-                dataFile.getLogger().println("ERROR during ingestion: " + e.getMessage());
-                bSucceed = false;
-            }
+        try {
+            System.out.println("IngestionWorker: chain.generate() STARTED.");
+            bSucceed = chain.generate();
+            System.out.println("IngestionWorker: chain.generate() ENDED. Response: [" + bSucceed + "]");
+            chain.disposeChain();
+        } catch (Exception e) {
+            System.out.println("IngestionWorker: ERROR during chain.generate()");
+            e.printStackTrace();
+            dataFile.getLogger().println("ERROR during ingestion: " + e.getMessage());
+            bSucceed = false;
         }
 
         if (bSucceed) {
