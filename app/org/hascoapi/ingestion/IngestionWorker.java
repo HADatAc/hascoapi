@@ -68,13 +68,19 @@ public class IngestionWorker {
         System.out.println("[INGESTION PATH] DataFile: " + dataFile.getFilename());
         System.out.println("[INGESTION PATH] DataFile URI: " + dataFile.getUri());
         System.out.println("[INGESTION PATH] RecordFile isValid: " + (recordFile != null ? recordFile.isValid() : "recordFile is NULL"));
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> e3d59438b08a1e37ee5f57127dd97799008fd868
         if (!recordFile.isValid()) {
             System.out.println("[ERROR] RecordFile.isValid() returned FALSE - aborting ingestion");
             dataFile.getLogger().printExceptionById("GBL_00005");
             //System.out.println("[ERROR] IngestionWorker: No InfoSheet in provided file.");
             return;
         }
+        
+        System.out.println("✅ RecordFile is valid, continuing with ingestion");
 
         System.out.println("✅ RecordFile is valid, continuing with ingestion");
 
@@ -84,11 +90,19 @@ public class IngestionWorker {
         if (FilenameUtils.getBaseName(fileName).startsWith("DA-SOC-")) {
             String baseName = FilenameUtils.getBaseName(fileName);
             String socName = baseName.substring(7); // "DA-SOC-ENTERPRISE" -> "ENTERPRISE"
+<<<<<<< HEAD
 
             System.out.println("[INGESTION PATH] Detected DASOC file pattern: DA-SOC-*");
             System.out.println("[INGESTION PATH] Extracting SOC name: " + socName);
             dataFile.getLogger().println("DASOC file detected - SOC name from filename: " + socName);
 
+=======
+            
+            System.out.println("[INGESTION PATH] Detected DASOC file pattern: DA-SOC-*");
+            System.out.println("[INGESTION PATH] Extracting SOC name: " + socName);
+            dataFile.getLogger().println("DASOC file detected - SOC name from filename: " + socName);
+            
+>>>>>>> e3d59438b08a1e37ee5f57127dd97799008fd868
             // Try to find SOC by querying for objects with matching originalID pattern
             String socUri = findSOCByName(socName);
             if (socUri != null && !socUri.isEmpty()) {
@@ -136,7 +150,11 @@ public class IngestionWorker {
 
         System.out.println("\n=== After getGeneratorChain() ===");
         System.out.println("Chain is: " + (chain != null ? "NOT NULL" : "NULL"));
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> e3d59438b08a1e37ee5f57127dd97799008fd868
         // If no chain was produced, log and throw exception to fail fast (as requested)
         if (chain == null) {
             String msg = "IngestionWorker: No generator chain produced. Aborting ingestion gracefully.";
@@ -145,6 +163,8 @@ public class IngestionWorker {
             throw new RuntimeException(msg);
         }
         
+        System.out.println("Chain is valid: " + chain.isValid());
+
         System.out.println("Chain is valid: " + chain.isValid());
 
         // Only set study URI if a chain was produced
@@ -199,7 +219,11 @@ public class IngestionWorker {
         System.out.println("\n=== [INGESTION PATH] IngestionWorker.getGeneratorChain() ===");
         System.out.println("[INGESTION PATH] Determining generator for file: " + dataFile.getFilename());
         System.out.println("[INGESTION PATH] Full filename: " + dataFile.getFilename());
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> e3d59438b08a1e37ee5f57127dd97799008fd868
         GeneratorChain chain = null;
         String fileName = FilenameUtils.getBaseName(dataFile.getFilename());
         System.out.println("[INGESTION PATH] Base filename (without extension): " + fileName);
@@ -689,7 +713,11 @@ public class IngestionWorker {
     /**
      * Find StudyObjectCollection URI by matching SOC name pattern.
      * Queries triplestore for SOCs with labels or URIs containing the given name.
+<<<<<<< HEAD
      *
+=======
+     * 
+>>>>>>> e3d59438b08a1e37ee5f57127dd97799008fd868
      * @param socName The SOC name extracted from filename (e.g., "ENTERPRISE", "API", "PRODUCT")
      * @return SOC URI if found, null otherwise
      */
@@ -697,7 +725,11 @@ public class IngestionWorker {
         if (socName == null || socName.isEmpty()) {
             return null;
         }
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> e3d59438b08a1e37ee5f57127dd97799008fd868
         try {
             String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 "SELECT ?socUri WHERE { " +
@@ -706,12 +738,21 @@ public class IngestionWorker {
                 "  UNION " +
                 "  { FILTER(CONTAINS(UCASE(STR(?socUri)), UCASE(\"SOC-" + socName + "\"))) } " +
                 "} LIMIT 1";
+<<<<<<< HEAD
 
             System.out.println("IngestionWorker.findSOCByName(): Querying for SOC with name: " + socName);
 
             ResultSetRewindable resultsrw = SPARQLUtils.select(
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
+=======
+            
+            System.out.println("IngestionWorker.findSOCByName(): Querying for SOC with name: " + socName);
+            
+            ResultSetRewindable resultsrw = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+            
+>>>>>>> e3d59438b08a1e37ee5f57127dd97799008fd868
             if (resultsrw.hasNext()) {
                 QuerySolution soln = resultsrw.next();
                 if (soln != null && soln.getResource("socUri") != null) {
@@ -720,10 +761,17 @@ public class IngestionWorker {
                     return socUri;
                 }
             }
+<<<<<<< HEAD
 
             System.out.println("IngestionWorker.findSOCByName(): No SOC found for name: " + socName);
             return null;
 
+=======
+            
+            System.out.println("IngestionWorker.findSOCByName(): No SOC found for name: " + socName);
+            return null;
+            
+>>>>>>> e3d59438b08a1e37ee5f57127dd97799008fd868
         } catch (Exception e) {
             System.err.println("[ERROR] IngestionWorker.findSOCByName(): " + e.getMessage());
             e.printStackTrace();

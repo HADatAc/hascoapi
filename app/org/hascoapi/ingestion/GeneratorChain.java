@@ -89,10 +89,15 @@ public class GeneratorChain {
     }
 
     public boolean generate(boolean bCommit) {
+        System.out.println("GeneratorChain.generate() called, checking validity...");
+        System.out.println("Chain isValid(): " + isValid());
+        System.out.println("Chain has " + chain.size() + " generators");
+        
         if (!isValid()) {
             System.out.println("[ERROR] GeneratorChain is not valid, aborting generation");
             return false;
         }
+        System.out.println("✅ Chain is VALID - proceeding with generation");
         System.out.println("\n========================================");
         System.out.println("GeneratorChain: Executing [NORMAL] generator chain");
         System.out.println("Number of generators: " + chain.size());
