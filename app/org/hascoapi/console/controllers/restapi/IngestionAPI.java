@@ -22,6 +22,8 @@ import org.hascoapi.entity.pojo.FundingScheme;
 import org.hascoapi.entity.pojo.Place;
 import org.hascoapi.entity.pojo.Project;
 import org.hascoapi.entity.pojo.Organization;
+import org.hascoapi.transform.mt.dp2.DP2Gen;
+import org.hascoapi.transform.mt.dsg.DSGGen;
 import org.hascoapi.transform.mt.ins.INSGen;
 import org.hascoapi.transform.mt.kgr.KGRGen;
 import org.hascoapi.utils.ApiUtil;
@@ -541,6 +543,12 @@ public class IngestionAPI extends Controller {
             case "ins":
                 INSGen.genByStatus(status,filename,mediaFolder,verifyUri);
                 break;
+            case "dp2":
+                DP2Gen.genByStatus(status,filename,mediaFolder,verifyUri);
+                break;
+            case "dsg":
+                DSGGen.genByStatus(status,filename,mediaFolder,verifyUri);
+                break;
             case "kgr":
                 KGRGen.genByStatus(status,filename,mediaFolder,verifyUri);
                 break;
@@ -595,6 +603,9 @@ public class IngestionAPI extends Controller {
         }
         String resp = "";
         switch (elementtype) {
+            case "study":
+                resp = DSGGen.genByStudy((Study)element,filename,mediaFolder,verifyUri);
+                break;
             case "instrument":
                 resp = INSGen.genByInstrument((Instrument)element,filename,mediaFolder,verifyUri);
                 break;
@@ -650,6 +661,9 @@ public class IngestionAPI extends Controller {
                 break;
             case "kgr":
                 KGRGen.genByManager(useremail, status, filename, mediaFolder, verifyUri);
+                break;
+            case "dsg":
+                DSGGen.genByManager(useremail, status, filename, mediaFolder, verifyUri);
                 break;
             default:
                 String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() invalid elementtype=[" + elementtype + "]";

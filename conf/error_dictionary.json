@@ -99,114 +99,121 @@
       "content": [
         {
           "id": "DSG_00001",
-          "detail": "Missing InfoSheet.",
-          "solution": "Ensure that the DSG spreadsheet includes a sheet called 'InfoSheet'."
+          "detail": "DSG InfoSheet is missing.",
+          "solution": "Open the DSG spreadsheet and ensure there is a sheet named 'InfoSheet'."
         },
         {
           "id": "DSG_00002",
-          "detail": "InfoSheet has no records.",
-          "solution": "Ensure that the InfoSheet contains at least one record."
+          "detail": "DSG InfoSheet has no records.",
+          "solution": "Ensure that the InfoSheet contains at least one row with DSG metadata values."
         },
         {
           "id": "DSG_00003",
-          "detail": "Missing or extra sheet(s) in InfoSheet for DSG metadata.",
-          "solution": "Ensure that all required sheets are present and no unexpected sheets are included. Expected sheets are: hasStudyURI, hasStudyKG, hasDependencies, hasStudyDescription, hasEntityDesign, hasVariableDesign, hasVersion."
+          "detail": "DSG InfoSheet has missing or extra sheet entries.",
+          "solution": "Ensure that the InfoSheet has all required keys and no unexpected ones. Expected keys are: hasStudyURI, hasStudyKG, hasDependencies, hasStudyDescription, hasEntityDesign, hasVariableDesign, hasVersion."
         },
         {
           "id": "DSG_00004",
-          "detail": "Sheet '%s' is missing in DSG file.",
-          "solution": "Add the missing sheet to the DSG file."
+          "detail": "Sheet '%s' referenced from DSG InfoSheet is missing in the workbook.",
+          "solution": "Create the missing sheet in the DSG file or correct the sheet name in the InfoSheet."
         },
         {
           "id": "DSG_00005",
-          "detail": "Unexpected sheet '%s' found in InfoSheet.",
-          "solution": "Remove the unexpected sheet from the DSG InfoSheet."
+          "detail": "Unexpected sheet '%s' key found in DSG InfoSheet.",
+          "solution": "Remove or rename the unexpected key from the DSG InfoSheet so it matches the expected metadata keys."
         },
         {
           "id": "DSG_00006",
-          "detail": "SSDGenerator: no studyUri provided for SOC generator with typeUri [%s]",
-          "solution": ""
+          "detail": "SSDGenerator: no studyUri provided for SOC generator with typeUri [%s].",
+          "solution": "Check the DSG STD meta-template and ensure that the study URI is correctly passed to the SSD generator for this SOC type."
         },
         {
           "id": "DSG_00007",
-          "detail": "SSDGenerator: no SOCReference provided for SOC generator",
-          "solution": ""
+          "detail": "SSDGenerator: no SOCReference provided for SOC generator.",
+          "solution": "In the SSD sheet, fill the 'hasSOCReference' column for each Study Object Collection row that should generate study objects."
         },
         {
           "id": "DSG_00008",
-          "detail": "VirtualColumnGenerator: no studyUri provided for generator with typeUri [%s]",
-          "solution": ""
+          "detail": "VirtualColumnGenerator: no studyUri provided for generator with typeUri [%s].",
+          "solution": "Ensure that the DSG InfoSheet and STD metadata correctly provide a study URI before running the VirtualColumn generator."
         },
         {
           "id": "DSG_00009",
-          "detail": "VirtualColumnGenerator: no SOCReference provided for generator",
-          "solution": ""
+          "detail": "VirtualColumnGenerator: no SOCReference provided for generator.",
+          "solution": "Make sure the SSD sheet includes a valid SOCReference for each Virtual Column configuration that depends on a Study Object Collection."
         },
         {
           "id": "DSG_00010",
-          "detail": "DSG ingestion: Could not find the study uri <%s> in the TS, check the study uri in the DSG sheet.",
-          "solution": ""
+          "detail": "DSG ingestion: the study URI <%s> was not found in the triple store. The STD for this study may not be ingested or the URI value in the DSG InfoSheet is incorrect.",
+          "solution": "Open the DSG InfoSheet, check the value of 'hasStudyURI', and confirm it matches the URI of an existing STD in the triple store."
         },
         {
           "id": "DSG_00011",
-          "detail": "DSG ingestion: There is no SOC of type hasco:SubjectGroup, make sure one and only one SOC is of type hasco:SubjectGroup.",
-          "solution": ""
+          "detail": "DSG ingestion: no Study Object Collection (SOC) of type hasco:SubjectGroup was found for this study.",
+          "solution": "Check the SSD sheet referenced by hasEntityDesign and ensure exactly one SOC row has 'type' set to hasco:SubjectGroup."
         },
         {
           "id": "DSG_00012",
-          "detail": "DSG ingestion: There is more than one SOC of type hasco:SubjectGroup, make sure one and only one SOC is of type hasco:SubjectGroup.",
-          "solution": ""
+          "detail": "DSG ingestion: more than one Study Object Collection (SOC) of type hasco:SubjectGroup was found for this study.",
+          "solution": "In the SSD sheet, leave only one SOC row with 'type' = hasco:SubjectGroup and remove or change any additional ones."
         },
         {
           "id": "DSG_00013",
-          "detail": "STD Processing: Missing 'hasStudyDescription' sheet in InfoSheet.",
-          "solution": "Ensure that the DSG InfoSheet includes a sheet called 'hasStudyDescription'."
+          "detail": "STD Processing: DSG InfoSheet is missing the 'hasStudyDescription' entry.",
+          "solution": "In the DSG InfoSheet, add a row with key 'hasStudyDescription' pointing to the STD sheet that describes the study."
         },
         {
           "id": "DSG_00014",
-          "detail": "STD Processing: Failed to load or parse 'hasStudyDescription' sheet.",
-          "solution": "Ensure that the DSG sheet 'hasStudyDescription' exists and is correctly formatted."
+          "detail": "STD Processing: failed to load or parse the sheet referenced by 'hasStudyDescription'.",
+          "solution": "Verify that the sheet named in 'hasStudyDescription' exists, has the expected STD columns, and is not empty."
         },
         {
           "id": "DSG_00015",
-          "detail": "Study ID is empty.",
-          "solution": "Fill in a study ID."
+          "detail": "Study ID in the STD sheet is empty or missing.",
+          "solution": "Open the STD sheet and fill the 'studyID' column with a value for this study."
         },
         {
           "id": "DSG_00016",
-          "detail": "Study title not given.",
-          "solution": "Fill in study title."
+          "detail": "Study title in the STD sheet is missing.",
+          "solution": "Open the STD sheet and fill the 'studyTitle' column with a title for this study."
         },
         {
           "id": "DSG_00017",
-          "detail": "DSG file must have a .xlsx extension",
-          "solution": "Rename the file to use the .xlsx extension or provide an Excel file."
+          "detail": "DSG file must have a .xlsx extension.",
+          "solution": "Rename the DSG file to use the .xlsx extension or provide a valid Excel workbook."
         },
         {
           "id": "DSG_00018",
           "detail": "Missing sheet name for [hasEntityDesign] in DSG InfoSheet.",
-          "solution": "Define the hasEntityDesign sheet name in the DSG InfoSheet."
+          "solution": "In the DSG InfoSheet, set the value for key 'hasEntityDesign' to the name of the SSD sheet that lists Study Object Collections."
         },
         {
           "id": "DSG_00019",
-          "detail": "Failed to load SSD sheet or extract records.",
-          "solution": "Verify the sheet name and the file contents; ensure the sheet exists and is readable."
+          "detail": "DSG ingestion: failed to load SSD-related content: %s.",
+          "solution": "Review the referenced sheet or scope in the message (for example, a SOC sheet or SSD scope sheet) and ensure it exists and has the expected header row and data rows."
         },
         {
           "id": "DSG_00020",
-          "detail": "Exception during SSD sheet extraction: %s",
-          "solution": "Check stack trace and file contents; ensure file is not corrupted and sheet name is correct."
+          "detail": "Exception during SSD sheet extraction: %s.",
+          "solution": "Check the server logs for the full stack trace and verify that the SSD sheet name and file contents are correct and not corrupted."
         },
         {
           "id": "DSG_00021",
-          "detail": "SSD sheet is empty or invalid.",
-          "solution": "Ensure the SSD sheet referenced by hasEntityDesign contains rows and valid structure."
+          "detail": "SSD sheet referenced by hasEntityDesign is empty or invalid.",
+          "solution": "Ensure that the SSD sheet referenced by hasEntityDesign has the correct header row (sheet, hasURI, type, hasSOCReference, ...) and at least one SOC row."
+        },
+        {
+          "id": "DSG_00022",
+          "detail": "SSD scope validation failed. SSD annotation was aborted.",
+          "solution": "Check the SSD sheet and any referenced SOC sheets for missing scopeIDs, invalid hasScope/hasTimeScope/hasSpaceScope flags, or inconsistent references."
+        },
+        {
+          "id": "DSG_00023",
+          "detail": "SSD scope validation: SOC sheet '%s' row originalID='%s' is missing spaceScopeID while hasSpaceScope is set in SSD.",
+          "solution": "Fill in a valid spaceScopeID in the SOC sheet for that row, or remove hasSpaceScope from the SSD if space scope is not required."
         }
       ]
     },
-
-
-
 
     "DOI": {
       "file type": "DOI",
@@ -254,53 +261,53 @@
       "content": [
         {
           "id": "GBL_00001",
-          "detail": "Unsupported file name prefix, acceptable prefixes are DA-, DD-, DOI-, DP2-, DSG-, INS-, KGR-, SDD-, STR-",
-          "solution": "Rename the current file to have a valid prefix. Please note that the prefixes end with an hyphen, not an underscore"
+          "detail": "Unsupported file name prefix. Accepted prefixes are: DA-, DD-, DOI-, DP2-, DSG-, INS-, KGR-, SDD-, STR-.",
+          "solution": "Rename the file so that its name starts with one of the accepted prefixes followed by a hyphen (for example, 'DSG-myfile.xlsx')."
         },
         {
           "id": "GBL_00002",
-          "detail": "Already processed a file with the same name %s . ",
-          "solution": "Either remove this file or the old file before moving forward. "
+          "detail": "A file with the same name '%s' has already been processed.",
+          "solution": "Either remove or rename the duplicate file before starting a new ingestion run."
         },
         {
           "id": "GBL_00003",
-          "detail": "Unknown file format: %s",
-          "solution": "Known formats are .xlsx"
+          "detail": "Unknown file format: %s.",
+          "solution": "Use a supported Excel format (.xlsx) for ingestion files."
         },
         {
           "id": "GBL_00004",
-          "detail": "InfoSheet has no records or not Valid",
-          "solution": "The InfoSheet must include and only the required sheets accordly with the metadata"
+          "detail": "InfoSheet has no records or is not valid.",
+          "solution": "Ensure that the InfoSheet exists, has at least one row, and only the expected metadata keys for this file type."
         },
         {
           "id": "GBL_00005",
-          "detail": "Missing InfoSheet. ",
-          "solution": "Use Excel to open this file and see if it has a sheet called 'InfoSheet'. If not, create such sheet."
+          "detail": "Missing InfoSheet.",
+          "solution": "Open the file in Excel and verify that a sheet named 'InfoSheet' exists. Create it if necessary."
         },
         {
           "id": "GBL_00006",
-          "detail": "Missing required sheet key: %s for metadata type %s",
-          "solution": "Ensure that the specified sheet exists in the InfoSheet for the given metadata type."
+          "detail": "Missing required sheet key '%s' for metadata type %s in InfoSheet.",
+          "solution": "Add a row to the InfoSheet with the given key so the system can locate the corresponding sheet for this metadata type."
         },
         {
           "id": "GBL_00007",
-          "detail": "Unexpected sheet key found: %s for metadata type %s",
-          "solution": "Remove or rename the unexpected sheet in the InfoSheet for the given metadata type."
+          "detail": "Unexpected sheet key '%s' found for metadata type %s in InfoSheet.",
+          "solution": "Remove or correct the unexpected key from the InfoSheet for that metadata type."
         },
         {
           "id": "GBL_00008",
-          "detail": "Failed to clone DataFile object: %s",
-          "solution": "Verify that the DataFile class properly implements Cloneable and that all referenced objects can be safely cloned."
+          "detail": "Failed to clone DataFile object: %s.",
+          "solution": "Check the DataFile implementation and related objects to ensure they support cloning without throwing exceptions."
         },
         {
           "id": "GBL_00009",
-          "detail": "NameSpaceGenerator: nameSpaceRecordFile is NULL.",
-          "solution": "Verify that the DataFile has a namespace file."
+          "detail": "NameSpaceGenerator: nameSpaceRecordFile is null.",
+          "solution": "Verify that a namespace sheet is defined and correctly referenced in the InfoSheet."
         },
         {
           "id": "GBL_00010",
-          "detail": "NameSpaceGenerator: nameSpaceRecordFile.getRecords() is NULL.",
-          "solution": "Make sure that the namespace file has records"
+          "detail": "NameSpaceGenerator: nameSpaceRecordFile.getRecords() returned null.",
+          "solution": "Ensure that the namespace sheet exists and contains at least one row."
         },
         {
           "id": "GBL_00011",
@@ -842,162 +849,162 @@
           "solution": "Fix the value under Study_Id in the InfoSheet. Go to Manage Studies to see a list of valid studies."
         },
         {
-          "id": "STR_00004",
+          "id": "STR_00003",
           "detail": "The STR file needs to be in Excel (*.xlsx) format.",
           "solution": "If the STR file is in a format like *.csv, it must be loaded into Excel and saved using the *.xlsx format."
         },
         {
-          "id": "STR_00005",
+          "id": "STR_00004",
           "detail": "The FileStream sheet is missing.",
           "solution": "The FileStream sheet is required even if the sheet is empty. Add a FileStream sheet to the STR"
         },
         {
-          "id": "STR_00006",
+          "id": "STR_00005",
           "detail": "The MessageStream sheet is missing.",
           "solution": "The MessageStream sheet is required even if the sheet is empty. Add a MessageStream sheet to the STR"
         },
         {
-          "id": "STR_00007",
+          "id": "STR_00006",
           "detail": "The STR file cannot have both the FileStream sheet and the MessageStream sheet empty.",
           "solution": "Fill out the FileStream sheet or the MessageStream sheet"
         },
         {
-          "id": "STR_00008",
+          "id": "STR_00007",
           "detail": "In FILESTREAM sheet, the data dictionary ID <%s> is not of a valid SDD.",
           "solution": "Fix the 'data dict' field with the ID of a valid SDD"
         },
         {
-          "id": "STR_00009",
+          "id": "STR_00008",
           "detail": "In FILESTREAM sheet, could not find triples about specified object collections, SSD is probably incorrectly ingested.",
           "solution": "Delete and reingest the associated SSD"
         },
         {
-          "id": "STR_00010",
+          "id": "STR_00009",
           "detail": "MESSAGESTREAM sheet and MESSAGETOPIC sheet need both to be empty or to be filled out completely.",
           "solution": "Either add content to both sheets or completely remove their content."
         },
         {
-          "id": "STR_00011",
+          "id": "STR_00010",
           "detail": "In MESSAGESTREAM sheet, the hasURI field cannot be empty or null.",
           "solution": "Assign an URI value to the hasURI field"
         },
         {
-          "id": "STR_00012",
+          "id": "STR_00011",
           "detail": "In MESSAGESTREAM sheet, the data dictionary ID cannot be empty or null.",
           "solution": "Assign an ID to the 'data dict' field"
         },
         {
-          "id": "STR_00013",
+          "id": "STR_00012",
           "detail": "In MESSAGESTREAM sheet, the data dictionary ID <%s> is not of a valid SDD.",
           "solution": "Fix the 'data dict' field with the ID of a valid SDD"
         },
         {
-          "id": "STR_00014",
+          "id": "STR_00013",
           "detail": "In MESSAGESTREAM, deployment [%s] could not be found. Check if DPL was ingested and is correct",
           "solution": "Check if the missing deployment is specified in a DPL file."
         },
         {
-          "id": "STR_00015",
+          "id": "STR_00014",
           "detail": "In MESSAGESTREAM, study object with URI [%s], which is specified in a cell scope, could not be found. Checke if SSD was ingested and is correct.",
           "solution": "Check if the SSD for the study has been load. If the SSD was loaded, check if the study object is specified in the SSD."
         },
         {
-          "id": "STR_00016",
+          "id": "STR_00015",
           "detail": "The MESSAGETOPIC sheet is missing.",
           "solution": "The MessageTopic sheet is required even if the sheet is empty. Add a MessageTopic sheet to the STR"
         },
         {
-          "id": "STR_00017",
+          "id": "STR_00016",
           "detail": "In MESSAGESTREAM sheet, the protocol value cannot be empty or null.",
           "solution": "Assign a value to the protocol field"
         },
         {
-          "id": "STR_00018",
+          "id": "STR_00017",
           "detail": "In MESSAGESTREAM sheet, the IP value cannot be empty or null.",
           "solution": "Assign a value to the IP field"
         },
         {
-          "id": "STR_00019",
+          "id": "STR_00018",
           "detail": "In MESSAGESTREAM sheet, the stream's name cannot be empty or null.",
           "solution": "Assign a value to the stream's name"
         },
         {
-          "id": "STR_00020",
+          "id": "STR_00019",
           "detail": "In FILESTREAM sheet, the stream's 'DA NAME' cannot be empty or null.",
           "solution": "Assign a value to the stream's 'DA NAME'"
         },
         {
-          "id": "STR_00021",
+          "id": "STR_00020",
           "detail": "In FILESTREAM sheet, the stream's data dictionary cannot be empty or null.",
           "solution": "Assign a value to the stream's data dictionary"
         },
         {
-          "id": "STR_00022",
+          "id": "STR_00021",
           "detail": "In FILESTREAM sheet, the stream's deployment cannot be empty or null.",
           "solution": "Assign a value to the stream's deployment"
         },
         {
-          "id": "STR_00023",
+          "id": "STR_00022",
           "detail": "In FILESTREAM sheet, CellScope ill-formed: should start with '<'.",
           "solution": "Start the cellscope (the entire value of cell scope) with '<'"
         },
         {
-          "id": "STR_00024",
+          "id": "STR_00023",
           "detail": "In FILESTREAM sheet, CellScope ill-formed: should end with >.",
           "solution": "End the cellscope (the entire value of cell scope) with '>'"
         },
         {
-          "id": "STR_00025",
+          "id": "STR_00024",
           "detail": "In FILESTREAM sheet, CellScope ill-formed: cell spec <%s> should start with '<'",
           "solution": "Start the identified cell spec with '<'"
         },
         {
-          "id": "STR_00026",
+          "id": "STR_00025",
           "detail": "In FILESTREAM sheet, CellScope ill-formed: cell spec <%s> should end with '>'",
           "solution": "End the identified cell spec with a '>'"
         },
         {
-          "id": "STR_00027",
+          "id": "STR_00026",
           "detail": "In FILESTREAM sheet, CellScope ill-formed: cell spec <%s> should have a name and an URI",
           "solution": "A cell spec should have a pair of values"
         },
         {
-          "id": "STR_00028",
+          "id": "STR_00027",
           "detail": "In FILESTREAM sheet, the specified owner email <%s> is not a valid user",
           "solution": "Provide a valid owner email"
         },
         {
-          "id": "STR_00029",
+          "id": "STR_00028",
           "detail": "In FILESTREAM sheet, owner email is missing",
           "solution": "Provide the email of a valid user as owner email"
         },
         {
-          "id": "STR_00030",
+          "id": "STR_00029",
           "detail": "In FILESTREAM sheet, Owner Email is not specified for Row <%s>",
           "solution": "For the given row, provide the email of a valid user as owner email"
         },
         {
-          "id": "STR_00031",
+          "id": "STR_00030",
           "detail": "In FILESTREAM sheet, could not retrieve user with owner email <%s>",
           "solution": "For the given row, provide the email of a valid user as owner email"
         },
         {
-          "id": "STR_00032",
+          "id": "STR_00031",
           "detail": "In FILESTREAM sheet, permission URI is not specified for Row <%s>",
           "solution": "For the given row, provide a valid permission URI for identified row"
         },
         {
-          "id": "STR_00033",
+          "id": "STR_00032",
           "detail": "In FILESTREAM sheet, no platform is specified for deployment <%s>",
           "solution": "In DPL file, verify if a platform is specified for the identified deployment"
         },
         {
-          "id": "STR_00034",
+          "id": "STR_00033",
           "detail": "In FILESTREAM sheet, no instrument is specified for deployment <%s>",
           "solution": "In DPL file, verify if an instrument is specified for the identified deoployment"
         },
         {
-          "id": "STR_00035",
+          "id": "STR_00034",
           "detail": "In FILESTREAM sheet, SDD <%s> cannot be retrieved. ",
           "solution": "For the identified SDD, make sure the SDD file is properly ingested. "
         }
@@ -1005,4 +1012,3 @@
     }
   }
 }
-

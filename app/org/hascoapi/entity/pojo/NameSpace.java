@@ -586,6 +586,7 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
         }
     }
 
+
     @Override
     public int compareTo(NameSpace another) {
         return this.getLabel().compareTo(another.getLabel());
