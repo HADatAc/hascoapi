@@ -225,6 +225,11 @@ public class AnnotateDASOC {
                 result.setSuccess(true);
                 result.setRowCount(rowCount);
                 dataFile.getLogger().println(String.format("✅ Successfully ingested %d rows", rowCount));
+                
+                // Update DataFile status to PROCESSED
+                dataFile.setFileStatus(DataFile.PROCESSED);
+                dataFile.save();
+                System.out.println("[DASOC] DataFile status set to PROCESSED");
             } else {
                 result.setErrorMessage("No data rows were processed");
                 dataFile.getLogger().printWarning("No data rows were processed from CSV file");
@@ -399,9 +404,12 @@ public class AnnotateDASOC {
                         Property predicate = model.createProperty(predicateUri);
                         
                         // Determine if value is a URI or literal
-                        if (URIUtils.isValidURI(value)) {
-                            // Value is a URI - create resource
-                            Resource object = model.createResource(value);
+                        // First try to expand it in case it uses prefixes
+                        String expandedValue = URIUtils.replacePrefixEx(value);
+                        
+                        if (URIUtils.isValidURI(expandedValue)) {
+                            // Value is a URI - create resource with expanded URI
+                            Resource object = model.createResource(expandedValue);
                             model.add(subject, predicate, object);
                         } else {
                             // Value is a literal

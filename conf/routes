@@ -98,8 +98,15 @@ GET     /hascoapi/api/repo/table/generationactivities       org.hascoapi.console
 GET     /hascoapi/api/repo/table/namespaces                 org.hascoapi.console.controllers.restapi.RepoPage.getNamespaces()
 GET     /hascoapi/api/repo/table/instrumentpositions        org.hascoapi.console.controllers.restapi.RepoPage.getInstrumentPositions()
 GET     /hascoapi/api/repo/table/subcontainerpositions      org.hascoapi.console.controllers.restapi.RepoPage.getSubcontainerPositions()
+GET     /hascoapi/api/repo/ontologies                       org.hascoapi.console.controllers.restapi.RepoPage.getOntologies()
 GET     /hascoapi/api/repo/ont/load                         org.hascoapi.console.controllers.restapi.RepoPage.loadOntologies()
 GET     /hascoapi/api/repo/ont/delete                       org.hascoapi.console.controllers.restapi.RepoPage.deleteOntologies()
+
+# DATA ACQUISITION METHODS
+
+GET     /hascoapi/api/da/dasoc/files                        org.hascoapi.console.controllers.restapi.DAAPI.getDaSocFiles()
+GET     /hascoapi/api/da/dasoc/check/:daUri                 org.hascoapi.console.controllers.restapi.DAAPI.checkDaSocGraph(daUri: String)
+GET     /hascoapi/api/da/dasoc/properties/:daUri            org.hascoapi.console.controllers.restapi.DAAPI.countDaSocProperties(daUri: String)
 
 # RENDERING/TRANSLATION METHODS
 
@@ -133,6 +140,7 @@ GET     /hascoapi/api/studyobjectcollection/bystudy/:studyUri                   
 GET     /hascoapi/api/virtualcolumn/bystudy/:studyUri                               org.hascoapi.console.controllers.restapi.VirtualColumnAPI.getVCsByStudy(studyUri: String)
 GET     /hascoapi/api/studyobject/bysoc/:socUri/:pageSize/:offset                   org.hascoapi.console.controllers.restapi.StudyObjectAPI.getStudyObjectsBySOCWithPage(socUri: String, pageSize: Integer, offset: Integer)
 GET     /hascoapi/api/studyobject/bysoc/total/:socUri                               org.hascoapi.console.controllers.restapi.StudyObjectAPI.getTotalStudyObjectsBySOC(socUri: String)
+GET     /hascoapi/api/studyobject/bysoc/additionalproperties/:socUri                org.hascoapi.console.controllers.restapi.StudyObjectAPI.countAdditionalPropertiesBySOC(socUri: String)
 
 GET     /hascoapi/api/deployment/:state/:email/:pageSize/:offset                    org.hascoapi.console.controllers.restapi.DeploymentAPI.findCanUpdateWithPages(state: String, email: String, pageSize: Integer, offset: Integer)
 GET     /hascoapi/api/deployment/total/:state/:email                                org.hascoapi.console.controllers.restapi.DeploymentAPI.findTotalCanUpdateWithPages(state: String, email: String)

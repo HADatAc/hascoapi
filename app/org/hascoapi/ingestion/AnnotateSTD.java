@@ -14,6 +14,15 @@ public class AnnotateSTD extends BaseAnnotator {
             dataFile.getLogger().printExceptionById("DSG_00017");
             return null;
         }
+        
+        // Debug: Print all mapCatalog entries
+        System.out.println("AnnotateSTD.exec(): mapCatalog contents:");
+        for (Map.Entry<String, String> entry : mapCatalog.entrySet()) {
+            System.out.println("  " + entry.getKey() + " = " + entry.getValue());
+        }
+        System.out.println("AnnotateSTD.exec(): hasStudyKG from catalog: " + mapCatalog.get("hasStudyKG"));
+        System.out.println("AnnotateSTD.exec(): hasVariableDesign from catalog: " + mapCatalog.get("hasVariableDesign"));
+        System.out.println("AnnotateSTD.exec(): hasVersion from catalog: " + mapCatalog.get("hasVersion"));
 
         // Check file extension
         if (!dataFile.getFilename().endsWith(".xlsx")) {
@@ -59,6 +68,18 @@ public class AnnotateSTD extends BaseAnnotator {
             dataFile.getLogger().println("Adding AgentGenerator and StudyGenerator to chain...");
             chain.addGenerator(new AgentGenerator(dataFile, studyUri, templateFile));
             chain.addGenerator(new StudyGenerator(dataFile, studyUri, templateFile));
+
+            // Pass InfoSheet metadata to chain for StudyGenerator
+            String hasStudyKG = mapCatalog.get("hasStudyKG");
+            String hasVariableDesign = mapCatalog.get("hasVariableDesign");
+            String hasVersion = mapCatalog.get("hasVersion");
+            
+            System.out.println("AnnotateSTD.exec(): Calling setInfoSheetMetadata with:");
+            System.out.println("  hasStudyKG: " + hasStudyKG);
+            System.out.println("  hasVariableDesign: " + hasVariableDesign);
+            System.out.println("  hasVersion: " + hasVersion);
+            
+            chain.setInfoSheetMetadata(hasStudyKG, hasVariableDesign, hasVersion);
 
         } catch (Exception e) {
             dataFile.getLogger().printExceptionByIdWithArgs("DSG_00021", e.getMessage());

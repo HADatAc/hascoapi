@@ -26,6 +26,12 @@ public class StudyGenerator extends BaseGenerator {
 
     private String contactUri;
 
+    private String hasStudyKG;
+
+    private String hasVariableDesign;
+
+    private String hasVersion;
+
 
     public StudyGenerator(DataFile dataFile, String studyUri, String templateFile) {
         super(dataFile, studyUri, templateFile);
@@ -143,6 +149,39 @@ public class StudyGenerator extends BaseGenerator {
             logger.printExceptionById("GBL_00030"); // New logging
             return null;
         }
+        
+        // Read hasStudyKG, hasVariableDesign, hasVersion directly from InfoSheet if not already set
+        if ((hasStudyKG == null || hasStudyKG.isEmpty() || 
+             hasVariableDesign == null || hasVariableDesign.isEmpty() || 
+             hasVersion == null || hasVersion.isEmpty()) && 
+            dataFile != null && dataFile.getRecordFile() != null) {
+            
+            System.out.println("StudyGenerator.createRow(): Attempting to read from InfoSheet...");
+            System.out.println("StudyGenerator.createRow(): RecordFile has " + dataFile.getRecordFile().getRecords().size() + " records");
+            
+            for (Record infoRec : dataFile.getRecordFile().getRecords()) {
+                String fieldName = infoRec.getValueByColumnIndex(0);
+                String fieldValue = infoRec.getValueByColumnIndex(1);
+                
+                System.out.println("StudyGenerator.createRow(): InfoSheet row - Field: [" + fieldName + "], Value: [" + fieldValue + "]");
+                
+                if ("hasStudyKG".equals(fieldName) && (hasStudyKG == null || hasStudyKG.isEmpty())) {
+                    hasStudyKG = fieldValue;
+                    System.out.println("StudyGenerator.createRow(): ✅ Read hasStudyKG from InfoSheet: " + hasStudyKG);
+                }
+                if ("hasVariableDesign".equals(fieldName) && (hasVariableDesign == null || hasVariableDesign.isEmpty())) {
+                    hasVariableDesign = fieldValue;
+                    System.out.println("StudyGenerator.createRow(): ✅ Read hasVariableDesign from InfoSheet: " + hasVariableDesign);
+                }
+                if ("hasVersion".equals(fieldName) && (hasVersion == null || hasVersion.isEmpty())) {
+                    hasVersion = fieldValue;
+                    System.out.println("StudyGenerator.createRow(): ✅ Read hasVersion from InfoSheet: " + hasVersion);
+                }
+            }
+            
+            System.out.println("StudyGenerator.createRow(): After InfoSheet read - hasStudyKG: " + hasStudyKG + ", hasVariableDesign: " + hasVariableDesign + ", hasVersion: " + hasVersion);
+        }
+        
         //System.out.println("Inside of StudyGenerator.createRow()");
         Map<String, Object> row = new HashMap<String, Object>();
         if (getUri().length() > 0) {
@@ -171,6 +210,24 @@ public class StudyGenerator extends BaseGenerator {
                     rec.getValueByColumnName(mapCol.get("externalSource")).length() > 0) {
                 row.put("hasco:hasExternalSource", getExtSource(rec));
             }
+            if (hasStudyKG != null && !hasStudyKG.isEmpty()) {
+                row.put("hasco:hasStudyKG", hasStudyKG);
+                System.out.println("StudyGenerator.createRow(): Adding hasStudyKG to row: " + hasStudyKG);
+            } else {
+                System.out.println("StudyGenerator.createRow(): hasStudyKG is null or empty, NOT adding to row");
+            }
+            if (hasVariableDesign != null && !hasVariableDesign.isEmpty()) {
+                row.put("hasco:hasVariableDesign", hasVariableDesign);
+                System.out.println("StudyGenerator.createRow(): Adding hasVariableDesign to row: " + hasVariableDesign);
+            } else {
+                System.out.println("StudyGenerator.createRow(): hasVariableDesign is null or empty, NOT adding to row");
+            }
+            if (hasVersion != null && !hasVersion.isEmpty()) {
+                row.put("hasco:hasVersion", hasVersion);
+                System.out.println("StudyGenerator.createRow(): Adding hasVersion to row: " + hasVersion);
+            } else {
+                System.out.println("StudyGenerator.createRow(): hasVersion is null or empty, NOT adding to row");
+            }
 
             try {
                 setStudyUri(URIUtils.replacePrefixEx(getUri()));
@@ -189,11 +246,25 @@ public class StudyGenerator extends BaseGenerator {
 
     @Override
     public void preprocessuris(Map<String,String> uris) throws Exception {
+        System.out.println("StudyGenerator.preprocessuris() called with uris map size: " + uris.size());
+        System.out.println("StudyGenerator.preprocessuris() uris map contents:");
+        for (Map.Entry<String,String> entry : uris.entrySet()) {
+            System.out.println("  " + entry.getKey() + " = " + entry.getValue());
+        }
+        
         this.piUri = uris.get("piUri");
         this.institutionUri = uris.get("piInstitutionUri");
         this.cpi1Uri = uris.get("cpi1Uri");
         this.cpi2Uri = uris.get("cpi2Uri");
         this.contactUri = uris.get("contactUri");
+        this.hasStudyKG = uris.get("hasStudyKG");
+        this.hasVariableDesign = uris.get("hasVariableDesign");
+        this.hasVersion = uris.get("hasVersion");
+        
+        System.out.println("StudyGenerator.preprocessuris() set instance variables:");
+        System.out.println("  this.hasStudyKG = " + this.hasStudyKG);
+        System.out.println("  this.hasVariableDesign = " + this.hasVariableDesign);
+        System.out.println("  this.hasVersion = " + this.hasVersion);
     }
 
     @Override

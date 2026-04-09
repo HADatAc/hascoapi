@@ -44,7 +44,7 @@ public class AnnotateSSD extends BaseAnnotator {
         chain.setDataFile(dataFile);
         chain.setNamedGraphUri(dataFile.getUri());
 
-        if (!validateSSDStructure(dataFile, ssdRecordFile, studyUri, chain, namespace)) {
+        if (!validateSSDStructure(dataFile, ssdRecordFile, studyUri, chain, namespace, mapCatalog)) {
             return null;
         }
 
@@ -113,17 +113,28 @@ public class AnnotateSSD extends BaseAnnotator {
 
     /*
      *  Verifies if the SSD contains exactly one SOC that is of type SubjectGroup.
+     *  Creates VirtualColumnGenerator to process Virtual Columns from SSD sheet.
      */
-    private static boolean validateSSDStructure(DataFile dataFile, RecordFile ssdRecordFile, String studyUri, SSDGeneratorChain chain, String namespace) {
+    private static boolean validateSSDStructure(DataFile dataFile, RecordFile ssdRecordFile, String studyUri, SSDGeneratorChain chain, String namespace, Map<String, String> mapCatalog) {
         if (!ssdRecordFile.isValid()) {
             dataFile.getLogger().printExceptionById("DSG_00014");
             return false;
         }
 
-        dataFile.getLogger().println("SSD Processing: Adding VirtualColumnGenerator.");
-        VirtualColumnGenerator vcgen = new VirtualColumnGenerator(dataFile);
-        vcgen.setStudyUri(studyUri);
-        chain.addGenerator(vcgen);
+        // Add VirtualColumnGenerator to process VCs from the SSD sheet
+        // VirtualColumnGenerator uses the same SSD sheet as SSDGenerator
+        // It looks for rows with typeUri and hasSOCReference to create VirtualColumn entities
+        try {
+            dataFile.getLogger().println("SSD Processing: Adding VirtualColumnGenerator to process Virtual Columns from SSD sheet.");
+            DataFile vcDataFile = (DataFile) dataFile.clone();
+            vcDataFile.setRecordFile(ssdRecordFile); // Use same SSD RecordFile
+            VirtualColumnGenerator vcgen = new VirtualColumnGenerator(vcDataFile);
+            vcgen.setStudyUri(studyUri);
+            chain.addGenerator(vcgen);
+        } catch (Exception e) {
+            dataFile.getLogger().printException("SSD Processing: Failed to create VirtualColumnGenerator: " + e.getMessage());
+            e.printStackTrace();
+        }
 
         dataFile.getLogger().println("SSD Processing: Adding SSDGenerator.");
         SSDGenerator socgen = new SSDGenerator(dataFile, namespace);

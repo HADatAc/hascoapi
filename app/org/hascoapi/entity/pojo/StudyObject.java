@@ -738,6 +738,43 @@ public class StudyObject extends HADatAcThing {
         return -1;
     }
 
+    /**
+     * Count additional properties for objects in a SOC beyond the 5 base properties.
+     * Base properties loaded during DSG ingestion:
+     * - hasco:originalID
+     * - rdf:type (a)
+     * - hasco:scopeID
+     * - hasco:timeScopeID
+     * - hasco:spaceScopeID
+     * 
+     * rdfs:label and rdfs:comment are DA-SOC contributions and should be counted.
+     * Also excludes hasco:isMemberOf as it's metadata.
+     */
+    public static int countAdditionalPropertiesByCollection(String socUri) {
+        String query = "";
+        query += NameSpaces.getInstance().printSparqlNameSpaceList();
+        query += " SELECT (COUNT(DISTINCT ?p) as ?tot) WHERE { " + 
+                "   ?obj hasco:isMemberOf <" + socUri + "> . " +
+                "   ?obj ?p ?o . " +
+                "   FILTER NOT EXISTS { ?objType rdfs:subClassOf* hasco:StudyObjectCollection . ?obj a ?objType . } " +
+                "   FILTER (?p NOT IN (rdf:type, hasco:originalID, hasco:scopeID, " +
+                "                      hasco:timeScopeID, hasco:spaceScopeID, " +
+                "                      hasco:isMemberOf)) " +
+                "}";
+        try {
+            ResultSetRewindable resultsrw = SPARQLUtils.select(
+                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), query);
+
+            if (resultsrw.hasNext()) {
+                QuerySolution soln = resultsrw.next();
+                return Integer.parseInt(soln.getLiteral("tot").getString());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
     public static int getNumberStudyObjectsByStudy(String studyuri) {
         String query = "";
         query += NameSpaces.getInstance().printSparqlNameSpaceList();

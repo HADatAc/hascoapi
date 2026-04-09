@@ -28,6 +28,7 @@ import org.hascoapi.utils.URIUtils;
 import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.RDF;
 import org.hascoapi.vocabularies.RDFS;
+import org.hascoapi.vocabularies.SKOS;
 import org.hascoapi.vocabularies.VSTOI;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -66,6 +67,9 @@ public class Study extends HADatAcThing {
     @PropertyField(uri="hasco:hasTitle")
     private String title;
 
+    @PropertyField(uri="skos:definition")
+    private String definition;
+
     @PropertyField(uri="hasco:hasProject")
     private String project;
 
@@ -83,6 +87,15 @@ public class Study extends HADatAcThing {
 
     @PropertyField(uri="vstoi:hasSIRManagerEmail")
     private String hasSIRManagerEmail;
+
+    @PropertyField(uri="hasco:hasStudyKG")
+    private String hasStudyKG;
+
+    @PropertyField(uri="hasco:hasVariableDesign")
+    private String hasVariableDesign;
+
+    @PropertyField(uri="hasco:hasVersion")
+    private String hasVersion;
 
     private DateTime startedAt;
 
@@ -243,11 +256,39 @@ public class Study extends HADatAcThing {
         this.title = title;
     }
 
+    public String getDefinition() {
+        return definition;
+    }
+    public void setDefinition(String definition) {
+        this.definition = definition;
+    }
+
     public String getHasSIRManagerEmail() {
         return hasSIRManagerEmail;
     }
     public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
         this.hasSIRManagerEmail = hasSIRManagerEmail;
+    }
+
+    public String getHasStudyKG() {
+        return hasStudyKG;
+    }
+    public void setHasStudyKG(String hasStudyKG) {
+        this.hasStudyKG = hasStudyKG;
+    }
+
+    public String getHasVariableDesign() {
+        return hasVariableDesign;
+    }
+    public void setHasVariableDesign(String hasVariableDesign) {
+        this.hasVariableDesign = hasVariableDesign;
+    }
+
+    public String getHasVersion() {
+        return hasVersion;
+    }
+    public void setHasVersion(String hasVersion) {
+        this.hasVersion = hasVersion;
     }
 
     public static int getNumberStudies() {
@@ -406,8 +447,12 @@ public class Study extends HADatAcThing {
 			if (uri != null && !uri.isEmpty()) {
 				if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
 					study.setLabel(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_ID)) {
+					study.setId(str);
 				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_TITLE)) {
 					study.setTitle(str);
+				} else if (statement.getPredicate().getURI().equals(SKOS.DEFINITION)) {
+					study.setDefinition(str);
 				} else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
 					study.setTypeUri(str); 
 				} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
@@ -434,6 +479,12 @@ public class Study extends HADatAcThing {
 //					study.setLastId(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
 					study.setHasSIRManagerEmail(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_STUDY_KG)) {
+					study.setHasStudyKG(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_VARIABLE_DESIGN)) {
+					study.setHasVariableDesign(str);
+				} else if (statement.getPredicate().getURI().equals(HASCO.HAS_VERSION)) {
+					study.setHasVersion(str);
 				}
 			}
 		}
@@ -520,9 +571,10 @@ public class Study extends HADatAcThing {
         if (uri == null || uri.isEmpty()) {
             return new ArrayList<StudyObjectCollection>();
         }
-        String query = 
+        String query = NameSpaces.getInstance().printSparqlNameSpaceList() + 
                 "SELECT ?uri " +
                 " WHERE {  ?uri hasco:isMemberOf  <" + uri + "> .  " +
+				"          ?uri hasco:hascoType <" + HASCO.STUDY_OBJECT_COLLECTION + "> . " +
 				"          ?uri rdfs:label ?label . " +
                 " } " +
                 " ORDER BY ASC(?label) " +

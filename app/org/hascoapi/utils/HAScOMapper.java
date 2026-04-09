@@ -513,7 +513,9 @@ public class HAScOMapper {
             filterProvider.addFilter("studyFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
                             "hasImageUri", "hasWebDocument", 
-                            "hascoTypeLabel", "comment"));
+                            "hascoTypeLabel", "comment", "id", "title", "definition", "hasStudyKG", 
+                            "institutionUri", "piUri", "hasSIRManagerEmail", "project", "externalSource", 
+                            "hasVariableDesign", "hasVersion", "hasDataFileUri"));
         }
 
         // STUDY OBJECT
@@ -533,7 +535,7 @@ public class HAScOMapper {
             filterProvider.addFilter("studyObjectCollectionFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
                             "hasImageUri", "hasWebDocument", 
-                            "virtualColumnUri", "virtualColumn", 
+                            "virtualColumnUri", "virtualColumn", "hasSOCReference", "hasGroundingLabel",
                             "hasScopeUri", "timeScopeUris", "spaceScopeUris",
                             "hascoTypeLabel", "comment", "isMemberOfUri", "isMemberOf"));
         }
@@ -588,7 +590,7 @@ public class HAScOMapper {
             filterProvider.addFilter("virtualColumnFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
                             "hasImageUri", "hasWebDocument", 
-                            "hascoTypeLabel", "comment", "socreference", "groundingLabel", "isMemberOf", "isMemberOfUri"));
+                            "hascoTypeLabel", "comment", "hasSOCReference", "hasGroundingLabel", "isMemberOf", "isMemberOfUri"));
         }
 
         mapper.setFilterProvider(filterProvider);

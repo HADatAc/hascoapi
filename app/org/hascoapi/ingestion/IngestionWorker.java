@@ -110,13 +110,13 @@ public class IngestionWorker {
                 dataFile.getLogger().println("✅ Auto-detected SOC URI: " + socUri);
                 System.out.println("[INGESTION PATH] Auto-detected SOC URI from triplestore: " + socUri);
             } else {
-                // If not found, construct expected SOC URI using naming convention
+                // If not found,construct expected SOC URI using OCL_ naming convention (standard for DSG-ingested SOCs)
                 String kbPrefix = ConfigProp.getKbPrefix();
                 if (kbPrefix != null && !kbPrefix.isEmpty()) {
-                    socUri = kbPrefix + "SOC-" + socName;
+                    socUri = kbPrefix + "OCL_" + socName;
                     dataFile.setDasocSOCUri(socUri);
-                    dataFile.getLogger().println("⚠️  SOC not found in triplestore, using convention-based URI: " + socUri);
-                    System.out.println("[INGESTION PATH] Using convention-based SOC URI: " + socUri);
+                    dataFile.getLogger().println("⚠️  SOC not found in triplestore, using OCL_ convention-based URI: " + socUri);
+                    System.out.println("[INGESTION PATH] Using OCL_ convention-based SOC URI: " + socUri);
                 } else {
                     dataFile.getLogger().printWarning("Could not auto-detect SOC URI for: " + socName);
                     System.out.println("[WARNING] IngestionWorker: Could not determine SOC URI for " + socName);
@@ -583,7 +583,8 @@ public class IngestionWorker {
 
     /**
      * Find StudyObjectCollection URI by matching SOC name pattern.
-     * Queries triplestore for SOCs with labels or URIs containing the given name.
+     * Queries triplestore for SOCs with URIs exactly matching the SOC name.
+     * Uses REGEX to ensure exact segment matching (e.g., "UNIT" won't match "BUSINESS-UNIT").
      * 
      * @param socName The SOC name extracted from filename (e.g., "ENTERPRISE", "API", "PRODUCT")
      * @return SOC URI if found, null otherwise
@@ -594,12 +595,15 @@ public class IngestionWorker {
         }
         
         try {
+            // Use REGEX to match exact URI endings (not substrings)
+            // This prevents "UNIT" from matching "BUSINESS-UNIT"
             String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 "SELECT ?socUri WHERE { " +
                 "  ?socUri a hasco:StudyObjectCollection . " +
-                "  { ?socUri rdfs:label ?label . FILTER(CONTAINS(UCASE(?label), UCASE(\"" + socName + "\"))) } " +
-                "  UNION " +
-                "  { FILTER(CONTAINS(UCASE(STR(?socUri)), UCASE(\"SOC-" + socName + "\"))) } " +
+                "  FILTER( " +
+                "    REGEX(STR(?socUri), \"[/#]SOC-" + socName + "$\", \"i\") || " +
+                "    REGEX(STR(?socUri), \"[/#]OCL_" + socName + "$\", \"i\") " +
+                "  ) " +
                 "} LIMIT 1";
             
             System.out.println("IngestionWorker.findSOCByName(): Querying for SOC with name: " + socName);
@@ -633,12 +637,12 @@ public class IngestionWorker {
             for (Record record : dataFile.getRecordFile().getRecords()) {
                 if (record.getValueByColumnIndex(0).equals("hasStudyKG")) {
                     if (record.getValueByColumnIndex(1) != null){
-                        studyKG = record.getValueByColumnIndex(1);
+                        studyKG = record.getValueByColumnIndex(1).trim();
                     }
                 }
                 if (record.getValueByColumnIndex(0).equals("hasStudyURI")) {
                     if (record.getValueByColumnIndex(1) != null){
-                        studyUri = record.getValueByColumnIndex(1);
+                        studyUri = record.getValueByColumnIndex(1).trim();
                     }
                 }
             }

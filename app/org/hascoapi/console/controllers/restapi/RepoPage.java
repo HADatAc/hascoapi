@@ -15,11 +15,16 @@ import org.hascoapi.entity.pojo.NameSpace;
 import org.hascoapi.entity.pojo.Repository;
 import org.hascoapi.entity.pojo.Table;
 import org.hascoapi.utils.ApiUtil;
+import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.ConfigProp;
 import org.hascoapi.utils.HAScOMapper;
 import org.hascoapi.utils.NameSpaces;
+import org.hascoapi.utils.SPARQLUtils;
 import org.hascoapi.utils.URIUtils;
 import org.hascoapi.vocabularies.HASCO;
+
+import org.apache.jena.query.QuerySolution;
+import org.apache.jena.query.ResultSetRewindable;
 
 import play.mvc.Controller;
 import play.mvc.Http;
@@ -382,6 +387,40 @@ public class RepoPage extends Controller {
         } catch (Exception e) {
             e.printStackTrace();
             return badRequest(ApiUtil.createResponse("Error retrieving Subcontainer Positions", false));
+        }
+    }
+
+    /**
+     * Get all ontology URIs from the triplestore
+     * Queries for all resources of type owl:Ontology
+     */
+    public Result getOntologies() {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                "SELECT DISTINCT ?ontology WHERE { \n" +
+                "  ?ontology a <http://www.w3.org/2002/07/owl#Ontology> . \n" +
+                "} ORDER BY ?ontology";
+
+            ResultSetRewindable results = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), 
+                queryString);
+
+            ArrayNode ontologies = mapper.createArrayNode();
+            while (results.hasNext()) {
+                QuerySolution soln = results.next();
+                if (soln != null && soln.getResource("ontology") != null) {
+                    String ontologyUri = soln.getResource("ontology").getURI();
+                    ObjectNode ontology = mapper.createObjectNode();
+                    ontology.put("uri", ontologyUri);
+                    ontologies.add(ontology);
+                }
+            }
+
+            return ok(ApiUtil.createResponse(ontologies, true));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return badRequest(ApiUtil.createResponse("Error retrieving ontologies: " + e.getMessage(), false));
         }
     }
 

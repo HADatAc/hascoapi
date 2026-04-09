@@ -84,6 +84,32 @@ public class GeneratorChain {
         chain.add(generator);
     }
 
+    public void setInfoSheetMetadata(String hasStudyKG, String hasVariableDesign, String hasVersion) {
+        System.out.println("GeneratorChain.setInfoSheetMetadata() called with:");
+        System.out.println("  hasStudyKG: " + hasStudyKG);
+        System.out.println("  hasVariableDesign: " + hasVariableDesign);
+        System.out.println("  hasVersion: " + hasVersion);
+        
+        if (hasStudyKG != null && !hasStudyKG.isEmpty()) {
+            uris.put("hasStudyKG", hasStudyKG);
+            System.out.println("  ✅ Added hasStudyKG to uris map: " + hasStudyKG);
+        } else {
+            System.out.println("  ❌ hasStudyKG is null or empty, NOT adding to uris map");
+        }
+        if (hasVariableDesign != null && !hasVariableDesign.isEmpty()) {
+            uris.put("hasVariableDesign", hasVariableDesign);
+            System.out.println("  ✅ Added hasVariableDesign to uris map: " + hasVariableDesign);
+        } else {
+            System.out.println("  ❌ hasVariableDesign is null or empty, NOT adding to uris map");
+        }
+        if (hasVersion != null && !hasVersion.isEmpty()) {
+            uris.put("hasVersion", hasVersion);
+            System.out.println("  ✅ Added hasVersion to uris map: " + hasVersion);
+        } else {
+            System.out.println("  ❌ hasVersion is null or empty, NOT adding to uris map");
+        }
+    }
+
     public boolean generate() {
         return generate(true);
     }
@@ -124,7 +150,11 @@ public class GeneratorChain {
                 generator.createObjects();
                 //System.out.println("\n\n- GenerationChain:PostProcess");
                 generator.postprocess();
-                uris = generator.postprocessuris();
+                Map<String,String> newUris = generator.postprocessuris();
+                System.out.println("GeneratorChain: Generator " + generator.getClass().getSimpleName() + " returned " + newUris.size() + " URIs from postprocessuris()");
+                // Merge new URIs into existing map instead of replacing
+                uris.putAll(newUris);
+                System.out.println("GeneratorChain: After merge, uris map now has " + uris.size() + " entries");
             } catch (Exception e) {
                 getDataFile().getLogger().printExceptionByIdWithArgs("GBL_00044", generator.getErrorMsg(e));
                 //System.out.println("[ERROR] GenerationChain: " + generator.getErrorMsg(e));
