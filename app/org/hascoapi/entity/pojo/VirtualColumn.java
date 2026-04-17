@@ -106,16 +106,26 @@ public class VirtualColumn extends HADatAcThing implements Comparable<VirtualCol
         this.isMemberOfUri = isMemberOfUri;
     }
     
-    public String getGroundingLabel() {
+    public String getHasGroundingLabel() {
         return hasGroundingLabel;
+    }
+    
+    // Backward compatibility - delegates to getHasGroundingLabel()
+    public String getGroundingLabel() {
+        return getHasGroundingLabel();
     }
     
     public void setGroundingLabel(String hasGroundingLabel) {
         this.hasGroundingLabel = hasGroundingLabel;
     }
     
-    public String getSOCReference() {
+    public String getHasSOCReference() {
         return hasSOCReference;
+    }
+    
+    // Backward compatibility - delegates to getHasSOCReference()
+    public String getSOCReference() {
+        return getHasSOCReference();
     }
     
     public void setSOCReference(String hasSOCReference) {

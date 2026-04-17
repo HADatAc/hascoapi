@@ -89,6 +89,7 @@ public class HASCO {
     public static final String HAS_FIRST_COORDINATE_CHARACTERISTIC    = "http://hadatac.org/ont/hasco/hasFirstCoordinateCharacteristic";
     public static final String HAS_GEOMETRY                           = "http://hadatac.org/ont/hasco/hasGeometry";
     public static final String HAS_GROUNDING_LABEL                    = "http://hadatac.org/ont/hasco/hasGroundingLabel";
+    public static final String HAS_ID                                 = "http://hadatac.org/ont/hasco/hasId";
     public static final String HAS_IMAGE                              = "http://hadatac.org/ont/hasco/hasImage";
     public static final String HAS_INSTITUTION                        = "http://hadatac.org/ont/hasco/hasInstitution";
     public static final String HAS_LAST_COUNTER                       = "http://hadatac.org/ont/hasco/hasLastCounter";
@@ -144,6 +145,7 @@ public class HASCO {
     public static final String HAS_STREAM_TOPIC                       = "http://hadatac.org/ont/hasco/hasStreamTopic";
     public static final String HAS_STREAM_STATUS                      = "http://hadatac.org/ont/hasco/hasStreamStatus";
     public static final String HAS_STUDY                              = "http://hadatac.org/ont/hasco/hasStudy";
+    public static final String HAS_STUDY_KG                           = "http://hadatac.org/ont/hasco/hasStudyKG";
     public static final String HAS_STUDY_OBJECT                       = "http://hadatac.org/ont/hasco/hasStudyObject";
     public static final String HAS_STUDY_OBJECT_TYPE                  = "http://hadatac.org/ont/hasco/hasStudyObjectType";
     public static final String HAS_SUBMISSION_TIME                    = "http://hadatac.org/ont/hasco/hasSumissionTime";
@@ -163,6 +165,7 @@ public class HASCO {
     public static final String HAS_VALUE                              = "http://hadatac.org/ont/hasco/hasValue";
     public static final String HAS_VALUE_CLASS                        = "http://hadatac.org/ont/hasco/hasValueClass";
     public static final String HAS_VARIABLE                           = "http://hadatac.org/ont/hasco/hasVariable";
+    public static final String HAS_VARIABLE_DESIGN                    = "http://hadatac.org/ont/hasco/hasVariableDesign";
     public static final String HAS_VERSION                            = "http://hadatac.org/ont/hasco/hasVersion";
     public static final String HAS_VIEWER_EMAIL                       = "http://hadatac.org/ont/hasco/hasViewerEmail";
     public static final String HAS_VIRTUAL_COLUMN                     = "http://hadatac.org/ont/hasco/hasVirtualColumn";

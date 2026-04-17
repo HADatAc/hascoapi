@@ -28,7 +28,10 @@ WORKDIR /hascoapi
 COPY --from=build-java /hascoapi/target/universal/hascoapi-10.0.1-SNAPSHOT /hascoapi
 
 COPY ./conf/hascoapi-docker.conf /hascoapi/conf/hascoapi.conf
+COPY ./docker-entrypoint.sh /hascoapi/docker-entrypoint.sh
+
+RUN chmod +x /hascoapi/docker-entrypoint.sh
 
 EXPOSE 9000
 
-ENTRYPOINT [ "bin/hascoapi" ]
+ENTRYPOINT [ "/hascoapi/docker-entrypoint.sh" ]

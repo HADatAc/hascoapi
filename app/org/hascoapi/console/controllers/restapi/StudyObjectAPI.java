@@ -49,4 +49,22 @@ public class StudyObjectAPI extends Controller {
         return ok(ApiUtil.createResponse("query method getTotalElements() failed to retrieve total number of element", false));
     }
 
+    /**
+     * Count additional properties for objects in a SOC beyond the 5 base properties.
+     * Base properties loaded during DSG ingestion:
+     * - hasco:originalID
+     * - rdf:type
+     * - hasco:hasObjectScope
+     * - hasco:hasTimeObjectScope
+     * - hasco:hasSpaceObjectScope
+     */
+    public Result countAdditionalPropertiesBySOC(String socUri) {
+        int additionalProperties = StudyObject.countAdditionalPropertiesByCollection(socUri);
+        if (additionalProperties >= 0) {
+            String responseJSON = "{\"additionalProperties\":" + additionalProperties + "}";
+            return ok(ApiUtil.createResponse(responseJSON, true));
+        }
+        return ok(ApiUtil.createResponse("query method countAdditionalPropertiesBySOC() failed to count properties", false));
+    }
+
 }

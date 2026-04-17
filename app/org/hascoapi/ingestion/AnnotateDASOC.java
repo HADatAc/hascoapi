@@ -6,6 +6,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -66,7 +67,7 @@ public class AnnotateDASOC {
      * Extracts DASOC parameters from DataFile properties.
      * 
      * NOTE: socUri parameter is now optional - we use Study-based approach instead
-     * 
+     *
      * @param dataFile DataFile containing DASOC CSV and metadata
      * @return GeneratorChain that will process DASOC when generate() is called
      */
@@ -181,16 +182,16 @@ public class AnnotateDASOC {
 
             // Step 1: Get Study URI from DataFile or discover it
             String studyUri = dataFile.getStudyUri();
-            
+
             // If not in DataFile, try to infer from DA metadata
             if (studyUri == null || studyUri.isEmpty()) {
                 dataFile.getLogger().println("Study URI not in DataFile, attempting to discover...");
                 System.out.println("[DASOC] Attempting to discover Study URI...");
-                
+
                 // Try to find study by querying for any object with isMemberOf
                 studyUri = discoverStudyUri(dataFile);
             }
-            
+
             if (studyUri == null || studyUri.isEmpty()) {
                 result.setErrorMessage("Study URI is required for DASOC ingestion. Please ensure the DataFile has a study associated.");
                 dataFile.getLogger().printException("Study URI not found in DataFile and could not be discovered");
@@ -198,7 +199,7 @@ public class AnnotateDASOC {
                 System.out.println("[ERROR] DataFile properties: hasSIRManagerEmail=" + dataFile.getHasSIRManagerEmail() + ", filename=" + dataFile.getFilename());
                 return result;
             }
-            
+
             // Expand study URI if it's a CURIE
             studyUri = URIUtils.replacePrefixEx(studyUri);
             dataFile.getLogger().println(String.format("Using Study: <%s>", studyUri));
@@ -219,7 +220,7 @@ public class AnnotateDASOC {
                 da.setHasDataFileUri(dataFile.getUri());
                 da.setIsMemberOfUri(studyUri); // Link DA to Study
                 da.setHasStatus("UNPROCESSED");
-                
+
                 da.save();
                 dataFile.getLogger().println(String.format("✅ Created DA record linked to study: <%s>", studyUri));
                 System.out.println("Created new DA record: " + daUri);
@@ -237,7 +238,7 @@ public class AnnotateDASOC {
             // Step 3: Build originalID -> URI map for all objects in the Study
             dataFile.getLogger().println(String.format("Building originalID map for Study: <%s>", studyUri));
             Map<String, String> originalIdToUriMap = buildOriginalIdMapFromStudy(studyUri, dataFile);
-            
+
             if (originalIdToUriMap == null || originalIdToUriMap.isEmpty()) {
                 result.setErrorMessage("No StudyObjects found in Study with originalIDs");
                 dataFile.getLogger().printException("No StudyObjects with originalIDs found in Study: " + studyUri);
@@ -254,6 +255,12 @@ public class AnnotateDASOC {
                 result.setSuccess(true);
                 result.setRowCount(rowCount);
                 dataFile.getLogger().println(String.format("✅ Successfully processed %d rows", rowCount));
+                dataFile.getLogger().println(String.format("✅ Successfully ingested %d rows", rowCount));
+
+                // Update DataFile status to PROCESSED
+                dataFile.setFileStatus(DataFile.PROCESSED);
+                dataFile.save();
+                System.out.println("[DASOC] DataFile status set to PROCESSED");
             } else {
                 result.setErrorMessage("No data rows were processed");
                 dataFile.getLogger().printWarning("No data rows were processed from CSV file");
@@ -275,7 +282,7 @@ public class AnnotateDASOC {
     /**
      * Build a map of originalID -> object URI for all objects in the Study (not SOC-specific)
      * This allows DASOC files to add properties to any object in the study by matching originalID
-     * 
+     *
      * Hierarchy: Object → isMemberOf → Collection → isMemberOf → Study
      */
     private static Map<String, String> buildOriginalIdMapFromStudy(String studyUri, DataFile dataFile) {
@@ -283,7 +290,7 @@ public class AnnotateDASOC {
 
         try {
             dataFile.getLogger().println("Querying all StudyObjects in Study with originalIDs...");
-            
+
             // Query for all study objects in this Study with their originalIDs
             // Objects are members of Collections, and Collections are members of the Study
             // So we need to: Study → Collections → Objects with originalIDs
@@ -322,24 +329,24 @@ public class AnnotateDASOC {
                 if (soln.get("objUri") != null && soln.get("originalId") != null) {
                     String objUri = soln.get("objUri").toString();
                     String originalId = soln.get("originalId").toString();
-                    
+
                     // Skip if objUri is not a valid URI
                     if (!objUri.startsWith("http://") && !objUri.startsWith("https://")) {
                         dataFile.getLogger().printWarning("Skipping invalid URI: " + objUri);
                         continue;
                     }
-                    
+
                     // Check for duplicate originalIDs
                     if (map.containsKey(originalId)) {
                         dataFile.getLogger().printWarning("Duplicate originalID found, using first occurrence: " + originalId);
                         continue;
                     }
-                    
+
                     map.put(originalId, objUri);
                     count++;
                 }
             }
-            
+
             dataFile.getLogger().println(String.format("✅ Found %d StudyObjects with originalIDs in Study", count));
             System.out.println(String.format("[DASOC] Built originalID map: %d elements from Study", count));
 
@@ -354,14 +361,14 @@ public class AnnotateDASOC {
     /**
      * Process CSV file and add properties to matched objects (Study-based approach)
      */
-    private static int processCSVFileWithStudy(File file, DataFile dataFile, String daUri, String studyUri, 
+    private static int processCSVFileWithStudy(File file, DataFile dataFile, String daUri, String studyUri,
                                                 Map<String, String> originalIdToUriMap) throws Exception {
-        
+
         int totalRows = 0;
         int skippedRows = 0;
         int errorRows = 0;
         Model model = ModelFactory.createDefaultModel();
-        
+
         // Add namespace prefixes
         addNamespacePrefixes(model);
 
@@ -376,30 +383,30 @@ public class AnnotateDASOC {
         // Parse CSV
         try (FileReader reader = new FileReader(file);
              CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
-            
+
             // Get headers
             Map<String, Integer> headerMap = csvParser.getHeaderMap();
             List<String> headers = new ArrayList<>(headerMap.keySet());
-            
+
             if (headers.size() < 2) {
                 dataFile.getLogger().printException("CSV must have at least 2 columns (originalID + property columns)");
                 return 0;
             }
-            
+
             String originalIdColumn = headers.get(0); // First column is always originalID
             dataFile.getLogger().println(String.format("Processing CSV with originalID column: '%s'", originalIdColumn));
             dataFile.getLogger().println(String.format("Property columns: %d", headers.size() - 1));
-            
+
             // Process each row
             for (CSVRecord record : csvParser) {
                 try {
                     String originalId = record.get(originalIdColumn).trim();
-                    
+
                     if (originalId.isEmpty()) {
                         skippedRows++;
                         continue;
                     }
-                    
+
                     // Find object URI by originalID
                     String objectUri = originalIdToUriMap.get(originalId);
                     if (objectUri == null) {
@@ -408,44 +415,44 @@ public class AnnotateDASOC {
                         skippedRows++;
                         continue;
                     }
-                    
+
                     // Create resource for the object
                     Resource objectResource = model.createResource(objectUri);
-                    
+
                     // Add properties from remaining columns
                     boolean hasProperties = false;
                     for (int i = 1; i < headers.size(); i++) {
                         String propertyUri = headers.get(i);
                         String value = record.get(propertyUri).trim();
-                        
+
                         if (!value.isEmpty() && !propertyUri.isEmpty()) {
                             Property property = model.createProperty(propertyUri);
                             objectResource.addProperty(property, value);
                             hasProperties = true;
                         }
                     }
-                    
+
                     if (hasProperties) {
                         // Add timestamp
                         Property timestampProp = model.createProperty(TIMESTAMP_PREDICATE);
                         objectResource.addProperty(timestampProp, timestamp);
-                        
+
                         // Link to DA
                         Property hasDAProperty = model.createProperty("http://hadatac.org/ont/hasco/hasDataAcquisition");
                         objectResource.addProperty(hasDAProperty, model.createResource(daUri));
-                        
+
                         totalRows++;
                     } else {
                         skippedRows++;
                     }
-                    
+
                 } catch (Exception e) {
                     errorRows++;
                     dataFile.getLogger().printWarning(String.format(
                         "Error processing row %d: %s", record.getRecordNumber(), e.getMessage()));
                 }
             }
-            
+
         } catch (Exception e) {
             dataFile.getLogger().printException("Error parsing CSV: " + e.getMessage());
             throw e;
@@ -455,9 +462,9 @@ public class AnnotateDASOC {
         if (totalRows > 0) {
             String namedGraphUri = dataFile.getUri();
             saveModelToTriplestore(model, namedGraphUri, dataFile);
-            
+
             dataFile.getLogger().println(String.format(
-                "✅ Processing complete: %d rows processed, %d skipped, %d errors", 
+                "✅ Processing complete: %d rows processed, %d skipped, %d errors",
                 totalRows, skippedRows, errorRows));
         }
 
@@ -532,7 +539,7 @@ public class AnnotateDASOC {
     /**
      * Validate that all objects in the SOC belong to the same study
      * and return the study URI.
-     * 
+     *
      * @param socUri The StudyObjectCollection URI
      * @param originalIdToUriMap Map of originalID -> object URI
      * @param dataFile DataFile for logging
@@ -546,7 +553,7 @@ public class AnnotateDASOC {
                 dataFile.getLogger().printException("Cannot validate study: SOC not found: " + socUri);
                 return null;
             }
-            
+
             // Get study through isMemberOf relationship
             Study study = soc.getIsMemberOf();
             if (study == null) {
@@ -554,23 +561,23 @@ public class AnnotateDASOC {
                 dataFile.getLogger().printException("Cannot validate study: SOC has no study reference (isMemberOfUri=" + socIsMemberOfUri + "): " + socUri);
                 return null;
             }
-            
+
             String socStudyUri = study.getUri();
             if (socStudyUri == null || socStudyUri.isEmpty()) {
                 dataFile.getLogger().printException("Cannot validate study: Study has no URI: " + socUri);
                 return null;
             }
-            
+
             dataFile.getLogger().println(String.format("SOC <%s> belongs to study: <%s>", socUri, socStudyUri));
-            
+
             // All objects in the SOC inherit the study from the SOC itself
             // No need to validate each individual object - if they're in this SOC, they belong to this study
             dataFile.getLogger().println(
-                String.format("✅ Study validation passed: all %d objects in SOC belong to study <%s>", 
+                String.format("✅ Study validation passed: all %d objects in SOC belong to study <%s>",
                     originalIdToUriMap.size(), socStudyUri));
-            
+
             return socStudyUri;
-            
+
         } catch (Exception e) {
             dataFile.getLogger().printException("Error validating study: " + e.getMessage());
             e.printStackTrace();
@@ -614,14 +621,14 @@ public class AnnotateDASOC {
 
             Map<String, Integer> headerMap = csvParser.getHeaderMap();
             List<String> headers = new ArrayList<>(headerMap.keySet());
-            
+
             // DEBUG: Log raw headers to see if there's BOM or encoding issues
             System.out.println("[DEBUG] Raw headers count: " + headers.size());
             for (int i = 0; i < Math.min(3, headers.size()); i++) {
                 String h = headers.get(i);
                 System.out.println("[DEBUG] Header[" + i + "]: '" + h + "' (length=" + h.length() + ", first char code=" + (h.length() > 0 ? (int)h.charAt(0) : "N/A") + ")");
             }
-            
+
             // Remove BOM character if present in first header
             if (!headers.isEmpty()) {
                 String firstHeader = headers.get(0);
@@ -633,6 +640,11 @@ public class AnnotateDASOC {
                     System.out.println("[DEBUG] Removed BOM from first header: '" + firstHeader + "' -> '" + cleaned + "'");
                 }
             }
+            // CRITICAL FIX: headerMap.keySet() has no guaranteed order - must sort by column index
+            List<String> headers = headerMap.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
 
             if (headers.isEmpty() || headers.size() < 2) {
                 dataFile.getLogger().printExceptionById("DASOC_00006");
@@ -653,7 +665,7 @@ public class AnnotateDASOC {
                 totalCSVRows++; // Count all CSV data rows
                 
                 try {
-                    String originalId = record.get(0).trim(); // First column
+                    String originalId = record.get(originalIdColumn).trim(); // Access by column name
                     
                     if (originalId.isEmpty()) {
                         skippedRows++;
@@ -675,7 +687,7 @@ public class AnnotateDASOC {
                     // Add properties from remaining columns
                     for (int i = 1; i < headers.size(); i++) {
                         String predicateUri = headers.get(i);
-                        String value = record.get(i).trim();
+                        String value = record.get(predicateUri).trim();  // Access by column name, not index
 
                         if (value.isEmpty()) {
                             continue; // Skip empty values
@@ -688,9 +700,12 @@ public class AnnotateDASOC {
                         Property predicate = model.createProperty(predicateUri);
                         
                         // Determine if value is a URI or literal
-                        if (URIUtils.isValidURI(value)) {
-                            // Value is a URI - create resource
-                            Resource object = model.createResource(value);
+                        // First try to expand it in case it uses prefixes
+                        String expandedValue = URIUtils.replacePrefixEx(value);
+
+                        if (URIUtils.isValidURI(expandedValue)) {
+                            // Value is a URI - create resource with expanded URI
+                            Resource object = model.createResource(expandedValue);
                             model.add(subject, predicate, object);
                         } else {
                             // Value is a literal
@@ -712,7 +727,7 @@ public class AnnotateDASOC {
                             properties.put(predicateUri, value);
                         }
                     }
-                    
+
                     // Tenta enriquecer a entidade vstoi correspondente
                     enrichVstoiEntity(objectUri, properties, dataFile);
                     // ===== FIM DO NOVO =====
@@ -834,11 +849,11 @@ public class AnnotateDASOC {
             }
         }
     }
-    
+
     /**
      * Enriquece uma entidade vstoi (Instrument, Component, ComponentStem, ContainerSlot)
      * com as propriedades do DA-SOC CSV
-     * 
+     *
      * @param objectUri URI do objeto (StudyObject)
      * @param properties Mapa de propriedades do CSV (predicateUri -> value)
      * @param dataFile DataFile para logging
@@ -847,26 +862,26 @@ public class AnnotateDASOC {
         if (properties.isEmpty()) {
             return; // Nada para enriquecer
         }
-        
+
         try {
             // Busca o StudyObject para determinar o tipo
             StudyObject so = StudyObject.find(objectUri);
             if (so == null) {
                 return; // Objeto não existe, skip
             }
-            
+
             String typeUri = so.getTypeUri();
             if (typeUri == null || typeUri.isEmpty()) {
                 return; // Sem tipo, skip
             }
-            
+
             // Detecta qual tipo de entidade vstoi é
             String vstoiType = detectVstoiType(typeUri);
-            
+
             if (vstoiType == null) {
                 return; // Não é tipo vstoi, skip
             }
-            
+
             // Enriquece a entidade apropriada
             if (VSTOI.INSTRUMENT.equals(vstoiType)) {
                 enrichInstrument(objectUri, properties, dataFile);
@@ -877,13 +892,13 @@ public class AnnotateDASOC {
             } else if (VSTOI.CONTAINER_SLOT.equals(vstoiType)) {
                 enrichContainerSlot(objectUri, properties, dataFile);
             }
-            
+
         } catch (Exception e) {
             // Silently skip errors - a entidade pode não existir ainda
             // dataFile.getLogger().println("Warning: Could not enrich vstoi entity " + objectUri + ": " + e.getMessage());
         }
     }
-    
+
     /**
      * Detecta o tipo vstoi de um rdf:type
      */
@@ -893,7 +908,7 @@ public class AnnotateDASOC {
         if (VSTOI.COMPONENT.equals(typeUri)) return VSTOI.COMPONENT;
         if (VSTOI.COMPONENT_STEM.equals(typeUri)) return VSTOI.COMPONENT_STEM;
         if (VSTOI.CONTAINER_SLOT.equals(typeUri)) return VSTOI.CONTAINER_SLOT;
-        
+
         // Verificação por substring (subclasses)
         if (typeUri.contains("Detector")) return VSTOI.COMPONENT;
         if (typeUri.contains("ComponentStem")) return VSTOI.COMPONENT_STEM;
@@ -901,10 +916,10 @@ public class AnnotateDASOC {
         if (typeUri.contains("Questionnaire")) return VSTOI.INSTRUMENT;
         if (typeUri.contains("PhysicalInstrument")) return VSTOI.INSTRUMENT;
         if (typeUri.contains("SimulationModel")) return VSTOI.INSTRUMENT;
-        
+
         return null;
     }
-    
+
     /**
      * Enriquece um Instrument com propriedades do DA-SOC
      */
@@ -913,13 +928,13 @@ public class AnnotateDASOC {
         if (instrument == null) {
             return;
         }
-        
+
         boolean modified = false;
-        
+
         for (Map.Entry<String, String> entry : properties.entrySet()) {
             String prop = entry.getKey();
             String value = entry.getValue();
-            
+
             // Mapeia propriedades para setters do Instrument
             if (prop.endsWith("hasShortName") || prop.contains("hasShortName")) {
                 instrument.setHasShortName(value);
@@ -959,13 +974,13 @@ public class AnnotateDASOC {
                 modified = true;
             }
         }
-        
+
         if (modified) {
             instrument.save();
             dataFile.getLogger().println("  Enriched Instrument: " + instrument.getLabel());
         }
     }
-    
+
     /**
      * Enriquece um Component com propriedades do DA-SOC
      */
@@ -974,13 +989,13 @@ public class AnnotateDASOC {
         if (component == null) {
             return;
         }
-        
+
         boolean modified = false;
-        
+
         for (Map.Entry<String, String> entry : properties.entrySet()) {
             String prop = entry.getKey();
             String value = entry.getValue();
-            
+
             if (prop.endsWith("hasComponentStem") || prop.contains("hasComponentStem")) {
                 component.setHasComponentStem(URIUtils.replacePrefixEx(value));
                 modified = true;
@@ -998,13 +1013,13 @@ public class AnnotateDASOC {
                 modified = true;
             }
         }
-        
+
         if (modified) {
             component.save();
             dataFile.getLogger().println("  Enriched Component: " + component.getLabel());
         }
     }
-    
+
     /**
      * Enriquece um ComponentStem com propriedades do DA-SOC
      */
@@ -1013,13 +1028,13 @@ public class AnnotateDASOC {
         if (stem == null) {
             return;
         }
-        
+
         boolean modified = false;
-        
+
         for (Map.Entry<String, String> entry : properties.entrySet()) {
             String prop = entry.getKey();
             String value = entry.getValue();
-            
+
             if (prop.endsWith("hasContent") || prop.contains("hasContent")) {
                 stem.setHasContent(value);
                 modified = true;
@@ -1034,13 +1049,13 @@ public class AnnotateDASOC {
                 modified = true;
             }
         }
-        
+
         if (modified) {
             stem.save();
             dataFile.getLogger().println("  Enriched ComponentStem: " + stem.getLabel());
         }
     }
-    
+
     /**
      * Enriquece um ContainerSlot com propriedades do DA-SOC
      */
@@ -1049,13 +1064,13 @@ public class AnnotateDASOC {
         if (slot == null) {
             return;
         }
-        
+
         boolean modified = false;
-        
+
         for (Map.Entry<String, String> entry : properties.entrySet()) {
             String prop = entry.getKey();
             String value = entry.getValue();
-            
+
             if (prop.endsWith("belongsTo") || prop.contains("belongsTo")) {
                 slot.setBelongsTo(URIUtils.replacePrefixEx(value));
                 modified = true;
@@ -1073,7 +1088,7 @@ public class AnnotateDASOC {
                 modified = true;
             }
         }
-        
+
         if (modified) {
             slot.save();
             dataFile.getLogger().println("  Enriched ContainerSlot: " + slot.getLabel());
@@ -1121,11 +1136,11 @@ public class AnnotateDASOC {
             }
         }
     }
-    
+
     /**
      * Discover Study URI by following the relationship chain:
      * originalID -> Object -> SOC (StudyObjectCollection) -> Study
-     * 
+     *
      * This reads a sample of originalIDs from the CSV file and traces back to the Study.
      */
     private static String discoverStudyUri(DataFile dataFile) {
@@ -1135,45 +1150,45 @@ public class AnnotateDASOC {
                 dataFile.getLogger().printWarning("Cannot discover Study: DataFile has no physical file");
                 return null;
             }
-            
+
             dataFile.getLogger().println("Discovering Study URI by tracing originalID -> Object -> Study");
             System.out.println("[DASOC] Starting Study discovery from CSV originalIDs...");
-            
+
             // Read first few originalIDs from CSV (skip header)
             try (Reader reader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8);
                  CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT
                          .withFirstRecordAsHeader()
                          .withIgnoreHeaderCase()
                          .withTrim())) {
-                
+
                 // Get first column name (originalID column)
                 Map<String, Integer> headerMap = csvParser.getHeaderMap();
                 List<String> headers = new ArrayList<>(headerMap.keySet());
-                
+
                 if (headers.isEmpty()) {
                     dataFile.getLogger().printWarning("CSV has no headers");
                     return null;
                 }
-                
+
                 // Clean BOM if present
                 String firstHeader = headers.get(0);
                 if (firstHeader.startsWith("\uFEFF") || firstHeader.startsWith("﻿")) {
                     firstHeader = firstHeader.replace("\uFEFF", "").replace("﻿", "").trim();
                 }
-                
+
                 // Try first 10 rows to find a valid originalID
                 int rowsChecked = 0;
                 for (CSVRecord record : csvParser) {
                     if (rowsChecked >= 10) break; // Limit search
                     rowsChecked++;
-                    
+
                     String originalId = record.get(0).trim();
                     if (originalId.isEmpty()) {
                         continue;
                     }
-                    
+
                     System.out.println("[DASOC] Attempting Study discovery with originalID: " + originalId);
-                    
+
                     // Strategy 1: Find object by originalID, then get its direct Study membership
                     // Objects might be directly linked to Study via hasco:isMemberOf
                     String queryString1 = NameSpaces.getInstance().printSparqlNameSpaceList() +
@@ -1191,28 +1206,28 @@ public class AnnotateDASOC {
                             "    } \n" +
                             "  } \n" +
                             "} LIMIT 1";
-                    
+
                     org.apache.jena.query.ResultSet results1 = SPARQLUtils.select(
                             CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY),
                             queryString1);
-                    
+
                     if (results1.hasNext()) {
                         org.apache.jena.query.QuerySolution soln = results1.next();
                         String studyUri = soln.get("study") != null ? soln.get("study").toString() : null;
-                        
+
                         if (studyUri != null && !studyUri.isEmpty()) {
                             dataFile.getLogger().println("✅ Discovered Study URI (direct object→study link):");
                             dataFile.getLogger().println("   originalID: " + originalId);
                             dataFile.getLogger().println("   → Study: " + studyUri);
-                            
+
                             System.out.println("[DASOC] ✅ Study discovered (Strategy 1: direct link):");
                             System.out.println("[DASOC]    originalID: " + originalId);
                             System.out.println("[DASOC]    → Study: " + studyUri);
-                            
+
                             return studyUri;
                         }
                     }
-                    
+
                     // Strategy 2: Find object, then its collection, then collection's study
                     String queryString2 = NameSpaces.getInstance().printSparqlNameSpaceList() +
                             "SELECT ?object ?collection ?study WHERE { \n" +
@@ -1231,31 +1246,31 @@ public class AnnotateDASOC {
                             "    { GRAPH ?g2 { ?collection hasco:isMemberOf ?study . } } \n" +
                             "  } \n" +
                             "} LIMIT 1";
-                    
+
                     org.apache.jena.query.ResultSet results2 = SPARQLUtils.select(
                             CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY),
                             queryString2);
-                    
+
                     if (results2.hasNext()) {
                         org.apache.jena.query.QuerySolution soln = results2.next();
                         String studyUri = soln.get("study") != null ? soln.get("study").toString() : null;
                         String collectionUri = soln.get("collection") != null ? soln.get("collection").toString() : null;
-                        
+
                         if (studyUri != null && !studyUri.isEmpty()) {
                             dataFile.getLogger().println("✅ Discovered Study URI (via collection chain):");
                             dataFile.getLogger().println("   originalID: " + originalId);
                             dataFile.getLogger().println("   → Collection: " + collectionUri);
                             dataFile.getLogger().println("   → Study: " + studyUri);
-                            
+
                             System.out.println("[DASOC] ✅ Study discovered (Strategy 2: collection chain):");
                             System.out.println("[DASOC]    originalID: " + originalId);
                             System.out.println("[DASOC]    → Collection: " + collectionUri);
                             System.out.println("[DASOC]    → Study: " + studyUri);
-                            
+
                             return studyUri;
                         }
                     }
-                    
+
                     // Strategy 3: Just find ANY object with this originalID and see what we get
                     String debugQuery = NameSpaces.getInstance().printSparqlNameSpaceList() +
                             "SELECT ?object ?p ?o WHERE { \n" +
@@ -1270,11 +1285,11 @@ public class AnnotateDASOC {
                             "    } \n" +
                             "  } \n" +
                             "} LIMIT 10";
-                    
+
                     org.apache.jena.query.ResultSet debugResults = SPARQLUtils.select(
                             CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY),
                             debugQuery);
-                    
+
                     if (debugResults.hasNext()) {
                         System.out.println("[DASOC] Found object with originalID " + originalId + ", examining properties:");
                         while (debugResults.hasNext()) {
@@ -1287,20 +1302,20 @@ public class AnnotateDASOC {
                         System.out.println("[DASOC] ✗ No object found with originalID: " + originalId);
                     }
                 }
-                
+
                 dataFile.getLogger().printWarning("Could not discover Study URI from any originalID in CSV");
                 System.out.println("[DASOC] ✗ No Study found after checking " + rowsChecked + " originalIDs");
-                
+
             } catch (IOException e) {
                 dataFile.getLogger().printWarning("Error reading CSV for Study discovery: " + e.getMessage());
             }
-            
+
         } catch (Exception e) {
             dataFile.getLogger().printWarning("Error discovering Study URI: " + e.getMessage());
             System.out.println("[DASOC] Error discovering Study: " + e.getMessage());
             e.printStackTrace();
         }
-        
+
         return null;
     }
 }

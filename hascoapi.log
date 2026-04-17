@@ -1,0 +1,66 @@
+[info] welcome to sbt 1.7.2 (Homebrew Java 17.0.16)
+[info] loading settings for project hascoapi-build from plugins.sbt,sbt-ui.sbt ...
+[info] loading project definition from /Users/pp3223/git/hascoapi/project
+[info] loading settings for project root from build.sbt ...
+[info]   __              __
+[info]   \ \     ____   / /____ _ __  __
+[info]    \ \   / __ \ / // __ `// / / /
+[info]    / /  / /_/ // // /_/ // /_/ /
+[info]   /_/  / .___//_/ \__,_/ \__, /
+[info]       /_/               /____/
+[info] 
+[info] Version 2.8.19 running Java 17.0.16
+[info] 
+[info] Play is run entirely by the community. Please consider contributing and/or donating:
+[info] https://www.playframework.com/sponsors
+[info] 
+[info] Running Play on Java 17 is experimental. Tweaks are necessary:
+[info] https://github.com/playframework/playframework/releases/2.8.15
+[info] 
+
+[35m--- (Running the application, auto-reloading is enabled) ---[0m
+
+[[31merror[0m] a.i.TcpListener - Bind failed for TCP channel on endpoint [/0.0.0.0:9001]
+java.net.BindException: [/0.0.0.0:9001] Address already in use
+	at java.base/sun.nio.ch.Net.bind0(Native Method)
+	at java.base/sun.nio.ch.Net.bind(Net.java:555)
+	at java.base/sun.nio.ch.ServerSocketChannelImpl.netBind(ServerSocketChannelImpl.java:337)
+	at java.base/sun.nio.ch.ServerSocketChannelImpl.bind(ServerSocketChannelImpl.java:294)
+	at java.base/sun.nio.ch.ServerSocketAdaptor.bind(ServerSocketAdaptor.java:89)
+	at akka.io.TcpListener.liftedTree1$1(TcpListener.scala:60)
+	at akka.io.TcpListener.<init>(TcpListener.scala:57)
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+[error] akka.stream.impl.io.ConnectionSourceStage$$anon$1$$anon$2: Bind failed because of java.net.BindException: [/0.0.0.0:9001] Address already in use
+[error] Caused by: java.net.BindException: [/0.0.0.0:9001] Address already in use
+[error] 	at java.base/sun.nio.ch.Net.bind0(Native Method)
+[error] 	at java.base/sun.nio.ch.Net.bind(Net.java:555)
+[error] 	at java.base/sun.nio.ch.ServerSocketChannelImpl.netBind(ServerSocketChannelImpl.java:337)
+[error] 	at java.base/sun.nio.ch.ServerSocketChannelImpl.bind(ServerSocketChannelImpl.java:294)
+[error] 	at java.base/sun.nio.ch.ServerSocketAdaptor.bind(ServerSocketAdaptor.java:89)
+[error] 	at akka.io.TcpListener.liftedTree1$1(TcpListener.scala:60)
+[error] 	at akka.io.TcpListener.<init>(TcpListener.scala:57)
+[error] 	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+[error] 	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:77)
+[error] 	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+[error] 	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:500)
+[error] 	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:481)
+[error] 	at akka.util.Reflect$.instantiate(Reflect.scala:73)
+[error] 	at akka.actor.ArgsReflectConstructor.produce(IndirectActorProducer.scala:101)
+[error] 	at akka.actor.Props.newActor(Props.scala:226)
+[error] 	at akka.actor.ActorCell.newActor(ActorCell.scala:615)
+[error] 	at akka.actor.ActorCell.create(ActorCell.scala:642)
+[error] 	at akka.actor.ActorCell.invokeAll$1(ActorCell.scala:513)
+[error] 	at akka.actor.ActorCell.systemInvoke(ActorCell.scala:535)
+[error] 	at akka.dispatch.Mailbox.processAllSystemMessages(Mailbox.scala:295)
+[error] 	at akka.dispatch.Mailbox.run(Mailbox.scala:230)
+[error] 	at akka.dispatch.Mailbox.exec(Mailbox.scala:243)
+[error] 	at java.base/java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:373)
+[error] 	at java.base/java.util.concurrent.ForkJoinPool$WorkQueue.topLevelExec(ForkJoinPool.java:1182)
+[error] 	at java.base/java.util.concurrent.ForkJoinPool.scan(ForkJoinPool.java:1655)
+[error] 	at java.base/java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1622)
+[error] 	at java.base/java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:165)
+[error] stack trace is suppressed; run 'last Compile / run' for the full output
+[error] (Compile / run) java.lang.reflect.InvocationTargetException
+[error] Total time: 1 s, completed Apr 5, 2026, 6:49:18 PM

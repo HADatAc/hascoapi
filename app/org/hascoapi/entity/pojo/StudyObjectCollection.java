@@ -347,24 +347,30 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         if (vc == null) {
             return null;
         }
-        //System.out.println("   found " + vc.getSOCReference());
+        //System.out.println("   found " + vc.getHasSOCReference());
         return vc;
     }
-    @JsonIgnore
-    public String getSOCReference() {
+    public String getHasSOCReference() {
         VirtualColumn vc = getVirtualColumn();
         if (vc == null) {
             return "";
         }
-        return vc.getSOCReference();
+        return vc.getHasSOCReference();
     }
-    @JsonIgnore
-    public String getGroundingLabel() {
+    // Backward compatibility - delegates to getHasSOCReference()
+    public String getSOCReference() {
+        return getHasSOCReference();
+    }
+    public String getHasGroundingLabel() {
         VirtualColumn vc = getVirtualColumn();
         if (vc == null) {
             return "";
         }
-        return vc.getGroundingLabel();
+        return vc.getHasGroundingLabel();
+    }
+    // Backward compatibility - delegates to getHasGroundingLabel()
+    public String getGroundingLabel() {
+        return getHasGroundingLabel();
     }
 
     public void setRoleUri(String roleUri) {
