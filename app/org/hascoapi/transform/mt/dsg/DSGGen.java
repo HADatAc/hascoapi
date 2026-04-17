@@ -228,8 +228,8 @@ public class DSGGen {
         return saveResult;
     }
 
-    public static String genByManager(String useremail, String status, String filename, String mediaFolder, String verifyUri) {
-        System.out.println("[DSGGen] genByManager START status=" + status + ", useremail=" + useremail + ", filename=" + filename);
+    public static String genByManager(String useremail, String status, String filename, String mediaFolder, String verifyUri, boolean generateDASOCs) {
+        System.out.println("[DSGGen] genByManager START status=" + status + ", useremail=" + useremail + ", filename=" + filename + ", generateDASOCs=" + generateDASOCs);
         DSGGenHelper helper = new DSGGenHelper();
         java.util.List<Study> studies = null;
         boolean withCurrent = false; // retrieve just the elements of the requested status
@@ -303,6 +303,23 @@ public class DSGGen {
             t.printStackTrace();
             return "FAILURE: saving workbook - " + t.getMessage();
         }
+        
+        // Generate DA-SOC files if requested by frontend
+        if (generateDASOCs && studies != null && !studies.isEmpty()) {
+            System.out.println("\n[DSGGen] Frontend requested DA-SOC generation - processing...");
+            try {
+                String dasocResult = generateDASOCsForStudies(studies, filename);
+                System.out.println("[DSGGen] DA-SOC generation result: " + dasocResult);
+                saveResult += " | DA-SOC: " + dasocResult;
+            } catch (Throwable t) {
+                System.err.println("[DSGGen] WARNING: DA-SOC generation failed: " + t.getMessage());
+                t.printStackTrace();
+                saveResult += " | DA-SOC: FAILED - " + t.getMessage();
+            }
+        } else if (!generateDASOCs) {
+            System.out.println("[DSGGen] DA-SOC generation not requested by frontend - skipping");
+        }
+        
         System.out.println("[DSGGen] genByManager END");
         return saveResult;
     }
@@ -764,5 +781,305 @@ public class DSGGen {
         }
 
         return null;
+    }
+
+    /**
+     * Generate DA-SOC CSV files for all SOCs associated with the given studies.
+     * This method:
+     * 1. Queries the triplestore for all SOCs linked to the studies
+     * 2. For each SOC, retrieves all StudyObjects and their properties
+     * 3. Generates a DA-SOC-{SOCNAME}.csv file with enrichment properties
+     * 
+     * @param studies List of studies to generate DA-SOCs for
+     * @param dsgFilename The DSG filename (used to determine output directory)
+     * @return Result string indicating success/failure
+     */
+    private static String generateDASOCsForStudies(java.util.List<Study> studies, String dsgFilename) {
+        System.out.println("\n========== DA-SOC GENERATION START ==========");
+        
+        if (studies == null || studies.isEmpty()) {
+            System.out.println("[DA-SOC GEN] No studies provided, skipping");
+            return "SKIPPED: No studies";
+        }
+        
+        int totalSOCsProcessed = 0;
+        int totalFilesGenerated = 0;
+        int totalErrors = 0;
+        
+        try {
+            // Get output directory from DSG filename
+            String basePath = org.hascoapi.utils.ConfigProp.getPathIngestion();
+            if (basePath != null && !basePath.isEmpty()) {
+                basePath = basePath.replace("/", java.io.File.separator);
+                if (!basePath.endsWith(java.io.File.separator)) {
+                    basePath += java.io.File.separator;
+                }
+            } else {
+                basePath = "";
+            }
+            
+            java.io.File outputDir = new java.io.File(basePath);
+            if (!outputDir.exists()) {
+                outputDir.mkdirs();
+            }
+            
+            System.out.println("[DA-SOC GEN] Output directory: " + outputDir.getAbsolutePath());
+            
+            // For each study, find all associated SOCs
+            for (Study study : studies) {
+                if (study == null || study.getUri() == null) {
+                    continue;
+                }
+                
+                System.out.println("\n[DA-SOC GEN] Processing study: " + study.getUri());
+                
+                try {
+                    // Query for all SOCs associated with this study
+                    String queryString = org.hascoapi.utils.NameSpaces.getInstance().printSparqlNameSpaceList() +
+                        "SELECT DISTINCT ?socUri ?socLabel WHERE { " +
+                        "  ?obj hasco:isMemberOf ?socUri . " +
+                        "  ?socUri a hasco:StudyObjectCollection . " +
+                        "  OPTIONAL { ?socUri rdfs:label ?socLabel . } " +
+                        "} ORDER BY ?socUri";
+                    
+                    org.apache.jena.query.ResultSetRewindable results = org.hascoapi.utils.SPARQLUtils.select(
+                        org.hascoapi.utils.CollectionUtil.getCollectionPath(
+                            org.hascoapi.utils.CollectionUtil.Collection.SPARQL_QUERY),
+                        queryString);
+                    
+                    // Process each SOC
+                    while (results.hasNext()) {
+                        org.apache.jena.query.QuerySolution soln = results.next();
+                        String socUri = soln.get("socUri").toString();
+                        String socLabel = soln.get("socLabel") != null ? soln.get("socLabel").toString() : "";
+                        
+                        System.out.println("[DA-SOC GEN] Found SOC: " + socUri + " (label: " + socLabel + ")");
+                        totalSOCsProcessed++;
+                        
+                        try {
+                            // Generate DA-SOC CSV for this SOC
+                            String socName = extractSOCNameFromURI(socUri);
+                            if (socName == null || socName.isEmpty()) {
+                                System.out.println("[DA-SOC GEN] Could not extract SOC name from URI: " + socUri);
+                                totalErrors++;
+                                continue;
+                            }
+                            
+                            String dasocFilename = "DA-SOC-" + socName + ".csv";
+                            java.io.File dasocFile = new java.io.File(outputDir, dasocFilename);
+                            
+                            System.out.println("[DA-SOC GEN] Generating: " + dasocFilename);
+                            
+                            boolean generated = generateDASOCFile(socUri, socName, dasocFile);
+                            if (generated) {
+                                totalFilesGenerated++;
+                                System.out.println("[DA-SOC GEN] ✅ Generated: " + dasocFilename);
+                            } else {
+                                totalErrors++;
+                                System.out.println("[DA-SOC GEN] ❌ Failed to generate: " + dasocFilename);
+                            }
+                            
+                        } catch (Exception e) {
+                            System.err.println("[DA-SOC GEN] ERROR generating DA-SOC for SOC " + socUri + ": " + e.getMessage());
+                            e.printStackTrace();
+                            totalErrors++;
+                        }
+                    }
+                    
+                } catch (Exception e) {
+                    System.err.println("[DA-SOC GEN] ERROR querying SOCs for study " + study.getUri() + ": " + e.getMessage());
+                    e.printStackTrace();
+                    totalErrors++;
+                }
+            }
+            
+            System.out.println("\n========== DA-SOC GENERATION SUMMARY ==========");
+            System.out.println("SOCs processed: " + totalSOCsProcessed);
+            System.out.println("Files generated: " + totalFilesGenerated);
+            System.out.println("Errors: " + totalErrors);
+            System.out.println("========== DA-SOC GENERATION END ==========\n");
+            
+            if (totalFilesGenerated > 0) {
+                return "SUCCESS: " + totalFilesGenerated + " DA-SOC file(s) generated";
+            } else if (totalSOCsProcessed == 0) {
+                return "NO SOCs FOUND";
+            } else {
+                return "FAILURE: " + totalErrors + " error(s)";
+            }
+            
+        } catch (Exception e) {
+            System.err.println("[DA-SOC GEN] FATAL ERROR: " + e.getMessage());
+            e.printStackTrace();
+            return "FAILURE: " + e.getMessage();
+        }
+    }
+    
+    /**
+     * Extract SOC name from SOC URI.
+     * Examples:
+     *   http://hadatac.org/kb/default/SOC-LOCATION -> LOCATION
+     *   hadatac:SOC-ENTERPRISE -> ENTERPRISE
+     */
+    private static String extractSOCNameFromURI(String socUri) {
+        if (socUri == null || socUri.isEmpty()) {
+            return null;
+        }
+        
+        // Try to find "SOC-" pattern
+        int socIndex = socUri.indexOf("SOC-");
+        if (socIndex == -1) {
+            // Try uppercase
+            socIndex = socUri.indexOf("soc-");
+        }
+        
+        if (socIndex != -1) {
+            String afterSOC = socUri.substring(socIndex + 4); // Skip "SOC-"
+            // Remove any trailing fragments (#, >, etc)
+            afterSOC = afterSOC.replaceAll("[>#/].*$", "");
+            return afterSOC.trim();
+        }
+        
+        // Fallback: use last segment of URI
+        String[] parts = socUri.split("[/#]");
+        if (parts.length > 0) {
+            String last = parts[parts.length - 1];
+            if (last.startsWith("SOC-")) {
+                return last.substring(4);
+            }
+            return last;
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Generate a single DA-SOC CSV file for a given SOC.
+     * 
+     * @param socUri URI of the StudyObjectCollection
+     * @param socName Name of the SOC (extracted from URI)
+     * @param outputFile File to write the CSV to
+     * @return true if successful, false otherwise
+     */
+    private static boolean generateDASOCFile(String socUri, String socName, java.io.File outputFile) {
+        try {
+            System.out.println("[DA-SOC GEN] Querying objects for SOC: " + socUri);
+            
+            // Query for all objects in this SOC with their existing properties
+            String queryString = org.hascoapi.utils.NameSpaces.getInstance().printSparqlNameSpaceList() +
+                "SELECT DISTINCT ?obj ?originalId ?prop ?value WHERE { " +
+                "  ?obj hasco:isMemberOf <" + socUri + "> . " +
+                "  ?obj hasco:originalID ?originalId . " +
+                "  OPTIONAL { " +
+                "    ?obj ?prop ?value . " +
+                "    FILTER(?prop != rdf:type && ?prop != hasco:isMemberOf && " +
+                "           ?prop != hasco:originalID && ?prop != rdfs:label && " +
+                "           ?prop != rdfs:comment && ?prop != hasco:hasTimestamp && " +
+                "           ?prop != vstoi:hasSIRManagerEmail && ?prop != hasco:hascoType) " +
+                "  } " +
+                "} ORDER BY ?obj ?prop";
+            
+            org.apache.jena.query.ResultSetRewindable results = org.hascoapi.utils.SPARQLUtils.select(
+                org.hascoapi.utils.CollectionUtil.getCollectionPath(
+                    org.hascoapi.utils.CollectionUtil.Collection.SPARQL_QUERY),
+                queryString);
+            
+            // Build data structure: originalID -> properties
+            java.util.Map<String, java.util.Map<String, String>> objectsData = new java.util.LinkedHashMap<>();
+            java.util.Set<String> allPropertyUris = new java.util.LinkedHashSet<>();
+            
+            while (results.hasNext()) {
+                org.apache.jena.query.QuerySolution soln = results.next();
+                String originalId = soln.get("originalId").toString();
+                
+                objectsData.putIfAbsent(originalId, new java.util.LinkedHashMap<>());
+                
+                if (soln.get("prop") != null && soln.get("value") != null) {
+                    String prop = soln.get("prop").toString();
+                    String value = soln.get("value").toString();
+                    
+                    // Store property
+                    objectsData.get(originalId).put(prop, value);
+                    allPropertyUris.add(prop);
+                }
+            }
+            
+            System.out.println("[DA-SOC GEN] Found " + objectsData.size() + " objects");
+            System.out.println("[DA-SOC GEN] Found " + allPropertyUris.size() + " unique properties");
+            
+            if (objectsData.isEmpty()) {
+                System.out.println("[DA-SOC GEN] No objects found in SOC, skipping file generation");
+                return false;
+            }
+            
+            // If no extra properties beyond the base 5, skip generation
+            if (allPropertyUris.isEmpty()) {
+                System.out.println("[DA-SOC GEN] No enrichment properties found, skipping file generation");
+                return false;
+            }
+            
+            // Convert property URIs to CURIEs if possible
+            java.util.List<String> propertyHeaders = new java.util.ArrayList<>();
+            for (String propUri : allPropertyUris) {
+                String curie = org.hascoapi.utils.URIUtils.replaceNameSpaceEx(propUri);
+                propertyHeaders.add(curie);
+            }
+            
+            // Write CSV file
+            try (java.io.PrintWriter writer = new java.io.PrintWriter(outputFile, "UTF-8")) {
+                // Write header row
+                writer.print("originalID");
+                for (String header : propertyHeaders) {
+                    writer.print("," + header);
+                }
+                writer.println();
+                
+                // Write data rows
+                for (java.util.Map.Entry<String, java.util.Map<String, String>> entry : objectsData.entrySet()) {
+                    writer.print(escapeCSV(entry.getKey()));
+                    
+                    java.util.Map<String, String> props = entry.getValue();
+                    int propIndex = 0;
+                    for (String propUri : allPropertyUris) {
+                        String value = props.get(propUri);
+                        writer.print(",");
+                        if (value != null && !value.isEmpty()) {
+                            writer.print(escapeCSV(value));
+                        }
+                        propIndex++;
+                    }
+                    writer.println();
+                }
+                
+                System.out.println("[DA-SOC GEN] ✅ File written: " + outputFile.getName() + 
+                    " (" + objectsData.size() + " rows, " + propertyHeaders.size() + " properties)");
+                return true;
+                
+            } catch (IOException e) {
+                System.err.println("[DA-SOC GEN] ERROR writing CSV file: " + e.getMessage());
+                e.printStackTrace();
+                return false;
+            }
+            
+        } catch (Exception e) {
+            System.err.println("[DA-SOC GEN] ERROR generating DA-SOC file: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    /**
+     * Escape CSV value (handle commas, quotes, newlines)
+     */
+    private static String escapeCSV(String value) {
+        if (value == null) {
+            return "";
+        }
+        
+        // If value contains comma, quote, or newline, wrap in quotes and escape internal quotes
+        if (value.contains(",") || value.contains("\"") || value.contains("\n") || value.contains("\r")) {
+            return "\"" + value.replace("\"", "\"\"") + "\"";
+        }
+        
+        return value;
     }
 }

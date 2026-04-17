@@ -1,0 +1,232 @@
+# ============================================================================
+# QUERY: BUSCAR OBJETOS COM SCOPES EXTRAS DO DA-SOC
+# ============================================================================
+# Este arquivo contém queries SPARQL para recuperar os objetos do SOC-LOCATION
+# com as propriedades extras adicionadas pelo DA-SOC-LOCATION.csv
+#
+# Propriedades BASE (do DSG):
+#   - rdf:type
+#   - hasco:isMemberOf
+#   - hasco:originalID
+#   - hasco:label
+#   - rdfs:comment
+#
+# Propriedades EXTRAS (do DA-SOC):
+#   - pharma:altitude_m
+#   - pharma:floor
+#   - pharma:zone_code
+#   - pharma:area_m2
+#   - pharma:orientation
+#   - hasco:hasTimestamp
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# QUERY 1: Buscar TODOS os objetos com TODAS as propriedades extras
+# ----------------------------------------------------------------------------
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX hasco: <http://hadatac.org/ont/hasco#>
+PREFIX pharma: <http://hadatac.org/ont/pharma#>
+
+SELECT ?objUri ?originalID ?label ?altitude ?floor ?zone ?area ?orientation ?timestamp
+WHERE {
+  # Propriedades base (do DSG)
+  ?objUri hasco:isMemberOf ?socUri .
+  ?objUri hasco:originalID ?originalID .
+  OPTIONAL { ?objUri hasco:label ?label . }
+
+  # Filtrar apenas SOC-LOCATION
+  FILTER(CONTAINS(STR(?socUri), "SOC-LOCATION"))
+
+  # Propriedades extras (do DA-SOC) - todas opcionais
+  OPTIONAL { ?objUri pharma:altitude_m ?altitude . }
+  OPTIONAL { ?objUri pharma:floor ?floor . }
+  OPTIONAL { ?objUri pharma:zone_code ?zone . }
+  OPTIONAL { ?objUri pharma:area_m2 ?area . }
+  OPTIONAL { ?objUri pharma:orientation ?orientation . }
+  OPTIONAL { ?objUri hasco:hasTimestamp ?timestamp . }
+}
+ORDER BY ?originalID
+
+# ----------------------------------------------------------------------------
+# QUERY 2: Buscar apenas objetos que TÊM as propriedades extras (confirmar DA-SOC)
+# ----------------------------------------------------------------------------
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX hasco: <http://hadatac.org/ont/hasco#>
+PREFIX pharma: <http://hadatac.org/ont/pharma#>
+
+SELECT ?objUri ?originalID ?altitude ?floor ?zone ?area ?orientation
+WHERE {
+  ?objUri hasco:isMemberOf ?socUri .
+  ?objUri hasco:originalID ?originalID .
+
+  FILTER(CONTAINS(STR(?socUri), "SOC-LOCATION"))
+
+  # Estas propriedades DEVEM existir (não opcional)
+  # Se o DA-SOC foi ingerido corretamente, todos os 50 objetos terão elas
+  ?objUri pharma:altitude_m ?altitude .
+  ?objUri pharma:floor ?floor .
+  ?objUri pharma:zone_code ?zone .
+  ?objUri pharma:area_m2 ?area .
+  ?objUri pharma:orientation ?orientation .
+}
+ORDER BY ?originalID
+
+# ----------------------------------------------------------------------------
+# QUERY 3: Estatísticas - Contar objetos por ZONA
+# ----------------------------------------------------------------------------
+PREFIX hasco: <http://hadatac.org/ont/hasco#>
+PREFIX pharma: <http://hadatac.org/ont/pharma#>
+
+SELECT ?zone (COUNT(?objUri) AS ?count)
+WHERE {
+  ?objUri hasco:isMemberOf ?socUri .
+  ?objUri pharma:zone_code ?zone .
+
+  FILTER(CONTAINS(STR(?socUri), "SOC-LOCATION"))
+}
+GROUP BY ?zone
+ORDER BY ?zone
+
+# ----------------------------------------------------------------------------
+# QUERY 4: Estatísticas - Contar objetos por ANDAR
+# ----------------------------------------------------------------------------
+PREFIX hasco: <http://hadatac.org/ont/hasco#>
+PREFIX pharma: <http://hadatac.org/ont/pharma#>
+
+SELECT ?floor (COUNT(?objUri) AS ?count)
+WHERE {
+  ?objUri hasco:isMemberOf ?socUri .
+  ?objUri pharma:floor ?floor .
+
+  FILTER(CONTAINS(STR(?socUri), "SOC-LOCATION"))
+}
+GROUP BY ?floor
+ORDER BY ?floor
+
+# ----------------------------------------------------------------------------
+# QUERY 5: Buscar objetos de uma ZONA específica (ex: ZONE-A)
+# ----------------------------------------------------------------------------
+PREFIX hasco: <http://hadatac.org/ont/hasco#>
+PREFIX pharma: <http://hadatac.org/ont/pharma#>
+
+SELECT ?objUri ?originalID ?floor ?altitude ?area ?orientation
+WHERE {
+  ?objUri hasco:isMemberOf ?socUri .
+  ?objUri hasco:originalID ?originalID .
+  ?objUri pharma:zone_code "ZONE-A" .
+  ?objUri pharma:floor ?floor .
+  ?objUri pharma:altitude_m ?altitude .
+  ?objUri pharma:area_m2 ?area .
+  ?objUri pharma:orientation ?orientation .
+
+  FILTER(CONTAINS(STR(?socUri), "SOC-LOCATION"))
+}
+ORDER BY ?floor ?originalID
+
+# ----------------------------------------------------------------------------
+# QUERY 6: Buscar objetos de um ANDAR específico (ex: andar 0)
+# ----------------------------------------------------------------------------
+PREFIX hasco: <http://hadatac.org/ont/hasco#>
+PREFIX pharma: <http://hadatac.org/ont/pharma#>
+
+SELECT ?objUri ?originalID ?zone ?altitude ?area ?orientation
+WHERE {
+  ?objUri hasco:isMemberOf ?socUri .
+  ?objUri hasco:originalID ?originalID .
+  ?objUri pharma:floor "0" .
+  ?objUri pharma:zone_code ?zone .
+  ?objUri pharma:altitude_m ?altitude .
+  ?objUri pharma:area_m2 ?area .
+  ?objUri pharma:orientation ?orientation .
+
+  FILTER(CONTAINS(STR(?socUri), "SOC-LOCATION"))
+}
+ORDER BY ?zone ?originalID
+
+# ----------------------------------------------------------------------------
+# QUERY 7: Buscar objetos com altitude MAIOR que 20m
+# ----------------------------------------------------------------------------
+PREFIX hasco: <http://hadatac.org/ont/hasco#>
+PREFIX pharma: <http://hadatac.org/ont/pharma#>
+
+SELECT ?objUri ?originalID ?altitude ?floor ?zone
+WHERE {
+  ?objUri hasco:isMemberOf ?socUri .
+  ?objUri hasco:originalID ?originalID .
+  ?objUri pharma:altitude_m ?altitude .
+  ?objUri pharma:floor ?floor .
+  ?objUri pharma:zone_code ?zone .
+
+  FILTER(CONTAINS(STR(?socUri), "SOC-LOCATION"))
+  FILTER(xsd:decimal(?altitude) > 20.0)
+}
+ORDER BY DESC(?altitude)
+
+# ----------------------------------------------------------------------------
+# QUERY 8: Buscar objetos com área MAIOR que 300m²
+# ----------------------------------------------------------------------------
+PREFIX hasco: <http://hadatac.org/ont/hasco#>
+PREFIX pharma: <http://hadatac.org/ont/pharma#>
+
+SELECT ?objUri ?originalID ?area ?floor ?zone
+WHERE {
+  ?objUri hasco:isMemberOf ?socUri .
+  ?objUri hasco:originalID ?originalID .
+  ?objUri pharma:area_m2 ?area .
+  ?objUri pharma:floor ?floor .
+  ?objUri pharma:zone_code ?zone .
+
+  FILTER(CONTAINS(STR(?socUri), "SOC-LOCATION"))
+  FILTER(xsd:decimal(?area) > 300)
+}
+ORDER BY DESC(?area)
+
+# ----------------------------------------------------------------------------
+# QUERY 9: Comparar objetos COM e SEM propriedades extras
+# ----------------------------------------------------------------------------
+PREFIX hasco: <http://hadatac.org/ont/hasco#>
+PREFIX pharma: <http://hadatac.org/ont/pharma#>
+
+SELECT ?originalID
+       (BOUND(?altitude) AS ?hasAltitude)
+       (BOUND(?floor) AS ?hasFloor)
+       (BOUND(?zone) AS ?hasZone)
+       (BOUND(?area) AS ?hasArea)
+       (BOUND(?orientation) AS ?hasOrientation)
+WHERE {
+  ?objUri hasco:isMemberOf ?socUri .
+  ?objUri hasco:originalID ?originalID .
+
+  FILTER(CONTAINS(STR(?socUri), "SOC-LOCATION"))
+
+  OPTIONAL { ?objUri pharma:altitude_m ?altitude . }
+  OPTIONAL { ?objUri pharma:floor ?floor . }
+  OPTIONAL { ?objUri pharma:zone_code ?zone . }
+  OPTIONAL { ?objUri pharma:area_m2 ?area . }
+  OPTIONAL { ?objUri pharma:orientation ?orientation . }
+}
+ORDER BY ?originalID
+
+# ----------------------------------------------------------------------------
+# QUERY 10: Verificar NAMED GRAPH do DA-SOC
+# ----------------------------------------------------------------------------
+PREFIX hasco: <http://hadatac.org/ont/hasco#>
+PREFIX pharma: <http://hadatac.org/ont/pharma#>
+
+SELECT ?graph ?objUri ?originalID ?property ?value
+WHERE {
+  GRAPH ?graph {
+    ?objUri ?property ?value .
+    ?objUri hasco:originalID ?originalID .
+
+    # Filtrar apenas propriedades pharma (do DA-SOC)
+    FILTER(STRSTARTS(STR(?property), "http://hadatac.org/ont/pharma#"))
+  }
+
+  # Filtrar apenas named graphs do DA-SOC
+  FILTER(CONTAINS(STR(?graph), "dasoc") || CONTAINS(STR(?graph), "DA-"))
+}
+ORDER BY ?graph ?originalID ?property
+

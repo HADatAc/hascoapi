@@ -1,0 +1,534 @@
+{
+  "info": {
+    "name": "HASCOAPI - DA DSG DASOC Test Suite",
+    "description": "Collection completa para testar DA ingestion, DSG generation com generateDASOCs=true",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. CREATE STUDY",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const timestamp = Date.now();",
+              "const studyUri = `http://test.example.com/kb/study/STUDY_${timestamp}`;",
+              "",
+              "const studyData = {",
+              "    \"uri\": studyUri,",
+              "    \"typeUri\": \"http://hadatac.org/ont/hasco#Study\",",
+              "    \"hascoTypeUri\": \"http://hadatac.org/ont/hasco#Study\",",
+              "    \"label\": `Test Study ${timestamp}`,",
+              "    \"comment\": \"Study for DA-DSG-DASOC testing\",",
+              "    \"hasStatus\": \"DRAFT\",",
+              "    \"hasSIRManagerEmail\": \"test@example.com\",",
+              "    \"namedGraph\": \"http://hadatac.org/kb/test\"",
+              "};",
+              "",
+              "const encodedJson = encodeURIComponent(JSON.stringify(studyData));",
+              "pm.collectionVariables.set(\"encodedStudyJson\", encodedJson);",
+              "pm.collectionVariables.set(\"studyUri\", studyUri);",
+              "pm.collectionVariables.set(\"timestamp\", timestamp);",
+              "",
+              "console.log(\"📝 Study URI:\", studyUri);"
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Study created successfully\", function() {",
+              "    pm.response.to.have.status(200);",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData.isSuccessful).to.be.true;",
+              "});",
+              "",
+              "console.log(\"✅ Study created:\", pm.collectionVariables.get(\"studyUri\"));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/hascoapi/api/study/create/{{encodedStudyJson}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["hascoapi", "api", "study", "create", "{{encodedStudyJson}}"]
+        }
+      }
+    },
+    {
+      "name": "2. CREATE STREAM",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const timestamp = pm.collectionVariables.get(\"timestamp\");",
+              "const streamUri = `http://test.example.com/kb/stream/STREAM_${timestamp}`;",
+              "const studyUri = pm.collectionVariables.get(\"studyUri\");",
+              "",
+              "if (!studyUri) {",
+              "    throw new Error(\"❌ studyUri not found! Execute 'CREATE STUDY' first.\");",
+              "}",
+              "",
+              "const streamData = {",
+              "    \"uri\": streamUri,",
+              "    \"typeUri\": \"http://hadatac.org/ont/hasco#MessageStream\",",
+              "    \"hascoTypeUri\": \"http://hadatac.org/ont/hasco#Stream\",",
+              "    \"label\": `Test Stream ${timestamp}`,",
+              "    \"comment\": \"Stream for DA-DSG testing\",",
+              "    \"isMemberOf\": studyUri,",
+              "    \"hasStatus\": \"DRAFT\",",
+              "    \"hasSIRManagerEmail\": \"test@example.com\",",
+              "    \"namedGraph\": \"http://hadatac.org/kb/test\"",
+              "};",
+              "",
+              "const encodedJson = encodeURIComponent(JSON.stringify(streamData));",
+              "pm.collectionVariables.set(\"encodedStreamJson\", encodedJson);",
+              "pm.collectionVariables.set(\"streamUri\", streamUri);",
+              "",
+              "console.log(\"📝 Stream URI:\", streamUri);",
+              "console.log(\"🔗 Linked to Study:\", studyUri);"
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Stream created successfully\", function() {",
+              "    pm.response.to.have.status(200);",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData.isSuccessful).to.be.true;",
+              "});",
+              "",
+              "console.log(\"✅ Stream created:\", pm.collectionVariables.get(\"streamUri\"));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/hascoapi/api/stream/create/{{encodedStreamJson}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["hascoapi", "api", "stream", "create", "{{encodedStreamJson}}"]
+        }
+      }
+    },
+    {
+      "name": "3. CREATE SOC",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const timestamp = pm.collectionVariables.get(\"timestamp\");",
+              "const socUri = `http://test.example.com/kb/soc/SOC_${timestamp}`;",
+              "const studyUri = pm.collectionVariables.get(\"studyUri\");",
+              "",
+              "if (!studyUri) {",
+              "    throw new Error(\"❌ studyUri not found! Execute 'CREATE STUDY' first.\");",
+              "}",
+              "",
+              "const socData = {",
+              "    \"uri\": socUri,",
+              "    \"typeUri\": \"http://hadatac.org/ont/hasco#StudyObjectCollection\",",
+              "    \"hascoTypeUri\": \"http://hadatac.org/ont/hasco#StudyObjectCollection\",",
+              "    \"label\": `Test SOC ${timestamp}`,",
+              "    \"comment\": \"SOC for DASOC linking\",",
+              "    \"isMemberOf\": studyUri,",
+              "    \"hasStatus\": \"DRAFT\",",
+              "    \"hasSIRManagerEmail\": \"test@example.com\",",
+              "    \"namedGraph\": \"http://hadatac.org/kb/test\"",
+              "};",
+              "",
+              "const encodedJson = encodeURIComponent(JSON.stringify(socData));",
+              "pm.collectionVariables.set(\"encodedSOCJson\", encodedJson);",
+              "pm.collectionVariables.set(\"socUri\", socUri);",
+              "",
+              "console.log(\"📝 SOC URI:\", socUri);",
+              "console.log(\"🔗 Linked to Study:\", studyUri);"
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"SOC created successfully\", function() {",
+              "    pm.response.to.have.status(200);",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData.isSuccessful).to.be.true;",
+              "});",
+              "",
+              "console.log(\"✅ SOC created:\", pm.collectionVariables.get(\"socUri\"));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/hascoapi/api/studyobjectcollection/create/{{encodedSOCJson}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["hascoapi", "api", "studyobjectcollection", "create", "{{encodedSOCJson}}"]
+        }
+      }
+    },
+    {
+      "name": "4. CREATE DSG",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const timestamp = pm.collectionVariables.get(\"timestamp\");",
+              "const dsgUri = `http://test.example.com/kb/dsg/DSG_${timestamp}`;",
+              "const studyUri = pm.collectionVariables.get(\"studyUri\");",
+              "",
+              "if (!studyUri) {",
+              "    throw new Error(\"❌ studyUri not found! Execute 'CREATE STUDY' first.\");",
+              "}",
+              "",
+              "const dsgData = {",
+              "    \"uri\": dsgUri,",
+              "    \"typeUri\": \"http://hadatac.org/ont/hasco#DASchemaGenerator\",",
+              "    \"hascoTypeUri\": \"http://hadatac.org/ont/hasco#DSG\",",
+              "    \"label\": `Test DSG ${timestamp}`,",
+              "    \"comment\": \"DSG for testing DASOC generation\",",
+              "    \"isMemberOf\": studyUri,",
+              "    \"hasStatus\": \"DRAFT\",",
+              "    \"hasSIRManagerEmail\": \"test@example.com\",",
+              "    \"namedGraph\": \"http://hadatac.org/kb/test\"",
+              "};",
+              "",
+              "const encodedJson = encodeURIComponent(JSON.stringify(dsgData));",
+              "pm.collectionVariables.set(\"encodedDSGJson\", encodedJson);",
+              "pm.collectionVariables.set(\"dsgUri\", dsgUri);",
+              "",
+              "console.log(\"📝 DSG URI:\", dsgUri);"
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"DSG created successfully\", function() {",
+              "    pm.response.to.have.status(200);",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData.isSuccessful).to.be.true;",
+              "});",
+              "",
+              "console.log(\"✅ DSG created:\", pm.collectionVariables.get(\"dsgUri\"));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/hascoapi/api/dsg/create/{{encodedDSGJson}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["hascoapi", "api", "dsg", "create", "{{encodedDSGJson}}"]
+        }
+      }
+    },
+    {
+      "name": "5. GENERATE DSG WITH DASOCs ⭐",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const timestamp = pm.collectionVariables.get(\"timestamp\");",
+              "const dataFileUri = `http://test.example.com/kb/datafile/DF_DSG_${timestamp}`;",
+              "const dsgUri = pm.collectionVariables.get(\"dsgUri\");",
+              "",
+              "if (!dsgUri) {",
+              "    throw new Error(\"❌ dsgUri not found! Execute 'CREATE DSG' first.\");",
+              "}",
+              "",
+              "pm.collectionVariables.set(\"dataFileUri\", dataFileUri);",
+              "",
+              "console.log(\"═══════════════════════════════════\");",
+              "console.log(\"🚀 GENERATING DSG WITH DASOCs\");",
+              "console.log(\"═══════════════════════════════════\");",
+              "console.log(\"📝 DataFile URI:\", dataFileUri);",
+              "console.log(\"📝 DSG URI:\", dsgUri);",
+              "console.log(\"⚙️  generateDASOCs: TRUE\");",
+              "console.log(\"📂 Output: DSG-TEST-\" + timestamp + \".xlsx\");",
+              "console.log(\"═══════════════════════════════════\");"
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"DSG generated successfully\", function() {",
+              "    pm.response.to.have.status(200);",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData.isSuccessful).to.be.true;",
+              "    ",
+              "    if (jsonData.body && typeof jsonData.body === 'string') {",
+              "        pm.collectionVariables.set(\"generatedFilename\", jsonData.body);",
+              "        console.log(\"📄 Generated file:\", jsonData.body);",
+              "    }",
+              "});",
+              "",
+              "console.log(\"✅ DSG generated with DASOCs enabled\");",
+              "console.log(\"🔍 Next: Verify DAs were created\");"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/hascoapi/api/mt/gen/perelement/da/{{dataFileUri}}/{{dsgUri}}/DSG-TEST-{{timestamp}}.xlsx/test_media/true?generateDASOCs=true",
+          "host": ["{{baseUrl}}"],
+          "path": ["hascoapi", "api", "mt", "gen", "perelement", "da", "{{dataFileUri}}", "{{dsgUri}}", "DSG-TEST-{{timestamp}}.xlsx", "test_media", "true"],
+          "query": [
+            {
+              "key": "generateDASOCs",
+              "value": "true",
+              "description": "Enable automatic DA-SOC linking"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "6. VERIFY DAs CREATED",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Query DAs successful\", function() {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "const jsonData = pm.response.json();",
+              "",
+              "if (jsonData.isSuccessful && Array.isArray(jsonData.body)) {",
+              "    const totalDAs = jsonData.body.length;",
+              "    console.log(\"═══════════════════════════════════\");",
+              "    console.log(\"📊 VERIFICATION RESULTS\");",
+              "    console.log(\"═══════════════════════════════════\");",
+              "    console.log(`Total DAs with status DRAFT: ${totalDAs}`);",
+              "    ",
+              "    // Filtrar DAs que têm SOC vinculado",
+              "    const dasWithSOC = jsonData.body.filter(da => ",
+              "        da.hasObjectScope && da.hasObjectScope.length > 0",
+              "    );",
+              "    ",
+              "    console.log(`DAs with SOC linked: ${dasWithSOC.length}`);",
+              "    ",
+              "    if (dasWithSOC.length > 0) {",
+              "        console.log(\"\\n📋 DASOC Details:\");",
+              "        dasWithSOC.forEach((da, idx) => {",
+              "            console.log(`  [${idx+1}] ${da.label || da.uri}`);",
+              "            console.log(`      URI: ${da.uri}`);",
+              "            console.log(`      SOC: ${da.hasObjectScope}`);",
+              "            if (da.isDataAcquisitionOf) {",
+              "                console.log(`      Stream: ${da.isDataAcquisitionOf}`);",
+              "            }",
+              "        });",
+              "        ",
+              "        pm.test(\"DASOCs were generated\", function() {",
+              "            pm.expect(dasWithSOC.length).to.be.greaterThan(0);",
+              "        });",
+              "    } else {",
+              "        console.log(\"⚠️  No DAs with SOC linkage found\");",
+              "        console.log(\"💡 Verify generateDASOCs parameter was true\");",
+              "    }",
+              "    ",
+              "    // Verificar DAs do nosso test stream",
+              "    const testStreamUri = pm.collectionVariables.get(\"streamUri\");",
+              "    const dasFromTestStream = jsonData.body.filter(da => ",
+              "        da.isDataAcquisitionOf === testStreamUri",
+              "    );",
+              "    ",
+              "    if (dasFromTestStream.length > 0) {",
+              "        console.log(`\\n🎯 DAs from our test stream: ${dasFromTestStream.length}`);",
+              "    }",
+              "    console.log(\"═══════════════════════════════════\");",
+              "    ",
+              "} else {",
+              "    console.log(\"❌ No DAs found or query failed\");",
+              "    console.log(\"Response:\", JSON.stringify(jsonData, null, 2));",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/hascoapi/api/da/status/DRAFT/100/0",
+          "host": ["{{baseUrl}}"],
+          "path": ["hascoapi", "api", "da", "status", "DRAFT", "100", "0"]
+        }
+      }
+    },
+    {
+      "name": "7. VERIFY DAs BY STREAM",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const jsonData = pm.response.json();",
+              "const socUri = pm.collectionVariables.get(\"socUri\");",
+              "",
+              "console.log(\"═══════════════════════════════════\");",
+              "console.log(\"🔍 DAs BY STREAM VERIFICATION\");",
+              "console.log(\"═══════════════════════════════════\");",
+              "",
+              "if (jsonData.isSuccessful && Array.isArray(jsonData.body)) {",
+              "    console.log(`Total DAs in stream: ${jsonData.body.length}`);",
+              "    ",
+              "    const dasWithOurSOC = jsonData.body.filter(da => ",
+              "        da.hasObjectScope && da.hasObjectScope.includes(socUri)",
+              "    );",
+              "    ",
+              "    console.log(`DAs linked to our SOC: ${dasWithOurSOC.length}`);",
+              "    ",
+              "    dasWithOurSOC.forEach((da, idx) => {",
+              "        console.log(`\\n  DA ${idx+1}:`);",
+              "        console.log(`    URI: ${da.uri}`);",
+              "        console.log(`    Label: ${da.label}`);",
+              "        console.log(`    SOC: ${da.hasObjectScope}`);",
+              "    });",
+              "    ",
+              "    pm.test(\"DAs linked to correct SOC\", function() {",
+              "        pm.expect(dasWithOurSOC.length).to.be.greaterThan(0);",
+              "    });",
+              "}",
+              "console.log(\"═══════════════════════════════════\");"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/hascoapi/api/dataacquisition/bystream/{{streamUri}}/100/0",
+          "host": ["{{baseUrl}}"],
+          "path": ["hascoapi", "api", "dataacquisition", "bystream", "{{streamUri}}", "100", "0"]
+        }
+      }
+    },
+    {
+      "name": "CLEANUP - 1. Delete Study",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/hascoapi/api/study/delete/{{studyUri}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["hascoapi", "api", "study", "delete", "{{studyUri}}"]
+        }
+      }
+    },
+    {
+      "name": "CLEANUP - 2. Delete Stream",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/hascoapi/api/stream/delete/{{streamUri}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["hascoapi", "api", "stream", "delete", "{{streamUri}}"]
+        }
+      }
+    },
+    {
+      "name": "CLEANUP - 3. Delete SOC",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/hascoapi/api/studyobjectcollection/delete/{{socUri}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["hascoapi", "api", "studyobjectcollection", "delete", "{{socUri}}"]
+        }
+      }
+    },
+    {
+      "name": "CLEANUP - 4. Delete DSG",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/hascoapi/api/dsg/delete/{{dsgUri}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["hascoapi", "api", "dsg", "delete", "{{dsgUri}}"]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "studyUri",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "streamUri",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "socUri",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "dsgUri",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "dataFileUri",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "generatedFilename",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "timestamp",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
+

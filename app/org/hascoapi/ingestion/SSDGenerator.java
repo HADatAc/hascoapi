@@ -217,6 +217,8 @@ public class SSDGenerator extends BaseGenerator {
         soc.setVirtualColumnUri(getVirtualColumnUri(record));
         soc.setRoleUri(getRoleLabel(record));
         soc.setHasSIRManagerEmail(this.dataFile.getHasSIRManagerEmail());
+        // SOCs must always be saved to DEFAULT_REPOSITORY (not to file's named graph)
+        soc.setNamedGraph("");
         if (scopeUri != null && !scopeUri.isEmpty()) {
             soc.setHasScopeUri(scopeUri);
         }

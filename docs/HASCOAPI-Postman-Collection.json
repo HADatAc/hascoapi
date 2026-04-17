@@ -1,0 +1,806 @@
+{
+  "info": {
+    "name": "HADatAc API Collection",
+    "description": "Complete API collection for HADatAc (hascoapi) REST API with tests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:9000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "YOUR_JWT_TOKEN_HERE",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Instruments",
+      "item": [
+        {
+          "name": "List All Instruments (Paginated)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is less than 2000ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has correct structure\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('isSuccessful');",
+                  "    pm.expect(jsonData).to.have.property('body');",
+                  "});",
+                  "",
+                  "pm.test(\"Response is successful\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.isSuccessful).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test(\"Body is an array\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.isSuccessful) {",
+                  "        pm.expect(jsonData.body).to.be.an('array');",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test(\"Returns correct page size\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.isSuccessful && jsonData.body.length > 0) {",
+                  "        pm.expect(jsonData.body.length).to.be.at.most(10);",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test(\"Instruments have required fields\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.isSuccessful && jsonData.body.length > 0) {",
+                  "        var instrument = jsonData.body[0];",
+                  "        pm.expect(instrument).to.have.property('uri');",
+                  "        pm.expect(instrument).to.have.property('label');",
+                  "        pm.expect(instrument).to.have.property('typeUri');",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/hascoapi/api/instrument/elements/10/0",
+              "host": ["{{baseUrl}}"],
+              "path": ["hascoapi", "api", "instrument", "elements", "10", "0"]
+            }
+          }
+        },
+        {
+          "name": "Get Total Instruments Count",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has total property\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.isSuccessful) {",
+                  "        var body = JSON.parse(jsonData.body);",
+                  "        pm.expect(body).to.have.property('total');",
+                  "        pm.expect(body.total).to.be.a('number');",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/hascoapi/api/instrument/elements/total",
+              "host": ["{{baseUrl}}"],
+              "path": ["hascoapi", "api", "instrument", "elements", "total"]
+            }
+          }
+        },
+        {
+          "name": "Get Instrument by URI",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "",
+                  "pm.test(\"Instrument data is returned\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.isSuccessful) {",
+                  "        pm.expect(jsonData.body).to.be.an('object');",
+                  "        pm.expect(jsonData.body).to.have.property('uri');",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/hascoapi/api/uri/:uri",
+              "host": ["{{baseUrl}}"],
+              "path": ["hascoapi", "api", "uri", ":uri"],
+              "variable": [
+                {
+                  "key": "uri",
+                  "value": "{{testInstrumentUri}}",
+                  "description": "URL-encoded Instrument URI"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Instrument",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "var timestamp = Date.now();",
+                  "var instrumentUri = pm.environment.get(\"baseUrl\") + \"/kb/INS\" + timestamp;",
+                  "",
+                  "var instrumentData = {",
+                  "    \"uri\": instrumentUri,",
+                  "    \"typeUri\": \"http://hadatac.org/ont/vstoi#Questionnaire\",",
+                  "    \"hascoTypeUri\": \"http://hadatac.org/ont/vstoi#Instrument\",",
+                  "    \"label\": \"Test Instrument \" + timestamp,",
+                  "    \"hasShortName\": \"TEST\" + timestamp,",
+                  "    \"comment\": \"Automated test instrument created via Postman\",",
+                  "    \"hasVersion\": \"1.0\",",
+                  "    \"hasLanguage\": \"en\",",
+                  "    \"hasInformant\": \"http://hadatac.org/ont/vstoi#SelfReportedInformant\",",
+                  "    \"hasSIRManagerEmail\": \"test@example.com\",",
+                  "    \"namedGraph\": \"http://hadatac.org/kb/test\"",
+                  "};",
+                  "",
+                  "var encodedJson = encodeURIComponent(JSON.stringify(instrumentData));",
+                  "pm.environment.set(\"instrumentJson\", encodedJson);",
+                  "pm.environment.set(\"testInstrumentUri\", encodeURIComponent(instrumentUri));"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response indicates success\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('isSuccessful');",
+                  "    pm.expect(jsonData.isSuccessful).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains creation confirmation\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.body).to.include(\"CREATED\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/hascoapi/api/instrument/create/{{instrumentJson}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["hascoapi", "api", "instrument", "create", "{{instrumentJson}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Instrument",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Deletion successful\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.isSuccessful).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test(\"Response confirms deletion\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.body).to.include(\"DELETED\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/hascoapi/api/instrument/delete/:uri",
+              "host": ["{{baseUrl}}"],
+              "path": ["hascoapi", "api", "instrument", "delete", ":uri"],
+              "variable": [
+                {
+                  "key": "uri",
+                  "value": "{{testInstrumentUri}}",
+                  "description": "URL-encoded Instrument URI to delete"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Studies",
+      "item": [
+        {
+          "name": "List All Studies",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response is successful\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.isSuccessful).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test(\"Studies array returned\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.isSuccessful) {",
+                  "        pm.expect(jsonData.body).to.be.an('array');",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/hascoapi/api/study/elements/10/0",
+              "host": ["{{baseUrl}}"],
+              "path": ["hascoapi", "api", "study", "elements", "10", "0"]
+            }
+          }
+        },
+        {
+          "name": "Create Study",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "var timestamp = Date.now();",
+                  "var studyUri = pm.environment.get(\"baseUrl\") + \"/kb/STU\" + timestamp;",
+                  "",
+                  "var studyData = {",
+                  "    \"uri\": studyUri,",
+                  "    \"label\": \"Test Study \" + timestamp,",
+                  "    \"title\": \"Test Study Title\",",
+                  "    \"comment\": \"Automated test study\",",
+                  "    \"hasSIRManagerEmail\": \"manager@example.com\",",
+                  "    \"permissionUri\": \"http://hadatac.org/ont/hasco#PrivatePermission\",",
+                  "    \"namedGraph\": \"http://hadatac.org/kb/test\"",
+                  "};",
+                  "",
+                  "var encodedJson = encodeURIComponent(JSON.stringify(studyData));",
+                  "pm.environment.set(\"studyJson\", encodedJson);",
+                  "pm.environment.set(\"testStudyUri\", encodeURIComponent(studyUri));"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Study created successfully\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.isSuccessful).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/hascoapi/api/study/create/{{studyJson}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["hascoapi", "api", "study", "create", "{{studyJson}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Study Object Collections by Study",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/hascoapi/api/study/socs/:studyUri/10/0",
+              "host": ["{{baseUrl}}"],
+              "path": ["hascoapi", "api", "study", "socs", ":studyUri", "10", "0"],
+              "variable": [
+                {
+                  "key": "studyUri",
+                  "value": "{{testStudyUri}}"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Semantic Data Dictionaries (SDD)",
+      "item": [
+        {
+          "name": "List All SDDs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/hascoapi/api/sdd/elements/10/0",
+              "host": ["{{baseUrl}}"],
+              "path": ["hascoapi", "api", "sdd", "elements", "10", "0"]
+            }
+          }
+        },
+        {
+          "name": "Create SDD",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "var timestamp = Date.now();",
+                  "var sddUri = pm.environment.get(\"baseUrl\") + \"/kb/SDD\" + timestamp;",
+                  "",
+                  "var sddData = {",
+                  "    \"uri\": sddUri,",
+                  "    \"label\": \"Test SDD \" + timestamp,",
+                  "    \"hasSIRManagerEmail\": \"test@example.com\",",
+                  "    \"namedGraph\": \"http://hadatac.org/kb/test\"",
+                  "};",
+                  "",
+                  "var encodedJson = encodeURIComponent(JSON.stringify(sddData));",
+                  "pm.environment.set(\"sddJson\", encodedJson);",
+                  "pm.environment.set(\"testSDDUri\", encodeURIComponent(sddUri));"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"SDD created successfully\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.isSuccessful).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/hascoapi/api/sdd/create/{{sddJson}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["hascoapi", "api", "sdd", "create", "{{sddJson}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete SDD",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Deletion successful\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.isSuccessful).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test(\"Response confirms deletion\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.body).to.include(\"DELETED\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/hascoapi/api/sdd/delete/:uri",
+              "host": ["{{baseUrl}}"],
+              "path": ["hascoapi", "api", "sdd", "delete", ":uri"],
+              "variable": [
+                {
+                  "key": "uri",
+                  "value": "{{testSDDUri}}"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Data Files & Uploads",
+      "item": [
+        {
+          "name": "Upload File",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/hascoapi/api/uploadFile/:elementUri/:filename",
+              "host": ["{{baseUrl}}"],
+              "path": ["hascoapi", "api", "uploadFile", ":elementUri", ":filename"],
+              "variable": [
+                {
+                  "key": "elementUri",
+                  "value": "{{testSDDUri}}",
+                  "description": "Element URI (SDD, DSG, etc.)"
+                },
+                {
+                  "key": "filename",
+                  "value": "test-file.xlsx"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Download File",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/hascoapi/api/downloadFile/:elementUri/:filename",
+              "host": ["{{baseUrl}}"],
+              "path": ["hascoapi", "api", "downloadFile", ":elementUri", ":filename"],
+              "variable": [
+                {
+                  "key": "elementUri",
+                  "value": "{{testSDDUri}}"
+                },
+                {
+                  "key": "filename",
+                  "value": "test-file.xlsx"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Repository Management",
+      "item": [
+        {
+          "name": "Get Repository Info",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Repository data returned\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('isSuccessful');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/hascoapi/api/repo",
+              "host": ["{{baseUrl}}"],
+              "path": ["hascoapi", "api", "repo"]
+            }
+          }
+        },
+        {
+          "name": "Get Namespaces",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/hascoapi/api/repo/table/namespaces",
+              "host": ["{{baseUrl}}"],
+              "path": ["hascoapi", "api", "repo", "table", "namespaces"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Ingestion",
+      "item": [
+        {
+          "name": "Ingest SDD File",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/hascoapi/api/ingest/ACTIVE/sdd/:sddUri",
+              "host": ["{{baseUrl}}"],
+              "path": ["hascoapi", "api", "ingest", "ACTIVE", "sdd", ":sddUri"],
+              "variable": [
+                {
+                  "key": "sddUri",
+                  "value": "{{testSDDUri}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Ingestion Log",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/hascoapi/api/ingestion/:dataFileUri/log",
+              "host": ["{{baseUrl}}"],
+              "path": ["hascoapi", "api", "ingestion", ":dataFileUri", "log"],
+              "variable": [
+                {
+                  "key": "dataFileUri",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Metadata Template Generation",
+      "item": [
+        {
+          "name": "MT Gen Health Check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Health check passes\", function () {",
+                  "    pm.expect(pm.response.text()).to.include(\"working\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/hascoapi/api/mt/gen/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["hascoapi", "api", "mt", "gen", "health"]
+            }
+          }
+        },
+        {
+          "name": "Generate MT by Status",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/hascoapi/api/mt/gen/perstatus/study/:dataFileUri/ACTIVE/output.xlsx/media/true?generateDASOCs=false",
+              "host": ["{{baseUrl}}"],
+              "path": ["hascoapi", "api", "mt", "gen", "perstatus", "study", ":dataFileUri", "ACTIVE", "output.xlsx", "media", "true"],
+              "query": [
+                {
+                  "key": "generateDASOCs",
+                  "value": "false"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "dataFileUri",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+

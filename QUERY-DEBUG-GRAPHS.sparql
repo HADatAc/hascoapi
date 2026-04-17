@@ -1,0 +1,24 @@
+# ============================================================================
+# DEBUG: Verificar TODOS os named graphs que existem
+# ============================================================================
+
+SELECT DISTINCT ?g
+WHERE {
+  GRAPH ?g {
+    ?s ?p ?o
+  }
+}
+
+# ============================================================================
+# Depois execute esta para ver quantos triples tem em cada graph:
+# ============================================================================
+
+SELECT ?g (COUNT(*) as ?count)
+WHERE {
+  GRAPH ?g {
+    ?s ?p ?o
+  }
+}
+GROUP BY ?g
+ORDER BY DESC(?count)
+

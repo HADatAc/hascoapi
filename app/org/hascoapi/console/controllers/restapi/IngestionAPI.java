@@ -26,23 +26,22 @@ import org.hascoapi.transform.mt.ins.INSGen;
 import org.hascoapi.transform.mt.kgr.KGRGen;
 import org.hascoapi.transform.mt.sdd.SDDGen;
 import org.hascoapi.transform.mt.soc.SOCGen;
-<<<<<<< HEAD
+
 import org.hascoapi.utils.*;
 import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.ConfigProp;
-=======
+
 import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.ConfigProp;
 import org.hascoapi.utils.HAScOMapper;
 import org.hascoapi.utils.NameSpaces;
->>>>>>> e3d59438b08a1e37ee5f57127dd97799008fd868
+
 import org.hascoapi.utils.URIUtils;
 import org.hascoapi.vocabularies.HASCO;
 import com.typesafe.config.Config;
-<<<<<<< HEAD
-=======
+
 import org.apache.jena.update.UpdateExecutionFactory;
 import org.apache.jena.update.UpdateFactory;
 import org.apache.jena.update.UpdateProcessor;
@@ -52,7 +51,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import static org.hascoapi.Constants.*;
 
->>>>>>> e3d59438b08a1e37ee5f57127dd97799008fd868
+
 import org.apache.jena.update.UpdateExecutionFactory;
 import org.apache.jena.update.UpdateFactory;
 import org.apache.jena.update.UpdateProcessor;
@@ -136,32 +135,41 @@ public class IngestionAPI extends Controller {
             System.out.println("\n=== [INGESTION PATH] IngestionAPI.ingest() ===");
             System.out.println("[INGESTION PATH] Element Type: da");
             System.out.println("[INGESTION PATH] Element URI: " + elementUri);
-<<<<<<< HEAD
 
-=======
-            
->>>>>>> e3d59438b08a1e37ee5f57127dd97799008fd868
             DA da = DA.find(elementUri);
             if (da == null) {
                 // For DA-SOC files, the DA may not exist yet - AnnotateDASOC will create it
                 // Create a temporary DataFile to hold the upload and trigger processing
                 System.out.println("[INGESTION PATH] DA not found, creating placeholder DataFile for DA-SOC processing");
-<<<<<<< HEAD
 
-=======
+                // Extract filename: FIRST from multipart, THEN from query parameter
+                String filename = null;
                 
->>>>>>> e3d59438b08a1e37ee5f57127dd97799008fd868
-                // Extract filename from query parameter (passed by ess-hub-a)
-                String filename = request.getQueryString("filename");
+                // Try to get filename from multipart/form-data
+                if (request.body() != null && request.body().asMultipartFormData() != null) {
+                    play.mvc.Http.MultipartFormData multipart = request.body().asMultipartFormData();
+                    play.mvc.Http.MultipartFormData.FilePart<Object> filePart = multipart.getFile("file");
+                    
+                    if (filePart != null) {
+                        filename = filePart.getFilename();
+                        System.out.println("[INGESTION PATH] Filename from multipart: " + filename);
+                    }
+                }
+                
+                // Fallback: try query parameter
+                if (filename == null || filename.isEmpty()) {
+                    filename = request.getQueryString("filename");
+                    if (filename != null && !filename.isEmpty()) {
+                        System.out.println("[INGESTION PATH] Filename from query parameter: " + filename);
+                    }
+                }
+                
+                // Last resort fallback
                 if (filename == null || filename.isEmpty()) {
                     filename = "DA-SOC-UNKNOWN.csv";
+                    System.out.println("[INGESTION PATH] Using fallback filename: " + filename);
                 }
-                System.out.println("[INGESTION PATH] Filename from query parameter: " + filename);
-<<<<<<< HEAD
 
-=======
-                
->>>>>>> e3d59438b08a1e37ee5f57127dd97799008fd868
                 // Create temporary DataFile with unique ID
                 String dataFileId = "DFL" + System.currentTimeMillis();
                 dataFile = DataFile.create(dataFileId, filename, "", DataFile.UNPROCESSED);
@@ -170,11 +178,7 @@ public class IngestionAPI extends Controller {
                 dataFile.setNamedGraph(tempUri); // Set named graph to allow saving
                 dataFile.setDasocDataAcquisitionUri(elementUri); // Store DA URI for AnnotateDASOC
                 dataFile.save();
-<<<<<<< HEAD
 
-=======
-                
->>>>>>> e3d59438b08a1e37ee5f57127dd97799008fd868
                 System.out.println("[INGESTION PATH] Created placeholder DataFile: " + dataFile.getUri());
                 System.out.println("[INGESTION PATH] Stored DA URI in DataFile: " + elementUri);
                 System.out.println("[INGESTION PATH] Filename: " + filename);
@@ -245,27 +249,66 @@ public class IngestionAPI extends Controller {
 
         // SECOND: If not pre-uploaded, try to get file from request body
         if (fileToIngest == null) {
+            System.out.println("[DEBUG] IngestionAPI.ingest(): Attempting to extract file from request body...");
+            System.out.println("[DEBUG] IngestionAPI.ingest(): Request body exists: " + (request.body() != null));
+            System.out.println("[DEBUG] IngestionAPI.ingest(): Request has asRaw: " + (request.body() != null && request.body().asRaw() != null));
+            System.out.println("[DEBUG] IngestionAPI.ingest(): Request has asMultipartFormData: " + (request.body() != null && request.body().asMultipartFormData() != null));
+            System.out.println("[DEBUG] IngestionAPI.ingest(): Request has asBytes: " + (request.body() != null && request.body().asBytes() != null));
+            
             File fileFromRequest = null;
 
             // Try asRaw() first (legacy workflow)
             if (request.body() != null && request.body().asRaw() != null) {
+                System.out.println("[DEBUG] IngestionAPI.ingest(): Trying to extract file from asRaw()...");
                 fileFromRequest = request.body().asRaw().asFile();
+                if (fileFromRequest != null) {
+                    System.out.println("[DEBUG] IngestionAPI.ingest(): Extracted file from asRaw(): " + fileFromRequest.getAbsolutePath() + " (size: " + fileFromRequest.length() + ")");
+                } else {
+                    System.out.println("[DEBUG] IngestionAPI.ingest(): asRaw().asFile() returned null");
+                }
             }
 
             // Try asMultipartFormData() if asRaw() failed
             if (fileFromRequest == null && request.body() != null && request.body().asMultipartFormData() != null) {
+                System.out.println("[DEBUG] IngestionAPI.ingest(): Trying to extract file from multipartFormData...");
                 play.mvc.Http.MultipartFormData multipart = request.body().asMultipartFormData();
                 play.mvc.Http.MultipartFormData.FilePart<Object> filePart = multipart.getFile("file");
 
                 if (filePart != null) {
+                    System.out.println("[DEBUG] IngestionAPI.ingest(): FilePart found, filename: " + filePart.getFilename());
                     Object fileObj = filePart.getRef();
+                    System.out.println("[DEBUG] IngestionAPI.ingest(): FilePart reference type: " + (fileObj != null ? fileObj.getClass().getName() : "null"));
+                    
                     if (fileObj instanceof File) {
                         fileFromRequest = (File) fileObj;
+                        System.out.println("[DEBUG] IngestionAPI.ingest(): Extracted File: " + fileFromRequest.getAbsolutePath() + " (size: " + fileFromRequest.length() + ")");
                     } else if (fileObj instanceof play.api.libs.Files.TemporaryFile) {
                         play.api.libs.Files.TemporaryFile tempFile = (play.api.libs.Files.TemporaryFile) fileObj;
                         fileFromRequest = tempFile.path().toFile();
+                        System.out.println("[DEBUG] IngestionAPI.ingest(): Extracted TemporaryFile (Scala): " + fileFromRequest.getAbsolutePath() + " (size: " + fileFromRequest.length() + ")");
+                    } else if (fileObj instanceof play.libs.Files.TemporaryFile) {
+                        // Java API version of TemporaryFile
+                        play.libs.Files.TemporaryFile tempFile = (play.libs.Files.TemporaryFile) fileObj;
+                        fileFromRequest = tempFile.path().toFile();
+                        System.out.println("[DEBUG] IngestionAPI.ingest(): Extracted TemporaryFile (Java): " + fileFromRequest.getAbsolutePath() + " (size: " + fileFromRequest.length() + ")");
+                    } else {
+                        // Try reflection as last resort to get the file
+                        try {
+                            java.lang.reflect.Method pathMethod = fileObj.getClass().getMethod("path");
+                            Object pathObj = pathMethod.invoke(fileObj);
+                            if (pathObj instanceof java.nio.file.Path) {
+                                fileFromRequest = ((java.nio.file.Path) pathObj).toFile();
+                                System.out.println("[DEBUG] IngestionAPI.ingest(): Extracted file via reflection: " + fileFromRequest.getAbsolutePath() + " (size: " + fileFromRequest.length() + ")");
+                            }
+                        } catch (Exception e) {
+                            System.out.println("[ERROR] IngestionAPI.ingest(): FilePart reference is of unknown type and reflection failed: " + e.getMessage());
+                        }
                     }
+                } else {
+                    System.out.println("[ERROR] IngestionAPI.ingest(): FilePart is null! multipart.getFile('file') returned null");
                 }
+            } else {
+                System.out.println("[DEBUG] IngestionAPI.ingest(): Skipping multipartFormData extraction (fileFromRequest: " + (fileFromRequest != null) + ", request.body: " + (request.body() != null) + ", multipartFormData: " + (request.body() != null && request.body().asMultipartFormData() != null) + ")");
             }
 
             // Try asBytes() if both asRaw() and multipart failed
@@ -286,7 +329,37 @@ public class IngestionAPI extends Controller {
 
             // Use fileFromRequest if we successfully extracted it from body
             if (fileFromRequest != null && fileFromRequest.exists() && fileFromRequest.length() > 0) {
-                fileToIngest = fileFromRequest;
+                // IMPORTANTE: Copiar arquivo para o local esperado pelo IngestionWorker
+                // O arquivo temporário do Play está em /tmp, mas o IngestionWorker espera em /resources/DFL.../
+                if (basePath != null && dataFile.getUri() != null && dataFile.getFilename() != null) {
+                    try {
+                        String uriTerm = URIUtils.uriLastSegment(dataFile.getUri());
+                        Path targetDir = Paths.get(basePath, Constants.RESOURCE_FOLDER, uriTerm);
+                        Path targetFile = targetDir.resolve(dataFile.getFilename());
+                        
+                        // Criar diretório se não existir
+                        if (!Files.exists(targetDir)) {
+                            Files.createDirectories(targetDir);
+                            System.out.println("IngestionAPI.ingest(): Created directory: " + targetDir);
+                        }
+                        
+                        // Copiar arquivo do multipart para o local correto
+                        Files.copy(fileFromRequest.toPath(), targetFile, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                        System.out.println("IngestionAPI.ingest(): Copied multipart file to: " + targetFile);
+                        System.out.println("IngestionAPI.ingest(): File size: " + Files.size(targetFile) + " bytes");
+                        
+                        // Usar o arquivo no local correto
+                        fileToIngest = targetFile.toFile();
+                        
+                    } catch (IOException e) {
+                        System.err.println("[ERROR] Failed to copy multipart file to target location: " + e.getMessage());
+                        e.printStackTrace();
+                        // Fallback: usar arquivo temporário mesmo
+                        fileToIngest = fileFromRequest;
+                    }
+                } else {
+                    fileToIngest = fileFromRequest;
+                }
             }
         } // End of: if (fileToIngest == null)
 
@@ -864,7 +937,7 @@ public class IngestionAPI extends Controller {
         return ok(ApiUtil.createResponse("DP2 generation routes are active", true));
     }
 
-    public Result mtGenByStatus(String elementtype, String datafileuri, String status, String filename, String mediaFolder, String verifyUri) {
+    public Result mtGenByStatus(String elementtype, String datafileuri, String status, String filename, String mediaFolder, String verifyUri, Boolean generateDASOCs) {
         System.out.println("\n========== IngestionAPI.mtGenByStatus() START ==========");
         System.out.println("✓ mtGenByStatus endpoint was called successfully!");
         System.out.println("Parameters:");
@@ -874,6 +947,10 @@ public class IngestionAPI extends Controller {
         System.out.println("  filename: [" + filename + "]");
         System.out.println("  mediaFolder: [" + mediaFolder + "]");
         System.out.println("  verifyUri: [" + verifyUri + "]");
+        System.out.println("  generateDASOCs: [" + generateDASOCs + "]");
+        
+        // Default to false if not provided
+        boolean shouldGenerateDASOCs = (generateDASOCs != null && generateDASOCs);
 
         // DEBUG: Check ConfigProp path
         try {
@@ -1016,10 +1093,14 @@ public class IngestionAPI extends Controller {
         return ok(ApiUtil.createResponse(generationResult, true));
     }
 
-    public Result mtGenByElement(String elementtype, String datafileuri, String elementuri, String filename, String mediaFolder, String verifyUri) {
+    public Result mtGenByElement(String elementtype, String datafileuri, String elementuri, String filename, String mediaFolder, String verifyUri, Boolean generateDASOCs) {
         System.out.println("IngestionAPI.mtGenByElement");
         System.out.println("  ElementType: [" + elementtype + "] DataFileUri: [" + datafileuri + "]");
         System.out.println("  ElementUri: [" + elementuri + "] VerifyUri: [" + verifyUri + "]");
+        System.out.println("  generateDASOCs: [" + generateDASOCs + "]");
+        
+        // Default to false if not provided
+        boolean shouldGenerateDASOCs = (generateDASOCs != null && generateDASOCs);
 
         if (elementtype == null || elementtype.isEmpty()) {
             String errorMsg = "[ERROR] IngestionAPI.mtGenByElement() requires elementtype";
@@ -1116,7 +1197,17 @@ public class IngestionAPI extends Controller {
         }
     }
 
-    public Result mtGenByManager(String elementtype, String datafileuri, String useremail, String status, String filename, String mediaFolder, String verifyUri) {
+    public Result mtGenByManager(String elementtype, String datafileuri, String useremail, String status, String filename, String mediaFolder, String verifyUri, Boolean generateDASOCs) {
+        System.out.println("\n========== IngestionAPI.mtGenByManager() START ==========");
+        System.out.println("  elementtype: [" + elementtype + "]");
+        System.out.println("  useremail: [" + useremail + "]");
+        System.out.println("  status: [" + status + "]");
+        System.out.println("  filename: [" + filename + "]");
+        System.out.println("  generateDASOCs: [" + generateDASOCs + "]");
+        
+        // Default to false if not provided
+        boolean shouldGenerateDASOCs = (generateDASOCs != null && generateDASOCs);
+        
         if (elementtype == null || elementtype.isEmpty()) {
             String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() requires elementtype";
             System.out.println(errorMsg);
@@ -1145,7 +1236,7 @@ public class IngestionAPI extends Controller {
                 KGRGen.genByManager(useremail, status, filename, mediaFolder, verifyUri);
                 break;
             case "dsg":
-                DSGGen.genByManager(useremail, status, filename, mediaFolder, verifyUri);
+                DSGGen.genByManager(useremail, status, filename, mediaFolder, verifyUri, shouldGenerateDASOCs);
                 break;
             case "wkf":
                 WKFGen.genByManager(useremail, status, filename, mediaFolder, verifyUri);
@@ -1272,11 +1363,7 @@ public class IngestionAPI extends Controller {
             String errorMsg = "[ERROR] IngestionAPI.uningestDASOC(): Exception while deleting named graph: " + e.getMessage();
             System.err.println(errorMsg);
             e.printStackTrace();
-<<<<<<< HEAD
 
-=======
-            
->>>>>>> e3d59438b08a1e37ee5f57127dd97799008fd868
             if (dataFile != null) {
                 dataFile.getLogger().printException("Failed to uningest DASOC: " + e.getMessage());
                 try {
@@ -1285,11 +1372,7 @@ public class IngestionAPI extends Controller {
                     System.err.println("[ERROR] Could not save DataFile after uningest failure: " + saveEx.getMessage());
                 }
             }
-<<<<<<< HEAD
 
-=======
-            
->>>>>>> e3d59438b08a1e37ee5f57127dd97799008fd868
             return ok(ApiUtil.createResponse(errorMsg, false));
         }
     }
@@ -1297,11 +1380,7 @@ public class IngestionAPI extends Controller {
     /**
      * Ingest DASOC (Data Acquisition - Study Object Collection) CSV file
      * This endpoint adds properties to existing Study Objects in a SOC
-<<<<<<< HEAD
      *
-=======
-     * 
->>>>>>> e3d59438b08a1e37ee5f57127dd97799008fd868
      * @param daUri URI of the DataAcquisition being created
      * @param socUri URI of the StudyObjectCollection containing the objects
      * @param request HTTP request containing the CSV file
@@ -1329,30 +1408,19 @@ public class IngestionAPI extends Controller {
         DA da = DA.find(daUri);
         if (da == null) {
             return ok(ApiUtil.createResponse(
-<<<<<<< HEAD
-                "IngestionAPI.ingestDASOC(): File FAILED to be ingested: could not retrieve DA.",
-=======
                 "IngestionAPI.ingestDASOC(): File FAILED to be ingested: could not retrieve DA.", 
->>>>>>> e3d59438b08a1e37ee5f57127dd97799008fd868
+
                 false));
         }
 
         DataFile dataFile = DataFile.find(da.getHasDataFileUri());
         if (dataFile == null) {
             return ok(ApiUtil.createResponse(
-<<<<<<< HEAD
                 "IngestionAPI.ingestDASOC(): File FAILED to be ingested: could not retrieve DataFile.",
                 false));
         }
 
-        System.out.println("IngestionAPI.ingestDASOC(): DataFile retrieved - URI: " + dataFile.getUri() +
-=======
-                "IngestionAPI.ingestDASOC(): File FAILED to be ingested: could not retrieve DataFile.", 
-                false));
-        }
-
         System.out.println("IngestionAPI.ingestDASOC(): DataFile retrieved - URI: " + dataFile.getUri() + 
->>>>>>> e3d59438b08a1e37ee5f57127dd97799008fd868
             ", Filename: " + dataFile.getFilename());
 
         // Get file from request body or file system
@@ -1360,18 +1428,7 @@ public class IngestionAPI extends Controller {
         if (file == null) {
             // Try to get from file system
             String basePath = config.getString("hascoapi.paths.ingestion");
-<<<<<<< HEAD
-            if (basePath != null && !basePath.trim().isEmpty() &&
-                dataFile.getFilename() != null && !dataFile.getFilename().isEmpty()) {
 
-                String uriTerm = org.hascoapi.utils.URIUtils.uriLastSegment(dataFile.getUri());
-                Path uploadedFilePath = Paths.get(basePath, Constants.RESOURCE_FOLDER, uriTerm, dataFile.getFilename());
-                file = uploadedFilePath.toFile();
-
-                if (!file.exists()) {
-                    return ok(ApiUtil.createResponse(
-                        "No file provided in request and uploaded file not found at: " + uploadedFilePath,
-=======
             if (basePath != null && !basePath.trim().isEmpty() && 
                 dataFile.getFilename() != null && !dataFile.getFilename().isEmpty()) {
                 
@@ -1382,7 +1439,7 @@ public class IngestionAPI extends Controller {
                 if (!file.exists()) {
                     return ok(ApiUtil.createResponse(
                         "No file provided in request and uploaded file not found at: " + uploadedFilePath, 
->>>>>>> e3d59438b08a1e37ee5f57127dd97799008fd868
+
                         false));
                 }
             } else {
@@ -1403,22 +1460,7 @@ public class IngestionAPI extends Controller {
         final File finalFile = file;
         final String finalDaUri = daUri;
         final String finalSocUri = socUri;
-<<<<<<< HEAD
 
-        CompletableFuture.runAsync(() -> {
-            try {
-                System.out.println("IngestionAPI.ingestDASOC(): Starting asynchronous DASOC ingestion");
-                org.hascoapi.ingestion.AnnotateDASOC.IngestionResult result =
-                    org.hascoapi.ingestion.AnnotateDASOC.exec(finalDataFile, finalFile, finalDaUri, finalSocUri);
-
-                System.out.println("IngestionAPI.ingestDASOC(): " + result.toString());
-
-                if (result.isSuccess()) {
-                    finalDataFile.setFileStatus(DataFile.PROCESSED);
-                    finalDataFile.getLogger().println(
-                        String.format("✅ DASOC ingestion completed successfully: %d rows processed",
-=======
-        
         CompletableFuture.runAsync(() -> {
             try {
                 System.out.println("IngestionAPI.ingestDASOC(): Starting asynchronous DASOC ingestion");
@@ -1431,22 +1473,15 @@ public class IngestionAPI extends Controller {
                     finalDataFile.setFileStatus(DataFile.PROCESSED);
                     finalDataFile.getLogger().println(
                         String.format("✅ DASOC ingestion completed successfully: %d rows processed", 
->>>>>>> e3d59438b08a1e37ee5f57127dd97799008fd868
                             result.getRowCount()));
                 } else {
                     finalDataFile.setFileStatus(DataFile.ERROR);
                     finalDataFile.getLogger().printException(
                         String.format("❌ DASOC ingestion failed: %s", result.getErrorMessage()));
                 }
-<<<<<<< HEAD
-
-                finalDataFile.save();
-
-=======
                 
                 finalDataFile.save();
                 
->>>>>>> e3d59438b08a1e37ee5f57127dd97799008fd868
             } catch (Exception e) {
                 System.err.println("IngestionAPI.ingestDASOC(): Exception during ingestion: " + e.getMessage());
                 e.printStackTrace();
@@ -1462,11 +1497,7 @@ public class IngestionAPI extends Controller {
 
         System.out.println("IngestionAPI.ingestDASOC(): DASOC ingestion submitted asynchronously");
         return ok(ApiUtil.createResponse(
-<<<<<<< HEAD
-            "DASOC file submitted for ingestion. Check file's log for ingestion status.",
-=======
             "DASOC file submitted for ingestion. Check file's log for ingestion status.", 
->>>>>>> e3d59438b08a1e37ee5f57127dd97799008fd868
             true));
     }
 

@@ -9,10 +9,15 @@ import java.util.Map;
 import org.hascoapi.utils.URIUtils;
 import org.hascoapi.utils.Utils;
 import org.hascoapi.vocabularies.HASCO;
+import org.hascoapi.vocabularies.VSTOI;
 import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.entity.pojo.HADatAcThing;
 import org.hascoapi.entity.pojo.StudyObjectCollection;
 import org.hascoapi.entity.pojo.StudyObject;
+import org.hascoapi.entity.pojo.Instrument;
+import org.hascoapi.entity.pojo.Component;
+import org.hascoapi.entity.pojo.ComponentStem;
+import org.hascoapi.entity.pojo.ContainerSlot;
 
 
 public class StudyObjectGenerator extends BaseGenerator {
@@ -270,9 +275,15 @@ public class StudyObjectGenerator extends BaseGenerator {
     		return null;
     	}
 
+        // Normaliza o tipo RDF para URI completa (se vier como "vstoi:Instrument", vira "http://hadatac.org/ont/vstoi#Instrument")
+        String rdfType = getType(record);
+        if (rdfType != null && !rdfType.isEmpty()) {
+            rdfType = URIUtils.replacePrefixEx(rdfType);
+        }
+
     	StudyObject obj = new StudyObject(
             getUri(record), 
-            getType(record), 
+            rdfType,  // Tipo normalizado
             URIUtils.replacePrefixEx(HASCO.STUDY_OBJECT),
 			getOriginalID(record), 
             getLabel(record), 
@@ -307,7 +318,148 @@ public class StudyObjectGenerator extends BaseGenerator {
 
     @Override
     public HADatAcThing createObject(Record rec, int rowNumber, String selector) throws Exception {
-        return createStudyObject(rec);
+        StudyObject studyObject = createStudyObject(rec);
+        
+        // Se o StudyObject foi criado com sucesso, verifica se é um tipo vstoi e cria a entidade correspondente
+        if (studyObject != null && studyObject.getTypeUri() != null) {
+            createVstoiEntityIfApplicable(studyObject);
+        }
+        
+        return studyObject;
+    }
+    
+    /**
+     * Cria entidade vstoi (Instrument, Component, ComponentStem, ContainerSlot) 
+     * se o StudyObject tiver um tipo vstoi
+     */
+    private void createVstoiEntityIfApplicable(StudyObject studyObject) {
+        String typeUri = studyObject.getTypeUri();
+        
+        if (typeUri == null || typeUri.isEmpty()) {
+            return;
+        }
+        
+        // Detecta tipo vstoi
+        String vstoiType = detectVstoiType(typeUri);
+        
+        if (vstoiType == null) {
+            return; // Não é tipo vstoi
+        }
+        
+        try {
+            if (VSTOI.INSTRUMENT.equals(vstoiType)) {
+                createInstrumentFromStudyObject(studyObject);
+            } else if (VSTOI.COMPONENT.equals(vstoiType)) {
+                createComponentFromStudyObject(studyObject);
+            } else if (VSTOI.COMPONENT_STEM.equals(vstoiType)) {
+                createComponentStemFromStudyObject(studyObject);
+            } else if (VSTOI.CONTAINER_SLOT.equals(vstoiType)) {
+                createContainerSlotFromStudyObject(studyObject);
+            }
+        } catch (Exception e) {
+            dataFile.getLogger().println("Warning: Failed to create vstoi entity for " + studyObject.getUri() + ": " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Detecta se um tipo RDF é vstoi e retorna o tipo base
+     */
+    private String detectVstoiType(String typeUri) {
+        // Verificação direta
+        if (VSTOI.INSTRUMENT.equals(typeUri)) return VSTOI.INSTRUMENT;
+        if (VSTOI.COMPONENT.equals(typeUri)) return VSTOI.COMPONENT;
+        if (VSTOI.COMPONENT_STEM.equals(typeUri)) return VSTOI.COMPONENT_STEM;
+        if (VSTOI.CONTAINER_SLOT.equals(typeUri)) return VSTOI.CONTAINER_SLOT;
+        
+        // Verificação por substring (subclasses)
+        if (typeUri.contains("Detector")) return VSTOI.COMPONENT;
+        if (typeUri.contains("ComponentStem")) return VSTOI.COMPONENT_STEM;
+        if (typeUri.contains("ContainerSlot")) return VSTOI.CONTAINER_SLOT;
+        if (typeUri.contains("Questionnaire")) return VSTOI.INSTRUMENT;
+        if (typeUri.contains("PhysicalInstrument")) return VSTOI.INSTRUMENT;
+        if (typeUri.contains("SimulationModel")) return VSTOI.INSTRUMENT;
+        
+        return null;
+    }
+    
+    /**
+     * Cria um Instrument a partir de um StudyObject
+     */
+    private void createInstrumentFromStudyObject(StudyObject so) {
+        Instrument instrument = new Instrument();
+        
+        instrument.setUri(so.getUri());
+        instrument.setTypeUri(so.getTypeUri());
+        instrument.setHascoTypeUri(VSTOI.INSTRUMENT);
+        instrument.setLabel(so.getLabel());
+        instrument.setComment(so.getComment());
+        instrument.setNamedGraph(getNamedGraphUri());
+        instrument.setHasSIRManagerEmail(so.getHasSIRManagerEmail());
+        
+        // Salva imediatamente
+        instrument.save();
+        
+        dataFile.getLogger().println("  Created Instrument: " + instrument.getLabel());
+    }
+    
+    /**
+     * Cria um Component a partir de um StudyObject
+     */
+    private void createComponentFromStudyObject(StudyObject so) {
+        Component component = new Component();
+        
+        component.setUri(so.getUri());
+        component.setTypeUri(so.getTypeUri());
+        component.setHascoTypeUri(VSTOI.COMPONENT);
+        component.setLabel(so.getLabel());
+        component.setComment(so.getComment());
+        component.setNamedGraph(getNamedGraphUri());
+        component.setHasSIRManagerEmail(so.getHasSIRManagerEmail());
+        
+        // Salva imediatamente
+        component.save();
+        
+        dataFile.getLogger().println("  Created Component: " + component.getLabel());
+    }
+    
+    /**
+     * Cria um ComponentStem a partir de um StudyObject
+     */
+    private void createComponentStemFromStudyObject(StudyObject so) {
+        ComponentStem stem = new ComponentStem();
+        
+        stem.setUri(so.getUri());
+        stem.setTypeUri(so.getTypeUri());
+        stem.setHascoTypeUri(VSTOI.COMPONENT_STEM);
+        stem.setLabel(so.getLabel());
+        stem.setComment(so.getComment());
+        stem.setNamedGraph(getNamedGraphUri());
+        stem.setHasSIRManagerEmail(so.getHasSIRManagerEmail());
+        
+        // Salva imediatamente
+        stem.save();
+        
+        dataFile.getLogger().println("  Created ComponentStem: " + stem.getLabel());
+    }
+    
+    /**
+     * Cria um ContainerSlot a partir de um StudyObject
+     */
+    private void createContainerSlotFromStudyObject(StudyObject so) {
+        ContainerSlot slot = new ContainerSlot();
+        
+        slot.setUri(so.getUri());
+        slot.setTypeUri(so.getTypeUri());
+        slot.setHascoTypeUri(VSTOI.CONTAINER_SLOT);
+        slot.setLabel(so.getLabel());
+        slot.setComment(so.getComment());
+        slot.setNamedGraph(getNamedGraphUri());
+        // Note: ContainerSlot não tem setHasSIRManagerEmail()
+        
+        // Salva imediatamente
+        slot.save();
+        
+        dataFile.getLogger().println("  Created ContainerSlot: " + slot.getLabel());
     }
 
     @Override

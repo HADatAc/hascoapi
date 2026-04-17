@@ -1,0 +1,44 @@
+# ============================================================================
+# QUERY CORRETA: Buscar os 50 objetos SOC-LOCATION
+# ============================================================================
+# Os objetos têm rdf:type = PATO_0000140 (não hasco:StudyObject)
+# ============================================================================
+
+PREFIX hasco: <http://hadatac.org/ont/hasco#>
+PREFIX pato: <http://purl.obolibrary.org/obo/PATO_>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?obj ?originalID ?label ?spaceScopeUri
+WHERE {
+  GRAPH <https://hadatac.org/ont/hadatac#/DFL1775048338616071> {
+    ?obj rdf:type pato:0000140 .
+    ?obj hasco:originalID ?originalID .
+    OPTIONAL { ?obj rdfs:label ?label }
+    OPTIONAL { ?obj hasco:hasSpaceScope ?spaceScopeUri }
+  }
+}
+ORDER BY ?originalID
+LIMIT 50
+
+# ============================================================================
+# RESULTADO ESPERADO:
+# ============================================================================
+# Deve retornar os 50 objetos:
+#   ADMIN-L0, ADMIN-L1, ..., SPORTS-ROOF
+#
+# Propriedades que cada objeto TEM (do DSG):
+#   - rdf:type = pato:0000140
+#   - hasco:originalID
+#   - hasco:isMemberOf (SOC-LOCATION)
+#   - rdfs:label
+#   - hasco:hasSpaceScope (indoor, outdoor, laboratory)
+#
+# Propriedades que ainda NÃO TEM (serão adicionadas pelo DA-SOC):
+#   - pharma:altitude_m
+#   - pharma:floor
+#   - pharma:zone_code
+#   - pharma:area_m2
+#   - pharma:orientation
+# ============================================================================
+

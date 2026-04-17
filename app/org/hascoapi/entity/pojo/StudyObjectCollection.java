@@ -516,7 +516,7 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         }
         if (soc.getTimeScopes() != null && soc.getTimeScopes().size() > 0) {
             List<StudyObjectCollection> socTimeScopes = soc.getTimeScopes();
-            if (socTimeScopes.contains(this)) {
+            if (socTimeScopes.contains(this) ) {
                 return true;
             }
         }
@@ -683,13 +683,39 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
 
         // Strip any existing angle brackets to prevent double-encoding
         String cleanUri = URIUtils.stripAngleBrackets(uri);
+        
+        // Try DESCRIBE in default graph first
         String queryString = "DESCRIBE <" + cleanUri + ">";
         Model model = SPARQLUtils.describe(CollectionUtil.getCollectionPath(
                 CollectionUtil.Collection.SPARQL_QUERY), queryString);
+        
+        // If not found in default graph, try in all named graphs
+        if (model.isEmpty()) {
+            String ns = NameSpaces.getInstance().printSparqlNameSpaceList();
+            String queryInGraphs = ns +
+                    "SELECT ?p ?o ?g WHERE { \n" +
+                    "  GRAPH ?g { <" + cleanUri + "> ?p ?o . } \n" +
+                    "}";
+            ResultSetRewindable results = SPARQLUtils.select(
+                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryInGraphs);
+            
+            // Manually build model from SELECT results
+            model = org.apache.jena.rdf.model.ModelFactory.createDefaultModel();
+            org.apache.jena.rdf.model.Resource subj = model.createResource(cleanUri);
+            while (results.hasNext()) {
+                QuerySolution soln = results.next();
+                if (soln.get("p") != null && soln.get("o") != null) {
+                    org.apache.jena.rdf.model.Property prop = model.createProperty(soln.getResource("p").getURI());
+                    RDFNode obj = soln.get("o");
+                    model.add(subj, prop, obj);
+                }
+            }
+        }
 
         StmtIterator stmtIterator = model.listStatements();
 
         if (!stmtIterator.hasNext()) {
+            System.out.println("[StudyObjectCollection.find()] No data found for URI: " + uri);
             return null;
         }
 
@@ -737,8 +763,8 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         soc.setUri(uri);
 
         // retrieve URIs of objects that are member of the collection (default and named graphs)
-        String ns = NameSpaces.getInstance().printSparqlNameSpaceList();
-        String q = ns +
+        String nsMember = NameSpaces.getInstance().printSparqlNameSpaceList();
+        String q = nsMember +
                 "SELECT ?uriMember WHERE { \n" +
                 "  { ?uriMember hasco:isMemberOf <" + uri + "> . } UNION { GRAPH ?g { ?uriMember hasco:isMemberOf <" + uri + "> . } } \n" +
                 "}";
@@ -962,6 +988,30 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         return GenericFind.findTotalByQuery(query);
     }
 
+    public static int findTotalStudyObjectCollectionsByStudyFlexible(String studyUri) {
+        if (studyUri == null || studyUri.isEmpty()) {
+            return 0;
+        }
+        String ns = NameSpaces.getInstance().printSparqlNameSpaceList();
+        String su = URIUtils.replacePrefixEx(studyUri);
+        
+        // Count SOCs in both default graph and named graphs
+        String query = ns +
+                " SELECT (COUNT(DISTINCT ?uri) as ?tot) WHERE { \n" +
+                "  { \n" +
+                "    ?uri hasco:isMemberOf <" + su + "> . \n" +
+                "    ?uri hasco:hascoType <" + HASCO.STUDY_OBJECT_COLLECTION + "> . \n" +
+                "  } \n" +
+                "  UNION \n" +
+                "  { GRAPH ?g { \n" +
+                "      ?uri hasco:isMemberOf <" + su + "> . \n" +
+                "      ?uri hasco:hascoType <" + HASCO.STUDY_OBJECT_COLLECTION + "> . \n" +
+                "    } \n" +
+                "  } \n" +
+                "} ";
+        return GenericFind.findTotalByQuery(query);
+    }
+
     public static List<StudyObjectCollection> findStudyObjectCollectionsByStudy(String studyUri) {
         if (studyUri == null) {
             return null;
@@ -1176,10 +1226,12 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         insert += socUri + " a <" + typeUri + "> . ";
         insert += socUri + " hasco:hascoType <" + hascoTypeUri + "> . ";
         insert += socUri + " rdfs:label  \"" + this.getLabel() + "\" . ";
-        if (this.getIsMemberOfUri().startsWith("http")) {
-            insert += socUri + " hasco:isMemberOf  <" + this.getIsMemberOfUri() + "> . ";
-        } else {
-            insert += socUri + " hasco:isMemberOf  " + this.getIsMemberOfUri() + " . ";
+        if (this.getIsMemberOfUri() != null && !this.getIsMemberOfUri().isEmpty()) {
+            if (this.getIsMemberOfUri().startsWith("http")) {
+                insert += socUri + " hasco:isMemberOf  <" + this.getIsMemberOfUri() + "> . ";
+            } else {
+                insert += socUri + " hasco:isMemberOf  " + this.getIsMemberOfUri() + " . ";
+            }
         }
         if (this.getComment() != null && !this.getComment().equals("")) {
             insert += socUri + " rdfs:comment  \"" + this.getComment() + "\" . ";

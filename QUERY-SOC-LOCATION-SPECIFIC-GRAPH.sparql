@@ -1,0 +1,46 @@
+# ============================================================================
+# QUERY ESPECÍFICA PARA O NAMED GRAPH DO DSG INGERIDO
+# ============================================================================
+# Baseado no log: Named graph URI = https://hadatac.org/ont/hadatac#/DFL1775048338616071
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# QUERY: Buscar os 50 objetos SOC-LOCATION no named graph específico
+# ----------------------------------------------------------------------------
+PREFIX hasco: <http://hadatac.org/ont/hasco#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?obj ?originalID ?label ?type ?soc ?spaceScope
+WHERE {
+  GRAPH <https://hadatac.org/ont/hadatac#/DFL1775048338616071> {
+    ?obj hasco:isMemberOf ?soc .
+    ?obj hasco:originalID ?originalID .
+    OPTIONAL { ?obj rdfs:label ?label }
+    OPTIONAL { ?obj rdf:type ?type }
+    OPTIONAL { ?obj hasco:hasSpaceScope ?spaceScope }
+
+    FILTER(CONTAINS(STR(?soc), "LOCATION"))
+  }
+}
+ORDER BY ?originalID
+LIMIT 100
+
+
+# ============================================================================
+# RESULTADO ESPERADO:
+# ============================================================================
+# Deve retornar 50 objetos do SOC-LOCATION com:
+#   - originalID: LIBRARY-L0, LIBRARY-L1, ..., GREENHOUSE-ROOF
+#   - label: Library Level 0, etc.
+#   - soc: http://hadatac.org/ont/arrowhead/OCL_LTE-PIAGET-LOCATION
+#   - spaceScope: indoor, outdoor, laboratory
+#
+# ============================================================================
+# DEPOIS DE VERIFICAR QUE OS 50 OBJETOS EXISTEM:
+# ============================================================================
+# 1. Copie o arquivo DA-SOC-LOCATION.csv para o diretório do DSG
+# 2. Faça a ingestão do DA-SOC
+# 3. Execute a QUERY 6 do arquivo YASGUI-QUERIES.txt para ver as propriedades extras
+# ============================================================================
+

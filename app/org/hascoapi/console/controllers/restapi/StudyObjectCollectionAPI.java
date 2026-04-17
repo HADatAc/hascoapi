@@ -93,12 +93,12 @@ public class StudyObjectCollectionAPI extends Controller {
     }
 
     public Result getSOCsByStudy(String studyUri){
-        List<StudyObjectCollection> results = StudyObjectCollection.findStudyObjectCollectionsByStudy(studyUri);
+        List<StudyObjectCollection> results = StudyObjectCollection.findStudyObjectCollectionsByStudyFlexible(studyUri);
         return getStudyObjectCollections(results);
     }
 
     public Result findTotalSOCsByStudy(String studyuri) {
-        int totalElements = StudyObjectCollection.findTotalStudyObjectCollectionsByStudy(studyuri);
+        int totalElements = StudyObjectCollection.findTotalStudyObjectCollectionsByStudyFlexible(studyuri);
         if (totalElements >= 0) {
             String totalElementsJSON = "{\"total\":" + totalElements + "}";
             return ok(ApiUtil.createResponse(totalElementsJSON, true));

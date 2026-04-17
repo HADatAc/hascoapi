@@ -1,7 +1,7 @@
 package org.hascoapi.ingestion;
 
 import java.util.List;
-import org.hascoapi.entity.pojo.StudyObjectCollection;
+import org.hascoapi.entity.pojo.*;
 
 
 public class SSDGeneratorChain extends GeneratorChain {
@@ -11,20 +11,28 @@ public class SSDGeneratorChain extends GeneratorChain {
         if (this.getStudyUri() == null) {
             return;
         }
-        List<StudyObjectCollection> studySOCs = StudyObjectCollection.findStudyObjectCollectionsByStudy(this.getStudyUri());
+        
+        String studyUri = this.getStudyUri();
+        
+        // FASE 1: Processamento padrão (label computation)
+        List<StudyObjectCollection> studySOCs = StudyObjectCollection.findStudyObjectCollectionsByStudy(studyUri);
+        
+        if (studySOCs == null || studySOCs.isEmpty()) {
+            return;
+        }
+        
         for (StudyObjectCollection soc: studySOCs) {
-            //AnnotationLog.println("SOC has URI  " + oc.getUri() + " and label " + oc.getLabel(), file.getFile().getName());
             String labelResult = StudyObjectCollection.computeRouteLabel(soc, studySOCs);
             if (labelResult == null) {
                 getDataFile().getLogger().println("Label for " + soc.getSOCReference() + ": ERROR could not find path to colletion with grounding label");
             } else {
-                /*
-                Bug here that if some character that isn't from UTF-8 is in the label , the program stuck here.
-                 */
-               // getDataFile().getLogger().println("Label for " + soc.getSOCReference() + ": " + labelResult);
                 soc.setNamedGraph(getNamedGraphUri());
                 soc.saveRoleLabel(labelResult);
             }
-        } 
+        }
+        
+        // NOTA: As entidades vstoi (Instruments, Components, etc.) já foram criadas
+        // durante a ingestão pelo StudyObjectGenerator, não precisamos fazer nada aqui
+        getDataFile().getLogger().println("Label computation completed for " + studySOCs.size() + " SOCs");
     }
 }

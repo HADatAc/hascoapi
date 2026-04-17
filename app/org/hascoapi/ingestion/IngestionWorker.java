@@ -24,10 +24,6 @@ public class IngestionWorker {
 
     public static void ingest(DataFile dataFile, File file, String templateFile, String status) {
 
-        System.out.println("Processing file with filename: " + dataFile.getFilename());
-        System.out.println("Processing file with Datafile URI: " + dataFile.getUri());
-        System.out.println("Processing file with status: " + dataFile.getFileStatus());
-
         // DP2 status rule: if the API didn't provide a status, default to DRAFT for DP2 ingestion.
         final String fileNameForRule = (dataFile.getFilename() == null ? "" : dataFile.getFilename());
         String effectiveStatus = status;
@@ -35,7 +31,6 @@ public class IngestionWorker {
             if (effectiveStatus == null || effectiveStatus.trim().isEmpty()) {
                 effectiveStatus = VSTOI.DRAFT;
             }
-            System.out.println("[DP2 STATUS] providedStatus=" + status + " effectiveStatus=" + effectiveStatus);
         }
 
         dataFile.setLastProcessTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
@@ -49,80 +44,33 @@ public class IngestionWorker {
         // file is rejected if it has an invalid extension
         RecordFile recordFile = null;
         if (fileName.endsWith(".csv")) {
-            System.out.println("IngestionWorker: Creating CSVRecordFile for: " + fileName);
-            System.out.println("IngestionWorker: File object passed to CSVRecordFile - Path: " + (file != null ? file.getAbsolutePath() : "NULL"));
-            System.out.println("IngestionWorker: File exists: " + (file != null && file.exists()));
-            System.out.println("IngestionWorker: File readable: " + (file != null && file.canRead()));
-            System.out.println("IngestionWorker: File size: " + (file != null && file.exists() ? file.length() + " bytes" : "N/A"));
             recordFile = new CSVRecordFile(file);
-            System.out.println("IngestionWorker: CSVRecordFile created, checking validity...");
         } else if (fileName.endsWith(".xlsx")) {
             recordFile = new SpreadsheetRecordFile(file,dataFile.getFilename(),"InfoSheet");
         } else {
             dataFile.getLogger().printExceptionByIdWithArgs("GBL_00003", fileName);
-           // System.out.println("[ERROR] IngestionWorker: invalid file extension.");
             return;
         }
 
-        System.out.println("\n=== [INGESTION PATH] IngestionWorker.ingest() ===");
-        System.out.println("[INGESTION PATH] DataFile: " + dataFile.getFilename());
-        System.out.println("[INGESTION PATH] DataFile URI: " + dataFile.getUri());
-        System.out.println("[INGESTION PATH] RecordFile isValid: " + (recordFile != null ? recordFile.isValid() : "recordFile is NULL"));
-<<<<<<< HEAD
-
-=======
-        
->>>>>>> e3d59438b08a1e37ee5f57127dd97799008fd868
         if (!recordFile.isValid()) {
-            System.out.println("[ERROR] RecordFile.isValid() returned FALSE - aborting ingestion");
             dataFile.getLogger().printExceptionById("GBL_00005");
-            //System.out.println("[ERROR] IngestionWorker: No InfoSheet in provided file.");
             return;
         }
-        
-        System.out.println("✅ RecordFile is valid, continuing with ingestion");
-
-        System.out.println("✅ RecordFile is valid, continuing with ingestion");
 
         dataFile.setRecordFile(recordFile);
 
-        // Auto-detect SOC for DASOC files (DA-SOC-* pattern)
+        // Auto-detect DASOC files (DA-SOC-* pattern)
+        // Study URI will be discovered automatically from originalIDs in the CSV
         if (FilenameUtils.getBaseName(fileName).startsWith("DA-SOC-")) {
             String baseName = FilenameUtils.getBaseName(fileName);
-            String socName = baseName.substring(7); // "DA-SOC-ENTERPRISE" -> "ENTERPRISE"
-<<<<<<< HEAD
-
-            System.out.println("[INGESTION PATH] Detected DASOC file pattern: DA-SOC-*");
-            System.out.println("[INGESTION PATH] Extracting SOC name: " + socName);
-            dataFile.getLogger().println("DASOC file detected - SOC name from filename: " + socName);
-
-=======
+            String socName = baseName.substring(7); // "DA-SOC-EQUIPMENT-MODULE" -> "EQUIPMENT-MODULE"
             
-            System.out.println("[INGESTION PATH] Detected DASOC file pattern: DA-SOC-*");
-            System.out.println("[INGESTION PATH] Extracting SOC name: " + socName);
             dataFile.getLogger().println("DASOC file detected - SOC name from filename: " + socName);
+            dataFile.getLogger().println("Study URI will be discovered from originalIDs in the CSV file");
             
->>>>>>> e3d59438b08a1e37ee5f57127dd97799008fd868
-            // Try to find SOC by querying for objects with matching originalID pattern
-            String socUri = findSOCByName(socName);
-            if (socUri != null && !socUri.isEmpty()) {
-                dataFile.setDasocSOCUri(socUri);
-                dataFile.getLogger().println("✅ Auto-detected SOC URI: " + socUri);
-                System.out.println("[INGESTION PATH] Auto-detected SOC URI from triplestore: " + socUri);
-            } else {
-                // If not found, construct expected SOC URI using naming convention
-                String kbPrefix = ConfigProp.getKbPrefix();
-                if (kbPrefix != null && !kbPrefix.isEmpty()) {
-                    socUri = kbPrefix + "SOC-" + socName;
-                    dataFile.setDasocSOCUri(socUri);
-                    dataFile.getLogger().println("⚠️  SOC not found in triplestore, using convention-based URI: " + socUri);
-                    System.out.println("[INGESTION PATH] Using convention-based SOC URI: " + socUri);
-                } else {
-                    dataFile.getLogger().printWarning("Could not auto-detect SOC URI for: " + socName);
-                    System.out.println("[WARNING] IngestionWorker: Could not determine SOC URI for " + socName);
-                }
-            }
-            dataFile.save(); // Save SOC URI to DataFile
+            // Store SOC name for reference (used in logs only, not for processing)
+            // The actual Study URI is discovered by tracing originalID -> Object -> Collection -> Study
+            dataFile.save();
         }
 
         // Setting study URI from dataFile
@@ -137,35 +85,18 @@ public class IngestionWorker {
                 studyUri = dataFile.getUri().replace(Constants.PREFIX_DATAFILE, Constants.PREFIX_STUDY);
             }
 
-            System.out.println("IngestionWorker: studyUri is [" + studyUri + "]");
-
         }
 
         boolean bSucceed = false;
-        System.out.println("\n=== About to call getGeneratorChain() ===");
-        System.out.println("DataFile filename: " + dataFile.getFilename());
-        System.out.println("StudyUri: " + (studyUri != null ? studyUri : "NULL"));
 
         GeneratorChain chain = getGeneratorChain(dataFile, studyUri, templateFile, effectiveStatus);
 
-        System.out.println("\n=== After getGeneratorChain() ===");
-        System.out.println("Chain is: " + (chain != null ? "NOT NULL" : "NULL"));
-<<<<<<< HEAD
-        
-=======
-
->>>>>>> e3d59438b08a1e37ee5f57127dd97799008fd868
         // If no chain was produced, log and throw exception to fail fast (as requested)
         if (chain == null) {
-            String msg = "IngestionWorker: No generator chain produced. Aborting ingestion gracefully.";
+            String msg = "No generator chain produced. Aborting ingestion.";
             dataFile.getLogger().println(msg);
-            System.out.println(msg);
             throw new RuntimeException(msg);
         }
-        
-        System.out.println("Chain is valid: " + chain.isValid());
-
-        System.out.println("Chain is valid: " + chain.isValid());
 
         // Only set study URI if a chain was produced
         if (studyUri == null || studyUri.isEmpty()) {
@@ -175,14 +106,11 @@ public class IngestionWorker {
         }
 
         try {
-            System.out.println("IngestionWorker: chain.generate() STARTED.");
             bSucceed = chain.generate();
-            System.out.println("IngestionWorker: chain.generate() ENDED. Response: [" + bSucceed + "]");
             chain.disposeChain();
         } catch (Exception e) {
-            System.out.println("IngestionWorker: ERROR during chain.generate()");
-            e.printStackTrace();
             dataFile.getLogger().println("ERROR during ingestion: " + e.getMessage());
+            e.printStackTrace();
             bSucceed = false;
         }
 
@@ -198,43 +126,22 @@ public class IngestionWorker {
                 dataFile.setCompletionTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
                 dataFile.setStudyUri(chain.getStudyUri());
                 dataFile.save();
-                System.out.println("IngestionWorker: DataFile status set to PROCESSED");
             } catch (Exception e) {
-                System.out.println("IngestionWorker: ERROR during finalization");
+                dataFile.getLogger().println("ERROR during finalization: " + e.getMessage());
                 e.printStackTrace();
             }
 
-        } else {
-            System.out.println("IngestionWorker: Ingestion FAILED. DataFile status remains: " + dataFile.getFileStatus());
         }
-
-        //if (dataFile.getFileStatus().equals(DataFile.PROCESSED_STD)) {
-        //    System.out.println("================> REINVOKING DSG for SSD processing");
-        //    System.out.println("  DataFile Status: [" + dataFile.getFileStatus() + "]");
-        //    IngestionWorker.ingest(dataFile, file, templateFile, status);
-        //}
     }
 
     public static GeneratorChain getGeneratorChain(DataFile dataFile, String studyUri, String templateFile, String status) {
-        System.out.println("\n=== [INGESTION PATH] IngestionWorker.getGeneratorChain() ===");
-        System.out.println("[INGESTION PATH] Determining generator for file: " + dataFile.getFilename());
-        System.out.println("[INGESTION PATH] Full filename: " + dataFile.getFilename());
-<<<<<<< HEAD
-
-=======
-        
->>>>>>> e3d59438b08a1e37ee5f57127dd97799008fd868
         GeneratorChain chain = null;
         String fileName = FilenameUtils.getBaseName(dataFile.getFilename());
-        System.out.println("[INGESTION PATH] Base filename (without extension): " + fileName);
-        System.out.println("[INGESTION PATH] Checking if starts with 'DA-SOC-': " + fileName.startsWith("DA-SOC-"));
 
         // Check for DA-SOC files BEFORE general DA files
         // DA-SOC files are DASOC (Data Acquisition - Study Object Collection) links
         // They extend SOC content with properties that don't fit in DSG files
         if (fileName.startsWith("DA-SOC-")) {
-            System.out.println("[INGESTION PATH] ✅ Matched DA-SOC-* pattern, routing to AnnotateDASOC");
-            System.out.println("[INGESTION PATH] Calling AnnotateDASOC.exec(dataFile)");
             dataFile.getLogger().println("Processing as DASOC (Data Acquisition - Study Object Collection)");
             chain = AnnotateDASOC.exec(dataFile);
 
@@ -242,7 +149,6 @@ public class IngestionWorker {
             // REJECT: General DA ingestion is not working at this time
             // NOTE: DA-SOC is not yet an official element type in hascoapi
             // Only DA-SOC-* files are supported through AnnotateDASOC
-            System.out.println("IngestionWorker: ERROR - General DA ingestion not supported");
             dataFile.getLogger().printException("ERROR: General DA ingestion is not supported. Only DA-SOC-* files can be ingested.");
             dataFile.setFileStatus(DataFile.UNPROCESSED);
             dataFile.save();
@@ -266,13 +172,16 @@ public class IngestionWorker {
                 }
 
                 // Verify all referenced sheets in SSD before executing SSD annotation
-                System.out.println("IngestionWorker: verifying SSD referenced sheets before annotation.");
                 if (!verifySheetsInSSD(dataFile)) {
                     dataFile.getLogger().printExceptionById("DSG_00022");
-                    System.out.println("IngestionWorker: SSD verification failed. Aborting SSD annotation.");
                     return null;
                 }
                 chain = AnnotateSSD.exec(dataFile, studyUri, templateFile, status);
+                
+                // After successful SSD ingestion, automatically process DA-SOC files
+                if (chain != null && chain.isValid()) {
+                    processAssociatedDASOCFiles(dataFile, dataFile.getFile(), studyUri);
+                }
             }
 
         } else if (fileName.startsWith("DP2-")) {
@@ -317,19 +226,23 @@ public class IngestionWorker {
         long sleepMs = 150;
         int attempt = 0;
 
+        // Expand CURIE to full URI if necessary
+        String expandedStudyUri = studyUri;
+        if (studyUri != null && !studyUri.startsWith("http://") && !studyUri.startsWith("https://")) {
+            expandedStudyUri = URIUtils.replacePrefixEx(studyUri);
+        }
+
         while (System.currentTimeMillis() < deadline) {
             attempt++;
             try {
-                Study s = Study.find(studyUri);
+                Study s = Study.find(expandedStudyUri);
                 if (s != null) {
-                    System.out.println("IngestionWorker: Study visible after STD. attempts=" + attempt + " uri=" + studyUri);
                     return true;
                 }
             } catch (Exception e) {
                 // ignore and retry; transient Fuseki hiccups can happen right after startup
             }
 
-            System.out.println("IngestionWorker: waiting for Study visibility (attempt " + attempt + ") uri=" + studyUri + " sleepMs=" + sleepMs);
             try {
                 Thread.sleep(sleepMs);
             } catch (InterruptedException ie) {
@@ -339,18 +252,14 @@ public class IngestionWorker {
             sleepMs = Math.min(1000, sleepMs * 2);
         }
 
-        System.out.println("IngestionWorker: TIMEOUT waiting for Study visibility. uri=" + studyUri + " timeoutMs=" + timeoutMs);
         return false;
     }
 
-    // Java
     private static boolean verifySheetsInSSD(DataFile dataFile) {
-        System.out.println("SSD verification: starting referenced sheets check.");
         SpreadsheetRecordFile ssdSheet = new SpreadsheetRecordFile(
                 dataFile.getFile(), dataFile.getFilename(), "SSD");
         if (ssdSheet == null || !ssdSheet.isValid() || ssdSheet.getRecords() == null || ssdSheet.getRecords().isEmpty()) {
             dataFile.getLogger().printExceptionByIdWithArgs("GBL_00014", "SSD verification: SSD sheet");
-            System.out.println("SSD verification: sheet 'SSD' not found or empty.");
             return false;
         }
 
@@ -365,12 +274,10 @@ public class IngestionWorker {
 
             if (ref == null || !ref.isValid() || ref.getRecords() == null || ref.getRecords().isEmpty()) {
                 dataFile.getLogger().printExceptionByIdWithArgs("GBL_00015", referencedSheet);
-                System.out.println("SSD verification: referenced sheet '" + referencedSheet + "' does not exist or is unreadable. Aborting.");
                 return false; // stop immediately on first missing/unreadable sheet
             }
         }
 
-        System.out.println("SSD verification: completed. Status: OK");
         return true;
     }
 
@@ -409,16 +316,13 @@ public class IngestionWorker {
         RecordFile nameSpaceRecordFile = null;
         String sheetName = mapCatalog.get("hasDependencies");
         if (sheetName != null) {
-            System.out.print("Extracting NameSpace sheet from spreadsheet... ");
             nameSpaceRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), sheetName.replace("#",""));
             if (nameSpaceRecordFile == null) {
                 dataFile.getLogger().printWarning("GBL_00009");
-                //System.out.println("[WARNING] NameSpaceGenerator: nameSpaceRecordFile is NULL.");
             } else if (nameSpaceRecordFile.getRecords() == null) {
                 dataFile.getLogger().printWarning("GBL_00010");
-                //System.out.println("[WARNING] NameSpaceGenerator: nameSpaceRecordFile.getRecords() is NULL.");
             } else {
-                System.out.println("nameSpaceRecordFile has [" + nameSpaceRecordFile.getRecords().size() + "] rows");
+                dataFile.getLogger().println("Namespace generation completed.");
                 dataFile.setRecordFile(nameSpaceRecordFile);
 
                 GeneratorChain chain = new GeneratorChain();
@@ -428,16 +332,10 @@ public class IngestionWorker {
                 if (chain != null) {
                     isSuccess = chain.generate();
                 }
-                if (isSuccess) {
-                    System.out.println("Done extracting NameSpace sheet. ");
-                } else {
-                    System.out.println("Failed to extract NameSpace sheet. ");
-                }
                 return isSuccess;
             }
         } else {
             dataFile.getLogger().printWarning("GBL_00011");
-            //System.out.println("[WARNING] NameSpaceGenerator: could not find any sheet inside of Metadata Template called [hasDependencies].");
         }
         return false;
     }
@@ -459,7 +357,6 @@ public class IngestionWorker {
 
         String sheetName = mapCatalog.get("AnnotationStems");
         if (sheetName != null) {
-            System.out.print("Extracting [AnnotationStems] sheet from spreadsheet... ");
             annotationStemRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), sheetName.replace("#", ""));
 
             // SpreadsheetRecordFile is never null, but may be invalid when the sheet doesn't exist.
@@ -477,7 +374,6 @@ public class IngestionWorker {
 
         sheetName = mapCatalog.get("Annotations");
         if (sheetName != null) {
-            System.out.print("Extracting [Annotations] sheet from spreadsheet... ");
             annotationRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), sheetName.replace("#", ""));
 
             if (annotationRecordFile == null || !annotationRecordFile.isValid() || annotationRecordFile.getRecords() == null) {
@@ -514,11 +410,8 @@ public class IngestionWorker {
         boolean isSuccess = false;
         isSuccess = chain.generate();
 
-        if (isSuccess) {
-            System.out.println("Done extracting annotationStem and annotation sheets. ");
-        } else {
+        if (!isSuccess) {
             dataFile.getLogger().printWarningByIdWithArgs("GBL_00016", "annotationStem and/or annotation");
-            System.out.println("Failed to extract annotationStem and/or annotation sheets. ");
         }
         return isSuccess;
     }
@@ -710,74 +603,6 @@ public class IngestionWorker {
         return deployInstancesGen(dataFile, mapCatalog, templateFile, null);
     }
 
-    /**
-     * Find StudyObjectCollection URI by matching SOC name pattern.
-     * Queries triplestore for SOCs with labels or URIs containing the given name.
-<<<<<<< HEAD
-     *
-=======
-     * 
->>>>>>> e3d59438b08a1e37ee5f57127dd97799008fd868
-     * @param socName The SOC name extracted from filename (e.g., "ENTERPRISE", "API", "PRODUCT")
-     * @return SOC URI if found, null otherwise
-     */
-    public static String findSOCByName(String socName) {
-        if (socName == null || socName.isEmpty()) {
-            return null;
-        }
-<<<<<<< HEAD
-
-=======
-        
->>>>>>> e3d59438b08a1e37ee5f57127dd97799008fd868
-        try {
-            String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                "SELECT ?socUri WHERE { " +
-                "  ?socUri a hasco:StudyObjectCollection . " +
-                "  { ?socUri rdfs:label ?label . FILTER(CONTAINS(UCASE(?label), UCASE(\"" + socName + "\"))) } " +
-                "  UNION " +
-                "  { FILTER(CONTAINS(UCASE(STR(?socUri)), UCASE(\"SOC-" + socName + "\"))) } " +
-                "} LIMIT 1";
-<<<<<<< HEAD
-
-            System.out.println("IngestionWorker.findSOCByName(): Querying for SOC with name: " + socName);
-
-            ResultSetRewindable resultsrw = SPARQLUtils.select(
-                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
-
-=======
-            
-            System.out.println("IngestionWorker.findSOCByName(): Querying for SOC with name: " + socName);
-            
-            ResultSetRewindable resultsrw = SPARQLUtils.select(
-                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
-            
->>>>>>> e3d59438b08a1e37ee5f57127dd97799008fd868
-            if (resultsrw.hasNext()) {
-                QuerySolution soln = resultsrw.next();
-                if (soln != null && soln.getResource("socUri") != null) {
-                    String socUri = soln.getResource("socUri").getURI();
-                    System.out.println("IngestionWorker.findSOCByName(): Found SOC URI: " + socUri);
-                    return socUri;
-                }
-            }
-<<<<<<< HEAD
-
-            System.out.println("IngestionWorker.findSOCByName(): No SOC found for name: " + socName);
-            return null;
-
-=======
-            
-            System.out.println("IngestionWorker.findSOCByName(): No SOC found for name: " + socName);
-            return null;
-            
->>>>>>> e3d59438b08a1e37ee5f57127dd97799008fd868
-        } catch (Exception e) {
-            System.err.println("[ERROR] IngestionWorker.findSOCByName(): " + e.getMessage());
-            e.printStackTrace();
-            return null;
-        }
-    }
 
     public static String getStudyUri(DataFile dataFile) {
         String studyUri = "";
@@ -856,4 +681,157 @@ public class IngestionWorker {
 
         return df;
     }
+
+    /**
+     * Process DA-SOC files associated with a DSG file.
+     * This method searches for DA-SOC-*.csv files in the same directory as the DSG file
+     * and automatically ingests them after successful DSG ingestion.
+     * 
+     * Uses study-based approach: passes the Study URI from DSG to each DA-SOC file.
+     * The actual object discovery happens via originalID matching in AnnotateDASOC.
+     * 
+     * @param dsgDataFile The DataFile object for the DSG file
+     * @param dsgFile The physical DSG file
+     * @param studyUri The Study URI from the DSG ingestion
+     */
+    private static void processAssociatedDASOCFiles(DataFile dsgDataFile, File dsgFile, String studyUri) {
+        try {
+            System.out.println("\n=== [DA-SOC AUTO-PROCESSING] Searching for DA-SOC files ===");
+            
+            // Get the directory where the DSG file is located
+            File dsgDirectory = dsgFile.getParentFile();
+            if (dsgDirectory == null || !dsgDirectory.exists() || !dsgDirectory.isDirectory()) {
+                System.out.println("[DA-SOC AUTO-PROCESSING] No parent directory found for DSG file");
+                return;
+            }
+            
+            System.out.println("[DA-SOC AUTO-PROCESSING] DSG directory: " + dsgDirectory.getAbsolutePath());
+            System.out.println("[DA-SOC AUTO-PROCESSING] Study URI from DSG: " + studyUri);
+            
+            // Find all DA-SOC-*.csv files in the same directory
+            File[] dasocFiles = dsgDirectory.listFiles((dir, name) -> 
+                name.startsWith("DA-SOC-") && name.endsWith(".csv")
+            );
+            
+            if (dasocFiles == null || dasocFiles.length == 0) {
+                System.out.println("[DA-SOC AUTO-PROCESSING] No DA-SOC files found in directory");
+                return;
+            }
+            
+            System.out.println("[DA-SOC AUTO-PROCESSING] Found " + dasocFiles.length + " DA-SOC file(s)");
+            
+            // Process each DA-SOC file
+            int successCount = 0;
+            int failCount = 0;
+            
+            for (File dasocFile : dasocFiles) {
+                System.out.println("\n[DA-SOC AUTO-PROCESSING] Processing: " + dasocFile.getName());
+                
+                try {
+                    // Extract SOC name from filename (DA-SOC-{SOCNAME}.csv -> {SOCNAME})
+                    String baseName = FilenameUtils.getBaseName(dasocFile.getName());
+                    String socName = baseName.substring(7); // Remove "DA-SOC-" prefix
+                    
+                    System.out.println("[DA-SOC AUTO-PROCESSING] Collection name from filename: " + socName);
+                    
+                    // Create DA URI
+                    String kbPrefix = ConfigProp.getKbPrefix();
+                    if (kbPrefix == null || kbPrefix.isEmpty()) {
+                        System.out.println("[DA-SOC AUTO-PROCESSING] ERROR: Could not determine KB prefix");
+                        failCount++;
+                        continue;
+                    }
+                    
+                    String daUri = kbPrefix + "DA-" + socName + "-" + System.currentTimeMillis();
+                    
+                    // Create DataFile for DA-SOC
+                    String dataFileId = "DFL" + System.currentTimeMillis();
+                    DataFile dasocDataFile = new DataFile(dataFileId, dasocFile.getName());
+                    
+                    String dataFileUri = kbPrefix + dataFileId;
+                    dasocDataFile.setUri(dataFileUri);
+                    dasocDataFile.setHasSIRManagerEmail(dsgDataFile.getHasSIRManagerEmail());
+                    dasocDataFile.setFileStatus(DataFile.UNPROCESSED);
+                    
+                    // CRITICAL: Pass Study URI from DSG to DA-SOC DataFile
+                    // This allows AnnotateDASOC to use study-based approach
+                    dasocDataFile.setStudyUri(studyUri);
+                    
+                    // Store DA URI in DataFile metadata
+                    dasocDataFile.setDasocDataAcquisitionUri(daUri);
+                    
+                    System.out.println("[DA-SOC AUTO-PROCESSING] Created DataFile: " + dataFileUri);
+                    System.out.println("[DA-SOC AUTO-PROCESSING] DA URI: " + daUri);
+                    System.out.println("[DA-SOC AUTO-PROCESSING] Study URI: " + studyUri);
+                    
+                    // Save DataFile to triplestore
+                    dasocDataFile.save();
+                    
+                    // Copy file to permanent location
+                    String basePath = ConfigProp.getPathIngestion();
+                    String targetDir = basePath + "/" + Constants.RESOURCE_FOLDER + "/" + dataFileId;
+                    File targetDirectory = new File(targetDir);
+                    if (!targetDirectory.exists()) {
+                        targetDirectory.mkdirs();
+                    }
+                    
+                    File targetFile = new File(targetDir + "/" + dasocFile.getName());
+                    java.nio.file.Files.copy(
+                        dasocFile.toPath(), 
+                        targetFile.toPath(), 
+                        java.nio.file.StandardCopyOption.REPLACE_EXISTING
+                    );
+                    
+                    System.out.println("[DA-SOC AUTO-PROCESSING] File copied to: " + targetFile.getAbsolutePath());
+                    
+                    // Process DA-SOC using standard ingestion flow
+                    // This will call AnnotateDASOC.exec() which uses study-based approach
+                    try {
+                        ingest(dasocDataFile, targetFile, "template.conf", null);
+                        
+                        // Check if ingestion was successful
+                        if (DataFile.PROCESSED.equals(dasocDataFile.getFileStatus())) {
+                            System.out.println("[DA-SOC AUTO-PROCESSING] ✅ SUCCESS: " + dasocFile.getName());
+                            successCount++;
+                        } else {
+                            System.out.println("[DA-SOC AUTO-PROCESSING] ❌ FAILED: " + dasocFile.getName() + 
+                                " (status: " + dasocDataFile.getFileStatus() + ")");
+                            failCount++;
+                        }
+                    } catch (Exception e) {
+                        System.err.println("[DA-SOC AUTO-PROCESSING] ❌ EXCEPTION during ingestion: " + e.getMessage());
+                        e.printStackTrace();
+                        dasocDataFile.setFileStatus(DataFile.ERROR);
+                        dasocDataFile.save();
+                        failCount++;
+                    }
+                    
+                } catch (Exception e) {
+                    System.err.println("[DA-SOC AUTO-PROCESSING] ERROR processing " + dasocFile.getName() + ": " + e.getMessage());
+                    e.printStackTrace();
+                    failCount++;
+                }
+            }
+            
+            // Log summary
+            System.out.println("\n=== [DA-SOC AUTO-PROCESSING] Summary ===");
+            System.out.println("Total DA-SOC files found: " + dasocFiles.length);
+            System.out.println("Successfully processed: " + successCount);
+            System.out.println("Failed: " + failCount);
+            
+            // Add summary to DSG DataFile log
+            dsgDataFile.getLogger().println("\n=== DA-SOC Auto-Processing ===");
+            dsgDataFile.getLogger().println("Found " + dasocFiles.length + " DA-SOC file(s) in directory");
+            dsgDataFile.getLogger().println("Successfully processed: " + successCount);
+            if (failCount > 0) {
+                dsgDataFile.getLogger().println("Failed: " + failCount);
+            }
+            
+        } catch (Exception e) {
+            System.err.println("[DA-SOC AUTO-PROCESSING] ERROR: " + e.getMessage());
+            e.printStackTrace();
+            dsgDataFile.getLogger().printException("DA-SOC auto-processing error: " + e.getMessage());
+        }
+    }
 }
+

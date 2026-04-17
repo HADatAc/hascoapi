@@ -147,10 +147,16 @@ public class GenericFind<T> {
 
 
     public static String classNameWithNamespace (Class clazz) {
-        if (clazz == InstrumentInstance.class) {
+        if (clazz == Instrument.class) {
+            return URIUtils.replaceNameSpace(VSTOI.INSTRUMENT);
+        } else if (clazz == InstrumentInstance.class) {
             return URIUtils.replaceNameSpace(VSTOI.INSTRUMENT_INSTANCE);
+        } else if (clazz == InstrumentType.class) {
+            return URIUtils.replaceNameSpace(VSTOI.INSTRUMENT);
         } else if (clazz == Component.class) {
             return URIUtils.replaceNameSpace(VSTOI.COMPONENT);
+        } else if (clazz == ComponentStem.class) {
+            return URIUtils.replaceNameSpace(VSTOI.COMPONENT_STEM);
         } else if (clazz == ComponentInstance.class) {
             return URIUtils.replaceNameSpace(VSTOI.COMPONENT_INSTANCE);
         } else if (clazz == PlatformInstance.class) {
@@ -237,9 +243,8 @@ public class GenericFind<T> {
 
     public static boolean isSIR (Class clazz) {
         // Instrument/Container is not SIR Element
-        if (clazz == Component.class ||
-            clazz == ComponentStem.class ||
-            clazz == ResponseOption.class ||
+        // Component and ComponentStem were removed from SIR because they can now be created via DSG
+        if (clazz == ResponseOption.class ||
             clazz == AnnotationStem.class ||
             clazz == Annotation.class ||
             clazz == Process.class ||
@@ -266,11 +271,7 @@ public class GenericFind<T> {
     }
 
     public static String superclassNameWithNamespace (Class clazz) {
-        if (clazz == Instrument.class) {
-            return URIUtils.replaceNameSpace(VSTOI.INSTRUMENT);
-        } else if (clazz == ComponentStem.class) {
-            return URIUtils.replaceNameSpace(VSTOI.COMPONENT_STEM);
-        } else if (clazz == Process.class) {
+        if (clazz == Process.class) {
             return URIUtils.replaceNameSpace(VSTOI.PROCESS);
         } else if (clazz == Platform.class) {
             return URIUtils.replaceNameSpace(VSTOI.PLATFORM);
@@ -422,10 +423,15 @@ public class GenericFind<T> {
     private static int findTotalInstances(String className) {
         String queryString = "";
         queryString += NameSpaces.getInstance().printSparqlNameSpaceList();
-        queryString += " select (count(?uri) as ?tot) where { " +
-                //" ?type rdfs:subClassOf* " + className + " . " +
-                //" ?uri a ?type ." +
-                " ?uri hasco:hascoType " + className + " . " +
+        queryString += " select (count(DISTINCT ?uri) as ?tot) where { " +
+                " { " +
+                "   ?type rdfs:subClassOf* " + className + " . " +
+                "   ?uri a ?type . " +
+                " } UNION { " +
+                "   ?uri a " + className + " . " +
+                " } UNION { " +
+                "   ?uri hasco:hascoType " + className + " . " +
+                " } " +
                 "}";
         //System.out.println("findTotalInstances: " + queryString);
         return findTotalByQuery(queryString);

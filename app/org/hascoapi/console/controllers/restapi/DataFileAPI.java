@@ -126,10 +126,16 @@ public class DataFileAPI extends Controller {
             }
         }
 
-        // Use genericCheck as fallback
+        // Use genericCheck as fallback - but keep reference to both
         GenericInstance instance = (typedInstance == null) ? genericCheck : null;
         if (instance != null) {
             System.out.println("[INFO] DataFileAPI.uploadFile(): Using GenericInstance as fallback");
+        }
+        
+        // If we have a typed instance and it's a DataFile, use elementUri directly as dataFileUri
+        if (typedInstance != null && hascoTypeUri != null && hascoTypeUri.contains("DataFile")) {
+            dataFileUri = elementUri;
+            System.out.println("[INFO] DataFileAPI.uploadFile(): Element IS a DataFile, using elementUri as dataFileUri: " + dataFileUri);
         }
 
         // Try multiple ways to extract the file from the request
@@ -187,12 +193,12 @@ public class DataFileAPI extends Controller {
 
         System.out.println("[SUCCESS] DataFileAPI.uploadFile(): File extracted successfully - " + tempFile.getAbsolutePath() + " (" + tempFile.length() + " bytes)");
 
-        // Get DataFile URI - CRITICAL: Must use DataFile URI, not element URI!
-        // Already obtained above if typed instance found, otherwise try reflection
-
+        // Get DataFile URI - if not already determined above
         if (dataFileUri == null || dataFileUri.trim().isEmpty()) {
-            // Try to get from GenericInstance using reflection
-            if (instance != null) {
+            // Try to get from typed instance or GenericInstance using reflection
+            Object instanceToCheck = (typedInstance != null) ? typedInstance : instance;
+            
+            if (instanceToCheck != null) {
                 // First, check if element has a DataFile association via getHasDataFileUri method
                 try {
                     java.lang.reflect.Method getDataFileMethod = instance.getClass().getMethod("getHasDataFileUri");
@@ -210,8 +216,8 @@ public class DataFileAPI extends Controller {
                 // If not found, check if element has hasDataFile property
                 if (dataFileUri == null || dataFileUri.trim().isEmpty()) {
                     try {
-                        java.lang.reflect.Method getDataFileMethod = instance.getClass().getMethod("getHasDataFile");
-                        Object dataFileObj = getDataFileMethod.invoke(instance);
+                        java.lang.reflect.Method getDataFileMethod = instanceToCheck.getClass().getMethod("getHasDataFile");
+                        Object dataFileObj = getDataFileMethod.invoke(instanceToCheck);
                         if (dataFileObj != null) {
                             // It's a DataFile object, get its URI
                             java.lang.reflect.Method getUriMethod = dataFileObj.getClass().getMethod("getUri");
@@ -227,18 +233,8 @@ public class DataFileAPI extends Controller {
                         System.out.println("[WARN] DataFileAPI.uploadFile(): Error calling getHasDataFile(): " + e.getMessage());
                     }
                 }
-
-                // If still not found, check the hascoType to determine if this IS a DataFile
-                if (dataFileUri == null || dataFileUri.trim().isEmpty()) {
-                    String hascoType = instance.getHascoTypeUri();
-                    System.out.println("[DEBUG] DataFileAPI.uploadFile(): Checking hascoType: " + hascoType);
-
-                    if (hascoType != null && hascoType.contains("DataFile")) {
-                        // This element IS a DataFile
-                        dataFileUri = elementUri;
-                        System.out.println("[INFO] DataFileAPI.uploadFile(): Element IS a DataFile, using elementUri: " + dataFileUri);
-                    }
-                }
+            } else {
+                System.out.println("[WARN] DataFileAPI.uploadFile(): No instance to check (typedInstance and genericInstance are both null)");
             }
         } else {
             System.out.println("[INFO] DataFileAPI.uploadFile(): ✅ DataFile URI already obtained from typed instance: " + dataFileUri);
@@ -246,8 +242,10 @@ public class DataFileAPI extends Controller {
 
         if (dataFileUri == null || dataFileUri.trim().isEmpty()) {
             System.out.println("[ERROR] DataFileAPI.uploadFile(): Could not determine DataFile URI");
-            System.out.println("[ERROR]   Element URI: " + elementUri);
-            System.out.println("[ERROR]   Element hascoType: " + instance.getHascoTypeUri());
+            System.out.println("[ERROR]   Element URI (original): " + elementUri);
+            System.out.println("[ERROR]   Element hascoType: " + hascoTypeUri);
+            System.out.println("[ERROR]   Typed instance found: " + (typedInstance != null ? "YES" : "NO"));
+            System.out.println("[ERROR]   Generic instance found: " + (instance != null ? "YES" : "NO"));
             return ok(ApiUtil.createResponse("[ERROR] DataFileAPI.uploadFile(): Could not determine DataFile URI from element.", false));
         }
 

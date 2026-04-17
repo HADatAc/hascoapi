@@ -59,19 +59,27 @@ public class AnnotateSSD extends BaseAnnotator {
         }
 
         // Try to find the study with retry logic to allow triplestore to sync
+        // Expand CURIE to full URI if necessary
+        String expandedStudyUri = studyUri;
+        if (studyUri != null && !studyUri.startsWith("http://") && !studyUri.startsWith("https://")) {
+            expandedStudyUri = URIUtils.replacePrefixEx(studyUri);
+            System.out.println("AnnotateSSD: Expanded studyUri from [" + studyUri + "] to [" + expandedStudyUri + "]");
+        }
+        
         Study study = null;
         int maxRetries = 5;
         int retryDelay = 500; // milliseconds
 
         for (int attempt = 0; attempt < maxRetries; attempt++) {
-            study = Study.find(studyUri);
+            study = Study.find(expandedStudyUri);
             if (study != null) {
+                System.out.println("AnnotateSSD: ✅ Study found on attempt " + (attempt + 1) + " (URI: " + expandedStudyUri + ")");
                 break;
             }
 
             if (attempt < maxRetries - 1) {
                 System.out.println("AnnotateSSD: Study not found on attempt " + (attempt + 1) +
-                                 ", retrying in " + retryDelay + "ms... (URI: " + studyUri + ")");
+                                 ", retrying in " + retryDelay + "ms... (Searching for: " + expandedStudyUri + ")");
                 try {
                     Thread.sleep(retryDelay);
                     retryDelay *= 2; // Exponential backoff
@@ -84,9 +92,10 @@ public class AnnotateSSD extends BaseAnnotator {
 
         if (study == null) {
             // Use DSG error for study not found (argument = studyUri)
-            System.out.println("AnnotateSSD: Study not found after " + maxRetries +
-                             " attempts. URI: " + studyUri);
-            dataFile.getLogger().printExceptionByIdWithArgs("DSG_00010", studyUri);
+            System.out.println("AnnotateSSD: ❌ Study not found after " + maxRetries +
+                             " attempts. Searched for URI: " + expandedStudyUri);
+            System.out.println("AnnotateSSD: Original URI provided: " + studyUri);
+            dataFile.getLogger().printExceptionByIdWithArgs("DSG_00010", expandedStudyUri);
             return null;
         }
 

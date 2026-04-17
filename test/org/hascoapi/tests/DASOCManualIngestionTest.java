@@ -101,6 +101,7 @@ public class DASOCManualIngestionTest {
             soc.setTypeUri("http://hadatac.org/ont/hasco#StudyObjectCollection");
             soc.setHascoTypeUri("http://hadatac.org/ont/hasco#StudyObjectCollection");
             soc.setHasSIRManagerEmail(TEST_EMAIL);
+            // Note: isMemberOfUri is not set for top-level SOCs (they don't belong to another collection)
             soc.save();
 
             System.out.println("✅ Created SOC: " + socUri);
@@ -130,6 +131,7 @@ public class DASOCManualIngestionTest {
                     obj.setTypeUri("http://hadatac.org/ont/hasco#StudyObject");
                     obj.setHascoTypeUri("http://hadatac.org/ont/hasco#StudyObject");
                     obj.setHasSIRManagerEmail(TEST_EMAIL);
+                    obj.setNamedGraph(org.hascoapi.Constants.DEFAULT_REPOSITORY); // Set named graph
                     obj.save();
 
                     objectCount++;

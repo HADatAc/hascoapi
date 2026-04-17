@@ -308,12 +308,12 @@ public class LinkedSOCElementsSetupTest {
             "expectedLinkedOriginalIDs() should return " + EXPECTED_COUNT + " IDs");
 
         // Verify expected IDs follow correct pattern
-        assertTrue(expectedIds.contains("TEST-LIBRARY-L0"),
-            "Expected IDs should contain TEST-LIBRARY-L0");
-        assertTrue(expectedIds.contains("TEST-SCIENCE-ROOF"),
-            "Expected IDs should contain TEST-SCIENCE-ROOF");
-        assertTrue(expectedIds.contains("TEST-GREENHOUSE-L1"),
-            "Expected IDs should contain TEST-GREENHOUSE-L1");
+        assertTrue(expectedIds.contains("LIBRARY-L0-2"),
+            "Expected IDs should contain LIBRARY-L0-2");
+        assertTrue(expectedIds.contains("SCIENCE-ROOF-2"),
+            "Expected IDs should contain SCIENCE-ROOF-2");
+        assertTrue(expectedIds.contains("GREENHOUSE-L1-2"),
+            "Expected IDs should contain GREENHOUSE-L1-2");
 
         System.out.println("[Test 7] Sample expected IDs: " +
             expectedIds.stream().limit(5).collect(Collectors.toList()));
@@ -324,66 +324,66 @@ public class LinkedSOCElementsSetupTest {
     @Order(8)
     @DisplayName("Test 8: Location type URIs are correctly assigned")
     public void test8_locationTypeURIsCorrectlyAssigned() {
-        System.out.println("\n[Test 8] Verifying location type URI assignments for TEST- elements...");
+        System.out.println("\n[Test 8] Verifying location type URI assignments for -2 suffix elements...");
 
         String ns = NameSpaces.getInstance().printSparqlNameSpaceList();
 
-        // Check outdoor type (ROOF level) - only TEST- elements
+        // Check outdoor type (ROOF level) - only -2 suffix elements
         String outdoorQuery = ns +
                 "SELECT (COUNT(*) AS ?tot) WHERE { \n" +
                 "  GRAPH <" + TEST_NAMED_GRAPH + "> { \n" +
                 "    ?e hasco:isMemberOf <" + SOC_LOCATION_URI + "> ; \n" +
                 "       hasco:originalID ?id ; \n" +
                 "       hasco:hasSpaceScope <" + LinkedSOCElementsSetup.AHEAD_NS + "LTE-PIAGET-LOCATION-TYPE/outdoor> . \n" +
-                "    FILTER (STRSTARTS(STR(?id), \"TEST-\")) \n" +
+                "    FILTER (STRENDS(STR(?id), \"-2\")) \n" +
                 "  } \n" +
                 "}";
 
         String endpoint = CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY);
         long outdoorCount = SPARQLCountUtil.count(endpoint, outdoorQuery);
 
-        System.out.println("[Test 8] Outdoor TEST- locations (ROOF): " + outdoorCount);
+        System.out.println("[Test 8] Outdoor -2 suffix locations (ROOF): " + outdoorCount);
         // 10 zones × 1 ROOF level = 10 outdoor
-        assertEquals(10, outdoorCount, "Should have 10 TEST- outdoor locations (all ROOF levels)");
+        assertEquals(10, outdoorCount, "Should have 10 -2 suffix outdoor locations (all ROOF levels)");
 
-        // Check laboratory type (GREENHOUSE or SCIENCE at L0/L1/L2) - only TEST- elements
+        // Check laboratory type (GREENHOUSE or SCIENCE at L0/L1/L2) - only -2 suffix elements
         String labQuery = ns +
                 "SELECT (COUNT(*) AS ?tot) WHERE { \n" +
                 "  GRAPH <" + TEST_NAMED_GRAPH + "> { \n" +
                 "    ?e hasco:isMemberOf <" + SOC_LOCATION_URI + "> ; \n" +
                 "       hasco:originalID ?id ; \n" +
                 "       hasco:hasSpaceScope <" + LinkedSOCElementsSetup.AHEAD_NS + "LTE-PIAGET-LOCATION-TYPE/laboratory> . \n" +
-                "    FILTER (STRSTARTS(STR(?id), \"TEST-\")) \n" +
+                "    FILTER (STRENDS(STR(?id), \"-2\")) \n" +
                 "  } \n" +
                 "}";
 
         long labCount = SPARQLCountUtil.count(endpoint, labQuery);
 
-        System.out.println("[Test 8] Laboratory TEST- locations: " + labCount);
+        System.out.println("[Test 8] Laboratory -2 suffix locations: " + labCount);
         // 2 zones (GREENHOUSE, SCIENCE) × 3 levels (L0, L1, L2) = 6 laboratory
-        assertEquals(6, labCount, "Should have 6 TEST- laboratory locations");
+        assertEquals(6, labCount, "Should have 6 -2 suffix laboratory locations");
 
-        // Check indoor type (all others) - only TEST- elements
+        // Check indoor type (all others) - only -2 suffix elements
         String indoorQuery = ns +
                 "SELECT (COUNT(*) AS ?tot) WHERE { \n" +
                 "  GRAPH <" + TEST_NAMED_GRAPH + "> { \n" +
                 "    ?e hasco:isMemberOf <" + SOC_LOCATION_URI + "> ; \n" +
                 "       hasco:originalID ?id ; \n" +
                 "       hasco:hasSpaceScope <" + LinkedSOCElementsSetup.AHEAD_NS + "LTE-PIAGET-LOCATION-TYPE/indoor> . \n" +
-                "    FILTER (STRSTARTS(STR(?id), \"TEST-\")) \n" +
+                "    FILTER (STRENDS(STR(?id), \"-2\")) \n" +
                 "  } \n" +
                 "}";
 
         long indoorCount = SPARQLCountUtil.count(endpoint, indoorQuery);
 
-        System.out.println("[Test 8] Indoor TEST- locations: " + indoorCount);
+        System.out.println("[Test 8] Indoor -2 suffix locations: " + indoorCount);
         // 50 total - 10 outdoor - 6 laboratory = 34 indoor
-        assertEquals(34, indoorCount, "Should have 34 TEST- indoor locations");
+        assertEquals(34, indoorCount, "Should have 34 -2 suffix indoor locations");
 
         // Verify total
         long total = outdoorCount + labCount + indoorCount;
         assertEquals(EXPECTED_COUNT, total,
-            "Sum of all TEST- location types should equal expected count");
+            "Sum of all -2 suffix location types should equal expected count");
 
         System.out.println("[Test 8] ✓ PASSED");
     }
@@ -392,73 +392,73 @@ public class LinkedSOCElementsSetupTest {
     @Order(9)
     @DisplayName("Test 9: Elements have all required properties")
     public void test9_elementsHaveRequiredProperties() {
-        System.out.println("\n[Test 9] Verifying all TEST- elements have required properties...");
+        System.out.println("\n[Test 9] Verifying all -2 suffix elements have required properties...");
 
         String ns = NameSpaces.getInstance().printSparqlNameSpaceList();
 
-        // Check that all TEST- elements have rdf:type
+        // Check that all -2 suffix elements have rdf:type
         String typeQuery = ns +
                 "SELECT (COUNT(*) AS ?tot) WHERE { \n" +
                 "  GRAPH <" + TEST_NAMED_GRAPH + "> { \n" +
                 "    ?e hasco:isMemberOf <" + SOC_LOCATION_URI + "> ; \n" +
                 "       hasco:originalID ?id ; \n" +
                 "       rdf:type ?type . \n" +
-                "    FILTER (STRSTARTS(STR(?id), \"TEST-\")) \n" +
+                "    FILTER (STRENDS(STR(?id), \"-2\")) \n" +
                 "  } \n" +
                 "}";
 
         String endpoint = CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY);
         long withType = SPARQLCountUtil.count(endpoint, typeQuery);
 
-        System.out.println("[Test 9] TEST- elements with rdf:type: " + withType);
-        assertEquals(EXPECTED_COUNT, withType, "All TEST- elements should have rdf:type");
+        System.out.println("[Test 9] -2 suffix elements with rdf:type: " + withType);
+        assertEquals(EXPECTED_COUNT, withType, "All -2 suffix elements should have rdf:type");
 
-        // Check that all TEST- elements have originalID
+        // Check that all -2 suffix elements have originalID
         String originalIdQuery = ns +
                 "SELECT (COUNT(*) AS ?tot) WHERE { \n" +
                 "  GRAPH <" + TEST_NAMED_GRAPH + "> { \n" +
                 "    ?e hasco:isMemberOf <" + SOC_LOCATION_URI + "> ; \n" +
                 "       hasco:originalID ?id . \n" +
-                "    FILTER (STRSTARTS(STR(?id), \"TEST-\")) \n" +
+                "    FILTER (STRENDS(STR(?id), \"-2\")) \n" +
                 "  } \n" +
                 "}";
 
         long withOriginalId = SPARQLCountUtil.count(endpoint, originalIdQuery);
 
-        System.out.println("[Test 9] TEST- elements with originalID: " + withOriginalId);
-        assertEquals(EXPECTED_COUNT, withOriginalId, "All TEST- elements should have originalID");
+        System.out.println("[Test 9] -2 suffix elements with originalID: " + withOriginalId);
+        assertEquals(EXPECTED_COUNT, withOriginalId, "All -2 suffix elements should have originalID");
 
-        // Check that all TEST- elements have rdfs:label
+        // Check that all -2 suffix elements have rdfs:label
         String labelQuery = ns +
                 "SELECT (COUNT(*) AS ?tot) WHERE { \n" +
                 "  GRAPH <" + TEST_NAMED_GRAPH + "> { \n" +
                 "    ?e hasco:isMemberOf <" + SOC_LOCATION_URI + "> ; \n" +
                 "       hasco:originalID ?id ; \n" +
                 "       rdfs:label ?label . \n" +
-                "    FILTER (STRSTARTS(STR(?id), \"TEST-\")) \n" +
+                "    FILTER (STRENDS(STR(?id), \"-2\")) \n" +
                 "  } \n" +
                 "}";
 
         long withLabel = SPARQLCountUtil.count(endpoint, labelQuery);
 
-        System.out.println("[Test 9] TEST- elements with rdfs:label: " + withLabel);
-        assertEquals(EXPECTED_COUNT, withLabel, "All TEST- elements should have rdfs:label");
+        System.out.println("[Test 9] -2 suffix elements with rdfs:label: " + withLabel);
+        assertEquals(EXPECTED_COUNT, withLabel, "All -2 suffix elements should have rdfs:label");
 
-        // Check that all TEST- elements have hasSpaceScope
+        // Check that all -2 suffix elements have hasSpaceScope
         String spaceScopeQuery = ns +
                 "SELECT (COUNT(*) AS ?tot) WHERE { \n" +
                 "  GRAPH <" + TEST_NAMED_GRAPH + "> { \n" +
                 "    ?e hasco:isMemberOf <" + SOC_LOCATION_URI + "> ; \n" +
                 "       hasco:originalID ?id ; \n" +
                 "       hasco:hasSpaceScope ?scope . \n" +
-                "    FILTER (STRSTARTS(STR(?id), \"TEST-\")) \n" +
+                "    FILTER (STRENDS(STR(?id), \"-2\")) \n" +
                 "  } \n" +
                 "}";
 
         long withSpaceScope = SPARQLCountUtil.count(endpoint, spaceScopeQuery);
 
-        System.out.println("[Test 9] TEST- elements with hasSpaceScope: " + withSpaceScope);
-        assertEquals(EXPECTED_COUNT, withSpaceScope, "All TEST- elements should have hasSpaceScope");
+        System.out.println("[Test 9] -2 suffix elements with hasSpaceScope: " + withSpaceScope);
+        assertEquals(EXPECTED_COUNT, withSpaceScope, "All -2 suffix elements should have hasSpaceScope");
 
         System.out.println("[Test 9] ✓ PASSED");
     }

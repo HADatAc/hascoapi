@@ -197,6 +197,21 @@ public class SIRElementAPI extends Controller {
             Instrument object;
             try {
                 object = (Instrument)objectMapper.readValue(json, clazz);
+                
+                // Validate required fields
+                if (object.getLabel() == null || object.getLabel().trim().isEmpty()) {
+                    return ok(ApiUtil.createResponse("Field 'label' is required but was not provided.", false));
+                }
+                if (object.getUri() == null || object.getUri().trim().isEmpty()) {
+                    return ok(ApiUtil.createResponse("Field 'uri' is required but was not provided.", false));
+                }
+                if (object.getNamedGraph() == null || object.getNamedGraph().trim().isEmpty()) {
+                    return ok(ApiUtil.createResponse("Field 'namedGraph' is required but was not provided.", false));
+                }
+                if (object.getHasSIRManagerEmail() == null || object.getHasSIRManagerEmail().trim().isEmpty()) {
+                    return ok(ApiUtil.createResponse("Field 'hasSIRManagerEmail' is required but was not provided.", false));
+                }
+                
                 object.save();
             } catch (JsonProcessingException e) {
                 message = e.getMessage();

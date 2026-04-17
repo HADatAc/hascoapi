@@ -1,0 +1,7 @@
+# Query SUPER básica - sem filtros, sem named graph
+SELECT *
+WHERE {
+  ?s ?p ?o
+}
+LIMIT 10
+

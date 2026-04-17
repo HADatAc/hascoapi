@@ -66,6 +66,20 @@ public class InstrumentAPI extends Controller {
         try {
             //convert json string to Instrument instance
             newInst  = objectMapper.readValue(json, Instrument.class);
+            
+            // Validate required fields
+            if (newInst.getLabel() == null || newInst.getLabel().trim().isEmpty()) {
+                return ok(ApiUtil.createResponse("Field 'label' is required but was not provided.", false));
+            }
+            if (newInst.getUri() == null || newInst.getUri().trim().isEmpty()) {
+                return ok(ApiUtil.createResponse("Field 'uri' is required but was not provided.", false));
+            }
+            if (newInst.getNamedGraph() == null || newInst.getNamedGraph().trim().isEmpty()) {
+                return ok(ApiUtil.createResponse("Field 'namedGraph' is required but was not provided.", false));
+            }
+            if (newInst.getHasSIRManagerEmail() == null || newInst.getHasSIRManagerEmail().trim().isEmpty()) {
+                return ok(ApiUtil.createResponse("Field 'hasSIRManagerEmail' is required but was not provided.", false));
+            }
         } catch (Exception e) {
             //System.out.println("(InstrumentAPI) Failed to parse json for [" + json + "]");
             return ok(ApiUtil.createResponse("Failed to parse json.", false));

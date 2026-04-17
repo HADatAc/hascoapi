@@ -1,0 +1,19 @@
+# ============================================================================
+# CONFIRMAR: 50 objetos SOC-LOCATION existem no graph correto
+# ============================================================================
+
+PREFIX hasco: <http://hadatac.org/ont/hasco#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT (COUNT(?obj) as ?count)
+WHERE {
+  GRAPH <https://hadatac.org/ont/hadatac#/DFL1775048338616071> {
+    ?obj rdf:type hasco:StudyObject .
+    ?obj hasco:isMemberOf ?soc .
+
+    FILTER(CONTAINS(STR(?soc), "LOCATION") && !CONTAINS(STR(?soc), "WEATHER") && !CONTAINS(STR(?soc), "TYPE"))
+  }
+}
+
+# Resultado esperado: count = 50
+

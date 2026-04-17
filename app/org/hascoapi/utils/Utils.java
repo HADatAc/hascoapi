@@ -219,6 +219,11 @@ public class Utils {
             return null;
         }
 
+        if (identifier == null || identifier.isEmpty()) {
+            System.out.println("[ERROR] Utils.uriHashGen(): identifier not provided.");
+            return null;
+        }
+
         if (!repoUri.endsWith("/")) {
             repoUri += "/";
         }
