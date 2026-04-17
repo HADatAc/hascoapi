@@ -1,5 +1,6 @@
 package org.hascoapi.entity.pojo;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.jena.query.QuerySolution;
@@ -87,6 +88,10 @@ public class StudyObject extends HADatAcThing {
 
     @PropertyField(uri="vstoi:hasSIRManagerEmail")
     String hasSIRManagerEmail;
+    
+    // Dynamic properties from DA-SOC or other sources (e.g., firstName, lastName, email, etc.)
+    // This Map will be serialized as top-level properties in the JSON output via @JsonAnyGetter
+    private Map<String, Object> additionalProperties = new HashMap<>();
     
     public StudyObject() {
         this("", "");
@@ -206,6 +211,22 @@ public class StudyObject extends HADatAcThing {
     public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
         this.hasSIRManagerEmail = hasSIRManagerEmail;
     }	
+
+    // Jackson will serialize all entries in this map as top-level JSON properties
+    @JsonAnyGetter
+    public Map<String, Object> getAdditionalProperties() {
+        return additionalProperties;
+    }
+    
+    @JsonIgnore
+    public void setAdditionalProperty(String key, Object value) {
+        this.additionalProperties.put(key, value);
+    }
+    
+    @JsonIgnore
+    public void setAdditionalProperties(Map<String, Object> properties) {
+        this.additionalProperties = properties;
+    }
 
     public List<String> getScopeUris() {
         return scopeUris;
@@ -400,6 +421,33 @@ public class StudyObject extends HADatAcThing {
         return retrievedUris;
     }
 
+    /**
+     * Extracts the local name from an RDF predicate URI.
+     * For URIs ending with #something, returns "something"
+     * For URIs ending with /something, returns "something"
+     * @param uri The full URI
+     * @return The local name, or null if extraction fails
+     */
+    private static String extractLocalName(String uri) {
+        if (uri == null || uri.isEmpty()) {
+            return null;
+        }
+        
+        // Check for fragment identifier (after #)
+        int hashIndex = uri.lastIndexOf('#');
+        if (hashIndex >= 0 && hashIndex < uri.length() - 1) {
+            return uri.substring(hashIndex + 1);
+        }
+        
+        // Check for path segment (after last /)
+        int slashIndex = uri.lastIndexOf('/');
+        if (slashIndex >= 0 && slashIndex < uri.length() - 1) {
+            return uri.substring(slashIndex + 1);
+        }
+        
+        return null;
+    }
+
     	public static StudyObject find(String uri) {
         
         if (uri == null || uri.isEmpty()) {
@@ -453,6 +501,14 @@ public class StudyObject extends HADatAcThing {
 					studyObject.addSpaceScopeUri(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
 					studyObject.setHasSIRManagerEmail(str);
+				} else {
+					// Capture any other predicate as an additional property (for DA-SOC enhanced properties)
+					// Extract local name from URI (part after last # or /)
+					String predicateUri = statement.getPredicate().getURI();
+					String localName = extractLocalName(predicateUri);
+					if (localName != null && !localName.isEmpty()) {
+						studyObject.setAdditionalProperty(localName, str);
+					}
 				}
 			}
 		}

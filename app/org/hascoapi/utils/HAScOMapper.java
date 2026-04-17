@@ -525,7 +525,9 @@ public class HAScOMapper {
             filterProvider.addFilter("studyObjectFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
                             "hasImageUri", "hasWebDocument", 
-                            "hascoTypeLabel", "comment", "isMemberOf"));
+                            "hascoTypeLabel", "comment", "isMemberOf",
+                            "firstName", "lastName", "mbox", "telephone", "employeeID", "employeeId",
+                            "skillLevel", "hireDate", "department", "role", "hasDepartment", "hasRole"));
         }
 
         // STUDY OBJECT COLLECTION

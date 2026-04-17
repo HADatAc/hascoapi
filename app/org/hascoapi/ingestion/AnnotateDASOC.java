@@ -5,6 +5,7 @@ import java.lang.String;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -348,7 +349,11 @@ public class AnnotateDASOC {
             System.out.println("✅ (3) Code was able to process the CSV file: " + file.getName());
 
             Map<String, Integer> headerMap = csvParser.getHeaderMap();
-            List<String> headers = new ArrayList<>(headerMap.keySet());
+            // CRITICAL FIX: headerMap.keySet() has no guaranteed order - must sort by column index
+            List<String> headers = headerMap.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
 
             if (headers.isEmpty() || headers.size() < 2) {
                 dataFile.getLogger().printExceptionById("DASOC_00006");
@@ -369,7 +374,7 @@ public class AnnotateDASOC {
                 totalCSVRows++; // Count all CSV data rows
                 
                 try {
-                    String originalId = record.get(0).trim(); // First column
+                    String originalId = record.get(originalIdColumn).trim(); // Access by column name
                     
                     if (originalId.isEmpty()) {
                         skippedRows++;
@@ -391,7 +396,7 @@ public class AnnotateDASOC {
                     // Add properties from remaining columns
                     for (int i = 1; i < headers.size(); i++) {
                         String predicateUri = headers.get(i);
-                        String value = record.get(i).trim();
+                        String value = record.get(predicateUri).trim();  // Access by column name, not index
 
                         if (value.isEmpty()) {
                             continue; // Skip empty values
