@@ -29,8 +29,11 @@ COPY --from=build-java /hascoapi/target/universal/hascoapi-10.0.1-SNAPSHOT /hasc
 
 COPY ./conf/hascoapi-docker.conf /hascoapi/conf/hascoapi.conf
 COPY ./docker-entrypoint.sh /hascoapi/docker-entrypoint.sh
+COPY ./load-pharma-ontology.sh /hascoapi/load-pharma-ontology.sh
+COPY ./app_ontology/pharma.owl /var/hascoapi/app_ontology/pharma.owl
 
 RUN chmod +x /hascoapi/docker-entrypoint.sh
+RUN chmod +x /hascoapi/load-pharma-ontology.sh
 
 EXPOSE 9000
 

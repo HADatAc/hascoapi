@@ -25,7 +25,7 @@ public class StudyObjectCollectionAPI extends Controller {
         if (results == null) {
             return ok(ApiUtil.createResponse("No Study Object Collection has been found", false));
         } else {
-            ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL,HASCO.STUDY_OBJECT_COLLECTION);
+            ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.ESSENTIAL,HASCO.STUDY_OBJECT_COLLECTION);
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));
         }

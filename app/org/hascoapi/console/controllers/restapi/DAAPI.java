@@ -153,6 +153,7 @@ public class DAAPI extends Controller {
     /**
      * Get all DA-SOC DataFiles from the triplestore
      * Queries for DataFiles with filenames starting with "DA-SOC-"
+     * Only returns files with PROCESSED or WORKING status (excludes UNPROCESSED/deleted files)
      */
     public Result getDaSocFiles() {
         ObjectMapper mapper = new ObjectMapper();
@@ -163,7 +164,8 @@ public class DAAPI extends Controller {
                 "  GRAPH ?uri { \n" +
                 "    ?uri hasco:hasFilename ?filename . \n" +
                 "    FILTER(STRSTARTS(UCASE(?filename), \"DA-SOC-\")) \n" +
-                "    OPTIONAL { ?uri hasco:hasFileStatus ?fileStatus } \n" +
+                "    ?uri hasco:hasFileStatus ?fileStatus . \n" +
+                "    FILTER(?fileStatus IN (\"PROCESSED\", \"WORKING\")) \n" +
                 "  } \n" +
                 "  OPTIONAL { \n" +
                 "    GRAPH ?g { \n" +
