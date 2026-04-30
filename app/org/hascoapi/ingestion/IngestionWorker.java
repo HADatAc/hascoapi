@@ -208,6 +208,57 @@ public class IngestionWorker {
             chain = AnnotateDP2.exec(dataFile, templateFile, status);
 
         } else if (fileName.startsWith("INS-")) {
+            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            // ⚠️  INS FORMAT IS DEPRECATED - USE DSG + DA-SOC INSTEAD
+            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            dataFile.getLogger().println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+            dataFile.getLogger().println("⚠️  DEPRECATION WARNING: INS format is deprecated");
+            dataFile.getLogger().println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+            dataFile.getLogger().println("");
+            dataFile.getLogger().println("The INS (Instrument Namespace Specification) file format");
+            dataFile.getLogger().println("is deprecated and will be removed in a future release.");
+            dataFile.getLogger().println("");
+            dataFile.getLogger().println("Please migrate to the DSG + DA-SOC approach:");
+            dataFile.getLogger().println("");
+            dataFile.getLogger().println("NEW WORKFLOW:");
+            dataFile.getLogger().println("  1. Create a DSG file with SOCs for VSTOI entities:");
+            dataFile.getLogger().println("     - SOC-INSTRUMENT-<name>");
+            dataFile.getLogger().println("     - SOC-COMPONENT-<name>");
+            dataFile.getLogger().println("     - SOC-COMPONENT-STEM-<name>");
+            dataFile.getLogger().println("     - SOC-SLOT-ELEMENT-<name>");
+            dataFile.getLogger().println("     - SOC-CODEBOOK-<name>");
+            dataFile.getLogger().println("     - SOC-RESPONSE-OPTION-<name>");
+            dataFile.getLogger().println("");
+            dataFile.getLogger().println("  2. In each SOC worksheet, include columns:");
+            dataFile.getLogger().println("     - originalID (unique identifier)");
+            dataFile.getLogger().println("     - rdf:type (e.g., vstoi:Instrument)");
+            dataFile.getLogger().println("     - rdfs:label (human-readable name)");
+            dataFile.getLogger().println("     - rdfs:comment (description)");
+            dataFile.getLogger().println("");
+            dataFile.getLogger().println("  3. Create DA-SOC files for extended properties:");
+            dataFile.getLogger().println("     - DA-SOC-INSTRUMENT-<name>.csv");
+            dataFile.getLogger().println("     - DA-SOC-COMPONENT-<name>.csv");
+            dataFile.getLogger().println("     - etc.");
+            dataFile.getLogger().println("");
+            dataFile.getLogger().println("  4. In DA-SOC files, include VSTOI-specific properties:");
+            dataFile.getLogger().println("     - vstoi:hasFirst, vstoi:hasShortName, vstoi:hasLanguage");
+            dataFile.getLogger().println("     - vstoi:hasComponentStem, vstoi:hasCodebook");
+            dataFile.getLogger().println("     - vstoi:belongsTo, vstoi:hasNext, vstoi:hasPrevious");
+            dataFile.getLogger().println("");
+            dataFile.getLogger().println("BENEFITS:");
+            dataFile.getLogger().println("  ✓ Unified data management (same framework for all studies)");
+            dataFile.getLogger().println("  ✓ Better version control (CSV files vs Excel sheets)");
+            dataFile.getLogger().println("  ✓ Easier collaboration (separate files for different aspects)");
+            dataFile.getLogger().println("  ✓ More flexible property extension (via DA-SOC)");
+            dataFile.getLogger().println("");
+            dataFile.getLogger().println("For migration assistance, see:");
+            dataFile.getLogger().println("  docs/INS-TO-DSG-TRANSFORMATION-PLAN.md");
+            dataFile.getLogger().println("");
+            dataFile.getLogger().println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+            dataFile.getLogger().println("");
+            dataFile.getLogger().println("Proceeding with INS ingestion (legacy mode)...");
+            dataFile.getLogger().println("");
+            
             chain = AnnotateINS.exec(dataFile, templateFile, status);
 
         } else if (fileName.startsWith("KGR-")) {

@@ -70,13 +70,17 @@ public class SSDGenerator extends BaseGenerator {
     private String getVirtualColumnUri(Record rec) {
         String vcUri= 
             studyUri.replace(Constants.PREFIX_STUDY, Constants.PREFIX_VIRTUAL_COLUMN) + "-" + 
-            getSOCReference(rec).replace("??", "");
+            getSOCReference(rec);
         return vcUri;
     }
     
     private String getSOCReference(Record rec) {
         String ref = rec.getValueByColumnName(mapCol.get("hasSOCReference"));
-        return ref.trim().replace(" ", "").replace("_", "-");
+        if (ref == null || ref.isEmpty()) {
+            return "";
+        }
+        // Clean the reference: remove ??, spaces, and underscores
+        return ref.trim().replace("??", "").replace(" ", "").replace("_", "-");
     }
 
     private String getRoleLabel(Record rec) {
@@ -175,30 +179,43 @@ public class SSDGenerator extends BaseGenerator {
 
         System.out.println("SSDGenerator: recordSize=[" + record.size() + "]");
         System.out.println("     uri=[" + uri + "] studyUri=[" + studyUri + "]");
-        System.out.println("     typeUri=[" + typeUri + "] SOCReference=[" + SOCReference + "]");
+        System.out.println("     typeUri=[" + typeUri + "] SOCReference=[" + SOCReference + "] (cleaned)");
 
-        // Skip the study row in the SSD sheet
-    	//if (typeUri.equals("hasco:Study")) {
-        //    return null;
-        //}
-        
-
-        if (typeUri.isEmpty() && SOCReference != null && !SOCReference.isEmpty()) {
-            return null;
-        }
-        
-        if (typeUri.isEmpty() && SOCReference.isEmpty()) {
+        // Skip empty type and reference
+        if (typeUri == null || typeUri.isEmpty()) {
         	return null;
         }
         
         if (this.studyUri == null || this.studyUri.isEmpty()) {
-            logger.printExceptionByIdWithArgs("SSD_00001", typeUri);
+            logger.printExceptionByIdWithArgs("DSG_00006", typeUri);
             return null;
         }
             
+        // AUTO-DERIVE SOCReference if not provided
+        // VSTOI uses standard hasco:StudyObjectCollection or hasco:ObjectCollection
+        // The distinction is made at the instance level (vstoi:Instrument, vstoi:Component, etc.)
+        // So we derive SOCReference from the URI for ANY collection that doesn't provide it
         if (SOCReference == null || SOCReference.isEmpty()) {
-            logger.printExceptionById("SSD_00002");
-            return null;
+            // Check if this is a generic ObjectCollection - auto-derive reference
+            boolean isObjectCollection = typeUri.contains("ObjectCollection") || 
+                                        typeUri.contains("StudyObjectCollection");
+            
+            if (isObjectCollection) {
+                // Auto-derive from URI: extract last segment after OCL_
+                if (uri != null && !uri.isEmpty()) {
+                    String[] parts = uri.split("[/#]");
+                    String lastSegment = parts[parts.length - 1];
+                    SOCReference = lastSegment.replace("OCL_", "");
+                    logger.println("  [AUTO] Auto-derived SOCReference: " + SOCReference);
+                } else {
+                    SOCReference = "AUTO-OBJ";
+                    logger.println("  [AUTO] Using fallback SOCReference: " + SOCReference);
+                }
+            } else {
+                // For specific typed collections (SubjectGroup, SampleCollection, etc.), SOCReference is REQUIRED
+                logger.printExceptionById("DSG_00007");
+                return null;
+            }
         }
 
         String scopeUri = getHasScopeUri(record);
@@ -226,6 +243,13 @@ public class SSDGenerator extends BaseGenerator {
         soc.setSpaceScopeUris(getSpaceScopeUris(record));
         soc.setGroupUris(getGroupUris(record));
         soc.setLastCounter("0");
+        
+        // DEBUG: Log SOC properties before saving
+        System.out.println("[SOC DEBUG] Created SOC:");
+        System.out.println("  URI: " + soc.getUri());
+        System.out.println("  isMemberOf: " + soc.getIsMemberOfUri());
+        System.out.println("  label: " + soc.getLabel());
+        System.out.println("  studyUri passed: " + studyUri);
 
         /* 
         StudyObjectCollection soc = new StudyObjectCollection(

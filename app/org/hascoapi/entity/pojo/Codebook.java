@@ -154,22 +154,28 @@ public class Codebook extends HADatAcThing implements Comparable<Codebook> {
     }
 
     public static Codebook find(String uri) {
+        System.out.println("[DEBUG-CODEBOOK-FIND] Codebook.find() called with URI: " + uri);
  		if (uri == null || uri.isEmpty()) {
+            System.out.println("[DEBUG-CODEBOOK-FIND] URI is null or empty, returning null");
 			return null;
 		}
 		Codebook codebook = null;
 		// Construct the SELECT query to retrieve named graphs
 		String queryString = "SELECT DISTINCT ?graph ?p ?o WHERE { GRAPH ?graph { <" + uri + "> ?p ?o } }";
+        System.out.println("[DEBUG-CODEBOOK-FIND] Executing SPARQL query: " + queryString);
 		ResultSet resultSet = SPARQLUtils.select(CollectionUtil.getCollectionPath(
         	CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
 		if (!resultSet.hasNext()) {
+            System.out.println("[DEBUG-CODEBOOK-FIND] No results found for URI: " + uri);
 			return null;
 		} else {
+            System.out.println("[DEBUG-CODEBOOK-FIND] Results found! Creating new Codebook instance");
             codebook = new Codebook();
 		}
 
 		// Iterate over results
+        int propertyCount = 0;
 		while (resultSet.hasNext()) {
 			QuerySolution qs = resultSet.next();
 			
@@ -184,6 +190,7 @@ public class Codebook extends HADatAcThing implements Comparable<Codebook> {
 				String predicate = qs.get("p").toString();
 				String object = qs.get("o").toString();
 				//System.out.println("Predicate: " + predicate + " | Object: " + object);
+                propertyCount++;
 
 				if (predicate.equals(RDFS.LABEL)) {
 					codebook.setLabel(object);
@@ -217,7 +224,9 @@ public class Codebook extends HADatAcThing implements Comparable<Codebook> {
             }
         }
 
+        System.out.println("[DEBUG-CODEBOOK-FIND] Loaded " + propertyCount + " properties for codebook");
         codebook.setUri(uri);
+        System.out.println("[DEBUG-CODEBOOK-FIND] Returning codebook with URI: " + codebook.getUri() + ", Label: " + codebook.getLabel());
 
         return codebook;
     }

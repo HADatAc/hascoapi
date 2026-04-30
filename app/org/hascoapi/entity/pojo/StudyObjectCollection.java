@@ -1209,12 +1209,9 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
     public boolean saveToTripleStore(boolean withValidation, boolean withDeletion, org.eclipse.rdf4j.model.Model model, List<String> query) {
         String insert = "";
 
-        if (query == null || query.isEmpty()) {
-            insert += NameSpaces.getInstance().printSparqlNameSpaceList();
-            insert += INSERT_LINE1;
-        } else {
-            insert = query.get(0);
-        }
+        // Always start with namespace declarations and INSERT DATA
+        insert += NameSpaces.getInstance().printSparqlNameSpaceList();
+        insert += INSERT_LINE1;
 
         String socUri = "";
             if (this.getUri().startsWith("<")) {
@@ -1301,7 +1298,7 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         //System.out.println("\n\nsave to TS: insert = " + insert + "\n ");
 
         if (query == null){
-            // INSERT CLOSING
+            // INSERT CLOSING - execute immediately
             insert += LINE_LAST;
 
             try {
@@ -1314,12 +1311,9 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
                 throw e;
             }
         } else {
-            // Update query
-            if (query.isEmpty()){
-                query.add(insert);
-            } else {
-                query.set(0, insert);
-            }
+            // Batch mode: add closing and append to query list (don't overwrite!)
+            insert += LINE_LAST;
+            query.add(insert);  // Always add, never overwrite with set(0, ...)
         }
 
         //saveObjectUris(socUri);

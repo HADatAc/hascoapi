@@ -388,8 +388,11 @@ public abstract class BaseGenerator {
             obj.setNamedGraph(getNamedGraphUri());
             //System.out.println("BaseGenerator.commitObjectsToTriplestore() [1]");
 
-            if (obj.getClass().getSimpleName() == "StudyObjectCollection") {
+            // FIX: Use .equals() instead of == for string comparison
+            // The == operator compares object references, not string content
+            if ("StudyObjectCollection".equals(obj.getClass().getSimpleName())) {
                 obj.saveToTripleStore(false, false, null, query);
+                count++; // Increment count for SOCs too!
             } else if (obj.saveToTripleStore(withValidation, false, model)) {
                 count++;
             }

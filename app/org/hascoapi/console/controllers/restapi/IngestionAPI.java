@@ -129,6 +129,20 @@ public class IngestionAPI extends Controller {
                 return ok(ApiUtil.createResponse("IngestionAPI.ingest(): File FAILED to be ingested: could not retrieve " + elementType + ". ",false));
             }
             dataFile = DataFile.find(dsg.getHasDataFileUri());
+            
+            // ✅ CRITICAL FIX: Propagate hasSIRManagerEmail from DSG to DataFile
+            // This ensures instruments created from DSG are visible in frontend
+            // filtering by manager email (endpoint: /instrument/manageremail/{email})
+            if (dataFile != null) {
+                if (dsg.getHasSIRManagerEmail() != null && !dsg.getHasSIRManagerEmail().isEmpty()) {
+                    dataFile.setHasSIRManagerEmail(dsg.getHasSIRManagerEmail());
+                    dataFile.save();
+                    System.out.println("[INGESTION FIX] Set DataFile.hasSIRManagerEmail from DSG: " + dsg.getHasSIRManagerEmail());
+                } else {
+                    System.out.println("[WARNING] DSG has no hasSIRManagerEmail - instruments created may not be visible in frontend");
+                    System.out.println("[WARNING] Please ensure DSG includes hasSIRManagerEmail property");
+                }
+            }
         } else if (elementType.equals("da")) {
             // IMPORTANT: "da" is accepted ONLY for DA-SOC-* files
             // IngestionWorker enforces DA-SOC-* filename validation
@@ -192,6 +206,14 @@ public class IngestionAPI extends Controller {
                 }
             }
         } else if (elementType.equals("ins")) {
+            // ⚠️ DEPRECATION WARNING
+            System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+            System.out.println("⚠️  WARNING: INS format is DEPRECATED - use DSG + DA-SOC instead");
+            System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+            System.out.println("INS files are deprecated. Please migrate to DSG + DA-SOC workflow.");
+            System.out.println("See: docs/INS-TO-DSG-TRANSFORMATION-PLAN.md");
+            System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+            
             INS ins = INS.find(elementUri);
             if (ins == null) {
                 return ok(ApiUtil.createResponse("IngestionAPI.ingest(): File FAILED to be ingested: could not retrieve " + elementType + ". ",false));
@@ -663,6 +685,9 @@ public class IngestionAPI extends Controller {
             } else if (mtRaw.getHascoTypeUri().equals(HASCO.WKF)) {
                 mtType = HASCO.WKF;
                 System.out.println("IngestionAPI.uningestMetadataTemplate() read WKF");
+            } else if (mtRaw.getHascoTypeUri().equals(HASCO.DATA_ACQUISITION)) {
+                mtType = HASCO.DATA_ACQUISITION;
+                System.out.println("IngestionAPI.uningestMetadataTemplate() read DA (DataAcquisition)");
             }
         }
 
@@ -919,6 +944,71 @@ public class IngestionAPI extends Controller {
             System.out.println("  DataFile reset to UNPROCESSED and saved");
 
             String msg = "IngestionAPI.uningestMetadataTemplate(): successfully uningest metadataTemplateUri " + metadataTemplateUri;
+            System.out.println(msg);
+            return ok(ApiUtil.createResponse(msg,true));
+
+        } else if (mtType.equals(HASCO.DATA_ACQUISITION)) {
+
+            System.out.println("=== IngestionAPI.uningestMetadataTemplate() DA (DataAcquisition) BRANCH ===");
+            System.out.println("  metadataTemplateUri: " + metadataTemplateUri);
+
+            DA da = DA.find(metadataTemplateUri);
+            if (da == null) {
+                String errorMsg = "[ERROR] IngestionAPI.uningestMetadataTemplate() unable to retrieve DA with metadataTemplateUri = " + metadataTemplateUri;
+                System.out.println(errorMsg);
+                return ok(ApiUtil.createResponse(errorMsg,false));
+            }
+
+            System.out.println("  DA found: " + da.getLabel());
+            System.out.println("  DA DataFileURI: " + da.getHasDataFileUri());
+
+            DataFile dataFile = DataFile.find(da.getHasDataFileUri());
+            if (dataFile == null) {
+                String errorMsg = "[ERROR] IngestionAPI.uningestMetadataTemplate() unable to retrieve DA's dataFile = " + da.getHasDataFileUri();
+                System.out.println(errorMsg);
+                return ok(ApiUtil.createResponse(errorMsg,false));
+            }
+
+            System.out.println("  DataFile found: " + dataFile.getFilename());
+            System.out.println("IngestionAPI.uningestMetadataTemplate(): API has able to retrieve DA from triplestore");
+
+            // DA-SOC files enrich existing entities (Instruments, Components, etc.)
+            // Deleting the entire named graph will remove these enrichments
+            // We delete only the DA-specific triples and preserve the enriched entities
+            System.out.println("  Deleting DA annotation triples from named graph: " + dataFile.getUri());
+
+            String namedGraphUri = dataFile.getUri();
+            String daUri = da.getUri();
+
+            // Build a SPARQL DELETE query that removes DA-specific triples
+            // but preserves enriched entity data
+            String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+            queryString += "WITH <" + namedGraphUri + "> ";
+            queryString += "DELETE { ?s ?p ?o } WHERE { ";
+            queryString += "  ?s ?p ?o . ";
+            queryString += "  FILTER(?s != <" + daUri + "> && ?s != <" + namedGraphUri + ">) ";
+            queryString += "} ";
+
+            try {
+                UpdateRequest req = UpdateFactory.create(queryString);
+                UpdateProcessor processor = UpdateExecutionFactory.createRemote(req,
+                        CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
+                processor.execute();
+                System.out.println("  ✓ DA annotation triples deleted successfully");
+                System.out.println("  ✓ DA metadata preserved: " + daUri);
+                System.out.println("  ✓ DataFile metadata preserved: " + namedGraphUri);
+            } catch (Exception e) {
+                System.out.println("  [ERROR] Failed to delete DA annotation triples: " + e.getMessage());
+                e.printStackTrace();
+            }
+
+            // Reset DataFile to UNPROCESSED status
+            System.out.println("  Resetting DataFile to UNPROCESSED...");
+            dataFile.resetForUnprocessed();
+            dataFile.save();
+            System.out.println("  DataFile reset to UNPROCESSED and saved");
+
+            String msg = "IngestionAPI.uningestMetadataTemplate(): successfully uningest DA metadataTemplateUri " + metadataTemplateUri;
             System.out.println(msg);
             return ok(ApiUtil.createResponse(msg,true));
 

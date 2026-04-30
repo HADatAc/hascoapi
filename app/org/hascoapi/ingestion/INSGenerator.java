@@ -7,7 +7,14 @@ import java.util.Map;
 import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.vocabularies.VSTOI;
 
-
+/**
+ * ═══════════════════════════════════════════════════════════════════════════
+ * ⚠️  DEPRECATED - Use StudyObjectGenerator + AnnotateDASOC instead
+ * ═══════════════════════════════════════════════════════════════════════════
+ * 
+ * @deprecated Use DSG + DA-SOC workflow instead (StudyObjectGenerator + AnnotateDASOC)
+ */
+@Deprecated
 public class INSGenerator extends BaseGenerator {
     
 	protected String instrumentUri = "";

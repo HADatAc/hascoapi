@@ -4,6 +4,48 @@ import java.util.Map;
 import org.hascoapi.Constants;
 import org.hascoapi.entity.pojo.DataFile;
 
+/**
+ * ═══════════════════════════════════════════════════════════════════════════
+ * ⚠️  DEPRECATED - INS FORMAT IS NO LONGER RECOMMENDED
+ * ═══════════════════════════════════════════════════════════════════════════
+ * 
+ * This class processes INS (Instrument Namespace Specification) files,
+ * which are DEPRECATED and will be removed in a future release.
+ * 
+ * RECOMMENDED ALTERNATIVE: Use DSG + DA-SOC workflow instead
+ * 
+ * WHY DEPRECATED:
+ *   • INS creates parallel metadata management (separate from study framework)
+ *   • DSG provides unified metadata across all research elements
+ *   • DA-SOC enables flexible property extension
+ *   • DSG supports better version control and collaboration
+ * 
+ * MIGRATION PATH:
+ *   1. Create DSG file with VSTOI-typed SOCs:
+ *      - SOC-INSTRUMENT-<name>
+ *      - SOC-COMPONENT-<name>
+ *      - SOC-COMPONENT-STEM-<name>
+ *      - SOC-SLOT-ELEMENT-<name>
+ *      - SOC-CODEBOOK-<name>
+ *      - SOC-RESPONSE-OPTION-<name>
+ * 
+ *   2. Create DA-SOC files for extended properties:
+ *      - DA-SOC-INSTRUMENT-<name>.csv (vstoi:hasFirst, vstoi:hasShortName, ...)
+ *      - DA-SOC-COMPONENT-<name>.csv (vstoi:hasComponentStem, vstoi:hasCodebook, ...)
+ *      - DA-SOC-SLOT-ELEMENT-<name>.csv (vstoi:belongsTo, vstoi:hasNext, ...)
+ * 
+ * DOCUMENTATION:
+ *   See docs/INS-TO-DSG-TRANSFORMATION-PLAN.md for detailed migration guide
+ * 
+ * REMOVAL TIMELINE:
+ *   - Current: Generates deprecation warnings
+ *   - Future: Will be removed entirely
+ * 
+ * ═══════════════════════════════════════════════════════════════════════════
+ * 
+ * @deprecated Use DSG + DA-SOC workflow instead
+ */
+@Deprecated
 public class AnnotateINS extends BaseAnnotator {
 
     public static GeneratorChain exec(DataFile dataFile, String templateFile, String status) {

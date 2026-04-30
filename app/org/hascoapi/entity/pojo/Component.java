@@ -69,11 +69,18 @@ public class Component extends HADatAcThing implements SIRElement  {
     }
 
     public Codebook getCodebook() {
+        System.out.println("[DEBUG-COMPONENT-UI] getCodebook() called for component: " + this.getUri());
+        System.out.println("[DEBUG-COMPONENT-UI] hasCodebook value: " + hasCodebook);
         if (hasCodebook == null || hasCodebook.equals("")) {
+            System.out.println("[DEBUG-COMPONENT-UI] hasCodebook is null or empty, returning null");
             return null;
         }
-        return Codebook.find(hasCodebook);
+        System.out.println("[DEBUG-COMPONENT-UI] Calling Codebook.find() with: " + hasCodebook);
+        Codebook cb = Codebook.find(hasCodebook);
+        System.out.println("[DEBUG-COMPONENT-UI] Codebook.find() returned: " + (cb != null ? cb.getUri() : "NULL"));
+        return cb;
     }
+
 
     public void setIsAttributeOf(String isAttributeOf) {
         this.isAttributeOf = isAttributeOf;
@@ -104,10 +111,16 @@ public class Component extends HADatAcThing implements SIRElement  {
     }
 
     public ComponentStem getComponentStem() {
+        System.out.println("[DEBUG-COMPONENT-UI] getComponentStem() called for component: " + this.getUri());
+        System.out.println("[DEBUG-COMPONENT-UI] hasComponentStem value: " + hasComponentStem);
         if (hasComponentStem == null || hasComponentStem.isEmpty()) {
+            System.out.println("[DEBUG-COMPONENT-UI] hasComponentStem is null or empty, returning null");
             return null;
         }
-        return ComponentStem.find(hasComponentStem);
+        System.out.println("[DEBUG-COMPONENT-UI] Calling ComponentStem.find() with: " + hasComponentStem);
+        ComponentStem cs = ComponentStem.find(hasComponentStem);
+        System.out.println("[DEBUG-COMPONENT-UI] ComponentStem.find() returned: " + (cs != null ? cs.getUri() : "NULL"));
+        return cs;
     }
 
     public void setHasComponentStem(String hasComponentStem) {

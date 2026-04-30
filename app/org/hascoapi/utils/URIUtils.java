@@ -198,15 +198,35 @@ public class URIUtils {
 
     /*
      *  if the argument str starts with the abbreviation of one of the name spaces registered in NameSpaces.table, the
-     *  abbreviation gets replaced by the name space's URI. Otherwise, the string is returned wrapper
-     *  around angular brackets.
+     *  abbreviation gets replaced by the name space's URI. 
+     *  
+     *  ENHANCED: Now supports both standard and slash-prefixed formats:
+     *  - Standard format: "prefix:localname" → "namespace + localname"
+     *  - Slash format: "prefix:/localname" → "namespace + localname" (slash is removed)
+     *  
+     *  This enhancement enables DA-SOC CSV files to use either format for dependency URIs.
+     *  
+     *  Examples:
+     *  - "pmsr:CSM123" → "http://pmsr.net/ont/pmsr#CSM123"
+     *  - "pmsr:/CSM123" → "http://pmsr.net/ont/pmsr#CSM123" (same result, slash removed)
+     *  - "http://full.uri/path" → "http://full.uri/path" (passthrough)
      */
     public static String replacePrefixEx(String str) {
         String resp = str;
         for (Map.Entry<String, NameSpace> entry : NameSpaces.getInstance().getNamespaces().entrySet()) {
             String abbrev = entry.getKey().toString();
             String nsString = entry.getValue().getUri();
-            if (str.startsWith(abbrev + ":")) {
+            
+            // Check for slash-prefixed format first: prefix:/localname
+            if (str.startsWith(abbrev + ":/")) {
+                // Remove the slash: prefix:/localname → namespace + localname
+                String localName = str.substring((abbrev + ":/").length());
+                resp = nsString + localName;
+                return resp;
+            }
+            // Check for standard format: prefix:localname
+            else if (str.startsWith(abbrev + ":")) {
+                // Standard replacement: prefix:localname → namespace + localname
                 resp = str.replace(abbrev + ":", nsString);
                 return resp;
             }

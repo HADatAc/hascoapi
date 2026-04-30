@@ -263,14 +263,24 @@ public abstract class Container extends HADatAcClass implements SIRElement, Comp
 
     public static List<SlotElement> getSlotElements(Container container) {
         //Container container = Container.find(containerUri);
-        if (container == null || container.getHasFirst() == null || container.getHasFirst().isEmpty()) {
+        System.out.println("[DEBUG-SLOTS] getSlotElements() called for container: " + (container != null ? container.getUri() : "null"));
+        if (container == null) {
+            System.out.println("[DEBUG-SLOTS] Container is null, returning empty list");
+            return new ArrayList<SlotElement>();
+        }
+        System.out.println("[DEBUG-SLOTS] Container.hasFirst = " + container.getHasFirst());
+        if (container.getHasFirst() == null || container.getHasFirst().isEmpty()) {
+            System.out.println("[DEBUG-SLOTS] hasFirst is null or empty, returning empty list");
             return new ArrayList<SlotElement>();
         }
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
                 "   <" + container.getHasFirst() + "> vstoi:hasNext* ?uri . " +
                 "} ";
-        return findByQuery(queryString);        
+        System.out.println("[DEBUG-SLOTS] Query: " + queryString);
+        List<SlotElement> result = findByQuery(queryString);
+        System.out.println("[DEBUG-SLOTS] Found " + (result != null ? result.size() : 0) + " slot elements");
+        return result;        
     }
 
     private static List<SlotElement> findByQuery(String queryString) {

@@ -25,6 +25,9 @@ import org.hascoapi.entity.pojo.Instrument;
 import org.hascoapi.entity.pojo.Component;
 import org.hascoapi.entity.pojo.ComponentStem;
 import org.hascoapi.entity.pojo.ContainerSlot;
+import org.hascoapi.entity.pojo.Codebook;
+import org.hascoapi.entity.pojo.ResponseOption;
+import org.hascoapi.entity.pojo.AnnotationStem;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.ErrorDictionary;
 import org.hascoapi.utils.GSPClient;
@@ -416,8 +419,29 @@ public class AnnotateDASOC {
                         continue;
                     }
 
-                    // Create resource for the object
-                    Resource objectResource = model.createResource(objectUri);
+                    // Determine if this is a VSTOI specialized object
+                    // We need to add properties to the VSTOI instance, not just the StudyObject
+                    // This works for: Instrument, ComponentStem, Component, ResponseOption, Codebook, ContainerSlot
+                    boolean hasVSTOIInstance = isVSTOIInstrument(objectUri, dataFile);
+                    
+                    Resource objectResource;
+                    if (hasVSTOIInstance) {
+                        // For VSTOI objects, we need to get the specialized instance URI
+                        // The pattern is: StudyObject (has[Type]) -> VSTOI specialized instance
+                        String vstoiInstanceUri = getInstrumentInstanceUri(objectUri, dataFile);
+                        if (vstoiInstanceUri != null && !vstoiInstanceUri.isEmpty()) {
+                            objectResource = model.createResource(vstoiInstanceUri);
+                            // Log message already printed by getVSTOIInstanceUri()
+                        } else {
+                            // Fallback to StudyObject if VSTOI instance not found
+                            objectResource = model.createResource(objectUri);
+                            dataFile.getLogger().printWarning(String.format(
+                                "  [VSTOI] Specialized instance URI not found for %s, adding to StudyObject", originalId));
+                        }
+                    } else {
+                        // For non-VSTOI objects, use the StudyObject URI
+                        objectResource = model.createResource(objectUri);
+                    }
 
                     // Add properties from remaining columns
                     boolean hasProperties = false;
@@ -437,9 +461,44 @@ public class AnnotateDASOC {
                         Property timestampProp = model.createProperty(TIMESTAMP_PREDICATE);
                         objectResource.addProperty(timestampProp, timestamp);
 
-                        // Link to DA
+                        // Link to DA (add to both VSTOI instance and StudyObject for consistency)
                         Property hasDAProperty = model.createProperty("http://hadatac.org/ont/hasco/hasDataAcquisition");
                         objectResource.addProperty(hasDAProperty, model.createResource(daUri));
+                        
+                        // Also add DA link to the base StudyObject if we're working with a VSTOI instance
+                        if (hasVSTOIInstance && !objectResource.getURI().equals(objectUri)) {
+                            Resource studyObjectResource = model.createResource(objectUri);
+                            studyObjectResource.addProperty(hasDAProperty, model.createResource(daUri));
+                        }
+
+                        // ===== ENRICH POJO OBJECTS =====
+                        // After adding RDF triples, also enrich the POJO objects
+                        // This updates the in-memory Java objects that are used by the UI
+                        if (hasVSTOIInstance) {
+                            String vstoiInstanceUri = getInstrumentInstanceUri(objectUri, dataFile);
+                            if (vstoiInstanceUri != null && !vstoiInstanceUri.isEmpty()) {
+                                // Collect properties for enrichment
+                                Map<String, String> propertiesMap = new HashMap<>();
+                                for (int i = 1; i < headers.size(); i++) {
+                                    String predicateUri = URIUtils.replacePrefixEx(headers.get(i));
+                                    String columnName = headers.get(i);
+                                    String value = record.get(columnName).trim();
+                                    if (!value.isEmpty()) {
+                                        propertiesMap.put(predicateUri, value);
+                                    }
+                                }
+
+                                System.out.println("[ENRICH-TRACE] Row " + record.getRecordNumber() + ": originalId=" + originalId);
+                                System.out.println("[ENRICH-TRACE]   StudyObject URI: " + objectUri);
+                                System.out.println("[ENRICH-TRACE]   VSTOI Instance URI: " + vstoiInstanceUri);
+                                System.out.println("[ENRICH-TRACE]   Properties collected: " + propertiesMap.size());
+                                System.out.println("[ENRICH-TRACE]   Calling enrichVstoiEntity() with VSTOI URI");
+
+                                // Enrich the VSTOI POJO instance
+                                enrichVstoiEntity(vstoiInstanceUri, propertiesMap, dataFile);
+                            }
+                        }
+                        // ===== END ENRICH POJO OBJECTS =====
 
                         totalRows++;
                     } else {
@@ -620,7 +679,12 @@ public class AnnotateDASOC {
             System.out.println("✅ (3) Code was able to process the CSV file: " + file.getName());
 
             Map<String, Integer> headerMap = csvParser.getHeaderMap();
-            List<String> headers = new ArrayList<>(headerMap.keySet());
+            
+            // CRITICAL FIX: headerMap.keySet() has no guaranteed order - must sort by column index
+            List<String> headers = headerMap.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
 
             // DEBUG: Log raw headers to see if there's BOM or encoding issues
             System.out.println("[DEBUG] Raw headers count: " + headers.size());
@@ -640,11 +704,6 @@ public class AnnotateDASOC {
                     System.out.println("[DEBUG] Removed BOM from first header: '" + firstHeader + "' -> '" + cleaned + "'");
                 }
             }
-            // CRITICAL FIX: headerMap.keySet() has no guaranteed order - must sort by column index
-            List<String> headers = headerMap.entrySet().stream()
-                .sorted(Map.Entry.comparingByValue())
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
 
             if (headers.isEmpty() || headers.size() < 2) {
                 dataFile.getLogger().printExceptionById("DASOC_00006");
@@ -722,14 +781,32 @@ public class AnnotateDASOC {
                     Map<String, String> properties = new HashMap<>();
                     for (int i = 1; i < headers.size(); i++) {
                         String predicateUri = URIUtils.replacePrefixEx(headers.get(i));
-                        String value = record.get(i).trim();
+                        String columnName = headers.get(i);  // ✅ FIX: Use column name
+                        String value = record.get(columnName).trim();  // ✅ FIX: Access by column name
                         if (!value.isEmpty()) {
                             properties.put(predicateUri, value);
+                            System.out.println("[ENRICH-TRACE]     Property: " + columnName + " → " + predicateUri + " = " + value);
                         }
                     }
 
-                    // Tenta enriquecer a entidade vstoi correspondente
-                    enrichVstoiEntity(objectUri, properties, dataFile);
+                    System.out.println("[ENRICH-TRACE] Row " + record.getRecordNumber() + ": originalId=" + originalId);
+                    System.out.println("[ENRICH-TRACE]   StudyObject URI: " + objectUri);
+                    System.out.println("[ENRICH-TRACE]   Properties collected: " + properties.size());
+
+                    // ✅ CRITICAL FIX: Buscar URI da instância VSTOI (não o StudyObject!)
+                    // Exemplo: pmsr:OBJ_instrumentcollection_INS... → pmsr:INST-INS...
+                    String vstoiInstanceUri = getVSTOIInstanceUri(objectUri, dataFile);
+                    System.out.println("[ENRICH-TRACE]   VSTOI Instance URI: " + vstoiInstanceUri);
+                    
+                    if (vstoiInstanceUri != null && !vstoiInstanceUri.isEmpty()) {
+                        System.out.println("[ENRICH-TRACE]   Calling enrichVstoiEntity() with VSTOI URI");
+                        // Enriquecer usando a URI da instância VSTOI
+                        enrichVstoiEntity(vstoiInstanceUri, properties, dataFile);
+                    } else {
+                        System.out.println("[ENRICH-TRACE]   No VSTOI instance found, using StudyObject URI");
+                        // Fallback: se não tem instância VSTOI, enriquecer o StudyObject
+                        enrichVstoiEntity(objectUri, properties, dataFile);
+                    }
                     // ===== FIM DO NOVO =====
 
                     totalRows++;
@@ -854,49 +931,113 @@ public class AnnotateDASOC {
      * Enriquece uma entidade vstoi (Instrument, Component, ComponentStem, ContainerSlot)
      * com as propriedades do DA-SOC CSV
      *
-     * @param objectUri URI do objeto (StudyObject)
+     * @param vstoiInstanceUri URI da instância VSTOI (ex: pmsr:INST-INS..., pmsr:COMP-...)
      * @param properties Mapa de propriedades do CSV (predicateUri -> value)
      * @param dataFile DataFile para logging
      */
-    private static void enrichVstoiEntity(String objectUri, Map<String, String> properties, DataFile dataFile) {
+    private static void enrichVstoiEntity(String vstoiInstanceUri, Map<String, String> properties, DataFile dataFile) {
         if (properties.isEmpty()) {
+            System.out.println("[DEBUG-ENRICH] enrichVstoiEntity() - NO properties to enrich for: " + vstoiInstanceUri);
             return; // Nada para enriquecer
         }
 
+        System.out.println("[DEBUG-ENRICH] enrichVstoiEntity() called for: " + vstoiInstanceUri);
+        System.out.println("[DEBUG-ENRICH] Properties count: " + properties.size());
+
         try {
-            // Busca o StudyObject para determinar o tipo
-            StudyObject so = StudyObject.find(objectUri);
-            if (so == null) {
-                return; // Objeto não existe, skip
+            // Detecta o tipo VSTOI pelo URI (ex: INST-INS → Instrument, COMP- → Component)
+            String vstoiType = detectVstoiTypeByUri(vstoiInstanceUri);
+            
+            if (vstoiType == null) {
+                // Fallback: buscar no triplestore
+                System.out.println("[DEBUG-ENRICH] Could not detect type from URI, querying triplestore...");
+                vstoiType = detectVstoiTypeFromTriplestore(vstoiInstanceUri, dataFile);
             }
 
-            String typeUri = so.getTypeUri();
-            if (typeUri == null || typeUri.isEmpty()) {
-                return; // Sem tipo, skip
-            }
-
-            // Detecta qual tipo de entidade vstoi é
-            String vstoiType = detectVstoiType(typeUri);
+            System.out.println("[DEBUG-ENRICH] Detected VSTOI type: " + vstoiType);
 
             if (vstoiType == null) {
+                System.out.println("[DEBUG-ENRICH] NOT a VSTOI type, skipping enrichment");
                 return; // Não é tipo vstoi, skip
             }
 
             // Enriquece a entidade apropriada
             if (VSTOI.INSTRUMENT.equals(vstoiType)) {
-                enrichInstrument(objectUri, properties, dataFile);
+                System.out.println("[DEBUG-ENRICH] Calling enrichInstrument()...");
+                enrichInstrument(vstoiInstanceUri, properties, dataFile);
             } else if (VSTOI.COMPONENT.equals(vstoiType)) {
-                enrichComponent(objectUri, properties, dataFile);
+                System.out.println("[DEBUG-ENRICH] Calling enrichComponent()...");
+                enrichComponent(vstoiInstanceUri, properties, dataFile);
             } else if (VSTOI.COMPONENT_STEM.equals(vstoiType)) {
-                enrichComponentStem(objectUri, properties, dataFile);
+                System.out.println("[DEBUG-ENRICH] Calling enrichComponentStem()...");
+                enrichComponentStem(vstoiInstanceUri, properties, dataFile);
             } else if (VSTOI.CONTAINER_SLOT.equals(vstoiType)) {
-                enrichContainerSlot(objectUri, properties, dataFile);
+                System.out.println("[DEBUG-ENRICH] Calling enrichContainerSlot()...");
+                enrichContainerSlot(vstoiInstanceUri, properties, dataFile);
+            } else if (VSTOI.CODEBOOK.equals(vstoiType)) {
+                System.out.println("[DEBUG-ENRICH] Calling enrichCodebook()...");
+                enrichCodebook(vstoiInstanceUri, properties, dataFile);
+            } else if (VSTOI.RESPONSE_OPTION.equals(vstoiType)) {
+                System.out.println("[DEBUG-ENRICH] Calling enrichResponseOption()...");
+                enrichResponseOption(vstoiInstanceUri, properties, dataFile);
+            } else if (VSTOI.ANNOTATION_STEM.equals(vstoiType)) {
+                System.out.println("[DEBUG-ENRICH] Calling enrichAnnotationStem()...");
+                enrichAnnotationStem(vstoiInstanceUri, properties, dataFile);
             }
 
         } catch (Exception e) {
-            // Silently skip errors - a entidade pode não existir ainda
-            // dataFile.getLogger().println("Warning: Could not enrich vstoi entity " + objectUri + ": " + e.getMessage());
+            // Log errors for debugging
+            System.out.println("[DEBUG-ENRICH] Exception in enrichVstoiEntity: " + e.getMessage());
+            e.printStackTrace();
+            dataFile.getLogger().println("Warning: Could not enrich vstoi entity " + vstoiInstanceUri + ": " + e.getMessage());
         }
+    }
+
+    /**
+     * Detecta o tipo VSTOI pela estrutura do URI
+     * Ex: pmsr:INST-INS... → VSTOI.INSTRUMENT
+     *     pmsr:COMP-... → VSTOI.COMPONENT
+     *     pmsr:CSTEM-... → VSTOI.COMPONENT_STEM
+     */
+    private static String detectVstoiTypeByUri(String uri) {
+        if (uri.contains("INST-INS") || uri.contains("/INST-")) return VSTOI.INSTRUMENT;
+        if (uri.contains("COMP-") || uri.contains("/COMP-")) return VSTOI.COMPONENT;
+        if (uri.contains("CSTEM-") || uri.contains("ComponentStem")) return VSTOI.COMPONENT_STEM;
+        if (uri.contains("CSLOT-") || uri.contains("ContainerSlot")) return VSTOI.CONTAINER_SLOT;
+        if (uri.contains("CBK-") || uri.contains("Codebook")) return VSTOI.CODEBOOK;
+        if (uri.contains("ROPT-") || uri.contains("ResponseOption")) return VSTOI.RESPONSE_OPTION;
+        if (uri.contains("ASTEM-") || uri.contains("AnnotationStem")) return VSTOI.ANNOTATION_STEM;
+        return null;
+    }
+
+    /**
+     * Detecta o tipo VSTOI consultando o triplestore
+     */
+    private static String detectVstoiTypeFromTriplestore(String uri, DataFile dataFile) {
+        try {
+            String ns = NameSpaces.getInstance().printSparqlNameSpaceList();
+            String queryString = ns +
+                "SELECT ?type WHERE { \n" +
+                "  { <" + uri + "> a ?type . } \n" +
+                "  UNION \n" +
+                "  { GRAPH ?g { <" + uri + "> a ?type . } } \n" +
+                "} LIMIT 1";
+
+            org.apache.jena.query.ResultSet results = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY),
+                queryString);
+
+            if (results.hasNext()) {
+                org.apache.jena.query.QuerySolution soln = results.next();
+                if (soln.get("type") != null) {
+                    String typeUri = soln.get("type").toString();
+                    return detectVstoiType(typeUri);
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("[DEBUG-ENRICH] Error detecting type from triplestore: " + e.getMessage());
+        }
+        return null;
     }
 
     /**
@@ -908,6 +1049,9 @@ public class AnnotateDASOC {
         if (VSTOI.COMPONENT.equals(typeUri)) return VSTOI.COMPONENT;
         if (VSTOI.COMPONENT_STEM.equals(typeUri)) return VSTOI.COMPONENT_STEM;
         if (VSTOI.CONTAINER_SLOT.equals(typeUri)) return VSTOI.CONTAINER_SLOT;
+        if (VSTOI.CODEBOOK.equals(typeUri)) return VSTOI.CODEBOOK;
+        if (VSTOI.RESPONSE_OPTION.equals(typeUri)) return VSTOI.RESPONSE_OPTION;
+        if (VSTOI.ANNOTATION_STEM.equals(typeUri)) return VSTOI.ANNOTATION_STEM;
 
         // Verificação por substring (subclasses)
         if (typeUri.contains("Detector")) return VSTOI.COMPONENT;
@@ -916,6 +1060,9 @@ public class AnnotateDASOC {
         if (typeUri.contains("Questionnaire")) return VSTOI.INSTRUMENT;
         if (typeUri.contains("PhysicalInstrument")) return VSTOI.INSTRUMENT;
         if (typeUri.contains("SimulationModel")) return VSTOI.INSTRUMENT;
+        if (typeUri.contains("Codebook")) return VSTOI.CODEBOOK;
+        if (typeUri.contains("ResponseOption")) return VSTOI.RESPONSE_OPTION;
+        if (typeUri.contains("AnnotationStem")) return VSTOI.ANNOTATION_STEM;
 
         return null;
     }
@@ -924,26 +1071,33 @@ public class AnnotateDASOC {
      * Enriquece um Instrument com propriedades do DA-SOC
      */
     private static void enrichInstrument(String uri, Map<String, String> properties, DataFile dataFile) {
+        System.out.println("[DEBUG] enrichInstrument() called for URI: " + uri);
+        System.out.println("[DEBUG] Properties to enrich: " + properties.size());
+        
         Instrument instrument = Instrument.find(uri);
         if (instrument == null) {
+            System.out.println("[DEBUG] Instrument.find() returned NULL for URI: " + uri);
+            dataFile.getLogger().println("  Warning: Could not find Instrument for enrichment: " + uri);
             return;
         }
 
+        System.out.println("[DEBUG] Instrument found! Label: " + instrument.getLabel());
         boolean modified = false;
 
         for (Map.Entry<String, String> entry : properties.entrySet()) {
             String prop = entry.getKey();
             String value = entry.getValue();
+            System.out.println("[DEBUG] Processing property: " + prop + " = " + value);
 
             // Mapeia propriedades para setters do Instrument
             if (prop.endsWith("hasShortName") || prop.contains("hasShortName")) {
                 instrument.setHasShortName(value);
                 modified = true;
             } else if (prop.endsWith("hasLanguage") || prop.contains("hasLanguage")) {
-                instrument.setHasLanguage(value);
+                instrument.setHasLanguage(cleanLiteralValue(value));
                 modified = true;
             } else if (prop.endsWith("hasVersion") || prop.contains("hasVersion")) {
-                instrument.setHasVersion(value);
+                instrument.setHasVersion(cleanLiteralValue(value));
                 modified = true;
             } else if (prop.endsWith("hasMaker") || prop.contains("hasMaker")) {
                 instrument.setHasMakerUri(URIUtils.replacePrefixEx(value));
@@ -952,13 +1106,15 @@ public class AnnotateDASOC {
                 instrument.setHasWebDocument(value);
                 modified = true;
             } else if (prop.endsWith("hasFirst") || prop.contains("hasFirst")) {
-                instrument.setHasFirst(URIUtils.replacePrefixEx(value));
+                // hasFirst references the first ContainerSlot (CTSLOT-CTS...)
+                instrument.setHasFirst(convertToVstoiUri(value));
                 modified = true;
             } else if (prop.endsWith("hasImage") || prop.contains("hasImage")) {
                 instrument.setHasImageUri(value);
                 modified = true;
             } else if (prop.endsWith("subClassOf") || prop.contains("subClassOf")) {
-                instrument.setSuperUri(URIUtils.replacePrefixEx(value));
+                // subClassOf references parent Instrument (INST-INS...)
+                instrument.setSuperUri(convertToVstoiUri(value));
                 modified = true;
             } else if (prop.endsWith("maxLoggedMeasurements") || prop.contains("maxLoggedMeasurements")) {
                 // Note: Instrument pode não ter este setter, verificar depois
@@ -976,37 +1132,134 @@ public class AnnotateDASOC {
         }
 
         if (modified) {
+            System.out.println("[DEBUG] Instrument MODIFIED - saving changes for: " + instrument.getUri());
             instrument.save();
             dataFile.getLogger().println("  Enriched Instrument: " + instrument.getLabel());
+        } else {
+            System.out.println("[DEBUG] Instrument NOT modified (no matching properties) for: " + uri);
         }
+    }
+    
+    /**
+     * Cleans literal values by removing namespace prefixes that shouldn't be there.
+     * For example: "pmsr:/en" -> "en", "pmsr:/1" -> "1"
+     * 
+     * @param value The value to clean
+     * @return The cleaned literal value
+     */
+    private static String cleanLiteralValue(String value) {
+        if (value == null || value.isEmpty()) {
+            return value;
+        }
+        
+        // Check if value starts with a namespace prefix pattern (prefix:/ or prefix:#)
+        if (value.contains(":/") || value.contains(":#")) {
+            // Extract just the value after the last separator
+            if (value.contains(":/")) {
+                String[] parts = value.split(":/");
+                String cleanValue = parts[parts.length - 1];
+                System.out.println("[DEBUG-LITERAL-CLEAN] Cleaned '" + value + "' -> '" + cleanValue + "'");
+                return cleanValue;
+            } else if (value.contains("#")) {
+                String[] parts = value.split("#");
+                String cleanValue = parts[parts.length - 1];
+                System.out.println("[DEBUG-LITERAL-CLEAN] Cleaned '" + value + "' -> '" + cleanValue + "'");
+                return cleanValue;
+            }
+        }
+        
+        // If no namespace prefix found, return as is
+        return value;
+    }
+
+    /**
+     * Helper method to convert originalID-based references to proper VSTOI URIs
+     * Examples:
+     *   pmsr:/CBK1738096258564815 -> http://pmsr.net/ont/pmsr#CB-CBK1738096258564815
+     *   pmsr:/CSM1738097871592315 -> http://pmsr.net/ont/pmsr#CSTEM-CSM1738097871592315
+     */
+    private static String convertToVstoiUri(String value) {
+        if (value == null || value.isEmpty()) {
+            return value;
+        }
+        
+        // First expand the prefix (pmsr:/ -> http://pmsr.net/ont/pmsr#)
+        String expandedUri = URIUtils.replacePrefixEx(value);
+        
+        // Now check if we need to add VSTOI prefixes based on the originalID pattern
+        if (expandedUri.contains("#CBK")) {
+            // Codebook: add "CB-" prefix
+            expandedUri = expandedUri.replace("#CBK", "#CB-CBK");
+            System.out.println("[DEBUG-URI-TRANSFORM] Codebook: " + value + " -> " + expandedUri);
+        } else if (expandedUri.contains("#CSM")) {
+            // ComponentStem: add "CSTEM-" prefix
+            expandedUri = expandedUri.replace("#CSM", "#CSTEM-CSM");
+            System.out.println("[DEBUG-URI-TRANSFORM] ComponentStem: " + value + " -> " + expandedUri);
+        } else if (expandedUri.contains("#COM")) {
+            // Component: add "COMP-" prefix
+            expandedUri = expandedUri.replace("#COM", "#COMP-COM");
+            System.out.println("[DEBUG-URI-TRANSFORM] Component: " + value + " -> " + expandedUri);
+        } else if (expandedUri.contains("#ROP")) {
+            // ResponseOption: add "ROPT-" prefix
+            expandedUri = expandedUri.replace("#ROP", "#ROPT-ROP");
+            System.out.println("[DEBUG-URI-TRANSFORM] ResponseOption: " + value + " -> " + expandedUri);
+        } else if (expandedUri.contains("#INS")) {
+            // Instrument: add "INST-" prefix
+            expandedUri = expandedUri.replace("#INS", "#INST-INS");
+            System.out.println("[DEBUG-URI-TRANSFORM] Instrument: " + value + " -> " + expandedUri);
+        } else if (expandedUri.contains("#CTS")) {
+            // ContainerSlot: add "CTSLOT-" prefix (if not already there)
+            if (!expandedUri.contains("#CTSLOT-")) {
+                expandedUri = expandedUri.replace("#CTS", "#CTSLOT-CTS");
+                System.out.println("[DEBUG-URI-TRANSFORM] ContainerSlot: " + value + " -> " + expandedUri);
+            }
+        }
+        
+        return expandedUri;
     }
 
     /**
      * Enriquece um Component com propriedades do DA-SOC
      */
     private static void enrichComponent(String uri, Map<String, String> properties, DataFile dataFile) {
+        System.out.println("[DEBUG-COMPONENT] enrichComponent() called for URI: " + uri);
+        System.out.println("[DEBUG-COMPONENT] Properties to enrich: " + properties.size());
+        
         Component component = Component.find(uri);
         if (component == null) {
+            System.out.println("[DEBUG-COMPONENT] Component.find() returned NULL for URI: " + uri);
             return;
         }
 
+        System.out.println("[DEBUG-COMPONENT] Component found! Label: " + component.getLabel());
         boolean modified = false;
 
         for (Map.Entry<String, String> entry : properties.entrySet()) {
             String prop = entry.getKey();
             String value = entry.getValue();
+            System.out.println("[DEBUG-COMPONENT] Processing property: " + prop + " = " + value);
 
             if (prop.endsWith("hasComponentStem") || prop.contains("hasComponentStem")) {
-                component.setHasComponentStem(URIUtils.replacePrefixEx(value));
+                System.out.println("[DEBUG-COMPONENT] MATCHED hasComponentStem! Original value: " + value);
+                String vstoiUri = convertToVstoiUri(value);
+                System.out.println("[DEBUG-COMPONENT] Converted to VSTOI URI: " + vstoiUri);
+                component.setHasComponentStem(vstoiUri);
                 modified = true;
             } else if (prop.endsWith("hasCodebook") || prop.contains("hasCodebook")) {
-                component.setHasCodebook(URIUtils.replacePrefixEx(value));
+                System.out.println("[DEBUG-COMPONENT] MATCHED hasCodebook! Original value: " + value);
+                String vstoiUri = convertToVstoiUri(value);
+                System.out.println("[DEBUG-COMPONENT] Converted to VSTOI URI: " + vstoiUri);
+                component.setHasCodebook(vstoiUri);
+                modified = true;
+            } else if (prop.endsWith("isAttributeOf") || prop.contains("isAttributeOf")) {
+                System.out.println("[DEBUG-COMPONENT] MATCHED isAttributeOf! Setting value: " + value);
+                component.setIsAttributeOf(URIUtils.replacePrefixEx(value));
                 modified = true;
             } else if (prop.endsWith("hasLanguage") || prop.contains("hasLanguage")) {
-                component.setHasLanguage(value);
+                component.setHasLanguage(cleanLiteralValue(value));
                 modified = true;
             } else if (prop.endsWith("hasVersion") || prop.contains("hasVersion")) {
-                component.setHasVersion(value);
+                component.setHasVersion(cleanLiteralValue(value));
                 modified = true;
             } else if (prop.endsWith("hasWebDocument") || prop.contains("hasWebDocument")) {
                 component.setHasWebDocument(value);
@@ -1015,8 +1268,23 @@ public class AnnotateDASOC {
         }
 
         if (modified) {
+            System.out.println("[DEBUG-COMPONENT] Component MODIFIED - saving changes for: " + component.getUri());
             component.save();
-            dataFile.getLogger().println("  Enriched Component: " + component.getLabel());
+            
+            // ✅ CRITICAL FIX: Re-fetch component to verify it was saved correctly
+            Component savedComponent = Component.find(component.getUri());
+            if (savedComponent != null) {
+                String cbInfo = (savedComponent.getHasCodebook() != null && !savedComponent.getHasCodebook().isEmpty()) 
+                    ? savedComponent.getHasCodebook() 
+                    : "EMPTY";
+                System.out.println("[DEBUG-COMPONENT] Component SAVED! Codebook after save: " + cbInfo);
+                dataFile.getLogger().println("  Enriched Component: " + savedComponent.getLabel() + "  -- CB:" + cbInfo);
+            } else {
+                System.out.println("[DEBUG-COMPONENT] WARNING: Could not re-fetch component after save!");
+                dataFile.getLogger().println("  Enriched Component: " + component.getLabel() + "  -- CB:NOTFOUND");
+            }
+        } else {
+            System.out.println("[DEBUG-COMPONENT] Component NOT modified (no matching properties) for: " + uri);
         }
     }
 
@@ -1035,14 +1303,18 @@ public class AnnotateDASOC {
             String prop = entry.getKey();
             String value = entry.getValue();
 
-            if (prop.endsWith("hasContent") || prop.contains("hasContent")) {
+            if (prop.endsWith("subClassOf") || prop.contains("subClassOf")) {
+                // subClassOf references parent ComponentStem (CSTEM-CSM...)
+                stem.setSuperUri(convertToVstoiUri(value));
+                modified = true;
+            } else if (prop.endsWith("hasContent") || prop.contains("hasContent")) {
                 stem.setHasContent(value);
                 modified = true;
             } else if (prop.endsWith("hasLanguage") || prop.contains("hasLanguage")) {
-                stem.setHasLanguage(value);
+                stem.setHasLanguage(cleanLiteralValue(value));
                 modified = true;
             } else if (prop.endsWith("hasVersion") || prop.contains("hasVersion")) {
-                stem.setHasVersion(value);
+                stem.setHasVersion(cleanLiteralValue(value));
                 modified = true;
             } else if (prop.endsWith("hasWebDocument") || prop.contains("hasWebDocument")) {
                 stem.setHasWebDocument(value);
@@ -1072,16 +1344,20 @@ public class AnnotateDASOC {
             String value = entry.getValue();
 
             if (prop.endsWith("belongsTo") || prop.contains("belongsTo")) {
-                slot.setBelongsTo(URIUtils.replacePrefixEx(value));
+                // belongsTo references Instrument (INST-INS...)
+                slot.setBelongsTo(convertToVstoiUri(value));
                 modified = true;
             } else if (prop.endsWith("hasComponent") || prop.contains("hasComponent")) {
-                slot.setHasComponent(URIUtils.replacePrefixEx(value));
+                // hasComponent references Component (COMP-COM...)
+                slot.setHasComponent(convertToVstoiUri(value));
                 modified = true;
             } else if (prop.endsWith("hasNext") || prop.contains("hasNext")) {
-                slot.setHasNext(URIUtils.replacePrefixEx(value));
+                // hasNext references another ContainerSlot (CTSLOT-CTS...)
+                slot.setHasNext(convertToVstoiUri(value));
                 modified = true;
             } else if (prop.endsWith("hasPrevious") || prop.contains("hasPrevious")) {
-                slot.setHasPrevious(URIUtils.replacePrefixEx(value));
+                // hasPrevious references another ContainerSlot (CTSLOT-CTS...)
+                slot.setHasPrevious(convertToVstoiUri(value));
                 modified = true;
             } else if (prop.endsWith("hasPriority") || prop.contains("hasPriority")) {
                 slot.setHasPriority(value);
@@ -1092,6 +1368,144 @@ public class AnnotateDASOC {
         if (modified) {
             slot.save();
             dataFile.getLogger().println("  Enriched ContainerSlot: " + slot.getLabel());
+        }
+    }
+    
+    /**
+     * Enriquece um Codebook com propriedades do DA-SOC
+     */
+    private static void enrichCodebook(String uri, Map<String, String> properties, DataFile dataFile) {
+        System.out.println("[DEBUG-CODEBOOK] enrichCodebook() called for URI: " + uri);
+        System.out.println("[DEBUG-CODEBOOK] Properties to enrich: " + properties.size());
+        for (Map.Entry<String, String> entry : properties.entrySet()) {
+            System.out.println("[DEBUG-CODEBOOK]   Property: " + entry.getKey() + " = " + entry.getValue());
+        }
+        
+        Codebook codebook = Codebook.find(uri);
+        if (codebook == null) {
+            System.out.println("[DEBUG-CODEBOOK] Codebook.find() returned NULL for URI: " + uri);
+            dataFile.getLogger().println("  Warning: Could not find Codebook for enrichment: " + uri);
+            return;
+        }
+
+        System.out.println("[DEBUG-CODEBOOK] Codebook found! Label: " + codebook.getLabel());
+        boolean modified = false;
+
+        for (Map.Entry<String, String> entry : properties.entrySet()) {
+            String prop = entry.getKey();
+            String value = entry.getValue();
+            System.out.println("[DEBUG-CODEBOOK] Processing property: " + prop + " = " + value);
+
+            if (prop.endsWith("hasLanguage") || prop.contains("hasLanguage")) {
+                // Clean literal value - remove namespace prefix if present
+                String cleanValue = cleanLiteralValue(value);
+                System.out.println("[DEBUG-CODEBOOK] Setting hasLanguage to: " + cleanValue);
+                codebook.setHasLanguage(cleanValue);
+                modified = true;
+            } else if (prop.endsWith("hasVersion") || prop.contains("hasVersion")) {
+                // Clean literal value - remove namespace prefix if present
+                String cleanValue = cleanLiteralValue(value);
+                System.out.println("[DEBUG-CODEBOOK] Setting hasVersion to: " + cleanValue);
+                codebook.setHasVersion(cleanValue);
+                modified = true;
+            } else if (prop.endsWith("hasStatus") || prop.contains("hasStatus")) {
+                // Clean literal value - remove namespace prefix if present
+                String cleanValue = cleanLiteralValue(value);
+                System.out.println("[DEBUG-CODEBOOK] Setting hasStatus to: " + cleanValue);
+                codebook.setHasStatus(cleanValue);
+                modified = true;
+            } else if (prop.endsWith("hasSerialNumber") || prop.contains("hasSerialNumber")) {
+                System.out.println("[DEBUG-CODEBOOK] Setting hasSerialNumber to: " + value);
+                codebook.setSerialNumber(value);
+                modified = true;
+            } else if (prop.endsWith("hasReviewNote") || prop.contains("hasReviewNote")) {
+                System.out.println("[DEBUG-CODEBOOK] Setting hasReviewNote to: " + value);
+                codebook.setHasReviewNote(value);
+                modified = true;
+            } else {
+                System.out.println("[DEBUG-CODEBOOK] Property not matched: " + prop);
+            }
+        }
+
+        if (modified) {
+            System.out.println("[DEBUG-CODEBOOK] Codebook MODIFIED - saving changes for: " + codebook.getUri());
+            codebook.save();
+            dataFile.getLogger().println("  Enriched Codebook: " + codebook.getLabel());
+            System.out.println("[DEBUG-CODEBOOK] Codebook saved successfully");
+        } else {
+            System.out.println("[DEBUG-CODEBOOK] Codebook NOT modified (no matching properties) for: " + uri);
+        }
+    }
+    
+    /**
+     * Enriquece um ResponseOption com propriedades do DA-SOC
+     */
+    private static void enrichResponseOption(String uri, Map<String, String> properties, DataFile dataFile) {
+        ResponseOption responseOption = ResponseOption.find(uri);
+        if (responseOption == null) {
+            return;
+        }
+
+        boolean modified = false;
+
+        for (Map.Entry<String, String> entry : properties.entrySet()) {
+            String prop = entry.getKey();
+            String value = entry.getValue();
+
+            if (prop.endsWith("hasContent") || prop.contains("hasContent")) {
+                responseOption.setHasContent(value);
+                modified = true;
+            } else if (prop.endsWith("hasLanguage") || prop.contains("hasLanguage")) {
+                responseOption.setHasLanguage(cleanLiteralValue(value));
+                modified = true;
+            } else if (prop.endsWith("hasStatus") || prop.contains("hasStatus")) {
+                responseOption.setHasStatus(cleanLiteralValue(value));
+                modified = true;
+            } else if (prop.endsWith("hasLabel") || prop.contains("hasLabel")) {
+                responseOption.setLabel(value);
+                modified = true;
+            }
+        }
+
+        if (modified) {
+            responseOption.save();
+            dataFile.getLogger().println("  Enriched ResponseOption: " + responseOption.getLabel());
+        }
+    }
+    
+    /**
+     * Enriquece um AnnotationStem com propriedades do DA-SOC
+     */
+    private static void enrichAnnotationStem(String uri, Map<String, String> properties, DataFile dataFile) {
+        AnnotationStem annotationStem = AnnotationStem.find(uri);
+        if (annotationStem == null) {
+            return;
+        }
+
+        boolean modified = false;
+
+        for (Map.Entry<String, String> entry : properties.entrySet()) {
+            String prop = entry.getKey();
+            String value = entry.getValue();
+
+            if (prop.endsWith("hasContent") || prop.contains("hasContent")) {
+                annotationStem.setHasContent(value);
+                modified = true;
+            } else if (prop.endsWith("hasLanguage") || prop.contains("hasLanguage")) {
+                annotationStem.setHasLanguage(cleanLiteralValue(value));
+                modified = true;
+            } else if (prop.endsWith("hasVersion") || prop.contains("hasVersion")) {
+                annotationStem.setHasVersion(cleanLiteralValue(value));
+                modified = true;
+            } else if (prop.endsWith("hasStatus") || prop.contains("hasStatus")) {
+                annotationStem.setHasStatus(cleanLiteralValue(value));
+                modified = true;
+            }
+        }
+
+        if (modified) {
+            annotationStem.save();
+            dataFile.getLogger().println("  Enriched AnnotationStem: " + annotationStem.getLabel());
         }
     }
 
@@ -1314,6 +1728,109 @@ public class AnnotateDASOC {
             dataFile.getLogger().printWarning("Error discovering Study URI: " + e.getMessage());
             System.out.println("[DASOC] Error discovering Study: " + e.getMessage());
             e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    /**
+     * Check if a StudyObject has a VSTOI specialized instance
+     * This checks for any of the VSTOI type properties:
+     * - vstoi:hasInstrument → Instrument
+     * - vstoi:hasComponentStem → ComponentStem
+     * - vstoi:hasComponent → Component
+     * - vstoi:hasResponseOption → ResponseOption
+     * - vstoi:hasCodebook → Codebook
+     * - vstoi:hasContainerSlot → ContainerSlot
+     */
+    private static boolean isVSTOIInstrument(String studyObjectUri, DataFile dataFile) {
+        return getVSTOIInstanceUri(studyObjectUri, dataFile) != null;
+    }
+
+    /**
+     * Get the VSTOI specialized instance URI for a StudyObject
+     * This checks all VSTOI type properties and returns the first match found.
+     * 
+     * Supported VSTOI types:
+     * - vstoi:hasInstrument → Instrument
+     * - vstoi:hasComponentStem → ComponentStem
+     * - vstoi:hasComponent → Component
+     * - vstoi:hasResponseOption → ResponseOption
+     * - vstoi:hasCodebook → Codebook
+     * - vstoi:hasContainerSlot → ContainerSlot
+     * - vstoi:hasDetector → Detector
+     * - vstoi:hasPlatform → Platform
+     */
+    private static String getInstrumentInstanceUri(String studyObjectUri, DataFile dataFile) {
+        return getVSTOIInstanceUri(studyObjectUri, dataFile);
+    }
+
+    /**
+     * Generic method to get any VSTOI specialized instance URI for a StudyObject
+     * Checks all known VSTOI linking properties in order
+     */
+    private static String getVSTOIInstanceUri(String studyObjectUri, DataFile dataFile) {
+        // List of all VSTOI linking properties to check
+        String[] vstoiProperties = {
+            "vstoi:hasInstrument",
+            "vstoi:hasComponentStem",
+            "vstoi:hasComponent",
+            "vstoi:hasResponseOption",
+            "vstoi:hasCodebook",
+            "vstoi:hasContainerSlot",
+            "vstoi:hasDetector",
+            "vstoi:hasPlatform"
+        };
+
+        try {
+            String ns = NameSpaces.getInstance().printSparqlNameSpaceList();
+            
+            // Build a UNION query checking all VSTOI properties
+            StringBuilder queryBuilder = new StringBuilder();
+            queryBuilder.append(ns);
+            queryBuilder.append("SELECT ?vstoiInstance ?property WHERE { \n");
+            
+            for (int i = 0; i < vstoiProperties.length; i++) {
+                if (i > 0) {
+                    queryBuilder.append("  UNION \n");
+                }
+                queryBuilder.append("  { \n");
+                queryBuilder.append("    { \n");
+                queryBuilder.append("      <").append(studyObjectUri).append("> ").append(vstoiProperties[i]).append(" ?vstoiInstance . \n");
+                queryBuilder.append("      BIND(\"").append(vstoiProperties[i]).append("\" AS ?property) \n");
+                queryBuilder.append("    } \n");
+                queryBuilder.append("    UNION \n");
+                queryBuilder.append("    { GRAPH ?g { \n");
+                queryBuilder.append("        <").append(studyObjectUri).append("> ").append(vstoiProperties[i]).append(" ?vstoiInstance . \n");
+                queryBuilder.append("        BIND(\"").append(vstoiProperties[i]).append("\" AS ?property) \n");
+                queryBuilder.append("      } \n");
+                queryBuilder.append("    } \n");
+                queryBuilder.append("  } \n");
+            }
+            
+            queryBuilder.append("} LIMIT 1");
+
+            org.apache.jena.query.ResultSet results = SPARQLUtils.select(
+                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY),
+                    queryBuilder.toString());
+
+            if (results.hasNext()) {
+                org.apache.jena.query.QuerySolution soln = results.next();
+                if (soln.get("vstoiInstance") != null) {
+                    String vstoiInstanceUri = soln.get("vstoiInstance").toString();
+                    String propertyUsed = soln.get("property") != null ? soln.get("property").toString() : "unknown";
+                    
+                    // Log what type of VSTOI instance was found
+                    String vstoiType = propertyUsed.replace("vstoi:has", "");
+                    dataFile.getLogger().println(String.format(
+                        "  [VSTOI-%s] Found specialized instance for StudyObject", vstoiType));
+                    
+                    return vstoiInstanceUri;
+                }
+            }
+
+        } catch (Exception e) {
+            dataFile.getLogger().printWarning("Error getting VSTOI instance URI: " + e.getMessage());
         }
 
         return null;

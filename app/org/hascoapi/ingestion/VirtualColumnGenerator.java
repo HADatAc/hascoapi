@@ -44,27 +44,39 @@ public class VirtualColumnGenerator extends BaseGenerator {
     	String typeUri = this.getTypeUri(record);
         this.studyUri = this.getStudyUri();
         String SOCReference = this.getSOCReference(record);
-        if ((typeUri == null || typeUri.equals("")) && 
-        	(this.studyUri == null || this.studyUri.equals("")) && 
-        	(SOCReference == null || SOCReference.equals(""))) {
+        
+        if ((typeUri == null || typeUri.isEmpty()) && 
+        	(this.studyUri == null || this.studyUri.isEmpty()) && 
+        	(SOCReference == null || SOCReference.isEmpty())) {
         	return null;
         }
         
         // generate error if type uri is missing
-        if (typeUri == null || typeUri.equals("")) {
-            logger.printException("Missing typeUri for virtual column");
+        if (typeUri == null || typeUri.isEmpty()) {
+            logger.println("  Skipping VirtualColumn: missing typeUri");
             return null;
         }
     	
         // generate error if study URI is missing
-        if (this.studyUri == null || this.studyUri.equals("")) {
-            logger.printExceptionByIdWithArgs("SSD_00003", this.getTypeUri(record));
+        if (this.studyUri == null || this.studyUri.isEmpty()) {
+            logger.printExceptionByIdWithArgs("DSG_00008", this.getTypeUri(record));
+            return null;
+        }
+        
+        // CRITICAL FIX: Check typeUri FIRST before checking SOCReference
+        // SKIP VirtualColumn for ObjectCollection/StudyObjectCollection (VSTOI types)
+        // These use DA-SOC enrichment instead of VirtualColumns
+        boolean isObjectCollection = typeUri.contains("ObjectCollection") || 
+                                    typeUri.contains("StudyObjectCollection");
+        
+        if (isObjectCollection) {
+            logger.println("  [SKIP] Skipping VirtualColumn for generic ObjectCollection (VSTOI type): " + typeUri);
             return null;
         }
             
-        // generate error if SOC reference is missing
-        if (SOCReference == null || SOCReference.equals("")) {
-            logger.printException("SSD_00004");
+        // For traditional HASCO collection types (SubjectGroup, etc.), SOC reference is required
+        if (SOCReference == null || SOCReference.isEmpty()) {
+            logger.printExceptionById("DSG_00009");
             return null;
         }
             
