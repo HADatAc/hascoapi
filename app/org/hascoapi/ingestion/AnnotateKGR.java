@@ -12,7 +12,8 @@ public class AnnotateKGR extends BaseAnnotator {
 
         Map<String, String> mapCatalog = loadCatalog(dataFile, Constants.MT_KGR);
         if (mapCatalog == null) {
-            dataFile.getLogger().printExceptionById("KGR_00001"); // "KGR InfoSheet validation failed"
+            // loadCatalog already logs the root cause; don't emit a misleading KGR error code.
+            dataFile.getLogger().printException("KGR InfoSheet validation failed.");
             return null;
         }
 
@@ -23,23 +24,27 @@ public class AnnotateKGR extends BaseAnnotator {
         IngestionWorker.nameSpaceGen(dataFile, mapCatalog, templateFile);
         kgr.setTemplates(templateFile);
 
+        // Optional parameter for legacy KGRs, but REQUIRED when the workbook references images.
         String hasMediaFolder = mapCatalog.get("hasMediaFolder");
-        if (hasMediaFolder == null) {
-            dataFile.getLogger().printExceptionById("KGR_00002"); // "Missing hasMediaFolder parameter"
+        hasMediaFolder = hasMediaFolder != null ? hasMediaFolder.trim() : "";
+        if (hasMediaFolder.isEmpty() && workbookReferencesImages(dataFile, mapCatalog)) {
+            dataFile.getLogger().printException("KGR InfoSheet is missing 'hasMediaFolder' but the workbook references images via 'hasco:hasImage'.");
             return null;
         }
 
-        // verifyUri parsing with error handling
+        // Optional parameter: default to false when missing.
+        boolean verifyUri = false;
         String rawVerifyUri = mapCatalog.get("verifyUri");
-        boolean verifyUri;
-        rawVerifyUri = rawVerifyUri.toLowerCase();
-        if ("true".equals(rawVerifyUri)) {
-            verifyUri = true;
-        } else if ("false".equals(rawVerifyUri)) {
-            verifyUri = false;
-        } else {
-            dataFile.getLogger().printExceptionById("KGR_00003"); // "Invalid verifyUri parameter value"
-            return null;
+        if (rawVerifyUri != null) {
+            rawVerifyUri = rawVerifyUri.trim().toLowerCase();
+            if ("true".equals(rawVerifyUri)) {
+                verifyUri = true;
+            } else if ("false".equals(rawVerifyUri) || rawVerifyUri.isEmpty()) {
+                verifyUri = false;
+            } else {
+                dataFile.getLogger().printWarning("verifyUri parameter in KGR should be `true` or `false`; defaulting to `false`.");
+                verifyUri = false;
+            }
         }
 
         GeneratorChain chain = new GeneratorChain();
@@ -63,6 +68,47 @@ public class AnnotateKGR extends BaseAnnotator {
         return chain;
     }
 
+    private static boolean workbookReferencesImages(DataFile dataFile, Map<String, String> mapCatalog) {
+        if (dataFile == null || dataFile.getFile() == null || mapCatalog == null) {
+            return false;
+        }
+
+        String[] sheetKeys = new String[] {
+                "Places",
+                "PostalAddresses",
+                "Organizations",
+                "Persons",
+                "Projects",
+                "ProjectOrganizations",
+                "FundingSchemes"
+        };
+
+        for (String sheetKey : sheetKeys) {
+            String sheetName = mapCatalog.get(sheetKey);
+            if (sheetName == null || sheetName.trim().isEmpty()) {
+                continue;
+            }
+
+            RecordFile sheet = new SpreadsheetRecordFile(dataFile.getFile(), sheetName.replace("#", "").trim());
+            if (sheet == null || !sheet.isValid() || sheet.getRecords() == null || sheet.getRecords().isEmpty()) {
+                continue;
+            }
+
+            for (Record record : sheet.getRecords()) {
+                try {
+                    String img = record.getValueByColumnName("hasco:hasImage");
+                    if (img != null && !img.trim().isEmpty()) {
+                        return true;
+                    }
+                } catch (Exception e) {
+                    // If the sheet does not have a hasco:hasImage column, ignore.
+                }
+            }
+        }
+
+        return false;
+    }
+
     private static void addKGRGeneratorIfSheetExists(DataFile dataFile, Map<String, String> mapCatalog,
                                                      String sheetKey, String status, GeneratorChain chain,
                                                      String type, String hasMediaFolder, boolean verifyUri) {
@@ -75,6 +121,11 @@ public class AnnotateKGR extends BaseAnnotator {
         RecordFile sheet = new SpreadsheetRecordFile(dataFile.getFile(), sheetName.replace("#", "").trim());
         if (!sheet.isValid()) {
             dataFile.getLogger().printWarningByIdWithArgs("KGR_00005", sheetKey);
+            return;
+        }
+
+        if (sheet.getRecords() == null || sheet.getRecords().isEmpty()) {
+            dataFile.getLogger().println("AnnotateKGR: sheet '" + sheetKey + "' is empty; skipping generator.");
             return;
         }
 

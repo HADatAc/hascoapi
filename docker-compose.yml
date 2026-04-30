@@ -42,6 +42,8 @@ services:
             FUSEKI_URL: "http://fuseki:3030"
         volumes:
             - /var/log/hascoapi:/hascoapi/logs
+            - hascoapi-resources:/var/hascoapi/resources
+            - hascoapi-media:/var/hascoapi/media
         depends_on:
             - fuseki
         networks:
@@ -52,6 +54,8 @@ services:
 
 volumes:
     hascoapi-fuseki-data:
+    hascoapi-resources:
+    hascoapi-media:
 
 networks:
     hascoapi:

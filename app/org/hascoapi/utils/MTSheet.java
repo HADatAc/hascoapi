@@ -40,6 +40,8 @@ public class MTSheet {
 
         METADATA_SHEETS.put(Constants.MT_KGR, Arrays.asList(
                 "hasDependencies",
+                "hasMediaFolder",
+                "verifyUri",
                 "FundingSchemes",
                 "Projects",
                 "ProjectOrganizations",

@@ -24,15 +24,28 @@ import org.hascoapi.vocabularies.SCHEMA;
 
 public class KGRGenerator extends BaseGenerator {
 
+    private static final Map<String, String> LEGACY_MEDIA_ALIASES = createLegacyMediaAliases();
+
     protected String hasStatus = "";
 
     protected String hasMediaFolder = "";
 
     protected boolean verifyUri = false;
 
+    private boolean mediaFolderMissingLogged = false;
+
     private long timestamp;
 
     final String kbPrefix = ConfigProp.getKbPrefix();
+
+    private static Map<String, String> createLegacyMediaAliases() {
+        Map<String, String> aliases = new HashMap<String, String>();
+        aliases.put("gz.png", "ps.png");
+        aliases.put("an.png", "aw.png");
+        // Workbook typo tolerance (seen in KGR-INSTITUTOS-URI.xlsx)
+        aliases.put("ipbejapng", "IPBEJA.png");
+        return aliases;
+    }
 
     public String getHasStatus() {
         return this.hasStatus;
@@ -343,9 +356,13 @@ public class KGRGenerator extends BaseGenerator {
     }
 
     public void copyMediaToUri(String foldername, String uri, String filename) {
+        // Legacy/optional behavior: if the KGR workbook doesn't configure a media folder,
+        // treat media as disabled and skip without noise.
         if (foldername == null || foldername.trim().isEmpty()) {
-            //System.out.println("[ERROR] No foldername value has been provided.");
-            dataFile.getLogger().printExceptionById("KGR_00016");
+            if (!mediaFolderMissingLogged) {
+                dataFile.getLogger().printExceptionById("KGR_00016");
+                mediaFolderMissingLogged = true;
+            }
             return;
         }
 
@@ -369,6 +386,14 @@ public class KGRGenerator extends BaseGenerator {
         }
 
         Path sourcePath = Paths.get(basePath, Constants.MEDIA_FOLDER, foldername, filename);
+        String aliasFilename = LEGACY_MEDIA_ALIASES.get(filename.trim().toLowerCase());
+        if (!Files.exists(sourcePath) && aliasFilename != null) {
+            Path aliasSourcePath = Paths.get(basePath, Constants.MEDIA_FOLDER, foldername, aliasFilename);
+            if (Files.exists(aliasSourcePath)) {
+                sourcePath = aliasSourcePath;
+            }
+        }
+
         String uriTerm = URIUtils.uriLastSegment(URIUtils.replacePrefixEx(uri));
         Path destinationDir = Paths.get(basePath, Constants.RESOURCE_FOLDER, uriTerm);
         Path destinationPath = destinationDir.resolve(filename);

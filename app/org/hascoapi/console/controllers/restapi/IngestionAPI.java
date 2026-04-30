@@ -285,7 +285,15 @@ public class IngestionAPI extends Controller {
             System.out.println("[DEBUG] IngestionAPI.ingest(): Request has asRaw: " + (request.body() != null && request.body().asRaw() != null));
             System.out.println("[DEBUG] IngestionAPI.ingest(): Request has asMultipartFormData: " + (request.body() != null && request.body().asMultipartFormData() != null));
             System.out.println("[DEBUG] IngestionAPI.ingest(): Request has asBytes: " + (request.body() != null && request.body().asBytes() != null));
-            
+
+            String ct = request.contentType().orElse("").toLowerCase();
+            boolean bodyIsFileUpload = ct.contains("multipart/form-data") || ct.equals("application/octet-stream");
+            if (!bodyIsFileUpload) {
+                // Avoid interpreting JSON bodies (e.g., "{}") as a binary file upload.
+                // Ingestion should rely on the pre-uploaded DataFile under resources/{DFL...}/.
+                // If it's missing, the fallback logic below will instruct the caller to upload first.
+                System.out.println("[DEBUG] IngestionAPI.ingest(): Request content-type is not file upload (" + ct + "), skipping body file extraction.");
+            } else {
             File fileFromRequest = null;
 
             // Try asRaw() first (legacy workflow)
@@ -391,6 +399,7 @@ public class IngestionAPI extends Controller {
                 } else {
                     fileToIngest = fileFromRequest;
                 }
+            }
             }
         } // End of: if (fileToIngest == null)
 
@@ -1417,11 +1426,7 @@ public class IngestionAPI extends Controller {
     /**
      * Uningest DASOC (Data Acquisition - Study Object Collection)
      * Removes all triples that were added by DASOC ingestion from the named graph
-<<<<<<< HEAD
-     *
-=======
-     * 
->>>>>>> e3d59438b08a1e37ee5f57127dd97799008fd868
+    *
      * @param daUri URI of the DataAcquisition containing the DASOC data
      * @return Result indicating success/failure
      */
