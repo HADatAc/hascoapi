@@ -178,6 +178,13 @@ public class IngestionAPI extends Controller {
 
         // SECOND: If not pre-uploaded, try to get file from request body
         if (fileToIngest == null) {
+            String ct = request.contentType().orElse("").toLowerCase();
+            boolean bodyIsFileUpload = ct.contains("multipart/form-data") || ct.equals("application/octet-stream");
+            if (!bodyIsFileUpload) {
+                // Avoid interpreting JSON bodies (e.g., "{}") as a binary file upload.
+                // Ingestion should rely on the pre-uploaded DataFile under resources/{DFL...}/.
+                // If it's missing, the fallback logic below will instruct the caller to upload first.
+            } else {
             File fileFromRequest = null;
 
             // Try asRaw() first (legacy workflow)
@@ -220,6 +227,7 @@ public class IngestionAPI extends Controller {
             // Use fileFromRequest if we successfully extracted it from body
             if (fileFromRequest != null && fileFromRequest.exists() && fileFromRequest.length() > 0) {
                 fileToIngest = fileFromRequest;
+            }
             }
         } // End of: if (fileToIngest == null)
 

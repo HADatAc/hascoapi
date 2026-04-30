@@ -70,6 +70,11 @@ public abstract class BaseAnnotator {
         // Missing expected sheets (always an error)
         for (String required : expectedSheets) {
             if (!providedSheets.contains(required)) {
+                // KGR legacy workbooks can omit some InfoSheet parameters.
+                if (mtType != null && mtType.equalsIgnoreCase(org.hascoapi.Constants.MT_KGR)
+                        && ("hasMediaFolder".equals(required) || "verifyUri".equals(required))) {
+                    continue;
+                }
                 dataFile.getLogger().printExceptionByIdWithArgs("GBL_00006", required, mtType);
                 isValid = false;
             }

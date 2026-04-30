@@ -334,9 +334,46 @@ public class DataFileAPI extends Controller {
         if (filename == null || filename.trim().isEmpty()) {
             return ok(ApiUtil.createResponse("[ERROR] DataFileAPI.uploadMedia(): No value for filename has been provided.", false));
         }
-    
-        File tempFile = request.body().asRaw().asFile();
-        if (tempFile == null) {
+
+        // Try multiple ways to extract the uploaded media from the request
+        File tempFile = null;
+
+        // Try 1: asMultipartFormData() - standard form-based uploads (e.g., curl -F "file=@...")
+        if (request.body() != null && request.body().asMultipartFormData() != null) {
+            play.mvc.Http.MultipartFormData<?> multipart = request.body().asMultipartFormData();
+            play.mvc.Http.MultipartFormData.FilePart<?> filePart = multipart.getFile("file");
+
+            if (filePart != null) {
+                Object fileObj = filePart.getRef();
+                if (fileObj instanceof File) {
+                    tempFile = (File) fileObj;
+                } else if (fileObj instanceof play.api.libs.Files.TemporaryFile) {
+                    play.api.libs.Files.TemporaryFile scalaTemp = (play.api.libs.Files.TemporaryFile) fileObj;
+                    tempFile = scalaTemp.path().toFile();
+                }
+            }
+        }
+
+        // Try 2: asRaw() - direct binary uploads
+        if (tempFile == null && request.body() != null && request.body().asRaw() != null) {
+            tempFile = request.body().asRaw().asFile();
+        }
+
+        // Try 3: asBytes() - byte array uploads
+        if (tempFile == null && request.body() != null && request.body().asBytes() != null) {
+            akka.util.ByteString bytes = request.body().asBytes();
+            if (bytes != null && !bytes.isEmpty()) {
+                try {
+                    Path tempPath = Files.createTempFile("upload-media-", "-" + filename);
+                    Files.write(tempPath, bytes.toArray());
+                    tempFile = tempPath.toFile();
+                } catch (IOException e) {
+                    System.out.println("[ERROR] DataFileAPI.uploadMedia(): Failed to create temp file from bytes: " + e.getMessage());
+                }
+            }
+        }
+
+        if (tempFile == null || !tempFile.exists() || tempFile.length() == 0) {
             return ok(ApiUtil.createResponse("[ERROR] DataFileAPI.uploadMedia(): No media has been provided for ingestion.", false));
         }
     
@@ -347,12 +384,32 @@ public class DataFileAPI extends Controller {
         }
     
         Path destinationDir = Paths.get(basePath, Constants.MEDIA_FOLDER, foldername);
-    
-        // Generate the permanent file path
-        //Path permanentPath = destinationDir.resolve(filename);
-    
+
+        try {
+            Files.createDirectories(destinationDir);
+        } catch (IOException e) {
+            System.out.println("[ERROR] DataFileAPI.uploadMedia(): Failed to create destination directory: " + e.getMessage());
+            return internalServerError(ApiUtil.createResponse("[ERROR] DataFileAPI.uploadMedia(): Failed to create destination directory.", false));
+        }
+
+        // Copy to our own temp file before async processing; Play's temporary upload file may be deleted
+        final File tempZipCopy;
+        try {
+            Path tempPath = Files.createTempFile("media-upload-", "-" + filename);
+            Files.copy(tempFile.toPath(), tempPath, StandardCopyOption.REPLACE_EXISTING);
+            tempZipCopy = tempPath.toFile();
+        } catch (IOException e) {
+            System.out.println("[ERROR] DataFileAPI.uploadMedia(): Failed to stage upload file: " + e.getMessage());
+            return internalServerError(ApiUtil.createResponse("[ERROR] DataFileAPI.uploadMedia(): Failed to stage upload file.", false));
+        }
+
         // Save file asynchronously to avoid blocking request handling
-        CompletableFuture.runAsync(() -> unzipAndSave(tempFile, destinationDir));
+        if (filename.toLowerCase().endsWith(".zip")) {
+            CompletableFuture.runAsync(() -> unzipAndSave(tempZipCopy, destinationDir));
+        } else {
+            Path permanentPath = destinationDir.resolve(filename);
+            CompletableFuture.runAsync(() -> saveFile(tempZipCopy, permanentPath));
+        }
     
         return ok(ApiUtil.createResponse("File upload in progress. It will be saved shortly.", true));
     }
@@ -401,8 +458,31 @@ public class DataFileAPI extends Controller {
         }
     
         // Serve the file as a response
+        String mime = null;
+        try {
+            mime = Files.probeContentType(filePath);
+        } catch (IOException e) {
+            // ignore; will fall back to extension-based guess
+        }
+        if (mime == null || mime.trim().isEmpty() || "application/octet-stream".equalsIgnoreCase(mime)) {
+            String lower = filename.toLowerCase();
+            if (lower.endsWith(".png")) {
+                mime = "image/png";
+            } else if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) {
+                mime = "image/jpeg";
+            } else if (lower.endsWith(".gif")) {
+                mime = "image/gif";
+            } else if (lower.endsWith(".webp")) {
+                mime = "image/webp";
+            } else if (lower.endsWith(".svg")) {
+                mime = "image/svg+xml";
+            } else {
+                mime = "application/octet-stream";
+            }
+        }
+
         return ok(file)
-            .as("application/octet-stream") // Generic MIME type for binary file downloads
+            .as(mime)
             .withHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
     }
     
@@ -458,7 +538,33 @@ public class DataFileAPI extends Controller {
                     System.out.println("Skipping directory: " + entry.getName());
                     continue; // Skip directories
                 }
-                Path filePath = destinationDir.resolve(entry.getName());
+
+                // Normalize entry name and avoid creating nested duplicate folder paths like
+                // /media/organizations/organizations/<file>
+                String entryName = entry.getName();
+                if (entryName == null) {
+                    zis.closeEntry();
+                    continue;
+                }
+                entryName = entryName.replace('\\', '/');
+                while (entryName.startsWith("./")) {
+                    entryName = entryName.substring(2);
+                }
+                while (entryName.startsWith("/")) {
+                    entryName = entryName.substring(1);
+                }
+
+                String destFolder = destinationDir.getFileName() != null ? destinationDir.getFileName().toString() : "";
+                if (!destFolder.isEmpty() && entryName.startsWith(destFolder + "/")) {
+                    entryName = entryName.substring(destFolder.length() + 1);
+                }
+
+                Path filePath = destinationDir.resolve(entryName).normalize();
+                if (!filePath.startsWith(destinationDir.normalize())) {
+                    System.out.println("Skipping suspicious zip entry (path traversal): " + entry.getName());
+                    zis.closeEntry();
+                    continue;
+                }
                 Files.createDirectories(filePath.getParent());
                 try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath.toFile()))) {
                     byte[] buffer = new byte[1024];
