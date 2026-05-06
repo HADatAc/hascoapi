@@ -66,7 +66,7 @@ public class Person extends Agent {
     }
 
     public Organization getHasAffiliation() {
-        if (this.getHasAddressUri() == null || this.getHasAffiliationUri().isEmpty()) {
+        if (this.getHasAffiliationUri() == null || this.getHasAffiliationUri().isEmpty()) {
             return null;
         }
         return Organization.find(this.getHasAffiliationUri());
