@@ -425,6 +425,13 @@ public class DataFileAPI extends Controller {
         if (filename == null || filename.trim().isEmpty()) {
             return badRequest(ApiUtil.createResponse("[ERROR] DataFileAPI.downloadFile(): No filename provided.", false));
         }
+
+        // Keep only the basename to avoid path traversal and normalize callers
+        // that accidentally send folder segments.
+        String safeFilename = Paths.get(filename).getFileName().toString();
+        if (safeFilename == null || safeFilename.trim().isEmpty()) {
+            return badRequest(ApiUtil.createResponse("[ERROR] DataFileAPI.downloadFile(): Invalid filename.", false));
+        }
     
         String basePath = ConfigProp.getPathIngestion();
         if (basePath == null || basePath.trim().isEmpty()) {
@@ -434,7 +441,7 @@ public class DataFileAPI extends Controller {
     
         // Extract the last segment of the elementUri to determine the folder name
         String uriTerm = URIUtils.uriLastSegment(elementUri);
-        Path filePath = Paths.get(basePath, Constants.RESOURCE_FOLDER, uriTerm, filename);
+        Path filePath = Paths.get(basePath, Constants.RESOURCE_FOLDER, uriTerm, safeFilename);
         File file = filePath.toFile();
     
         if (!file.exists() || !file.isFile()) {
@@ -442,7 +449,7 @@ public class DataFileAPI extends Controller {
 
             // FALLBACK: Try to find generated file in root directory
             // Generated files (WKF, SDD, INS, etc.) are saved directly in basePath, not in resources/{DFL}/
-            Path generatedFilePath = Paths.get(basePath, filename);
+            Path generatedFilePath = Paths.get(basePath, safeFilename);
             File generatedFile = generatedFilePath.toFile();
 
             if (generatedFile.exists() && generatedFile.isFile()) {
@@ -450,10 +457,34 @@ public class DataFileAPI extends Controller {
                 file = generatedFile;
                 filePath = generatedFilePath;
             } else {
-                System.out.println("[ERROR] DataFileAPI.downloadFile(): File not found in either location");
+                // SECOND FALLBACK (Social/KGR): try media folder tree.
+                // Some social assets are stored under basePath/media/<folder>/<filename>
+                // and are not duplicated under resources/<uriTerm>/.
+                Path mediaRoot = Paths.get(basePath, Constants.MEDIA_FOLDER);
+                Path mediaMatch = null;
+                if (Files.isDirectory(mediaRoot)) {
+                    try (java.util.stream.Stream<Path> paths = Files.walk(mediaRoot, 4)) {
+                        mediaMatch = paths
+                            .filter(Files::isRegularFile)
+                            .filter(p -> p.getFileName().toString().equalsIgnoreCase(safeFilename))
+                            .findFirst()
+                            .orElse(null);
+                    } catch (IOException ioe) {
+                        System.out.println("[WARN] DataFileAPI.downloadFile(): media fallback search failed: " + ioe.getMessage());
+                    }
+                }
+
+                if (mediaMatch != null) {
+                    System.out.println("[INFO] DataFileAPI.downloadFile(): Found media file at - " + mediaMatch);
+                    file = mediaMatch.toFile();
+                    filePath = mediaMatch;
+                } else {
+                System.out.println("[ERROR] DataFileAPI.downloadFile(): File not found in resources, generated, or media locations");
                 System.out.println("  - Tried resources: " + filePath);
                 System.out.println("  - Tried generated: " + generatedFilePath);
+                System.out.println("  - Tried media search root: " + mediaRoot);
                 return notFound(ApiUtil.createResponse("[ERROR] DataFileAPI.downloadFile(): File not found.", false));
+                }
             }
         }
     
@@ -465,7 +496,7 @@ public class DataFileAPI extends Controller {
             // ignore; will fall back to extension-based guess
         }
         if (mime == null || mime.trim().isEmpty() || "application/octet-stream".equalsIgnoreCase(mime)) {
-            String lower = filename.toLowerCase();
+            String lower = safeFilename.toLowerCase();
             if (lower.endsWith(".png")) {
                 mime = "image/png";
             } else if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) {
