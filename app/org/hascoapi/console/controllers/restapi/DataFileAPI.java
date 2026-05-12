@@ -24,15 +24,15 @@ import java.nio.file.*;
 import java.util.zip.*;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static play.mvc.Results.internalServerError;
 import static play.mvc.Results.ok;
 
 public class DataFileAPI extends Controller {
 
-    private static final Logger logger = Logger.getLogger(DataFileAPI.class.getName());
+    private static final Logger log = LoggerFactory.getLogger(DataFileAPI.class);
 
     /**
      * Returns JSON response with a list of DataFiles.
@@ -336,6 +336,14 @@ public class DataFileAPI extends Controller {
      * Handles media upload and saves it permanently.
      */
     public Result uploadMedia(String foldername, String filename, Http.Request request) {
+        log.info("uploadMedia: foldername='{}' filename='{}' contentType='{}' hasBody={} method={} path={}",
+            foldername,
+            filename,
+            request.contentType().orElse(""),
+            request.hasBody(),
+            request.method(),
+            request.path());
+
         if (foldername == null || foldername.trim().isEmpty()) {
             return ok(ApiUtil.createResponse("[ERROR] DataFileAPI.uploadMedia(): No foldername value has been provided.", false));
         }
@@ -383,6 +391,7 @@ public class DataFileAPI extends Controller {
         }
 
         if (tempFile == null || !tempFile.exists() || tempFile.length() == 0) {
+            log.warn("uploadMedia: no valid temp file extracted (contentType='{}')", request.contentType().orElse(""));
             return ok(ApiUtil.createResponse("[ERROR] DataFileAPI.uploadMedia(): No media has been provided for ingestion.", false));
         }
     
@@ -401,6 +410,8 @@ public class DataFileAPI extends Controller {
             return internalServerError(ApiUtil.createResponse("[ERROR] DataFileAPI.uploadMedia(): Failed to create destination directory.", false));
         }
 
+        log.info("uploadMedia: staging upload size={} bytes to folder {}", tempFile.length(), destinationDir);
+
         // Copy to our own temp file before async processing; Play's temporary upload file may be deleted
         final File tempZipCopy;
         try {
@@ -412,11 +423,15 @@ public class DataFileAPI extends Controller {
             return internalServerError(ApiUtil.createResponse("[ERROR] DataFileAPI.uploadMedia(): Failed to stage upload file.", false));
         }
 
+        log.info("uploadMedia: staged temp file '{}' size={} bytes", tempZipCopy.getAbsolutePath(), tempZipCopy.length());
+
         // Save file asynchronously to avoid blocking request handling
         if (filename.toLowerCase().endsWith(".zip")) {
+            log.info("uploadMedia: scheduling async unzip to {}", destinationDir);
             CompletableFuture.runAsync(() -> unzipAndSave(tempZipCopy, destinationDir));
         } else {
             Path permanentPath = destinationDir.resolve(filename);
+            log.info("uploadMedia: scheduling async save to {}", permanentPath);
             CompletableFuture.runAsync(() -> saveFile(tempZipCopy, permanentPath));
         }
     
@@ -472,7 +487,9 @@ public class DataFileAPI extends Controller {
                 Path mediaRoot = Paths.get(basePath, Constants.MEDIA_FOLDER);
                 Path mediaMatch = null;
                 if (Files.isDirectory(mediaRoot)) {
-                    try (java.util.stream.Stream<Path> paths = Files.walk(mediaRoot, 4)) {
+                    // Some ZIP uploads add an extra wrapper directory (and __MACOSX), so keep the
+                    // search depth reasonably high.
+                    try (java.util.stream.Stream<Path> paths = Files.walk(mediaRoot, 12)) {
                         mediaMatch = paths
                             .filter(Files::isRegularFile)
                             .filter(p -> p.getFileName().toString().equalsIgnoreCase(safeFilename))
@@ -571,11 +588,15 @@ public class DataFileAPI extends Controller {
      * Extracts a zip file and saves its contents permanently.
      */
     public void unzipAndSave(File zipFile, Path destinationDir) {
+        log.info("unzipAndSave: starting zip='{}' dest='{}'", zipFile != null ? zipFile.getAbsolutePath() : "(null)", destinationDir);
+        int extracted = 0;
+        int skippedDirs = 0;
+        int skippedTraversal = 0;
         try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile))) {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
                 if (entry.isDirectory()) {
-                    System.out.println("Skipping directory: " + entry.getName());
+                    skippedDirs++;
                     continue; // Skip directories
                 }
 
@@ -601,7 +622,7 @@ public class DataFileAPI extends Controller {
 
                 Path filePath = destinationDir.resolve(entryName).normalize();
                 if (!filePath.startsWith(destinationDir.normalize())) {
-                    System.out.println("Skipping suspicious zip entry (path traversal): " + entry.getName());
+                    skippedTraversal++;
                     zis.closeEntry();
                     continue;
                 }
@@ -614,14 +635,14 @@ public class DataFileAPI extends Controller {
                     }
                 }
                 zis.closeEntry();
-                System.out.println("Extracted: " + filePath);
+                extracted++;
             }
-            System.out.println("Extraction complete.");
+            log.info("unzipAndSave: complete extracted={} skippedDirs={} skippedTraversal={} dest='{}'", extracted, skippedDirs, skippedTraversal, destinationDir);
         } catch (IOException e) {
-            System.out.println("Error extracting zip file: " + e.getMessage());
+            log.warn("unzipAndSave: error extracting zip: {}", e.getMessage());
         } finally {
-            if (zipFile.exists() && !zipFile.delete()) {
-                System.out.println("Failed to delete zip file: " + zipFile.getAbsolutePath());
+            if (zipFile != null && zipFile.exists() && !zipFile.delete()) {
+                log.warn("unzipAndSave: failed to delete temp zip '{}'", zipFile.getAbsolutePath());
             }
         }
     }

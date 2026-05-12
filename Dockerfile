@@ -3,7 +3,20 @@
 #FROM openjdk:11
 FROM sbtscala/scala-sbt:eclipse-temurin-11.0.16_1.7.2_2.12.17 as build-java
 
-RUN apt-get update && apt-get install -y unzip
+RUN sed -i -e 's|http://ports.ubuntu.com/ubuntu-ports|https://ports.ubuntu.com/ubuntu-ports|g' /etc/apt/sources.list && \
+	apt-get update && \
+	apt-get install -y --no-install-recommends unzip && \
+	rm -rf /var/lib/apt/lists/*
+
+# Avoid Maven Central rate-limits by mirroring it via Google Cloud Storage.
+RUN mkdir -p /root/.config/coursier && \
+	cat > /root/.config/coursier/mirror.properties <<'EOF'
+central.from=https://repo1.maven.org/maven2;https://repo.maven.apache.org/maven2
+central.to=https://maven-central.storage-download.googleapis.com/maven2
+central.type=tree
+EOF
+
+ENV COURSIER_MIRRORS=/root/.config/coursier/mirror.properties
 ENV JAVA_OPTS="-Xms6048m -Xmx10000m"
 WORKDIR /hascoapi
 

@@ -2,13 +2,44 @@ FROM sbtscala/scala-sbt:eclipse-temurin-11.0.16_1.7.2_2.12.17
 
 WORKDIR /hascoapi
 
-COPY . .
-
-RUN apt-get update && \
-    apt-get install -y tmux && \
+RUN sed -i -e 's|http://ports.ubuntu.com/ubuntu-ports|https://ports.ubuntu.com/ubuntu-ports|g' /etc/apt/sources.list && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends tmux && \
     rm -rf /var/lib/apt/lists/*
 
-RUN sbt update
+# Avoid Maven Central rate-limits by mirroring it via Google Cloud Storage.
+RUN mkdir -p /root/.config/coursier && \
+    cat > /root/.config/coursier/mirror.properties <<'EOF'
+central.from=https://repo1.maven.org/maven2;https://repo.maven.apache.org/maven2
+central.to=https://maven-central.storage-download.googleapis.com/maven2
+central.type=tree
+EOF
+
+ENV COURSIER_MIRRORS=/root/.config/coursier/mirror.properties
+
+# Copy build definition files first so dependency resolution can be cached.
+COPY build.sbt ./
+COPY project/ ./project/
+
+RUN set -e; \
+        for attempt in 1 2 3 4 5; do \
+            echo "Running sbt update (attempt ${attempt}/5)"; \
+            if sbt -batch \
+                -Dcoursier.parallel-download-count=1 \
+                -Dcoursier.exception-retry=20 \
+                -Dcoursier.exception-retry-backoff-initial-delay=2s \
+                -Dcoursier.exception-retry-backoff-multiplier=2.0 \
+                update; then \
+                exit 0; \
+            fi; \
+            delay=$((attempt * 30)); \
+            echo "sbt update failed; retrying in ${delay}s..."; \
+            sleep "${delay}"; \
+        done; \
+        echo "sbt update failed after retries" >&2; \
+        exit 1
+
+COPY . .
 
 EXPOSE 9000
 
