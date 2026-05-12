@@ -27,6 +27,9 @@
     <appender-ref ref="APP_ASYNCFILE" />
   </root>
 
+  <!-- Keep global noise low (root=WARN) but allow targeted INFO logs for media uploads. -->
+  <logger name="org.hascoapi.console.controllers.restapi.DataFileAPI" level="INFO" />
+
   <!--logger name="play" level="INFO" />
   <logger name="application" level="INFO" /-->
   <!--logger name="org.pac4j.play" level="DEBUG" />
