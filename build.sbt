@@ -80,7 +80,14 @@ libraryDependencies ++= Seq(
 
 ) .map(_.exclude("*", "slf4j-log4j12")) ++ guiceDeps //For Play 2.6 & JDK9
 
-resolvers ++= Seq(Resolver.mavenLocal, "Sonatype snapshots repository" at "https://oss.sonatype.org/content/repositories/snapshots/", "Shibboleth releases" at "https://build.shibboleth.net/nexus/content/repositories/releases/",
-  "Spring Framework Security" at "https://mvnrepository.com/artifact/org.springframework.security/spring-security-crypto")
+// Use Google's Maven Central mirror FIRST to avoid rate limiting
+resolvers := Seq(
+  "Google Maven Central" at "https://maven-central-storage.googleapis.com/maven2/",
+  "Google Maven Mirror" at "https://maven-central.storage-download.googleapis.com/maven2/",
+  Resolver.mavenLocal,
+  "Sonatype snapshots repository" at "https://oss.sonatype.org/content/repositories/snapshots/",
+  "Shibboleth releases" at "https://build.shibboleth.net/nexus/content/repositories/releases/",
+  "Spring Framework Security" at "https://mvnrepository.com/artifact/org.springframework.security/spring-security-crypto"
+)
 
 routesGenerator := InjectedRoutesGenerator

@@ -1,0 +1,606 @@
+
+[0;32m========================================[0m
+[0;32mHASCOAPI Deployment Started[0m
+[0;32m========================================[0m
+
+[2026-05-15 14:43:23] [STEP] HASCOAPI Deployment Started
+[0;34m[INFO][0m Target: ubuntu@34.254.221.79
+[2026-05-15 14:43:23] [INFO] Target: ubuntu@34.254.221.79
+[0;34m[INFO][0m Log file: deployment-20260515-144323.log
+[2026-05-15 14:43:23] [INFO] Log file: deployment-20260515-144323.log
+
+[0;32m========================================[0m
+[0;32mStep 1/8: Verifying SSH Connection[0m
+[0;32m========================================[0m
+
+[2026-05-15 14:43:23] [STEP] Step 1/8: Verifying SSH Connection
+Connection OK
+[0;32m[SUCCESS][0m SSH connection verified
+[2026-05-15 14:43:24] [SUCCESS] SSH connection verified
+
+[0;32m========================================[0m
+[0;32mStep 2/8: Creating Dockerfile[0m
+[0;32m========================================[0m
+
+[2026-05-15 14:43:24] [STEP] Step 2/8: Creating Dockerfile
+[0;32m[SUCCESS][0m Dockerfile created
+[2026-05-15 14:43:24] [SUCCESS] Dockerfile created
+
+[0;32m========================================[0m
+[0;32mStep 3/8: Creating docker-compose configuration[0m
+[0;32m========================================[0m
+
+[2026-05-15 14:43:25] [STEP] Step 3/8: Creating docker-compose configuration
+[0;32m[SUCCESS][0m docker-compose configuration created
+[2026-05-15 14:43:25] [SUCCESS] docker-compose configuration created
+
+[0;32m========================================[0m
+[0;32mStep 4/8: Setting up remote directory[0m
+[0;32m========================================[0m
+
+[2026-05-15 14:43:25] [STEP] Step 4/8: Setting up remote directory
+[0;32m[SUCCESS][0m Remote directory configured
+[2026-05-15 14:43:28] [SUCCESS] Remote directory configured
+
+[0;32m========================================[0m
+[0;32mStep 5/8: Copying files to AWS server (this may take a few minutes)[0m
+[0;32m========================================[0m
+
+[2026-05-15 14:43:28] [STEP] Step 5/8: Copying files to AWS server (this may take a few minutes)
+[0;34m[INFO][0m Transferring source code...
+[2026-05-15 14:43:28] [INFO] Transferring source code...
+Transfer starting: 790 files
+./
+Dockerfile.aws-devinfra
+           1261 100%    5.01MB/s   00:00:00 (xfer#1, to-check=8/790)
+deploy-with-logging.sh
+           8492 100%   15.55MB/s   00:00:00 (xfer#2, to-check=28/790)
+deployment-output.txt
+           1293 100%    9.01MB/s   00:00:00 (xfer#3, to-check=29/790)
+docker-compose-aws-devinfra.yml
+           1443 100%    5.59MB/s   00:00:00 (xfer#4, to-check=30/790)
+
+sent 58111 bytes  received 222 bytes  121249 bytes/sec
+total size is 185507657  speedup is 3180.15
+[0;32m[SUCCESS][0m Files transferred successfully
+[2026-05-15 14:43:29] [SUCCESS] Files transferred successfully
+
+[0;32m========================================[0m
+[0;32mStep 6/8: Building on AWS server (this will take several minutes)[0m
+[0;32m========================================[0m
+
+[2026-05-15 14:43:29] [STEP] Step 6/8: Building on AWS server (this will take several minutes)
+[0;34m[INFO][0m Pulling dependencies container...
+[2026-05-15 14:43:29] [INFO] Pulling dependencies container...
+[0;34m[INFO][0m Building HASCOAPI with hadatac-libs...
+[2026-05-15 14:43:29] [INFO] Building HASCOAPI with hadatac-libs...
+[0;34m[INFO][0m Building Fuseki...
+[2026-05-15 14:43:29] [INFO] Building Fuseki...
+[0;34m[INFO][0m You can monitor progress in: deployment-20260515-144323.log
+[2026-05-15 14:43:29] [INFO] You can monitor progress in: deployment-20260515-144323.log
+[Fri May 15 13:43:31 UTC 2026] Cleaning up old containers...
+Deleted Containers:
+36c525b5db1d9fccdbc3d907c4a9e2afaaa7d024fd14ce905c871e1232196206
+
+Removing network hascoapi_hascoapi
+Network hascoapi_hascoapi not found.
+Deleted Images:
+deleted: sha256:954d9a29e7999081dab9800fb81b73f35d6f5be47fba3beb4596e87f1c442ef3
+deleted: sha256:3cd06b53250dad14621076c834d9538b188c61aaa2016bd1875cd5b0ca884b05
+deleted: sha256:acb00f3768594f3a4a04bc6fa8a4e801d1589d9a04194da62ed9cab3a57d5662
+deleted: sha256:1ae3480c6594c5353a323f12b69bc0da7a1b735446f5209895cb765af0260e64
+deleted: sha256:14561395cadfed9eed30af3ff5bc9be78a84e04d037e724aa4258271c4e3bd41
+deleted: sha256:2a94df3110bf4f0541b4c4a5f8c9ba7e0feee1d5888cd03e01c7bbdf040d8f80
+deleted: sha256:f5e4d23c219ceca5c2f3206a911ff7f778df18db6ae3b8e04d4a39be26d8ce05
+deleted: sha256:362a5ae7f75c2235f1a55450bc50da952856703459d09fbfe0bdac4fc20466f0
+untagged: kaykael/hascoapi-dependencies:latest
+untagged: kaykael/hascoapi-dependencies@sha256:3c251b42347c7e4ccf45dd408c31e57580bc87b5d2266db19fdb786f59ba2bf6
+deleted: sha256:6e3c4f34ef28c33d9d09118cb9d3e8d51bd773ba7b522162617a63de91dd92e7
+deleted: sha256:365da46d527760dcf548376a501988f848cd6fe43690beb27b69758faca1f23e
+deleted: sha256:85eee36740daa645968e97eb0aeb34b69a04376ebe1af36956e5b6d5b30667dd
+deleted: sha256:a3fcc0e8cf0ec224dbda5bb24f0d59b6d1229a740f6a6c043b4b99c56e4de9be
+deleted: sha256:459ddef2b22c52a4385cdd168d3f46dc07bafaad61559fa5015e1a3cb3fe834c
+deleted: sha256:c3949279f37efa5566ca817a27dfb8de22036b4d2665a33998a9d4e012d24b10
+deleted: sha256:c021bdd0ebffaf5191b79c6efae94062cc61c514f66e69d8d22be671bdd3c230
+deleted: sha256:d979a223b552856835a3498bcc8dc9c0c60a6f6085709db937d5ad1e58103558
+deleted: sha256:bc57c49e165f5a77a543b8d16a938d5cb1ac96ea8113b04078ccfa070025e1b3
+deleted: sha256:3e35d6897b8782fe57c82927d7058204aa0ae208a0facdd1c60872b731461f59
+deleted: sha256:687e2d62d2138b53456a63e8f9508284e8a8b559f05831c5e1db18aaa97dac65
+deleted: sha256:3803d09be527078a9983c346b5155cdbf710ed9bd17e8d2fbedab519f0e57d0e
+deleted: sha256:5d05d7cd51aa7dd1524e67df37f412d7e766b324a5d0491dfe498f4547e5f8bf
+deleted: sha256:6b7ee1dc7b86c32d3a7fd1d5237e1de43f564a1eec8146907c0713a20ef0093f
+deleted: sha256:23a132ba846dca1258c1449f3aca60189bb3ac15cfae55cdf800fd77ee072cd0
+deleted: sha256:8e06944758bd4b187c5342ab58e2f3eb5b53fc12d62b3a320be03e60ea67e627
+deleted: sha256:c5e096af88b98b73e78979364cf0cd79712717ff89231e9d5c11eead7f38c35f
+deleted: sha256:fdaa1e6f67680674a4adf113c4b9588998c62276e437be2a8fcad847c1d3b43e
+deleted: sha256:01b1ab6967f5c2a1b59748d171f2b54ff4f58fe138f504a3a31ebe32e9cdcc21
+deleted: sha256:ea64a87a21714af9b41cea192cbc3e526ef4badbc312b60f17b7c675cd50a2a3
+deleted: sha256:a66002e8b424b72e8fb448c872a59adf8643ecc497b584381b9c40d6e8bdbd5e
+deleted: sha256:744b10777242203afd599783d96a1e1b56e84eb9552adb0e0137df17498c4d95
+deleted: sha256:7ea4455e747ead87d6cc1c4efaf3a79530a931a0856a9f9ce9ac2d8d45bd3c28
+untagged: hascoapi_fuseki:latest
+deleted: sha256:8bc24b808f36d355c64228a30b5005c6a282309369fd7f4c6c9d257fa2025cd3
+deleted: sha256:a342e3bf7e7376e08c221b8f281171da85a30ec45a02b76004a4b837c6f9c13e
+deleted: sha256:a6683ce0a0d68a712b14b573745084b5c5ce92bff94cfb51d4683c41d10d3aa4
+deleted: sha256:5ca0f59d2e6bd5cd11fdc680b056bbe225e04beedf2f3e01afa418f88ef80ef6
+deleted: sha256:866bd6e5a9fabb123100842adb5550727ff7b70ee88ba281be4e4878dd0f3516
+untagged: hansidm/fuseki:4.7.0
+untagged: hansidm/fuseki@sha256:38d8d4e21ff0546542525cce3d64eb89a994e6978aeb70d9f50639a5f0d0664d
+deleted: sha256:1ce7abd31969515e1f4a17762148f4d50850dcbeb2b32d6893298e8e5a3a8511
+deleted: sha256:ab545093f9c7aec2ef759fe22eb0165521049bf8139a4cc143d9c7d53a03203e
+deleted: sha256:70e6a1e79e1d9f92fc3f660c7b52f3b868d1caed9b98e016c1b553870dbc9934
+deleted: sha256:9fcdae198589ec97fd70ba2368b3cfa740784c5b18418706e81904ca1df63b6a
+deleted: sha256:4c18d36af03c1b3e4f6337438014fa842f7259a0721caac7c3cddeac7b8213d7
+deleted: sha256:87c61d4d5f15c808a8dbe19097204f611c1957a1eba43003dac5075eb720201b
+deleted: sha256:4695cdfb426a05673a100e69d2fe9810d9ab2b3dd88ead97c6a3627246d83815
+untagged: hansidm/yasgui:2.5.0
+untagged: hansidm/yasgui@sha256:73f01d24f27d6524348bfadc84e26965041cf08c65dbfb21b8b8b03c44fc5857
+untagged: hascoapi_fuseki-yasgui:latest
+deleted: sha256:6e4c0db8fdbc94780aa286876a74b8840cb85138754d3f9fddca3f4e5367e4d6
+deleted: sha256:d078007c1385ee8734b721d116bb77436196e8cc33b029af553288d1c5b3d9d8
+deleted: sha256:e3ac4a9042f8491199305153b083f2aa9dc7ff1b2c639f25b98ab4ad78a073a2
+deleted: sha256:9cf6f1655c8007b8cd05a36032190fccc890e8df17415b14c0de349ea68e91be
+deleted: sha256:02fa2e8b7b51391e161acc12cc5535e8d194cb949c4bd18a87996c28d34e3109
+deleted: sha256:343839208b9e1180a984c8bfcb13ff2ca116d913475a40aa54bea190a1e44807
+deleted: sha256:f7aa4d1226879fb1018ed05617572994840f4c75e5d04df2fffe04980cef11b9
+deleted: sha256:f83cdd3286b839bef51f1ae0f1f6164b16e1059a0e131035bfa0bb8bb0021357
+deleted: sha256:61b0680052fcdb48f47c8d68687c0b5bbb279b6e3740701885b39ea22ef7b008
+deleted: sha256:9045770a1273553bb8bd7ccd2d490ecb56ce762ac993ad74698d14186e39bda6
+deleted: sha256:60d9493158e562e8510cd4cabbd7460c03ad39fe2250bbd43bdcd1e75f64ba6f
+deleted: sha256:7cd52847ad775a5ddc4b58326cf884beee34544296402c6292ed76474c686d39
+
+Total reclaimed space: 3.611GB
+[Fri May 15 13:43:33 UTC 2026] Pulling dependencies container...
+latest: Pulling from kaykael/hascoapi-dependencies
+301a8b74f71f: Pulling fs layer
+4688df200b56: Pulling fs layer
+05209e93f6ac: Pulling fs layer
+de4cb745e49f: Pulling fs layer
+e3d8da4a9a18: Pulling fs layer
+5b29d1216e48: Pulling fs layer
+9c73b77c3324: Pulling fs layer
+e83bd6933fd8: Pulling fs layer
+397fe1e90ebf: Pulling fs layer
+4f4fb700ef54: Pulling fs layer
+a9c6985ebc13: Pulling fs layer
+35373a6d3ded: Pulling fs layer
+bd1ab8f48188: Pulling fs layer
+f85302ebf2d7: Pulling fs layer
+01f4753caf05: Pulling fs layer
+dca97ebffa8b: Pulling fs layer
+cd0c8ab5a0b9: Pulling fs layer
+ca6bc2aa94ce: Pulling fs layer
+c58c5325e49c: Pulling fs layer
+35373a6d3ded: Waiting
+bd1ab8f48188: Waiting
+f85302ebf2d7: Waiting
+01f4753caf05: Waiting
+dca97ebffa8b: Waiting
+cd0c8ab5a0b9: Waiting
+ca6bc2aa94ce: Waiting
+c58c5325e49c: Waiting
+de4cb745e49f: Waiting
+e3d8da4a9a18: Waiting
+5b29d1216e48: Waiting
+9c73b77c3324: Waiting
+e83bd6933fd8: Waiting
+397fe1e90ebf: Waiting
+4f4fb700ef54: Waiting
+a9c6985ebc13: Waiting
+4688df200b56: Verifying Checksum
+4688df200b56: Download complete
+301a8b74f71f: Verifying Checksum
+301a8b74f71f: Download complete
+de4cb745e49f: Verifying Checksum
+de4cb745e49f: Download complete
+e3d8da4a9a18: Verifying Checksum
+e3d8da4a9a18: Download complete
+5b29d1216e48: Verifying Checksum
+5b29d1216e48: Download complete
+e83bd6933fd8: Verifying Checksum
+e83bd6933fd8: Download complete
+397fe1e90ebf: Verifying Checksum
+397fe1e90ebf: Download complete
+05209e93f6ac: Verifying Checksum
+05209e93f6ac: Download complete
+4f4fb700ef54: Verifying Checksum
+4f4fb700ef54: Download complete
+9c73b77c3324: Verifying Checksum
+9c73b77c3324: Download complete
+35373a6d3ded: Verifying Checksum
+35373a6d3ded: Download complete
+bd1ab8f48188: Verifying Checksum
+bd1ab8f48188: Download complete
+f85302ebf2d7: Verifying Checksum
+f85302ebf2d7: Download complete
+01f4753caf05: Verifying Checksum
+01f4753caf05: Download complete
+301a8b74f71f: Pull complete
+a9c6985ebc13: Verifying Checksum
+a9c6985ebc13: Download complete
+ca6bc2aa94ce: Verifying Checksum
+ca6bc2aa94ce: Download complete
+c58c5325e49c: Verifying Checksum
+c58c5325e49c: Download complete
+4688df200b56: Pull complete
+cd0c8ab5a0b9: Verifying Checksum
+cd0c8ab5a0b9: Download complete
+05209e93f6ac: Pull complete
+de4cb745e49f: Pull complete
+dca97ebffa8b: Verifying Checksum
+dca97ebffa8b: Download complete
+e3d8da4a9a18: Pull complete
+5b29d1216e48: Pull complete
+9c73b77c3324: Pull complete
+e83bd6933fd8: Pull complete
+397fe1e90ebf: Pull complete
+4f4fb700ef54: Pull complete
+a9c6985ebc13: Pull complete
+35373a6d3ded: Pull complete
+bd1ab8f48188: Pull complete
+f85302ebf2d7: Pull complete
+01f4753caf05: Pull complete
+dca97ebffa8b: Pull complete
+cd0c8ab5a0b9: Pull complete
+ca6bc2aa94ce: Pull complete
+c58c5325e49c: Pull complete
+Digest: sha256:3c251b42347c7e4ccf45dd408c31e57580bc87b5d2266db19fdb786f59ba2bf6
+Status: Downloaded newer image for kaykael/hascoapi-dependencies:latest
+docker.io/kaykael/hascoapi-dependencies:latest
+[Fri May 15 13:44:20 UTC 2026] Building all services...
+Building fuseki
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  15.36kB
+Step 1/4 : FROM hansidm/fuseki:4.7.0
+4.7.0: Pulling from hansidm/fuseki
+bb263680fed1: Pulling fs layer
+df81446e0c86: Pulling fs layer
+933cc578980c: Pulling fs layer
+5257fdfe418a: Pulling fs layer
+4f4fb700ef54: Pulling fs layer
+1016e7b03b2d: Pulling fs layer
+5257fdfe418a: Waiting
+4f4fb700ef54: Waiting
+1016e7b03b2d: Waiting
+bb263680fed1: Verifying Checksum
+bb263680fed1: Download complete
+df81446e0c86: Verifying Checksum
+df81446e0c86: Download complete
+933cc578980c: Download complete
+5257fdfe418a: Verifying Checksum
+5257fdfe418a: Download complete
+4f4fb700ef54: Verifying Checksum
+4f4fb700ef54: Download complete
+1016e7b03b2d: Verifying Checksum
+1016e7b03b2d: Download complete
+bb263680fed1: Pull complete
+df81446e0c86: Pull complete
+933cc578980c: Pull complete
+5257fdfe418a: Pull complete
+4f4fb700ef54: Pull complete
+1016e7b03b2d: Pull complete
+Digest: sha256:38d8d4e21ff0546542525cce3d64eb89a994e6978aeb70d9f50639a5f0d0664d
+Status: Downloaded newer image for hansidm/fuseki:4.7.0
+ ---> 1ce7abd31969
+Step 2/4 : RUN mkdir /fuseki/configuration
+ ---> Running in f84a94b67e1d
+ ---> Removed intermediate container f84a94b67e1d
+ ---> 15e9291f4321
+Step 3/4 : COPY fuseki-jetty.xml hascoapi_assembler.ttl /fuseki/configuration/
+ ---> edfbb759aedf
+Step 4/4 : CMD [     "--config=/fuseki/configuration/hascoapi_assembler.ttl",     "--jetty=/fuseki/configuration/fuseki-jetty.xml",     "--ping",     "--stats",     "--metrics",     "--compact"     ]
+ ---> Running in d95a90e24001
+ ---> Removed intermediate container d95a90e24001
+ ---> 0e93f0d08966
+Successfully built 0e93f0d08966
+Successfully tagged hascoapi_fuseki:latest
+Building fuseki-yasgui
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  3.584kB
+Step 1/2 : FROM hansidm/yasgui:2.5.0
+2.5.0: Pulling from hansidm/yasgui
+63b65145d645: Pulling fs layer
+8c7e1fd96380: Pulling fs layer
+86c5246c96db: Pulling fs layer
+b874033c43fb: Pulling fs layer
+dbe1551bd73f: Pulling fs layer
+0d4f6b3f3de6: Pulling fs layer
+d1c22b9cc341: Pulling fs layer
+3c6114f7c05a: Pulling fs layer
+4f4fb700ef54: Pulling fs layer
+b874033c43fb: Waiting
+dbe1551bd73f: Waiting
+0d4f6b3f3de6: Waiting
+d1c22b9cc341: Waiting
+3c6114f7c05a: Waiting
+4f4fb700ef54: Waiting
+86c5246c96db: Verifying Checksum
+86c5246c96db: Download complete
+8c7e1fd96380: Verifying Checksum
+8c7e1fd96380: Download complete
+b874033c43fb: Verifying Checksum
+b874033c43fb: Download complete
+dbe1551bd73f: Verifying Checksum
+dbe1551bd73f: Download complete
+63b65145d645: Download complete
+63b65145d645: Pull complete
+0d4f6b3f3de6: Verifying Checksum
+0d4f6b3f3de6: Download complete
+d1c22b9cc341: Verifying Checksum
+d1c22b9cc341: Download complete
+3c6114f7c05a: Verifying Checksum
+3c6114f7c05a: Download complete
+4f4fb700ef54: Verifying Checksum
+4f4fb700ef54: Download complete
+8c7e1fd96380: Pull complete
+86c5246c96db: Pull complete
+b874033c43fb: Pull complete
+dbe1551bd73f: Pull complete
+0d4f6b3f3de6: Pull complete
+d1c22b9cc341: Pull complete
+3c6114f7c05a: Pull complete
+4f4fb700ef54: Pull complete
+Digest: sha256:73f01d24f27d6524348bfadc84e26965041cf08c65dbfb21b8b8b03c44fc5857
+Status: Downloaded newer image for hansidm/yasgui:2.5.0
+ ---> e3ac4a9042f8
+Step 2/2 : COPY nginx.conf /etc/nginx/nginx.conf
+ ---> 77ac82f29841
+Successfully built 77ac82f29841
+Successfully tagged hascoapi_fuseki-yasgui:latest
+Building hascoapi
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  186.2MB
+Step 1/17 : FROM kaykael/hascoapi-dependencies:latest AS builder
+ ---> 6e3c4f34ef28
+Step 2/17 : WORKDIR /hascoapi
+ ---> Running in 7afc39ff455b
+ ---> Removed intermediate container 7afc39ff455b
+ ---> 0a72b5590acb
+Step 3/17 : COPY . .
+ ---> c8fb40b90b00
+Step 4/17 : RUN mkdir -p lib && cp hadatac-libs/*.jar lib/
+ ---> Running in 6e710db6238c
+ ---> Removed intermediate container 6e710db6238c
+ ---> 883064a4ccb8
+Step 5/17 : RUN sbt playUpdateSecret && sbt dist
+ ---> Running in e353208f41a8
+[info] welcome to sbt 1.7.2 (Eclipse Adoptium Java 11.0.16.1)
+[info] loading settings for project hascoapi-build from google-maven.sbt,plugins.sbt,sbt-ui.sbt ...
+[info] loading project definition from /hascoapi/project
+[info] loading settings for project root from build.sbt,resolvers.fix.sbt ...
+[info]   __              __
+[info]   \ \     ____   / /____ _ __  __
+[info]    \ \   / __ \ / // __ `// / / /
+[info]    / /  / /_/ // // /_/ // /_/ /
+[info]   /_/  / .___//_/ \__,_/ \__, /
+[info]       /_/               /____/
+[info] 
+[info] Version 2.8.19 running Java 11.0.16.1
+[info] 
+[info] Play is run entirely by the community. Please consider contributing and/or donating:
+[info] https://www.playframework.com/sponsors
+[info] 
+[warn] there's a key that's not used by any other settings/tasks:
+[warn]  
+[warn] * ThisBuild / resolvers
+[warn]   +- /hascoapi/resolvers.fix.sbt:1
+[warn]  
+[warn] note: a setting might still be used by a command; to exclude a key from this `lintUnused` check
+[warn] either append it to `Global / excludeLintKeys` or call .withRank(KeyRanks.Invisible) on the key
+Generated new secret: aGEFjtn<0fI4mKS9]rfMW_y^E<Z7D<;;BjNd[TbL?L9rI?SK2@rEGftPdZbbDvHL
+[info] Updating application secret in /hascoapi/conf/application.conf
+[warn] Did not find application secret in /hascoapi/conf/application.conf
+[warn] Adding application secret to start of file
+[success] Total time: 0 s, completed May 15, 2026, 1:45:10 PM
+[info] welcome to sbt 1.7.2 (Eclipse Adoptium Java 11.0.16.1)
+[info] loading settings for project hascoapi-build from google-maven.sbt,plugins.sbt,sbt-ui.sbt ...
+[info] loading project definition from /hascoapi/project
+[info] loading settings for project root from build.sbt,resolvers.fix.sbt ...
+[info]   __              __
+[info]   \ \     ____   / /____ _ __  __
+[info]    \ \   / __ \ / // __ `// / / /
+[info]    / /  / /_/ // // /_/ // /_/ /
+[info]   /_/  / .___//_/ \__,_/ \__, /
+[info]       /_/               /____/
+[info] 
+[info] Version 2.8.19 running Java 11.0.16.1
+[info] 
+[info] Play is run entirely by the community. Please consider contributing and/or donating:
+[info] https://www.playframework.com/sponsors
+[info] 
+[warn] there's a key that's not used by any other settings/tasks:
+[warn]  
+[warn] * ThisBuild / resolvers
+[warn]   +- /hascoapi/resolvers.fix.sbt:1
+[warn]  
+[warn] note: a setting might still be used by a command; to exclude a key from this `lintUnused` check
+[warn] either append it to `Global / excludeLintKeys` or call .withRank(KeyRanks.Invisible) on the key
+Warning: node.js detection failed, sbt will use the Rhino based Trireme JavaScript engine instead to run JavaScript assets compilation, which in some cases may be orders of magnitude slower than using node.js.
+[info] Wrote /hascoapi/target/scala-2.12/hascoapi_2.12-10.0.1-SNAPSHOT.pom
+[info] Main Scala API documentation to /hascoapi/target/scala-2.12/api...
+[info] compiling 40 Scala sources and 280 Java sources to /hascoapi/target/scala-2.12/classes ...
+model contains 435 documentable templates
+[warn] /hascoapi/app/org/hascoapi/ingestion/mqtt/MqttSubscribe.java:294:5: Could not find any member to link for "MqttException".
+[warn]     /**
+[warn]     ^
+[warn] /hascoapi/app/org/hascoapi/ingestion/mqtt/MqttSubscribe.java:260:5: Could not find any member to link for "MqttException".
+[warn]     /**
+[warn]     ^
+[warn] /hascoapi/app/org/hascoapi/ingestion/STRFileGenerator.java:110:6: Variable uri undefined in comment for method createStreamUri in class STRFileGenerator
+[warn]     $uri = Utils::uriGen('stream');
+[warn]      ^
+[warn] /hascoapi/app/org/hascoapi/ingestion/STRFileGenerator.java:112:6: Variable stream undefined in comment for method createStreamUri in class STRFileGenerator
+[warn]     $stream = [
+[warn]      ^
+[warn] /hascoapi/app/org/hascoapi/ingestion/STRFileGenerator.java:113:39: Variable uri undefined in comment for method createStreamUri in class STRFileGenerator
+[warn]       'uri'                       => $uri,
+[warn]                                       ^
+[warn] /hascoapi/app/org/hascoapi/ingestion/STRFileGenerator.java:117:39: Variable form undefined in comment for method createStreamUri in class STRFileGenerator
+[warn]       'method'                    => $form_state->getValue('stream_method'),
+[warn]                                       ^
+[warn] /hascoapi/app/org/hascoapi/ingestion/STRFileGenerator.java:118:39: Variable form undefined in comment for method createStreamUri in class STRFileGenerator
+[warn]       'permissionUri'             => $form_state->getValue('permission_uri'),
+[warn]                                       ^
+[warn] /hascoapi/app/org/hascoapi/ingestion/STRFileGenerator.java:119:39: Variable deployment undefined in comment for method createStreamUri in class STRFileGenerator
+[warn]       'deploymentUri'             => $deployment,
+[warn]                                       ^
+[warn] /hascoapi/app/org/hascoapi/ingestion/STRFileGenerator.java:120:39: Variable form undefined in comment for method createStreamUri in class STRFileGenerator
+[warn]       'hasVersion'                => $form_state->getValue('stream_version') ?? 1,
+[warn]                                       ^
+[warn] /hascoapi/app/org/hascoapi/ingestion/STRFileGenerator.java:121:39: Variable form undefined in comment for method createStreamUri in class STRFileGenerator
+[warn]       'comment'                   => $form_state->getValue('stream_description'),
+[warn]                                       ^
+[warn] /hascoapi/app/org/hascoapi/ingestion/STRFileGenerator.java:122:40: Variable email undefined in comment for method createStreamUri in class STRFileGenerator
+[warn]       'canUpdate'                 => [$email],
+[warn]                                        ^
+[warn] /hascoapi/app/org/hascoapi/ingestion/STRFileGenerator.java:123:39: Variable timestamp undefined in comment for method createStreamUri in class STRFileGenerator
+[warn]       'designedAt'                => $timestamp,
+[warn]                                       ^
+[warn] /hascoapi/app/org/hascoapi/ingestion/STRFileGenerator.java:124:66: Variable form undefined in comment for method createStreamUri in class STRFileGenerator
+[warn]       'studyUri'                  => Utils::uriFromAutocomplete($form_state->getValue('stream_study')),
+[warn]                                                                  ^
+[warn] /hascoapi/app/org/hascoapi/ingestion/STRFileGenerator.java:125:66: Variable form undefined in comment for method createStreamUri in class STRFileGenerator
+[warn]       'semanticDataDictionaryUri' => Utils::uriFromAutocomplete($form_state->getValue('stream_semanticdatadictionary')),
+[warn]                                                                  ^
+[warn] /hascoapi/app/org/hascoapi/ingestion/STRFileGenerator.java:126:39: Variable email undefined in comment for method createStreamUri in class STRFileGenerator
+[warn]       'hasSIRManagerEmail'        => $email,
+[warn]                                       ^
+[warn] /hascoapi/app/org/hascoapi/ingestion/STRFileGenerator.java:130:10: Variable method undefined in comment for method createStreamUri in class STRFileGenerator
+[warn]     if ($method === 'files') {
+[warn]          ^
+[warn] /hascoapi/app/org/hascoapi/ingestion/STRFileGenerator.java:131:8: Variable stream undefined in comment for method createStreamUri in class STRFileGenerator
+[warn]       $stream['datasetPattern'] = $form_state->getValue('stream_datafile_pattern');
+[warn]        ^
+[warn] /hascoapi/app/org/hascoapi/ingestion/STRFileGenerator.java:131:36: Variable form undefined in comment for method createStreamUri in class STRFileGenerator
+[warn]       $stream['datasetPattern'] = $form_state->getValue('stream_datafile_pattern');
+[warn]                                    ^
+[warn] /hascoapi/app/org/hascoapi/ingestion/STRFileGenerator.java:132:8: Variable stream undefined in comment for method createStreamUri in class STRFileGenerator
+[warn]       $stream['cellScopeUri']    = [$form_state->getValue('stream_cell_scope_uri')];
+[warn]        ^
+[warn] /hascoapi/app/org/hascoapi/ingestion/STRFileGenerator.java:132:38: Variable form undefined in comment for method createStreamUri in class STRFileGenerator
+[warn]       $stream['cellScopeUri']    = [$form_state->getValue('stream_cell_scope_uri')];
+[warn]                                      ^
+[warn] /hascoapi/app/org/hascoapi/ingestion/STRFileGenerator.java:133:8: Variable stream undefined in comment for method createStreamUri in class STRFileGenerator
+[warn]       $stream['cellScopeName']   = [$form_state->getValue('stream_cell_scope_name')];
+[warn]        ^
+[warn] /hascoapi/app/org/hascoapi/ingestion/STRFileGenerator.java:133:38: Variable form undefined in comment for method createStreamUri in class STRFileGenerator
+[warn]       $stream['cellScopeName']   = [$form_state->getValue('stream_cell_scope_name')];
+[warn]                                      ^
+[warn] /hascoapi/app/org/hascoapi/ingestion/STRFileGenerator.java:134:8: Variable stream undefined in comment for method createStreamUri in class STRFileGenerator
+[warn]       $stream['messageProtocol']  = '';
+[warn]        ^
+[warn] /hascoapi/app/org/hascoapi/ingestion/STRFileGenerator.java:135:8: Variable stream undefined in comment for method createStreamUri in class STRFileGenerator
+[warn]       $stream['messageIP']        = '';
+[warn]        ^
+[warn] /hascoapi/app/org/hascoapi/ingestion/STRFileGenerator.java:136:8: Variable stream undefined in comment for method createStreamUri in class STRFileGenerator
+[warn]       $stream['messagePort']      = '';
+[warn]        ^
+[warn] /hascoapi/app/org/hascoapi/ingestion/STRFileGenerator.java:137:8: Variable stream undefined in comment for method createStreamUri in class STRFileGenerator
+[warn]       $stream['messageArchiveId'] = '';
+[warn]        ^
+[warn] /hascoapi/app/org/hascoapi/ingestion/STRFileGenerator.java:138:11: Variable stream undefined in comment for method createStreamUri in class STRFileGenerator
+[warn]       // $stream['messageHeader']    = '';
+[warn]           ^
+[info] /hascoapi/app/org/hascoapi/entity/pojo/HADatAcThing.java: Some input files use or override a deprecated API.
+[info] /hascoapi/app/org/hascoapi/entity/pojo/HADatAcThing.java: Recompile with -Xlint:deprecation for details.
+[info] /hascoapi/app/org/hascoapi/entity/pojo/HADatAcThing.java: Some input files use unchecked or unsafe operations.
+[info] /hascoapi/app/org/hascoapi/entity/pojo/HADatAcThing.java: Recompile with -Xlint:unchecked for details.
+[warn] 27 warnings found
+[info] Main Scala API documentation successful.
+[info] done compiling
+[warn] [1] The maintainer is empty
+[warn] Add this to your build.sbt
+[warn]   maintainer := "your.name@company.org"
+[success] All package validations passed
+[info] Your package is ready in /hascoapi/target/universal/hascoapi-10.0.1-SNAPSHOT.zip
+[success] Total time: 107 s (01:47), completed May 15, 2026, 1:47:09 PM
+ ---> Removed intermediate container e353208f41a8
+ ---> db51f2a12a21
+Step 6/17 : RUN cd target/universal/ && unzip -qo hascoapi-10.0.1-SNAPSHOT.zip
+ ---> Running in 371b58bbc0b4
+ ---> Removed intermediate container 371b58bbc0b4
+ ---> abcdd9212482
+Step 7/17 : FROM eclipse-temurin:11-jre
+11-jre: Pulling from library/eclipse-temurin
+6f5c5aa4e145: Pulling fs layer
+1c24335ddd46: Pulling fs layer
+945a23ebc056: Pulling fs layer
+d1f60238b9dc: Pulling fs layer
+5eb7a5306067: Pulling fs layer
+11d6883999e9: Pulling fs layer
+d1f60238b9dc: Waiting
+5eb7a5306067: Waiting
+11d6883999e9: Waiting
+1c24335ddd46: Download complete
+945a23ebc056: Download complete
+5eb7a5306067: Verifying Checksum
+5eb7a5306067: Download complete
+11d6883999e9: Verifying Checksum
+11d6883999e9: Download complete
+d1f60238b9dc: Verifying Checksum
+d1f60238b9dc: Download complete
+6f5c5aa4e145: Verifying Checksum
+6f5c5aa4e145: Download complete
+6f5c5aa4e145: Pull complete
+1c24335ddd46: Pull complete
+945a23ebc056: Pull complete
+d1f60238b9dc: Pull complete
+5eb7a5306067: Pull complete
+11d6883999e9: Pull complete
+Digest: sha256:deed6cefb063ca91f94625419ee31b0366cc34f158b55399b704eeda11a7d2ff
+Status: Downloaded newer image for eclipse-temurin:11-jre
+ ---> 8ecaff8fcded
+Step 8/17 : WORKDIR /hascoapi
+ ---> Running in 4aa11d5e5a7d
+ ---> Removed intermediate container 4aa11d5e5a7d
+ ---> 377f9845d99b
+Step 9/17 : COPY --from=builder /hascoapi/target/universal/hascoapi-10.0.1-SNAPSHOT /hascoapi
+ ---> db352df1ab00
+Step 10/17 : COPY ./conf/hascoapi-docker.conf /hascoapi/conf/hascoapi.conf
+ ---> 1ed032e5cdf2
+Step 11/17 : COPY ./docker-entrypoint.sh /hascoapi/docker-entrypoint.sh
+ ---> 792edc025472
+Step 12/17 : COPY ./load-pharma-ontology.sh /hascoapi/load-pharma-ontology.sh
+ ---> 18cfaa954eb8
+Step 13/17 : RUN mkdir -p /var/hascoapi/app_ontology
+ ---> Running in 31eff20db24e
+ ---> Removed intermediate container 31eff20db24e
+ ---> fc3aeb640f8f
+Step 14/17 : COPY ./app_ontology/pharma.owl /var/hascoapi/app_ontology/pharma.owl
+ ---> 840a84ca5e3a
+Step 15/17 : RUN chmod +x /hascoapi/docker-entrypoint.sh &&     chmod +x /hascoapi/load-pharma-ontology.sh
+ ---> Running in 64c943615eed
+ ---> Removed intermediate container 64c943615eed
+ ---> 4e71adf7317f
+Step 16/17 : EXPOSE 9000
+ ---> Running in 39f3f168d7f9
+ ---> Removed intermediate container 39f3f168d7f9
+ ---> 0bfa13f2c590
+Step 17/17 : ENTRYPOINT [ "/hascoapi/docker-entrypoint.sh" ]
+ ---> Running in efbe0f025097
+ ---> Removed intermediate container efbe0f025097
+ ---> d2b566a43409
+Successfully built d2b566a43409
+Successfully tagged hascoapi_hascoapi:latest
+[Fri May 15 13:48:12 UTC 2026] Starting services...
+Creating network "hascoapi_hascoapi" with the default driver
+Creating hascoapi_fuseki ... 
+Creating hascoapi_fuseki ... done
+Creating hascoapi_fuseki_yasgui ... 
+Creating hascoapi               ... 
+Creating hascoapi               ... error
+
+ERROR: for hascoapi  Cannot start service hascoapi: failed to create task for container: failed to create shim task: failed to create OCI runtime console socket: mkdir /tmp/pty3289873574: no space left on device
+Creating hascoapi_fuseki_yasgui ... done
+
+ERROR: for hascoapi  Cannot start service hascoapi: failed to create task for container: failed to create shim task: failed to create OCI runtime console socket: mkdir /tmp/pty3289873574: no space left on device
+Encountered errors while bringing up the project.

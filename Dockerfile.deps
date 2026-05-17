@@ -1,0 +1,28 @@
+# Dependency cache base image for HASCOAPI
+# Build once, reuse many times to avoid Maven Central rate limits
+FROM sbtscala/scala-sbt:eclipse-temurin-jammy-11.0.17_8_1.9.3_2.12.18
+
+WORKDIR /build
+
+# Copy all build configuration files to ensure complete dependency resolution
+COPY build.sbt .
+COPY project/build.properties project/
+COPY project/plugins.sbt project/
+
+# Create minimal stub application that satisfies SBT and triggers all dependency downloads
+RUN mkdir -p app/controllers conf public && \
+    echo "package controllers; import play.api.mvc._; @javax.inject.Singleton class HomeController @javax.inject.Inject()(cc: ControllerComponents) extends AbstractController(cc) { def index = Action { Ok(\"\") } }" > app/controllers/HomeController.scala && \
+    echo "GET / controllers.HomeController.index" > conf/routes && \
+    echo "play.http.secret.key=\"temp-key-for-dependency-download\"" > conf/application.conf
+
+# Download ALL dependencies (compile, runtime, test)
+# This is the expensive one-time operation requiring Maven Central access
+RUN sbt update compile test:compile
+
+# Keep the cache directories - these will be inherited by child images
+# - /root/.ivy2/cache - Ivy dependency cache (~1GB)
+# - /root/.sbt - SBT cache
+# - /root/.cache/coursier - Coursier cache
+
+LABEL description="HASCOAPI dependency cache - all dependencies pre-downloaded"
+LABEL version="1.0"

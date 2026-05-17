@@ -4,7 +4,7 @@
 FROM sbtscala/scala-sbt:eclipse-temurin-11.0.16_1.7.2_2.12.17 as build-java
 
 RUN apt-get update && apt-get install -y unzip
-ENV JAVA_OPTS="-Xms6048m -Xmx10000m"
+ENV JAVA_OPTS="-Xms512m -Xmx2560m"
 WORKDIR /hascoapi
 
 # Copy over the basic configuration files
