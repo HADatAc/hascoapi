@@ -199,6 +199,22 @@ DA-SOC files allow you to **add or modify properties** on existing VSTOI instanc
 - Updating versioning/status information
 - Linking components to stems and codebooks
 
+⚠️ **IMPORTANT**: DA-SOC files **must be ingested in the correct order** due to dependencies between entity types. See [DA-INGESTION-ORDER.md](DA-INGESTION-ORDER.md) for detailed documentation on the required ingestion sequence and dependency graph.
+
+### Quick Order Reference
+
+1. **Independent entities** (no dependencies):
+   - DA-SOC-CODEBOOK
+   - DA-SOC-RESPONSE-OPTION
+   - DA-SOC-COMPONENTSTEM
+
+2. **DA-SOC-COMPONENT** (depends on Codebooks + ComponentStems)
+
+3. **DA-SOC-SLOTELEMENT** (depends on Components)
+
+4. **DA-SOC-INSTRUMENT** (depends on SlotElements)
+
+
 ### File Naming Convention
 
 ```
