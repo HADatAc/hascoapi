@@ -19,9 +19,6 @@ public class SPARQLUtils {
             Query query = QueryFactory.create(queryString);
             QueryExecution qexec = QueryExecutionFactory.sparqlService(sparqlService, query);
             
-            // Set timeouts: 5 seconds for initial connection, 30 seconds for query execution
-            qexec.setTimeout(5000, 30000);
-            
             ResultSet results = qexec.execSelect();
             ResultSetRewindable resultsrw = ResultSetFactory.copyResults(results);
             qexec.close();
@@ -37,13 +34,10 @@ public class SPARQLUtils {
     public static Model describe(String sparqlService, String queryString) {
         //System.out.println("\nqueryString: " + queryString + "\n");
 
-            // Set timeouts: 5 seconds for initial connection, 30 seconds for query execution
-            qexec.setTimeout(5000, 30000);
-            
-            
         try {
             Query query = QueryFactory.create(queryString);
             QueryExecution qexec = QueryExecutionFactory.sparqlService(sparqlService, query);
+            
             Model model = qexec.execDescribe();
             qexec.close();
 
