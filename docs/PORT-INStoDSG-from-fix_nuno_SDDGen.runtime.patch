@@ -1,0 +1,2572 @@
+diff --git a/Dockerfile b/Dockerfile
+index de22fcd..62a131b 100644
+--- a/Dockerfile
++++ b/Dockerfile
+@@ -3,7 +3,20 @@
+ #FROM openjdk:11
+ FROM sbtscala/scala-sbt:eclipse-temurin-11.0.16_1.7.2_2.12.17 as build-java
+ 
+-RUN apt-get update && apt-get install -y unzip
++RUN sed -i -e 's|http://ports.ubuntu.com/ubuntu-ports|https://ports.ubuntu.com/ubuntu-ports|g' /etc/apt/sources.list && \
++	apt-get update && \
++	apt-get install -y --no-install-recommends unzip && \
++	rm -rf /var/lib/apt/lists/*
++
++# Avoid Maven Central rate-limits by mirroring it via Google Cloud Storage.
++RUN mkdir -p /root/.config/coursier && \
++	cat > /root/.config/coursier/mirror.properties <<'EOF'
++central.from=https://repo1.maven.org/maven2;https://repo.maven.apache.org/maven2
++central.to=https://maven-central.storage-download.googleapis.com/maven2
++central.type=tree
++EOF
++
++ENV COURSIER_MIRRORS=/root/.config/coursier/mirror.properties
+ ENV JAVA_OPTS="-Xms6048m -Xmx10000m"
+ WORKDIR /hascoapi
+ 
+diff --git a/Dockerfile-development b/Dockerfile-development
+index 873cde5..b8e9836 100644
+--- a/Dockerfile-development
++++ b/Dockerfile-development
+@@ -2,13 +2,44 @@ FROM sbtscala/scala-sbt:eclipse-temurin-11.0.16_1.7.2_2.12.17
+ 
+ WORKDIR /hascoapi
+ 
+-COPY . .
+-
+-RUN apt-get update && \
+-    apt-get install -y tmux && \
++RUN sed -i -e 's|http://ports.ubuntu.com/ubuntu-ports|https://ports.ubuntu.com/ubuntu-ports|g' /etc/apt/sources.list && \
++    apt-get update && \
++    apt-get install -y --no-install-recommends tmux && \
+     rm -rf /var/lib/apt/lists/*
+ 
+-RUN sbt update
++# Avoid Maven Central rate-limits by mirroring it via Google Cloud Storage.
++RUN mkdir -p /root/.config/coursier && \
++    cat > /root/.config/coursier/mirror.properties <<'EOF'
++central.from=https://repo1.maven.org/maven2;https://repo.maven.apache.org/maven2
++central.to=https://maven-central.storage-download.googleapis.com/maven2
++central.type=tree
++EOF
++
++ENV COURSIER_MIRRORS=/root/.config/coursier/mirror.properties
++
++# Copy build definition files first so dependency resolution can be cached.
++COPY build.sbt ./
++COPY project/ ./project/
++
++RUN set -e; \
++        for attempt in 1 2 3 4 5; do \
++            echo "Running sbt update (attempt ${attempt}/5)"; \
++            if sbt -batch \
++                -Dcoursier.parallel-download-count=1 \
++                -Dcoursier.exception-retry=20 \
++                -Dcoursier.exception-retry-backoff-initial-delay=2s \
++                -Dcoursier.exception-retry-backoff-multiplier=2.0 \
++                update; then \
++                exit 0; \
++            fi; \
++            delay=$((attempt * 30)); \
++            echo "sbt update failed; retrying in ${delay}s..."; \
++            sleep "${delay}"; \
++        done; \
++        echo "sbt update failed after retries" >&2; \
++        exit 1
++
++COPY . .
+ 
+ EXPOSE 9000
+ 
+diff --git a/app/org/hascoapi/console/controllers/restapi/DataFileAPI.java b/app/org/hascoapi/console/controllers/restapi/DataFileAPI.java
+index e8ef059..7cfc9ab 100644
+--- a/app/org/hascoapi/console/controllers/restapi/DataFileAPI.java
++++ b/app/org/hascoapi/console/controllers/restapi/DataFileAPI.java
+@@ -24,15 +24,15 @@ import java.nio.file.*;
+ import java.util.zip.*;
+ import java.util.List;
+ import java.util.concurrent.CompletableFuture;
+-import java.util.logging.Level;
+-import java.util.logging.Logger;
++import org.slf4j.Logger;
++import org.slf4j.LoggerFactory;
+ 
+ import static play.mvc.Results.internalServerError;
+ import static play.mvc.Results.ok;
+ 
+ public class DataFileAPI extends Controller {
+ 
+-    private static final Logger logger = Logger.getLogger(DataFileAPI.class.getName());
++    private static final Logger log = LoggerFactory.getLogger(DataFileAPI.class);
+ 
+     /**
+      * Returns JSON response with a list of DataFiles.
+@@ -87,18 +87,22 @@ public class DataFileAPI extends Controller {
+         }
+ 
+         String hascoTypeUri = genericCheck.getHascoTypeUri();
+-        System.out.println("[DEBUG] DataFileAPI.uploadFile(): hascoTypeUri: " + hascoTypeUri);
++
++        // If the provided elementUri already identifies a DataFile, we can use it directly.
++        // This is the common case for the Drupal frontend, which calls uploadFile(DFL_URI, filename).
++        if (hascoTypeUri != null && hascoTypeUri.contains("DataFile")) {
++            dataFileUri = elementUri;
++            System.out.println("[INFO] DataFileAPI.uploadFile(): Element is a DataFile; using elementUri as dataFileUri: " + dataFileUri);
++        }
+ 
+         // Extract the type name from hascoTypeUri (e.g., "WKF" from "http://hadatac.org/ont/hasco/WKF")
+         if (hascoTypeUri != null && !hascoTypeUri.trim().isEmpty()) {
+             String typeName = URIUtils.uriLastSegment(hascoTypeUri);
+-            System.out.println("[DEBUG] DataFileAPI.uploadFile(): Extracted type name: " + typeName);
+ 
+             // Try to load the class dynamically
+             try {
+                 String className = "org.hascoapi.entity.pojo." + typeName;
+                 Class<?> typeClass = Class.forName(className);
+-                System.out.println("[DEBUG] DataFileAPI.uploadFile(): Found class: " + className);
+ 
+                 // Try to call the static find method
+                 java.lang.reflect.Method findMethod = typeClass.getMethod("find", String.class);
+@@ -116,11 +120,11 @@ public class DataFileAPI extends Controller {
+                             System.out.println("[INFO] DataFileAPI.uploadFile(): ✅ Got DataFile URI from typed instance: " + dataFileUri);
+                         }
+                     } catch (NoSuchMethodException e) {
+-                        System.out.println("[DEBUG] DataFileAPI.uploadFile(): Type " + typeName + " doesn't have getHasDataFileUri() method");
++                        // Element doesn't have getHasDataFileUri() method
+                     }
+                 }
+             } catch (ClassNotFoundException e) {
+-                System.out.println("[DEBUG] DataFileAPI.uploadFile(): Class not found for type: " + typeName + ", will use GenericInstance");
++                // Class not found for type, will use GenericInstance
+             } catch (Exception e) {
+                 System.out.println("[WARN] DataFileAPI.uploadFile(): Error finding typed instance: " + e.getMessage());
+             }
+@@ -138,8 +142,6 @@ public class DataFileAPI extends Controller {
+         // Try 1: asRaw() - for direct binary uploads
+         if (request.body() != null && request.body().asRaw() != null) {
+             tempFile = request.body().asRaw().asFile();
+-            System.out.println("[DEBUG] DataFileAPI.uploadFile(): Tried asRaw().asFile(): " +
+-                (tempFile == null ? "null" : tempFile.getAbsolutePath() + " (exists: " + tempFile.exists() + ", size: " + tempFile.length() + " bytes)"));
+         }
+ 
+         // Try 2: asMultipartFormData() - for form-based uploads
+@@ -151,14 +153,10 @@ public class DataFileAPI extends Controller {
+                 Object fileObj = filePart.getRef();
+                 if (fileObj instanceof File) {
+                     tempFile = (File) fileObj;
+-                    System.out.println("[DEBUG] DataFileAPI.uploadFile(): Got file from multipart (File): " + tempFile.getAbsolutePath());
+                 } else if (fileObj instanceof play.api.libs.Files.TemporaryFile) {
+                     play.api.libs.Files.TemporaryFile scalaTemp = (play.api.libs.Files.TemporaryFile) fileObj;
+                     tempFile = scalaTemp.path().toFile();
+-                    System.out.println("[DEBUG] DataFileAPI.uploadFile(): Got file from multipart (TemporaryFile): " + tempFile.getAbsolutePath());
+                 }
+-            } else {
+-                System.out.println("[DEBUG] DataFileAPI.uploadFile(): multipart.getFile('file') returned null");
+             }
+         }
+ 
+@@ -170,7 +168,6 @@ public class DataFileAPI extends Controller {
+                     Path tempPath = Files.createTempFile("upload-", "-" + filename);
+                     Files.write(tempPath, bytes.toArray());
+                     tempFile = tempPath.toFile();
+-                    System.out.println("[DEBUG] DataFileAPI.uploadFile(): Created temp file from bytes: " + tempFile.getAbsolutePath() + " (" + tempFile.length() + " bytes)");
+                 } catch (IOException e) {
+                     System.out.println("[ERROR] DataFileAPI.uploadFile(): Failed to create temp file from bytes: " + e.getMessage());
+                 }
+@@ -202,7 +199,7 @@ public class DataFileAPI extends Controller {
+                         System.out.println("[INFO] DataFileAPI.uploadFile(): Got DataFile URI from element.getHasDataFileUri(): " + dataFileUri);
+                     }
+                 } catch (NoSuchMethodException e) {
+-                    System.out.println("[DEBUG] DataFileAPI.uploadFile(): Element doesn't have getHasDataFileUri() method");
++                    // Element doesn't have getHasDataFileUri() method
+                 } catch (Exception e) {
+                     System.out.println("[WARN] DataFileAPI.uploadFile(): Error calling getHasDataFileUri(): " + e.getMessage());
+                 }
+@@ -222,7 +219,7 @@ public class DataFileAPI extends Controller {
+                             }
+                         }
+                     } catch (NoSuchMethodException e) {
+-                        System.out.println("[DEBUG] DataFileAPI.uploadFile(): Element doesn't have getHasDataFile() method");
++                        // Element doesn't have getHasDataFile() method
+                     } catch (Exception e) {
+                         System.out.println("[WARN] DataFileAPI.uploadFile(): Error calling getHasDataFile(): " + e.getMessage());
+                     }
+@@ -231,7 +228,6 @@ public class DataFileAPI extends Controller {
+                 // If still not found, check the hascoType to determine if this IS a DataFile
+                 if (dataFileUri == null || dataFileUri.trim().isEmpty()) {
+                     String hascoType = instance.getHascoTypeUri();
+-                    System.out.println("[DEBUG] DataFileAPI.uploadFile(): Checking hascoType: " + hascoType);
+ 
+                     if (hascoType != null && hascoType.contains("DataFile")) {
+                         // This element IS a DataFile
+@@ -331,6 +327,14 @@ public class DataFileAPI extends Controller {
+      * Handles media upload and saves it permanently.
+      */
+     public Result uploadMedia(String foldername, String filename, Http.Request request) {
++        log.info("uploadMedia: foldername='{}' filename='{}' contentType='{}' hasBody={} method={} path={}",
++            foldername,
++            filename,
++            request.contentType().orElse(""),
++            request.hasBody(),
++            request.method(),
++            request.path());
++
+         if (foldername == null || foldername.trim().isEmpty()) {
+             return ok(ApiUtil.createResponse("[ERROR] DataFileAPI.uploadMedia(): No foldername value has been provided.", false));
+         }
+@@ -338,9 +342,47 @@ public class DataFileAPI extends Controller {
+         if (filename == null || filename.trim().isEmpty()) {
+             return ok(ApiUtil.createResponse("[ERROR] DataFileAPI.uploadMedia(): No value for filename has been provided.", false));
+         }
+-    
+-        File tempFile = request.body().asRaw().asFile();
+-        if (tempFile == null) {
++
++        // Try multiple ways to extract the uploaded media from the request
++        File tempFile = null;
++
++        // Try 1: asMultipartFormData() - standard form-based uploads (e.g., curl -F "file=@...")
++        if (request.body() != null && request.body().asMultipartFormData() != null) {
++            play.mvc.Http.MultipartFormData<?> multipart = request.body().asMultipartFormData();
++            play.mvc.Http.MultipartFormData.FilePart<?> filePart = multipart.getFile("file");
++
++            if (filePart != null) {
++                Object fileObj = filePart.getRef();
++                if (fileObj instanceof File) {
++                    tempFile = (File) fileObj;
++                } else if (fileObj instanceof play.api.libs.Files.TemporaryFile) {
++                    play.api.libs.Files.TemporaryFile scalaTemp = (play.api.libs.Files.TemporaryFile) fileObj;
++                    tempFile = scalaTemp.path().toFile();
++                }
++            }
++        }
++
++        // Try 2: asRaw() - direct binary uploads
++        if (tempFile == null && request.body() != null && request.body().asRaw() != null) {
++            tempFile = request.body().asRaw().asFile();
++        }
++
++        // Try 3: asBytes() - byte array uploads
++        if (tempFile == null && request.body() != null && request.body().asBytes() != null) {
++            akka.util.ByteString bytes = request.body().asBytes();
++            if (bytes != null && !bytes.isEmpty()) {
++                try {
++                    Path tempPath = Files.createTempFile("upload-media-", "-" + filename);
++                    Files.write(tempPath, bytes.toArray());
++                    tempFile = tempPath.toFile();
++                } catch (IOException e) {
++                    System.out.println("[ERROR] DataFileAPI.uploadMedia(): Failed to create temp file from bytes: " + e.getMessage());
++                }
++            }
++        }
++
++        if (tempFile == null || !tempFile.exists() || tempFile.length() == 0) {
++            log.warn("uploadMedia: no valid temp file extracted (contentType='{}')", request.contentType().orElse(""));
+             return ok(ApiUtil.createResponse("[ERROR] DataFileAPI.uploadMedia(): No media has been provided for ingestion.", false));
+         }
+     
+@@ -351,12 +393,38 @@ public class DataFileAPI extends Controller {
+         }
+     
+         Path destinationDir = Paths.get(basePath, Constants.MEDIA_FOLDER, foldername);
+-    
+-        // Generate the permanent file path
+-        //Path permanentPath = destinationDir.resolve(filename);
+-    
++
++        try {
++            Files.createDirectories(destinationDir);
++        } catch (IOException e) {
++            System.out.println("[ERROR] DataFileAPI.uploadMedia(): Failed to create destination directory: " + e.getMessage());
++            return internalServerError(ApiUtil.createResponse("[ERROR] DataFileAPI.uploadMedia(): Failed to create destination directory.", false));
++        }
++
++        log.info("uploadMedia: staging upload size={} bytes to folder {}", tempFile.length(), destinationDir);
++
++        // Copy to our own temp file before async processing; Play's temporary upload file may be deleted
++        final File tempZipCopy;
++        try {
++            Path tempPath = Files.createTempFile("media-upload-", "-" + filename);
++            Files.copy(tempFile.toPath(), tempPath, StandardCopyOption.REPLACE_EXISTING);
++            tempZipCopy = tempPath.toFile();
++        } catch (IOException e) {
++            System.out.println("[ERROR] DataFileAPI.uploadMedia(): Failed to stage upload file: " + e.getMessage());
++            return internalServerError(ApiUtil.createResponse("[ERROR] DataFileAPI.uploadMedia(): Failed to stage upload file.", false));
++        }
++
++        log.info("uploadMedia: staged temp file '{}' size={} bytes", tempZipCopy.getAbsolutePath(), tempZipCopy.length());
++
+         // Save file asynchronously to avoid blocking request handling
+-        CompletableFuture.runAsync(() -> unzipAndSave(tempFile, destinationDir));
++        if (filename.toLowerCase().endsWith(".zip")) {
++            log.info("uploadMedia: scheduling async unzip to {}", destinationDir);
++            CompletableFuture.runAsync(() -> unzipAndSave(tempZipCopy, destinationDir));
++        } else {
++            Path permanentPath = destinationDir.resolve(filename);
++            log.info("uploadMedia: scheduling async save to {}", permanentPath);
++            CompletableFuture.runAsync(() -> saveFile(tempZipCopy, permanentPath));
++        }
+     
+         return ok(ApiUtil.createResponse("File upload in progress. It will be saved shortly.", true));
+     }
+@@ -372,6 +440,13 @@ public class DataFileAPI extends Controller {
+         if (filename == null || filename.trim().isEmpty()) {
+             return badRequest(ApiUtil.createResponse("[ERROR] DataFileAPI.downloadFile(): No filename provided.", false));
+         }
++
++        // Keep only the basename to avoid path traversal and normalize callers
++        // that accidentally send folder segments.
++        String safeFilename = Paths.get(filename).getFileName().toString();
++        if (safeFilename == null || safeFilename.trim().isEmpty()) {
++            return badRequest(ApiUtil.createResponse("[ERROR] DataFileAPI.downloadFile(): Invalid filename.", false));
++        }
+     
+         String basePath = ConfigProp.getPathIngestion();
+         if (basePath == null || basePath.trim().isEmpty()) {
+@@ -381,17 +456,81 @@ public class DataFileAPI extends Controller {
+     
+         // Extract the last segment of the elementUri to determine the folder name
+         String uriTerm = URIUtils.uriLastSegment(elementUri);
+-        Path filePath = Paths.get(basePath, Constants.RESOURCE_FOLDER, uriTerm, filename);
++        Path filePath = Paths.get(basePath, Constants.RESOURCE_FOLDER, uriTerm, safeFilename);
+         File file = filePath.toFile();
+     
+         if (!file.exists() || !file.isFile()) {
+-            System.out.println("[ERROR] DataFileAPI.downloadFile(): File not found - " + filePath);
+-            return notFound(ApiUtil.createResponse("[ERROR] DataFileAPI.downloadFile(): File not found.", false));
++            System.out.println("[WARN] DataFileAPI.downloadFile(): File not found in resources folder - " + filePath);
++
++            // FALLBACK: Try to find generated file in root directory
++            // Generated files (WKF, SDD, INS, etc.) are saved directly in basePath, not in resources/{DFL}/
++            Path generatedFilePath = Paths.get(basePath, safeFilename);
++            File generatedFile = generatedFilePath.toFile();
++
++            if (generatedFile.exists() && generatedFile.isFile()) {
++                System.out.println("[INFO] DataFileAPI.downloadFile(): Found generated file at - " + generatedFilePath);
++                file = generatedFile;
++                filePath = generatedFilePath;
++            } else {
++                // SECOND FALLBACK (Social/KGR): try media folder tree.
++                // Some social assets are stored under basePath/media/<folder>/<filename>
++                // and are not duplicated under resources/<uriTerm>/.
++                Path mediaRoot = Paths.get(basePath, Constants.MEDIA_FOLDER);
++                Path mediaMatch = null;
++                if (Files.isDirectory(mediaRoot)) {
++                    // Some ZIP uploads add an extra wrapper directory (and __MACOSX), so keep the
++                    // search depth reasonably high.
++                    try (java.util.stream.Stream<Path> paths = Files.walk(mediaRoot, 12)) {
++                        mediaMatch = paths
++                            .filter(Files::isRegularFile)
++                            .filter(p -> p.getFileName().toString().equalsIgnoreCase(safeFilename))
++                            .findFirst()
++                            .orElse(null);
++                    } catch (IOException ioe) {
++                        System.out.println("[WARN] DataFileAPI.downloadFile(): media fallback search failed: " + ioe.getMessage());
++                    }
++                }
++
++                if (mediaMatch != null) {
++                    System.out.println("[INFO] DataFileAPI.downloadFile(): Found media file at - " + mediaMatch);
++                    file = mediaMatch.toFile();
++                    filePath = mediaMatch;
++                } else {
++                System.out.println("[ERROR] DataFileAPI.downloadFile(): File not found in resources, generated, or media locations");
++                System.out.println("  - Tried resources: " + filePath);
++                System.out.println("  - Tried generated: " + generatedFilePath);
++                System.out.println("  - Tried media search root: " + mediaRoot);
++                return notFound(ApiUtil.createResponse("[ERROR] DataFileAPI.downloadFile(): File not found.", false));
++                }
++            }
+         }
+     
+         // Serve the file as a response
++        String mime = null;
++        try {
++            mime = Files.probeContentType(filePath);
++        } catch (IOException e) {
++            // ignore; will fall back to extension-based guess
++        }
++        if (mime == null || mime.trim().isEmpty() || "application/octet-stream".equalsIgnoreCase(mime)) {
++            String lower = safeFilename.toLowerCase();
++            if (lower.endsWith(".png")) {
++                mime = "image/png";
++            } else if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) {
++                mime = "image/jpeg";
++            } else if (lower.endsWith(".gif")) {
++                mime = "image/gif";
++            } else if (lower.endsWith(".webp")) {
++                mime = "image/webp";
++            } else if (lower.endsWith(".svg")) {
++                mime = "image/svg+xml";
++            } else {
++                mime = "application/octet-stream";
++            }
++        }
++
+         return ok(file)
+-            .as("application/octet-stream") // Generic MIME type for binary file downloads
++            .as(mime)
+             .withHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+     }
+     
+@@ -440,14 +579,44 @@ public class DataFileAPI extends Controller {
+      * Extracts a zip file and saves its contents permanently.
+      */
+     public void unzipAndSave(File zipFile, Path destinationDir) {
++        log.info("unzipAndSave: starting zip='{}' dest='{}'", zipFile != null ? zipFile.getAbsolutePath() : "(null)", destinationDir);
++        int extracted = 0;
++        int skippedDirs = 0;
++        int skippedTraversal = 0;
+         try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile))) {
+             ZipEntry entry;
+             while ((entry = zis.getNextEntry()) != null) {
+                 if (entry.isDirectory()) {
+-                    System.out.println("Skipping directory: " + entry.getName());
++                    skippedDirs++;
+                     continue; // Skip directories
+                 }
+-                Path filePath = destinationDir.resolve(entry.getName());
++
++                // Normalize entry name and avoid creating nested duplicate folder paths like
++                // /media/organizations/organizations/<file>
++                String entryName = entry.getName();
++                if (entryName == null) {
++                    zis.closeEntry();
++                    continue;
++                }
++                entryName = entryName.replace('\\', '/');
++                while (entryName.startsWith("./")) {
++                    entryName = entryName.substring(2);
++                }
++                while (entryName.startsWith("/")) {
++                    entryName = entryName.substring(1);
++                }
++
++                String destFolder = destinationDir.getFileName() != null ? destinationDir.getFileName().toString() : "";
++                if (!destFolder.isEmpty() && entryName.startsWith(destFolder + "/")) {
++                    entryName = entryName.substring(destFolder.length() + 1);
++                }
++
++                Path filePath = destinationDir.resolve(entryName).normalize();
++                if (!filePath.startsWith(destinationDir.normalize())) {
++                    skippedTraversal++;
++                    zis.closeEntry();
++                    continue;
++                }
+                 Files.createDirectories(filePath.getParent());
+                 try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath.toFile()))) {
+                     byte[] buffer = new byte[1024];
+@@ -457,14 +626,14 @@ public class DataFileAPI extends Controller {
+                     }
+                 }
+                 zis.closeEntry();
+-                System.out.println("Extracted: " + filePath);
++                extracted++;
+             }
+-            System.out.println("Extraction complete.");
++            log.info("unzipAndSave: complete extracted={} skippedDirs={} skippedTraversal={} dest='{}'", extracted, skippedDirs, skippedTraversal, destinationDir);
+         } catch (IOException e) {
+-            System.out.println("Error extracting zip file: " + e.getMessage());
++            log.warn("unzipAndSave: error extracting zip: {}", e.getMessage());
+         } finally {
+-            if (zipFile.exists() && !zipFile.delete()) {
+-                System.out.println("Failed to delete zip file: " + zipFile.getAbsolutePath());
++            if (zipFile != null && zipFile.exists() && !zipFile.delete()) {
++                log.warn("unzipAndSave: failed to delete temp zip '{}'", zipFile.getAbsolutePath());
+             }
+         }
+     }
+diff --git a/app/org/hascoapi/console/controllers/restapi/IngestionAPI.java b/app/org/hascoapi/console/controllers/restapi/IngestionAPI.java
+index 43411bb..b9be7a3 100644
+--- a/app/org/hascoapi/console/controllers/restapi/IngestionAPI.java
++++ b/app/org/hascoapi/console/controllers/restapi/IngestionAPI.java
+@@ -23,6 +23,7 @@ import org.hascoapi.entity.pojo.SDD;
+ import org.hascoapi.entity.pojo.STR;
+ import org.hascoapi.entity.pojo.Study;
+ import org.hascoapi.entity.pojo.Instrument;
++import org.hascoapi.entity.pojo.ProcessStem;
+ import org.hascoapi.entity.pojo.FundingScheme;
+ import org.hascoapi.entity.pojo.Place;
+ import org.hascoapi.entity.pojo.Project;
+@@ -155,10 +156,18 @@ public class IngestionAPI extends Controller {
+         String basePath = config.getString("hascoapi.paths.ingestion");
+         if (basePath != null && dataFile.getUri() != null && dataFile.getFilename() != null) {
+             String uriTerm = URIUtils.uriLastSegment(dataFile.getUri());
+-            Path preUploadedPath = Paths.get(basePath, Constants.RESOURCE_FOLDER, uriTerm, dataFile.getFilename());
+-            File preUploadedFile = preUploadedPath.toFile();
+-
+-            System.out.println("IngestionAPI.ingest(): Checking for pre-uploaded file at: " + preUploadedPath.toAbsolutePath());
++            Path candidatePath;
++            File preUploadedFile;
++            Path filenamePath = Paths.get(dataFile.getFilename());
++            if (filenamePath.isAbsolute()) {
++                candidatePath = filenamePath;
++                preUploadedFile = candidatePath.toFile();
++                System.out.println("IngestionAPI.ingest(): [ABSOLUTE] Checking for pre-uploaded file at: " + candidatePath.toAbsolutePath());
++            } else {
++                candidatePath = Paths.get(basePath, Constants.RESOURCE_FOLDER, uriTerm, dataFile.getFilename());
++                preUploadedFile = candidatePath.toFile();
++                System.out.println("IngestionAPI.ingest(): [RELATIVE] Checking for pre-uploaded file at: " + candidatePath.toAbsolutePath());
++            }
+             if (preUploadedFile.exists() && preUploadedFile.length() > 0) {
+                 System.out.println("IngestionAPI.ingest(): Found pre-uploaded file!");
+                 fileToIngest = preUploadedFile;
+@@ -169,6 +178,13 @@ public class IngestionAPI extends Controller {
+ 
+         // SECOND: If not pre-uploaded, try to get file from request body
+         if (fileToIngest == null) {
++            String ct = request.contentType().orElse("").toLowerCase();
++            boolean bodyIsFileUpload = ct.contains("multipart/form-data") || ct.equals("application/octet-stream");
++            if (!bodyIsFileUpload) {
++                // Avoid interpreting JSON bodies (e.g., "{}") as a binary file upload.
++                // Ingestion should rely on the pre-uploaded DataFile under resources/{DFL...}/.
++                // If it's missing, the fallback logic below will instruct the caller to upload first.
++            } else {
+             File fileFromRequest = null;
+ 
+             // Try asRaw() first (legacy workflow)
+@@ -212,6 +228,7 @@ public class IngestionAPI extends Controller {
+             if (fileFromRequest != null && fileFromRequest.exists() && fileFromRequest.length() > 0) {
+                 fileToIngest = fileFromRequest;
+             }
++            }
+         } // End of: if (fileToIngest == null)
+ 
+         // THIRD: If still no file, try the old fallback logic (wait for uploaded file)
+@@ -236,10 +253,18 @@ public class IngestionAPI extends Controller {
+ 
+             // Extract the URI last segment (DFL{id}) to build the correct path
+             String uriTerm = URIUtils.uriLastSegment(dataFile.getUri());
+-            Path uploadedFilePath = Paths.get(basePath, Constants.RESOURCE_FOLDER, uriTerm, dataFile.getFilename());
++            Path uploadedFilePath;
++            Path filenamePath = Paths.get(dataFile.getFilename());
++            if (filenamePath.isAbsolute()) {
++                uploadedFilePath = filenamePath;
++                System.out.println("IngestionAPI.ingest(): [ABSOLUTE] Looking for file at path: " + uploadedFilePath.toAbsolutePath());
++            } else {
++                uploadedFilePath = Paths.get(basePath, Constants.RESOURCE_FOLDER, uriTerm, dataFile.getFilename());
++                System.out.println("IngestionAPI.ingest(): [RELATIVE] Looking for file at path: " + uploadedFilePath.toAbsolutePath());
++            }
+             File uploadedFile = uploadedFilePath.toFile();
+ 
+-            System.out.println("IngestionAPI.ingest(): Looking for file at path: " + uploadedFilePath.toAbsolutePath());
++            System.out.println("IngestionAPI.ingest(): Waiting for file to be available (uploadFile is async)...");
+ 
+             // Wait for file to be available (uploadFile is async)
+             // Increased to 20 attempts with 1 second delay = 20 seconds total wait time
+@@ -259,7 +284,15 @@ public class IngestionAPI extends Controller {
+ 
+             if (!uploadedFile.exists() || uploadedFile.length() == 0) {
+                 System.out.println("[ERROR] IngestionAPI.ingest(): File not found or empty after " + maxRetries + " attempts at: " + uploadedFilePath);
+-                return ok(ApiUtil.createResponse("File not found or upload not completed. Please ensure the file was uploaded before triggering ingestion.", false));
++                String errorMessage = "File not found or upload not completed.\n\n" +
++                    "Expected file location: " + uploadedFilePath.toAbsolutePath() + "\n\n" +
++                    "WORKFLOW REQUIRED:\n" +
++                    "1. Create WKF metadata: POST /hascoapi/api/wkf/create/{json}\n" +
++                    "2. Upload file: POST /hascoapi/api/uploadFile/{wkfUri}/{filename} (with multipart form data)\n" +
++                    "3. Trigger ingestion: POST /hascoapi/api/ingest/{status}/wkf/{wkfUri}\n\n" +
++                    "It appears step 2 (uploadFile) was not called. Please upload the file before triggering ingestion.\n\n" +
++                    "See docs/WKF-INGESTION-WORKFLOW.md for complete instructions.";
++                return ok(ApiUtil.createResponse(errorMessage, false));
+             }
+ 
+             System.out.println("IngestionAPI.ingest(): Found uploaded file at: " + uploadedFilePath + " (size: " + uploadedFile.length() + " bytes)");
+@@ -957,6 +990,8 @@ public class IngestionAPI extends Controller {
+             selectorType = "study";
+         } else if ("ins".equals(elementtype)) {
+             selectorType = "instrument";
++        } else if ("wkf".equals(elementtype)) {
++            selectorType = "processstem";
+         } else if ("kgr".equals(elementtype)) {
+             // KGR can be generated by multiple selectors; keep as-is if the caller already distinguishes.
+             // If the UI ever sends 'kgr' here, we can't infer which selector to use.
+@@ -975,6 +1010,8 @@ public class IngestionAPI extends Controller {
+             }
+         } else if (selectorType.equals("instrument")) {
+             element = (HADatAcThing)Instrument.find(elementuri);
++        } else if (selectorType.equals("processstem")) {
++            element = (HADatAcThing)ProcessStem.find(elementuri);
+         } else if (selectorType.equals("organization")) {
+             element = (HADatAcThing)Organization.find(elementuri);
+         } else if (selectorType.equals("place")) {
+@@ -1008,6 +1045,9 @@ public class IngestionAPI extends Controller {
+             case "instrument":
+                 resp = INSGen.genByInstrument((Instrument)element,filename,mediaFolder,verifyUri);
+                 break;
++            case "processstem":
++                resp = WKFGen.genByProcessStem((ProcessStem)element,filename,mediaFolder,verifyUri);
++                break;
+             case "organization":
+                 System.out.println("Calling KGR.genByOrganization()");
+                 resp = KGRGen.genByOrganization((Organization)element,filename,mediaFolder,verifyUri);
+diff --git a/app/org/hascoapi/console/controllers/restapi/URIPage.java b/app/org/hascoapi/console/controllers/restapi/URIPage.java
+index 1e67902..5c3a695 100644
+--- a/app/org/hascoapi/console/controllers/restapi/URIPage.java
++++ b/app/org/hascoapi/console/controllers/restapi/URIPage.java
+@@ -35,6 +35,20 @@ public class URIPage extends Controller {
+             return ok(ApiUtil.createResponse("[" + uri + "] is an invalid URI", false));
+         }
+ 
++        // Handle URI sets (multiple URIs separated by semicolons)
++        // Example: "https://example.org/TSK1;https://example.org/TSK2;https://example.org/TSK3"
++        // This is common in WKF where a Process may have multiple Tasks
++        if (uri.contains(";")) {
++            System.out.println("[INFO] URIPage.getUri(): Detected URI set with semicolons, splitting...");
++            String[] uris = uri.split(";");
++            if (uris.length > 0) {
++                String firstUri = uris[0].trim();
++                System.out.println("[INFO] URIPage.getUri(): Using first URI from set: " + firstUri);
++                System.out.println("[INFO] URIPage.getUri(): Total URIs in set: " + uris.length);
++                uri = firstUri; // Use the first URI for the query
++            }
++        }
++
+         HADatAcThing finalResult = URIPage.objectFromUri(uri);
+         if (finalResult == null) {
+             return ok(ApiUtil.createResponse("Uri [" + uri + "] returned no object from the knowledge graph", false));
+@@ -251,6 +265,8 @@ public class URIPage extends Controller {
+                 finalResult = Unit.find(uri);
+             } else if (result.getHascoTypeUri().equals(HASCO.VIRTUAL_COLUMN)) {
+                 finalResult = VirtualColumn.find(uri);
++            } else if (result.getHascoTypeUri().equals(HASCO.WKF)) {
++                finalResult = WKF.find(uri);
+             } else if (result.getTypeUri().equals(OWL.CLASS)) {
+                 finalResult = HADatAcClass.find(uri);
+             } else {
+diff --git a/app/org/hascoapi/entity/pojo/DataFile.java b/app/org/hascoapi/entity/pojo/DataFile.java
+index c1e6764..042ffe1 100644
+--- a/app/org/hascoapi/entity/pojo/DataFile.java
++++ b/app/org/hascoapi/entity/pojo/DataFile.java
+@@ -583,6 +583,7 @@ public class DataFile extends HADatAcThing implements Cloneable {
+ 
+         dataFile.setUri(uri);
+ 
++
+         return dataFile;
+     }
+ 
+diff --git a/app/org/hascoapi/entity/pojo/Person.java b/app/org/hascoapi/entity/pojo/Person.java
+index 8244a3c..445615d 100644
+--- a/app/org/hascoapi/entity/pojo/Person.java
++++ b/app/org/hascoapi/entity/pojo/Person.java
+@@ -66,7 +66,7 @@ public class Person extends Agent {
+     }
+ 
+     public Organization getHasAffiliation() {
+-        if (this.getHasAddressUri() == null || this.getHasAffiliationUri().isEmpty()) {
++        if (this.getHasAffiliationUri() == null || this.getHasAffiliationUri().isEmpty()) {
+             return null;
+         }
+         return Organization.find(this.getHasAffiliationUri());
+diff --git a/app/org/hascoapi/entity/pojo/Task.java b/app/org/hascoapi/entity/pojo/Task.java
+index e3b8807..081901e 100644
+--- a/app/org/hascoapi/entity/pojo/Task.java
++++ b/app/org/hascoapi/entity/pojo/Task.java
+@@ -157,9 +157,38 @@ public class Task extends HADatAcThing implements Comparable<Task> {
+             return resp;
+         }
+         for (String hasRequiredInstrumentUri : hasRequiredInstrumentUris) {
+-            RequiredInstrument requiredInstrument = RequiredInstrument.find(hasRequiredInstrumentUri);
+-            if (requiredInstrument != null) {
+-                resp.add(requiredInstrument);
++            // Handle cases where multiple URIs are concatenated with separators (e.g., "URI1 ; URI2 ; URI3")
++            // This can happen when data is stored as a single string value
++            if (hasRequiredInstrumentUri != null && hasRequiredInstrumentUri.contains(";")) {
++                // Split by semicolon and trim whitespace
++                String[] uris = hasRequiredInstrumentUri.split("\\s*;\\s*");
++                for (String uri : uris) {
++                    if (uri != null && !uri.trim().isEmpty()) {
++                        RequiredInstrument requiredInstrument = RequiredInstrument.find(uri.trim());
++                        if (requiredInstrument != null) {
++                            resp.add(requiredInstrument);
++                        }
++                    }
++                }
++            } else if (hasRequiredInstrumentUri != null && hasRequiredInstrumentUri.contains("|")) {
++                // Also handle pipe separator (alternative format)
++                String[] uris = hasRequiredInstrumentUri.split("\\s*\\|\\s*");
++                for (String uri : uris) {
++                    if (uri != null && !uri.trim().isEmpty()) {
++                        RequiredInstrument requiredInstrument = RequiredInstrument.find(uri.trim());
++                        if (requiredInstrument != null) {
++                            resp.add(requiredInstrument);
++                        }
++                    }
++                }
++            } else {
++                // Single URI case (normal) - also trim to remove any leading/trailing whitespace
++                if (hasRequiredInstrumentUri != null && !hasRequiredInstrumentUri.trim().isEmpty()) {
++                    RequiredInstrument requiredInstrument = RequiredInstrument.find(hasRequiredInstrumentUri.trim());
++                    if (requiredInstrument != null) {
++                        resp.add(requiredInstrument);
++                    }
++                }
+             }
+         }
+         return resp;
+@@ -262,9 +291,42 @@ public class Task extends HADatAcThing implements Comparable<Task> {
+                 } else if (predicate.equals(VSTOI.HAS_TEMPORAL_DEPENDENCY)) {
+                     task.setHasTemporalDependency(object);
+                 } else if (predicate.equals(VSTOI.HAS_REQUIRED_INSTRUMENT)) {
+-                    task.addHasRequiredInstrumentUri(object);
++                    System.out.println("[Task.find] Found hasRequiredInstrument: [" + object + "]");
++                    // Split if the object contains multiple URIs separated by | or ;
++                    if (object != null && (object.contains("|") || object.contains(";"))) {
++                        System.out.println("[Task.find] WARN: hasRequiredInstrument contains separators - splitting into individual URIs");
++                        String[] uriParts;
++                        if (object.contains("|")) {
++                            uriParts = object.split("\\s*\\|\\s*");
++                        } else {
++                            uriParts = object.split("\\s*;\\s*");
++                        }
++                        for (String uriPart : uriParts) {
++                            if (uriPart != null && !uriPart.trim().isEmpty()) {
++                                System.out.println("[Task.find]   Adding URI: [" + uriPart.trim() + "]");
++                                task.addHasRequiredInstrumentUri(uriPart.trim());
++                            }
++                        }
++                    } else {
++                        task.addHasRequiredInstrumentUri(object);
++                    }
+                 } else if (predicate.equals(VSTOI.HAS_SUBTASK)) {
+-                    task.addHasSubtaskUri(object);
++                    // Split if the object contains multiple URIs separated by | or ;
++                    if (object != null && (object.contains("|") || object.contains(";"))) {
++                        String[] uriParts;
++                        if (object.contains("|")) {
++                            uriParts = object.split("\\s*\\|\\s*");
++                        } else {
++                            uriParts = object.split("\\s*;\\s*");
++                        }
++                        for (String uriPart : uriParts) {
++                            if (uriPart != null && !uriPart.trim().isEmpty()) {
++                                task.addHasSubtaskUri(uriPart.trim());
++                            }
++                        }
++                    } else {
++                        task.addHasSubtaskUri(object);
++                    }
+                 }
+             }
+         }
+diff --git a/app/org/hascoapi/ingestion/AnnotateDP2.java b/app/org/hascoapi/ingestion/AnnotateDP2.java
+index e9d99af..eba6427 100644
+--- a/app/org/hascoapi/ingestion/AnnotateDP2.java
++++ b/app/org/hascoapi/ingestion/AnnotateDP2.java
+@@ -40,6 +40,9 @@ public class AnnotateDP2 extends BaseAnnotator {
+         }
+         GeneratorChain chain = new GeneratorChain();
+ 
++        // Set the named graph URI so data is stored in the DataFile's graph
++        chain.setNamedGraphUri(dataFile.getUri());
++
+         // Get all sheet names for DP2 from MTSheet
+         List<String> dp2Sheets = MTSheet.getSheetsForType(Constants.MT_DP2);
+ 
+diff --git a/app/org/hascoapi/ingestion/AnnotateINS.java b/app/org/hascoapi/ingestion/AnnotateINS.java
+index 670e68d..d4b86ec 100644
+--- a/app/org/hascoapi/ingestion/AnnotateINS.java
++++ b/app/org/hascoapi/ingestion/AnnotateINS.java
+@@ -23,6 +23,9 @@ public class AnnotateINS extends BaseAnnotator {
+         // Build generator chain
+         GeneratorChain chain = new GeneratorChain();
+ 
++        // Set the named graph URI so data is stored in the DataFile's graph
++        chain.setNamedGraphUri(dataFile.getUri());
++
+         addCustomGeneratorIfSheetExists(dataFile, mapCatalog, "ResponseOptions", status, chain,
+                 (df, st) -> new INSGenerator("responseoption", df, st));
+         addCustomGeneratorIfSheetExists(dataFile, mapCatalog, "CodeBooks", status, chain,
+diff --git a/app/org/hascoapi/ingestion/AnnotateKGR.java b/app/org/hascoapi/ingestion/AnnotateKGR.java
+index 3e4dc09..e9ec280 100644
+--- a/app/org/hascoapi/ingestion/AnnotateKGR.java
++++ b/app/org/hascoapi/ingestion/AnnotateKGR.java
+@@ -12,7 +12,8 @@ public class AnnotateKGR extends BaseAnnotator {
+ 
+         Map<String, String> mapCatalog = loadCatalog(dataFile, Constants.MT_KGR);
+         if (mapCatalog == null) {
+-            dataFile.getLogger().printExceptionById("KGR_00001"); // "KGR InfoSheet validation failed"
++            // loadCatalog already logs the root cause; don't emit a misleading KGR error code.
++            dataFile.getLogger().printException("KGR InfoSheet validation failed.");
+             return null;
+         }
+ 
+@@ -23,23 +24,27 @@ public class AnnotateKGR extends BaseAnnotator {
+         IngestionWorker.nameSpaceGen(dataFile, mapCatalog, templateFile);
+         kgr.setTemplates(templateFile);
+ 
++        // Optional parameter for legacy KGRs, but REQUIRED when the workbook references images.
+         String hasMediaFolder = mapCatalog.get("hasMediaFolder");
+-        if (hasMediaFolder == null) {
+-            dataFile.getLogger().printExceptionById("KGR_00002"); // "Missing hasMediaFolder parameter"
++        hasMediaFolder = hasMediaFolder != null ? hasMediaFolder.trim() : "";
++        if (hasMediaFolder.isEmpty() && workbookReferencesImages(dataFile, mapCatalog)) {
++            dataFile.getLogger().printException("KGR InfoSheet is missing 'hasMediaFolder' but the workbook references images via 'hasco:hasImage'.");
+             return null;
+         }
+ 
+-        // verifyUri parsing with error handling
++        // Optional parameter: default to false when missing.
++        boolean verifyUri = false;
+         String rawVerifyUri = mapCatalog.get("verifyUri");
+-        boolean verifyUri;
+-        rawVerifyUri = rawVerifyUri.toLowerCase();
+-        if ("true".equals(rawVerifyUri)) {
+-            verifyUri = true;
+-        } else if ("false".equals(rawVerifyUri)) {
+-            verifyUri = false;
+-        } else {
+-            dataFile.getLogger().printExceptionById("KGR_00003"); // "Invalid verifyUri parameter value"
+-            return null;
++        if (rawVerifyUri != null) {
++            rawVerifyUri = rawVerifyUri.trim().toLowerCase();
++            if ("true".equals(rawVerifyUri)) {
++                verifyUri = true;
++            } else if ("false".equals(rawVerifyUri) || rawVerifyUri.isEmpty()) {
++                verifyUri = false;
++            } else {
++                dataFile.getLogger().printWarning("verifyUri parameter in KGR should be `true` or `false`; defaulting to `false`.");
++                verifyUri = false;
++            }
+         }
+ 
+         GeneratorChain chain = new GeneratorChain();
+@@ -63,6 +68,47 @@ public class AnnotateKGR extends BaseAnnotator {
+         return chain;
+     }
+ 
++    private static boolean workbookReferencesImages(DataFile dataFile, Map<String, String> mapCatalog) {
++        if (dataFile == null || dataFile.getFile() == null || mapCatalog == null) {
++            return false;
++        }
++
++        String[] sheetKeys = new String[] {
++                "Places",
++                "PostalAddresses",
++                "Organizations",
++                "Persons",
++                "Projects",
++                "ProjectOrganizations",
++                "FundingSchemes"
++        };
++
++        for (String sheetKey : sheetKeys) {
++            String sheetName = mapCatalog.get(sheetKey);
++            if (sheetName == null || sheetName.trim().isEmpty()) {
++                continue;
++            }
++
++            RecordFile sheet = new SpreadsheetRecordFile(dataFile.getFile(), sheetName.replace("#", "").trim());
++            if (sheet == null || !sheet.isValid() || sheet.getRecords() == null || sheet.getRecords().isEmpty()) {
++                continue;
++            }
++
++            for (Record record : sheet.getRecords()) {
++                try {
++                    String img = record.getValueByColumnName("hasco:hasImage");
++                    if (img != null && !img.trim().isEmpty()) {
++                        return true;
++                    }
++                } catch (Exception e) {
++                    // If the sheet does not have a hasco:hasImage column, ignore.
++                }
++            }
++        }
++
++        return false;
++    }
++
+     private static void addKGRGeneratorIfSheetExists(DataFile dataFile, Map<String, String> mapCatalog,
+                                                      String sheetKey, String status, GeneratorChain chain,
+                                                      String type, String hasMediaFolder, boolean verifyUri) {
+@@ -78,6 +124,11 @@ public class AnnotateKGR extends BaseAnnotator {
+             return;
+         }
+ 
++        if (sheet.getRecords() == null || sheet.getRecords().isEmpty()) {
++            dataFile.getLogger().println("AnnotateKGR: sheet '" + sheetKey + "' is empty; skipping generator.");
++            return;
++        }
++
+         try {
+             DataFile clonedFile = (DataFile) dataFile.clone();
+             clonedFile.setRecordFile(sheet);
+diff --git a/app/org/hascoapi/ingestion/AnnotateWKF.java b/app/org/hascoapi/ingestion/AnnotateWKF.java
+index 2942c2c..e11974a 100644
+--- a/app/org/hascoapi/ingestion/AnnotateWKF.java
++++ b/app/org/hascoapi/ingestion/AnnotateWKF.java
+@@ -98,6 +98,10 @@ public class AnnotateWKF extends BaseAnnotator {
+ 
+         System.out.println("✓ Generator chain built with " + generatorCount + " generators");
+ 
++        // Set the named graph URI so data is stored in the DataFile's graph
++        chain.setNamedGraphUri(dataFile.getUri());
++        System.out.println("✓ Named graph URI set to: " + dataFile.getUri());
++
+         // Validate that at least one generator was added
+         chain.setDataFile(dataFile);
+         if (!chain.isValid()) {
+@@ -108,7 +112,6 @@ public class AnnotateWKF extends BaseAnnotator {
+ 
+         System.out.println("✓ WKF: Generator chain validated successfully");
+         System.out.println("========== AnnotateWKF.exec() END (SUCCESS) ==========\n");
+-        dataFile.getLogger().addLine("WKF: Generator chain built successfully");
+         return chain;
+     }
+ }
+diff --git a/app/org/hascoapi/ingestion/BaseAnnotator.java b/app/org/hascoapi/ingestion/BaseAnnotator.java
+index 30a00c3..657429f 100644
+--- a/app/org/hascoapi/ingestion/BaseAnnotator.java
++++ b/app/org/hascoapi/ingestion/BaseAnnotator.java
+@@ -70,6 +70,11 @@ public abstract class BaseAnnotator {
+         // Missing expected sheets (always an error)
+         for (String required : expectedSheets) {
+             if (!providedSheets.contains(required)) {
++                // KGR legacy workbooks can omit some InfoSheet parameters.
++                if (mtType != null && mtType.equalsIgnoreCase(org.hascoapi.Constants.MT_KGR)
++                        && ("hasMediaFolder".equals(required) || "verifyUri".equals(required))) {
++                    continue;
++                }
+                 dataFile.getLogger().printExceptionByIdWithArgs("GBL_00006", required, mtType);
+                 isValid = false;
+             }
+@@ -101,7 +106,6 @@ public abstract class BaseAnnotator {
+                                                           GeneratorChain chain,
+                                                           GeneratorFactory factory) {
+         String sheetName = mapCatalog.get(sheetKey);
+-        dataFile.getLogger().println("[DP2 DEBUG] addCustomGeneratorIfSheetExists: key='" + sheetKey + "' catalogValue='" + sheetName + "'");
+ 
+         if (sheetName == null || sheetName.trim().isEmpty()) {
+             warnSheetMissing(dataFile, sheetKey);
+@@ -116,7 +120,6 @@ public abstract class BaseAnnotator {
+         if (!normalized.equalsIgnoreCase(sheetKey)) {
+             RecordFile keySheetProbe = new SpreadsheetRecordFile(dataFile.getFile(), sheetKey);
+             if (keySheetProbe != null && keySheetProbe.isValid() && keySheetProbe.getRecords() != null && !keySheetProbe.getRecords().isEmpty()) {
+-                dataFile.getLogger().println("[DP2 DEBUG] overriding catalog mapping for key='" + sheetKey + "' from '" + normalized + "' to sheetKey because sheetKey exists and is non-empty");
+                 normalized = sheetKey;
+             }
+         }
+@@ -124,18 +127,15 @@ public abstract class BaseAnnotator {
+         // Resolve the sheet
+         RecordFile sheet = new SpreadsheetRecordFile(dataFile.getFile(), normalized);
+         if (sheet == null || !sheet.isValid()) {
+-            dataFile.getLogger().println("[DP2 DEBUG] sheet not valid for catalogValue='" + normalized + "' (key='" + sheetKey + "'). Trying fallback to sheetKey as sheet name.");
+             sheet = new SpreadsheetRecordFile(dataFile.getFile(), sheetKey);
+         }
+ 
+         if (sheet == null || !sheet.isValid() || sheet.getRecords() == null) {
+-            dataFile.getLogger().println("[DP2 DEBUG] sheet still invalid after fallback. key='" + sheetKey + "' tried='" + normalized + "' and fallback='" + sheetKey + "'");
+             warnSheetMissing(dataFile, sheetKey);
+             return;
+         }
+ 
+         int recordCount = sheet.getRecords().size();
+-        dataFile.getLogger().println("[DP2 DEBUG] sheet resolved for key='" + sheetKey + "' recordCount=" + recordCount);
+ 
+         if (recordCount == 0) {
+             dataFile.getLogger().println("addCustomGeneratorIfSheetExists(): sheet '" + sheetKey + "' is empty; skipping.");
+@@ -210,7 +210,6 @@ public abstract class BaseAnnotator {
+ 
+             // If mapping is wrong/missing but the key tab exists, fix it.
+             if (!mappedOk && keyOk) {
+-                dataFile.getLogger().println("[DP2 DEBUG] sanitizeDp2Catalog: fixing key='" + key + "' from '" + raw + "' to '#" + key + "' (key tab exists and is non-empty)");
+                 mapCatalog.put(key, "#" + key);
+             }
+         }
+@@ -221,7 +220,6 @@ public abstract class BaseAnnotator {
+         String ins = norm(mapCatalog.get("InstrumentInstances"));
+         String comp = norm(mapCatalog.get("ComponentInstances"));
+         if ("InstrumentInstances".equalsIgnoreCase(fov) && "ComponentInstances".equalsIgnoreCase(ins) && "FieldsOfView".equalsIgnoreCase(comp)) {
+-            dataFile.getLogger().println("[DP2 DEBUG] sanitizeDp2Catalog: detected rotated mappings for FieldsOfView/InstrumentInstances/ComponentInstances; repairing to identity mappings");
+             mapCatalog.put("FieldsOfView", "#FieldsOfView");
+             mapCatalog.put("InstrumentInstances", "#InstrumentInstances");
+             mapCatalog.put("ComponentInstances", "#ComponentInstances");
+diff --git a/app/org/hascoapi/ingestion/BaseGenerator.java b/app/org/hascoapi/ingestion/BaseGenerator.java
+index ee0f4b2..8bd44aa 100644
+--- a/app/org/hascoapi/ingestion/BaseGenerator.java
++++ b/app/org/hascoapi/ingestion/BaseGenerator.java
+@@ -221,38 +221,25 @@ public abstract class BaseGenerator {
+             System.out.println("[WARNING] BaseGenerator.createRows(): records is NULL");
+             return;
+         }
+-        System.out.println("\n========== BaseGenerator.createRows() START ==========");
+-        System.out.println("Generator type: " + this.getClass().getSimpleName());
+-        System.out.println("Element type: " + this.getElementType());
+-        System.out.println("Number of records: " + records.size());
++        System.out.println("[" + this.getClass().getSimpleName() + "] Processing " + records.size() + " records for elementType=" + this.getElementType());
+ 
+         int rowNumber = 0;
+         int skippedRows = 0;
+         int validRows = 0;
+         Record lastRecord = null;
+         for (Record record : records) {
+-            System.out.println("\n--- Processing record #" + (rowNumber + 1) + " ---");
+             if (lastRecord != null && record.equals(lastRecord)) {
+                 skippedRows++;
+-                System.out.println("  ✗ Skipped (duplicate of previous record)");
+             } else {
+                 Map<String, Object> tempRow = createRow(record, ++rowNumber);
+                 if (tempRow != null) {
+                     rows.add(tempRow);
+                     validRows++;
+                     lastRecord = record;
+-                    System.out.println("  ✓ Valid row created and added to rows list (total valid rows: " + validRows + ")");
+-                } else {
+-                    System.out.println("  ✗ createRow returned null (row not valid)");
+                 }
+             }
+         }
+-        if (skippedRows > 0) {
+-            System.out.println("\nSkipped duplicate rows: " + skippedRows);
+-        }
+-        System.out.println("========== BaseGenerator.createRows() END ==========");
+-        System.out.println("Total valid rows created: " + validRows);
+-        System.out.println("Total rows in list: " + rows.size());
++        System.out.println("[" + this.getClass().getSimpleName() + "] Completed: " + validRows + " valid rows, " + skippedRows + " duplicates skipped");
+     }
+ 
+     public void createObjects() throws Exception {
+diff --git a/app/org/hascoapi/ingestion/CSVRecordFile.java b/app/org/hascoapi/ingestion/CSVRecordFile.java
+index c104149..b529906 100644
+--- a/app/org/hascoapi/ingestion/CSVRecordFile.java
++++ b/app/org/hascoapi/ingestion/CSVRecordFile.java
+@@ -106,8 +106,6 @@ public class CSVRecordFile implements RecordFile {
+     
+         if (headers == null || headers.isEmpty()) {
+             System.err.println("[WARN] Headers are null or empty, cannot write headers or data correctly.");
+-        } else {
+-            System.out.println("[DEBUG] Headers: " + headers);
+         }
+     
+         try (FileWriter fw = new FileWriter(file, true);
+@@ -115,7 +113,6 @@ public class CSVRecordFile implements RecordFile {
+     
+             if (writeHeaders && headers != null && !headers.isEmpty()) {
+                 String headerLine = String.join(",", headers);
+-                System.out.println("[DEBUG] Writing headers: " + headerLine);
+                 bw.write(headerLine);
+                 bw.newLine();
+             }
+@@ -124,10 +121,7 @@ public class CSVRecordFile implements RecordFile {
+             for (String header : headers) {
+                 String value = record.getValueByColumnName(header);
+                 if (value == null) {
+-                    System.out.println("[DEBUG] Value for header [" + header + "] is null, substituindo por string vazia.");
+                     value = "";
+-                } else {
+-                    System.out.println("[DEBUG] Value for header [" + header + "]: " + value);
+                 }
+     
+                 if (value.contains(",") || value.contains("\"")) {
+@@ -136,7 +130,6 @@ public class CSVRecordFile implements RecordFile {
+                 values.add(value);
+             }
+             String line = String.join(",", values);
+-            System.out.println("[DEBUG] Writing line: " + line);
+             bw.write(line);
+             bw.newLine();
+     
+diff --git a/app/org/hascoapi/ingestion/DP2Generator.java b/app/org/hascoapi/ingestion/DP2Generator.java
+index 9863121..fb8ba31 100644
+--- a/app/org/hascoapi/ingestion/DP2Generator.java
++++ b/app/org/hascoapi/ingestion/DP2Generator.java
+@@ -26,133 +26,82 @@ public class DP2Generator extends BaseGenerator {
+ 	@Override
+ 	public Map<String, Object> createRow(Record rec, int rowNumber) throws Exception {
+ 		Map<String, Object> row = new HashMap<String, Object>();
+-		
+-		System.out.println("\n========== DP2Generator.createRow() START ==========");
+-		System.out.println("ElementType: [" + this.getElementType() + "]");
+-		System.out.println("RowNumber: " + rowNumber);
+-		System.out.println("Record size: " + rec.size());
+-		System.out.println("File headers: " + file.getHeaders());
+ 
+ 		for (String header : file.getHeaders()) {
+ 		    if (!header.trim().isEmpty()) {
+ 		        String value = rec.getValueByColumnName(header);
+-		        System.out.println("  Processing header [" + header + "] -> value [" + value + "]");
+ 		        if (value != null && !value.isEmpty()) {
+ 		            row.put(header, value);
+-					System.out.println("    ✓ Added to row: [" + header + "] = [" + value + "]");
+-				} else {
+-					System.out.println("    ✗ Skipped (null or empty)");
+ 				}
+ 		    }
+ 		}
+ 
+-		System.out.println("Row keys after extraction: " + row.keySet());
+-		System.out.println("Row hasURI before alias check: " + row.get("hasURI"));
+-
+-		System.out.println("Row keys after extraction: " + row.keySet());
+-		System.out.println("Row hasURI before alias check: " + row.get("hasURI"));
+-
+ 		// Accept common alias: some spreadsheets use 'uri' instead of 'hasURI'
+ 		if (!row.containsKey("hasURI")) {
+ 			Object alt = row.get("uri");
+-			System.out.println("  hasURI not found, checking 'uri' alias: " + alt);
+ 			if (alt != null && !alt.toString().trim().isEmpty()) {
+ 				row.put("hasURI", alt.toString().trim());
+-				System.out.println("  ✓ Using 'uri' as hasURI: " + alt.toString().trim());
+ 			}
+ 		}
+ 
+-		System.out.println("Row hasURI after alias check: " + row.get("hasURI"));
+-
+ 		// Add universal scoping fields to every DP2 element row
+-		// - link elements back to their DataFile so DP2Gen can retrieve by hasco:hasDataFile
+ 		row.put("hasco:hasDataFile", this.dataFile.getUri());
+-		System.out.println("Added hasco:hasDataFile: " + this.dataFile.getUri());
+ 
+ 		// - persist status: FIRST check if the Excel column has vstoi:hasStatus
+ 		//   ONLY use parameter status as fallback if column is empty
+ 		String statusFromColumn = rec.getValueByColumnName("vstoi:hasStatus");
+ 		if (statusFromColumn != null && !statusFromColumn.trim().isEmpty()) {
+ 			row.put("vstoi:hasStatus", URIUtils.replaceNameSpaceEx(statusFromColumn.trim()));
+-			System.out.println("Added vstoi:hasStatus from Excel column: " + URIUtils.replaceNameSpaceEx(statusFromColumn.trim()));
+ 		} else if (this.status != null && !this.status.trim().isEmpty()) {
+ 			row.put("vstoi:hasStatus", URIUtils.replaceNameSpaceEx(this.status.trim()));
+-			System.out.println("Added vstoi:hasStatus from parameter (fallback): " + URIUtils.replaceNameSpaceEx(this.status.trim()));
+ 		}
+ 
+ 		// Ensure rdf:type is present for downstream retrieval (many SPARQL queries use rdf:type)
+-		// Prefer the spreadsheet-provided 'a' column; if missing, set a default per elementType.
+-		System.out.println("Checking rdf:type ('a' column): current value = " + row.get("a"));
+-		System.out.println("Checking rdf:type ('a' column): current value = " + row.get("a"));
+ 		if (!row.containsKey("a") || row.get("a") == null || row.get("a").toString().trim().isEmpty()) {
+-			System.out.println("  'a' column is missing/empty, setting default based on elementType");
+ 			if (this.getElementType().equals("deployment")) {
+ 				row.put("a", VSTOI.DEPLOYMENT);
+-				System.out.println("  ✓ Set 'a' to VSTOI.DEPLOYMENT: " + VSTOI.DEPLOYMENT);
+ 			} else if (this.getElementType().equals("platform")) {
+ 				row.put("a", VSTOI.PLATFORM);
+-				System.out.println("  ✓ Set 'a' to VSTOI.PLATFORM: " + VSTOI.PLATFORM);
+ 			} else if (this.getElementType().equals("platforminstance")) {
+ 				row.put("a", VSTOI.PLATFORM_INSTANCE);
+-				System.out.println("  ✓ Set 'a' to VSTOI.PLATFORM_INSTANCE: " + VSTOI.PLATFORM_INSTANCE);
+ 			} else if (this.getElementType().equals("fieldofview")) {
+ 				row.put("a", VSTOI.FIELD_OF_VIEW);
+-				System.out.println("  ✓ Set 'a' to VSTOI.FIELD_OF_VIEW: " + VSTOI.FIELD_OF_VIEW);
+ 			} else if (this.getElementType().equals("instrumentinstance")) {
+ 				row.put("a", VSTOI.INSTRUMENT_INSTANCE);
+-				System.out.println("  ✓ Set 'a' to VSTOI.INSTRUMENT_INSTANCE: " + VSTOI.INSTRUMENT_INSTANCE);
+ 			} else if (this.getElementType().equals("componentinstance")) {
+ 				row.put("a", VSTOI.COMPONENT_INSTANCE);
+-				System.out.println("  ✓ Set 'a' to VSTOI.COMPONENT_INSTANCE: " + VSTOI.COMPONENT_INSTANCE);
+-			} else if (this.getElementType().equals("sensingperspective")) {
+-				System.out.println("  ℹ sensingperspective: no dedicated VSTOI constant");
+-				// no dedicated constant available in VSTOI; rely on spreadsheet value when present
+ 			}
+-		} else {
+-			System.out.println("  'a' column already present: " + row.get("a"));
+ 		}
+ 
+-		System.out.println("Setting element-specific metadata for elementType: " + this.getElementType());
++		// Set element-specific metadata
+ 		if (this.getElementType().equals("deployment")) {
+ 			row.put("hasco:hascoType", VSTOI.DEPLOYMENT);
+ 			row.put("hasco:canUpdate", this.dataFile.getHasSIRManagerEmail());
+ 			row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
+-			System.out.println("  Deployment metadata added");
+ 		} else if (this.getElementType().equals("platform")) {
+ 			row.put("hasco:hascoType", VSTOI.PLATFORM);
+ 			row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
+-			System.out.println("  Platform metadata added");
+ 		} else if (this.getElementType().equals("platforminstance")) {
+ 			row.put("hasco:hascoType", VSTOI.PLATFORM_INSTANCE);
+ 			row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
+-			System.out.println("  PlatformInstance metadata added");
+ 		} else if (this.getElementType().equals("fieldofview")) {
+ 			row.put("hasco:hascoType", VSTOI.FIELD_OF_VIEW);
+ 			row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
+-			System.out.println("  FieldOfView metadata added");
+ 		} else if (this.getElementType().equals("instrumentinstance")) {
+ 			row.put("hasco:hascoType", VSTOI.INSTRUMENT_INSTANCE);
+ 			row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
+-			System.out.println("  InstrumentInstance metadata added");
+ 		} else if (this.getElementType().equals("componentinstance")) {
+ 			row.put("hasco:hascoType", VSTOI.COMPONENT_INSTANCE);
+ 			row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
+-			System.out.println("  ComponentInstance metadata added");
+ 		}
+ 
+-		System.out.println("Final row validation - checking hasURI:");
+-		System.out.println("  hasURI present: " + row.containsKey("hasURI"));
+-		System.out.println("  hasURI value: " + row.get("hasURI"));
+ 
++		// Validate hasURI
+ 		if (row.containsKey("hasURI") && row.get("hasURI") != null && !row.get("hasURI").toString().trim().isEmpty()) {
+-			System.out.println("✓ Row VALID - returning row with " + row.size() + " properties");
+-			System.out.println("  Final row keys: " + row.keySet());
+-			System.out.println("========== DP2Generator.createRow() END (VALID) ==========\n");
+ 		    return row;
+ 		}
+ 
+-		System.out.println("✗ Row INVALID - returning null (no hasURI)");
+-		System.out.println("========== DP2Generator.createRow() END (INVALID) ==========\n");
++		System.out.println("[DP2Generator] WARNING: Row #" + rowNumber + " missing hasURI - skipping");
+ 		return null;
+ 	}
+ 
+diff --git a/app/org/hascoapi/ingestion/KGRGenerator.java b/app/org/hascoapi/ingestion/KGRGenerator.java
+index 92fb1f8..156166a 100644
+--- a/app/org/hascoapi/ingestion/KGRGenerator.java
++++ b/app/org/hascoapi/ingestion/KGRGenerator.java
+@@ -24,16 +24,29 @@ import org.hascoapi.vocabularies.SCHEMA;
+ 
+ public class KGRGenerator extends BaseGenerator {
+ 
++    private static final Map<String, String> LEGACY_MEDIA_ALIASES = createLegacyMediaAliases();
++
+     protected String hasStatus = "";
+ 
+     protected String hasMediaFolder = "";
+ 
+     protected boolean verifyUri = false;
+ 
++    private boolean mediaFolderMissingLogged = false;
++
+     private long timestamp;
+ 
+     final String kbPrefix = ConfigProp.getKbPrefix();
+ 
++    private static Map<String, String> createLegacyMediaAliases() {
++        Map<String, String> aliases = new HashMap<String, String>();
++        aliases.put("gz.png", "ps.png");
++        aliases.put("an.png", "aw.png");
++        // Workbook typo tolerance (seen in KGR-INSTITUTOS-URI.xlsx)
++        aliases.put("ipbejapng", "IPBEJA.png");
++        return aliases;
++    }
++
+     public String getHasStatus() {
+         return this.hasStatus;
+     }
+@@ -343,9 +356,13 @@ public class KGRGenerator extends BaseGenerator {
+     }
+ 
+     public void copyMediaToUri(String foldername, String uri, String filename) {
++        // Legacy/optional behavior: if the KGR workbook doesn't configure a media folder,
++        // treat media as disabled and skip without noise.
+         if (foldername == null || foldername.trim().isEmpty()) {
+-            //System.out.println("[ERROR] No foldername value has been provided.");
+-            dataFile.getLogger().printExceptionById("KGR_00016");
++            if (!mediaFolderMissingLogged) {
++                dataFile.getLogger().printExceptionById("KGR_00016");
++                mediaFolderMissingLogged = true;
++            }
+             return;
+         }
+ 
+@@ -369,6 +386,14 @@ public class KGRGenerator extends BaseGenerator {
+         }
+ 
+         Path sourcePath = Paths.get(basePath, Constants.MEDIA_FOLDER, foldername, filename);
++        String aliasFilename = LEGACY_MEDIA_ALIASES.get(filename.trim().toLowerCase());
++        if (!Files.exists(sourcePath) && aliasFilename != null) {
++            Path aliasSourcePath = Paths.get(basePath, Constants.MEDIA_FOLDER, foldername, aliasFilename);
++            if (Files.exists(aliasSourcePath)) {
++                sourcePath = aliasSourcePath;
++            }
++        }
++
+         String uriTerm = URIUtils.uriLastSegment(URIUtils.replacePrefixEx(uri));
+         Path destinationDir = Paths.get(basePath, Constants.RESOURCE_FOLDER, uriTerm);
+         Path destinationPath = destinationDir.resolve(filename);
+diff --git a/app/org/hascoapi/ingestion/SDDAttributeGenerator.java b/app/org/hascoapi/ingestion/SDDAttributeGenerator.java
+index 3ce14e2..9572c22 100644
+--- a/app/org/hascoapi/ingestion/SDDAttributeGenerator.java
++++ b/app/org/hascoapi/ingestion/SDDAttributeGenerator.java
+@@ -303,41 +303,34 @@ public class SDDAttributeGenerator extends BaseGenerator {
+         rows.clear();
+         List<String> column_name = new ArrayList<String>();
+         int rowNumber = 0;
++        int attributeRowsCreated = 0;
++        int relationRowsCreated = 0;
++        int skippedRows = 0;
+ 
+-        System.out.println("[SDDAttributeGenerator] createRows() START - total records: " + records.size());
+-        System.out.println("[SDDAttributeGenerator] Template mapping for AttributeType: '" + mapCol.get("AttributeType") + "'");
++        System.out.println("[SDDAttributeGenerator] Processing " + records.size() + " records");
+ 
+         for (Record record : records) {
+ 
+             String attr = getAttribute(record);
+             String label = getLabel(record);
+ 
+-            System.out.println("[SDDAttributeGenerator] Processing record #" + (rowNumber + 1) + ":");
+-            System.out.println("[SDDAttributeGenerator]   label='" + label + "'");
+-            System.out.println("[SDDAttributeGenerator]   attribute (from column '" + mapCol.get("AttributeType") + "')='" + attr + "'");
+-            System.out.println("[SDDAttributeGenerator]   attribute is null: " + (attr == null));
+-            System.out.println("[SDDAttributeGenerator]   attribute is empty: " + (attr != null && attr.equals("")));
+-
+             if ( attr  == null || attr.equals("")){
+-                System.out.println("[SDDAttributeGenerator]   -> SKIPPED (empty attribute)");
++                skippedRows++;
+                 if (column_name.contains(getLabel(record))){
+-                    System.out.println("[SDDAttributeGenerator]   -> Creating relation row instead");
+                     rows.add(createRelationRow(record, ++rowNumber));
++                    relationRowsCreated++;
+                 }
+                 continue;
+             } else {
+-                System.out.println("[SDDAttributeGenerator]   -> Creating SDDAttribute row");
+                 Map<String, Object> newRow = createRow(record, ++rowNumber);
+-                System.out.println("[SDDAttributeGenerator]   -> Row created with URI: " + newRow.get("hasURI"));
+                 rows.add(newRow);
+-                System.out.println("[SDDAttributeGenerator]   -> Rows list now has " + rows.size() + " rows");
++                attributeRowsCreated++;
+ 
+                 // Store the mapping of column label -> SDDAttribute URI for PVGenerator
+                 String columnLabel = getLabel(record);
+                 String sddAttUri = (String) newRow.get("hasURI");
+                 if (columnLabel != null && !columnLabel.isEmpty() && sddAttUri != null) {
+                     labelToUriMap.put(columnLabel, sddAttUri);
+-                    System.out.println("[SDDAttributeGenerator]   -> Stored label->URI mapping: '" + columnLabel + "' -> '" + sddAttUri + "'");
+                 }
+ 
+                 //for (String item : getWasDerivedFrom(record)) {
+@@ -347,7 +340,7 @@ public class SDDAttributeGenerator extends BaseGenerator {
+             }
+         }
+ 
+-        System.out.println("[SDDAttributeGenerator] createRows() END - total rows created: " + rows.size());
++        System.out.println("[SDDAttributeGenerator] Completed: " + attributeRowsCreated + " attributes, " + relationRowsCreated + " relations, " + skippedRows + " skipped");
+ 
+         /*if (mergedEA != null && mergedEA.keySet().size() > 0) {
+             for (String attr : mergedEA.keySet()) {
+diff --git a/app/org/hascoapi/ingestion/WKFGenerator.java b/app/org/hascoapi/ingestion/WKFGenerator.java
+index 2234e21..c6f4115 100644
+--- a/app/org/hascoapi/ingestion/WKFGenerator.java
++++ b/app/org/hascoapi/ingestion/WKFGenerator.java
+@@ -37,24 +37,24 @@ public class WKFGenerator extends BaseGenerator {
+     public Map<String, Object> createRow(Record rec, int rowNumber) throws Exception {
+         Map<String, Object> row = new HashMap<>();
+ 
+-        // Debug: Log what we're processing
+-        System.out.println("[WKFGenerator.createRow] Row #" + rowNumber + ", elementType=" + this.getElementType());
+-
+-        // First, copy all data from the Excel record (like INSGenerator does)
++        // Copy all data from the Excel record
+         for (String header : file.getHeaders()) {
+             if (!header.trim().isEmpty()) {
+                 String value = rec.getValueByColumnName(header);
+                 if (value != null && !value.isEmpty()) {
+                     row.put(header, value);
+-                    if ("hasURI".equals(header)) {
+-                        System.out.println("[WKFGenerator.createRow] hasURI from Excel: " + value);
+-                    }
+                 }
+             }
+         }
+ 
+         String elementType = this.getElementType();
+ 
++        // For Tasks: split concatenated multi-value properties into Lists
++        if (elementType.equals("task")) {
++            splitMultiValueProperty(row, "vstoi:hasRequiredInstrument");
++            splitMultiValueProperty(row, "vstoi:hasSubtask");
++        }
++
+         // Add common metadata to all rows
+         if (elementType.equals("processstem")) {
+             row.put("hasco:hascoType", VSTOI.PROCESS_STEM);
+@@ -64,6 +64,8 @@ public class WKFGenerator extends BaseGenerator {
+             row.put("hasco:hascoType", VSTOI.TASK);
+         } else if (elementType.equals("requiredinstrument")) {
+             row.put("hasco:hascoType", VSTOI.REQUIRED_INSTRUMENT);
++            // For RequiredInstruments: split concatenated components
++            splitMultiValueProperty(row, "vstoi:hasRequiredComponent");
+         } else {
+             this.dataFile.getLogger().printExceptionByIdWithArgs("GEN_00001", elementType);
+             return null;
+@@ -78,21 +80,63 @@ public class WKFGenerator extends BaseGenerator {
+         row.put("hasco:hasDataFile", this.dataFile.getUri());
+         row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
+ 
+-        // Debug: Show what will be committed
+-        if (row.containsKey("hasURI")) {
+-            System.out.println("[WKFGenerator.createRow] Final hasURI: " + row.get("hasURI"));
+-            System.out.println("[WKFGenerator.createRow] DataFile URI: " + this.dataFile.getUri());
+-            System.out.println("[WKFGenerator.createRow] Element type: " + elementType);
+-        }
+-
+-        // CRITICAL: Only return row if it has a URI (like INSGenerator does)
++        // Only return row if it has a URI
+         if (row.containsKey("hasURI") && !row.get("hasURI").toString().trim().isEmpty()) {
+             return row;
+         }
+ 
++        System.out.println("[WKFGenerator] WARNING: Row #" + rowNumber + " missing hasURI for elementType=" + elementType + " - skipping");
+         return null;
+     }
+ 
++    /**
++     * Split concatenated values (separated by ; or |) into a List for multi-value properties.
++     * This ensures MetadataFactory creates multiple triples instead of one literal triple.
++     */
++    private void splitMultiValueProperty(Map<String, Object> row, String propertyKey) {
++        Object value = row.get(propertyKey);
++        if (value == null) {
++            return;
++        }
++
++        String valueStr = value.toString().trim();
++        if (valueStr.isEmpty()) {
++            return;
++        }
++
++        // Check if value contains separators (semicolon or pipe)
++        if (valueStr.contains(";") || valueStr.contains("|")) {
++            java.util.List<String> uris = new java.util.ArrayList<>();
++            
++            // Split by semicolon or pipe, handling both separators
++            String[] parts;
++            if (valueStr.contains(";")) {
++                parts = valueStr.split("\\s*;\\s*");
++            } else {
++                parts = valueStr.split("\\s*\\|\\s*");
++            }
++
++            for (String part : parts) {
++                String cleanUri = part.trim();
++                // Decode URL encoding (e.g., %20 -> space, then trim again)
++                try {
++                    cleanUri = java.net.URLDecoder.decode(cleanUri, "UTF-8").trim();
++                } catch (Exception e) {
++                    // If decoding fails, use the original value
++                }
++                
++                if (!cleanUri.isEmpty()) {
++                    uris.add(cleanUri);
++                }
++            }
++
++            if (!uris.isEmpty()) {
++                row.put(propertyKey, uris);
++                System.out.println("[WKFGenerator] Split " + propertyKey + " into " + uris.size() + " values: " + uris);
++            }
++        }
++    }
++
+     @Override
+     public String getTableName() {
+         return "WKF-" + this.getElementType();
+diff --git a/app/org/hascoapi/ingestion/mqtt/MqttMessageWorker.java b/app/org/hascoapi/ingestion/mqtt/MqttMessageWorker.java
+index 5af20b7..b94ec0c 100644
+--- a/app/org/hascoapi/ingestion/mqtt/MqttMessageWorker.java
++++ b/app/org/hascoapi/ingestion/mqtt/MqttMessageWorker.java
+@@ -144,7 +144,7 @@ public class MqttMessageWorker {
+         }
+     
+         System.out.println("[DEBUG] Current StreamTopic status: " + streamTopic.getHasTopicStatus());
+-    
++
+         if (status.equals(HASCO.INACTIVE)) {
+             System.out.println("[ERROR] MqttMessageWorker: Cannot change the status of StreamTopic " + streamTopicUri + " to INACTIVE");
+             return false;
+@@ -216,7 +216,7 @@ public class MqttMessageWorker {
+         Record record = new JSONRecord(message, headers);
+         String status = streamTopic.getHasTopicStatus();
+         System.out.println("[DEBUG] Current topic in processMessage status: " + status);
+-    
++
+         if (status.equals(HASCO.RECORDING)) {
+             String topicUri = streamTopic.getUri();
+             System.out.println("[DEBUG] Attempting to record message for topicUri: " + topicUri);
+diff --git a/app/org/hascoapi/transform/mt/ins/INSGen.java b/app/org/hascoapi/transform/mt/ins/INSGen.java
+index 8f10fb9..d631b3c 100644
+--- a/app/org/hascoapi/transform/mt/ins/INSGen.java
++++ b/app/org/hascoapi/transform/mt/ins/INSGen.java
+@@ -442,6 +442,16 @@ public class INSGen {
+         System.out.println("\n========== INSGen.save() START ==========");
+         System.out.println("  Input filename: [" + filename + "]");
+ 
++        // Populate Namespaces sheet before saving
++        try {
++            System.out.println("  → Saving namespaces...");
++            populateNamespaces(helper.workbook);
++            System.out.println("  ✓ Namespaces saved");
++        } catch (Exception e) {
++            System.err.println("  ⚠️ WARNING: Failed to populate namespaces: " + e.getMessage());
++            e.printStackTrace();
++        }
++
+         // Get the base path from config
+         String basePath = ConfigProp.getPathIngestion();
+         System.out.println("  ConfigProp.getPathIngestion(): [" + basePath + "]");
+@@ -496,4 +506,43 @@ public class INSGen {
+ 
+         return resp;
+     }
++
++    /**
++     * Populate Namespaces sheet with in-memory namespace data
++     */
++    private static void populateNamespaces(Workbook workbook) {
++        Sheet nsSheet = workbook.getSheet(INSGen.NAMESPACES);
++        if (nsSheet == null) {
++            System.err.println("  ⚠️ Namespaces sheet not found!");
++            return;
++        }
++
++        // Get in-memory namespaces (ordered)
++        List<org.hascoapi.entity.pojo.NameSpace> inMem = org.hascoapi.entity.pojo.NameSpace.findInMemory();
++        if (inMem == null || inMem.isEmpty()) {
++            System.out.println("  ⚠️ No namespaces found in memory");
++            return;
++        }
++
++        // Populate namespace rows starting from row 1 (row 0 is header)
++        int nsRowNum = 1;
++        for (org.hascoapi.entity.pojo.NameSpace ns : inMem) {
++            Row row = nsSheet.createRow(nsRowNum++);
++            row.createCell(0).setCellValue(safe(ns.getLabel()));       // hasPrefix
++            row.createCell(1).setCellValue(safe(ns.getUri()));         // hasNameSpace
++            row.createCell(2).setCellValue(safe(ns.getSourceMime()));  // hasFormat
++            row.createCell(3).setCellValue(safe(ns.getSource()));      // hasSource
++        }
++
++        System.out.println("  ✓ Added " + (nsRowNum - 1) + " namespaces");
++    }
++
++    /**
++     * Helper method to safely convert null strings to empty strings
++     */
++    private static String safe(String val) {
++        return val == null ? "" : val;
++    }
+ }
++
++
+diff --git a/app/org/hascoapi/transform/mt/wkf/WKFGen.java b/app/org/hascoapi/transform/mt/wkf/WKFGen.java
+index 63502b5..a595154 100644
+--- a/app/org/hascoapi/transform/mt/wkf/WKFGen.java
++++ b/app/org/hascoapi/transform/mt/wkf/WKFGen.java
+@@ -2,12 +2,15 @@ package org.hascoapi.transform.mt.wkf;
+ 
+ import java.io.FileOutputStream;
+ import java.io.IOException;
++import java.util.HashSet;
+ import java.util.List;
+ import java.util.Map;
+ 
+ import org.hascoapi.entity.pojo.WKF;
+ import org.hascoapi.entity.pojo.GenericFindWithStatus;
+ import org.hascoapi.entity.pojo.NameSpace;
++import org.hascoapi.entity.pojo.ProcessStem;
++import org.hascoapi.entity.pojo.RequiredInstrument;
+ import org.apache.poi.ss.usermodel.*;
+ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+ 
+@@ -37,196 +40,120 @@ public class WKFGen {
+     }
+ 
+     public static String genByStatus(String status, String filename, String mediaFolder, String verifyUri, String excludeDataFileUri) {
+-        System.out.println("[WKFGen] genByStatus START status=" + status + ", filename=" + filename);
+-        if (excludeDataFileUri != null && !excludeDataFileUri.trim().isEmpty()) {
+-            System.out.println("[WKFGen] Will exclude WKF with DataFile URI: " + excludeDataFileUri);
+-        }
+-        WKFGenHelper helper = new WKFGenHelper();
+-        List<WKF> wkfs = null;
++        System.out.println("\n========== WKFGen.genByStatus() START ==========");
++        System.out.println("Input parameters:");
++        System.out.println("  status: " + status);
++        System.out.println("  filename: " + filename);
++        System.out.println("  excludeDataFileUri: " + excludeDataFileUri);
+ 
+-        final String ns = org.hascoapi.utils.NameSpaces.getInstance().printSparqlNameSpaceList();
++        WKFGenHelper helper = new WKFGenHelper();
+ 
++        // Create workbook with empty list (no WKF reference needed for status-based generation)
+         try {
+-            // 1) Buscar todos os WKFs por tipo
+-            String diagQuery = ns
+-                    + " SELECT ?uri WHERE { "
+-                    + "   ?wkfType rdfs:subClassOf* hasco:WKF . "
+-                    + "   ?uri a ?wkfType . "
+-                    + " }";
+-            System.out.println("[WKFGen] Diagnostic SPARQL (all WKFs):\n" + diagQuery);
+-            java.util.List<WKF> allWkfs = org.hascoapi.entity.pojo.GenericFind.findByQuery(WKF.class, diagQuery);
+-            System.out.println("[WKFGen] Diagnostic: total WKFs found=" + (allWkfs == null ? 0 : allWkfs.size()));
+-
+-            String requestedStatus = status == null ? "" : status.trim();
+-            String draftStatus = org.hascoapi.vocabularies.VSTOI.DRAFT;
+-
+-            // Normalize the excludeDataFileUri for comparison
+-            String normalizedExcludeDataFileUri = null;
+-            if (excludeDataFileUri != null && !excludeDataFileUri.trim().isEmpty()) {
+-                normalizedExcludeDataFileUri = excludeDataFileUri.trim().toLowerCase();
++            java.util.List<WKF> emptyList = new java.util.ArrayList<>();
++            helper.workbook = WKFGen.create(filename, emptyList);
++            if (helper.workbook == null) {
++                System.err.println("[WKFGen] ERROR: workbook creation returned null");
++                return "FAILURE: workbook creation returned null";
+             }
++            System.out.println("[WKFGen] Workbook created");
++        } catch (Throwable t) {
++            System.err.println("[WKFGen] ERROR creating workbook: " + t.getMessage());
++            t.printStackTrace();
++            return "FAILURE: creating workbook - " + t.getMessage();
++        }
+ 
+-            // Normalize/deduplicate WKFs by canonical URI
+-            java.util.Map<String, WKF> byCanonicalUri = new java.util.LinkedHashMap<>();
+-
+-            if (allWkfs != null) {
+-                for (WKF w : allWkfs) {
+-                    if (w == null || w.getUri() == null) {
+-                        continue;
+-                    }
+-
+-                    String canonicalUri = canonicalizeWkfUri(w.getUri());
+-                    if (canonicalUri == null || canonicalUri.isEmpty()) {
+-                        System.out.println("  [WKFGen] WKF diag: uri=" + w.getUri() + " (INVALID/UNUSABLE URI) -> skipped");
+-                        continue;
+-                    }
+-
+-                    // Apply status filter using effective status
+-                    // IMPORTANT: WKF.getHasStatus() returns short form ("DRAFT")
+-                    // but frontend sends full URI ("http://hadatac.org/ont/vstoi#Draft")
+-                    // We need to normalize both for comparison
+-                    String rawStatus = w.getHasStatus();
+-                    String effectiveStatus = (rawStatus == null || rawStatus.isEmpty()) ? draftStatus : rawStatus;
+-
+-                    // Normalize effective status to full URI if it's in short form
+-                    if (effectiveStatus != null && !effectiveStatus.contains("://")) {
+-                        // It's a short form like "DRAFT", convert to full URI
+-                        effectiveStatus = org.hascoapi.vocabularies.VSTOI.VSTOI + effectiveStatus;
+-                    }
+-
+-                    System.out.println("  [WKFGen] WKF diag: uri=" + w.getUri()
+-                            + " (canonical=" + canonicalUri + ")"
+-                            + ", label=" + w.getLabel()
+-                            + ", rawStatus=" + rawStatus
+-                            + ", effectiveStatus=" + effectiveStatus
+-                            + ", requestedStatus=" + requestedStatus);
+-
+-                    boolean include;
+-                    if (requestedStatus.isEmpty()) {
+-                        include = true;
+-                    } else {
+-                        // Compare normalized URIs (CASE-INSENSITIVE to handle DRAFT vs Draft)
+-                        include = effectiveStatus.equalsIgnoreCase(requestedStatus);
+-                    }
+-                    if (!include) {
+-                        System.out.println("    → Skipping " + w.getUri() + " (status mismatch)");
+-                        continue;
+-                    }
+-
+-                    // CRITICAL FIX: Exclude the WKF that matches the DataFile URI being generated
+-                    // This prevents self-reference when generating a WKF from the just-created metadata
+-                    if (normalizedExcludeDataFileUri != null && w.getHasDataFileUri() != null) {
+-                        String wkfDataFileUri = w.getHasDataFileUri().trim().toLowerCase();
+-                        if (wkfDataFileUri.equals(normalizedExcludeDataFileUri)) {
+-                            System.out.println("    → Skipping " + w.getUri() + " (matches excludeDataFileUri: " + excludeDataFileUri + ")");
+-                            continue;
+-                        }
+-                    }
+-
+-                    // Check if the WKF's named graph has actual content.
+-                    // An empty graph (or only metadata triples) means it's a freshly-created WKF for this generation request.
+-                    if (w.getHasDataFileUri() != null && !w.getHasDataFileUri().trim().isEmpty()) {
+-                        try {
+-                            String dataFileUri = w.getHasDataFileUri();
+-                            System.out.println("    [WKFGen] Checking graph content for WKF " + w.getUri());
+-                            System.out.println("    [WKFGen]   DataFile URI: " + dataFileUri);
+-
+-                            int tripleCount = graphTripleCount(ns, dataFileUri);
+-                            System.out.println("    [WKFGen]   Graph triple count: " + tripleCount);
+-
+-                            // A WKF that was just created will have only metadata triples (~10-15 triples)
+-                            // A WKF that was ingested will have many more (50+ triples from tasks, processes, etc.)
+-                            if (tripleCount < 20) {
+-                                System.out.println("    → Skipping " + w.getUri() + " (graph has only " + tripleCount + " triples, likely fresh creation)");
+-                                continue;
+-                            } else {
+-                                System.out.println("    → Including " + w.getUri() + " (graph has " + tripleCount + " triples)");
+-                            }
+-                        } catch (Exception ex) {
+-                            System.out.println("    → Error checking graph for " + w.getUri() + ": " + ex.getMessage());
+-                            ex.printStackTrace();
+-                            continue;
+-                        }
+-                    } else {
+-                        System.out.println("    → Skipping " + w.getUri() + " (no DataFile URI)");
+-                        continue;
+-                    }
+-
+-                    // Prefer http(s) variant if any duplicates map to same canonical
+-                    WKF existing = byCanonicalUri.get(canonicalUri);
+-                    if (existing == null) {
+-                        byCanonicalUri.put(canonicalUri, w);
+-                    } else {
+-                        String existingUri = existing.getUri() == null ? "" : existing.getUri();
+-                        if (!existingUri.startsWith("http") && canonicalUri.startsWith("http")) {
+-                            byCanonicalUri.put(canonicalUri, w);
+-                        }
+-                    }
++        // Query ProcessStems by status and add them to the workbook
++        try {
++            GenericFindWithStatus<ProcessStem> processStemQuery = new GenericFindWithStatus<>();
++            List<ProcessStem> processStems = processStemQuery.findByStatusWithPages(ProcessStem.class, status, PAGESIZE, OFFSET);
++            if (processStems != null) {
++                System.out.println("[WKFGen] Found " + processStems.size() + " ProcessStems with status=" + status);
++                for (ProcessStem ps : processStems) {
++                    helper = WKFProcessStems.addProcessStem(helper, ps);
+                 }
++            } else {
++                System.out.println("[WKFGen] No ProcessStems found with status=" + status);
+             }
+-
+-            wkfs = new java.util.ArrayList<>(byCanonicalUri.values());
+-            System.out.println("[WKFGen] Filtered+normalized WKFs by status; count=" + (wkfs == null ? 0 : wkfs.size()));
+         } catch (Throwable t) {
+-            System.err.println("[WKFGen] ERROR fetching WKFs: " + t.getMessage());
++            System.err.println("[WKFGen] ERROR querying ProcessStems: " + t.getMessage());
+             t.printStackTrace();
+-            return "FAILURE: fetching WKFs - " + t.getMessage();
+         }
+ 
++        // Query Processes by status and add them to the workbook
+         try {
+-            helper.workbook = WKFGen.create(filename, wkfs);
+-            if (helper.workbook == null) {
+-                System.err.println("[WKFGen] ERROR: workbook creation returned null");
+-                return "FAILURE: workbook creation returned null";
++            GenericFindWithStatus<org.hascoapi.entity.pojo.Process> processQuery = new GenericFindWithStatus<>();
++            List<org.hascoapi.entity.pojo.Process> processes = processQuery.findByStatusWithPages(org.hascoapi.entity.pojo.Process.class, status, PAGESIZE, OFFSET);
++            if (processes != null) {
++                System.out.println("[WKFGen] Found " + processes.size() + " Processes with status=" + status);
++                for (org.hascoapi.entity.pojo.Process proc : processes) {
++                    helper = WKFProcesses.addProcess(helper, proc);
++                }
++            } else {
++                System.out.println("[WKFGen] No Processes found with status=" + status);
+             }
+-            System.out.println("[WKFGen] Workbook created");
+         } catch (Throwable t) {
+-            System.err.println("[WKFGen] ERROR creating workbook: " + t.getMessage());
++            System.err.println("[WKFGen] ERROR querying Processes: " + t.getMessage());
+             t.printStackTrace();
+-            return "FAILURE: creating workbook - " + t.getMessage();
+         }
+ 
+-        if (wkfs != null && !wkfs.isEmpty()) {
+-            System.out.println("[WKFGen] Iterating WKFs to populate sheets");
+-            int idx = 0;
+-            for (WKF wkf : wkfs) {
+-                idx++;
+-                if (wkf == null) {
+-                    System.out.println("[WKFGen] WARN: wkf[" + idx + "] is null, skipping");
+-                    continue;
+-                }
+-                System.out.println("[WKFGen] Processing wkf[" + idx + "] uri=" + wkf.getUri() + ", label=" + wkf.getLabel());
+-                try {
+-                    helper = WKFProcessStems.addByWkf(helper, wkf);
+-                    System.out.println("[WKFGen] ProcessStems added for wkf[" + idx + "]");
+-                } catch (Throwable t) {
+-                    System.err.println("[WKFGen] ERROR adding ProcessStems for wkf uri=" + wkf.getUri() + ": " + t.getMessage());
+-                    t.printStackTrace();
+-                }
+-                try {
+-                    helper = WKFProcesses.addByWkf(helper, wkf);
+-                    System.out.println("[WKFGen] Processes added for wkf[" + idx + "]");
+-                } catch (Throwable t) {
+-                    System.err.println("[WKFGen] ERROR adding Processes for wkf uri=" + wkf.getUri() + ": " + t.getMessage());
+-                    t.printStackTrace();
++        // Query Tasks by status and add them to the workbook
++        List<org.hascoapi.entity.pojo.Task> tasksFound = new java.util.ArrayList<>();
++        try {
++            GenericFindWithStatus<org.hascoapi.entity.pojo.Task> taskQuery = new GenericFindWithStatus<>();
++            List<org.hascoapi.entity.pojo.Task> tasks = taskQuery.findByStatusWithPages(org.hascoapi.entity.pojo.Task.class, status, PAGESIZE, OFFSET);
++            if (tasks != null) {
++                System.out.println("[WKFGen] Found " + tasks.size() + " Tasks with status=" + status);
++                for (org.hascoapi.entity.pojo.Task task : tasks) {
++                    helper = WKFTasks.addTask(helper, task);
++                    tasksFound.add(task);
+                 }
+-                try {
+-                    helper = WKFTasks.addByWkf(helper, wkf);
+-                    System.out.println("[WKFGen] Tasks added for wkf[" + idx + "]");
+-                } catch (Throwable t) {
+-                    System.err.println("[WKFGen] ERROR adding Tasks for wkf uri=" + wkf.getUri() + ": " + t.getMessage());
+-                    t.printStackTrace();
++            } else {
++                System.out.println("[WKFGen] No Tasks found with status=" + status);
++            }
++        } catch (Throwable t) {
++            System.err.println("[WKFGen] ERROR querying Tasks: " + t.getMessage());
++            t.printStackTrace();
++        }
++
++        // Query RequiredInstruments referenced by the Tasks found
++        try {
++            java.util.Set<String> requiredInstrumentUris = new java.util.HashSet<>();
++            
++            // Collect all RequiredInstrument URIs from all tasks
++            for (org.hascoapi.entity.pojo.Task task : tasksFound) {
++                List<String> riUris = task.getHasRequiredInstrumentUris();
++                System.out.println("[WKFGen] Task " + task.getUri() + " has " + (riUris == null ? 0 : riUris.size()) + " RequiredInstrument URIs");
++                if (riUris != null && !riUris.isEmpty()) {
++                    for (String riUri : riUris) {
++                        System.out.println("[WKFGen]   - " + riUri);
++                    }
++                    requiredInstrumentUris.addAll(riUris);
+                 }
+-                try {
+-                    helper = WKFRequiredInstruments.addByWkf(helper, wkf);
+-                    System.out.println("[WKFGen] RequiredInstruments added for wkf[" + idx + "]");
+-                } catch (Throwable t) {
+-                    System.err.println("[WKFGen] ERROR adding RequiredInstruments for wkf uri=" + wkf.getUri() + ": " + t.getMessage());
+-                    t.printStackTrace();
++            }
++            
++            if (!requiredInstrumentUris.isEmpty()) {
++                System.out.println("[WKFGen] Found " + requiredInstrumentUris.size() + " unique RequiredInstrument URI(s) referenced by Tasks");
++                
++                // Fetch each RequiredInstrument and add to workbook
++                for (String riUri : requiredInstrumentUris) {
++                    try {
++                        org.hascoapi.entity.pojo.RequiredInstrument ri = org.hascoapi.entity.pojo.RequiredInstrument.find(riUri);
++                        if (ri != null) {
++                            helper = WKFRequiredInstruments.addRequiredInstrument(helper, ri);
++                        } else {
++                            System.out.println("[WKFGen] WARN: RequiredInstrument not found: " + riUri);
++                        }
++                    } catch (Exception e) {
++                        System.err.println("[WKFGen] ERROR fetching RequiredInstrument " + riUri + ": " + e.getMessage());
++                    }
+                 }
++            } else {
++                System.out.println("[WKFGen] No RequiredInstruments referenced by Tasks");
+             }
+-        } else {
+-            System.out.println("[WKFGen] No WKFs found; sheet population skipped");
++        } catch (Throwable t) {
++            System.err.println("[WKFGen] ERROR querying RequiredInstruments: " + t.getMessage());
++            t.printStackTrace();
+         }
+ 
+         // After populating the workbook, keep only the namespaces that are actually referenced
+@@ -246,7 +173,7 @@ public class WKFGen {
+             t.printStackTrace();
+             return "FAILURE: saving workbook - " + t.getMessage();
+         }
+-        System.out.println("[WKFGen] genByStatus END");
++        System.out.println("========== WKFGen.genByStatus() END ==========\n");
+         return saveResult;
+     }
+ 
+@@ -322,6 +249,155 @@ public class WKFGen {
+         return saveResult;
+     }
+ 
++    public static String genByProcessStem(ProcessStem processStem, String filename, String mediaFolder, String verifyUri) {
++        if (processStem == null) {
++            System.err.println("[WKFGen] ERROR: processStem is null");
++            return "FAILURE: processStem is null";
++        }
++        System.out.println("[WKFGen] genByProcessStem START filename=" + filename + ", processStemUri=" + processStem.getUri());
++
++        WKFGenHelper helper = new WKFGenHelper();
++
++        try {
++            // Create an empty workbook
++            java.util.List<WKF> emptyList = new java.util.ArrayList<>();
++            helper.workbook = WKFGen.create(filename, emptyList);
++            if (helper.workbook == null) {
++                System.err.println("[WKFGen] ERROR: workbook creation returned null");
++                return "FAILURE: workbook creation returned null";
++            }
++            System.out.println("[WKFGen] Workbook created for ProcessStem template");
++        } catch (Throwable t) {
++            System.err.println("[WKFGen] ERROR creating workbook: " + t.getMessage());
++            t.printStackTrace();
++            return "FAILURE: creating workbook - " + t.getMessage();
++        }
++
++        // Add the ProcessStem to the ProcessStems sheet
++        try {
++            helper = WKFProcessStems.addProcessStem(helper, processStem);
++            System.out.println("[WKFGen] ProcessStem added: " + processStem.getLabel());
++        } catch (Throwable t) {
++            System.err.println("[WKFGen] ERROR adding ProcessStem: " + t.getMessage());
++            t.printStackTrace();
++        }
++
++        // Get the named graph from the ProcessStem
++        // ProcessStems, Processes, and Tasks are stored in the same named graph
++        String namedGraph = processStem.getNamedGraph();
++        if (namedGraph == null || namedGraph.isEmpty()) {
++            System.out.println("[WKFGen] WARN: ProcessStem has no named graph, trying to infer from URI");
++            // Try to infer from URI pattern (some systems use URI as named graph)
++            namedGraph = processStem.getUri();
++        }
++
++        System.out.println("[WKFGen] Using named graph: " + namedGraph);
++
++        // Query and add all Processes from the same named graph
++        try {
++            String ns = org.hascoapi.utils.NameSpaces.getInstance().printSparqlNameSpaceList();
++            String processQuery = ns
++                    + " SELECT ?uri WHERE { "
++                    + "   GRAPH <" + namedGraph + "> { "
++                    + "     ?uri a vstoi:Process . "
++                    + "   } "
++                    + " }";
++
++            System.out.println("[WKFGen] Process query: " + processQuery);
++
++            List<org.hascoapi.entity.pojo.Process> processes = org.hascoapi.entity.pojo.GenericFind.findByQuery(
++                org.hascoapi.entity.pojo.Process.class, processQuery);
++
++            if (processes != null && !processes.isEmpty()) {
++                System.out.println("[WKFGen] Found " + processes.size() + " Processes in named graph");
++                for (org.hascoapi.entity.pojo.Process proc : processes) {
++                    helper = WKFProcesses.addProcess(helper, proc);
++                }
++            } else {
++                System.out.println("[WKFGen] No Processes found in named graph: " + namedGraph);
++            }
++        } catch (Throwable t) {
++            System.err.println("[WKFGen] ERROR querying/adding Processes: " + t.getMessage());
++            t.printStackTrace();
++        }
++
++        // Query and add all Tasks from the same named graph
++        try {
++            String ns = org.hascoapi.utils.NameSpaces.getInstance().printSparqlNameSpaceList();
++            String taskQuery = ns
++                    + " SELECT ?uri WHERE { "
++                    + "   GRAPH <" + namedGraph + "> { "
++                    + "     ?uri a vstoi:Task . "
++                    + "   } "
++                    + " }";
++
++            System.out.println("[WKFGen] Task query: " + taskQuery);
++
++            List<org.hascoapi.entity.pojo.Task> tasks = org.hascoapi.entity.pojo.GenericFind.findByQuery(
++                org.hascoapi.entity.pojo.Task.class, taskQuery);
++
++            if (tasks != null && !tasks.isEmpty()) {
++                System.out.println("[WKFGen] Found " + tasks.size() + " Tasks in named graph");
++                for (org.hascoapi.entity.pojo.Task task : tasks) {
++                    helper = WKFTasks.addTask(helper, task);
++                }
++            } else {
++                System.out.println("[WKFGen] No Tasks found in named graph: " + namedGraph);
++            }
++        } catch (Throwable t) {
++            System.err.println("[WKFGen] ERROR querying/adding Tasks: " + t.getMessage());
++            t.printStackTrace();
++        }
++
++        // Query and add RequiredInstruments from the same named graph
++        try {
++            String ns = org.hascoapi.utils.NameSpaces.getInstance().printSparqlNameSpaceList();
++            String reqInstQuery = ns
++                    + " SELECT ?uri WHERE { "
++                    + "   GRAPH <" + namedGraph + "> { "
++                    + "     ?uri a vstoi:RequiredInstrument . "
++                    + "   } "
++                    + " }";
++
++            System.out.println("[WKFGen] RequiredInstrument query: " + reqInstQuery);
++
++            List<org.hascoapi.entity.pojo.RequiredInstrument> reqInstruments = org.hascoapi.entity.pojo.GenericFind.findByQuery(
++                org.hascoapi.entity.pojo.RequiredInstrument.class, reqInstQuery);
++
++            if (reqInstruments != null && !reqInstruments.isEmpty()) {
++                System.out.println("[WKFGen] Found " + reqInstruments.size() + " RequiredInstruments in named graph");
++                for (org.hascoapi.entity.pojo.RequiredInstrument reqInst : reqInstruments) {
++                    helper = WKFRequiredInstruments.addRequiredInstrument(helper, reqInst);
++                }
++            } else {
++                System.out.println("[WKFGen] No RequiredInstruments found in named graph: " + namedGraph);
++            }
++        } catch (Throwable t) {
++            System.err.println("[WKFGen] ERROR querying/adding RequiredInstruments: " + t.getMessage());
++            t.printStackTrace();
++        }
++
++        // After populating the workbook, keep only the namespaces that are actually referenced
++        try {
++            pruneUnusedNamespaces(helper.workbook);
++        } catch (Throwable t) {
++            System.err.println("[WKFGen] WARN: failed to prune unused namespaces: " + t.getMessage());
++            t.printStackTrace();
++        }
++
++        String saveResult;
++        try {
++            saveResult = WKFGen.save(helper, filename);
++            System.out.println("[WKFGen] Save result=" + saveResult);
++        } catch (Throwable t) {
++            System.err.println("[WKFGen] ERROR saving workbook: " + t.getMessage());
++            t.printStackTrace();
++            return "FAILURE: saving workbook - " + t.getMessage();
++        }
++        System.out.println("[WKFGen] genByProcessStem END");
++        return saveResult;
++    }
++
+     public static String genByManager(String useremail, String status, String filename, String mediaFolder, String verifyUri) {
+         System.out.println("[WKFGen] genByManager START status=" + status + ", useremail=" + useremail + ", filename=" + filename);
+         WKFGenHelper helper = new WKFGenHelper();
+@@ -608,15 +684,16 @@ public class WKFGen {
+ 
+         // Convert to absolute path and ensure directory exists
+         java.io.File outputFile = new java.io.File(pathString);
+-        System.out.println("  Absolute path: [" + outputFile.getAbsolutePath() + "]");
++        String absolutePath = outputFile.getAbsolutePath();
++        System.out.println("  Absolute path: [" + absolutePath + "]");
+ 
+         if (outputFile.getParentFile() != null && !outputFile.getParentFile().exists()) {
+             System.out.println("  Creating parent directory...");
+-            outputFile.getParentFile().mkdirs();
++            boolean created = outputFile.getParentFile().mkdirs();
++            System.out.println("  Parent directory created: " + created);
+         }
+ 
+-        String resp = "SUCCESS";
+-        System.out.println("[WKFGen] Saving workbook to: " + outputFile.getAbsolutePath());
++        System.out.println("[WKFGen] Saving workbook to: " + absolutePath);
+         try (FileOutputStream fileOut = new FileOutputStream(outputFile)) {
+             if (helper == null || helper.workbook == null) {
+                 System.err.println("[WKFGen] ERROR: helper or workbook is null");
+@@ -624,14 +701,20 @@ public class WKFGen {
+                 return "FAILURE: helper or workbook is null";
+             }
+             helper.workbook.write(fileOut);
++            fileOut.flush(); // Ensure all data is written to disk
+             System.out.println("✅ [WKFGen] WKF workbook saved successfully!");
+             System.out.println("  File size: " + outputFile.length() + " bytes");
++            System.out.println("  File exists: " + outputFile.exists());
++            System.out.println("  File can read: " + outputFile.canRead());
++            System.out.println("  Returning filename: [" + filename + "]");
+             System.out.println("========== WKFGen.save() END (SUCCESS) ==========\n");
++            return filename; // Return the filename on success (like SDDGen does)
+         } catch (IOException e) {
+-            resp = "FAILURE: Error writing workbook - " + e.getMessage();
+-            System.err.println("[WKFGen] " + resp);
++            String errorMsg = "FAILURE: Error writing workbook - " + e.getMessage();
++            System.err.println("[WKFGen] " + errorMsg);
+             e.printStackTrace();
+             System.out.println("========== WKFGen.save() END (FAILURE) ==========\n");
++            return errorMsg;
+         } finally {
+             try {
+                 if (helper != null && helper.workbook != null) {
+@@ -641,7 +724,6 @@ public class WKFGen {
+                 System.err.println("[WKFGen] WARN: error closing workbook: " + ioe.getMessage());
+             }
+         }
+-        return resp;
+     }
+ 
+     private static void pruneUnusedNamespaces(Workbook workbook) {
+diff --git a/app/org/hascoapi/transform/mt/wkf/WKFProcessStems.java b/app/org/hascoapi/transform/mt/wkf/WKFProcessStems.java
+index 7b14fe0..8afc9a6 100644
+--- a/app/org/hascoapi/transform/mt/wkf/WKFProcessStems.java
++++ b/app/org/hascoapi/transform/mt/wkf/WKFProcessStems.java
+@@ -72,8 +72,21 @@ public class WKFProcessStems {
+ 
+             // Map ProcessStem fields to columns
+             row.createCell(0).setCellValue(URIUtils.replaceNameSpaceEx(safe(ps.getUri())));
+-            row.createCell(1).setCellValue(URIUtils.replaceNameSpaceEx(safe(ps.getTypeUri())));
+-            row.createCell(2).setCellValue(URIUtils.replaceNameSpaceEx(safe(ps.getHascoTypeUri())));
++
++            // Fallback for TypeUri - if null/empty, use default vstoi:ProcessStem
++            String typeUri = ps.getTypeUri();
++            if (typeUri == null || typeUri.trim().isEmpty()) {
++                typeUri = "vstoi:ProcessStem";
++            }
++            row.createCell(1).setCellValue(URIUtils.replaceNameSpaceEx(typeUri));
++
++            // Fallback for HascoTypeUri - if null/empty, use default vstoi:ProcessStem
++            String hascoTypeUri = ps.getHascoTypeUri();
++            if (hascoTypeUri == null || hascoTypeUri.trim().isEmpty()) {
++                hascoTypeUri = "vstoi:ProcessStem";
++            }
++            row.createCell(2).setCellValue(URIUtils.replaceNameSpaceEx(hascoTypeUri));
++
+             row.createCell(3).setCellValue(safe(ps.getLabel()));
+             row.createCell(4).setCellValue(safe(ps.getComment()));
+             row.createCell(5).setCellValue(safe(ps.getHasStatus()));
+@@ -88,8 +101,59 @@ public class WKFProcessStems {
+             row.createCell(14).setCellValue(URIUtils.replaceNameSpaceEx(safe(ps.getHasImageUri())));
+             row.createCell(15).setCellValue(safe(ps.getHasWebDocument()));
+ 
+-            System.out.println("[WKFProcessStems] Added ProcessStem row: uri=" + ps.getUri());
++            System.out.println("[WKFProcessStems] Added ProcessStem row: uri=" + ps.getUri() + ", typeUri=" + typeUri);
++        }
++
++        return helper;
++    }
++
++    public static WKFGenHelper addProcessStem(WKFGenHelper helper, ProcessStem ps) {
++        if (ps == null) {
++            System.out.println("[WKFProcessStems] WARN: addProcessStem called with null ProcessStem; skipping");
++            return helper;
++        }
++
++        Sheet sheet = helper.workbook.getSheet(WKFGen.PROCESSSTEMS);
++        if (sheet == null) {
++            System.out.println("[WKFProcessStems] ERROR: ProcessStems sheet not found in workbook");
++            return helper;
++        }
++
++        int rowNum = sheet.getLastRowNum() + 1;
++        Row row = sheet.createRow(rowNum);
++
++        // Map ProcessStem fields to columns
++        row.createCell(0).setCellValue(URIUtils.replaceNameSpaceEx(safe(ps.getUri())));
++
++        // Fallback for TypeUri - if null/empty, use default vstoi:ProcessStem
++        String typeUri = ps.getTypeUri();
++        if (typeUri == null || typeUri.trim().isEmpty()) {
++            typeUri = "vstoi:ProcessStem";
++        }
++        row.createCell(1).setCellValue(URIUtils.replaceNameSpaceEx(typeUri));
++
++        // Fallback for HascoTypeUri - if null/empty, use default vstoi:ProcessStem
++        String hascoTypeUri = ps.getHascoTypeUri();
++        if (hascoTypeUri == null || hascoTypeUri.trim().isEmpty()) {
++            hascoTypeUri = "vstoi:ProcessStem";
+         }
++        row.createCell(2).setCellValue(URIUtils.replaceNameSpaceEx(hascoTypeUri));
++
++        row.createCell(3).setCellValue(safe(ps.getLabel()));
++        row.createCell(4).setCellValue(safe(ps.getComment()));
++        row.createCell(5).setCellValue(safe(ps.getHasStatus()));
++        row.createCell(6).setCellValue(safe(ps.getHasContent()));
++        row.createCell(7).setCellValue(safe(ps.getHasLanguage()));
++        row.createCell(8).setCellValue(safe(ps.getHasVersion()));
++        row.createCell(9).setCellValue(URIUtils.replaceNameSpaceEx(safe(ps.getWasDerivedFrom())));
++        row.createCell(10).setCellValue(URIUtils.replaceNameSpaceEx(safe(ps.getWasGeneratedBy())));
++        row.createCell(11).setCellValue(safe(ps.getHasReviewNote()));
++        row.createCell(12).setCellValue(safe(ps.getHasSIRManagerEmail()));
++        row.createCell(13).setCellValue(safe(ps.getHasEditorEmail()));
++        row.createCell(14).setCellValue(URIUtils.replaceNameSpaceEx(safe(ps.getHasImageUri())));
++        row.createCell(15).setCellValue(safe(ps.getHasWebDocument()));
++
++        System.out.println("[WKFProcessStems] Added ProcessStem row: uri=" + ps.getUri() + ", label=" + ps.getLabel() + ", typeUri=" + typeUri);
+ 
+         return helper;
+     }
+diff --git a/app/org/hascoapi/transform/mt/wkf/WKFProcesses.java b/app/org/hascoapi/transform/mt/wkf/WKFProcesses.java
+index ef0f4e4..b13456c 100644
+--- a/app/org/hascoapi/transform/mt/wkf/WKFProcesses.java
++++ b/app/org/hascoapi/transform/mt/wkf/WKFProcesses.java
+@@ -91,6 +91,56 @@ public class WKFProcesses {
+         return helper;
+     }
+ 
++    public static WKFGenHelper addProcess(WKFGenHelper helper, Process p) {
++        if (p == null) {
++            System.out.println("[WKFProcesses] WARN: addProcess called with null Process; skipping");
++            return helper;
++        }
++
++        Sheet sheet = helper.workbook.getSheet(WKFGen.PROCESSES);
++        if (sheet == null) {
++            System.out.println("[WKFProcesses] ERROR: Processes sheet not found in workbook");
++            return helper;
++        }
++
++        int rowNum = sheet.getLastRowNum() + 1;
++        Row row = sheet.createRow(rowNum);
++
++        // Map Process fields to columns
++        row.createCell(0).setCellValue(URIUtils.replaceNameSpaceEx(safe(p.getUri())));
++
++        // Fallback for TypeUri
++        String typeUri = p.getTypeUri();
++        if (typeUri == null || typeUri.trim().isEmpty()) {
++            typeUri = "vstoi:Process";
++        }
++        row.createCell(1).setCellValue(URIUtils.replaceNameSpaceEx(typeUri));
++
++        // Fallback for HascoTypeUri
++        String hascoTypeUri = p.getHascoTypeUri();
++        if (hascoTypeUri == null || hascoTypeUri.trim().isEmpty()) {
++            hascoTypeUri = "vstoi:Process";
++        }
++        row.createCell(2).setCellValue(URIUtils.replaceNameSpaceEx(hascoTypeUri));
++
++        row.createCell(3).setCellValue(safe(p.getLabel()));
++        row.createCell(4).setCellValue(safe(p.getComment()));
++        row.createCell(5).setCellValue(safe(p.getHasStatus()));
++        row.createCell(6).setCellValue(safe(p.getHasLanguage()));
++        row.createCell(7).setCellValue(safe(p.getHasVersion()));
++        row.createCell(8).setCellValue(URIUtils.replaceNameSpaceEx(safe(p.getWasDerivedFrom())));
++        row.createCell(9).setCellValue(safe(p.getHasReviewNote()));
++        row.createCell(10).setCellValue(safe(p.getHasSIRManagerEmail()));
++        row.createCell(11).setCellValue(safe(p.getHasEditorEmail()));
++        row.createCell(12).setCellValue(URIUtils.replaceNameSpaceEx(safe(p.getHasTopTaskUri())));
++        row.createCell(13).setCellValue(URIUtils.replaceNameSpaceEx(safe(p.getHasImageUri())));
++        row.createCell(14).setCellValue(safe(p.getHasWebDocument()));
++
++        System.out.println("[WKFProcesses] Added Process row: uri=" + p.getUri() + ", label=" + p.getLabel() + ", typeUri=" + typeUri);
++
++        return helper;
++    }
++
+     private static String safe(String val) {
+         return val == null ? "" : val;
+     }
+diff --git a/app/org/hascoapi/transform/mt/wkf/WKFRequiredInstruments.java b/app/org/hascoapi/transform/mt/wkf/WKFRequiredInstruments.java
+index 68ef426..9aec134 100644
+--- a/app/org/hascoapi/transform/mt/wkf/WKFRequiredInstruments.java
++++ b/app/org/hascoapi/transform/mt/wkf/WKFRequiredInstruments.java
+@@ -36,10 +36,13 @@ public class WKFRequiredInstruments {
+ 
+         System.out.println("[WKFRequiredInstruments] Querying RequiredInstruments for WKF uri=" + wkf.getUri() + ", namedGraph=" + namedGraph);
+ 
+-        // Build SPARQL query to find RequiredInstruments in the named graph
++        // Build SPARQL query to find RequiredInstruments that are referenced by Tasks in the named graph
++        // First, find all Tasks in the graph, then find all RequiredInstruments they reference
+         String queryString = org.hascoapi.utils.NameSpaces.getInstance().printSparqlNameSpaceList()
+-                + " SELECT ?uri WHERE { "
++                + " SELECT DISTINCT ?uri WHERE { "
+                 + "   GRAPH <" + namedGraph + "> { "
++                + "     ?task a vstoi:Task . "
++                + "     ?task vstoi:hasRequiredInstrument ?uri . "
+                 + "     ?uri a vstoi:RequiredInstrument . "
+                 + "   } "
+                 + " }";
+@@ -89,6 +92,41 @@ public class WKFRequiredInstruments {
+         return helper;
+     }
+ 
++    public static WKFGenHelper addRequiredInstrument(WKFGenHelper helper, RequiredInstrument ri) {
++        if (ri == null) {
++            System.out.println("[WKFRequiredInstruments] WARN: addRequiredInstrument called with null RequiredInstrument; skipping");
++            return helper;
++        }
++
++        Sheet sheet = helper.workbook.getSheet(WKFGen.REQUIREDINSTRUMENTS);
++        if (sheet == null) {
++            System.out.println("[WKFRequiredInstruments] ERROR: RequiredInstruments sheet not found in workbook");
++            return helper;
++        }
++
++        int rowNum = sheet.getLastRowNum() + 1;
++        Row row = sheet.createRow(rowNum);
++
++        // Map RequiredInstrument fields to columns
++        row.createCell(0).setCellValue(URIUtils.replaceNameSpaceEx(safe(ri.getUri())));
++        row.createCell(1).setCellValue(URIUtils.replaceNameSpaceEx(safe(ri.getTypeUri())));
++        row.createCell(2).setCellValue(URIUtils.replaceNameSpaceEx(safe(ri.getHascoTypeUri())));
++        row.createCell(3).setCellValue(safe(ri.getLabel()));
++        row.createCell(4).setCellValue(safe(ri.getComment()));
++        row.createCell(5).setCellValue(URIUtils.replaceNameSpaceEx(safe(ri.getUsesInstrument())));
++
++        // hasRequiredComponent is a list - join with pipes
++        String componentsStr = joinUriList(ri.getHasRequiredComponents());
++        row.createCell(6).setCellValue(componentsStr);
++
++        row.createCell(7).setCellValue(URIUtils.replaceNameSpaceEx(safe(ri.getHasImageUri())));
++        row.createCell(8).setCellValue(safe(ri.getHasWebDocument()));
++
++        System.out.println("[WKFRequiredInstruments] Added RequiredInstrument row: uri=" + ri.getUri() + ", usesInstrument=" + ri.getUsesInstrument());
++
++        return helper;
++    }
++
+     private static String safe(String val) {
+         return val == null ? "" : val;
+     }
+diff --git a/app/org/hascoapi/transform/mt/wkf/WKFTasks.java b/app/org/hascoapi/transform/mt/wkf/WKFTasks.java
+index 70e1212..5552705 100644
+--- a/app/org/hascoapi/transform/mt/wkf/WKFTasks.java
++++ b/app/org/hascoapi/transform/mt/wkf/WKFTasks.java
+@@ -102,6 +102,67 @@ public class WKFTasks {
+         return helper;
+     }
+ 
++    public static WKFGenHelper addTask(WKFGenHelper helper, Task t) {
++        if (t == null) {
++            System.out.println("[WKFTasks] WARN: addTask called with null Task; skipping");
++            return helper;
++        }
++
++        Sheet sheet = helper.workbook.getSheet(WKFGen.TASKS);
++        if (sheet == null) {
++            System.out.println("[WKFTasks] ERROR: Tasks sheet not found in workbook");
++            return helper;
++        }
++
++        int rowNum = sheet.getLastRowNum() + 1;
++        Row row = sheet.createRow(rowNum);
++
++        // Map Task fields to columns
++        row.createCell(0).setCellValue(URIUtils.replaceNameSpaceEx(safe(t.getUri())));
++
++        // Fallback for TypeUri
++        String typeUri = t.getTypeUri();
++        if (typeUri == null || typeUri.trim().isEmpty()) {
++            typeUri = "vstoi:Task";
++        }
++        row.createCell(1).setCellValue(URIUtils.replaceNameSpaceEx(typeUri));
++
++        // Fallback for HascoTypeUri
++        String hascoTypeUri = t.getHascoTypeUri();
++        if (hascoTypeUri == null || hascoTypeUri.trim().isEmpty()) {
++            hascoTypeUri = "vstoi:Task";
++        }
++        row.createCell(2).setCellValue(URIUtils.replaceNameSpaceEx(hascoTypeUri));
++
++        row.createCell(3).setCellValue(safe(t.getLabel()));
++        row.createCell(4).setCellValue(safe(t.getComment()));
++        row.createCell(5).setCellValue(safe(t.getHasStatus()));
++        row.createCell(6).setCellValue(safe(t.getHasLanguage()));
++        row.createCell(7).setCellValue(safe(t.getHasVersion()));
++        row.createCell(8).setCellValue(URIUtils.replaceNameSpaceEx(safe(t.getWasDerivedFrom())));
++        row.createCell(9).setCellValue(safe(t.getHasReviewNote()));
++        row.createCell(10).setCellValue(safe(t.getHasSIRManagerEmail()));
++        row.createCell(11).setCellValue(safe(t.getHasEditorEmail()));
++        row.createCell(12).setCellValue(URIUtils.replaceNameSpaceEx(safe(t.getHasSupertaskUri())));
++
++        // hasSubtask is a list - join with pipes
++        String subtasksStr = joinUriList(t.getHasSubtaskUris());
++        row.createCell(13).setCellValue(subtasksStr);
++
++        row.createCell(14).setCellValue(safe(t.getHasTemporalDependency()));
++
++        // hasRequiredInstrument is a list - join with pipes
++        String requiredInstrumentsStr = joinUriList(t.getHasRequiredInstrumentUris());
++        row.createCell(15).setCellValue(requiredInstrumentsStr);
++
++        row.createCell(16).setCellValue(URIUtils.replaceNameSpaceEx(safe(t.getHasImageUri())));
++        row.createCell(17).setCellValue(safe(t.getHasWebDocument()));
++
++        System.out.println("[WKFTasks] Added Task row: uri=" + t.getUri() + ", label=" + t.getLabel() + ", typeUri=" + typeUri);
++
++        return helper;
++    }
++
+     private static String safe(String val) {
+         return val == null ? "" : val;
+     }
+diff --git a/app/org/hascoapi/utils/MTSheet.java b/app/org/hascoapi/utils/MTSheet.java
+index 62d369a..8ddc985 100644
+--- a/app/org/hascoapi/utils/MTSheet.java
++++ b/app/org/hascoapi/utils/MTSheet.java
+@@ -40,6 +40,8 @@ public class MTSheet {
+ 
+         METADATA_SHEETS.put(Constants.MT_KGR, Arrays.asList(
+                 "hasDependencies",
++                "hasMediaFolder",
++                "verifyUri",
+                 "FundingSchemes",
+                 "Projects",
+                 "ProjectOrganizations",
+diff --git a/app/org/hascoapi/utils/MetadataFactory.java b/app/org/hascoapi/utils/MetadataFactory.java
+index 5288524..e22c858 100644
+--- a/app/org/hascoapi/utils/MetadataFactory.java
++++ b/app/org/hascoapi/utils/MetadataFactory.java
+@@ -65,36 +65,46 @@ public class MetadataFactory {
+                         pred = factory.createIRI(URIUtils.replacePrefixEx(key));
+                     }
+ 
+-                    String cellValue = null;
++                    // Handle both single values and Lists
+                     Object raw = row.get(key);
++                    List<String> cellValues = new java.util.ArrayList<>();
++                    
+                     if (raw instanceof List) {
++                        // Process all elements in the list
+                         List<?> list = (List<?>) raw;
+-                        if (!list.isEmpty()) {
+-                            cellValue = list.get(0).toString();
++                        for (Object item : list) {
++                            if (item != null) {
++                                cellValues.add(item.toString());
++                            }
+                         }
+                     } else if (raw != null) {
+-                        cellValue = raw.toString();
++                        // Single value
++                        cellValues.add(raw.toString());
+                     }
+ 
+-                    if (URIUtils.isValidURI(cellValue)) {
+-                        IRI obj = factory.createIRI(URIUtils.replacePrefixEx(cellValue));
+-                        if (namedGraph == null) {
+-                            model.add(sub, pred, obj);
+-                            System.out.println("[WARNING] Triple (" + sub + "," + pred + "," + obj + ") is default named graph.");
+-                        } else {
+-                            model.add(sub, pred, obj, (Resource)namedGraph);
+-                        }
+-                    } else {
+-                        if (cellValue == null) {
+-                            cellValue = "NULL";
++                    // Create a triple for each value
++                    for (String cellValue : cellValues) {
++                        if (cellValue == null || cellValue.trim().isEmpty()) {
++                            continue;
+                         }
+-                        Literal obj = factory.createLiteral(
+-                                cellValue.replace("\n", " ").replace("\r", " ").replace("\"", "''"));
+-                        if (namedGraph == null) {
+-                            model.add(sub, pred, obj);
+-                            System.out.println("[WARNING] Triple (" + sub + "," + pred + "," + obj + ") is default named graph.");
++
++                        if (URIUtils.isValidURI(cellValue)) {
++                            IRI obj = factory.createIRI(URIUtils.replacePrefixEx(cellValue));
++                            if (namedGraph == null) {
++                                model.add(sub, pred, obj);
++                                System.out.println("[WARNING] Triple (" + sub + "," + pred + "," + obj + ") is default named graph.");
++                            } else {
++                                model.add(sub, pred, obj, (Resource)namedGraph);
++                            }
+                         } else {
+-                            model.add(sub, pred, obj, (Resource)namedGraph);
++                            Literal obj = factory.createLiteral(
++                                    cellValue.replace("\n", " ").replace("\r", " ").replace("\"", "''"));
++                            if (namedGraph == null) {
++                                model.add(sub, pred, obj);
++                                System.out.println("[WARNING] Triple (" + sub + "," + pred + "," + obj + ") is default named graph.");
++                            } else {
++                                model.add(sub, pred, obj, (Resource)namedGraph);
++                            }
+                         }
+                     }
+                 }
+diff --git a/app/org/hascoapi/utils/URIUtils.java b/app/org/hascoapi/utils/URIUtils.java
+index 1ff7ab0..a491763 100644
+--- a/app/org/hascoapi/utils/URIUtils.java
++++ b/app/org/hascoapi/utils/URIUtils.java
+@@ -71,6 +71,16 @@ public class URIUtils {
+         if (str == null) {
+             return false;
+         }
++
++        String cleaned = str.trim();
++
++        // Accept well-formed absolute URIs (normal case in the API).
++        // This includes fragment paths such as '#/WKF123...'.
++        if ((cleaned.startsWith("http://") || cleaned.startsWith("https://")) && isWellFormedURI(cleaned)) {
++            return true;
++        }
++
++        // Accept abbreviated/prefixed URIs (e.g., "hasco:WKF" or "pmsr:WKF123")
+         if (str.length() != replaceNameSpaceEx(str).length() ||
+                 str.length() != replacePrefixEx(str).length()) {
+             return true;
+@@ -107,6 +117,7 @@ public class URIUtils {
+     /*
+      *  the method verifies if cellContent contains a set of URIs, which we call an object set. Returns true if
+      *  the content is regarded to be an object set.
++     *  Supports separators: comma (,), ampersand (&), semicolon (;)
+      */
+     public static boolean isObjectSet (String cellContent) {
+ 
+@@ -125,6 +136,20 @@ public class URIUtils {
+             if(isValid){
+                 cellContent = cellContent.replace("&", ", ");
+             }
++        } else if(cellContent.contains(";")){
++            // Support semicolon-separated URIs (common in WKF for RequiredComponents)
++            boolean isValid = true;
++            StringTokenizer st = new StringTokenizer(cellContent, ";");
++            while (st.hasMoreTokens()) {
++                String token = st.nextToken().trim();
++                if(!isAbbreviatedURI(token) && !isFullURI(token)){
++                    isValid = false;
++                    break;
++                }
++            }
++            if(isValid){
++                cellContent = cellContent.replace(";", ", ");
++            }
+         }
+         // we need to tokanize the string and verify that the first token is an URI
+         StringTokenizer st = new StringTokenizer(cellContent, ",");
+diff --git a/conf/application.conf b/conf/application.conf
+index 8673231..991fadf 100644
+--- a/conf/application.conf
++++ b/conf/application.conf
+@@ -21,12 +21,12 @@ hascoapi {
+    repository {
+ 	        # URL for metadata (RDF triplestore RDF) collection
+ 	        # For fuseki in the local
+-	        triplestore="http://localhost:3030"
++	        triplestore="http://fuseki:3030"
+    }
+ 
+    paths {
+-       ingestion="C:/hascoapi/var/"
+-	     app_ontology="C:/hascoapi/var/app_ontology/"
++       ingestion="/var/hascoapi"
++	     app_ontology="/var/hascoapi/app_ontology/"
+    }
+     
+ 
+@@ -51,6 +51,7 @@ baseUrl="http://localhost:9000"
+ 
+ # Play server port configuration
+ play.server.http.port=9000
++play.server.max-header-size=64k
+ 
+ # This is the main configuration file for the application.
+ # ~~~~~
+diff --git a/conf/logback.xml b/conf/logback.xml
+index b11242c..c7ec894 100644
+--- a/conf/logback.xml
++++ b/conf/logback.xml
+@@ -27,6 +27,9 @@
+     <appender-ref ref="APP_ASYNCFILE" />
+   </root>
+ 
++  <!-- Keep global noise low (root=WARN) but allow targeted INFO logs for media uploads. -->
++  <logger name="org.hascoapi.console.controllers.restapi.DataFileAPI" level="INFO" />
++
+   <!--logger name="play" level="INFO" />
+   <logger name="application" level="INFO" /-->
+   <!--logger name="org.pac4j.play" level="DEBUG" />
+diff --git a/docker-compose-development.yml b/docker-compose-development.yml
+index 270e9cd..edf51f7 100644
+--- a/docker-compose-development.yml
++++ b/docker-compose-development.yml
+@@ -41,6 +41,8 @@ services:
+             JAVA_OPTS: "-Xms128m -Xmx12g"
+         volumes:
+             - /var/log/hascoapi:/hascoapi/logs
++            - hascoapi-resources:/var/hascoapi/resources
++            - hascoapi-media:/var/hascoapi/media
+         depends_on:
+             - fuseki
+         networks:
+@@ -51,6 +53,8 @@ services:
+ 
+ volumes:
+     hascoapi-fuseki-data:
++    hascoapi-resources:
++    hascoapi-media:
+ 
+ networks:
+     hascoapi:
+diff --git a/docker-compose.yml b/docker-compose.yml
+index 795fb85..93814f5 100644
+--- a/docker-compose.yml
++++ b/docker-compose.yml
+@@ -41,6 +41,8 @@ services:
+             JAVA_OPTS: "-Xms128m -Xmx12g"
+         volumes:
+             - /var/log/hascoapi:/hascoapi/logs
++            - hascoapi-resources:/var/hascoapi/resources
++            - hascoapi-media:/var/hascoapi/media
+         depends_on:
+             - fuseki
+         networks:
+@@ -51,6 +53,8 @@ services:
+ 
+ volumes:
+     hascoapi-fuseki-data:
++    hascoapi-resources:
++    hascoapi-media:
+ 
+ networks:
+     hascoapi:
