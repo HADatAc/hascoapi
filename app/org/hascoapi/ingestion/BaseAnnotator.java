@@ -181,10 +181,10 @@ public abstract class BaseAnnotator {
         if (dataFile == null || dataFile.getFile() == null || mapCatalog == null) return;
 
         // Only repair for known DP2 core tabs
+        // NOTE: hasDependencies is a FIELD in InfoSheet, NOT a sheet name
         List<String> keys = Arrays.asList(
                 "Deployments",
                 "Platforms",
-                "PlatformInstances",
                 "InstrumentInstances",
                 "ComponentInstances",
                 "FieldsOfView",
@@ -192,8 +192,7 @@ public abstract class BaseAnnotator {
                 "MessageStream",
                 "MessageTopic",
                 "Namespace",
-                "Namespaces",
-                "hasDependencies"
+                "Namespaces"
         );
 
         for (String key : keys) {
@@ -227,19 +226,9 @@ public abstract class BaseAnnotator {
             mapCatalog.put("ComponentInstances", "#ComponentInstances");
         }
 
-        // Namespace sheet key differences: some DP2 files use 'Namespace' others 'Namespaces' as the actual tab.
-        // Make hasDependencies point to whichever exists.
-        String hasDeps = mapCatalog.get("hasDependencies");
-        if (hasDeps == null || hasDeps.trim().isEmpty()) {
-            // If catalog doesn't define it, choose a best-effort default
-            SpreadsheetRecordFile ns1 = new SpreadsheetRecordFile(dataFile.getFile(), "Namespace");
-            SpreadsheetRecordFile ns2 = new SpreadsheetRecordFile(dataFile.getFile(), "Namespaces");
-            if (ns1.isValid()) {
-                mapCatalog.put("hasDependencies", "#Namespace");
-            } else if (ns2.isValid()) {
-                mapCatalog.put("hasDependencies", "#Namespaces");
-            }
-        }
+        // NOTE: hasDependencies is a FIELD in InfoSheet, not a sheet name.
+        // It should NOT be mapped to Namespace/Namespaces sheets.
+        // The namespace logic should look for Namespace/Namespaces sheets directly.
     }
 
     private static String norm(String v) {

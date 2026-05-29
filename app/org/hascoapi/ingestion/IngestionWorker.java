@@ -385,15 +385,39 @@ public class IngestionWorker {
 
     public static boolean nameSpaceGen(DataFile dataFile, Map<String, String> mapCatalog, String templateFile) {
         RecordFile nameSpaceRecordFile = null;
-        String sheetName = mapCatalog.get("hasDependencies");
+        
+        // hasDependencies is a FIELD in InfoSheet, not a sheet name.
+        // We need to look for the actual Namespace/Namespaces sheet.
+        String sheetName = null;
+        
+        // First try to get from catalog (might be mapped to Namespace or Namespaces)
+        String namespaceCatalogEntry = mapCatalog.get("Namespaces");
+        if (namespaceCatalogEntry == null || namespaceCatalogEntry.trim().isEmpty()) {
+            namespaceCatalogEntry = mapCatalog.get("Namespace");
+        }
+        
+        if (namespaceCatalogEntry != null && !namespaceCatalogEntry.trim().isEmpty()) {
+            sheetName = namespaceCatalogEntry.replace("#", "").trim();
+        } else {
+            // Fallback: try both sheet names directly
+            SpreadsheetRecordFile probe1 = new SpreadsheetRecordFile(dataFile.getFile(), "Namespaces");
+            SpreadsheetRecordFile probe2 = new SpreadsheetRecordFile(dataFile.getFile(), "Namespace");
+            
+            if (probe1.isValid() && probe1.getRecords() != null && !probe1.getRecords().isEmpty()) {
+                sheetName = "Namespaces";
+            } else if (probe2.isValid() && probe2.getRecords() != null && !probe2.getRecords().isEmpty()) {
+                sheetName = "Namespace";
+            }
+        }
+        
         if (sheetName != null) {
-            nameSpaceRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), sheetName.replace("#",""));
+            nameSpaceRecordFile = new SpreadsheetRecordFile(dataFile.getFile(), dataFile.getFilename(), sheetName);
             if (nameSpaceRecordFile == null) {
                 dataFile.getLogger().printWarning("GBL_00009");
             } else if (nameSpaceRecordFile.getRecords() == null) {
                 dataFile.getLogger().printWarning("GBL_00010");
             } else {
-                dataFile.getLogger().println("Namespace generation completed.");
+                dataFile.getLogger().println("Namespace generation completed using sheet: " + sheetName);
                 dataFile.setRecordFile(nameSpaceRecordFile);
 
                 GeneratorChain chain = new GeneratorChain();
@@ -406,7 +430,7 @@ public class IngestionWorker {
                 return isSuccess;
             }
         } else {
-            dataFile.getLogger().printWarning("GBL_00011");
+            dataFile.getLogger().printWarning("GBL_00011: Namespace/Namespaces sheet not found");
         }
         return false;
     }

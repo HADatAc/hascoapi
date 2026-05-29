@@ -43,6 +43,10 @@ public class RequiredComponent extends HADatAcThing {
 		return hasContainerSlotUri;
 	}
 
+	public String getHasContainerSlotUri() {
+		return hasContainerSlotUri;
+	}
+
 	public void setHasContainerSlot(String hasContainerSlotUri) {
 		this.hasContainerSlotUri = hasContainerSlotUri;
 	}
@@ -55,6 +59,10 @@ public class RequiredComponent extends HADatAcThing {
 	} 
 
 	public String getUsesComponent() {
+		return usesComponent;
+	}
+
+	public String getUsedComponent() {
 		return usesComponent;
 	}
 

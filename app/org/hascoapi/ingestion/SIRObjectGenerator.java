@@ -3,7 +3,9 @@ package org.hascoapi.ingestion;
 import java.lang.String;
 import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.hascoapi.Constants;
@@ -17,7 +19,6 @@ import org.hascoapi.entity.pojo.Codebook;
 import org.hascoapi.entity.pojo.ResponseOption;
 import org.hascoapi.entity.pojo.AnnotationStem;
 import org.hascoapi.utils.URIUtils;
-import org.hascoapi.utils.Utils;
 import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.VSTOI;
 
@@ -53,7 +54,7 @@ public class SIRObjectGenerator extends BaseGenerator {
         mapCol.clear();
         mapCol.put("originalID", "originalID");
         mapCol.put("uri", "hasURI");
-        mapCol.put("typeUri", "type");
+        mapCol.put("typeUri", "rdf:type");  // ✅ CORRIGIDO: buscar de "rdf:type" em vez de "type"
         mapCol.put("label", "label");
         mapCol.put("comment", "comment");
         mapCol.put("isMemberOf", "isMemberOf");
@@ -65,19 +66,81 @@ public class SIRObjectGenerator extends BaseGenerator {
 
     private String getUri(Record rec) {
         String uriValue = rec.getValueByColumnName(mapCol.get("uri"));
-        if (uriValue == null || uriValue.isEmpty()) {
-            // Auto-generate URI from originalID
-            String originalId = getOriginalID(rec);
-            if (originalId != null && !originalId.isEmpty()) {
-                return Utils.uriPlainGen("studyobject", originalId, namespace);
+        if (uriValue != null) {
+            String trimmedUriValue = uriValue.trim();
+            if (!trimmedUriValue.isEmpty()) {
+                // If hasURI already provides a full URI/CURIE, preserve it.
+                if (URIUtils.isValidURI(trimmedUriValue)) {
+                    return URIUtils.replacePrefixEx(trimmedUriValue);
+                }
+                return buildNativeUriFromIdentifier(trimmedUriValue);
             }
+        }
+
+        // Fallback: build from originalID, preserving URI-valued IDs.
+        String originalId = getOriginalID(rec);
+        if (originalId.isEmpty()) {
             return null;
         }
-        return Utils.uriPlainGen("studyobject", uriValue, namespace);
+        if (URIUtils.isValidURI(originalId)) {
+            return URIUtils.replacePrefixEx(originalId);
+        }
+        return buildNativeUriFromIdentifier(originalId);
+    }
+
+    private String buildNativeUriFromIdentifier(String identifier) {
+        if (identifier == null) {
+            return null;
+        }
+        String trimmed = identifier.trim();
+        if (trimmed.isEmpty()) {
+            return null;
+        }
+        if (URIUtils.isValidURI(trimmed)) {
+            return URIUtils.replacePrefixEx(trimmed);
+        }
+        if (isObjectSyntheticId(trimmed)) {
+            throw new IllegalStateException("SIR ingest cannot use synthetic StudyObject identifier: " + trimmed);
+        }
+
+        String ns = namespace == null ? "" : namespace.trim();
+        if (ns.isEmpty()) {
+            return trimmed;
+        }
+        if (ns.startsWith("http://") || ns.startsWith("https://")) {
+            if (ns.endsWith("#") || ns.endsWith("/")) {
+                return ns + trimmed;
+            }
+            return ns + "#" + trimmed;
+        }
+        if (ns.endsWith(":")) {
+            return URIUtils.replacePrefixEx(ns + trimmed);
+        }
+        return URIUtils.replacePrefixEx(ns + ":" + trimmed);
+    }
+
+    private boolean isObjectSyntheticId(String value) {
+        if (value == null) {
+            return false;
+        }
+        String upper = value.toUpperCase();
+        return upper.contains("OBJ-") || upper.contains("OBJ_");
     }
 
     private String getOriginalID(Record rec) {
-        return rec.getValueByColumnName(mapCol.get("originalID"));
+        String originalId = rec.getValueByColumnName(mapCol.get("originalID"));
+        if (originalId == null) {
+            return "";
+        }
+        originalId = originalId.trim();
+        if (originalId.isEmpty()) {
+            return "";
+        }
+        // Keep URI-valued originalID unchanged to preserve SIR identity fidelity.
+        if (URIUtils.isValidURI(originalId)) {
+            return originalId;
+        }
+        return originalId.replaceAll("\\s+", "");
     }
 
     private String getTypeUri(Record rec) {
@@ -169,10 +232,17 @@ public class SIRObjectGenerator extends BaseGenerator {
         String label = getLabel(rec);
         String comment = getComment(rec);
         String isMemberOf = getIsMemberOf(rec);
+        String scopeUri = getScopeUri(rec);
+        String timeScopeUri = getTimeScopeUri(rec);
+        String spaceScopeUri = getSpaceScopeUri(rec);
 
         if (uri == null || uri.isEmpty()) {
             logger.println("[SIR-GEN] Skipping record - no URI");
             return null;
+        }
+
+        if (isObjectSyntheticId(uri) || isObjectSyntheticId(originalID)) {
+            throw new IllegalStateException("Blocked SIR ingest with synthetic OBJ identifier: " + uri);
         }
 
         if (typeUri == null || typeUri.isEmpty()) {
@@ -192,98 +262,244 @@ public class SIRObjectGenerator extends BaseGenerator {
         HADatAcThing entity = null;
 
         // Create the appropriate SIR entity based on type
-        if ("Instrument".equals(sirType)) {
-            Instrument instrument = new Instrument();
-            instrument.setUri(uri);
-            instrument.setTypeUri(URIUtils.replacePrefixEx(typeUri));
-            instrument.setHascoTypeUri(VSTOI.INSTRUMENT);
-            instrument.setLabel(label);
-            instrument.setComment(comment);
-            instrument.setOriginalId(originalID);
-            instrument.setIsMemberOf(isMemberOf);
-            instrument.setNamedGraph(getNamedGraphUri());
-            instrument.setHasSIRManagerEmail(this.dataFile.getHasSIRManagerEmail());
-            entity = instrument;
+        switch (sirType) {
+            case "Instrument": {
+                Instrument instrument = new Instrument();
+                instrument.setUri(uri);
+                instrument.setTypeUri(URIUtils.replacePrefixEx(typeUri));
+                instrument.setHascoTypeUri(VSTOI.INSTRUMENT);
+                instrument.setLabel(label);
+                instrument.setComment(comment);
+                instrument.setNamedGraph(getNamedGraphUri());
+                instrument.setHasSIRManagerEmail(this.dataFile.getHasSIRManagerEmail());
+                entity = instrument;
+                break;
+            }
+            case "Component": {
+                Component component = new Component();
+                component.setUri(uri);
+                component.setTypeUri(URIUtils.replacePrefixEx(typeUri));
+                component.setHascoTypeUri(VSTOI.COMPONENT);
+                component.setLabel(label);
+                component.setComment(comment);
+                component.setNamedGraph(getNamedGraphUri());
+                component.setHasSIRManagerEmail(this.dataFile.getHasSIRManagerEmail());
+                entity = component;
+                break;
+            }
+            case "ComponentStem": {
+                ComponentStem componentStem = new ComponentStem();
+                componentStem.setUri(uri);
+                componentStem.setTypeUri(URIUtils.replacePrefixEx(typeUri));
+                componentStem.setHascoTypeUri(VSTOI.COMPONENT_STEM);
+                componentStem.setLabel(label);
+                componentStem.setComment(comment);
+                componentStem.setNamedGraph(getNamedGraphUri());
+                componentStem.setHasSIRManagerEmail(this.dataFile.getHasSIRManagerEmail());
+                entity = componentStem;
+                break;
+            }
+            case "ContainerSlot": {
+                ContainerSlot containerSlot = new ContainerSlot();
+                containerSlot.setUri(uri);
+                containerSlot.setTypeUri(URIUtils.replacePrefixEx(typeUri));
+                containerSlot.setHascoTypeUri(VSTOI.CONTAINER_SLOT);
+                containerSlot.setLabel(label);
+                containerSlot.setComment(comment);
+                containerSlot.setNamedGraph(getNamedGraphUri());
+                // ContainerSlot doesn't have setHasSIRManagerEmail method
+                entity = containerSlot;
+                break;
+            }
+            case "Codebook": {
+                Codebook codebook = new Codebook();
+                codebook.setUri(uri);
+                codebook.setTypeUri(URIUtils.replacePrefixEx(typeUri));
+                codebook.setHascoTypeUri(VSTOI.CODEBOOK);
+                codebook.setLabel(label);
+                codebook.setComment(comment);
+                codebook.setNamedGraph(getNamedGraphUri());
+                codebook.setHasSIRManagerEmail(this.dataFile.getHasSIRManagerEmail());
+                entity = codebook;
+                break;
+            }
+            case "ResponseOption": {
+                ResponseOption responseOption = new ResponseOption();
+                responseOption.setUri(uri);
+                responseOption.setTypeUri(URIUtils.replacePrefixEx(typeUri));
+                responseOption.setHascoTypeUri(VSTOI.RESPONSE_OPTION);
+                responseOption.setLabel(label);
+                responseOption.setComment(comment);
+                responseOption.setNamedGraph(getNamedGraphUri());
+                responseOption.setHasSIRManagerEmail(this.dataFile.getHasSIRManagerEmail());
+                entity = responseOption;
+                break;
+            }
+            case "AnnotationStem": {
+                AnnotationStem annotationStem = new AnnotationStem();
+                annotationStem.setUri(uri);
+                annotationStem.setTypeUri(URIUtils.replacePrefixEx(typeUri));
+                annotationStem.setHascoTypeUri(VSTOI.ANNOTATION_STEM);
+                annotationStem.setLabel(label);
+                annotationStem.setComment(comment);
+                annotationStem.setNamedGraph(getNamedGraphUri());
+                annotationStem.setHasSIRManagerEmail(this.dataFile.getHasSIRManagerEmail());
+                entity = annotationStem;
+                break;
+            }
+        }
 
-        } else if ("Component".equals(sirType)) {
-            Component component = new Component();
-            component.setUri(uri);
-            component.setTypeUri(URIUtils.replacePrefixEx(typeUri));
-            component.setHascoTypeUri(VSTOI.COMPONENT);
-            component.setLabel(label);
-            component.setComment(comment);
-            component.setOriginalId(originalID);
-            component.setIsMemberOf(isMemberOf);
-            component.setNamedGraph(getNamedGraphUri());
-            component.setHasSIRManagerEmail(this.dataFile.getHasSIRManagerEmail());
-            entity = component;
-
-        } else if ("ComponentStem".equals(sirType)) {
-            ComponentStem componentStem = new ComponentStem();
-            componentStem.setUri(uri);
-            componentStem.setTypeUri(URIUtils.replacePrefixEx(typeUri));
-            componentStem.setHascoTypeUri(VSTOI.COMPONENT_STEM);
-            componentStem.setLabel(label);
-            componentStem.setComment(comment);
-            componentStem.setNamedGraph(getNamedGraphUri());
-            componentStem.setHasSIRManagerEmail(this.dataFile.getHasSIRManagerEmail());
-            entity = componentStem;
-
-        } else if ("ContainerSlot".equals(sirType)) {
-            ContainerSlot containerSlot = new ContainerSlot();
-            containerSlot.setUri(uri);
-            containerSlot.setTypeUri(URIUtils.replacePrefixEx(typeUri));
-            containerSlot.setHascoTypeUri(VSTOI.CONTAINER_SLOT);
-            containerSlot.setLabel(label);
-            containerSlot.setComment(comment);
-            containerSlot.setOriginalId(originalID);
-            containerSlot.setIsMemberOf(isMemberOf);
-            containerSlot.setNamedGraph(getNamedGraphUri());
-            containerSlot.setHasSIRManagerEmail(this.dataFile.getHasSIRManagerEmail());
-            entity = containerSlot;
-
-        } else if ("Codebook".equals(sirType)) {
-            Codebook codebook = new Codebook();
-            codebook.setUri(uri);
-            codebook.setTypeUri(URIUtils.replacePrefixEx(typeUri));
-            codebook.setHascoTypeUri(VSTOI.CODEBOOK);
-            codebook.setLabel(label);
-            codebook.setComment(comment);
-            codebook.setOriginalId(originalID);
-            codebook.setIsMemberOf(isMemberOf);
-            codebook.setNamedGraph(getNamedGraphUri());
-            codebook.setHasSIRManagerEmail(this.dataFile.getHasSIRManagerEmail());
-            entity = codebook;
-
-        } else if ("ResponseOption".equals(sirType)) {
-            ResponseOption responseOption = new ResponseOption();
-            responseOption.setUri(uri);
-            responseOption.setTypeUri(URIUtils.replacePrefixEx(typeUri));
-            responseOption.setHascoTypeUri(VSTOI.RESPONSE_OPTION);
-            responseOption.setLabel(label);
-            responseOption.setComment(comment);
-            responseOption.setOriginalId(originalID);
-            responseOption.setIsMemberOf(isMemberOf);
-            responseOption.setNamedGraph(getNamedGraphUri());
-            responseOption.setHasSIRManagerEmail(this.dataFile.getHasSIRManagerEmail());
-            entity = responseOption;
-
-        } else if ("AnnotationStem".equals(sirType)) {
-            AnnotationStem annotationStem = new AnnotationStem();
-            annotationStem.setUri(uri);
-            annotationStem.setTypeUri(URIUtils.replacePrefixEx(typeUri));
-            annotationStem.setHascoTypeUri(VSTOI.ANNOTATION_STEM);
-            annotationStem.setLabel(label);
-            annotationStem.setComment(comment);
-            annotationStem.setOriginalId(originalID);
-            annotationStem.setIsMemberOf(isMemberOf);
-            annotationStem.setNamedGraph(getNamedGraphUri());
-            annotationStem.setHasSIRManagerEmail(this.dataFile.getHasSIRManagerEmail());
-            entity = annotationStem;
+        // Save the entity first
+        if (entity != null) {
+            // Defensive cleanup: remove old dual-layer legacy instance URIs for the same originalID.
+            cleanupLegacyDuplicateSirInstances(originalID, uri);
+            entity.saveToTripleStore(true, false);
+            
+            // Add hasco:originalID and hasco:isMemberOf via SPARQL INSERT
+            // These properties are not part of the POJO model but are needed for DASOC to work
+            if (originalID != null && !originalID.isEmpty()) {
+                addRDFProperty(uri, "hasco:originalID", originalID, false);
+            }
+            if (isMemberOf != null && !isMemberOf.isEmpty()) {
+                addRDFProperty(uri, "hasco:isMemberOf", isMemberOf, true);
+            }
+            if (scopeUri != null && !scopeUri.isEmpty()) {
+                addRDFProperty(uri, "hasco:hasScope", scopeUri, true);
+            }
+            if (timeScopeUri != null && !timeScopeUri.isEmpty()) {
+                addRDFProperty(uri, "hasco:hasTimeScope", timeScopeUri, true);
+            }
+            if (spaceScopeUri != null && !spaceScopeUri.isEmpty()) {
+                addRDFProperty(uri, "hasco:hasSpaceScope", spaceScopeUri, true);
+            }
+            if (("Instrument".equals(sirType) || "ComponentStem".equals(sirType)) &&
+                    scopeUri != null && !scopeUri.isEmpty()) {
+                addRDFProperty(uri, "rdfs:subClassOf", scopeUri, true);
+            }
         }
 
         logger.println("[SIR-GEN] ✅ Created " + sirType + ": " + label);
         return entity;
+    }
+
+    /**
+     * Removes legacy dual-layer SIR instance resources (e.g., INST-INS..., COMP-COM...)
+     * that share the same originalID as the canonical native URI.
+     */
+    private void cleanupLegacyDuplicateSirInstances(String originalID, String canonicalUri) {
+        if (originalID == null || originalID.trim().isEmpty() || canonicalUri == null || canonicalUri.trim().isEmpty()) {
+            return;
+        }
+        try {
+            String escapedOriginalId = originalID.trim().replace("\\", "\\\\").replace("\"", "\\\"");
+            String ns = org.hascoapi.utils.NameSpaces.getInstance().printSparqlNameSpaceList();
+            String select = ns +
+                    "SELECT DISTINCT ?dup WHERE { " +
+                    "  { ?dup hasco:originalID \"" + escapedOriginalId + "\" . } " +
+                    "  UNION { GRAPH ?g { ?dup hasco:originalID \"" + escapedOriginalId + "\" . } } " +
+                    "  FILTER(str(?dup) != \"" + canonicalUri + "\") " +
+                    "  FILTER( " +
+                    "    CONTAINS(str(?dup), \"#INST-INS\") || CONTAINS(str(?dup), \"/INST-INS\") || " +
+                    "    CONTAINS(str(?dup), \"#COMP-COM\") || CONTAINS(str(?dup), \"/COMP-COM\") || " +
+                    "    CONTAINS(str(?dup), \"#CSTEM-CSM\") || CONTAINS(str(?dup), \"/CSTEM-CSM\") || " +
+                    "    CONTAINS(str(?dup), \"#CB-CBK\") || CONTAINS(str(?dup), \"/CB-CBK\") || " +
+                    "    CONTAINS(str(?dup), \"#ROPT-ROP\") || CONTAINS(str(?dup), \"/ROPT-ROP\") || " +
+                    "    CONTAINS(str(?dup), \"#CTSLOT-CTS\") || CONTAINS(str(?dup), \"/CTSLOT-CTS\") || " +
+                    "    CONTAINS(str(?dup), \"#ASTEM-ASM\") || CONTAINS(str(?dup), \"/ASTEM-ASM\") " +
+                    "  ) " +
+                    "}";
+
+            org.apache.jena.query.ResultSet rs = org.hascoapi.utils.SPARQLUtils.select(
+                    org.hascoapi.utils.CollectionUtil.getCollectionPath(
+                            org.hascoapi.utils.CollectionUtil.Collection.SPARQL_QUERY),
+                    select);
+
+            Set<String> duplicates = new HashSet<String>();
+            while (rs != null && rs.hasNext()) {
+                org.apache.jena.query.QuerySolution soln = rs.next();
+                if (soln.get("dup") != null) {
+                    String dup = soln.get("dup").toString();
+                    if (dup != null && !dup.trim().isEmpty()) {
+                        duplicates.add(dup.trim());
+                    }
+                }
+            }
+
+            for (String dupUri : duplicates) {
+                deleteResourceFromAllGraphs(dupUri);
+                logger.println("[SIR-GEN] Removed legacy duplicate SIR URI: " + dupUri + " (originalID=" + originalID + ")");
+            }
+        } catch (Exception e) {
+            logger.println("[SIR-GEN] WARNING: Failed duplicate cleanup for originalID=" + originalID + ": " + e.getMessage());
+        }
+    }
+
+    /**
+     * Deletes all outgoing and incoming triples for a resource in both default and named graphs.
+     */
+    private void deleteResourceFromAllGraphs(String uri) {
+        if (uri == null || uri.trim().isEmpty()) {
+            return;
+        }
+        String target = uri.trim();
+        String update = org.hascoapi.utils.NameSpaces.getInstance().printSparqlNameSpaceList() +
+                "DELETE { " +
+                "  <" + target + "> ?p ?o . " +
+                "  ?s ?pin <" + target + "> . " +
+                "} WHERE { " +
+                "  { <" + target + "> ?p ?o . } UNION { ?s ?pin <" + target + "> . } " +
+                "} ; " +
+                "DELETE { GRAPH ?g { " +
+                "  <" + target + "> ?p2 ?o2 . " +
+                "  ?s2 ?pin2 <" + target + "> . " +
+                "} } WHERE { GRAPH ?g { " +
+                "  { <" + target + "> ?p2 ?o2 . } UNION { ?s2 ?pin2 <" + target + "> . } " +
+                "} }";
+
+        org.apache.jena.update.UpdateRequest request = org.apache.jena.update.UpdateFactory.create(update);
+        org.apache.jena.update.UpdateProcessor processor = org.apache.jena.update.UpdateExecutionFactory.createRemote(
+                request,
+                org.hascoapi.utils.CollectionUtil.getCollectionPath(
+                        org.hascoapi.utils.CollectionUtil.Collection.SPARQL_UPDATE));
+        processor.execute();
+    }
+
+    /**
+     * Add an RDF property via SPARQL INSERT
+     * @param subjectUri Subject URI
+     * @param property Property (e.g., "hasco:originalID")
+     * @param value Value (literal or URI)
+     * @param isUri true if value is a URI, false if it's a literal
+     */
+    private void addRDFProperty(String subjectUri, String property, String value, boolean isUri) {
+        try {
+            String valueStr = isUri ? "<" + value + ">" : "\"" + value + "\"";
+            String graphUri = getNamedGraphUri();
+            
+            String updateQuery;
+            if (graphUri != null && !graphUri.isEmpty()) {
+                updateQuery = org.hascoapi.utils.NameSpaces.getInstance().printSparqlNameSpaceList() +
+                        "INSERT DATA { GRAPH <" + graphUri + "> { " +
+                        "<" + subjectUri + "> " + property + " " + valueStr + " . " +
+                        "} }";
+            } else {
+                updateQuery = org.hascoapi.utils.NameSpaces.getInstance().printSparqlNameSpaceList() +
+                        "INSERT DATA { " +
+                        "<" + subjectUri + "> " + property + " " + valueStr + " . " +
+                        "}";
+            }
+            
+            // Execute the update using UpdateRequest and UpdateProcessor
+            org.apache.jena.update.UpdateRequest request = org.apache.jena.update.UpdateFactory.create(updateQuery);
+            org.apache.jena.update.UpdateProcessor processor = org.apache.jena.update.UpdateExecutionFactory.createRemote(
+                    request, 
+                    org.hascoapi.utils.CollectionUtil.getCollectionPath(
+                        org.hascoapi.utils.CollectionUtil.Collection.SPARQL_UPDATE));
+            processor.execute();
+                
+        } catch (Exception e) {
+            logger.println("[SIR-GEN] WARNING: Failed to add RDF property " + property + ": " + e.getMessage());
+        }
     }
 
     @Override

@@ -31,6 +31,16 @@ import org.hascoapi.entity.pojo.AnnotationStem;
 
 public class StudyObjectGenerator extends BaseGenerator {
 
+    private static class SirIngestContext {
+        String uri;
+        String originalId;
+        String isMemberOf;
+        List<String> scopeUris;
+        List<String> timeScopeUris;
+        List<String> spaceScopeUris;
+        String vstoiType;
+    }
+
     String study_id;
     String file_name;
     String soc_uri;
@@ -50,10 +60,7 @@ public class StudyObjectGenerator extends BaseGenerator {
     private Map<String, String> uriMap = new HashMap<String, String>();
     private Map<String, List<String>> mapContent = new HashMap<String, List<String>>();
     private Map<String, String> mapReferences = new HashMap<String, String>();
-    
-    // Lista de StudyObjects que precisam de camada VSTOI adicional
-    // Salvamos essas entidades VSTOI no postprocess(), DEPOIS do BaseGenerator salvar os StudyObjects
-    private List<StudyObject> vstoiObjectsToEnrich = new ArrayList<>();
+    private Map<String, SirIngestContext> sirIngestContextByUri = new HashMap<String, SirIngestContext>();
 
     public StudyObjectGenerator(
             DataFile dataFile, 
@@ -127,7 +134,20 @@ public class StudyObjectGenerator extends BaseGenerator {
     }
 
     private String getUri(Record rec) {
+        String rdfType = getType(rec);
+        if (isVstoiRdfType(rdfType)) {
+            String nativeId = rec.getValueByColumnName(mapCol.get("originalID"));
+            return buildNativeUriFromIdentifier(nativeId);
+        }
+
         String originalID = rec.getValueByColumnName(mapCol.get("originalID"));
+        if (originalID != null) {
+            String trimmed = originalID.trim();
+            // Preserve explicit URI IDs (SIR URI mode) instead of generating a synthetic URI.
+            if (URIUtils.isValidURI(trimmed)) {
+                return URIUtils.replacePrefixEx(trimmed);
+            }
+        }
         // Sanitiza o identificador para uso em URI: trim, colapsa whitespace e troca espaços por underscore
         String localId = "";
         if (originalID != null) {
@@ -135,6 +155,64 @@ public class StudyObjectGenerator extends BaseGenerator {
             localId = localId.replace(' ', '_');
         }
         return Utils.uriPlainGen("studyobject", localId, this.namespace, this.soc_reference);
+    }
+
+    private boolean isVstoiRdfType(String rdfType) {
+        if (rdfType == null || rdfType.trim().isEmpty()) {
+            return false;
+        }
+        String expandedType = URIUtils.replacePrefixEx(rdfType.trim());
+        return detectVstoiType(expandedType) != null;
+    }
+
+    private String buildNativeUriFromIdentifier(String identifier) {
+        if (identifier == null) {
+            return null;
+        }
+        String trimmed = identifier.trim();
+        if (trimmed.isEmpty()) {
+            return null;
+        }
+        if (URIUtils.isValidURI(trimmed)) {
+            return URIUtils.replacePrefixEx(trimmed);
+        }
+        if (isObjectSyntheticId(trimmed)) {
+            throw new IllegalStateException("SIR ingest cannot use synthetic StudyObject identifier: " + trimmed);
+        }
+
+        String ns = namespace == null ? "" : namespace.trim();
+        if (ns.isEmpty()) {
+            return trimmed;
+        }
+        if (ns.startsWith("http://") || ns.startsWith("https://")) {
+            if (ns.endsWith("#") || ns.endsWith("/")) {
+                return ns + trimmed;
+            }
+            return ns + "#" + trimmed;
+        }
+        if (ns.endsWith(":")) {
+            return URIUtils.replacePrefixEx(ns + trimmed);
+        }
+        return URIUtils.replacePrefixEx(ns + ":" + trimmed);
+    }
+
+    private boolean isObjectSyntheticId(String value) {
+        if (value == null) {
+            return false;
+        }
+        String upper = value.toUpperCase();
+        return upper.contains("OBJ-") || upper.contains("OBJ_");
+    }
+
+    private String normalizeSpreadsheetNumericId(String value) {
+        if (value == null) {
+            return "";
+        }
+        String trimmed = value.trim();
+        if (trimmed.matches("^\\d+\\.0+$")) {
+            return trimmed.substring(0, trimmed.indexOf('.'));
+        }
+        return trimmed;
     }
 
     private String getType(Record rec) {
@@ -186,8 +264,13 @@ public class StudyObjectGenerator extends BaseGenerator {
         if (auxstr == null) {
             return "";
         }
-        if (URIUtils.isValidURI(auxstr)) {
+        auxstr = auxstr.trim();
+        if (auxstr.isEmpty()) {
             return "";
+        }
+        // Keep URI-valued originalID as-is (trimmed) to preserve SIR identity fidelity.
+        if (URIUtils.isValidURI(auxstr)) {
+            return auxstr;
         }
         auxstr = auxstr.replaceAll("\\s+","");
         //System.out.println("StudyObjectGenerator: getOriginalID(2) = [" + auxstr + "]");;
@@ -241,8 +324,8 @@ public class StudyObjectGenerator extends BaseGenerator {
 	        		return URIUtils.replacePrefixEx(returnedValue);
 	        	} else {
 	        		// if returned value is not an URI, this function composes an URI according to SDD convention 
-		            return Utils.uriPlainGen("studyobject",
-		                returnedValue.replaceAll("(?<=^\\d+)\\.0*$", ""),
+                    return Utils.uriPlainGen("studyobject",
+                        normalizeSpreadsheetNumericId(returnedValue),
 		                this.namespace,
 		                domain_reference);
 	        	}
@@ -268,7 +351,7 @@ public class StudyObjectGenerator extends BaseGenerator {
         		} else {
         			// if returned value is not ann URI, this function composes ann URI according to SDD convention
                     return Utils.uriPlainGen("studyobject",
-                        rec.getValueByColumnName(mapCol.get("timeScopeID")).replaceAll("(?<=^\\d+)\\.0*$", ""),
+                        normalizeSpreadsheetNumericId(rec.getValueByColumnName(mapCol.get("timeScopeID"))),
                         this.namespace,
                         time_reference);
         		}
@@ -294,7 +377,7 @@ public class StudyObjectGenerator extends BaseGenerator {
         		} else {
         			// if returned value is not an URI, this function composes an URI according to SDD convention
                     return Utils.uriPlainGen("studyobject",
-                        rec.getValueByColumnName(mapCol.get("spaceScopeID")).replaceAll("(?<=^\\d+)\\.0*$", ""),
+                        normalizeSpreadsheetNumericId(rec.getValueByColumnName(mapCol.get("spaceScopeID"))),
                         this.namespace,
                         space_reference);
         		}
@@ -309,7 +392,8 @@ public class StudyObjectGenerator extends BaseGenerator {
     }
     
     public StudyObject createStudyObject(Record record) throws Exception {
-    	if (getOriginalID(record) == null || getOriginalID(record).isEmpty()) {
+        String originalId = getOriginalID(record);
+    	if (originalId == null || originalId.isEmpty()) {
     		return null;
     	}
 
@@ -323,7 +407,7 @@ public class StudyObjectGenerator extends BaseGenerator {
             getUri(record), 
             rdfType,  // Tipo normalizado
             URIUtils.replacePrefixEx(HASCO.STUDY_OBJECT),
-			getOriginalID(record), 
+        			originalId, 
             getLabel(record), 
 			getSocUri(), 
             getLabel(record),
@@ -373,175 +457,199 @@ public class StudyObjectGenerator extends BaseGenerator {
             String vstoiType = detectVstoiType(studyObject.getTypeUri());
             
             if (vstoiType != null) {
-                // É um tipo VSTOI, então precisamos criar AMBAS as camadas com o MESMO URI:
+                // ✅ SINGLE LAYER: Se for SIR element, criar APENAS a entidade VSTOI, NÃO o StudyObject
                 // 
-                // CAMADA 1 - StudyObject (hasco:hascoType = hasco:StudyObject)
-                //   - Aparece em "Object Collections" 
-                //   - DAs conseguem encontrar via originalID
-                //   - Query genérica de StudyObjects retorna esses objetos
+                // Abandonamos completamente o dual layer:
+                // - Se for SIR element → criar APENAS como SIR element (Instrument, Component, etc.)
+                // - Se NÃO for SIR element → criar como StudyObject normal
                 //
-                // CAMADA 2 - Instrument/Component (hasco:hascoType = vstoi:Instrument)
-                //   - Aparece em "/sir/select/instrument"
-                //   - Query específica de Instruments retorna esses objetos
-                //   - Tem propriedades específicas de Instrument
-                //
-                // IMPORTANTE: O mesmo URI terá DOIS valores para hasco:hascoType:
-                //   pmsr:INS123 hasco:hascoType hasco:StudyObject .
-                //   pmsr:INS123 hasco:hascoType vstoi:Instrument .
-                //
-                // SOLUÇÃO: Armazenamos o StudyObject para enriquecer no postprocess()
-                // Isso garante que o BaseGenerator salve o StudyObject primeiro,
-                // e DEPOIS adicionamos as propriedades do Instrument sem deletar
-                vstoiObjectsToEnrich.add(studyObject);
+                dataFile.getLogger().println("[SIR ELEMENT DETECTED] Type: " + vstoiType + " - Creating ONLY as SIR element, NOT as StudyObject");
+
+                if (isObjectSyntheticId(studyObject.getUri()) || isObjectSyntheticId(studyObject.getOriginalId())) {
+                    throw new IllegalStateException("Blocked SIR ingest with synthetic OBJ identifier: " + studyObject.getUri());
+                }
+                
+                // Criar diretamente a entidade VSTOI e retornar ela (NÃO o StudyObject)
+                return createVstoiEntityDirectly(studyObject, vstoiType);
             }
         }
         
-        // Retorna o StudyObject para o BaseGenerator salvar e contar
+        // Se não for SIR element, retorna o StudyObject normal
         return studyObject;
     }
     
     /**
-     * Cria entidade vstoi (Instrument, Component, ComponentStem, ContainerSlot) 
-     * se o StudyObject tiver um tipo vstoi
-     * @return A entidade VSTOI criada, ou null se não for tipo VSTOI
+     * Cria DIRETAMENTE uma entidade VSTOI (SIR element) SEM criar StudyObject.
+     * Implementa a abordagem single-layer:
+     * - Se for SIR element → criar APENAS como SIR element
+     * - Não cria StudyObject, não cria dual-layer
+     * 
+     * @param studyObject Objeto temporário com dados do CSV (usado apenas para transferir propriedades)
+     * @param vstoiType Tipo VSTOI detectado
+     * @return A entidade VSTOI criada
      */
-    private HADatAcThing createVstoiEntityIfApplicable(StudyObject studyObject) {
-        String typeUri = studyObject.getTypeUri();
-        
-        if (typeUri == null || typeUri.isEmpty()) {
+    private HADatAcThing createVstoiEntityDirectly(StudyObject studyObject, String vstoiType) {
+        try {
+            HADatAcThing vstoiEntity = null;
+            
+            if (VSTOI.INSTRUMENT.equals(vstoiType)) {
+                vstoiEntity = createInstrumentDirectly(studyObject);
+            } else if (VSTOI.COMPONENT.equals(vstoiType)) {
+                vstoiEntity = createComponentDirectly(studyObject);
+            } else if (VSTOI.COMPONENT_STEM.equals(vstoiType)) {
+                vstoiEntity = createComponentStemDirectly(studyObject);
+            } else if (VSTOI.CONTAINER_SLOT.equals(vstoiType)) {
+                vstoiEntity = createContainerSlotDirectly(studyObject);
+            } else if (VSTOI.CODEBOOK.equals(vstoiType)) {
+                vstoiEntity = createCodebookDirectly(studyObject);
+            } else if (VSTOI.RESPONSE_OPTION.equals(vstoiType)) {
+                vstoiEntity = createResponseOptionDirectly(studyObject);
+            } else if (VSTOI.ANNOTATION_STEM.equals(vstoiType)) {
+                vstoiEntity = createAnnotationStemDirectly(studyObject);
+            }
+
+            if (vstoiEntity != null) {
+                cacheSirIngestContext(studyObject, vstoiType);
+            }
+            
+            return vstoiEntity;
+        } catch (Exception e) {
+            dataFile.getLogger().println("Error: Failed to create VSTOI entity directly for " + studyObject.getUri() + ": " + e.getMessage());
+            e.printStackTrace();
             return null;
         }
-        
-        // Detecta tipo vstoi
-        String vstoiType = detectVstoiType(typeUri);
-        
-        if (vstoiType == null) {
-            return null; // Não é tipo vstoi
-        }
-        
-        try {
-            if (VSTOI.INSTRUMENT.equals(vstoiType)) {
-                return createInstrumentFromStudyObject(studyObject);
-            } else if (VSTOI.COMPONENT.equals(vstoiType)) {
-                return createComponentFromStudyObject(studyObject);
-            } else if (VSTOI.COMPONENT_STEM.equals(vstoiType)) {
-                return createComponentStemFromStudyObject(studyObject);
-            } else if (VSTOI.CONTAINER_SLOT.equals(vstoiType)) {
-                return createContainerSlotFromStudyObject(studyObject);
-            } else if (VSTOI.CODEBOOK.equals(vstoiType)) {
-                return createCodebookFromStudyObject(studyObject);
-            } else if (VSTOI.RESPONSE_OPTION.equals(vstoiType)) {
-                return createResponseOptionFromStudyObject(studyObject);
-            } else if (VSTOI.ANNOTATION_STEM.equals(vstoiType)) {
-                return createAnnotationStemFromStudyObject(studyObject);
-            }
-        } catch (Exception e) {
-            dataFile.getLogger().println("Warning: Failed to create vstoi entity for " + studyObject.getUri() + ": " + e.getMessage());
-        }
-        
-        return null;
     }
     
     /**
-     * Gera uma URI separada para a instância VSTOI a partir da URI do StudyObject
-     * Exemplo:
-     *   pmsr:OBJ_instrumentcollection_INS1739301009974715
-     *   -> pmsr:INST-INS1739301009974715
-     * 
-     * @param studyObjectUri URI do StudyObject
-     * @param prefix Prefixo do tipo VSTOI (INST, COMP, CSTEM, etc.)
-     * @return URI para a instância VSTOI
+     * Cria um Instrument DIRETAMENTE (sem StudyObject)
      */
-    private String generateVSTOIUri(String studyObjectUri, String prefix) {
-        String uri = studyObjectUri;
+    private Instrument createInstrumentDirectly(StudyObject so) {
+        Instrument instrument = new Instrument();
         
-        if (uri.contains("OBJ_")) {
-            // Extrair a parte após OBJ_
-            String suffix = uri.substring(uri.indexOf("OBJ_") + 4);
-            
-            // Remover o prefixo de coleção (instrumentcollection_, componentcollection_, etc.)
-            if (suffix.contains("_")) {
-                suffix = suffix.substring(suffix.indexOf("_") + 1);
-            }
-            
-            // Construir nova URI
-            String namespace = uri.substring(0, uri.indexOf("OBJ_"));
-            uri = namespace + prefix + "-" + suffix;
-        }
+        instrument.setUri(so.getUri());
+        instrument.setTypeUri(so.getTypeUri());
+        instrument.setHascoTypeUri(VSTOI.INSTRUMENT);
+        instrument.setLabel(so.getLabel());
+        instrument.setComment(so.getComment());
+        instrument.setNamedGraph(getNamedGraphUri());
+        instrument.setHasSIRManagerEmail(so.getHasSIRManagerEmail());
         
-        return uri;
+        dataFile.getLogger().println("  [SINGLE-LAYER] Created Instrument: " + instrument.getLabel() + " (URI: " + instrument.getUri() + ")");
+        
+        return instrument;
     }
     
     /**
-     * Adiciona um link VSTOI no StudyObject apontando para a instância especializada
-     * Exemplo: <studyObject> vstoi:hasInstrument <instrumentInstance>
-     * 
-     * @param studyObjectUri URI do StudyObject
-     * @param vstoiInstanceUri URI da instância VSTOI
-     * @param property Propriedade de link (vstoi:hasInstrument, vstoi:hasComponent, etc.)
+     * Cria um Component DIRETAMENTE (sem StudyObject)
      */
-    private void addVSTOILinkToStudyObject(String studyObjectUri, String vstoiInstanceUri, String property) {
-        try {
-            String insert = NameSpaces.getInstance().printSparqlNameSpaceList();
-            insert += "INSERT DATA { \n";
-            insert += "  GRAPH <" + getNamedGraphUri() + "> { \n";
-            insert += "    <" + studyObjectUri + "> " + property + " <" + vstoiInstanceUri + "> . \n";
-            insert += "  } \n";
-            insert += "}";
-            
-            UpdateRequest request = UpdateFactory.create(insert);
-            UpdateProcessor processor = UpdateExecutionFactory.createRemote(
-                    request, CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
-            processor.execute();
-            
-            dataFile.getLogger().println("    [VSTOI-LINK] Added " + property + " link to VSTOI instance");
-        } catch (Exception e) {
-            dataFile.getLogger().printWarning("    [ERROR] Failed to add VSTOI link: " + e.getMessage());
-        }
+    private Component createComponentDirectly(StudyObject so) {
+        Component component = new Component();
+        
+        component.setUri(so.getUri());
+        component.setTypeUri(so.getTypeUri());
+        component.setHascoTypeUri(VSTOI.COMPONENT);
+        component.setLabel(so.getLabel());
+        component.setComment(so.getComment());
+        component.setNamedGraph(getNamedGraphUri());
+        component.setHasSIRManagerEmail(so.getHasSIRManagerEmail());
+
+        dataFile.getLogger().println("  [SINGLE-LAYER] Created Component: " + component.getLabel() + " (URI: " + component.getUri() + ")");
+        
+        return component;
     }
     
     /**
-     * Cria e salva entidade VSTOI SEM deletar o StudyObject existente.
-     * AGORA cria uma instância VSTOI com URI SEPARADA e adiciona link no StudyObject.
-     * 
-     * Arquitetura Dual-Layer:
-     * 1. StudyObject (URI original) - camada base para DAs
-     * 2. VSTOI Instance (URI gerada) - camada especializada com propriedades específicas
-     * 3. Link: StudyObject --vstoi:has[Type]--> VSTOI Instance
+     * Cria um ComponentStem DIRETAMENTE (sem StudyObject)
      */
-    private void createVstoiEntityWithoutDeletingStudyObject(StudyObject studyObject) {
-        String typeUri = studyObject.getTypeUri();
+    private ComponentStem createComponentStemDirectly(StudyObject so) {
+        ComponentStem stem = new ComponentStem();
         
-        if (typeUri == null || typeUri.isEmpty()) {
-            return;
-        }
+        stem.setUri(so.getUri());
+        stem.setTypeUri(so.getTypeUri());
+        stem.setHascoTypeUri(VSTOI.COMPONENT_STEM);
+        stem.setLabel(so.getLabel());
+        stem.setComment(so.getComment());
+        stem.setNamedGraph(getNamedGraphUri());
+        stem.setHasSIRManagerEmail(so.getHasSIRManagerEmail());
         
-        // Detecta tipo vstoi
-        String vstoiType = detectVstoiType(typeUri);
+        dataFile.getLogger().println("  [SINGLE-LAYER] Created ComponentStem: " + stem.getLabel() + " (URI: " + stem.getUri() + ")");
         
-        if (vstoiType == null) {
-            return; // Não é tipo vstoi
-        }
+        return stem;
+    }
+    
+    /**
+     * Cria um ContainerSlot DIRETAMENTE (sem StudyObject)
+     */
+    private ContainerSlot createContainerSlotDirectly(StudyObject so) {
+        ContainerSlot slot = new ContainerSlot();
         
-        try {
-            if (VSTOI.INSTRUMENT.equals(vstoiType)) {
-                createInstrumentFromStudyObjectWithoutDelete(studyObject);
-            } else if (VSTOI.COMPONENT.equals(vstoiType)) {
-                createComponentFromStudyObjectWithoutDelete(studyObject);
-            } else if (VSTOI.COMPONENT_STEM.equals(vstoiType)) {
-                createComponentStemFromStudyObjectWithoutDelete(studyObject);
-            } else if (VSTOI.CONTAINER_SLOT.equals(vstoiType)) {
-                createContainerSlotFromStudyObjectWithoutDelete(studyObject);
-            } else if (VSTOI.CODEBOOK.equals(vstoiType)) {
-                createCodebookFromStudyObjectWithoutDelete(studyObject);
-            } else if (VSTOI.RESPONSE_OPTION.equals(vstoiType)) {
-                createResponseOptionFromStudyObjectWithoutDelete(studyObject);
-            } else if (VSTOI.ANNOTATION_STEM.equals(vstoiType)) {
-                createAnnotationStemFromStudyObjectWithoutDelete(studyObject);
-            }
-        } catch (Exception e) {
-            dataFile.getLogger().println("Warning: Failed to create vstoi entity for " + studyObject.getUri() + ": " + e.getMessage());
-        }
+        slot.setUri(so.getUri());
+        slot.setTypeUri(so.getTypeUri());
+        slot.setHascoTypeUri(VSTOI.CONTAINER_SLOT);
+        slot.setLabel(so.getLabel());
+        slot.setComment(so.getComment());
+        slot.setNamedGraph(getNamedGraphUri());
+        
+        dataFile.getLogger().println("  [SINGLE-LAYER] Created ContainerSlot: " + slot.getLabel() + " (URI: " + slot.getUri() + ")");
+        
+        return slot;
+    }
+    
+    /**
+     * Cria um Codebook DIRETAMENTE (sem StudyObject)
+     */
+    private Codebook createCodebookDirectly(StudyObject so) {
+        Codebook codebook = new Codebook();
+        
+        codebook.setUri(so.getUri());
+        codebook.setTypeUri(so.getTypeUri());
+        codebook.setHascoTypeUri(VSTOI.CODEBOOK);
+        codebook.setLabel(so.getLabel());
+        codebook.setComment(so.getComment());
+        codebook.setNamedGraph(getNamedGraphUri());
+        codebook.setHasSIRManagerEmail(so.getHasSIRManagerEmail());
+        
+        dataFile.getLogger().println("  [SINGLE-LAYER] Created Codebook: " + codebook.getLabel() + " (URI: " + codebook.getUri() + ")");
+        
+        return codebook;
+    }
+    
+    /**
+     * Cria um ResponseOption DIRETAMENTE (sem StudyObject)
+     */
+    private ResponseOption createResponseOptionDirectly(StudyObject so) {
+        ResponseOption option = new ResponseOption();
+        
+        option.setUri(so.getUri());
+        option.setTypeUri(so.getTypeUri());
+        option.setHascoTypeUri(VSTOI.RESPONSE_OPTION);
+        option.setLabel(so.getLabel());
+        option.setComment(so.getComment());
+        option.setNamedGraph(getNamedGraphUri());
+        option.setHasSIRManagerEmail(so.getHasSIRManagerEmail());
+        
+        dataFile.getLogger().println("  [SINGLE-LAYER] Created ResponseOption: " + option.getLabel() + " (URI: " + option.getUri() + ")");
+        
+        return option;
+    }
+    
+    /**
+     * Cria um AnnotationStem (ComponentStem) DIRETAMENTE (sem StudyObject)
+     */
+    private ComponentStem createAnnotationStemDirectly(StudyObject so) {
+        ComponentStem stem = new ComponentStem();
+        
+        stem.setUri(so.getUri());
+        stem.setTypeUri(so.getTypeUri());
+        stem.setHascoTypeUri(VSTOI.ANNOTATION_STEM);
+        stem.setLabel(so.getLabel());
+        stem.setComment(so.getComment());
+        stem.setNamedGraph(getNamedGraphUri());
+        stem.setHasSIRManagerEmail(so.getHasSIRManagerEmail());
+        
+        dataFile.getLogger().println("  [SINGLE-LAYER] Created AnnotationStem: " + stem.getLabel() + " (URI: " + stem.getUri() + ")");
+        
+        return stem;
     }
     
     /**
@@ -559,348 +667,55 @@ public class StudyObjectGenerator extends BaseGenerator {
         
         // Verificação por substring (subclasses)
         if (typeUri.contains("Detector")) return VSTOI.COMPONENT;
-        if (typeUri.contains("ComponentStem")) return VSTOI.COMPONENT_STEM;
-        if (typeUri.contains("ContainerSlot")) return VSTOI.CONTAINER_SLOT;
         if (typeUri.contains("Questionnaire")) return VSTOI.INSTRUMENT;
-        if (typeUri.contains("PhysicalInstrument")) return VSTOI.INSTRUMENT;
-        if (typeUri.contains("SimulationModel")) return VSTOI.INSTRUMENT;
         if (typeUri.contains("Codebook")) return VSTOI.CODEBOOK;
-        if (typeUri.contains("ResponseOption")) return VSTOI.RESPONSE_OPTION;
-        if (typeUri.contains("AnnotationStem")) return VSTOI.ANNOTATION_STEM;
         
-        return null;
+        return null; // Não é tipo VSTOI
     }
-    
-    /**
-     * Cria um Instrument a partir de um StudyObject
-     * @return O Instrument criado
-     */
-    private Instrument createInstrumentFromStudyObject(StudyObject so) {
-        Instrument instrument = new Instrument();
-        
-        instrument.setUri(so.getUri());
-        instrument.setTypeUri(so.getTypeUri());
-        instrument.setHascoTypeUri(VSTOI.INSTRUMENT);
-        instrument.setLabel(so.getLabel());
-        instrument.setComment(so.getComment());
-        instrument.setNamedGraph(getNamedGraphUri());
-        instrument.setHasSIRManagerEmail(so.getHasSIRManagerEmail());
-        
-        // DEBUG: Log what we're about to save
-        dataFile.getLogger().println("  [DEBUG] Creating Instrument:");
-        dataFile.getLogger().println("    - URI: " + instrument.getUri());
-        dataFile.getLogger().println("    - TypeUri (rdf:type): " + instrument.getTypeUri());
-        dataFile.getLogger().println("    - HascoTypeUri (hasco:hascoType): " + instrument.getHascoTypeUri());
-        dataFile.getLogger().println("    - VSTOI.INSTRUMENT constant: " + VSTOI.INSTRUMENT);
-        dataFile.getLogger().println("    - Label: " + instrument.getLabel());
-        dataFile.getLogger().println("    - ManagerEmail: " + instrument.getHasSIRManagerEmail());
-        
-        // Salva imediatamente
-        instrument.save();
-        
-        dataFile.getLogger().println("  Created Instrument: " + instrument.getLabel());
-        
-        return instrument;
+
+    private void cacheSirIngestContext(StudyObject studyObject, String vstoiType) {
+        if (studyObject == null || studyObject.getUri() == null || studyObject.getUri().trim().isEmpty()) {
+            return;
+        }
+        SirIngestContext ctx = new SirIngestContext();
+        ctx.uri = studyObject.getUri();
+        ctx.originalId = studyObject.getOriginalId();
+        ctx.isMemberOf = studyObject.getIsMemberOfUri();
+        ctx.scopeUris = new ArrayList<String>(studyObject.getScopeUris());
+        ctx.timeScopeUris = new ArrayList<String>(studyObject.getTimeScopeUris());
+        ctx.spaceScopeUris = new ArrayList<String>(studyObject.getSpaceScopeUris());
+        ctx.vstoiType = vstoiType;
+        sirIngestContextByUri.put(ctx.uri, ctx);
     }
-    
-    /**
-     * Cria um Instrument COM URI SEPARADA sem deletar o StudyObject existente.
-     * Implementa arquitetura dual-layer verdadeira:
-     * 1. StudyObject mantém sua URI original
-     * 2. Instrument criado com URI diferente (INST-xxx)
-     * 3. Link vstoi:hasInstrument conecta os dois
-     */
-    private void createInstrumentFromStudyObjectWithoutDelete(StudyObject so) {
-        // Gerar URI separada para a instância VSTOI
-        String vstoiUri = generateVSTOIUri(so.getUri(), "INST");
-        
-        Instrument instrument = new Instrument();
-        instrument.setUri(vstoiUri);  // ✅ URI DIFERENTE!
-        instrument.setTypeUri(VSTOI.INSTRUMENT);
-        instrument.setHascoTypeUri(VSTOI.INSTRUMENT);
-        instrument.setLabel(so.getLabel());
-        instrument.setComment(so.getComment());
-        instrument.setNamedGraph(getNamedGraphUri());
-        instrument.setHasSIRManagerEmail(so.getHasSIRManagerEmail());
-        
-        // Salvar a instância VSTOI
-        instrument.saveToTripleStore(true, false);
-        
-        // Adicionar link no StudyObject
-        addVSTOILinkToStudyObject(so.getUri(), vstoiUri, "vstoi:hasInstrument");
-        
-        dataFile.getLogger().println("  Created Instrument (dual-layer): " + instrument.getLabel());
-        dataFile.getLogger().println("    StudyObject URI: " + so.getUri());
-        dataFile.getLogger().println("    VSTOI Instance URI: " + vstoiUri);
+
+    private void addRdfProperty(String subjectUri, String property, String value, boolean isUri) {
+        if (subjectUri == null || subjectUri.trim().isEmpty() || value == null || value.trim().isEmpty()) {
+            return;
+        }
+        String cleanValue = value.trim().replace("\"", "\\\"");
+        String objectValue = isUri ? "<" + URIUtils.replacePrefixEx(cleanValue) + ">" : "\"" + cleanValue + "\"";
+        String graph = getNamedGraphUri();
+        String update = NameSpaces.getInstance().printSparqlNameSpaceList();
+        if (graph != null && !graph.trim().isEmpty()) {
+            update += "INSERT DATA { GRAPH <" + graph + "> { <" + subjectUri + "> " + property + " " + objectValue + " . } }";
+        } else {
+            update += "INSERT DATA { <" + subjectUri + "> " + property + " " + objectValue + " . }";
+        }
+        UpdateRequest request = UpdateFactory.create(update);
+        UpdateProcessor processor = UpdateExecutionFactory.createRemote(
+                request,
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_UPDATE));
+        processor.execute();
     }
-    
-    /**
-     * Cria um Component a partir de um StudyObject
-     * @return O Component criado
-     */
-    private Component createComponentFromStudyObject(StudyObject so) {
-        Component component = new Component();
-        
-        component.setUri(so.getUri());
-        component.setTypeUri(so.getTypeUri());
-        component.setHascoTypeUri(VSTOI.COMPONENT);
-        component.setLabel(so.getLabel());
-        component.setComment(so.getComment());
-        component.setNamedGraph(getNamedGraphUri());
-        component.setHasSIRManagerEmail(so.getHasSIRManagerEmail());
-        
-        // Salva imediatamente
-        component.save();
-        
-        dataFile.getLogger().println("  Created Component: " + component.getLabel());
-        
-        return component;
-    }
-    
-    /**
-     * Cria um Component COM URI SEPARADA sem deletar o StudyObject existente
-     */
-    private void createComponentFromStudyObjectWithoutDelete(StudyObject so) {
-        String vstoiUri = generateVSTOIUri(so.getUri(), "COMP");
-        
-        Component component = new Component();
-        component.setUri(vstoiUri);  // ✅ URI DIFERENTE!
-        component.setTypeUri(VSTOI.COMPONENT);
-        component.setHascoTypeUri(VSTOI.COMPONENT);
-        component.setLabel(so.getLabel());
-        component.setComment(so.getComment());
-        component.setNamedGraph(getNamedGraphUri());
-        component.setHasSIRManagerEmail(so.getHasSIRManagerEmail());
-        
-        component.saveToTripleStore(true, false);
-        addVSTOILinkToStudyObject(so.getUri(), vstoiUri, "vstoi:hasComponent");
-        
-        dataFile.getLogger().println("  Created Component (dual-layer): " + component.getLabel());
-    }
-    
-    /**
-     * Cria um ComponentStem a partir de um StudyObject
-     * @return O ComponentStem criado
-     */
-    private ComponentStem createComponentStemFromStudyObject(StudyObject so) {
-        ComponentStem stem = new ComponentStem();
-        
-        stem.setUri(so.getUri());
-        stem.setTypeUri(so.getTypeUri());
-        stem.setHascoTypeUri(VSTOI.COMPONENT_STEM);
-        stem.setLabel(so.getLabel());
-        stem.setComment(so.getComment());
-        stem.setNamedGraph(getNamedGraphUri());
-        stem.setHasSIRManagerEmail(so.getHasSIRManagerEmail());
-        
-        // Salva imediatamente
-        stem.save();
-        
-        dataFile.getLogger().println("  Created ComponentStem: " + stem.getLabel());
-        
-        return stem;
-    }
-    
-    /**
-     * Cria um ComponentStem COM URI SEPARADA sem deletar o StudyObject existente
-     */
-    private void createComponentStemFromStudyObjectWithoutDelete(StudyObject so) {
-        String vstoiUri = generateVSTOIUri(so.getUri(), "CSTEM");
-        
-        ComponentStem componentStem = new ComponentStem();
-        componentStem.setUri(vstoiUri);  // ✅ URI DIFERENTE!
-        componentStem.setTypeUri(VSTOI.COMPONENT_STEM);
-        componentStem.setHascoTypeUri(VSTOI.COMPONENT_STEM);
-        componentStem.setLabel(so.getLabel());
-        componentStem.setComment(so.getComment());
-        componentStem.setNamedGraph(getNamedGraphUri());
-        componentStem.setHasSIRManagerEmail(so.getHasSIRManagerEmail());
-        
-        componentStem.saveToTripleStore(true, false);
-        addVSTOILinkToStudyObject(so.getUri(), vstoiUri, "vstoi:hasComponentStem");
-        
-        dataFile.getLogger().println("  Created ComponentStem (dual-layer): " + componentStem.getLabel());
-    }
-    
-    /**
-     * Cria um ContainerSlot a partir de um StudyObject
-     * @return O ContainerSlot criado
-     */
-    private ContainerSlot createContainerSlotFromStudyObject(StudyObject so) {
-        ContainerSlot slot = new ContainerSlot();
-        
-        slot.setUri(so.getUri());
-        slot.setTypeUri(so.getTypeUri());
-        slot.setHascoTypeUri(VSTOI.CONTAINER_SLOT);
-        slot.setLabel(so.getLabel());
-        slot.setComment(so.getComment());
-        slot.setNamedGraph(getNamedGraphUri());
-        // Note: ContainerSlot não tem setHasSIRManagerEmail()
-        
-        // Salva imediatamente
-        slot.save();
-        
-        dataFile.getLogger().println("  Created ContainerSlot: " + slot.getLabel());
-        
-        return slot;
-    }
-    
-    /**
-     * Cria um ContainerSlot COM URI SEPARADA sem deletar o StudyObject existente
-     */
-    private void createContainerSlotFromStudyObjectWithoutDelete(StudyObject so) {
-        String vstoiUri = generateVSTOIUri(so.getUri(), "CTSLOT");
-        
-        ContainerSlot containerSlot = new ContainerSlot();
-        containerSlot.setUri(vstoiUri);  // ✅ URI DIFERENTE!
-        containerSlot.setTypeUri(VSTOI.CONTAINER_SLOT);
-        containerSlot.setHascoTypeUri(VSTOI.CONTAINER_SLOT);
-        containerSlot.setLabel(so.getLabel());
-        containerSlot.setComment(so.getComment());
-        containerSlot.setNamedGraph(getNamedGraphUri());
-        // Note: ContainerSlot does not have setHasSIRManagerEmail()
-        
-        containerSlot.saveToTripleStore(true, false);
-        addVSTOILinkToStudyObject(so.getUri(), vstoiUri, "vstoi:hasContainerSlot");
-        
-        dataFile.getLogger().println("  Created ContainerSlot (dual-layer): " + containerSlot.getLabel());
-    }
-    
-    /**
-     * Cria um Codebook a partir de um StudyObject
-     * @return O Codebook criado
-     */
-    private Codebook createCodebookFromStudyObject(StudyObject so) {
-        Codebook codebook = new Codebook();
-        
-        codebook.setUri(so.getUri());
-        codebook.setTypeUri(so.getTypeUri());
-        codebook.setHascoTypeUri(VSTOI.CODEBOOK);
-        codebook.setLabel(so.getLabel());
-        codebook.setComment(so.getComment());
-        codebook.setNamedGraph(getNamedGraphUri());
-        codebook.setHasSIRManagerEmail(so.getHasSIRManagerEmail());
-        
-        // Salva imediatamente
-        codebook.save();
-        
-        dataFile.getLogger().println("  Created Codebook: " + codebook.getLabel());
-        
-        return codebook;
-    }
-    
-    /**
-     * Cria um Codebook SEM deletar o StudyObject existente
-     */
-    private void createCodebookFromStudyObjectWithoutDelete(StudyObject so) {
-        String vstoiUri = generateVSTOIUri(so.getUri(), "CB");
-        
-        Codebook codebook = new Codebook();
-        codebook.setUri(vstoiUri);  // ✅ URI DIFERENTE!
-        codebook.setTypeUri(VSTOI.CODEBOOK);
-        codebook.setHascoTypeUri(VSTOI.CODEBOOK);
-        codebook.setLabel(so.getLabel());
-        codebook.setComment(so.getComment());
-        codebook.setNamedGraph(getNamedGraphUri());
-        codebook.setHasSIRManagerEmail(so.getHasSIRManagerEmail());
-        
-        codebook.saveToTripleStore(true, false);
-        addVSTOILinkToStudyObject(so.getUri(), vstoiUri, "vstoi:hasCodebook");
-        
-        dataFile.getLogger().println("  Created Codebook (dual-layer): " + codebook.getLabel());
-    }
-    
-    /**
-     * Cria um ResponseOption a partir de um StudyObject
-     * @return O ResponseOption criado
-     */
-    private ResponseOption createResponseOptionFromStudyObject(StudyObject so) {
-        ResponseOption responseOption = new ResponseOption();
-        
-        responseOption.setUri(so.getUri());
-        responseOption.setTypeUri(so.getTypeUri());
-        responseOption.setHascoTypeUri(VSTOI.RESPONSE_OPTION);
-        responseOption.setLabel(so.getLabel());
-        responseOption.setComment(so.getComment());
-        responseOption.setNamedGraph(getNamedGraphUri());
-        responseOption.setHasSIRManagerEmail(so.getHasSIRManagerEmail());
-        
-        // Salva imediatamente
-        responseOption.save();
-        
-        dataFile.getLogger().println("  Created ResponseOption: " + responseOption.getLabel());
-        
-        return responseOption;
-    }
-    
-    /**
-     * Cria um ResponseOption SEM deletar o StudyObject existente
-     */
-    private void createResponseOptionFromStudyObjectWithoutDelete(StudyObject so) {
-        String vstoiUri = generateVSTOIUri(so.getUri(), "ROPT");
-        
-        ResponseOption responseOption = new ResponseOption();
-        responseOption.setUri(vstoiUri);  // ✅ URI DIFERENTE!
-        responseOption.setTypeUri(VSTOI.RESPONSE_OPTION);
-        responseOption.setHascoTypeUri(VSTOI.RESPONSE_OPTION);
-        responseOption.setLabel(so.getLabel());
-        responseOption.setComment(so.getComment());
-        responseOption.setNamedGraph(getNamedGraphUri());
-        responseOption.setHasSIRManagerEmail(so.getHasSIRManagerEmail());
-        
-        responseOption.saveToTripleStore(true, false);
-        addVSTOILinkToStudyObject(so.getUri(), vstoiUri, "vstoi:hasResponseOption");
-        
-        dataFile.getLogger().println("  Created ResponseOption (dual-layer): " + responseOption.getLabel());
-    }
-    
-    /**
-     * Cria um AnnotationStem a partir de um StudyObject
-     * @return O AnnotationStem criado
-     */
-    private AnnotationStem createAnnotationStemFromStudyObject(StudyObject so) {
-        AnnotationStem annotationStem = new AnnotationStem();
-        
-        annotationStem.setUri(so.getUri());
-        annotationStem.setTypeUri(so.getTypeUri());
-        annotationStem.setHascoTypeUri(VSTOI.ANNOTATION_STEM);
-        annotationStem.setLabel(so.getLabel());
-        annotationStem.setComment(so.getComment());
-        annotationStem.setNamedGraph(getNamedGraphUri());
-        annotationStem.setHasSIRManagerEmail(so.getHasSIRManagerEmail());
-        
-        // Salva imediatamente
-        annotationStem.save();
-        
-        dataFile.getLogger().println("  Created AnnotationStem: " + annotationStem.getLabel());
-        
-        return annotationStem;
-    }
-    
-    /**
-     * Cria um AnnotationStem COM URI SEPARADA sem deletar o StudyObject existente
-     */
-    private void createAnnotationStemFromStudyObjectWithoutDelete(StudyObject so) {
-        String vstoiUri = generateVSTOIUri(so.getUri(), "ASTEM");
-        
-        AnnotationStem annotationStem = new AnnotationStem();
-        annotationStem.setUri(vstoiUri);  // ✅ URI DIFERENTE!
-        annotationStem.setTypeUri(VSTOI.ANNOTATION_STEM);
-        annotationStem.setHascoTypeUri(VSTOI.ANNOTATION_STEM);
-        annotationStem.setLabel(so.getLabel());
-        annotationStem.setComment(so.getComment());
-        annotationStem.setNamedGraph(getNamedGraphUri());
-        annotationStem.setHasSIRManagerEmail(so.getHasSIRManagerEmail());
-        
-        annotationStem.saveToTripleStore(true, false);
-        addVSTOILinkToStudyObject(so.getUri(), vstoiUri, "vstoi:hasAnnotationStem");
-        
-        dataFile.getLogger().println("  Created AnnotationStem (dual-layer): " + annotationStem.getLabel());
+
+    private boolean isHierarchyType(String vstoiType) {
+        return VSTOI.INSTRUMENT.equals(vstoiType) || VSTOI.COMPONENT_STEM.equals(vstoiType);
     }
 
     @Override
     public Map<String, Object> createRow(Record rec, int rowNumber) throws Exception {
-        if (getOriginalID(rec).length() > 0) {
+        String originalId = getOriginalID(rec);
+        if (originalId.length() > 0) {
             Map<String, Object> row = new HashMap<String, Object>();
             row.put("hasURI", getUri(rec));
             return row;
@@ -914,41 +729,54 @@ public class StudyObjectGenerator extends BaseGenerator {
 
     @Override
     public void postprocess() throws Exception {
-        // NÃO fazer nada aqui - o enrichment acontece no commitObjectsToTripleStore()
+        // NÃO fazer nada aqui com a abordagem single-layer
     }
     
     @Override
     public boolean commitObjectsToTripleStore(List<HADatAcThing> objects) {
-        dataFile.getLogger().println("[COMMIT DEBUG] Starting commitObjectsToTripleStore");
-        dataFile.getLogger().println("[COMMIT DEBUG] Objects to commit: " + objects.size());
-        dataFile.getLogger().println("[COMMIT DEBUG] VSTOI objects to enrich: " + vstoiObjectsToEnrich.size());
+        dataFile.getLogger().println("[COMMIT] Starting commitObjectsToTripleStore with " + objects.size() + " objects");
         
-        // Primeiro, deleta e salva os StudyObjects normalmente (comportamento padrão do BaseGenerator)
-        dataFile.getLogger().println("[COMMIT DEBUG] Calling super.commitObjectsToTripleStore()...");
+        // Com a abordagem single-layer, apenas salvamos os objetos normalmente
+        // Não há necessidade de enrichment pois os SIR elements já foram criados diretamente
         boolean result = super.commitObjectsToTripleStore(objects);
-        dataFile.getLogger().println("[COMMIT DEBUG] super.commitObjectsToTripleStore() completed with result: " + result);
-        
-        // AGORA, após os StudyObjects estarem salvos, adicionamos a camada VSTOI
-        // aos objetos que precisam (sem deletar os StudyObjects)
-        if (!vstoiObjectsToEnrich.isEmpty()) {
-            dataFile.getLogger().println("[POST-COMMIT] Enriching " + vstoiObjectsToEnrich.size() + " VSTOI objects with specialized properties...");
-            
-            int count = 0;
-            for (StudyObject studyObject : vstoiObjectsToEnrich) {
-                count++;
-                dataFile.getLogger().println("[POST-COMMIT] Enriching object " + count + "/" + vstoiObjectsToEnrich.size() + ": " + studyObject.getLabel());
-                createVstoiEntityWithoutDeletingStudyObject(studyObject);
+
+        if (result) {
+            for (SirIngestContext ctx : sirIngestContextByUri.values()) {
+                if (isObjectSyntheticId(ctx.uri) || isObjectSyntheticId(ctx.originalId)) {
+                    dataFile.getLogger().printException("SIR consistency check failed: synthetic OBJ URI/ID detected for " + ctx.uri);
+                    result = false;
+                    continue;
+                }
+                addRdfProperty(ctx.uri, "hasco:originalID", ctx.originalId, false);
+                addRdfProperty(ctx.uri, "hasco:isMemberOf", ctx.isMemberOf, true);
+
+                if (ctx.scopeUris != null) {
+                    for (String scopeUri : ctx.scopeUris) {
+                        addRdfProperty(ctx.uri, "hasco:hasScope", scopeUri, true);
+                    }
+                }
+                if (ctx.timeScopeUris != null) {
+                    for (String timeScopeUri : ctx.timeScopeUris) {
+                        addRdfProperty(ctx.uri, "hasco:hasTimeScope", timeScopeUri, true);
+                    }
+                }
+                if (ctx.spaceScopeUris != null) {
+                    for (String spaceScopeUri : ctx.spaceScopeUris) {
+                        addRdfProperty(ctx.uri, "hasco:hasSpaceScope", spaceScopeUri, true);
+                    }
+                }
+
+                if (isHierarchyType(ctx.vstoiType) && ctx.scopeUris != null && !ctx.scopeUris.isEmpty()) {
+                    addRdfProperty(ctx.uri, "rdfs:subClassOf", ctx.scopeUris.get(0), true);
+                    if (ctx.scopeUris.size() > 1) {
+                        dataFile.getLogger().printWarning("SIR hierarchy consistency: multiple scopes found for " + ctx.uri + ", using first scope as rdfs:subClassOf");
+                    }
+                }
             }
-            
-            dataFile.getLogger().println("[POST-COMMIT] VSTOI enrichment completed.");
-            
-            // Limpa a lista para evitar reprocessamento
-            vstoiObjectsToEnrich.clear();
-        } else {
-            dataFile.getLogger().println("[POST-COMMIT] No VSTOI objects to enrich (list is empty)");
         }
         
-        dataFile.getLogger().println("[COMMIT DEBUG] commitObjectsToTripleStore finished");
+        dataFile.getLogger().println("[COMMIT] Completed with result: " + result);
+        
         return result;
     }
 

@@ -2,8 +2,10 @@ package org.hascoapi.entity.pojo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import java.io.ByteArrayOutputStream;
 
@@ -479,6 +481,13 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT (COUNT(?obj) AS ?count) WHERE { \n"
                 + " ?obj hasco:isMemberOf <" + getUri() + "> . \n"
+                + " FILTER NOT EXISTS { ?obj vstoi:hasInstrument ?vInstrument . } \n"
+                + " FILTER NOT EXISTS { ?obj vstoi:hasComponent ?vComponent . } \n"
+                + " FILTER NOT EXISTS { ?obj vstoi:hasCodebook ?vCodebook . } \n"
+                + " FILTER NOT EXISTS { ?obj vstoi:hasComponentStem ?vComponentStem . } \n"
+                + " FILTER NOT EXISTS { ?obj vstoi:hasContainerSlot ?vContainerSlot . } \n"
+                + " FILTER NOT EXISTS { ?obj vstoi:hasResponseOption ?vResponseOption . } \n"
+                + " FILTER NOT EXISTS { ?obj vstoi:hasAnnotationStem ?vAnnotationStem . } \n"
                 + "} \n";
 
         ResultSetRewindable resultsrw = SPARQLUtils.select(
@@ -545,6 +554,13 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 "SELECT (count(*) as ?count) WHERE { " +
                 "   ?uri hasco:isMemberOf  <" + this.getUri() + "> . " +
+                "   FILTER NOT EXISTS { ?uri vstoi:hasInstrument ?vInstrument . } " +
+                "   FILTER NOT EXISTS { ?uri vstoi:hasComponent ?vComponent . } " +
+                "   FILTER NOT EXISTS { ?uri vstoi:hasCodebook ?vCodebook . } " +
+                "   FILTER NOT EXISTS { ?uri vstoi:hasComponentStem ?vComponentStem . } " +
+                "   FILTER NOT EXISTS { ?uri vstoi:hasContainerSlot ?vContainerSlot . } " +
+                "   FILTER NOT EXISTS { ?uri vstoi:hasResponseOption ?vResponseOption . } " +
+                "   FILTER NOT EXISTS { ?uri vstoi:hasAnnotationStem ?vAnnotationStem . } " +
                 " } ";
 
         ResultSetRewindable resultsrw = SPARQLUtils.select(
@@ -564,12 +580,17 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         return count;
     }// /getCollectionSize()
 
-    private static List<String> retrieveSpaceScope(String socUri) {
-        List<String> scopeUris = new ArrayList<String>();
-        String scopeUri = "";
+    private static List<String> retrieveScopeLikeProperty(String socUri, String predicate, String varName) {
+        Set<String> uris = new LinkedHashSet<String>();
+        if (socUri == null || socUri.isEmpty()) {
+            return new ArrayList<String>();
+        }
+
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                "SELECT ?spaceScopeUri WHERE { \n" +
-                " <" + socUri + "> hasco:hasSpaceScope ?spaceScopeUri . \n" +
+                "SELECT DISTINCT ?" + varName + " WHERE { \n" +
+                "  { <" + socUri + "> " + predicate + " ?" + varName + " . } \n" +
+                "  UNION \n" +
+                "  { GRAPH ?g { <" + socUri + "> " + predicate + " ?" + varName + " . } } \n" +
                 "}";
 
         ResultSetRewindable resultsrw = SPARQLUtils.select(
@@ -579,76 +600,53 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
             QuerySolution soln = resultsrw.next();
             if (soln != null) {
                 try {
-                    if (soln.getResource("spaceScopeUri") != null && soln.getResource("spaceScopeUri").getURI() != null) {
-                        scopeUri = soln.getResource("spaceScopeUri").getURI();
-                        if (scopeUri != null && !scopeUri.equals("")) {
-                            scopeUris.add(scopeUri);
+                    if (soln.getResource(varName) != null && soln.getResource(varName).getURI() != null) {
+                        String value = soln.getResource(varName).getURI();
+                        if (value != null && !value.isEmpty()) {
+                            uris.add(URIUtils.stripAngleBrackets(value));
                         }
                     }
                 } catch (Exception e1) {
                 }
             }
         }
+        return new ArrayList<String>(uris);
+    }
 
-        return scopeUris;
+    private static String retrieveScopeUri(String socUri) {
+        if (socUri == null || socUri.isEmpty()) {
+            return "";
+        }
+
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                "SELECT DISTINCT ?scopeUri WHERE { \n" +
+                "  { <" + socUri + "> hasco:hasScope ?scopeUri . } \n" +
+                "  UNION \n" +
+                "  { GRAPH ?g { <" + socUri + "> hasco:hasScope ?scopeUri . } } \n" +
+                "} LIMIT 1";
+
+        ResultSetRewindable resultsrw = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+        if (resultsrw.hasNext()) {
+            QuerySolution soln = resultsrw.next();
+            if (soln != null && soln.getResource("scopeUri") != null && soln.getResource("scopeUri").getURI() != null) {
+                return URIUtils.stripAngleBrackets(soln.getResource("scopeUri").getURI());
+            }
+        }
+        return "";
+    }
+
+    private static List<String> retrieveSpaceScope(String socUri) {
+        return retrieveScopeLikeProperty(socUri, "hasco:hasSpaceScope", "spaceScopeUri");
     }
 
     private static List<String> retrieveTimeScope(String socUri) {
-        List<String> scopeUris = new ArrayList<String>();
-        String scopeUri = "";
-        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                "SELECT  ?timeScopeUri WHERE { " +
-                " <" + socUri + "> hasco:hasTimeScope ?timeScopeUri . " +
-                "}";
-
-        ResultSetRewindable resultsrw = SPARQLUtils.select(
-                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
-
-        while (resultsrw.hasNext()) {
-            QuerySolution soln = resultsrw.next();
-            if (soln != null) {
-                try {
-                    if (soln.getResource("timeScopeUri") != null && soln.getResource("timeScopeUri").getURI() != null) {
-                        scopeUri = soln.getResource("timeScopeUri").getURI();
-                        if (scopeUri != null && !scopeUri.equals("")) {
-                            scopeUris.add(scopeUri);
-                        }
-                    }
-                } catch (Exception e1) {
-                }
-            }
-        }
-
-        return scopeUris;
+        return retrieveScopeLikeProperty(socUri, "hasco:hasTimeScope", "timeScopeUri");
     }
 
     private static List<String> retrieveGroup(String socUri) {
-        List<String> groupUris = new ArrayList<String>();
-        String groupUri = "";
-        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                "SELECT  ?groupUri WHERE { " +
-                " <" + socUri + "> hasco:hasGroup ?groupUri . " +
-                "}";
-
-        ResultSetRewindable resultsrw = SPARQLUtils.select(
-                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
-
-        while (resultsrw.hasNext()) {
-            QuerySolution soln = resultsrw.next();
-            if (soln != null) {
-                try {
-                    if (soln.getResource("groupUri") != null && soln.getResource("groupUri").getURI() != null) {
-                        groupUri = soln.getResource("groupUri").getURI();
-                        if (groupUri != null && !groupUri.equals("")) {
-                            groupUris.add(groupUri);
-                        }
-                    }
-                } catch (Exception e1) {
-                }
-            }
-        }
-
-        return groupUris;
+        return retrieveScopeLikeProperty(socUri, "hasco:hasGroup", "groupUri");
     }
 
     public static List<StudyObjectCollection> findMatchingScopeCollections(String socUri) {
@@ -683,6 +681,9 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
 
     public static StudyObjectCollection find(String uri) {
         //System.out.println("StudyObjectCollection: find() with URI=[" + uri + "]");
+        if (uri == null || uri.isEmpty()) {
+            return null;
+        }
         StudyObjectCollection soc = null;
         Statement statement;
         RDFNode object;
@@ -695,26 +696,25 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         Model model = SPARQLUtils.describe(CollectionUtil.getCollectionPath(
                 CollectionUtil.Collection.SPARQL_QUERY), queryString);
         
-        // If not found in default graph, try in all named graphs
-        if (model.isEmpty()) {
-            String ns = NameSpaces.getInstance().printSparqlNameSpaceList();
-            String queryInGraphs = ns +
-                    "SELECT ?p ?o ?g WHERE { \n" +
-                    "  GRAPH ?g { <" + cleanUri + "> ?p ?o . } \n" +
-                    "}";
-            ResultSetRewindable results = SPARQLUtils.select(
-                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryInGraphs);
-            
-            // Manually build model from SELECT results
-            model = org.apache.jena.rdf.model.ModelFactory.createDefaultModel();
-            org.apache.jena.rdf.model.Resource subj = model.createResource(cleanUri);
-            while (results.hasNext()) {
-                QuerySolution soln = results.next();
-                if (soln.get("p") != null && soln.get("o") != null) {
-                    org.apache.jena.rdf.model.Property prop = model.createProperty(soln.getResource("p").getURI());
-                    RDFNode obj = soln.get("o");
-                    model.add(subj, prop, obj);
-                }
+        // Also merge triples from named graphs so scope links are not missed.
+        String ns = NameSpaces.getInstance().printSparqlNameSpaceList();
+        String queryInGraphs = ns +
+                "SELECT ?p ?o ?g WHERE { \n" +
+                "  GRAPH ?g { <" + cleanUri + "> ?p ?o . } \n" +
+                "}";
+        ResultSetRewindable results = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryInGraphs);
+
+        if (model == null) {
+            model = ModelFactory.createDefaultModel();
+        }
+        Resource subj = model.createResource(cleanUri);
+        while (results.hasNext()) {
+            QuerySolution soln = results.next();
+            if (soln.get("p") != null && soln.get("o") != null) {
+                Property prop = model.createProperty(soln.getResource("p").getURI());
+                RDFNode obj = soln.get("o");
+                model.add(subj, prop, obj);
             }
         }
 
@@ -760,29 +760,34 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
             }
         }
 
-        soc.setTimeScopeUris(retrieveTimeScope(uri));
+        soc.setTimeScopeUris(retrieveTimeScope(cleanUri));
 
-        soc.setSpaceScopeUris(retrieveSpaceScope(uri));
+        soc.setSpaceScopeUris(retrieveSpaceScope(cleanUri));
 
-        soc.setGroupUris(retrieveGroup(uri));
+        soc.setGroupUris(retrieveGroup(cleanUri));
 
-        soc.setUri(uri);
+        if (soc.getHasScopeUri() == null || soc.getHasScopeUri().isEmpty()) {
+            soc.setHasScopeUri(retrieveScopeUri(cleanUri));
+        }
+
+        soc.setUri(cleanUri);
 
         // retrieve URIs of objects that are member of the collection (default and named graphs)
         String nsMember = NameSpaces.getInstance().printSparqlNameSpaceList();
         String q = nsMember +
-                "SELECT ?uriMember WHERE { \n" +
-                "  { ?uriMember hasco:isMemberOf <" + uri + "> . } UNION { GRAPH ?g { ?uriMember hasco:isMemberOf <" + uri + "> . } } \n" +
+                "SELECT DISTINCT ?uriMember WHERE { \n" +
+                "  { ?uriMember hasco:isMemberOf <" + cleanUri + "> . } UNION { GRAPH ?g { ?uriMember hasco:isMemberOf <" + cleanUri + "> . } } \n" +
                 "}";
         ResultSetRewindable resultsrwMember = SPARQLUtils.select(
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), q);
+        Set<String> uniqueMemberUris = new LinkedHashSet<String>();
         while (resultsrwMember.hasNext()) {
             QuerySolution soln = resultsrwMember.next();
             if (soln != null && soln.getResource("uriMember") != null && soln.getResource("uriMember").getURI() != null) {
-                String uriMemberStr = soln.getResource("uriMember").getURI();
-                soc.getObjectUris().add(uriMemberStr);
+                uniqueMemberUris.add(URIUtils.stripAngleBrackets(soln.getResource("uriMember").getURI()));
             }
         }
+        soc.getObjectUris().addAll(uniqueMemberUris);
         return soc;
     }
 
@@ -791,10 +796,11 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         StudyObjectCollection soc = null;
 
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                "SELECT ?socType ?hascoType ?comment ?isMemberOf ?hasScopeUri ?hasRoleLabel ?hasSIRManagerEmail ?hasVirtualColumnUri ?spaceScopeUri ?timeScopeUri ?lastCounter WHERE { \n" +
+                "SELECT ?socType ?hascoType ?label ?comment ?isMemberOf ?hasScopeUri ?hasRoleLabel ?hasSIRManagerEmail ?hasVirtualColumnUri ?spaceScopeUri ?timeScopeUri ?lastCounter WHERE { \n" +
                 "    <" + socUri + "> a ?socType . \n" +
                 "    <" + socUri + "> hasco:isMemberOf ?isMemberOf . \n" +
                 "    OPTIONAL { <" + socUri + "> hasco:hascoType ?hascoType } . \n" +
+                "    OPTIONAL { <" + socUri + "> rdfs:label ?label } . \n" +
                 "    OPTIONAL { <" + socUri + "> rdfs:comment ?comment } . \n" +
                 "    OPTIONAL { <" + socUri + "> hasco:hasScope ?hasScopeUri } . \n" +
                 "    OPTIONAL { <" + socUri + "> hasco:hasVirtualColumn ?hasVirtualColumnUri } . \n" +
@@ -845,7 +851,16 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
                     hascoTypeStr = "";
                 }
 
-                labelStr = FirstLabel.getLabel(socUri);
+                // Get label from query result if available, otherwise use FirstLabel as fallback
+                try {
+                    if (soln.getLiteral("label") != null && soln.getLiteral("label").getString() != null) {
+                        labelStr = soln.getLiteral("label").getString();
+                    } else {
+                        labelStr = FirstLabel.getLabel(socUri);
+                    }
+                } catch (Exception e1) {
+                    labelStr = FirstLabel.getLabel(socUri);
+                }
 
                 try {
                     if (soln.getResource("isMemberOfUri") != null && soln.getResource("isMemberOfUri").getURI() != null) {
@@ -1040,11 +1055,10 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         String su = URIUtils.replacePrefixEx(studyUri);
 
         // We want all SOCs that are members of the given Study.
-        // Some deployments store these triples either in the default repository graph
-        // or inside a named graph (e.g., the metadata template's DataFile graph).
-        //
-        // IMPORTANT: keep each branch self-contained (type + membership) to avoid
-        // accidental variable mixing across UNION branches.
+        // Support both legacy and new ingestion models:
+        // 1) legacy: ?uri hasco:hascoType hasco:StudyObjectCollection
+        // 2) new:    ?uri a ?socType . ?socType rdfs:subClassOf* hasco:StudyObjectCollection
+        // Search both default and named graphs.
         String q = ns +
                 "SELECT DISTINCT ?uri WHERE { \n" +
                 "  { \n" +
@@ -1055,6 +1069,19 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
                 "  { GRAPH ?g { \n" +
                 "      ?uri hasco:isMemberOf <" + su + "> . \n" +
                 "      ?uri hasco:hascoType <" + HASCO.STUDY_OBJECT_COLLECTION + "> . \n" +
+                "    } \n" +
+                "  } \n" +
+                "  UNION \n" +
+                "  { \n" +
+                "    ?uri hasco:isMemberOf <" + su + "> . \n" +
+                "    ?socType rdfs:subClassOf* hasco:StudyObjectCollection . \n" +
+                "    ?uri a ?socType . \n" +
+                "  } \n" +
+                "  UNION \n" +
+                "  { GRAPH ?g { \n" +
+                "      ?uri hasco:isMemberOf <" + su + "> . \n" +
+                "      ?socType rdfs:subClassOf* hasco:StudyObjectCollection . \n" +
+                "      ?uri a ?socType . \n" +
                 "    } \n" +
                 "  } \n" +
                 "} ORDER BY ASC(STR(?uri))";

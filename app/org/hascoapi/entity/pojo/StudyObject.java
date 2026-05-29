@@ -465,6 +465,30 @@ public class StudyObject extends HADatAcThing {
 	    String queryString = "DESCRIBE <" + cleanUri + ">";
 	    Model model = SPARQLUtils.describe(CollectionUtil.getCollectionPath(
                 CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+        // Augment DESCRIBE with explicit lookup in default + named graphs.
+        // Some repositories do not expose all triples through DESCRIBE when data is in named graphs.
+        String queryInAllGraphs = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                "SELECT ?p ?o WHERE { \n" +
+                "  { <" + cleanUri + "> ?p ?o . } \n" +
+                "  UNION \n" +
+                "  { GRAPH ?g { <" + cleanUri + "> ?p ?o . } } \n" +
+                "}";
+        ResultSetRewindable allResults = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryInAllGraphs);
+        Resource subj = model.createResource(cleanUri);
+        while (allResults.hasNext()) {
+            QuerySolution soln = allResults.next();
+            try {
+                if (soln != null && soln.get("p") != null && soln.get("o") != null) {
+                    Property prop = model.createProperty(soln.getResource("p").getURI());
+                    RDFNode objNode = soln.get("o");
+                    model.add(subj, prop, objNode);
+                }
+            } catch (Exception e) {
+                // Ignore malformed rows and keep best-effort behavior.
+            }
+        }
 		
 		StmtIterator stmtIterator = model.listStatements();
 
@@ -515,7 +539,7 @@ public class StudyObject extends HADatAcThing {
 			}
 		}
 
-		studyObject.setUri(uri);
+    studyObject.setUri(cleanUri);
 		
 		return studyObject;
 	}
@@ -781,6 +805,13 @@ public class StudyObject extends HADatAcThing {
         query += " select (count(?obj) as ?tot) where " + 
                 " { ?obj hasco:isMemberOf <" + socUri + "> . ?obj a ?objType . " + 
                 " FILTER NOT EXISTS { ?objType rdfs:subClassOf* hasco:StudyObjectCollection . } " + 
+            " FILTER NOT EXISTS { ?obj vstoi:hasInstrument ?vInstrument . } " +
+            " FILTER NOT EXISTS { ?obj vstoi:hasComponent ?vComponent . } " +
+            " FILTER NOT EXISTS { ?obj vstoi:hasCodebook ?vCodebook . } " +
+            " FILTER NOT EXISTS { ?obj vstoi:hasComponentStem ?vComponentStem . } " +
+            " FILTER NOT EXISTS { ?obj vstoi:hasContainerSlot ?vContainerSlot . } " +
+            " FILTER NOT EXISTS { ?obj vstoi:hasResponseOption ?vResponseOption . } " +
+            " FILTER NOT EXISTS { ?obj vstoi:hasAnnotationStem ?vAnnotationStem . } " +
                 "}";
         try {
             ResultSetRewindable resultsrw = SPARQLUtils.select(

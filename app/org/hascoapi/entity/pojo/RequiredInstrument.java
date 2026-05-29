@@ -55,20 +55,38 @@ public class RequiredInstrument extends HADatAcThing {
 	} 
 
 	public List<String> getHasRequiredComponents() {
+		if (hasRequiredComponentURIs == null) {
+			return new ArrayList<String>();
+		}
 		return hasRequiredComponentURIs;
 	}
 
+	public List<String> getHasRequiredComponent() {
+		return getHasRequiredComponents();
+	}
+
 	public void setHasRequiredComponent(List<String> hasRequiredComponentURIs) {
-		this.hasRequiredComponentURIs = hasRequiredComponentURIs;
+		if (hasRequiredComponentURIs == null) {
+			this.hasRequiredComponentURIs = new ArrayList<String>();
+		} else {
+			this.hasRequiredComponentURIs = hasRequiredComponentURIs;
+		}
 	}
 
 	public void addHasRequiredComponent(String hasRequiredComponent) {
+		if (this.hasRequiredComponentURIs == null) {
+			this.hasRequiredComponentURIs = new ArrayList<String>();
+		}
 		this.hasRequiredComponentURIs.add(hasRequiredComponent);
+	}
+
+	public String getUsedInstrument() {
+		return usesInstrument;
 	}
 
 	public List<RequiredComponent> getRequiredComponents() {
 		if (hasRequiredComponentURIs == null || hasRequiredComponentURIs.isEmpty()) {
-			return null;
+			return new ArrayList<RequiredComponent>();
 		}
 		List<RequiredComponent> list = new ArrayList<RequiredComponent>();
 		for (String hasRequiredComponentURI : hasRequiredComponentURIs) {
@@ -81,6 +99,10 @@ public class RequiredInstrument extends HADatAcThing {
 		}
 		return list;
 
+	}
+
+	public List<RequiredComponent> getComponents() {
+		return getRequiredComponents();
 	}
 
 	public RequiredInstrument() {

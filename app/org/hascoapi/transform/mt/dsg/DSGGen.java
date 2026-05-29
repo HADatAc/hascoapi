@@ -13,12 +13,16 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.hascoapi.utils.URIUtils;
 
 /*
-DSGGen builds an Excel workbook for studies:
-genByStatus queries studies by status,
-create initializes the workbook (InfoSheet + SSD/STD/VD + Namespaces),
-STD/SSD rows are added per study,
-InfoSheet references are set (first study URI/title and first namespace URI),
-Namespaces is populated from the helper map or in-memory namespaces, and save writes and closes the file.
+DSGGen builds an Excel workbook for studies following the new VSTOI architecture:
+- genByStatus/genByStudy/genByManager queries studies and creates the base workbook structure
+- create initializes the workbook (InfoSheet + SSD/STD + Namespaces)
+- DSGSTD adds study metadata rows to the STD sheet
+- DSGSSD adds SOC (Study Object Collection) rows to the SSD sheet and creates SOC-* worksheets dynamically
+- SOC worksheets contain VSTOI entities (Instruments, Components, Codebooks, etc.) with originalID, rdf:type, and scope properties
+- InfoSheet references are set (first study URI/title and first namespace URI)
+- Namespaces is populated from the helper map or in-memory namespaces
+- save writes and closes the file
+- Optional DA-SOC generation extracts enrichment properties for existing VSTOI entities
 */
 
 
@@ -49,7 +53,7 @@ public class DSGGen {
             System.out.println("[DSGGen] Diagnostic: total studies found=" + (allStudies == null ? 0 : allStudies.size()));
 
             String requestedStatus = status == null ? "" : status.trim();
-            String draftStatus = org.hascoapi.vocabularies.VSTOI.DRAFT;
+            String defaultStatusForExport = org.hascoapi.vocabularies.VSTOI.CURRENT;
 
             // Normalize/deduplicate studies by canonical URI (skip malformed IRIs)
             java.util.Map<String, Study> byCanonicalUri = new java.util.LinkedHashMap<>();
@@ -68,7 +72,9 @@ public class DSGGen {
 
                     // Apply status filter using effective status
                     String rawStatus = s.getHasStatus();
-                    String effectiveStatus = (rawStatus == null || rawStatus.isEmpty()) ? draftStatus : rawStatus;
+                    // For DSG export, legacy studies often have no hasStatus persisted.
+                    // Treat missing status as Current to avoid exporting an empty workbook.
+                    String effectiveStatus = (rawStatus == null || rawStatus.isEmpty()) ? defaultStatusForExport : rawStatus;
 
                     System.out.println("  [DSGGen] Study diag: uri=" + s.getUri()
                             + " (canonical=" + canonicalUri + ")"
@@ -77,12 +83,29 @@ public class DSGGen {
                             + ", effectiveStatus=" + effectiveStatus);
 
                     boolean include;
-                    if (requestedStatus.isEmpty()) {
+                    if (requestedStatus.isEmpty() || requestedStatus.equalsIgnoreCase("ALL")) {
+                        // No filter specified - include all studies
                         include = true;
                     } else {
-                        include = effectiveStatus.equals(requestedStatus);
+                        // Normalize URIs for comparison (handle variations like trailing slash, prefix, etc.)
+                        String normalizedRequested = org.hascoapi.utils.URIUtils.replacePrefixEx(requestedStatus);
+                        String normalizedEffective = org.hascoapi.utils.URIUtils.replacePrefixEx(effectiveStatus);
+                        
+                        // Try exact match first
+                        include = normalizedEffective.equals(normalizedRequested);
+                        
+                        // If no match, try URI tail comparison (e.g., "Draft" vs "vstoi:Draft")
+                        if (!include) {
+                            String requestedTail = lastSegment(normalizedRequested);
+                            String effectiveTail = lastSegment(normalizedEffective);
+                            include = effectiveTail.equalsIgnoreCase(requestedTail);
+                        }
+                        
+                        System.out.println("  [DSGGen] Status filter: requested=" + normalizedRequested 
+                            + ", effective=" + normalizedEffective + ", include=" + include);
                     }
                     if (!include) {
+                        System.out.println("  [DSGGen] Study EXCLUDED by status filter");
                         continue;
                     }
 
@@ -100,6 +123,34 @@ public class DSGGen {
             }
 
             studies = new java.util.ArrayList<>(byCanonicalUri.values());
+            if ((studies == null || studies.isEmpty())
+                    && allStudies != null
+                    && !allStudies.isEmpty()
+                    && !requestedStatus.isEmpty()
+                    && !requestedStatus.equalsIgnoreCase("ALL")) {
+                System.out.println("[DSGGen] WARNING: strict status filtering returned 0 studies; falling back to all studies to avoid empty DSG export.");
+
+                java.util.Map<String, Study> fallbackByCanonicalUri = new java.util.LinkedHashMap<>();
+                for (Study s : allStudies) {
+                    if (s == null || s.getUri() == null) {
+                        continue;
+                    }
+                    String canonicalUri = canonicalizeStudyUri(s.getUri());
+                    if (canonicalUri == null || canonicalUri.isEmpty()) {
+                        continue;
+                    }
+                    Study existing = fallbackByCanonicalUri.get(canonicalUri);
+                    if (existing == null) {
+                        fallbackByCanonicalUri.put(canonicalUri, s);
+                    } else {
+                        String existingUri = existing.getUri() == null ? "" : existing.getUri();
+                        if (!existingUri.startsWith("http") && canonicalUri.startsWith("http")) {
+                            fallbackByCanonicalUri.put(canonicalUri, s);
+                        }
+                    }
+                }
+                studies = new java.util.ArrayList<>(fallbackByCanonicalUri.values());
+            }
             System.out.println("[DSGGen] Filtered+normalized studies by status; count=" + (studies == null ? 0 : studies.size()));
         } catch (Throwable t) {
             System.err.println("[DSGGen] ERROR fetching studies: " + t.getMessage());
@@ -383,12 +434,8 @@ public class DSGGen {
         dataRow5.createCell(1).setCellValue("#" + DSGGen.SSD);
 
         Row dataRow6 = infoSheet.createRow(6);
-        dataRow6.createCell(0).setCellValue("hasVariableDesign");
-        dataRow6.createCell(1).setCellValue("#" + DSGGen.VD);
-
-        Row dataRow7 = infoSheet.createRow(7);
-        dataRow7.createCell(0).setCellValue("hasVersion");
-        dataRow7.createCell(1).setCellValue("1"); // Placeholder version
+        dataRow6.createCell(0).setCellValue("hasVersion");
+        dataRow6.createCell(1).setCellValue("1"); // Placeholder version
 
         // Create sheet named 'Namespaces'
         Sheet nsSheet = workbook.createSheet(DSGGen.NAMESPACES);
@@ -458,7 +505,7 @@ public class DSGGen {
         stdHeaderRow.createCell(22).setCellValue("Project Last Updated Date");
         stdHeaderRow.createCell(23).setCellValue("DC Access?");
 
-        // Initialize SSD headers
+        // Initialize SSD headers (aligned with SSDGenerator.initMapping)
         Row ssdHeaderRow = ssdSheet.createRow(0);
         ssdHeaderRow.createCell(0).setCellValue("sheet");
         ssdHeaderRow.createCell(1).setCellValue("hasURI");
@@ -473,7 +520,7 @@ public class DSGGen {
         ssdHeaderRow.createCell(10).setCellValue("hasSpaceScope");
         ssdHeaderRow.createCell(11).setCellValue("source");
 
-        // Initialize VD headers (basic variable design template)
+        // Initialize VD headers (basic variable design template for future use)
         Row vdHeaderRow = vdSheet.createRow(0);
         vdHeaderRow.createCell(0).setCellValue("sheet");
         vdHeaderRow.createCell(1).setCellValue("hasURI");
@@ -485,6 +532,10 @@ public class DSGGen {
         vdHeaderRow.createCell(7).setCellValue("hasAttributeOf");
         vdHeaderRow.createCell(8).setCellValue("hasScale");
         vdHeaderRow.createCell(9).setCellValue("isAbout");
+
+        System.out.println("[DSGGen] Workbook structure created (InfoSheet, Namespaces, SSD, STD, VD)");
+        System.out.println("[DSGGen] NOTE: SOC worksheets will be created dynamically by DSGSSD.addByStudy()");
+        System.out.println("[DSGGen] NOTE: VD sheet is available for future use (not actively used in VSTOI architecture)");
 
         return workbook;
     }
@@ -954,6 +1005,9 @@ public class DSGGen {
     
     /**
      * Generate a single DA-SOC CSV file for a given SOC.
+     * This method queries the triplestore for all StudyObjects in the SOC, resolves their
+     * corresponding VSTOI instances (Instrument, Component, etc.), and extracts enrichment
+     * properties (excluding base properties like label, comment, type).
      * 
      * @param socUri URI of the StudyObjectCollection
      * @param socName Name of the SOC (extracted from URI)
@@ -964,38 +1018,91 @@ public class DSGGen {
         try {
             System.out.println("[DA-SOC GEN] Querying objects for SOC: " + socUri);
             
-            // Query for all objects in this SOC with their existing properties
+            // Query for all StudyObjects in this SOC and resolve their VSTOI instances
             String queryString = org.hascoapi.utils.NameSpaces.getInstance().printSparqlNameSpaceList() +
-                "SELECT DISTINCT ?obj ?originalId ?prop ?value WHERE { " +
-                "  ?obj hasco:isMemberOf <" + socUri + "> . " +
-                "  ?obj hasco:originalID ?originalId . " +
+                "SELECT DISTINCT ?studyObj ?originalId ?vstoiInstance ?vstoiType WHERE { " +
+                "  ?studyObj hasco:isMemberOf <" + socUri + "> . " +
+                "  ?studyObj hasco:originalID ?originalId . " +
                 "  OPTIONAL { " +
-                "    ?obj ?prop ?value . " +
-                "    FILTER(?prop != rdf:type && ?prop != hasco:isMemberOf && " +
-                "           ?prop != hasco:originalID && ?prop != rdfs:label && " +
-                "           ?prop != rdfs:comment && ?prop != hasco:hasTimestamp && " +
-                "           ?prop != vstoi:hasSIRManagerEmail && ?prop != hasco:hascoType) " +
+                "    { ?studyObj vstoi:hasInstrument ?vstoiInstance . ?vstoiInstance a ?vstoiType . } " +
+                "    UNION { ?studyObj vstoi:hasComponent ?vstoiInstance . ?vstoiInstance a ?vstoiType . } " +
+                "    UNION { ?studyObj vstoi:hasCodebook ?vstoiInstance . ?vstoiInstance a ?vstoiType . } " +
+                "    UNION { ?studyObj vstoi:hasComponentStem ?vstoiInstance . ?vstoiInstance a ?vstoiType . } " +
+                "    UNION { ?studyObj vstoi:hasContainerSlot ?vstoiInstance . ?vstoiInstance a ?vstoiType . } " +
+                "    UNION { ?studyObj vstoi:hasResponseOption ?vstoiInstance . ?vstoiInstance a ?vstoiType . } " +
+                "    UNION { ?studyObj vstoi:hasAnnotationStem ?vstoiInstance . ?vstoiInstance a ?vstoiType . } " +
                 "  } " +
-                "} ORDER BY ?obj ?prop";
+                "} ORDER BY ?originalId";
             
             org.apache.jena.query.ResultSetRewindable results = org.hascoapi.utils.SPARQLUtils.select(
                 org.hascoapi.utils.CollectionUtil.getCollectionPath(
                     org.hascoapi.utils.CollectionUtil.Collection.SPARQL_QUERY),
                 queryString);
             
-            // Build data structure: originalID -> properties
-            java.util.Map<String, java.util.Map<String, String>> objectsData = new java.util.LinkedHashMap<>();
-            java.util.Set<String> allPropertyUris = new java.util.LinkedHashSet<>();
+            // Map: originalID -> vstoiInstanceUri
+            java.util.Map<String, String> originalIdToVstoiUri = new java.util.LinkedHashMap<>();
             
             while (results.hasNext()) {
                 org.apache.jena.query.QuerySolution soln = results.next();
                 String originalId = soln.get("originalId").toString();
                 
-                objectsData.putIfAbsent(originalId, new java.util.LinkedHashMap<>());
+                if (soln.get("vstoiInstance") != null) {
+                    String vstoiUri = soln.get("vstoiInstance").toString();
+                    originalIdToVstoiUri.put(originalId, vstoiUri);
+                    System.out.println("[DA-SOC GEN] Mapped originalId=" + originalId + " -> vstoiUri=" + vstoiUri);
+                }
+            }
+            
+            System.out.println("[DA-SOC GEN] Found " + originalIdToVstoiUri.size() + " VSTOI instances");
+            
+            if (originalIdToVstoiUri.isEmpty()) {
+                System.out.println("[DA-SOC GEN] No VSTOI instances found in SOC, skipping file generation");
+                return false;
+            }
+            
+            // Now query all enrichment properties for these VSTOI instances
+            // Exclude base properties that are part of the DSG structure
+            java.util.Set<String> basePropertiesToExclude = new java.util.HashSet<>();
+            basePropertiesToExclude.add("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
+            basePropertiesToExclude.add("http://www.w3.org/2000/01/rdf-schema#label");
+            basePropertiesToExclude.add("http://www.w3.org/2000/01/rdf-schema#comment");
+            basePropertiesToExclude.add("http://hadatac.org/ont/hasco#originalID");
+            basePropertiesToExclude.add("http://hadatac.org/ont/hasco#isMemberOf");
+            basePropertiesToExclude.add("http://hadatac.org/ont/hasco#hasTimestamp");
+            basePropertiesToExclude.add("http://hadatac.org/ont/vstoi#hasSIRManagerEmail");
+            basePropertiesToExclude.add("http://hadatac.org/ont/hasco#hascoType");
+            
+            // Build data structure: originalID -> properties
+            java.util.Map<String, java.util.Map<String, String>> objectsData = new java.util.LinkedHashMap<>();
+            java.util.Set<String> allPropertyUris = new java.util.LinkedHashSet<>();
+            
+            for (java.util.Map.Entry<String, String> entry : originalIdToVstoiUri.entrySet()) {
+                String originalId = entry.getKey();
+                String vstoiUri = entry.getValue();
                 
-                if (soln.get("prop") != null && soln.get("value") != null) {
-                    String prop = soln.get("prop").toString();
-                    String value = soln.get("value").toString();
+                objectsData.put(originalId, new java.util.LinkedHashMap<>());
+                
+                // Query all properties for this VSTOI instance
+                String propQuery = org.hascoapi.utils.NameSpaces.getInstance().printSparqlNameSpaceList() +
+                    "SELECT ?prop ?value WHERE { " +
+                    "  <" + vstoiUri + "> ?prop ?value . " +
+                    "} ORDER BY ?prop";
+                
+                org.apache.jena.query.ResultSetRewindable propResults = org.hascoapi.utils.SPARQLUtils.select(
+                    org.hascoapi.utils.CollectionUtil.getCollectionPath(
+                        org.hascoapi.utils.CollectionUtil.Collection.SPARQL_QUERY),
+                    propQuery);
+                
+                while (propResults.hasNext()) {
+                    org.apache.jena.query.QuerySolution propSoln = propResults.next();
+                    String prop = propSoln.get("prop").toString();
+                    
+                    // Skip base properties
+                    if (basePropertiesToExclude.contains(prop)) {
+                        continue;
+                    }
+                    
+                    String value = propSoln.get("value").toString();
                     
                     // Store property
                     objectsData.get(originalId).put(prop, value);
@@ -1003,15 +1110,8 @@ public class DSGGen {
                 }
             }
             
-            System.out.println("[DA-SOC GEN] Found " + objectsData.size() + " objects");
-            System.out.println("[DA-SOC GEN] Found " + allPropertyUris.size() + " unique properties");
+            System.out.println("[DA-SOC GEN] Found " + allPropertyUris.size() + " unique enrichment properties");
             
-            if (objectsData.isEmpty()) {
-                System.out.println("[DA-SOC GEN] No objects found in SOC, skipping file generation");
-                return false;
-            }
-            
-            // If no extra properties beyond the base 5, skip generation
             if (allPropertyUris.isEmpty()) {
                 System.out.println("[DA-SOC GEN] No enrichment properties found, skipping file generation");
                 return false;
@@ -1038,14 +1138,14 @@ public class DSGGen {
                     writer.print(escapeCSV(entry.getKey()));
                     
                     java.util.Map<String, String> props = entry.getValue();
-                    int propIndex = 0;
                     for (String propUri : allPropertyUris) {
                         String value = props.get(propUri);
                         writer.print(",");
                         if (value != null && !value.isEmpty()) {
-                            writer.print(escapeCSV(value));
+                            // Convert value URIs to CURIEs for readability
+                            String readableValue = org.hascoapi.utils.URIUtils.replaceNameSpaceEx(value);
+                            writer.print(escapeCSV(readableValue));
                         }
-                        propIndex++;
                     }
                     writer.println();
                 }
@@ -1081,5 +1181,15 @@ public class DSGGen {
         }
         
         return value;
+    }
+
+    /**
+     * Extract the last segment of a URI (after # or /)
+     */
+    private static String lastSegment(String uri) {
+        if (uri == null) return "";
+        int idx = Math.max(uri.lastIndexOf('#'), uri.lastIndexOf('/'));
+        if (idx >= 0 && idx + 1 < uri.length()) return uri.substring(idx + 1);
+        return uri;
     }
 }

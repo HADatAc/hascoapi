@@ -80,10 +80,20 @@ public class DSGSSD {
             System.out.println("[DSGSSD] NOTE: SOC list contained duplicates; uniqueByUri=" + uniqueSocsByUri.size() + " original=" + socCount);
         }
 
+        // Deterministic SOC ordering helps keep generated DSG stable and aligned with expected templates.
+        java.util.List<StudyObjectCollection> orderedSocs = new java.util.ArrayList<>(uniqueSocsByUri.values());
+        orderedSocs.sort((a, b) -> {
+            String aKey = deriveHasURI(a);
+            String bKey = deriveHasURI(b);
+            int rankCmp = Integer.compare(socSortRank(aKey), socSortRank(bKey));
+            if (rankCmp != 0) return rankCmp;
+            return safe(aKey).compareToIgnoreCase(safe(bKey));
+        });
+
         // Track keys added in this call to avoid adding same SOC twice for this study
         java.util.HashSet<String> seenKeys = new java.util.HashSet<>();
 
-        for (StudyObjectCollection soc : uniqueSocsByUri.values()) {
+        for (StudyObjectCollection soc : orderedSocs) {
             if (soc == null) {
                 continue;
             }
@@ -147,6 +157,8 @@ public class DSGSSD {
                     h.createCell(2).setCellValue("scopeID");
                     h.createCell(3).setCellValue("timeScopeID");
                     h.createCell(4).setCellValue("spaceScopeID");
+                    h.createCell(5).setCellValue("label");
+                    h.createCell(6).setCellValue("comment");
                 }
 
                 // Populate SOC objects (deduplicate by originalID)
@@ -169,15 +181,19 @@ public class DSGSSD {
                 System.out.println("[DSGSSD] SOC=" + rawSheetName + "; resolved objects count=" + objCount);
 
                 if (objects != null) {
-                    for (StudyObject obj : objects) {
+                    // Keep stable row ordering in generated DSG.
+                    java.util.List<StudyObject> orderedObjects = new java.util.ArrayList<>(objects);
+                    orderedObjects.sort((o1, o2) -> resolveOriginalIdForExport(o1).compareToIgnoreCase(resolveOriginalIdForExport(o2)));
+
+                    for (StudyObject obj : orderedObjects) {
                         if (obj == null) {
                             System.out.println("[DSGSSD] WARNING: null object in list for SOC " + rawSheetName);
                             continue;
                         }
-                        String originalId = safe(obj.getOriginalId());
+                        String originalId = resolveOriginalIdForExport(obj);
                         System.out.println("[DSGSSD] Processing object: uri=" + safe(obj.getUri()) + ", originalId=" + originalId);
 
-                        if (!originalId.isEmpty() && seenOriginalIds.contains(originalId)) {
+                        if (seenOriginalIds.contains(originalId)) {
                             System.out.println("[DSGSSD] Skipping duplicate originalId: " + originalId);
                             continue;
                         }
@@ -190,6 +206,8 @@ public class DSGSSD {
                         sr.createCell(2).setCellValue(joinOriginalIds(obj.getScopeUris()));
                         sr.createCell(3).setCellValue(joinOriginalIds(obj.getTimeScopeUris()));
                         sr.createCell(4).setCellValue(joinOriginalIds(obj.getSpaceScopeUris()));
+                        sr.createCell(5).setCellValue(safe(obj.getLabel()));
+                        sr.createCell(6).setCellValue(safe(obj.getComment()));
                         System.out.println("[DSGSSD] Added row for object originalId=" + originalId);
                     }
                 } else {
@@ -229,19 +247,19 @@ public class DSGSSD {
     }
 
     private static String deriveSheetName(StudyObjectCollection soc) {
-        // Prefer the SSD label to produce names like SOC-WEATHER-AT-LOCATION
+        // Prefer SOC URI tail to preserve canonical naming like SOC-INSTRUMENT-PMSR.
+        String hasUri = deriveHasURI(soc);
+        if (!hasUri.isEmpty()) {
+            return normalizeForSheet(hasUri);
+        }
+        // Fallback to label/groundingLabel when URI is unavailable.
         String label = safe(soc.getLabel());
-        if (label != null && !label.trim().isEmpty()) {
-            return ("SOC-" + normalizeForSheet(label));
+        if (!label.trim().isEmpty()) {
+            return "SOC-" + normalizeForSheet(label);
         }
-        // Fallback to groundingLabel, then URI tail
         String gl = safe(getGroundingLabelSafe(soc));
-        if (gl != null && !gl.trim().isEmpty()) {
-            return ("SOC-" + normalizeForSheet(gl));
-        }
-        String tail = lastSegment(soc.getUri());
-        if (tail != null && !tail.isEmpty()) {
-            return ("SOC-" + normalizeForSheet(tail));
+        if (!gl.trim().isEmpty()) {
+            return "SOC-" + normalizeForSheet(gl);
         }
         return "SOC-UNNAMED";
     }
@@ -312,6 +330,31 @@ public class DSGSSD {
     private static String sanitizeSheetName(String name) {
         if (name == null) return "";
         return name.replace(" ", "-").replace("_", "-");
+    }
+
+    private static int socSortRank(String hasUri) {
+        String u = safe(hasUri).toUpperCase();
+        if (u.contains("SOC-INSTRUMENT")) return 1;
+        if (u.contains("SOC-COMPONENT-STEM") || u.contains("SOC-COMPONENTSTEM")) return 2;
+        if (u.contains("SOC-COMPONENT")) return 3;
+        if (u.contains("SOC-SLOT-ELEMENT") || u.contains("SOC-SLOTELEMENT") || u.contains("SOC-CONTAINER-SLOT")) return 4;
+        if (u.contains("SOC-CODEBOOK")) return 5;
+        if (u.contains("SOC-RESPONSE-OPTION") || u.contains("SOC-RESPONSEOPTION")) return 6;
+        return 99;
+    }
+
+    private static String resolveOriginalIdForExport(StudyObject obj) {
+        if (obj == null) return "";
+        String originalId = safe(obj.getOriginalId());
+        if (!originalId.isEmpty()) {
+            return originalId;
+        }
+        String fallback = lastSegment(safe(obj.getUri()));
+        if (!fallback.isEmpty()) {
+            System.out.println("[DSGSSD] WARNING: missing originalID for uri=" + safe(obj.getUri()) + "; using URI tail=" + fallback);
+            return fallback;
+        }
+        return "";
     }
 
     private static String safe(String val) { return val == null ? "" : val; }

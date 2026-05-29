@@ -16,13 +16,10 @@ import org.hascoapi.vocabularies.HASCO;
 
 public class SSDGenerator extends BaseGenerator {
 
-    String SDDName = ""; //used for reference column uri
-
-    String namespace = "";
+    String namespace;
 
     public SSDGenerator(DataFile dataFile, String namespace) {
         super(dataFile);
-        //this.SDDName = dataFile.getBaseName().replaceAll("SSD-", "");
 
         this.namespace = namespace;
         studyUri = dataFile.getStudyUri();
@@ -42,6 +39,7 @@ public class SSDGenerator extends BaseGenerator {
         mapCol.put("hasSOCReference", "hasSOCReference");
         mapCol.put("hasRoleLabel", "hasRoleLabel");
         mapCol.put("label", "label");
+        mapCol.put("comment", "comment");
         mapCol.put("hasScopeUri", "hasScope");
         //mapCol.put("groundingLabel", "groundingLabel");
         mapCol.put("spaceScopeUris", "hasSpaceScope");
@@ -51,12 +49,10 @@ public class SSDGenerator extends BaseGenerator {
 
     private String getUri(Record rec) {
         //System.out.println("SSDGenerator: namespace before getUri() is [" + namespace + "]");
-        String newUri = Utils.uriPlainGen(
+        return Utils.uriPlainGen(
             "studyobjectcollection", 
             rec.getValueByColumnName(mapCol.get("uri")),
             namespace);
-        //System.out.println("SSDGenerator: namespace after getUri() is [" + newUri + "]");
-        return newUri;
     }
 
     private String getTypeUri(Record rec) {
@@ -67,11 +63,18 @@ public class SSDGenerator extends BaseGenerator {
         return rec.getValueByColumnName(mapCol.get("label"));
     }
 
+    private String getComment(Record rec) {
+        String comment = rec.getValueByColumnName(mapCol.get("comment"));
+        if (comment == null || comment.isEmpty()) {
+            // Fallback to label if comment is not provided
+            return getLabel(rec);
+        }
+        return comment;
+    }
+
     private String getVirtualColumnUri(Record rec) {
-        String vcUri= 
-            studyUri.replace(Constants.PREFIX_STUDY, Constants.PREFIX_VIRTUAL_COLUMN) + "-" + 
+        return studyUri.replace(Constants.PREFIX_STUDY, Constants.PREFIX_VIRTUAL_COLUMN) + "-" + 
             getSOCReference(rec);
-        return vcUri;
     }
     
     private String getSOCReference(Record rec) {
@@ -111,14 +114,13 @@ public class SSDGenerator extends BaseGenerator {
 
     private List<String> getSpaceScopeUris(Record rec) {
         if (mapCol.get("spaceScopeUris") == null || rec.getValueByColumnName(mapCol.get("spaceScopeUris")) == null) {
-            return new ArrayList<String>();
+            return new ArrayList<>();
         }
         //System.out.println("getSpaceScopeUris: getValueByColumnName: [" + rec.getValueByColumnName(mapCol.get("spaceScopeUris")) + "]");
-        List<String> ans = Arrays.asList(rec.getValueByColumnName(mapCol.get("spaceScopeUris")).split(","))
-                .stream()
-                .map(s -> URIUtils.replacePrefixEx(s))
+        List<String> ans = Arrays.stream(rec.getValueByColumnName(mapCol.get("spaceScopeUris")).split(","))
+                .map(URIUtils::replacePrefixEx)
                 .collect(Collectors.toList());
-        List<String> uris = new ArrayList<String>();
+        List<String> uris = new ArrayList<>();
         for (String item : ans) {
             if (item == null || item.isEmpty()) {
                 uris.add(null);
@@ -135,14 +137,13 @@ public class SSDGenerator extends BaseGenerator {
     private List<String> getTimeScopeUris(Record rec) {
         //System.out.println("getTimeScopeUris:  timeScopeUris is [" + mapCol.get("timeScopeUris") + "]");
         if (mapCol.get("timeScopeUris") == null || rec.getValueByColumnName(mapCol.get("timeScopeUris")) == null) {
-            return new ArrayList<String>();
+            return new ArrayList<>();
         }
         //System.out.println("getTimeScopeUris: getValueByColumnName: [" + rec.getValueByColumnName(mapCol.get("timeScopeUris")) + "]");
-        List<String> ans = Arrays.asList(rec.getValueByColumnName(mapCol.get("timeScopeUris")).split(","))
-                .stream()
-                .map(s -> URIUtils.replacePrefixEx(s))
+        List<String> ans = Arrays.stream(rec.getValueByColumnName(mapCol.get("timeScopeUris")).split(","))
+                .map(URIUtils::replacePrefixEx)
                 .collect(Collectors.toList());
-        List<String> uris = new ArrayList<String>();
+        List<String> uris = new ArrayList<>();
         for (String item : ans) {
             if (item == null || item.isEmpty()) {
                 uris.add(null);
@@ -158,16 +159,48 @@ public class SSDGenerator extends BaseGenerator {
 
     private List<String> getGroupUris(Record rec) {
         if (mapCol.get("groupUris") == null || rec.getValueByColumnName(mapCol.get("groupUris")) == null) {
-            return new ArrayList<String>();
+            return new ArrayList<>();
         }
-        List<String> ans = Arrays.asList(rec.getValueByColumnName(mapCol.get("groupUris")).split(","))
-                .stream()
-                .map(s -> URIUtils.replacePrefixEx(s))
+        return Arrays.stream(rec.getValueByColumnName(mapCol.get("groupUris")).split(","))
+                .map(URIUtils::replacePrefixEx)
                 .collect(Collectors.toList());
-        return ans;
     }
 
-    public StudyObjectCollection createObjectCollection(Record record) throws Exception {
+    /**
+     * Detecta se um tipo RDF é SIR e retorna o tipo base
+     * @return Nome da classe SIR (Instrument, Component, etc.) ou null se não for SIR
+     */
+    private String detectSIRType(String typeUri) {
+        if (typeUri == null || typeUri.isEmpty()) {
+            return null;
+        }
+        
+        // Normalize typeUri
+        String normalizedType = URIUtils.replacePrefixEx(typeUri).toLowerCase();
+        
+        // Check for VSTOI types (SIR objects)
+        if (normalizedType.contains("vstoi") || normalizedType.contains("http://hadatac.org/ont/vstoi#")) {
+            if (normalizedType.contains("instrument")) {
+                return "Instrument";
+            } else if (normalizedType.contains("componentstem")) {
+                return "ComponentStem";
+            } else if (normalizedType.contains("component")) {
+                return "Component";
+            } else if (normalizedType.contains("responseoption")) {
+                return "ResponseOption";
+            } else if (normalizedType.contains("codebook")) {
+                return "Codebook";
+            } else if (normalizedType.contains("containerslot") || normalizedType.contains("slotelement")) {
+                return "ContainerSlot";
+            } else if (normalizedType.contains("annotationstem")) {
+                return "AnnotationStem";
+            }
+        }
+        
+        return null; // Not a SIR type
+    }
+
+    public StudyObjectCollection createObjectCollection(Record record) {
 
         if (record.size() <= 0) {  // skip empty records
 			return null;
@@ -190,12 +223,25 @@ public class SSDGenerator extends BaseGenerator {
             logger.printExceptionByIdWithArgs("DSG_00006", typeUri);
             return null;
         }
+        
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // 🚫 REMOVE DUAL-LAYER: Skip SOC creation for SIR objects
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // SIR objects (Instrument, Component, etc.) should ONLY exist
+        // as specialized SIR entities, NOT as StudyObjectCollections
+        String sirType = detectSIRType(typeUri);
+        if (sirType != null) {
+            logger.println("  [SIR-ONLY] Detected SIR type: " + sirType + " - Skipping SOC creation");
+            logger.println("  [SIR-ONLY] Object will be created as pure SIR entity (no StudyObject layer)");
+            System.out.println("[SIR-ONLY] Skipping SOC for SIR type: " + sirType);
+            return null; // Don't create SOC for SIR objects
+        }
             
         // AUTO-DERIVE SOCReference if not provided
         // VSTOI uses standard hasco:StudyObjectCollection or hasco:ObjectCollection
         // The distinction is made at the instance level (vstoi:Instrument, vstoi:Component, etc.)
         // So we derive SOCReference from the URI for ANY collection that doesn't provide it
-        if (SOCReference == null || SOCReference.isEmpty()) {
+        if (SOCReference.isEmpty()) {
             // Check if this is a generic ObjectCollection - auto-derive reference
             boolean isObjectCollection = typeUri.contains("ObjectCollection") || 
                                         typeUri.contains("StudyObjectCollection");
@@ -229,7 +275,7 @@ public class SSDGenerator extends BaseGenerator {
         soc.setTypeUri(URIUtils.replacePrefixEx(typeUri));
         soc.setHascoTypeUri(URIUtils.replacePrefixEx(HASCO.STUDY_OBJECT_COLLECTION));
         soc.setLabel(getLabel(record));
-        soc.setComment(getLabel(record));
+        soc.setComment(getComment(record));
         soc.setIsMemberOfUri(studyUri);
         soc.setVirtualColumnUri(getVirtualColumnUri(record));
         soc.setRoleUri(getRoleLabel(record));
@@ -274,8 +320,6 @@ public class SSDGenerator extends BaseGenerator {
         return soc;
     }   
         
-    @Override
-    public void preprocess() throws Exception {}
 
     @Override
     public HADatAcThing createObject(Record rec, int rowNumber, String selector) throws Exception {
@@ -285,8 +329,7 @@ public class SSDGenerator extends BaseGenerator {
                 return null;
             }
             if (!URIUtils.replacePrefixEx(uri).equals(studyUri)) {
-                HADatAcThing obj = createObjectCollection(rec);
-                return obj;
+                return createObjectCollection(rec);
             }
         return null;
     }

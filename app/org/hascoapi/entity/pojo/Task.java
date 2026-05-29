@@ -121,6 +121,10 @@ public class Task extends HADatAcThing implements Comparable<Task> {
         return hasSupertaskUri;
     }
 
+    public String getHasSupertask() {
+        return hasSupertaskUri;
+    }
+
     public void setHasSupertaskUri(String hasSupertaskUri) {
         this.hasSupertaskUri = hasSupertaskUri;
     }
@@ -144,7 +148,11 @@ public class Task extends HADatAcThing implements Comparable<Task> {
     }
 
     public void setHasRequiredInstrumentUris(List<String> hasRequiredInstrumentUris) {
-        this.hasRequiredInstrumentUris = hasRequiredInstrumentUris;
+        if (hasRequiredInstrumentUris == null) {
+            this.hasRequiredInstrumentUris = new ArrayList<String>();
+        } else {
+            this.hasRequiredInstrumentUris = hasRequiredInstrumentUris;
+        }
     }
 
     public void addHasRequiredInstrumentUri(String hasRequiredInstrumentUri) {
@@ -166,7 +174,11 @@ public class Task extends HADatAcThing implements Comparable<Task> {
     }
 
     public void setHasSubtaskUris(List<String> hasSubtaskUris) {
-        this.hasSubtaskUris = hasSubtaskUris;
+        if (hasSubtaskUris == null) {
+            this.hasSubtaskUris = new ArrayList<String>();
+        } else {
+            this.hasSubtaskUris = hasSubtaskUris;
+        }
     }
 
     public void addHasSubtaskUri(String hasSubtaskUri) {
@@ -181,6 +193,26 @@ public class Task extends HADatAcThing implements Comparable<Task> {
 
     public List<String> getHasSubtaskUris() {
         return this.hasSubtaskUris;
+    }
+
+    // Backward-compatible alias used by some clients (e.g., workflow editor)
+    public List<Task> getSubtask() {
+        List<Task> resp = new ArrayList<Task>();
+        if (hasSubtaskUris == null || hasSubtaskUris.size() <= 0) {
+            return resp;
+        }
+        for (String hasSubtaskUri : hasSubtaskUris) {
+            Task subtask = Task.find(hasSubtaskUri);
+            if (subtask != null) {
+                resp.add(subtask);
+            }
+        }
+        return resp;
+    }
+
+    // Backward-compatible alias used by some clients (e.g., workflow editor)
+    public List<RequiredInstrument> getRequiredInstrumentation() {
+        return getRequiredInstrument();
     }
 
     /* 

@@ -191,8 +191,17 @@ public class AnnotateDASOC {
                 dataFile.getLogger().println("Study URI not in DataFile, attempting to discover...");
                 System.out.println("[DASOC] Attempting to discover Study URI...");
 
-                // Try to find study by querying for any object with isMemberOf
-                studyUri = discoverStudyUri(dataFile);
+                // Discovery fallback order:
+                // 1) DA -> hasco:isMemberOf -> Study
+                // 2) SOC (explicit or inferred) -> hasco:isMemberOf -> Study
+                // 3) originalID tracing from CSV rows
+                studyUri = discoverStudyUri(dataFile, daUri, socUri);
+
+                if (studyUri != null && !studyUri.isEmpty()) {
+                    dataFile.setStudyUri(studyUri);
+                    dataFile.save();
+                    dataFile.getLogger().println("Persisted discovered Study URI into DataFile: " + studyUri);
+                }
             }
 
             if (studyUri == null || studyUri.isEmpty()) {
@@ -287,6 +296,9 @@ public class AnnotateDASOC {
      * This allows DASOC files to add properties to any object in the study by matching originalID
      *
      * Hierarchy: Object → isMemberOf → Collection → isMemberOf → Study
+     * 
+     * NOW SUPPORTS PURE SIR OBJECTS: Also searches for SIR entities (Instrument, Component, etc.)
+     * that were created without a StudyObject layer (new SIR-only approach)
      */
     private static Map<String, String> buildOriginalIdMapFromStudy(String studyUri, DataFile dataFile) {
         Map<String, String> map = new HashMap<>();
@@ -320,6 +332,41 @@ public class AnnotateDASOC {
                     "      } \n" +
                     "    } \n" +
                     "  } \n" +
+                    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                    // 🔍 NEW: Search for PURE SIR objects (no StudyObject layer)
+                    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                    // SIR objects created with the new SIR-only approach have originalID
+                    // and are directly instances of vstoi:Instrument, vstoi:Component, etc.
+                    // They don't have an intermediate StudyObject, so we search them directly
+                    "  UNION \n" +
+                    "  { \n" +
+                    "    ?objUri hasco:originalID ?originalId . \n" +
+                    "    ?objUri rdf:type ?type . \n" +
+                    "    FILTER( \n" +
+                    "      ?type = vstoi:Instrument || \n" +
+                    "      ?type = vstoi:Component || \n" +
+                    "      ?type = vstoi:ComponentStem || \n" +
+                    "      ?type = vstoi:ContainerSlot || \n" +
+                    "      ?type = vstoi:Codebook || \n" +
+                    "      ?type = vstoi:ResponseOption || \n" +
+                    "      ?type = vstoi:AnnotationStem \n" +
+                    "    ) \n" +
+                    "  } \n" +
+                    "  UNION \n" +
+                    "  { GRAPH ?g3 { \n" +
+                    "      ?objUri hasco:originalID ?originalId . \n" +
+                    "      ?objUri rdf:type ?type . \n" +
+                    "      FILTER( \n" +
+                    "        ?type = vstoi:Instrument || \n" +
+                    "        ?type = vstoi:Component || \n" +
+                    "        ?type = vstoi:ComponentStem || \n" +
+                    "        ?type = vstoi:ContainerSlot || \n" +
+                    "        ?type = vstoi:Codebook || \n" +
+                    "        ?type = vstoi:ResponseOption || \n" +
+                    "        ?type = vstoi:AnnotationStem \n" +
+                    "      ) \n" +
+                    "    } \n" +
+                    "  } \n" +
                     "}";
 
             org.apache.jena.query.ResultSet results = SPARQLUtils.select(
@@ -327,6 +374,7 @@ public class AnnotateDASOC {
                     queryString);
 
             int count = 0;
+            int sirCount = 0;
             while (results.hasNext()) {
                 org.apache.jena.query.QuerySolution soln = results.next();
                 if (soln.get("objUri") != null && soln.get("originalId") != null) {
@@ -339,19 +387,33 @@ public class AnnotateDASOC {
                         continue;
                     }
 
-                    // Check for duplicate originalIDs
+                    // Check for duplicate originalIDs and prefer canonical native URI shape.
                     if (map.containsKey(originalId)) {
-                        dataFile.getLogger().printWarning("Duplicate originalID found, using first occurrence: " + originalId);
+                        String currentUri = map.get(originalId);
+                        if (shouldReplaceWithCanonicalUri(currentUri, objUri)) {
+                            map.put(originalId, objUri);
+                            dataFile.getLogger().println("Duplicate originalID resolved to canonical URI: " + originalId +
+                                    " [" + currentUri + " -> " + objUri + "]");
+                        } else {
+                            dataFile.getLogger().printWarning("Duplicate originalID found, keeping existing URI: " +
+                                    originalId + " [kept=" + currentUri + ", ignored=" + objUri + "]");
+                        }
                         continue;
                     }
 
                     map.put(originalId, objUri);
                     count++;
+                    
+                    // Count SIR objects for logging
+                    if (objUri.contains("INST-") || objUri.contains("COMP-") || 
+                        objUri.contains("ROPT-") || objUri.contains("CDBK-")) {
+                        sirCount++;
+                    }
                 }
             }
 
-            dataFile.getLogger().println(String.format("✅ Found %d StudyObjects with originalIDs in Study", count));
-            System.out.println(String.format("[DASOC] Built originalID map: %d elements from Study", count));
+            dataFile.getLogger().println(String.format("✅ Found %d objects with originalIDs in Study (%d SIR objects)", count, sirCount));
+            System.out.println(String.format("[DASOC] Built originalID map: %d elements from Study (%d SIR)", count, sirCount));
 
         } catch (Exception e) {
             dataFile.getLogger().printException("Error building originalID map from Study: " + e.getMessage());
@@ -359,6 +421,39 @@ public class AnnotateDASOC {
         }
 
         return map;
+    }
+
+    private static boolean shouldReplaceWithCanonicalUri(String currentUri, String candidateUri) {
+        if (candidateUri == null || candidateUri.isEmpty()) {
+            return false;
+        }
+        if (currentUri == null || currentUri.isEmpty()) {
+            return true;
+        }
+        boolean currentLegacy = isLegacySirInstanceUri(currentUri);
+        boolean candidateLegacy = isLegacySirInstanceUri(candidateUri);
+        if (currentLegacy && !candidateLegacy) {
+            return true;
+        }
+        if (!currentLegacy && candidateLegacy) {
+            return false;
+        }
+        // Stable fallback: keep existing mapping.
+        return false;
+    }
+
+    private static boolean isLegacySirInstanceUri(String uri) {
+        if (uri == null) {
+            return false;
+        }
+        String upper = uri.toUpperCase();
+        return upper.contains("INST-INS") ||
+                upper.contains("COMP-COM") ||
+                upper.contains("CSTEM-CSM") ||
+                upper.contains("CB-CBK") ||
+                upper.contains("ROPT-ROP") ||
+                upper.contains("CTSLOT-CTS") ||
+                upper.contains("ASTEM-ASM");
     }
 
     /**
@@ -419,27 +514,38 @@ public class AnnotateDASOC {
                         continue;
                     }
 
-                    // Determine if this is a VSTOI specialized object
-                    // We need to add properties to the VSTOI instance, not just the StudyObject
-                    // This works for: Instrument, ComponentStem, Component, ResponseOption, Codebook, ContainerSlot
-                    boolean hasVSTOIInstance = isVSTOIInstrument(objectUri, dataFile);
+                    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                    // 🔍 DETECT OBJECT TYPE: Check if this is a pure SIR object or dual-layer
+                    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                    // NEW APPROACH: SIR objects can be pure (no StudyObject layer)
+                    // OLD APPROACH: SIR objects had dual-layer (StudyObject + VSTOI link)
+                    // We need to handle both cases for backward compatibility
+                    
+                    boolean isPureSIRObject = isPureSIRObject(objectUri, dataFile);
+                    boolean hasDualLayerVSTOI = false;
+                    String vstoiInstanceUri = null;
+                    
+                    if (!isPureSIRObject) {
+                        // Check if this has a VSTOI instance via dual-layer approach
+                        hasDualLayerVSTOI = isVSTOIInstrument(objectUri, dataFile);
+                        if (hasDualLayerVSTOI) {
+                            vstoiInstanceUri = getInstrumentInstanceUri(objectUri, dataFile);
+                        }
+                    }
                     
                     Resource objectResource;
-                    if (hasVSTOIInstance) {
-                        // For VSTOI objects, we need to get the specialized instance URI
-                        // The pattern is: StudyObject (has[Type]) -> VSTOI specialized instance
-                        String vstoiInstanceUri = getInstrumentInstanceUri(objectUri, dataFile);
-                        if (vstoiInstanceUri != null && !vstoiInstanceUri.isEmpty()) {
-                            objectResource = model.createResource(vstoiInstanceUri);
-                            // Log message already printed by getVSTOIInstanceUri()
-                        } else {
-                            // Fallback to StudyObject if VSTOI instance not found
-                            objectResource = model.createResource(objectUri);
-                            dataFile.getLogger().printWarning(String.format(
-                                "  [VSTOI] Specialized instance URI not found for %s, adding to StudyObject", originalId));
-                        }
+                    if (isPureSIRObject) {
+                        // Pure SIR object - add properties directly to it
+                        objectResource = model.createResource(objectUri);
+                        dataFile.getLogger().println(String.format(
+                            "  [SIR-PURE] Adding properties to pure SIR object: %s", originalId));
+                    } else if (hasDualLayerVSTOI && vstoiInstanceUri != null && !vstoiInstanceUri.isEmpty()) {
+                        // Dual-layer VSTOI - add properties to the specialized instance
+                        objectResource = model.createResource(vstoiInstanceUri);
+                        dataFile.getLogger().println(String.format(
+                            "  [SIR-DUAL] Adding properties to dual-layer VSTOI instance: %s", originalId));
                     } else {
-                        // For non-VSTOI objects, use the StudyObject URI
+                        // Regular StudyObject - add properties to it
                         objectResource = model.createResource(objectUri);
                     }
 
@@ -461,12 +567,12 @@ public class AnnotateDASOC {
                         Property timestampProp = model.createProperty(TIMESTAMP_PREDICATE);
                         objectResource.addProperty(timestampProp, timestamp);
 
-                        // Link to DA (add to both VSTOI instance and StudyObject for consistency)
+                        // Link to DA
                         Property hasDAProperty = model.createProperty("http://hadatac.org/ont/hasco/hasDataAcquisition");
                         objectResource.addProperty(hasDAProperty, model.createResource(daUri));
                         
-                        // Also add DA link to the base StudyObject if we're working with a VSTOI instance
-                        if (hasVSTOIInstance && !objectResource.getURI().equals(objectUri)) {
+                        // For dual-layer VSTOI, also add DA link to the base StudyObject
+                        if (hasDualLayerVSTOI && !objectResource.getURI().equals(objectUri)) {
                             Resource studyObjectResource = model.createResource(objectUri);
                             studyObjectResource.addProperty(hasDAProperty, model.createResource(daUri));
                         }
@@ -474,9 +580,11 @@ public class AnnotateDASOC {
                         // ===== ENRICH POJO OBJECTS =====
                         // After adding RDF triples, also enrich the POJO objects
                         // This updates the in-memory Java objects that are used by the UI
-                        if (hasVSTOIInstance) {
-                            String vstoiInstanceUri = getInstrumentInstanceUri(objectUri, dataFile);
-                            if (vstoiInstanceUri != null && !vstoiInstanceUri.isEmpty()) {
+                        if (isPureSIRObject || hasDualLayerVSTOI) {
+                            // Determine which URI to enrich
+                            String enrichUri = isPureSIRObject ? objectUri : vstoiInstanceUri;
+                            
+                            if (enrichUri != null && !enrichUri.isEmpty()) {
                                 // Collect properties for enrichment
                                 Map<String, String> propertiesMap = new HashMap<>();
                                 for (int i = 1; i < headers.size(); i++) {
@@ -489,13 +597,14 @@ public class AnnotateDASOC {
                                 }
 
                                 System.out.println("[ENRICH-TRACE] Row " + record.getRecordNumber() + ": originalId=" + originalId);
-                                System.out.println("[ENRICH-TRACE]   StudyObject URI: " + objectUri);
-                                System.out.println("[ENRICH-TRACE]   VSTOI Instance URI: " + vstoiInstanceUri);
+                                System.out.println("[ENRICH-TRACE]   Object URI: " + objectUri);
+                                System.out.println("[ENRICH-TRACE]   Target URI (SIR): " + enrichUri);
+                                System.out.println("[ENRICH-TRACE]   Is Pure SIR: " + isPureSIRObject);
                                 System.out.println("[ENRICH-TRACE]   Properties collected: " + propertiesMap.size());
-                                System.out.println("[ENRICH-TRACE]   Calling enrichVstoiEntity() with VSTOI URI");
+                                System.out.println("[ENRICH-TRACE]   Calling enrichVstoiEntity()");
 
-                                // Enrich the VSTOI POJO instance
-                                enrichVstoiEntity(vstoiInstanceUri, propertiesMap, dataFile);
+                                // Enrich the SIR POJO instance
+                                enrichVstoiEntity(enrichUri, propertiesMap, dataFile);
                             }
                         }
                         // ===== END ENRICH POJO OBJECTS =====
@@ -1173,49 +1282,36 @@ public class AnnotateDASOC {
     }
 
     /**
-     * Helper method to convert originalID-based references to proper VSTOI URIs
+     * Helper method to convert originalID-based references to canonical VSTOI URIs
      * Examples:
-     *   pmsr:/CBK1738096258564815 -> http://pmsr.net/ont/pmsr#CB-CBK1738096258564815
-     *   pmsr:/CSM1738097871592315 -> http://pmsr.net/ont/pmsr#CSTEM-CSM1738097871592315
+     *   pmsr:/CBK1738096258564815 -> http://pmsr.net/ont/pmsr#CBK1738096258564815
+     *   pmsr:/CSM1738097871592315 -> http://pmsr.net/ont/pmsr#CSM1738097871592315
      */
     private static String convertToVstoiUri(String value) {
         if (value == null || value.isEmpty()) {
             return value;
         }
-        
-        // First expand the prefix (pmsr:/ -> http://pmsr.net/ont/pmsr#)
-        String expandedUri = URIUtils.replacePrefixEx(value);
-        
-        // Now check if we need to add VSTOI prefixes based on the originalID pattern
-        if (expandedUri.contains("#CBK")) {
-            // Codebook: add "CB-" prefix
-            expandedUri = expandedUri.replace("#CBK", "#CB-CBK");
-            System.out.println("[DEBUG-URI-TRANSFORM] Codebook: " + value + " -> " + expandedUri);
-        } else if (expandedUri.contains("#CSM")) {
-            // ComponentStem: add "CSTEM-" prefix
-            expandedUri = expandedUri.replace("#CSM", "#CSTEM-CSM");
-            System.out.println("[DEBUG-URI-TRANSFORM] ComponentStem: " + value + " -> " + expandedUri);
-        } else if (expandedUri.contains("#COM")) {
-            // Component: add "COMP-" prefix
-            expandedUri = expandedUri.replace("#COM", "#COMP-COM");
-            System.out.println("[DEBUG-URI-TRANSFORM] Component: " + value + " -> " + expandedUri);
-        } else if (expandedUri.contains("#ROP")) {
-            // ResponseOption: add "ROPT-" prefix
-            expandedUri = expandedUri.replace("#ROP", "#ROPT-ROP");
-            System.out.println("[DEBUG-URI-TRANSFORM] ResponseOption: " + value + " -> " + expandedUri);
-        } else if (expandedUri.contains("#INS")) {
-            // Instrument: add "INST-" prefix
-            expandedUri = expandedUri.replace("#INS", "#INST-INS");
-            System.out.println("[DEBUG-URI-TRANSFORM] Instrument: " + value + " -> " + expandedUri);
-        } else if (expandedUri.contains("#CTS")) {
-            // ContainerSlot: add "CTSLOT-" prefix (if not already there)
-            if (!expandedUri.contains("#CTSLOT-")) {
-                expandedUri = expandedUri.replace("#CTS", "#CTSLOT-CTS");
-                System.out.println("[DEBUG-URI-TRANSFORM] ContainerSlot: " + value + " -> " + expandedUri);
-            }
+
+        // Canonical single-layer model: URI = namespace + originalID (no INST-/COMP-/CSTEM- rewrites).
+        return URIUtils.replacePrefixEx(value);
+    }
+
+    private static boolean uriExists(String uri) {
+        if (uri == null || uri.isEmpty()) {
+            return false;
         }
-        
-        return expandedUri;
+        try {
+            String ns = NameSpaces.getInstance().printSparqlNameSpaceList();
+            String queryString = ns +
+                "SELECT ?p WHERE { { <" + uri + "> ?p ?o . } UNION { GRAPH ?g { <" + uri + "> ?p ?o . } } } LIMIT 1";
+            org.apache.jena.query.ResultSet results = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY),
+                queryString);
+            return results != null && results.hasNext();
+        } catch (Exception e) {
+            // best-effort resolution; caller handles fallback
+        }
+        return false;
     }
 
     /**
@@ -1557,7 +1653,224 @@ public class AnnotateDASOC {
      *
      * This reads a sample of originalIDs from the CSV file and traces back to the Study.
      */
-    private static String discoverStudyUri(DataFile dataFile) {
+    private static String discoverStudyUri(DataFile dataFile, String daUri, String socUri) {
+        try {
+            // Strategy 0a: DA -> Study
+            String studyFromDA = discoverStudyUriFromDA(dataFile, daUri);
+            if (studyFromDA != null && !studyFromDA.isEmpty()) {
+                return studyFromDA;
+            }
+
+            // Strategy 0a.1: DataFile -> hasco:hasStudy
+            String studyFromDataFile = discoverStudyUriFromDataFileMetadata(dataFile);
+            if (studyFromDataFile != null && !studyFromDataFile.isEmpty()) {
+                return studyFromDataFile;
+            }
+
+            // Strategy 0b: SOC -> Study (explicit/inferred SOC URI)
+            String studyFromSOC = discoverStudyUriFromSOC(dataFile, socUri);
+            if (studyFromSOC != null && !studyFromSOC.isEmpty()) {
+                return studyFromSOC;
+            }
+
+            // Strategy 1+: legacy/original approach from CSV originalIDs
+            return discoverStudyUriFromOriginalIds(dataFile);
+        } catch (Exception e) {
+            dataFile.getLogger().printWarning("Error discovering Study URI: " + e.getMessage());
+            System.out.println("[DASOC] Error discovering Study (combined strategy): " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private static String discoverStudyUriFromDA(DataFile dataFile, String daUri) {
+        if (daUri == null || daUri.isEmpty()) {
+            return null;
+        }
+
+        try {
+            String decodedDaUri = URLDecoder.decode(daUri, "UTF-8");
+            String fullDaUri = URIUtils.replacePrefixEx(decodedDaUri);
+
+            // Fast path: use DA POJO lookup first
+            DA da = DA.find(fullDaUri);
+            if (da != null && da.getIsMemberOfUri() != null && !da.getIsMemberOfUri().isEmpty()) {
+                String studyUri = URIUtils.replacePrefixEx(da.getIsMemberOfUri());
+                dataFile.getLogger().println("✅ Discovered Study URI from DA record: " + studyUri);
+                System.out.println("[DASOC] ✅ Study discovered from DA: " + studyUri);
+                return studyUri;
+            }
+
+            // Fallback: query triplestore directly (default + named graphs)
+            String q = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                    "SELECT ?study WHERE { \n" +
+                    "  { <" + fullDaUri + "> hasco:isMemberOf ?study . } \n" +
+                    "  UNION \n" +
+                    "  { GRAPH ?g { <" + fullDaUri + "> hasco:isMemberOf ?study . } } \n" +
+                    "} LIMIT 1";
+
+            org.apache.jena.query.ResultSet rs = SPARQLUtils.select(
+                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), q);
+            if (rs.hasNext()) {
+                org.apache.jena.query.QuerySolution soln = rs.next();
+                String studyUri = soln.get("study") != null ? soln.get("study").toString() : null;
+                if (studyUri != null && !studyUri.isEmpty()) {
+                    dataFile.getLogger().println("✅ Discovered Study URI from DA query: " + studyUri);
+                    System.out.println("[DASOC] ✅ Study discovered from DA query: " + studyUri);
+                    return studyUri;
+                }
+            }
+        } catch (Exception e) {
+            dataFile.getLogger().printWarning("DA-based Study discovery failed: " + e.getMessage());
+            System.out.println("[DASOC] DA-based Study discovery failed: " + e.getMessage());
+        }
+
+        return null;
+    }
+
+    private static String discoverStudyUriFromDataFileMetadata(DataFile dataFile) {
+        try {
+            if (dataFile == null || dataFile.getUri() == null || dataFile.getUri().isEmpty()) {
+                return null;
+            }
+
+            String dataFileUri = URIUtils.replacePrefixEx(dataFile.getUri());
+            String q = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                    "SELECT ?study WHERE { \n" +
+                    "  { <" + dataFileUri + "> hasco:hasStudy ?study . } \n" +
+                    "  UNION \n" +
+                    "  { GRAPH ?g { <" + dataFileUri + "> hasco:hasStudy ?study . } } \n" +
+                    "} LIMIT 1";
+
+            org.apache.jena.query.ResultSet rs = SPARQLUtils.select(
+                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), q);
+            if (rs.hasNext()) {
+                org.apache.jena.query.QuerySolution soln = rs.next();
+                String studyUri = soln.get("study") != null ? soln.get("study").toString() : null;
+                if (studyUri != null && !studyUri.isEmpty()) {
+                    dataFile.getLogger().println("✅ Discovered Study URI from DataFile metadata: " + studyUri);
+                    System.out.println("[DASOC] ✅ Study discovered from DataFile metadata: " + studyUri);
+                    return studyUri;
+                }
+            }
+        } catch (Exception e) {
+            dataFile.getLogger().printWarning("DataFile-metadata Study discovery failed: " + e.getMessage());
+            System.out.println("[DASOC] DataFile-metadata Study discovery failed: " + e.getMessage());
+        }
+        return null;
+    }
+
+    private static String discoverStudyUriFromSOC(DataFile dataFile, String socUri) {
+        java.util.LinkedHashSet<String> candidates = new java.util.LinkedHashSet<>();
+
+        if (socUri != null && !socUri.isEmpty()) {
+            candidates.add(socUri);
+        }
+        if (dataFile.getDasocSOCUri() != null && !dataFile.getDasocSOCUri().isEmpty()) {
+            candidates.add(dataFile.getDasocSOCUri());
+        }
+
+        // Best-effort inference from filename: DA-SOC-{SOCNAME}.csv
+        String filename = dataFile.getFilename();
+        if (filename != null && filename.startsWith("DA-SOC-")) {
+            String base = filename;
+            int dot = filename.lastIndexOf('.');
+            if (dot > 0) {
+                base = filename.substring(0, dot);
+            }
+            String socName = base.substring("DA-SOC-".length());
+            if (!socName.isEmpty()) {
+                String detected = IngestionWorker.findSOCByName(socName);
+                if (detected != null && !detected.isEmpty()) {
+                    candidates.add(detected);
+                }
+                if (socName.contains("_")) {
+                    String detectedHyphen = IngestionWorker.findSOCByName(socName.replace("_", "-"));
+                    if (detectedHyphen != null && !detectedHyphen.isEmpty()) {
+                        candidates.add(detectedHyphen);
+                    }
+                }
+            }
+        }
+
+        if (candidates.isEmpty()) {
+            return null;
+        }
+
+        for (String candidate : candidates) {
+            try {
+                String fullSocUri = URIUtils.replacePrefixEx(candidate);
+                if (fullSocUri == null || fullSocUri.isEmpty()) {
+                    continue;
+                }
+
+                // Direct SOC URI lookup
+                String qDirect = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                        "SELECT ?study WHERE { \n" +
+                        "  { <" + fullSocUri + "> hasco:isMemberOf ?study . } \n" +
+                        "  UNION \n" +
+                        "  { GRAPH ?g { <" + fullSocUri + "> hasco:isMemberOf ?study . } } \n" +
+                        "} LIMIT 1";
+
+                org.apache.jena.query.ResultSet rsDirect = SPARQLUtils.select(
+                        CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), qDirect);
+                if (rsDirect.hasNext()) {
+                    org.apache.jena.query.QuerySolution soln = rsDirect.next();
+                    String studyUri = soln.get("study") != null ? soln.get("study").toString() : null;
+                    if (studyUri != null && !studyUri.isEmpty()) {
+                        dataFile.getLogger().println("✅ Discovered Study URI from SOC: " + studyUri + " (SOC=" + fullSocUri + ")");
+                        System.out.println("[DASOC] ✅ Study discovered from SOC " + fullSocUri + ": " + studyUri);
+                        return studyUri;
+                    }
+                }
+
+                // Tail-based fallback (when prefix/base differs but URI tail is stable)
+                String tail = extractUriTail(fullSocUri);
+                if (tail != null && !tail.isEmpty()) {
+                    String qTail = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                            "SELECT ?soc ?study WHERE { \n" +
+                            "  { ?soc hasco:isMemberOf ?study . } \n" +
+                            "  UNION \n" +
+                            "  { GRAPH ?g { ?soc hasco:isMemberOf ?study . } } \n" +
+                            "  FILTER(STRENDS(STR(?soc), \"#" + tail + "\") || STRENDS(STR(?soc), \"/" + tail + "\")) \n" +
+                            "} LIMIT 1";
+
+                    org.apache.jena.query.ResultSet rsTail = SPARQLUtils.select(
+                            CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), qTail);
+                    if (rsTail.hasNext()) {
+                        org.apache.jena.query.QuerySolution soln = rsTail.next();
+                        String studyUri = soln.get("study") != null ? soln.get("study").toString() : null;
+                        String resolvedSoc = soln.get("soc") != null ? soln.get("soc").toString() : null;
+                        if (studyUri != null && !studyUri.isEmpty()) {
+                            dataFile.getLogger().println("✅ Discovered Study URI by SOC tail: " + studyUri + " (SOC=" + resolvedSoc + ")");
+                            System.out.println("[DASOC] ✅ Study discovered by SOC tail " + tail + ": " + studyUri + " (SOC=" + resolvedSoc + ")");
+                            return studyUri;
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                dataFile.getLogger().printWarning("SOC-based Study discovery failed for candidate " + candidate + ": " + e.getMessage());
+                System.out.println("[DASOC] SOC-based Study discovery failed for " + candidate + ": " + e.getMessage());
+            }
+        }
+
+        return null;
+    }
+
+    private static String extractUriTail(String uri) {
+        if (uri == null || uri.isEmpty()) {
+            return "";
+        }
+        int hash = uri.lastIndexOf('#');
+        int slash = uri.lastIndexOf('/');
+        int idx = Math.max(hash, slash);
+        if (idx >= 0 && idx + 1 < uri.length()) {
+            return uri.substring(idx + 1);
+        }
+        return uri;
+    }
+
+    private static String discoverStudyUriFromOriginalIds(DataFile dataFile) {
         try {
             File file = dataFile.getFile();
             if (file == null || !file.exists()) {
@@ -1731,6 +2044,62 @@ public class AnnotateDASOC {
         }
 
         return null;
+    }
+
+    /**
+     * Check if an object is a pure SIR object (without StudyObject layer)
+     * Pure SIR objects are directly instances of vstoi:Instrument, vstoi:Component, etc.
+     * and have hasco:originalID property
+     */
+    private static boolean isPureSIRObject(String objectUri, DataFile dataFile) {
+        try {
+            String ns = NameSpaces.getInstance().printSparqlNameSpaceList();
+            String queryString = ns +
+                    "SELECT ?type WHERE { \n" +
+                    "  { \n" +
+                    "    <" + objectUri + "> rdf:type ?type . \n" +
+                    "    FILTER( \n" +
+                    "      ?type = vstoi:Instrument || \n" +
+                    "      ?type = vstoi:Component || \n" +
+                    "      ?type = vstoi:ComponentStem || \n" +
+                    "      ?type = vstoi:ContainerSlot || \n" +
+                    "      ?type = vstoi:Codebook || \n" +
+                    "      ?type = vstoi:ResponseOption || \n" +
+                    "      ?type = vstoi:AnnotationStem \n" +
+                    "    ) \n" +
+                    "  } \n" +
+                    "  UNION \n" +
+                    "  { GRAPH ?g { \n" +
+                    "      <" + objectUri + "> rdf:type ?type . \n" +
+                    "      FILTER( \n" +
+                    "        ?type = vstoi:Instrument || \n" +
+                    "        ?type = vstoi:Component || \n" +
+                    "        ?type = vstoi:ComponentStem || \n" +
+                    "        ?type = vstoi:ContainerSlot || \n" +
+                    "        ?type = vstoi:Codebook || \n" +
+                    "        ?type = vstoi:ResponseOption || \n" +
+                    "        ?type = vstoi:AnnotationStem \n" +
+                    "      ) \n" +
+                    "    } \n" +
+                    "  } \n" +
+                    "} LIMIT 1";
+
+            org.apache.jena.query.ResultSet results = SPARQLUtils.select(
+                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY),
+                    queryString);
+
+            boolean result = results.hasNext();
+
+            if (result) {
+                System.out.println("[DASOC] Detected pure SIR object: " + objectUri);
+            }
+
+            return result;
+
+        } catch (Exception e) {
+            dataFile.getLogger().printWarning("Error checking if object is pure SIR: " + e.getMessage());
+            return false;
+        }
     }
 
     /**

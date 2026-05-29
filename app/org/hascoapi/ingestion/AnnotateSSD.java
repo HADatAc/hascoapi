@@ -425,16 +425,40 @@ public class AnnotateSSD extends BaseAnnotator {
                 return;
             }
 
-            System.out.println("Adding StudyObjectGenerator for SOC [" + cleanSheetName + "]...");
-            dataFile.getLogger().println("Adding StudyObjectGenerator...");
-            chain.addGenerator(new StudyObjectGenerator(
-                    dataFile,
-                    headers,
-                    content,
-                    references,
-                    chain.getStudyUri(),
-                    study.getId(),
-                    namespace));
+            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            // 🔍 DETECT SIR WORKSHEETS: Check if this is a SIR object collection
+            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            // SIR worksheets contain VSTOI objects (Instrument, Component, etc.)
+            // They need to use SIRObjectGenerator instead of StudyObjectGenerator
+            boolean isSIRWorksheet = detectSIRWorksheet(cleanSheetName, headers);
+            
+            if (isSIRWorksheet) {
+                // For SIR worksheets, use SIRObjectGenerator to create pure SIR entities
+                System.out.println("[SIR-DETECT] Detected SIR worksheet: " + cleanSheetName);
+                dataFile.getLogger().println("[SIR-DETECT] Detected SIR worksheet - using SIRObjectGenerator: " + cleanSheetName);
+                
+                // Create a clone of the DataFile for this generator
+                DataFile sirDataFile = (DataFile) dataFile.clone();
+                sirDataFile.setRecordFile(sheet);
+                
+                // Add SIRObjectGenerator instead of StudyObjectGenerator
+                String socUri = org.hascoapi.utils.URIUtils.replacePrefixEx(key);
+                chain.addGenerator(new SIRObjectGenerator(sirDataFile, namespace, socUri));
+                
+                dataFile.getLogger().println("✅ Added SIRObjectGenerator for " + cleanSheetName);
+            } else {
+                // For regular SOC worksheets, use StudyObjectGenerator
+                System.out.println("Adding StudyObjectGenerator for SOC [" + cleanSheetName + "]...");
+                dataFile.getLogger().println("Adding StudyObjectGenerator...");
+                chain.addGenerator(new StudyObjectGenerator(
+                        dataFile,
+                        headers,
+                        content,
+                        references,
+                        chain.getStudyUri(),
+                        study.getId(),
+                        namespace));
+            }
 
             // Restore the original RecordFile
             dataFile.setRecordFile(originalRecordFile);
@@ -445,5 +469,43 @@ public class AnnotateSSD extends BaseAnnotator {
             // Defensive: don't crash the whole ingestion because one SOC couldn't be preprocessed
             dataFile.getLogger().printExceptionByIdWithArgs("DSG_00016", "Exception preprocessing SOC key=" + key + ": " + e.getMessage());
         }
+    }
+
+    /**
+     * Detecta se um worksheet SOC contém objetos SIR (VSTOI)
+     * Checa o nome do worksheet e os headers para identificar tipos SIR
+     */
+    private static boolean detectSIRWorksheet(String cleanSheetName, List<String> headers) {
+        // Normalize sheet names to catch both compact and hyphen/space-separated variants.
+        String upperSheetName = cleanSheetName.toUpperCase();
+        String normalizedSheetName = upperSheetName.replaceAll("[^A-Z0-9]", "");
+        if (normalizedSheetName.contains("INSTRUMENT") ||
+            normalizedSheetName.contains("COMPONENT") ||
+            normalizedSheetName.contains("RESPONSEOPTION") ||
+            normalizedSheetName.contains("CODEBOOK") ||
+            normalizedSheetName.contains("SLOTELEMENT") ||
+            normalizedSheetName.contains("CONTAINERSLOT") ||
+            normalizedSheetName.contains("ANNOTATIONSTEM")) {
+            return true;
+        }
+        
+        // Check if the type column (headers index 1) contains VSTOI types
+        if (headers != null && headers.size() > 1) {
+            String typeValue = headers.get(1); // type is typically at index 1
+            if (typeValue != null) {
+                String lowerType = typeValue.toLowerCase();
+                String normalizedType = lowerType.replaceAll("[^a-z0-9]", "");
+                if (normalizedType.contains("vstoiinstrument") ||
+                    normalizedType.contains("vstoicomponent") ||
+                    normalizedType.contains("vstoiresponseoption") ||
+                    normalizedType.contains("vstoicodebook") ||
+                    normalizedType.contains("vstoicontainerslot") ||
+                    normalizedType.contains("vstoiannotationstem")) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
     }
 }
