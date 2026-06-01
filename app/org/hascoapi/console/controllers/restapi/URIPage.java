@@ -351,13 +351,13 @@ public class URIPage extends Controller {
             return true;
         }
         
-        // Version numbers: URIs ending with just a number
-        // Example: pmsr#1, pmsr#2, etc.
-        String[] parts = uri.split("[/#]");
-        if (parts.length > 0) {
-            String lastPart = parts[parts.length - 1];
-            if (lastPart.matches("^\\d+$")) {
-                return true; // Just a number
+        // Version literals: only treat pure numeric fragment identifiers as non-instance.
+        // Example: pmsr#1, pmsr#2 (but NOT pmsr#WKF.../PROC/0001).
+        int hashIndex = uri.lastIndexOf('#');
+        if (hashIndex >= 0 && hashIndex < uri.length() - 1) {
+            String fragment = uri.substring(hashIndex + 1);
+            if (!fragment.contains("/") && fragment.matches("^\\d+$")) {
+                return true;
             }
         }
         

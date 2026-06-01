@@ -1,0 +1,33 @@
+{
+  "studyUri": "https://example.org/STD1",
+  "processUri": "https://example.org/PROC1",
+  "tool": {
+    "toolUri": "https://example.org/workflow/tools/R1",
+    "name": "R Example Tool",
+    "version": "1.0.0",
+    "language": "R",
+    "artifactUri": "file:///tmp/example_analysis.R",
+    "artifactFilename": "example_analysis.R",
+    "sourceRepositoryUri": "https://example.org/repo",
+    "entrypoint": "example_analysis.R"
+  },
+  "associations": {
+    "datasets": [],
+    "variables": [],
+    "images": [],
+    "counts": {
+      "datasets": 0,
+      "variables": 0,
+      "images": 0
+    }
+  },
+  "arguments": {
+    "requestTag": "execute",
+    "invokedBy": "manual-test"
+  },
+  "requestedAt": "2026-06-01T12:00:00Z",
+  "requestedBy": {
+    "uid": "0",
+    "identifier": "automation@local.pmsr"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "studyUri": "https://example.org/STD1",
+  "tool": {
+    "toolUri": "https://example.org/workflow/tools/PY1",
+    "language": "Python"
+  },
+  "associations": {},
+  "arguments": {},
+  "requestedBy": {}
+}
