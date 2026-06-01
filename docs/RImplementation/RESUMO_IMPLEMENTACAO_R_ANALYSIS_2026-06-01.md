@@ -110,3 +110,82 @@ No ambiente atual deste workspace, o script e o relatorio final nao estavam disp
 - docs/RImplementation/HASCOAPI_R_ANALYSIS_EXECUTIVE_BRIEF.md
 - docs/RImplementation/HASCOAPI_R_ANALYSIS_EXECUTE_ENDPOINT_HANDOFF.md
 - docs/RImplementation/HASCOAPI_R_ANALYSIS_COPILOT_GUIDE.md
+
+## 10. Entrega Solicitada (PR/Commit, 200/400 e Evidencia)
+
+### 10.1 Link do PR/commit
+- Commit: https://github.com/hadatac/hascoapi/commit/dc08398bce0494e439414293314d792eca7867d8
+- Branch: INStoDSG
+
+### 10.2 Exemplo de resposta 200 do endpoint
+```json
+{
+   "isSuccessful": true,
+   "body": {
+      "runId": "RA-1717246523000-a1b2c3d4",
+      "status": "completed",
+      "startedAt": "2026-06-01T12:55:20Z",
+      "finishedAt": "2026-06-01T12:55:27Z",
+      "durationMs": 7000,
+      "engine": {
+         "name": "Rscript",
+         "version": "test"
+      },
+      "input": {
+         "studyUri": "https://example.org/STD1",
+         "processUri": "https://example.org/PROC1",
+         "toolUri": "https://example.org/workflow/tools/R1"
+      },
+      "outputs": [],
+      "summary": {
+         "datasets": 0,
+         "variables": 0,
+         "images": 0,
+         "totalAssociations": 0
+      },
+      "logs": [
+         "Execution finished successfully"
+      ]
+   }
+}
+```
+
+### 10.3 Exemplo de resposta 400 do endpoint
+```json
+{
+   "isSuccessful": false,
+   "error": {
+      "code": "invalid_payload",
+      "message": "Payload validation failed",
+      "details": [
+         {
+            "field": "processUri",
+            "message": "Required non-empty string"
+         },
+         {
+            "field": "tool.language",
+            "message": "Expected language R"
+         }
+      ]
+   }
+}
+```
+
+### 10.4 Evidencia de testes executados
+Comando:
+
+- sbt "testOnly org.hascoapi.tests.RAnalysisAPITest org.hascoapi.tests.RAnalysisPayloadValidatorTest"
+
+Resultado:
+
+- Passed: Total 13, Failed 0, Errors 0, Passed 13
+
+Cobertura validada:
+
+- 200 (sucesso)
+- 400 (payload invalido e JSON malformado)
+- 401 (sem token quando auth obrigatoria)
+- 403 (token/esquema invalido)
+- 500 (falha de execucao)
+- 504 (timeout)
+- JWT valido e expirado
