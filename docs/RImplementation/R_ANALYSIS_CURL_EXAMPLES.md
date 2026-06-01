@@ -6,7 +6,7 @@
 curl -X POST "http://localhost:9000/hascoapi/api/r-analysis/execute" \
   -H "Content-Type: application/json" \
   -H "Accept: application/json" \
-  -d @docs/APIChanges/payloads/r_analysis_valid_payload.json
+  -d @docs/RImplementation/payloads/r_analysis_valid_payload.json
 ```
 
 Expected response shape:
@@ -37,7 +37,7 @@ Expected response shape:
 curl -X POST "http://localhost:9000/hascoapi/api/r-analysis/execute" \
   -H "Content-Type: application/json" \
   -H "Accept: application/json" \
-  -d @docs/APIChanges/payloads/r_analysis_invalid_payload.json
+  -d @docs/RImplementation/payloads/r_analysis_invalid_payload.json
 ```
 
 Expected response shape:
@@ -71,7 +71,7 @@ Missing token:
 ```bash
 curl -X POST "http://localhost:9000/hascoapi/api/r-analysis/execute" \
   -H "Content-Type: application/json" \
-  -d @docs/APIChanges/payloads/r_analysis_valid_payload.json
+  -d @docs/RImplementation/payloads/r_analysis_valid_payload.json
 ```
 
 Expected: HTTP 401 with `error.code = "unauthorized"`.
@@ -82,7 +82,7 @@ Invalid scheme/token:
 curl -X POST "http://localhost:9000/hascoapi/api/r-analysis/execute" \
   -H "Authorization: Basic abc" \
   -H "Content-Type: application/json" \
-  -d @docs/APIChanges/payloads/r_analysis_valid_payload.json
+  -d @docs/RImplementation/payloads/r_analysis_valid_payload.json
 ```
 
 Expected: HTTP 403 with `error.code = "forbidden"`.
