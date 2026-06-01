@@ -111,13 +111,87 @@ No ambiente atual deste workspace, o script e o relatorio final nao estavam disp
 - docs/RImplementation/HASCOAPI_R_ANALYSIS_EXECUTE_ENDPOINT_HANDOFF.md
 - docs/RImplementation/HASCOAPI_R_ANALYSIS_COPILOT_GUIDE.md
 
-## 10. Entrega Solicitada (PR/Commit, 200/400 e Evidencia)
+## 10. Validacao de Deploy e Runtime
 
-### 10.1 Link do PR/commit
+### 10.1 Status de publicacao
+- Commit: dc08398bce0494e439414293314d792eca7867d8
+- Branch: INStoDSG
+- Push: confirmado em origin/INStoDSG
+- Build local: sbt compile passou sem erros
+
+**IMPORTANTE**: O codigo esta no repositorio, mas o frontend reporta 404 em runtime.
+Isso indica que o ambiente onde o Drupal esta testando pode nao ter a versao atualizada deployada.
+
+### 10.2 Checklist de conformidade com requisitos do frontend
+
+**1. Endpoint e publicacao em runtime**
+- [x] Endpoint criado: POST /hascoapi/api/r-analysis/execute
+- [x] Rota mapeada em conf/routes linha 177
+- [ ] **PENDENTE**: Confirmar deploy no ambiente/container onde Drupal esta testando
+- [x] Aceita application/json
+- [x] Responde sempre JSON
+
+**2. Contrato de entrada**
+- [x] Aceita studyUri, processUri, tool, associations, arguments, requestedAt, requestedBy
+- [x] Valida studyUri nao vazio
+- [x] Valida processUri nao vazio
+- [x] Valida tool.toolUri obrigatorio
+- [x] Valida tool.language = R (case-insensitive)
+- [x] Valida requestedBy uid ou identifier
+
+**3. Contrato de saida**
+- [x] 200 com isSuccessful=true, body contendo runId, status, timestamps, duration, summary, logs, outputs
+- [x] Erro com isSuccessful=false, error.code, error.message, details
+- [x] Nunca retorna HTML de erro
+
+**4. Mapeamento de erros**
+- [x] 400 invalid_payload
+- [x] 401 unauthorized
+- [x] 403 forbidden
+- [x] 500 r_execution_failed
+- [x] 504 execution_timeout
+
+**5. Auth e seguranca**
+- [x] JWT valida assinatura + exp + nbf quando ativo
+- [x] Compativel com ambiente sem JWT
+- [x] Falhas de auth retornam JSON
+
+**6. Execucao e observabilidade**
+- [x] Gera runId por requisicao
+- [x] Logging estruturado
+- [x] Captura stdout/stderr resumido
+- [x] Nao expoe segredos
+
+**7. Evidencias fornecidas**
+- [x] Commit/PR
+- [ ] **PENDENTE**: Comprovacao de deploy no ambiente (imagem/tag/commit em runtime)
+- [x] Curl examples preparados
+- [x] Testes automatizados passando (13/13)
+
+**8. Criterios finais (a validar pelo Drupal apos deploy correto)**
+- [ ] R_VALIDATE_STATUS=200
+- [ ] R_EXECUTE_STATUS=200
+- [ ] R_EXECUTE_IS_SUCCESSFUL=true
+- [ ] stageSummary.rExecute=true
+- [ ] pipelineSuccess=true
+
+### 10.3 Acao necessaria para fechar integracao
+**O codigo esta pronto e testado, mas precisa ser deployado no ambiente onde o Drupal esta testando.**
+
+Passos para resolver o 404:
+1. Confirmar qual ambiente/container o Drupal esta usando
+2. Fazer build da versao dc08398 ou posterior
+3. Deploy/restart do container hascoapi com a nova versao
+4. Validar que conf/routes inclui a linha 177 no runtime
+5. Testar curl direto no endpoint antes de chamar do Drupal
+
+## 11. Entrega Solicitada (PR/Commit, 200/400 e Evidencia)
+
+### 11.1 Link do PR/commit
 - Commit: https://github.com/hadatac/hascoapi/commit/dc08398bce0494e439414293314d792eca7867d8
 - Branch: INStoDSG
 
-### 10.2 Exemplo de resposta 200 do endpoint
+### 11.2 Exemplo de resposta 200 do endpoint
 ```json
 {
    "isSuccessful": true,
@@ -150,7 +224,7 @@ No ambiente atual deste workspace, o script e o relatorio final nao estavam disp
 }
 ```
 
-### 10.3 Exemplo de resposta 400 do endpoint
+### 11.3 Exemplo de resposta 400 do endpoint
 ```json
 {
    "isSuccessful": false,
@@ -171,7 +245,7 @@ No ambiente atual deste workspace, o script e o relatorio final nao estavam disp
 }
 ```
 
-### 10.4 Evidencia de testes executados
+### 11.4 Evidencia de testes executados
 Comando:
 
 - sbt "testOnly org.hascoapi.tests.RAnalysisAPITest org.hascoapi.tests.RAnalysisPayloadValidatorTest"
