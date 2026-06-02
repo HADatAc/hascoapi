@@ -69,6 +69,18 @@ public class RAnalysisAPITest {
     }
 
     @Test
+    public void validateReturns200ForValidPayload() {
+        StubRAnalysisAPI api = new StubRAnalysisAPI(Mode.SUCCESS, false);
+
+        Result result = api.validate(jsonRequest(validPayload(), null));
+
+        Assertions.assertEquals(200, result.status());
+        JsonNode response = Json.parse(Helpers.contentAsString(result));
+        Assertions.assertTrue(response.path("isSuccessful").asBoolean(false));
+        Assertions.assertEquals("validated", response.path("body").path("status").asText());
+    }
+
+    @Test
     public void executeReturns400ForInvalidPayload() {
         StubRAnalysisAPI api = new StubRAnalysisAPI(Mode.SUCCESS, false);
 
@@ -80,6 +92,20 @@ public class RAnalysisAPITest {
         Assertions.assertEquals(400, result.status());
         JsonNode response = Json.parse(Helpers.contentAsString(result));
         Assertions.assertFalse(response.path("isSuccessful").asBoolean(true));
+        Assertions.assertEquals("invalid_payload", response.path("error").path("code").asText());
+    }
+
+    @Test
+    public void executeReturns400WhenRscriptArgsMissing() {
+        StubRAnalysisAPI api = new StubRAnalysisAPI(Mode.SUCCESS, false);
+
+        ObjectNode invalid = validPayload();
+        ((ObjectNode) invalid.path("arguments")).remove("rscriptArgs");
+
+        Result result = api.execute(jsonRequest(invalid, null));
+
+        Assertions.assertEquals(400, result.status());
+        JsonNode response = Json.parse(Helpers.contentAsString(result));
         Assertions.assertEquals("invalid_payload", response.path("error").path("code").asText());
     }
 
@@ -193,7 +219,9 @@ public class RAnalysisAPITest {
         payload.set("tool", tool);
 
         payload.set("associations", Json.newObject());
-        payload.set("arguments", Json.newObject());
+        ObjectNode arguments = Json.newObject();
+        arguments.set("rscriptArgs", Json.newArray().add("https://example.org/input.csv"));
+        payload.set("arguments", arguments);
 
         ObjectNode requestedBy = Json.newObject();
         requestedBy.put("identifier", "automation@local.pmsr");

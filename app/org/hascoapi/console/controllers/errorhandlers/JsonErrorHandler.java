@@ -1,9 +1,7 @@
 package org.hascoapi.console.controllers.errorhandlers;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import play.http.HttpErrorHandler;
 import play.mvc.Http;
@@ -25,17 +23,11 @@ public class JsonErrorHandler implements HttpErrorHandler {
     
     @Override
     public CompletionStage<Result> onClientError(Http.RequestHeader request, int statusCode, String message) {
-        // Check if this is a JSON parsing error for our R-analysis endpoint
-        if (request.path().contains("/api/r-analysis/execute") || 
-            request.contentType().orElse("").contains("application/json")) {
-            
-            JsonNode errorResponse = buildJsonError(
-                statusCode,
-                "invalid_payload",
-                "Request processing failed",
-                message
-            );
-            
+        if (isApiRequest(request)) {
+            String code = mapClientErrorCode(statusCode);
+            String friendlyMessage = mapClientErrorMessage(statusCode);
+            JsonNode errorResponse = buildJsonError(statusCode, code, friendlyMessage, message, request);
+
             return CompletableFuture.completedFuture(
                 Results.status(statusCode, errorResponse)
                     .as("application/json")
@@ -50,19 +42,21 @@ public class JsonErrorHandler implements HttpErrorHandler {
     
     @Override
     public CompletionStage<Result> onServerError(Http.RequestHeader request, Throwable exception) {
-        // Check if this is a JSON endpoint
-        if (request.path().contains("/api/r-analysis/execute") || 
-            request.contentType().orElse("").contains("application/json")) {
-            
-            JsonNode errorResponse = buildJsonError(
-                500,
-                "internal_server_error",
-                "Unexpected server error",
-                exception.getMessage()
-            );
-            
+        if (isApiRequest(request)) {
+            Throwable root = rootCause(exception);
+            String rootMessage = root == null ? "" : String.valueOf(root.getMessage());
+            String rootType = root == null ? "" : root.getClass().getSimpleName();
+            boolean triplestoreUnavailable = isTriplestoreConnectivityError(rootType, rootMessage);
+
+            int statusCode = triplestoreUnavailable ? 503 : 500;
+            String code = triplestoreUnavailable ? "triplestore_unavailable" : "internal_server_error";
+            String message = triplestoreUnavailable
+                    ? "Triplestore is unavailable"
+                    : "Unexpected server error";
+            JsonNode errorResponse = buildJsonError(statusCode, code, message, rootMessage, request);
+
             return CompletableFuture.completedFuture(
-                Results.internalServerError(errorResponse)
+                Results.status(statusCode, errorResponse)
                     .as("application/json")
             );
         }
@@ -72,23 +66,73 @@ public class JsonErrorHandler implements HttpErrorHandler {
             Results.internalServerError("Internal server error: " + exception.getMessage())
         );
     }
-    
-    private JsonNode buildJsonError(int statusCode, String code, String message, String details) {
+
+    private boolean isApiRequest(Http.RequestHeader request) {
+        String path = request.path() == null ? "" : request.path();
+        return path.startsWith("/hascoapi/api/") || path.startsWith("/api/");
+    }
+
+    private static String mapClientErrorCode(int statusCode) {
+        if (statusCode == 400) return "invalid_payload";
+        if (statusCode == 401) return "unauthorized";
+        if (statusCode == 403) return "forbidden";
+        if (statusCode == 404) return "endpoint_not_found";
+        return "client_error";
+    }
+
+    private static String mapClientErrorMessage(int statusCode) {
+        if (statusCode == 400) return "Invalid request payload";
+        if (statusCode == 401) return "Unauthorized";
+        if (statusCode == 403) return "Forbidden";
+        if (statusCode == 404) return "API endpoint not found";
+        return "Request processing failed";
+    }
+
+    private static Throwable rootCause(Throwable throwable) {
+        if (throwable == null) {
+            return null;
+        }
+        Throwable current = throwable;
+        while (current.getCause() != null && current.getCause() != current) {
+            current = current.getCause();
+        }
+        return current;
+    }
+
+    private static boolean isTriplestoreConnectivityError(String exceptionType, String message) {
+        String type = exceptionType == null ? "" : exceptionType.toLowerCase();
+        String msg = message == null ? "" : message.toLowerCase();
+        return type.contains("connectexception")
+                || type.contains("unresolvedaddressexception")
+                || type.contains("unknownhostexception")
+                || msg.contains("connectexception")
+                || msg.contains("unresolvedaddressexception")
+                || msg.contains("connection refused")
+                || msg.contains("fuseki");
+    }
+
+    private JsonNode buildJsonError(int statusCode, String code, String message, String details, Http.RequestHeader request) {
         ObjectNode response = mapper.createObjectNode();
         response.put("isSuccessful", false);
         
         ObjectNode error = mapper.createObjectNode();
         error.put("code", code);
         error.put("message", message);
-        
+
+        ObjectNode detailsNode = mapper.createObjectNode();
+        detailsNode.put("status", statusCode);
+        detailsNode.put("path", request.path());
+        detailsNode.put("method", request.method());
+
         if (details != null && !details.isEmpty()) {
-            // Check if details contain JSON parsing error info
             if (details.contains("JsonParseException") || details.contains("decoding json")) {
-                error.put("details", "Invalid JSON format in request body");
+                detailsNode.put("cause", "Invalid JSON format in request body");
             } else {
-                error.put("details", details);
+                detailsNode.put("cause", details);
             }
         }
+
+        error.set("details", detailsNode);
         
         response.set("error", error);
         return response;

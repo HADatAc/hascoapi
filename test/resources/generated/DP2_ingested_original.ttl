@@ -6,19 +6,15 @@
 @prefix chebi1:            <http://purl.obolibrary.org/obo/chebi#3> .
 @prefix chebi2:            <http://purl.obolibrary.org/obo/chebi#1> .
 @prefix chebi3:            <http://purl.obolibrary.org/obo/chebi#1> .
-@prefix cito:              <http://purl.org/spar/cito/> .
 @prefix cl:                <http://purl.obolibrary.org/obo/cl#> .
 @prefix core:              <http://purl.obolibrary.org/obo/uberon/core#> .
 @prefix daml:              <http://www.daml.org/2001/03/daml+oil#> .
 @prefix dc:                <http://purl.org/dc/elements/1.1/> .
-@prefix dcam:              <http://purl.org/dc/dcam/> .
 @prefix dcat:              <http://www.w3.org/ns/dcat#> .
 @prefix dcmitype:          <http://purl.org/dc/dcmitype/> .
-@prefix dct:               <http://purl.org/dc/terms/> .
 @prefix dcterms:           <http://purl.org/dc/terms/> .
 @prefix default:           <http://hadatac.org/kb/default/> .
 @prefix doap:              <http://usefulinc.com/ns/doap#> .
-@prefix edg:               <http://edg.topbraid.solutions/model/> .
 @prefix envo:              <http://purl.obolibrary.org/obo/ENVO_> .
 @prefix exo:               <http://purl.obolibrary.org/obo/ExO_> .
 @prefix fhir:              <http://hl7.org/fhir/> .
@@ -29,41 +25,28 @@
 @prefix hadatac:           <http://hadatac.org/kb/default/> .
 @prefix hasco:             <http://hadatac.org/ont/hasco/> .
 @prefix lcc-639-1:         <https://www.omg.org/spec/LCC/Languages/ISO639-1-LanguageCodes/> .
-@prefix lcc-lr:            <https://www.omg.org/spec/LCC/Languages/LanguageRepresentation/> .
-@prefix metadata:          <http://topbraid.org/metadata#> .
 @prefix ncbitaxon:         <http://purl.obolibrary.org/obo/ncbitaxon#> .
 @prefix ncit:              <http://purl.obolibrary.org/obo/NCIT_> .
-@prefix ns0:               <http://schema.org/> .
-@prefix ns1:               <http://rdfs.org/ns/void#> .
-@prefix ns2:               <http://www.w3.org/2004/02/skos/core#> .
 @prefix obo:               <http://purl.obolibrary.org/obo/> .
 @prefix oboInOwl:          <http://www.geneontology.org/formats/oboInOwl#> .
 @prefix owl:               <http://www.w3.org/2002/07/owl#> .
 @prefix pato:              <http://purl.obolibrary.org/obo/PATO_> .
 @prefix pmsr:              <http://pmsr.net/ont/pmsr#> .
 @prefix pr:                <http://purl.obolibrary.org/obo/pr#> .
-@prefix prefix:            <http://qudt.org/vocab/prefix/> .
 @prefix process_attribute: <http://purl.obolibrary.org/obo/envo-p/patterns/process_attribute/> .
 @prefix protege:           <http://protege.stanford.edu/plugins/owl/protege#> .
 @prefix prov:              <http://www.w3.org/ns/prov#> .
-@prefix qkdv:              <http://qudt.org/vocab/dimensionvector/> .
-@prefix quantitykind:      <http://qudt.org/vocab/quantitykind/> .
-@prefix qudt:              <http://qudt.org/schema/qudt/> .
 @prefix rdf:               <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs:              <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix schema:            <https://schema.org/> .
-@prefix si-unit:           <https://si-digital-framework.org/SI/units/> .
 @prefix sio:               <http://semanticscience.org/resource/> .
 @prefix skos:              <http://www.w3.org/2004/02/skos/core#> .
-@prefix sm:                <http://www.omg.org/techprocess/ab/SpecificationMetadata/> .
-@prefix sou:               <http://qudt.org/vocab/sou/> .
 @prefix sssom:             <https://w3id.org/sssom/> .
 @prefix subsets:           <http://purl.obolibrary.org/obo/ro/subsets#> .
 @prefix swrl:              <http://www.w3.org/2003/11/swrl#> .
 @prefix swrla:             <http://swrl.stanford.edu/ontologies/3.3/swrla.owl#> .
 @prefix swrlb:             <http://www.w3.org/2003/11/swrlb#> .
 @prefix taxslim:           <http://purl.obolibrary.org/obo/ncbitaxon/subsets/taxslim.obo#> .
-@prefix teamwork:          <http://topbraid.org/teamwork#> .
 @prefix terms:             <http://purl.org/dc/terms/> .
 @prefix terms3:            <http://www.geneontology.org/formats/oboInOwl#http://purl.org/dc/terms/> .
 @prefix test:              <http://hadatac.org/kb/test/> .
@@ -71,19 +54,14 @@
 @prefix uberon:            <http://purl.obolibrary.org/obo/UBERON_> .
 @prefix ubprop:            <http://purl.obolibrary.org/obo/ubprop#> .
 @prefix unit:              <http://qudt.org/vocab/unit/> .
-@prefix vaem:              <http://www.linkedmodel.org/schema/vaem#> .
-@prefix vann:              <http://purl.org/vocab/vann/> .
-@prefix voag:              <http://voag.linkedmodel.org/schema/voag#> .
 @prefix void:              <http://rdfs.org/ns/void#> .
-@prefix vs:                <http://www.w3.org/2003/06/sw-vocab-status/ns#> .
 @prefix vstoi:             <http://hadatac.org/ont/vstoi#> .
-@prefix wot:               <http://xmlns.com/wot/0.1/> .
 @prefix xml:               <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd:               <http://www.w3.org/2001/XMLSchema#> .
 @prefix xsp:               <http://www.owl-ontologies.com/2005/08/07/xsp.owl#> .
 
 pmsr:INI1739401557396065
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739401557396065> ;
+        rdf:type               pmsr:INS1739401557396065 ;
         rdfs:label             "Instância de Laerdal Nursing Care Simulator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -91,7 +69,7 @@ pmsr:INI1739401557396065
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739288566447555
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739288566447555> ;
+        rdf:type               pmsr:INS1739288566447555 ;
         rdfs:label             "Instância de Portable Ultrasound" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -99,7 +77,7 @@ pmsr:INI1739288566447555
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1740143878244085
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1740143878244085> ;
+        rdf:type               pmsr:INS1740143878244085 ;
         rdfs:label             "Instância de Obstetric Simulator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -107,7 +85,7 @@ pmsr:INI1740143878244085
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739287159797795
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739287159797795> ;
+        rdf:type               pmsr:INS1739287159797795 ;
         rdfs:label             "Instância de High-Fidelity Mannequin" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -115,7 +93,7 @@ pmsr:INI1739287159797795
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739288625580975
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739288625580975> ;
+        rdf:type               pmsr:INS1739288625580975 ;
         rdfs:label             "Instância de Butterfly IQ+" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -123,7 +101,7 @@ pmsr:INI1739288625580975
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739453043505715
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739453043505715> ;
+        rdf:type               pmsr:INS1739453043505715 ;
         rdfs:label             "Instância de Pitting Edema Simulator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -131,7 +109,7 @@ pmsr:INI1739453043505715
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:COI1738100153764155
-        rdf:type               <http://pmsr.net/ont/pmsr#/COM1738100153764155> ;
+        rdf:type               pmsr:COM1738100153764155 ;
         rdfs:label             "Instância de SimPad Device  -- CB:EMPTY" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:ComponentInstance ;
@@ -139,7 +117,7 @@ pmsr:COI1738100153764155
         vstoi:hasStatus        vstoi:Draft .
 
 pmsr:INI1739288153666735
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739288153666735> ;
+        rdf:type               pmsr:INS1739288153666735 ;
         rdfs:label             "Instância de Diagnostic Ultrasound" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -147,7 +125,7 @@ pmsr:INI1739288153666735
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:COI1740091620192285
-        rdf:type               <http://pmsr.net/ont/pmsr#/COM1740091620192285> ;
+        rdf:type               pmsr:COM1740091620192285 ;
         rdfs:label             "Instância de IV Access  -- CB:EMPTY" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:ComponentInstance ;
@@ -155,7 +133,7 @@ pmsr:COI1740091620192285
         vstoi:hasStatus        vstoi:Draft .
 
 pmsr:COI1740091527359405
-        rdf:type               <http://pmsr.net/ont/pmsr#/COM1740091527359405> ;
+        rdf:type               pmsr:COM1740091527359405 ;
         rdfs:label             "Instância de Anal Canal  -- CB:EMPTY" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:ComponentInstance ;
@@ -163,7 +141,7 @@ pmsr:COI1740091527359405
         vstoi:hasStatus        vstoi:Draft .
 
 pmsr:INI1740087239872215
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1740087239872215> ;
+        rdf:type               pmsr:INS1740087239872215 ;
         rdfs:label             "Instância de Physiology Simulator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -171,7 +149,7 @@ pmsr:INI1740087239872215
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739403188428355
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739403188428355> ;
+        rdf:type               pmsr:INS1739403188428355 ;
         rdfs:label             "Instância de Female Genitalia Catherization Simulator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -179,7 +157,7 @@ pmsr:INI1739403188428355
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739452868256965
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739452868256965> ;
+        rdf:type               pmsr:INS1739452868256965 ;
         rdfs:label             "Instância de SimSleeves Lymphedema Simulator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -187,7 +165,7 @@ pmsr:INI1739452868256965
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:COI1738097990641815
-        rdf:type               <http://pmsr.net/ont/pmsr#/COM1738097990641815> ;
+        rdf:type               pmsr:COM1738097990641815 ;
         rdfs:label             "Instância de Chest Inflator  -- CB:Chest Inflator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:ComponentInstance ;
@@ -195,7 +173,7 @@ pmsr:COI1738097990641815
         vstoi:hasStatus        vstoi:Draft .
 
 pmsr:INI1739819955334025
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739819955334025> ;
+        rdf:type               pmsr:INS1739819955334025 ;
         rdfs:label             "Instância de Anatomage Science Table" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -203,7 +181,7 @@ pmsr:INI1739819955334025
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:COI1738187586682545
-        rdf:type               <http://pmsr.net/ont/pmsr#/COM1738187586682545> ;
+        rdf:type               pmsr:COM1738187586682545 ;
         rdfs:label             "Instância de Electrode  -- CB:Eletrodes Adult" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:ComponentInstance ;
@@ -211,7 +189,7 @@ pmsr:COI1738187586682545
         vstoi:hasStatus        vstoi:Draft .
 
 pmsr:COI1740493917966195
-        rdf:type               <http://pmsr.net/ont/pmsr#/COM1740493917966195> ;
+        rdf:type               pmsr:COM1740493917966195 ;
         rdfs:label             "Instância de Tissue Penetration Component Stem  -- CB:EMPTY" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:ComponentInstance ;
@@ -219,7 +197,7 @@ pmsr:COI1740493917966195
         vstoi:hasStatus        vstoi:Draft .
 
 pmsr:INI1739404158691525
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739404158691525> ;
+        rdf:type               pmsr:INS1739404158691525 ;
         rdfs:label             "Instância de Ear Irrigation Simulator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -227,7 +205,7 @@ pmsr:INI1739404158691525
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739819116467195
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739819116467195> ;
+        rdf:type               pmsr:INS1739819116467195 ;
         rdfs:label             "Instância de Anatomage Large Table" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -235,7 +213,7 @@ pmsr:INI1739819116467195
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739400689838665
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739400689838665> ;
+        rdf:type               pmsr:INS1739400689838665 ;
         rdfs:label             "Instância de Nursing Care Simulator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -243,7 +221,7 @@ pmsr:INI1739400689838665
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739487989328225
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739487989328225> ;
+        rdf:type               pmsr:INS1739487989328225 ;
         rdfs:label             "Instância de Laerdal ALS Baby Trainer 200" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -251,7 +229,7 @@ pmsr:INI1739487989328225
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739302175458785
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739302175458785> ;
+        rdf:type               pmsr:INS1739302175458785 ;
         rdfs:label             "Instância de Vascular Access Simulator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -259,7 +237,7 @@ pmsr:INI1739302175458785
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739303333850795
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739303333850795> ;
+        rdf:type               pmsr:INS1739303333850795 ;
         rdfs:label             "Instância de Oncology Care Simulator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -267,7 +245,7 @@ pmsr:INI1739303333850795
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:COI1740497043510835
-        rdf:type               <http://pmsr.net/ont/pmsr#/COM1740497043510835> ;
+        rdf:type               pmsr:COM1740497043510835 ;
         rdfs:label             "Instância de Lymphedema Condition Component Stem  -- CB:EMPTY" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:ComponentInstance ;
@@ -275,7 +253,7 @@ pmsr:COI1740497043510835
         vstoi:hasStatus        vstoi:Draft .
 
 pmsr:COI1738099771423295
-        rdf:type               <http://pmsr.net/ont/pmsr#/COM1738099771423295> ;
+        rdf:type               pmsr:COM1738099771423295 ;
         rdfs:label             "Instância de Skill Guide Device  -- CB:EMPTY" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:ComponentInstance ;
@@ -283,7 +261,7 @@ pmsr:COI1738099771423295
         vstoi:hasStatus        vstoi:Draft .
 
 pmsr:INI1739820624939265
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739820624939265> ;
+        rdf:type               pmsr:INS1739820624939265 ;
         rdfs:label             "Instância de Cancer Patient Simulator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -291,7 +269,7 @@ pmsr:INI1739820624939265
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739482671461295
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739482671461295> ;
+        rdf:type               pmsr:INS1739482671461295 ;
         rdfs:label             "Instância de Prostate Model" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -299,7 +277,7 @@ pmsr:INI1739482671461295
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739402230863265
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739402230863265> ;
+        rdf:type               pmsr:INS1739402230863265 ;
         rdfs:label             "Instância de Blood Pressure Measurement Simulator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -307,7 +285,7 @@ pmsr:INI1739402230863265
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739392367425715
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739392367425715> ;
+        rdf:type               pmsr:INS1739392367425715 ;
         rdfs:label             "Instância de Laerdal DAE Simulator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -315,7 +293,7 @@ pmsr:INI1739392367425715
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739823398493725
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739823398493725> ;
+        rdf:type               pmsr:INS1739823398493725 ;
         rdfs:label             "Instância de Laerdal Nursing Anne Mannequin" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -323,7 +301,7 @@ pmsr:INI1739823398493725
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:COI1740484904469385
-        rdf:type               <http://pmsr.net/ont/pmsr#/COM1740484904469385> ;
+        rdf:type               pmsr:COM1740484904469385 ;
         rdfs:label             "Instância de Human Interaction Pressure Duration Component Stem  -- CB:EMPTY" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:ComponentInstance ;
@@ -331,7 +309,7 @@ pmsr:COI1740484904469385
         vstoi:hasStatus        vstoi:Draft .
 
 pmsr:INI1739392182337835
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739392182337835> ;
+        rdf:type               pmsr:INS1739392182337835 ;
         rdfs:label             "Instância de Cardiac Procedure Simulator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -339,7 +317,7 @@ pmsr:INI1739392182337835
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739819599670195
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739819599670195> ;
+        rdf:type               pmsr:INS1739819599670195 ;
         rdfs:label             "Instância de Anatomage Small Tablet" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -347,7 +325,7 @@ pmsr:INI1739819599670195
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739398519577895
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739398519577895> ;
+        rdf:type               pmsr:INS1739398519577895 ;
         rdfs:label             "Instância de Laerdal Airway Simulator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -355,7 +333,7 @@ pmsr:INI1739398519577895
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:COI1740485914720735
-        rdf:type               <http://pmsr.net/ont/pmsr#/COM1740485914720735> ;
+        rdf:type               pmsr:COM1740485914720735 ;
         rdfs:label             "Instância de Skin Volume Change Component Stem  -- CB:EMPTY" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:ComponentInstance ;
@@ -363,7 +341,7 @@ pmsr:COI1740485914720735
         vstoi:hasStatus        vstoi:Draft .
 
 pmsr:INI1739288297796655
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739288297796655> ;
+        rdf:type               pmsr:INS1739288297796655 ;
         rdfs:label             "Instância de Vascular Access Ultrasound Simulator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -371,7 +349,7 @@ pmsr:INI1739288297796655
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739287212610855
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739287212610855> ;
+        rdf:type               pmsr:INS1739287212610855 ;
         rdfs:label             "Instância de Dani Model" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -379,7 +357,7 @@ pmsr:INI1739287212610855
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:COI1740097957423935
-        rdf:type               <http://pmsr.net/ont/pmsr#/COM1740097957423935> ;
+        rdf:type               pmsr:COM1740097957423935 ;
         rdfs:label             "Instância de Pupil Simulator  -- CB:Pupil Simulator Size" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:ComponentInstance ;
@@ -387,7 +365,7 @@ pmsr:COI1740097957423935
         vstoi:hasStatus        vstoi:Draft .
 
 pmsr:INI1739301133578555
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739301133578555> ;
+        rdf:type               pmsr:INS1739301133578555 ;
         rdfs:label             "Instância de Extraoral Scanner" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -395,7 +373,7 @@ pmsr:INI1739301133578555
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739819782231595
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739819782231595> ;
+        rdf:type               pmsr:INS1739819782231595 ;
         rdfs:label             "Instância de Anatomage Clinical Table" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -403,7 +381,7 @@ pmsr:INI1739819782231595
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739301317613705
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739301317613705> ;
+        rdf:type               pmsr:INS1739301317613705 ;
         rdfs:label             "Instância de Automated External Defibrilator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -411,7 +389,7 @@ pmsr:INI1739301317613705
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739392275798255
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739392275798255> ;
+        rdf:type               pmsr:INS1739392275798255 ;
         rdfs:label             "Instância de ResusciAnne DAE Simulator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -419,7 +397,7 @@ pmsr:INI1739392275798255
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739287092102085
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739287092102085> ;
+        rdf:type               pmsr:INS1739287092102085 ;
         rdfs:label             "Instância de Medical Examination Simulators" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -427,7 +405,7 @@ pmsr:INI1739287092102085
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739303008518495
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739303008518495> ;
+        rdf:type               pmsr:INS1739303008518495 ;
         rdfs:label             "Instância de Ventilator Care Simulator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -435,7 +413,7 @@ pmsr:INI1739303008518495
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739879206550705
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739879206550705> ;
+        rdf:type               pmsr:INS1739879206550705 ;
         rdfs:label             "Instância de Cancer Patient Simulator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -443,7 +421,7 @@ pmsr:INI1739879206550705
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739397137461495
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739397137461495> ;
+        rdf:type               pmsr:INS1739397137461495 ;
         rdfs:label             "Instância de Low-Fidelity Mannequin" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -451,7 +429,7 @@ pmsr:INI1739397137461495
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739287021517805
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739287021517805> ;
+        rdf:type               pmsr:INS1739287021517805 ;
         rdfs:label             "Instância de Diagnostic Simulators" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -459,7 +437,7 @@ pmsr:INI1739287021517805
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739288428472235
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739288428472235> ;
+        rdf:type               pmsr:INS1739288428472235 ;
         rdfs:label             "Instância de Ultrasound" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -467,7 +445,7 @@ pmsr:INI1739288428472235
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739402037946315
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739402037946315> ;
+        rdf:type               pmsr:INS1739402037946315 ;
         rdfs:label             "Instância de IV Fluid Administration" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -475,7 +453,7 @@ pmsr:INI1739402037946315
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739878730369725
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739878730369725> ;
+        rdf:type               pmsr:INS1739878730369725 ;
         rdfs:label             "Instância de Body Interact Simulator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -483,7 +461,7 @@ pmsr:INI1739878730369725
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739301814401805
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739301814401805> ;
+        rdf:type               pmsr:INS1739301814401805 ;
         rdfs:label             "Instância de Medical Procedure Simulator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -491,7 +469,7 @@ pmsr:INI1739301814401805
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:COI1738187818694655
-        rdf:type               <http://pmsr.net/ont/pmsr#/COM1738187818694655> ;
+        rdf:type               pmsr:COM1738187818694655 ;
         rdfs:label             "Instância de Electrode  -- CB:Eletrodes Pediatric" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:ComponentInstance ;
@@ -499,7 +477,7 @@ pmsr:COI1738187818694655
         vstoi:hasStatus        vstoi:Draft .
 
 pmsr:INI1739301009974715
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739301009974715> ;
+        rdf:type               pmsr:INS1739301009974715 ;
         rdfs:label             "Instância de ARTEC LEO Scanner" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -507,7 +485,7 @@ pmsr:INI1739301009974715
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739401657491675
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739401657491675> ;
+        rdf:type               pmsr:INS1739401657491675 ;
         rdfs:label             "Instância de Urine Bag Maintenance Simulator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -515,7 +493,7 @@ pmsr:INI1739401657491675
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739403291912375
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739403291912375> ;
+        rdf:type               pmsr:INS1739403291912375 ;
         rdfs:label             "Instância de Penis Foreskin Cleaning Simulator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -523,7 +501,7 @@ pmsr:INI1739403291912375
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739300958884615
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739300958884615> ;
+        rdf:type               pmsr:INS1739300958884615 ;
         rdfs:label             "Instância de Imaging" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -531,7 +509,7 @@ pmsr:INI1739300958884615
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739288499528465
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739288499528465> ;
+        rdf:type               pmsr:INS1739288499528465 ;
         rdfs:label             "Instância de Chison Cbit-9 Stationary Ultrasound" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -539,7 +517,7 @@ pmsr:INI1739288499528465
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739288006994165
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739288006994165> ;
+        rdf:type               pmsr:INS1739288006994165 ;
         rdfs:label             "Instância de Diagnostic Imaging Simulator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -547,7 +525,7 @@ pmsr:INI1739288006994165
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739301891301765
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739301891301765> ;
+        rdf:type               pmsr:INS1739301891301765 ;
         rdfs:label             "Instância de Suture Simulator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -555,7 +533,7 @@ pmsr:INI1739301891301765
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739397556188145
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739397556188145> ;
+        rdf:type               pmsr:INS1739397556188145 ;
         rdfs:label             "Instância de Gynaecological Examination Mannequin" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -563,7 +541,7 @@ pmsr:INI1739397556188145
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:COI1738098129989165
-        rdf:type               <http://pmsr.net/ont/pmsr#/COM1738098129989165> ;
+        rdf:type               pmsr:COM1738098129989165 ;
         rdfs:label             "Instância de Stoma Inflator  -- CB:Stomach Inflator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:ComponentInstance ;
@@ -571,7 +549,7 @@ pmsr:COI1738098129989165
         vstoi:hasStatus        vstoi:Draft .
 
 pmsr:INI1739301711235865
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739301711235865> ;
+        rdf:type               pmsr:INS1739301711235865 ;
         rdfs:label             "Instância de Care Simulators" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -579,7 +557,7 @@ pmsr:INI1739301711235865
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739303195193785
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739303195193785> ;
+        rdf:type               pmsr:INS1739303195193785 ;
         rdfs:label             "Instância de Geriatic Care Simulator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -587,7 +565,7 @@ pmsr:INI1739303195193785
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1740143777940835
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1740143777940835> ;
+        rdf:type               pmsr:INS1740143777940835 ;
         rdfs:label             "Instância de Male Examination Mannequin" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -595,7 +573,7 @@ pmsr:INI1740143777940835
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739398437257165
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739398437257165> ;
+        rdf:type               pmsr:INS1739398437257165 ;
         rdfs:label             "Instância de Airway Simulator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -603,7 +581,7 @@ pmsr:INI1739398437257165
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739402585415785
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739402585415785> ;
+        rdf:type               pmsr:INS1739402585415785 ;
         rdfs:label             "Instância de Vaginal Medicine Administration Simulator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -611,7 +589,7 @@ pmsr:INI1739402585415785
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739483351917145
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739483351917145> ;
+        rdf:type               pmsr:INS1739483351917145 ;
         rdfs:label             "Instância de Male Inguinal Hernia Anatomy Model" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -619,7 +597,7 @@ pmsr:INI1739483351917145
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739401836683455
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739401836683455> ;
+        rdf:type               pmsr:INS1739401836683455 ;
         rdfs:label             "Instância de Stomach Bag Maintenance Simulator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -627,7 +605,7 @@ pmsr:INI1739401836683455
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:COI1739399134970895
-        rdf:type               <http://pmsr.net/ont/pmsr#/COM1739399134970895> ;
+        rdf:type               pmsr:COM1739399134970895 ;
         rdfs:label             "Instância de Microphone  -- CB:EMPTY" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:ComponentInstance ;
@@ -635,7 +613,7 @@ pmsr:COI1739399134970895
         vstoi:hasStatus        vstoi:Draft .
 
 pmsr:INI1739488340413085
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739488340413085> ;
+        rdf:type               pmsr:INS1739488340413085 ;
         rdfs:label             "Instância de Virtual Patient Interaction Simulator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -643,7 +621,7 @@ pmsr:INI1739488340413085
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739821032633525
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739821032633525> ;
+        rdf:type               pmsr:INS1739821032633525 ;
         rdfs:label             "Instância de Monitoring Virtual Simulator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -651,7 +629,7 @@ pmsr:INI1739821032633525
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739402477829135
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739402477829135> ;
+        rdf:type               pmsr:INS1739402477829135 ;
         rdfs:label             "Instância de Rectal Medicine Administration Simulator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -659,7 +637,7 @@ pmsr:INI1739402477829135
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739403078441215
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739403078441215> ;
+        rdf:type               pmsr:INS1739403078441215 ;
         rdfs:label             "Instância de Male Genitalia Catherization Simulator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -667,7 +645,7 @@ pmsr:INI1739403078441215
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739878788687655
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739878788687655> ;
+        rdf:type               pmsr:INS1739878788687655 ;
         rdfs:label             "Instância de Sophia Body Interact AI Assistant" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -675,7 +653,7 @@ pmsr:INI1739878788687655
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739301081410085
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739301081410085> ;
+        rdf:type               pmsr:INS1739301081410085 ;
         rdfs:label             "Instância de Intraoral Scanner" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -683,7 +661,7 @@ pmsr:INI1739301081410085
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739452063713965
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739452063713965> ;
+        rdf:type               pmsr:INS1739452063713965 ;
         rdfs:label             "Instância de Anatomage Table Simulator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -691,7 +669,7 @@ pmsr:INI1739452063713965
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739451831725785
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739451831725785> ;
+        rdf:type               pmsr:INS1739451831725785 ;
         rdfs:label             "Instância de Virtual Patient Anatomy Simulator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -700,10 +678,10 @@ pmsr:INI1739451831725785
 
 <http://example.org/DF-DP2-PMSR.xlsx>
         hasco:hasFilename  "DP2-PMSR.xlsx" ;
-        hasco:hasLog       "2026-03-27 16:09:24 [LOG] 96 triple(s) have been committed to triple store<br>" .
+        hasco:hasLog       "2026-06-02 13:53:27 [LOG] 96 triple(s) have been committed to triple store<br>" .
 
 pmsr:INI1739288691415495
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739288691415495> ;
+        rdf:type               pmsr:INS1739288691415495 ;
         rdfs:label             "Instância de Butterfly Ultrasound Probes" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -711,7 +689,7 @@ pmsr:INI1739288691415495
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:COI1738188452521625
-        rdf:type               <http://pmsr.net/ont/pmsr#/COM1738188452521625> ;
+        rdf:type               pmsr:COM1738188452521625 ;
         rdfs:label             "Instância de DAE Trainer  -- CB:EMPTY" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:ComponentInstance ;
@@ -719,7 +697,7 @@ pmsr:COI1738188452521625
         vstoi:hasStatus        vstoi:Draft .
 
 pmsr:INI1739392122823235
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739392122823235> ;
+        rdf:type               pmsr:INS1739392122823235 ;
         rdfs:label             "Instância de Procedure Simulator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -727,7 +705,7 @@ pmsr:INI1739392122823235
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739301189412025
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739301189412025> ;
+        rdf:type               pmsr:INS1739301189412025 ;
         rdfs:label             "Instância de CAD-CAM System" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -735,7 +713,7 @@ pmsr:INI1739301189412025
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739819868350395
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739819868350395> ;
+        rdf:type               pmsr:INS1739819868350395 ;
         rdfs:label             "Instância de Anatomage Vet Table" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -743,7 +721,7 @@ pmsr:INI1739819868350395
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739452783104705
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739452783104705> ;
+        rdf:type               pmsr:INS1739452783104705 ;
         rdfs:label             "Instância de Skin Care Procedure Simulator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -751,7 +729,7 @@ pmsr:INI1739452783104705
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:COI1738095221724775
-        rdf:type               <http://pmsr.net/ont/pmsr#/COM1738095221724775> ;
+        rdf:type               pmsr:COM1738095221724775 ;
         rdfs:label             "Instância de Shock Link Monitor  -- CB:EMPTY" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:ComponentInstance ;
@@ -759,7 +737,7 @@ pmsr:COI1738095221724775
         vstoi:hasStatus        vstoi:Draft .
 
 pmsr:INI1740087575777435
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1740087575777435> ;
+        rdf:type               pmsr:INS1740087575777435 ;
         rdfs:label             "Instância de Patient Monitor Simulator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -767,7 +745,7 @@ pmsr:INI1740087575777435
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739404046114785
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739404046114785> ;
+        rdf:type               pmsr:INS1739404046114785 ;
         rdfs:label             "Instância de Intramuscular Injections Simulator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;
@@ -775,7 +753,7 @@ pmsr:INI1739404046114785
         vstoi:hasStatus        vstoi:OPERATIONAL .
 
 pmsr:INI1739287640585765
-        rdf:type               <http://pmsr.net/ont/pmsr#/INS1739287640585765> ;
+        rdf:type               pmsr:INS1739287640585765 ;
         rdfs:label             "Instância de Rectal Examination Simulator" ;
         hasco:hasDataFile      <http://example.org/DF-DP2-PMSR.xlsx> ;
         hasco:hascoType        vstoi:InstrumentInstance ;

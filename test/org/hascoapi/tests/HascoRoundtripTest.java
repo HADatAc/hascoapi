@@ -999,7 +999,7 @@ public class HascoRoundtripTest {
             assertTrue(result.startsWith("SUCCESS"), "Expected SUCCESS from DSGGen.genByStatus but got: " + result);
 
             // DSGGen.save writes to ConfigProp.getPathIngestion() + filename
-            final File out = new File(ConfigProp.getPathIngestion() + regeneratedFilename);
+            final File out = new File(ConfigProp.getPathIngestion(), regeneratedFilename);
             assertTrue(out.exists(), "Regenerated DSG workbook should exist at: " + out.getAbsolutePath());
             assertTrue(out.length() > 0, "Regenerated DSG workbook should not be empty: " + out.getAbsolutePath());
 
@@ -1049,7 +1049,7 @@ public class HascoRoundtripTest {
             // DP2Gen currently returns the filename on success (or empty)
             assertNotNull(result, "DP2Gen.genByStatus should return a result string");
 
-            final File out = new File(ConfigProp.getPathIngestion() + regeneratedFilename);
+            final File out = new File(ConfigProp.getPathIngestion(), regeneratedFilename);
             assertTrue(out.exists(), "Regenerated DP2 workbook should exist at: " + out.getAbsolutePath());
             assertTrue(out.length() > 0, "Regenerated DP2 workbook should not be empty: " + out.getAbsolutePath());
 
@@ -1093,7 +1093,7 @@ public class HascoRoundtripTest {
             assertTrue(result.equals("SUCCESS") || !result.isEmpty(),
                     "Expected SUCCESS or non-empty from WKFGen.genByStatus but got: '" + result + "'");
 
-            final File out = new File(ConfigProp.getPathIngestion() + regeneratedFilename);
+            final File out = new File(ConfigProp.getPathIngestion(), regeneratedFilename);
             assertTrue(out.exists(), "Regenerated WKF workbook should exist at: " + out.getAbsolutePath());
             assertTrue(out.length() > 0, "Regenerated WKF workbook should not be empty: " + out.getAbsolutePath());
 
@@ -1256,7 +1256,7 @@ public class HascoRoundtripTest {
             assertNotNull(res);
             assertTrue(res.startsWith("SUCCESS"), "Expected SUCCESS from DSGGen in step3 but got: " + res);
 
-            final File out2 = new File(ConfigProp.getPathIngestion() + regenerated2);
+            final File out2 = new File(ConfigProp.getPathIngestion(), regenerated2);
             assertTrue(out2.exists(), "Step3 regenerated DSG should exist at: " + out2.getAbsolutePath());
 
             final File generatedDir = new File("test/resources/generated");
@@ -1305,7 +1305,7 @@ public class HascoRoundtripTest {
             }
             assertNotNull(result);
 
-            final File regeneratedOut = new File(ConfigProp.getPathIngestion() + REGENERATED_DP2_FILENAME);
+            final File regeneratedOut = new File(ConfigProp.getPathIngestion(), REGENERATED_DP2_FILENAME);
             assertTrue(regeneratedOut.exists(), "Step3: regenerated DP2 workbook should exist at: " + regeneratedOut.getAbsolutePath());
             assertTrue(regeneratedOut.length() > 0, "Step3: regenerated DP2 workbook should not be empty: " + regeneratedOut.getAbsolutePath());
 
@@ -1353,7 +1353,7 @@ public class HascoRoundtripTest {
             }
             assertNotNull(result);
 
-            final File regeneratedOut = new File(ConfigProp.getPathIngestion() + REGENERATED_WKF_FILENAME);
+            final File regeneratedOut = new File(ConfigProp.getPathIngestion(), REGENERATED_WKF_FILENAME);
             assertTrue(regeneratedOut.exists(), "Step3: regenerated WKF workbook should exist at: " + regeneratedOut.getAbsolutePath());
             assertTrue(regeneratedOut.length() > 0, "Step3: regenerated WKF workbook should not be empty: " + regeneratedOut.getAbsolutePath());
 
@@ -1401,7 +1401,7 @@ public class HascoRoundtripTest {
             }
             assertNotNull(result);
 
-            final File regeneratedOut = new File(ConfigProp.getPathIngestion() + REGENERATED_SDD_FILENAME);
+            final File regeneratedOut = new File(ConfigProp.getPathIngestion(), REGENERATED_SDD_FILENAME);
             assertTrue(regeneratedOut.exists(), "Step3: regenerated SDD workbook should exist at: " + regeneratedOut.getAbsolutePath());
             assertTrue(regeneratedOut.length() > 0, "Step3: regenerated SDD workbook should not be empty: " + regeneratedOut.getAbsolutePath());
 

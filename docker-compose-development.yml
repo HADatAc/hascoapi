@@ -1,4 +1,4 @@
-version: '3'
+version: '3.9'
 
 services:
 
@@ -13,6 +13,12 @@ services:
                     - fuseki
         volumes:
             - hascoapi-fuseki-data:/fuseki/databases
+        healthcheck:
+            test: ["CMD-SHELL", "wget -q --spider http://localhost:3030/$$/ping || exit 1"]
+            interval: 10s
+            timeout: 5s
+            retries: 12
+            start_period: 20s
         restart: always
 
     fuseki-yasgui:
@@ -27,7 +33,8 @@ services:
         environment:
             - DEFAULT_SPARQL_ENDPOINT=http://localhost:3030/store/sparql
         depends_on:
-            - fuseki
+            fuseki:
+                condition: service_healthy
 
     hascoapi:
         build:
@@ -39,12 +46,15 @@ services:
             - "9000:9000"
         environment:
             JAVA_OPTS: "-Xms128m -Xmx12g"
+            FUSEKI_URL: "http://fuseki:3030"
+            R_SCRIPT_BIN: "/usr/bin/Rscript"
         volumes:
             - /var/log/hascoapi:/hascoapi/logs
             - hascoapi-resources:/var/hascoapi/resources
             - hascoapi-media:/var/hascoapi/media
         depends_on:
-            - fuseki
+            fuseki:
+                condition: service_healthy
         networks:
             hascoapi:
                 aliases:

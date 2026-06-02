@@ -308,7 +308,8 @@ public class StudyObject extends HADatAcThing {
         List<String> retrievedUris = new ArrayList<String>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + 
                 "SELECT  ?scopeUri WHERE { " + 
-                " <" + objUri + "> hasco:hasObjectScope ?scopeUri . " + 
+                " GRAPH ?g { <" + objUri + "> ?scopePredicate ?scopeUri . " +
+                " VALUES ?scopePredicate { hasco:hasObjectScope hasco:hasScope } } " + 
                 "}";
 
         //System.out.println("Study.retrieveScopeUris() queryString: \n" + queryString);
@@ -337,7 +338,8 @@ public class StudyObject extends HADatAcThing {
         List<String> retrievedUris = new ArrayList<String>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + 
                 "SELECT  ?timeScopeUri WHERE { " + 
-                " <" + objUri + "> hasco:hasTimeObjectScope ?timeScopeUri . " + 
+                " GRAPH ?g { <" + objUri + "> ?timeScopePredicate ?timeScopeUri . " +
+                " VALUES ?timeScopePredicate { hasco:hasTimeObjectScope hasco:hasTimeScope } } " + 
                 "}";
 
         //System.out.println("Study.retrieveTimeScopeUris() queryString: \n" + queryString);
@@ -366,8 +368,9 @@ public class StudyObject extends HADatAcThing {
         List<String> retrievedUris = new ArrayList<String>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + 
                 "SELECT DISTINCT ?timeScopeUri ?timeScopeTypeUri WHERE { " + 
-                " <" + objUri + "> hasco:hasTimeObjectScope ?timeScopeUri . " + 
-                " ?timeScopeUri a ?timeScopeTypeUri . " +
+                " GRAPH ?g { <" + objUri + "> ?timeScopePredicate ?timeScopeUri . " +
+                " VALUES ?timeScopePredicate { hasco:hasTimeObjectScope hasco:hasTimeScope } " +
+                " ?timeScopeUri a ?timeScopeTypeUri . } " +
                 "}";
 
         //System.out.println("Study.retrieveTimeScopeUris() queryString: \n" + queryString);
@@ -396,7 +399,8 @@ public class StudyObject extends HADatAcThing {
         List<String> retrievedUris = new ArrayList<String>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + 
                 "SELECT  ?spaceScopeUri WHERE { " + 
-                " <" + objUri + "> hasco:hasSpaceObjectScope ?spaceScopeUri . " + 
+                " GRAPH ?g { <" + objUri + "> ?spaceScopePredicate ?spaceScopeUri . " +
+                " VALUES ?spaceScopePredicate { hasco:hasSpaceObjectScope hasco:hasSpaceScope } } " + 
                 "}";
 
         //System.out.println("Study.retrieveSpaceScopeUris() queryString: \n" + queryString);
@@ -419,6 +423,61 @@ public class StudyObject extends HADatAcThing {
             }
         }
         return retrievedUris;
+    }
+
+    public static List<String> retrieveAttributeUris(String objUri) {
+        List<String> retrievedUris = new ArrayList<String>();
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                "SELECT ?attributeUri WHERE { " +
+                " GRAPH ?g { <" + objUri + "> vstoi:isAttributeOf ?attributeUri . } " +
+                "}";
+
+        ResultSetRewindable resultsrw = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+        if (!resultsrw.hasNext()) {
+            return retrievedUris;
+        }
+        while (resultsrw.hasNext()) {
+            QuerySolution soln = resultsrw.next();
+            if (soln != null) {
+                try {
+                    if (soln.getResource("attributeUri") != null && soln.getResource("attributeUri").getURI() != null) {
+                        retrievedUris.add(soln.getResource("attributeUri").getURI());
+                    }
+                } catch (Exception e1) {
+                }
+            }
+        }
+        return retrievedUris;
+    }
+
+    /**
+     * Retrieves the originalId of a StudyObject from the triplestore by URI.
+     * Searches all named graphs using GRAPH ?g clause.
+     * @param objUri The URI of the StudyObject
+     * @return The originalId value, or null if not found
+     */
+    public static String retrieveOriginalId(String objUri) {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() + 
+                "SELECT ?originalId WHERE { " + 
+                " GRAPH ?g { <" + objUri + "> hasco:originalId ?originalId . } " + 
+                "}";
+
+        try {
+            ResultSetRewindable resultsrw = SPARQLUtils.select(
+                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+            if (resultsrw.hasNext()) {
+                QuerySolution soln = resultsrw.next();
+                if (soln != null && soln.getLiteral("originalId") != null) {
+                    return soln.getLiteral("originalId").getString();
+                }
+            }
+        } catch (Exception e) {
+            // Return null if query fails
+        }
+        return null;
     }
 
     /**

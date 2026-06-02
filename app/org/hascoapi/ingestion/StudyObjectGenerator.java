@@ -299,9 +299,16 @@ public class StudyObjectGenerator extends BaseGenerator {
     }
     
     private String getScopeUri(Record rec) {
+        System.out.println("[SCOPE-READ DEBUG] getScopeUri() called");
+        System.out.println("[SCOPE-READ DEBUG]   soc_scope: '" + soc_scope + "'");
+        System.out.println("[SCOPE-READ DEBUG]   soc_scope is null or empty? " + (soc_scope == null || soc_scope.isEmpty()));
         if (soc_scope != null && !soc_scope.isEmpty()){
+            System.out.println("[SCOPE-READ DEBUG]   mapContent.get(soc_scope): " + mapContent.get(soc_scope));
 	        if (mapContent.get(soc_scope) != null) {
-            	String returnedValue = rec.getValueByColumnName(mapCol.get("scopeID"));
+            	String columnName = mapCol.get("scopeID");
+            	System.out.println("[SCOPE-READ DEBUG] Looking for column: '" + columnName + "'");
+            	String returnedValue = rec.getValueByColumnName(columnName);
+            	System.out.println("[SCOPE-READ DEBUG] Value returned: '" + returnedValue + "'");
             	if (returnedValue == null) {
             		dataFile.getLogger().println("[WARN] StudyObjectGenerator.getScopeUri(): scopeID is null for SOC [" + soc_uri + "] scopeSOC=[" + soc_scope + "]");
             		return "";
@@ -340,55 +347,67 @@ public class StudyObjectGenerator extends BaseGenerator {
     }
 
     private String getTimeScopeUri(Record rec) {
-        if (soc_timescope != null && soc_timescope.length() > 0){
-        	if (mapContent.get(soc_timescope) != null) {
-        		//String timeScopeSOCtype = mapContent.get(soc_timescope).get(1);
-        		String returnedValue = rec.getValueByColumnName(mapCol.get("timeScopeID"));
-        		// the value returned by getValueByColumnName may be ann URI or an original.
-        		if (URIUtils.isValidURI(returnedValue)) {
-        			// if returned value is ann URI, this function returns the URI with expanded namespace
-        			return URIUtils.replacePrefixEx(returnedValue);
-        		} else {
-        			// if returned value is not ann URI, this function composes ann URI according to SDD convention
-                    return Utils.uriPlainGen("studyobject",
-                        normalizeSpreadsheetNumericId(rec.getValueByColumnName(mapCol.get("timeScopeID"))),
+        String returnedValue = rec.getValueByColumnName(mapCol.get("timeScopeID"));
+        String normalizedValue = normalizeSpreadsheetNumericId(returnedValue);
+        if (normalizedValue == null || normalizedValue.trim().isEmpty()) {
+            return "";
+        }
+
+        // Accept direct CURIE/URI values from worksheet even when hasTimeScope is not configured in SSD.
+        if (URIUtils.isValidURI(normalizedValue) || looksLikeCurie(normalizedValue)) {
+            return URIUtils.replacePrefixEx(normalizedValue);
+        }
+
+        if (soc_timescope != null && soc_timescope.length() > 0) {
+            if (mapContent.get(soc_timescope) != null) {
+                return Utils.uriPlainGen("studyobject",
+                        normalizedValue,
                         this.namespace,
                         time_reference);
-        		}
-        	} else {
+            } else {
                 // STO_00002: Missing mapContent for soc_timescope
                 dataFile.getLogger().printExceptionByIdWithArgs("STO_00002", soc_timescope);
                 return "";
-        	}
-        } else {
-            return "";
+            }
         }
+
+        return "";
     }
     
     private String getSpaceScopeUri(Record rec) {
-        if (soc_spacescope != null && soc_spacescope.length() > 0){
-        	if (mapContent.get(soc_spacescope) != null) {
-        		//String spaceScopeSOCtype = mapContent.get(soc_spacescope).get(1);
-        		String returnedValue = rec.getValueByColumnName(mapCol.get("spaceScopeID"));
-        		// the value returned by getValueByColumnName may be an URI or an original.
-        		if (URIUtils.isValidURI(returnedValue)) {
-        			// if returned value is an URI, this function returns the URI with expanded namespace
-        			return URIUtils.replacePrefixEx(returnedValue);
-        		} else {
-        			// if returned value is not an URI, this function composes an URI according to SDD convention
-                    return Utils.uriPlainGen("studyobject",
-                        normalizeSpreadsheetNumericId(rec.getValueByColumnName(mapCol.get("spaceScopeID"))),
-                        this.namespace,
-                        space_reference);
-        		}
-        	} else {
-                // STO_00003: Missing mapContent for soc_spacescope
-                dataFile.getLogger().printExceptionByIdWithArgs("STO_00003", soc_spacescope);
-        		return "";
-        	}
-        } else {
+        String returnedValue = rec.getValueByColumnName(mapCol.get("spaceScopeID"));
+        String normalizedValue = normalizeSpreadsheetNumericId(returnedValue);
+        if (normalizedValue == null || normalizedValue.trim().isEmpty()) {
             return "";
         }
+
+        // Accept direct CURIE/URI values from worksheet even when hasSpaceScope is not configured in SSD.
+        if (URIUtils.isValidURI(normalizedValue) || looksLikeCurie(normalizedValue)) {
+            return URIUtils.replacePrefixEx(normalizedValue);
+        }
+
+        if (soc_spacescope != null && soc_spacescope.length() > 0) {
+            if (mapContent.get(soc_spacescope) != null) {
+                return Utils.uriPlainGen("studyobject",
+                        normalizedValue,
+                        this.namespace,
+                        space_reference);
+            } else {
+                // STO_00003: Missing mapContent for soc_spacescope
+                dataFile.getLogger().printExceptionByIdWithArgs("STO_00003", soc_spacescope);
+                return "";
+            }
+        }
+
+        return "";
+    }
+
+    private boolean looksLikeCurie(String value) {
+        if (value == null) {
+            return false;
+        }
+        String trimmed = value.trim();
+        return trimmed.matches("^[A-Za-z][A-Za-z0-9._-]*:[^\\s]+$");
     }
     
     public StudyObject createStudyObject(Record record) throws Exception {
@@ -432,16 +451,22 @@ public class StudyObjectGenerator extends BaseGenerator {
         //System.out.println("Domain soc: [" + domain_reference + "]  Time soc: [" + time_reference + "] Space soc: [" + space_reference + "]");
 
         String scopeUri = getScopeUri(record);
+        System.out.println("[StudyObjectGenerator DEBUG] Object " + originalId + " scopeUri from getScopeUri: '" + scopeUri + "'");
         if (scopeUri != null && !scopeUri.isEmpty()) {
             obj.addScopeUri(scopeUri);
+            System.out.println("[StudyObjectGenerator DEBUG] Object " + originalId + " added scopeUri: " + scopeUri);
         }
         String timeScopeUri = getTimeScopeUri(record);
+        System.out.println("[StudyObjectGenerator DEBUG] Object " + originalId + " timeScopeUri from getTimeScopeUri: '" + timeScopeUri + "'");
         if (timeScopeUri != null && !timeScopeUri.isEmpty()) {
             obj.addTimeScopeUri(timeScopeUri);
+            System.out.println("[StudyObjectGenerator DEBUG] Object " + originalId + " added timeScopeUri: " + timeScopeUri);
         }
         String spaceScopeUri = getSpaceScopeUri(record);
+        System.out.println("[StudyObjectGenerator DEBUG] Object " + originalId + " spaceScopeUri from getSpaceScopeUri: '" + spaceScopeUri + "'");
         if (spaceScopeUri != null && !spaceScopeUri.isEmpty()) {
             obj.addSpaceScopeUri(spaceScopeUri);
+            System.out.println("[StudyObjectGenerator DEBUG] Object " + originalId + " added spaceScopeUri: " + spaceScopeUri);
         }
         
         return obj;
@@ -695,12 +720,14 @@ public class StudyObjectGenerator extends BaseGenerator {
         String cleanValue = value.trim().replace("\"", "\\\"");
         String objectValue = isUri ? "<" + URIUtils.replacePrefixEx(cleanValue) + ">" : "\"" + cleanValue + "\"";
         String graph = getNamedGraphUri();
+        
         String update = NameSpaces.getInstance().printSparqlNameSpaceList();
         if (graph != null && !graph.trim().isEmpty()) {
             update += "INSERT DATA { GRAPH <" + graph + "> { <" + subjectUri + "> " + property + " " + objectValue + " . } }";
         } else {
             update += "INSERT DATA { <" + subjectUri + "> " + property + " " + objectValue + " . }";
         }
+        
         UpdateRequest request = UpdateFactory.create(update);
         UpdateProcessor processor = UpdateExecutionFactory.createRemote(
                 request,
@@ -734,12 +761,9 @@ public class StudyObjectGenerator extends BaseGenerator {
     
     @Override
     public boolean commitObjectsToTripleStore(List<HADatAcThing> objects) {
-        dataFile.getLogger().println("[COMMIT] Starting commitObjectsToTripleStore with " + objects.size() + " objects");
-        
         // Com a abordagem single-layer, apenas salvamos os objetos normalmente
         // Não há necessidade de enrichment pois os SIR elements já foram criados diretamente
         boolean result = super.commitObjectsToTripleStore(objects);
-
         if (result) {
             for (SirIngestContext ctx : sirIngestContextByUri.values()) {
                 if (isObjectSyntheticId(ctx.uri) || isObjectSyntheticId(ctx.originalId)) {
@@ -752,17 +776,17 @@ public class StudyObjectGenerator extends BaseGenerator {
 
                 if (ctx.scopeUris != null) {
                     for (String scopeUri : ctx.scopeUris) {
-                        addRdfProperty(ctx.uri, "hasco:hasScope", scopeUri, true);
+                        addRdfProperty(ctx.uri, "hasco:hasObjectScope", scopeUri, true);
                     }
                 }
                 if (ctx.timeScopeUris != null) {
                     for (String timeScopeUri : ctx.timeScopeUris) {
-                        addRdfProperty(ctx.uri, "hasco:hasTimeScope", timeScopeUri, true);
+                        addRdfProperty(ctx.uri, "hasco:hasTimeObjectScope", timeScopeUri, true);
                     }
                 }
                 if (ctx.spaceScopeUris != null) {
                     for (String spaceScopeUri : ctx.spaceScopeUris) {
-                        addRdfProperty(ctx.uri, "hasco:hasSpaceScope", spaceScopeUri, true);
+                        addRdfProperty(ctx.uri, "hasco:hasSpaceObjectScope", spaceScopeUri, true);
                     }
                 }
 
@@ -774,9 +798,7 @@ public class StudyObjectGenerator extends BaseGenerator {
                 }
             }
         }
-        
-        dataFile.getLogger().println("[COMMIT] Completed with result: " + result);
-        
+
         return result;
     }
 

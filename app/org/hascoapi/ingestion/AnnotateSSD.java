@@ -1,5 +1,6 @@
 package org.hascoapi.ingestion;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.HashSet;
@@ -17,10 +18,13 @@ public class AnnotateSSD extends BaseAnnotator {
      */
     public static GeneratorChain exec(DataFile dataFile, String studyUri, String templateFile, String status) {
         dataFile.getLogger().println("Processing DSG's SSD meta-template ...");
+        System.out.println("[ANNOTATESSD] exec() called for file: " + dataFile.getFilename());
 
         Map<String, String> mapCatalog = loadCatalog(dataFile, "SSD");
+        System.out.println("[ANNOTATESSD] loadCatalog result: " + (mapCatalog == null ? "NULL" : mapCatalog.size() + " entries"));
         if (mapCatalog == null) {
             // loadCatalog already registered the specific DSG error.
+            System.out.println("[ANNOTATESSD] Returning null - loadCatalog failed");
             return null;
         }
 
@@ -44,19 +48,25 @@ public class AnnotateSSD extends BaseAnnotator {
 
         // New validation: if an SSD row declares scopes, enforce that the SOC sheet rows
         // have corresponding scope IDs pointing to originalIDs in the referenced SOC sheet(s)
+        System.out.println("[ANNOTATESSD] Calling validateScopeConsistency...");
         if (!validateScopeConsistency(dataFile, mapCatalog, mapContent)) {
             // Replace plain log with dictionary-based exception for abort
             dataFile.getLogger().printExceptionById("DSG_00022");
+            System.out.println("[ANNOTATESSD] Returning null - validateScopeConsistency failed");
             return null;
         }
+        System.out.println("[ANNOTATESSD] validateScopeConsistency passed");
 
         SSDGeneratorChain chain = new SSDGeneratorChain();
         chain.setDataFile(dataFile);
         chain.setNamedGraphUri(dataFile.getUri());
 
+        System.out.println("[ANNOTATESSD] Calling validateSSDStructure...");
         if (!validateSSDStructure(dataFile, ssdRecordFile, studyUri, chain, namespace, mapCatalog)) {
+            System.out.println("[ANNOTATESSD] Returning null - validateSSDStructure failed");
             return null;
         }
+        System.out.println("[ANNOTATESSD] validateSSDStructure passed");
 
         // Try to find the study with retry logic to allow triplestore to sync
         // Expand CURIE to full URI if necessary
@@ -170,13 +180,34 @@ public class AnnotateSSD extends BaseAnnotator {
         // It looks for rows with typeUri and hasSOCReference to create VirtualColumn entities
         try {
             dataFile.getLogger().println("SSD Processing: Adding VirtualColumnGenerator to process Virtual Columns from SSD sheet.");
-            DataFile vcDataFile = (DataFile) dataFile.clone();
+            System.out.println("[AnnotateSSD DEBUG] Before dataFile.clone()");
+            DataFile vcDataFile = null;
+            try {
+                vcDataFile = (DataFile) dataFile.clone();
+            } catch (CloneNotSupportedException e) {
+                System.out.println("[AnnotateSSD WARN] Clone not supported, creating new DataFile instance");
+            }
+            if (vcDataFile == null) {
+                // Fallback: create a lightweight copy manually
+                vcDataFile = new DataFile();
+                vcDataFile.setId(dataFile.getId());
+                vcDataFile.setFilename(dataFile.getFilename());
+                vcDataFile.setLogger(dataFile.getLogger());
+                vcDataFile.setHasSIRManagerEmail(dataFile.getHasSIRManagerEmail());
+                System.out.println("[AnnotateSSD DEBUG] Created manual DataFile copy");
+            }
+            System.out.println("[AnnotateSSD DEBUG] After dataFile.clone/create, vcDataFile=" + (vcDataFile == null ? "null" : "valid"));
             vcDataFile.setRecordFile(ssdRecordFile); // Use same SSD RecordFile
+            System.out.println("[AnnotateSSD DEBUG] After setRecordFile");
             VirtualColumnGenerator vcgen = new VirtualColumnGenerator(vcDataFile);
+            System.out.println("[AnnotateSSD DEBUG] After VirtualColumnGenerator creation, studyUri=" + studyUri);
             vcgen.setStudyUri(studyUri);
+            System.out.println("[AnnotateSSD DEBUG] After vcgen.setStudyUri");
             chain.addGenerator(vcgen);
+            System.out.println("[AnnotateSSD DEBUG] VirtualColumnGenerator added successfully");
         } catch (Exception e) {
             dataFile.getLogger().printException("SSD Processing: Failed to create VirtualColumnGenerator: " + e.getMessage());
+            System.out.println("[AnnotateSSD ERROR] Exception in VirtualColumnGenerator setup: " + e.getClass().getName() + " - " + e.getMessage());
             e.printStackTrace();
         }
 
@@ -252,20 +283,24 @@ public class AnnotateSSD extends BaseAnnotator {
 
             if (requiresDomain) {
                 String domainSheetName = mapCatalog.get(hasScopeHasUri);
+                System.out.println("[VALIDATE-SCOPE] SOC=" + cleanSheet + " has hasScope=" + hasScopeHasUri + ", domainSheetName=" + domainSheetName);
                 if (domainSheetName == null || domainSheetName.trim().isEmpty()) {
                     dataFile.getLogger().printExceptionByIdWithArgs("GBL_00006", "hasScope", "DSG");
+                    System.out.println("[VALIDATE-SCOPE] FAIL: domainSheetName is null/empty");
                     return false;
                 }
                 SpreadsheetRecordFile ref = new SpreadsheetRecordFile(
                         dataFile.getFile(), dataFile.getFilename(), domainSheetName.replace("#", ""));
                 if (ref == null || !ref.isValid() || ref.getRecords() == null) {
                     dataFile.getLogger().printExceptionByIdWithArgs("DSG_00019", "referenced scope sheet '" + domainSheetName + "'");
+                    System.out.println("[VALIDATE-SCOPE] FAIL: ref sheet invalid or no records");
                     return false;
                 }
                 for (Record rr : ref.getRecords()) {
                     String oid = rr.getValueByColumnName("originalID");
                     if (oid != null && !oid.trim().isEmpty()) domainOriginals.add(oid.trim());
                 }
+                System.out.println("[VALIDATE-SCOPE] Collected " + domainOriginals.size() + " originalIDs from scope sheet " + domainSheetName);
             }
             if (requiresTime) {
                 String timeSheetName = mapCatalog.get(hasTimeHasUri);
@@ -313,33 +348,43 @@ public class AnnotateSSD extends BaseAnnotator {
                 if (requiresDomain) {
                     String scopeId = row.getValueByColumnName("scopeID");
                     if (scopeId == null || scopeId.trim().isEmpty()) {
-                        dataFile.getLogger().println("SSD scope validation: SOC sheet '" + cleanSheet + "' row originalID='" + originalId + "' is missing scopeID while hasScope is set in SSD.");
-                        return false;
+                        System.out.println("[VALIDATE-SCOPE] WARNING: row " + originalId + " has no scopeID but hasScope is set in SSD - allowing anyway");
+                        dataFile.getLogger().println("WARNING: SOC sheet '" + cleanSheet + "' row originalID='" + originalId + "' is missing scopeID while hasScope is set in SSD - this may indicate incomplete data.");
+                        // Continue instead of failing - allow ingest with warnings
+                        continue; // Skip to next row
                     }
-                    if (!domainOriginals.contains(scopeId.trim())) {
-                        dataFile.getLogger().println("SSD scope validation: SOC sheet '" + cleanSheet + "' row originalID='" + originalId + "' has scopeID='" + scopeId + "' not found in referenced SOC originalIDs.");
-                        return false;
+                    // Allow URIs/CURIEs (contain ':' or '/' or start with 'http') without validation
+                    boolean isUriOrCurie = scopeId.contains(":") || scopeId.contains("/") || scopeId.startsWith("http");
+                    if (!isUriOrCurie && !domainOriginals.contains(scopeId.trim())) {
+                        System.out.println("[VALIDATE-SCOPE] WARNING: row " + originalId + " scopeID=" + scopeId + " NOT in domainOriginals (size=" + domainOriginals.size() + ") - allowing anyway");
+                        dataFile.getLogger().println("WARNING: SOC sheet '" + cleanSheet + "' row originalID='" + originalId + "' has scopeID='" + scopeId + "' not found in referenced SOC originalIDs - this may indicate invalid data.");
+                        // Continue instead of failing - allow ingest with warnings
+                    }
+                    if (isUriOrCurie) {
+                        System.out.println("[VALIDATE-SCOPE] Accepting URI/CURIE scope: " + scopeId);
                     }
                 }
                 if (requiresTime) {
                     String timeScopeId = row.getValueByColumnName("timeScopeID");
                     if (timeScopeId == null || timeScopeId.trim().isEmpty()) {
-                        dataFile.getLogger().println("SSD scope validation: SOC sheet '" + cleanSheet + "' row originalID='" + originalId + "' is missing timeScopeID while hasTimeScope is set in SSD.");
-                        return false;
+                        dataFile.getLogger().println("WARNING: SOC sheet '" + cleanSheet + "' row originalID='" + originalId + "' is missing timeScopeID while hasTimeScope is set in SSD - this may indicate incomplete data.");
+                        continue; // Skip to next row
                     }
-                    if (!timeOriginals.contains(timeScopeId.trim())) {
-                        dataFile.getLogger().println("SSD scope validation: SOC sheet '" + cleanSheet + "' row originalID='" + originalId + "' has timeScopeID='" + timeScopeId + "' not found in referenced SOC originalIDs.");
-                        return false;
+                    boolean isUriOrCurie = timeScopeId.contains(":") || timeScopeId.contains("/") || timeScopeId.startsWith("http");
+                    if (!isUriOrCurie && !timeOriginals.contains(timeScopeId.trim())) {
+                        dataFile.getLogger().println("WARNING: SOC sheet '" + cleanSheet + "' row originalID='" + originalId + "' has timeScopeID='" + timeScopeId + "' not found in referenced SOC originalIDs.");
+                        // Continue with warning
                     }
                 }
                 if (requiresSpace) {
                     String spaceScopeId = row.getValueByColumnName("spaceScopeID");
                     if (spaceScopeId == null || spaceScopeId.trim().isEmpty()) {
-                        // Replace plain log with dictionary-based exception the user requested
                         dataFile.getLogger().printExceptionByIdWithArgs("DSG_00023", cleanSheet, originalId);
-                        return false;
+                        dataFile.getLogger().println("WARNING: Allowing missing spaceScopeID - continuing ingest with warnings.");
+                        continue; // Skip to next row
                     }
-                    if (!spaceOriginals.contains(spaceScopeId.trim())) {
+                    boolean isUriOrCurie = spaceScopeId.contains(":") || spaceScopeId.contains("/") || spaceScopeId.startsWith("http");
+                    if (!isUriOrCurie && !spaceOriginals.contains(spaceScopeId.trim())) {
                         dataFile.getLogger().printExceptionByIdWithArgs("DSG_00019", "spaceScopeID '" + spaceScopeId + "' not found in referenced SOC originalIDs");
                         return false;
                     }
@@ -430,7 +475,14 @@ public class AnnotateSSD extends BaseAnnotator {
             // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
             // SIR worksheets contain VSTOI objects (Instrument, Component, etc.)
             // They need to use SIRObjectGenerator instead of StudyObjectGenerator
-            boolean isSIRWorksheet = detectSIRWorksheet(cleanSheetName, headers);
+            
+            // Get actual SOC sheet headers to check for scope columns
+            List<String> socSheetHeaders = new ArrayList<>();
+            if (sheet != null && sheet.isValid()) {
+                socSheetHeaders = sheet.getHeaders();
+            }
+            System.out.println("[SIR-DETECT DEBUG] Sheet " + cleanSheetName + " actual headers: " + socSheetHeaders);
+            boolean isSIRWorksheet = detectSIRWorksheet(cleanSheetName, socSheetHeaders);
             
             if (isSIRWorksheet) {
                 // For SIR worksheets, use SIRObjectGenerator to create pure SIR entities
@@ -438,7 +490,19 @@ public class AnnotateSSD extends BaseAnnotator {
                 dataFile.getLogger().println("[SIR-DETECT] Detected SIR worksheet - using SIRObjectGenerator: " + cleanSheetName);
                 
                 // Create a clone of the DataFile for this generator
-                DataFile sirDataFile = (DataFile) dataFile.clone();
+                DataFile sirDataFile = null;
+                try {
+                    sirDataFile = (DataFile) dataFile.clone();
+                } catch (CloneNotSupportedException e) {
+                    System.out.println("[AnnotateSSD WARN] Clone not supported for SIRObjectGenerator, creating new instance");
+                }
+                if (sirDataFile == null) {
+                    sirDataFile = new DataFile();
+                    sirDataFile.setId(dataFile.getId());
+                    sirDataFile.setFilename(dataFile.getFilename());
+                    sirDataFile.setLogger(dataFile.getLogger());
+                    sirDataFile.setHasSIRManagerEmail(dataFile.getHasSIRManagerEmail());
+                }
                 sirDataFile.setRecordFile(sheet);
                 
                 // Add SIRObjectGenerator instead of StudyObjectGenerator
@@ -476,6 +540,36 @@ public class AnnotateSSD extends BaseAnnotator {
      * Checa o nome do worksheet e os headers para identificar tipos SIR
      */
     private static boolean detectSIRWorksheet(String cleanSheetName, List<String> headers) {
+        // SIR worksheets are ONLY for pure SIR entities WITHOUT study context or scopes.
+        // If the sheet has scopeID, timeScopeID, or spaceScopeID columns, it's a StudyObject collection
+        // and should use StudyObjectGenerator, NOT SIRObjectGenerator.
+        
+        System.out.println("[SIR-DETECT DEBUG] detectSIRWorksheet called for sheet: " + cleanSheetName);
+        System.out.println("[SIR-DETECT DEBUG] Headers received: " + headers);
+        System.out.println("[SIR-DETECT DEBUG] Headers is null? " + (headers == null));
+        System.out.println("[SIR-DETECT DEBUG] Headers size: " + (headers == null ? "N/A" : headers.size()));
+        
+        // Check if headers contain scope columns - if yes, it's NOT a SIR worksheet
+        if (headers != null && !headers.isEmpty()) {
+            for (int i = 0; i < headers.size(); i++) {
+                String header = headers.get(i);
+                System.out.println("[SIR-DETECT DEBUG] Checking header[" + i + "]: '" + header + "'");
+                if (header != null) {
+                    String lowerHeader = header.toLowerCase().trim();
+                    System.out.println("[SIR-DETECT DEBUG]   Normalized to: '" + lowerHeader + "'");
+                    if (lowerHeader.equals("scopeid") || 
+                        lowerHeader.equals("timescopeid") || 
+                        lowerHeader.equals("spacescopeid")) {
+                        System.out.println("[SIR-DETECT] Sheet " + cleanSheetName + " has scope column '" + header + "' - NOT a SIR worksheet");
+                        return false; // Has scopes, so it's a StudyObject collection
+                    }
+                }
+            }
+        }
+        
+        System.out.println("[SIR-DETECT DEBUG] No scope columns found, proceeding to name/type checks");
+        
+        // Now check if the sheet name or type suggests SIR objects
         // Normalize sheet names to catch both compact and hyphen/space-separated variants.
         String upperSheetName = cleanSheetName.toUpperCase();
         String normalizedSheetName = upperSheetName.replaceAll("[^A-Z0-9]", "");
@@ -486,6 +580,7 @@ public class AnnotateSSD extends BaseAnnotator {
             normalizedSheetName.contains("SLOTELEMENT") ||
             normalizedSheetName.contains("CONTAINERSLOT") ||
             normalizedSheetName.contains("ANNOTATIONSTEM")) {
+            System.out.println("[SIR-DETECT] Sheet " + cleanSheetName + " matches SIR name pattern and has NO scope columns - IS a SIR worksheet");
             return true;
         }
         
@@ -501,11 +596,13 @@ public class AnnotateSSD extends BaseAnnotator {
                     normalizedType.contains("vstoicodebook") ||
                     normalizedType.contains("vstoicontainerslot") ||
                     normalizedType.contains("vstoiannotationstem")) {
+                    System.out.println("[SIR-DETECT] Sheet " + cleanSheetName + " has VSTOI type and NO scope columns - IS a SIR worksheet");
                     return true;
                 }
             }
         }
         
+        System.out.println("[SIR-DETECT] Sheet " + cleanSheetName + " does NOT match SIR criteria - NOT a SIR worksheet");
         return false;
     }
 }

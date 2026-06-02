@@ -174,7 +174,10 @@ POST    /hascoapi/api/task/instruments                                          
 POST    /hascoapi/api/task/deletewithtasks/:taskUri                                 org.hascoapi.console.controllers.restapi.TaskAPI.deleteWithTasks(taskUri: String)
 
 POST    /hascoapi/api/project/member                                                org.hascoapi.console.controllers.restapi.ProjectAPI.setMembers(request: play.mvc.Http.Request)
+POST    /hascoapi/api/r-analysis/validate                                           org.hascoapi.console.controllers.restapi.RAnalysisAPI.validate(request: play.mvc.Http.Request)
 POST    /hascoapi/api/r-analysis/execute                                            org.hascoapi.console.controllers.restapi.RAnalysisAPI.execute(request: play.mvc.Http.Request)
+POST    /api/r-analysis/validate                                                    org.hascoapi.console.controllers.restapi.RAnalysisAPI.validate(request: play.mvc.Http.Request)
+POST    /api/r-analysis/execute                                                     org.hascoapi.console.controllers.restapi.RAnalysisAPI.execute(request: play.mvc.Http.Request)
 
 # INGESTION METHODS
 

@@ -58,9 +58,10 @@ public class SIRObjectGenerator extends BaseGenerator {
         mapCol.put("label", "label");
         mapCol.put("comment", "comment");
         mapCol.put("isMemberOf", "isMemberOf");
-        mapCol.put("scopeUri", "hasScope");
-        mapCol.put("timeScopeUri", "hasTimeScope");
-        mapCol.put("spaceScopeUri", "hasSpaceScope");
+        // SOC worksheets store scope data in *ID columns.
+        mapCol.put("scopeUri", "scopeID");
+        mapCol.put("timeScopeUri", "timeScopeID");
+        mapCol.put("spaceScopeUri", "spaceScopeID");
         mapCol.put("roleLabel", "hasRole");
     }
 
@@ -168,27 +169,66 @@ public class SIRObjectGenerator extends BaseGenerator {
     }
 
     private String getScopeUri(Record rec) {
-        String scope = rec.getValueByColumnName(mapCol.get("scopeUri"));
+        String scope = firstNonEmpty(
+                rec.getValueByColumnName(mapCol.get("scopeUri")),
+                rec.getValueByColumnName("hasScope"));
         if (scope == null || scope.isEmpty()) {
             return null;
         }
-        return URIUtils.replacePrefixEx(scope);
+        String trimmed = scope.trim();
+        if (trimmed.isEmpty()) {
+            return null;
+        }
+        if (URIUtils.isValidURI(trimmed)) {
+            return URIUtils.replacePrefixEx(trimmed);
+        }
+        return buildNativeUriFromIdentifier(trimmed);
     }
 
     private String getTimeScopeUri(Record rec) {
-        String timeScope = rec.getValueByColumnName(mapCol.get("timeScopeUri"));
+        String timeScope = firstNonEmpty(
+                rec.getValueByColumnName(mapCol.get("timeScopeUri")),
+                rec.getValueByColumnName("hasTimeScope"));
         if (timeScope == null || timeScope.isEmpty()) {
             return null;
         }
-        return URIUtils.replacePrefixEx(timeScope);
+        String trimmed = timeScope.trim();
+        if (trimmed.isEmpty()) {
+            return null;
+        }
+        if (URIUtils.isValidURI(trimmed)) {
+            return URIUtils.replacePrefixEx(trimmed);
+        }
+        return buildNativeUriFromIdentifier(trimmed);
     }
 
     private String getSpaceScopeUri(Record rec) {
-        String spaceScope = rec.getValueByColumnName(mapCol.get("spaceScopeUri"));
+        String spaceScope = firstNonEmpty(
+                rec.getValueByColumnName(mapCol.get("spaceScopeUri")),
+                rec.getValueByColumnName("hasSpaceScope"));
         if (spaceScope == null || spaceScope.isEmpty()) {
             return null;
         }
-        return URIUtils.replacePrefixEx(spaceScope);
+        String trimmed = spaceScope.trim();
+        if (trimmed.isEmpty()) {
+            return null;
+        }
+        if (URIUtils.isValidURI(trimmed)) {
+            return URIUtils.replacePrefixEx(trimmed);
+        }
+        return buildNativeUriFromIdentifier(trimmed);
+    }
+
+    private String firstNonEmpty(String... candidates) {
+        if (candidates == null) {
+            return null;
+        }
+        for (String value : candidates) {
+            if (value != null && !value.trim().isEmpty()) {
+                return value;
+            }
+        }
+        return null;
     }
 
     /**
@@ -365,12 +405,15 @@ public class SIRObjectGenerator extends BaseGenerator {
             }
             if (scopeUri != null && !scopeUri.isEmpty()) {
                 addRDFProperty(uri, "hasco:hasScope", scopeUri, true);
+                addRDFProperty(uri, "hasco:hasObjectScope", scopeUri, true);
             }
             if (timeScopeUri != null && !timeScopeUri.isEmpty()) {
                 addRDFProperty(uri, "hasco:hasTimeScope", timeScopeUri, true);
+                addRDFProperty(uri, "hasco:hasTimeObjectScope", timeScopeUri, true);
             }
             if (spaceScopeUri != null && !spaceScopeUri.isEmpty()) {
                 addRDFProperty(uri, "hasco:hasSpaceScope", spaceScopeUri, true);
+                addRDFProperty(uri, "hasco:hasSpaceObjectScope", spaceScopeUri, true);
             }
             if (("Instrument".equals(sirType) || "ComponentStem".equals(sirType)) &&
                     scopeUri != null && !scopeUri.isEmpty()) {

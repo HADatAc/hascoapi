@@ -43,6 +43,50 @@ public class RAnalysisAPI extends Controller {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RAnalysisAPI.class);
 
+    public Result validate(Http.Request request) {
+        String runId = generateRunId();
+
+        try {
+            Result authResult = validateAuthIfRequired(request, runId);
+            if (authResult != null) {
+                return authResult;
+            }
+
+            JsonNode payload = request.body().asJson();
+            if (payload == null) {
+                ArrayNode details = Json.newArray();
+                details.add(errorDetail("body", "Expecting JSON body"));
+                LOGGER.warn("RAnalysis validate failed runId={} details={}", runId, details);
+                return badRequest(errorResponse("invalid_payload", "Malformed or missing JSON payload", details));
+            }
+
+            RAnalysisPayloadValidator.ValidationResult validation = RAnalysisPayloadValidator.validate(payload);
+            if (!validation.isValid()) {
+                ArrayNode details = validation.toJsonDetails();
+                LOGGER.warn("RAnalysis validate failed runId={} details={}", runId, details);
+                return badRequest(errorResponse("invalid_payload", "Payload validation failed", details));
+            }
+
+            ObjectNode body = Json.newObject();
+            body.put("runId", runId);
+            body.put("status", "validated");
+            body.put("validatedAt", Instant.now().toString());
+
+            ObjectNode success = Json.newObject();
+            success.put("isSuccessful", true);
+            success.set("body", body);
+
+            return ok(success);
+        } catch (Exception e) {
+            LOGGER.error("RAnalysis validate unhandled failure runId={} message={}", runId, e.getMessage(), e);
+            ObjectNode details = Json.newObject();
+            details.put("runId", runId);
+            details.put("exception", e.getClass().getSimpleName());
+            details.put("message", e.getMessage() == null ? "Unexpected server error" : e.getMessage());
+            return internalServerError(errorResponse("internal_server_error", "Unexpected runtime failure", details));
+        }
+    }
+
     public Result execute(Http.Request request) {
         String runId = generateRunId();
         long startedMs = System.currentTimeMillis();
@@ -95,6 +139,10 @@ public class RAnalysisAPI extends Controller {
             }
 
             if (!executionResult.success) {
+                String stderrLower = executionResult.stderr == null ? "" : executionResult.stderr.toLowerCase();
+                boolean runtimeMissing = executionResult.exitCode == -1 &&
+                        (stderrLower.contains("cannot run program") || stderrLower.contains("failed to start rscript"));
+
                 ObjectNode details = Json.newObject();
                 details.put("runId", runId);
                 details.put("exitCode", executionResult.exitCode);
@@ -103,6 +151,9 @@ public class RAnalysisAPI extends Controller {
 
                 LOGGER.error("RAnalysis execution failed runId={} studyUri={} processUri={} toolUri={} durationMs={} exitCode={}",
                         runId, studyUri, processUri, toolUri, durationMs, executionResult.exitCode);
+                if (runtimeMissing) {
+                    return internalServerError(errorResponse("r_runtime_unavailable", "R runtime is unavailable (Rscript not found)", details));
+                }
                 return internalServerError(errorResponse("r_execution_failed", "Rscript process failed", details));
             }
 

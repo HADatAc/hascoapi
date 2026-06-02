@@ -88,7 +88,23 @@ public final class RAnalysisPayloadValidator {
         }
 
         requireObject(payload, "associations", errors);
-        requireObject(payload, "arguments", errors);
+        JsonNode arguments = requireObject(payload, "arguments", errors);
+        if (arguments != null) {
+            JsonNode rscriptArgs = arguments.path("rscriptArgs");
+            if (rscriptArgs.isMissingNode() || rscriptArgs.isNull() || !rscriptArgs.isArray()) {
+                errors.add(new ValidationError("arguments.rscriptArgs", "Required array with at least one input argument"));
+            } else {
+                int nonEmptyArgs = 0;
+                for (JsonNode arg : rscriptArgs) {
+                    if (arg != null && arg.isTextual() && !arg.asText("").trim().isEmpty()) {
+                        nonEmptyArgs++;
+                    }
+                }
+                if (nonEmptyArgs == 0) {
+                    errors.add(new ValidationError("arguments.rscriptArgs", "Provide at least one non-empty argument (for example dataset URL/path)"));
+                }
+            }
+        }
 
         JsonNode requestedBy = requireObject(payload, "requestedBy", errors);
         if (requestedBy != null) {

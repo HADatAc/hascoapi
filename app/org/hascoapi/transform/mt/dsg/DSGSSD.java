@@ -13,21 +13,25 @@ public class DSGSSD {
         Sheet sheet = helper.workbook.getSheet(DSGGen.SSD);
         if (sheet == null) {
             sheet = helper.workbook.createSheet(DSGGen.SSD);
-            // Headers aligned with SSDGenerator.initMapping
-            Row headerRow = sheet.createRow(0);
-            headerRow.createCell(0).setCellValue("sheet");
-            headerRow.createCell(1).setCellValue("hasURI");
-            headerRow.createCell(2).setCellValue("type");
-            headerRow.createCell(3).setCellValue("hasSOCReference");
-            headerRow.createCell(4).setCellValue("comment");
-            headerRow.createCell(5).setCellValue("label");
-            headerRow.createCell(6).setCellValue("definition");
-            headerRow.createCell(7).setCellValue("groundingLabel");
-            headerRow.createCell(8).setCellValue("hasScope");
-            headerRow.createCell(9).setCellValue("hasTimeScope");
-            headerRow.createCell(10).setCellValue("hasSpaceScope");
-            headerRow.createCell(11).setCellValue("source");
         }
+
+        // Always enforce original SSD header layout (12 cols, no "source" column)
+        Row headerRow = sheet.getRow(0);
+        if (headerRow == null) {
+            headerRow = sheet.createRow(0);
+        }
+        headerRow.createCell(0).setCellValue("sheet");
+        headerRow.createCell(1).setCellValue("hasURI");
+        headerRow.createCell(2).setCellValue("type");
+        headerRow.createCell(3).setCellValue("hasSOCReference");
+        headerRow.createCell(4).setCellValue("comment");
+        headerRow.createCell(5).setCellValue("label");
+        headerRow.createCell(6).setCellValue("definition");
+        headerRow.createCell(7).setCellValue("role");
+        headerRow.createCell(8).setCellValue("groundingLabel");
+        headerRow.createCell(9).setCellValue("hasScope");
+        headerRow.createCell(10).setCellValue("hasTimeScope");
+        headerRow.createCell(11).setCellValue("hasSpaceScope");
         return helper;
     }
 
@@ -39,6 +43,20 @@ public class DSGSSD {
         // Ensure SSD sheet exists and has headers
         add(helper, null);
         Sheet ssdSheet = helper.workbook.getSheet(DSGGen.SSD);
+
+        // Fetch SOCs for the study (flexible: search in any named graph)
+        java.util.List<StudyObjectCollection> socs = org.hascoapi.entity.pojo.StudyObjectCollection
+                .findStudyObjectCollectionsByStudyFlexible(study.getUri());
+        int socCount = (socs == null) ? 0 : socs.size();
+        System.out.println("[DSGSSD] Study uri=" + study.getUri() + "; found SOC count=" + socCount);
+        if (socs == null || socs.isEmpty()) {
+            return helper;
+        }
+
+        // Regeneration should be deterministic: clear previous rows (keep header).
+        // IMPORTANT: clear only after confirming this study has SOC content; otherwise
+        // a later empty study call could wipe rows generated for the target DSG study.
+        clearSheetDataRows(ssdSheet);
 
         // Build a set of existing keys to avoid duplicates across previous runs.
         // IMPORTANT: do NOT key on abbreviated hasURI, because it may collapse distinct SOCs (e.g., different OCL_* URIs).
@@ -52,15 +70,6 @@ public class DSGSSD {
             if (!hasUri0.isEmpty()) {
                 existingKeys.add(sheetCell0 + "::" + hasUri0);
             }
-        }
-
-        // Fetch SOCs for the study (flexible: search in any named graph)
-        java.util.List<StudyObjectCollection> socs = org.hascoapi.entity.pojo.StudyObjectCollection
-                .findStudyObjectCollectionsByStudyFlexible(study.getUri());
-        int socCount = (socs == null) ? 0 : socs.size();
-        System.out.println("[DSGSSD] Study uri=" + study.getUri() + "; found SOC count=" + socCount);
-        if (socs == null || socs.isEmpty()) {
-            return helper;
         }
 
         // De-duplicate SOCs by canonical URI before writing any rows.
@@ -93,6 +102,16 @@ public class DSGSSD {
         // Track keys added in this call to avoid adding same SOC twice for this study
         java.util.HashSet<String> seenKeys = new java.util.HashSet<>();
 
+        // Fallback scope for SOC rows when hasScope is missing in triplestore.
+        String defaultInstrumentScope = "";
+        for (StudyObjectCollection candidate : orderedSocs) {
+            String candidateHasUri = deriveHasURI(candidate);
+            if (socSortRank(candidateHasUri) == 1) {
+                defaultInstrumentScope = candidateHasUri;
+                break;
+            }
+        }
+
         for (StudyObjectCollection soc : orderedSocs) {
             if (soc == null) {
                 continue;
@@ -124,11 +143,14 @@ public class DSGSSD {
             String comment = safe(soc.getComment());
             String label = safe(soc.getLabel());
             String definition = ""; // not available on StudyObjectCollection
+            String role = URIUtils.replaceNameSpaceEx(safe(soc.getRoleUri()));
             String groundingLabel = safe(getGroundingLabelSafe(soc));
             String hasScope = URIUtils.replaceNameSpaceEx(deriveHasUriFromSocUri(soc.getHasScopeUri()));
+            if (hasScope.isEmpty() && !defaultInstrumentScope.isEmpty()) {
+                hasScope = defaultInstrumentScope;
+            }
             String hasTimeScope = URIUtils.replaceNameSpaceEx(deriveHasUriList(soc.getTimeScopeUris()));
             String hasSpaceScope = URIUtils.replaceNameSpaceEx(deriveHasUriList(soc.getSpaceScopeUris()));
-            String source = ""; // not available on StudyObjectCollection
 
             int rowNum = ssdSheet.getLastRowNum() + 1;
             Row row = ssdSheet.createRow(rowNum);
@@ -139,11 +161,11 @@ public class DSGSSD {
             row.createCell(4).setCellValue(comment);
             row.createCell(5).setCellValue(label);
             row.createCell(6).setCellValue(definition);
-            row.createCell(7).setCellValue(groundingLabel);
-            row.createCell(8).setCellValue(hasScope);
-            row.createCell(9).setCellValue(hasTimeScope);
-            row.createCell(10).setCellValue(hasSpaceScope);
-            row.createCell(11).setCellValue(source);
+            row.createCell(7).setCellValue(role);
+            row.createCell(8).setCellValue(groundingLabel);
+            row.createCell(9).setCellValue(hasScope);
+            row.createCell(10).setCellValue(hasTimeScope);
+            row.createCell(11).setCellValue(hasSpaceScope);
             System.out.println("[DSGSSD] Added SSD row for SOC uri=" + safe(soc.getUri()) + ", key=" + key);
 
             // If sheet cell provided, create the SOC sheet and populate details
@@ -159,6 +181,8 @@ public class DSGSSD {
                     h.createCell(4).setCellValue("spaceScopeID");
                     h.createCell(5).setCellValue("label");
                     h.createCell(6).setCellValue("comment");
+                } else {
+                    clearSheetDataRows(socSheet);
                 }
 
                 // Populate SOC objects (deduplicate by originalID)
@@ -202,10 +226,32 @@ public class DSGSSD {
                         Row sr = socSheet.createRow(r);
                         sr.createCell(0).setCellValue(originalId);
                         sr.createCell(1).setCellValue(URIUtils.replaceNameSpaceEx(URIUtils.replacePrefixEx(safe(obj.getTypeUri()))));
-                        // Map object scopes to originalIDs
-                        sr.createCell(2).setCellValue(joinOriginalIds(obj.getScopeUris()));
-                        sr.createCell(3).setCellValue(joinOriginalIds(obj.getTimeScopeUris()));
-                        sr.createCell(4).setCellValue(joinOriginalIds(obj.getSpaceScopeUris()));
+                        
+                        // CRITICAL: Load scopes from triplestore explicitly
+                        // The DESCRIBE query in find() doesn't include named graphs, so scopes aren't loaded
+                        String scopeLookupUri = resolveScopeLookupUri(obj, originalId);
+                        java.util.List<String> scopeUris = StudyObject.retrieveScopeUris(scopeLookupUri);
+                        java.util.List<String> timeScopeUris = StudyObject.retrieveTimeScopeUris(scopeLookupUri);
+                        java.util.List<String> spaceScopeUris = StudyObject.retrieveSpaceScopeUris(scopeLookupUri);
+
+                        if ((spaceScopeUris == null || spaceScopeUris.isEmpty()) && isComponentType(obj)) {
+                            String attributeLookupUri = resolveComponentAttributeLookupUri(scopeLookupUri, originalId);
+                            java.util.List<String> attributeUris = StudyObject.retrieveAttributeUris(attributeLookupUri);
+                            if ((attributeUris == null || attributeUris.isEmpty()) && !attributeLookupUri.equals(scopeLookupUri)) {
+                                attributeUris = StudyObject.retrieveAttributeUris(scopeLookupUri);
+                            }
+                            if (attributeUris != null && !attributeUris.isEmpty()) {
+                                spaceScopeUris = attributeUris;
+                            }
+                        }
+
+                        // Map object scope URIs back to exported original IDs.
+                        String scopeIds = joinOriginalIds(scopeUris);
+                        String timeScopeIds = joinOriginalIds(timeScopeUris);
+                        String spaceScopeIds = joinOriginalIds(spaceScopeUris);
+                        sr.createCell(2).setCellValue(scopeIds);
+                        sr.createCell(3).setCellValue(timeScopeIds);
+                        sr.createCell(4).setCellValue(spaceScopeIds);
                         sr.createCell(5).setCellValue(safe(obj.getLabel()));
                         sr.createCell(6).setCellValue(safe(obj.getComment()));
                         System.out.println("[DSGSSD] Added row for object originalId=" + originalId);
@@ -225,6 +271,19 @@ public class DSGSSD {
             // ignore sizing issues
         }
         return helper;
+    }
+
+    private static void clearSheetDataRows(Sheet sheet) {
+        if (sheet == null) {
+            return;
+        }
+        int lastRow = sheet.getLastRowNum();
+        for (int r = lastRow; r >= 1; r--) {
+            Row row = sheet.getRow(r);
+            if (row != null) {
+                sheet.removeRow(row);
+            }
+        }
     }
 
     private static String getCellString(Cell cell) {
@@ -307,17 +366,80 @@ public class DSGSSD {
 
     private static String joinOriginalIds(java.util.List<String> scopeUris) {
         if (scopeUris == null || scopeUris.isEmpty()) return "";
-        StringBuilder sb = new StringBuilder();
+        java.util.LinkedHashSet<String> ids = new java.util.LinkedHashSet<>();
         for (String u : scopeUris) {
             if (u == null || u.isEmpty()) continue;
             String full = URIUtils.replacePrefixEx(u);
-            org.hascoapi.entity.pojo.StudyObject scopeObj = org.hascoapi.entity.pojo.StudyObject.find(full);
-            String original = scopeObj != null ? scopeObj.getOriginalId() : lastSegment(full);
-            if (original == null) original = lastSegment(full);
-            if (sb.length() > 0) sb.append(",");
-            sb.append(original);
+            // Retrieve originalId from triplestore (searches all named graphs)
+            String original = org.hascoapi.entity.pojo.StudyObject.retrieveOriginalId(full);
+            original = normalizeExportScopeId(full, original);
+            if (original != null && !original.trim().isEmpty()) {
+                ids.add(original.trim());
+            }
         }
-        return sb.toString();
+        if (ids.isEmpty()) {
+            return "";
+        }
+        return String.join(",", ids);
+    }
+
+    private static String resolveScopeLookupUri(StudyObject obj, String originalId) {
+        String objUri = URIUtils.replacePrefixEx(safe(obj == null ? null : obj.getUri()));
+        String cleanOriginalId = safe(originalId).trim();
+
+        // Most robust path: if originalId is already a full/prefixed URI, use it directly.
+        String expandedOriginal = URIUtils.replacePrefixEx(cleanOriginalId);
+        if (expandedOriginal != null && (expandedOriginal.startsWith("http://") || expandedOriginal.startsWith("https://"))) {
+            return expandedOriginal;
+        }
+
+        // SOC object lists may return synthetic OBJ_* URIs. Convert to real local ID URI when possible.
+        if (!objUri.isEmpty() && objUri.contains("#OBJ_") && !cleanOriginalId.isEmpty()) {
+            int idx = objUri.lastIndexOf('#');
+            if (idx >= 0 && idx + 1 < objUri.length()) {
+                return objUri.substring(0, idx + 1) + cleanOriginalId;
+            }
+        }
+
+        return objUri;
+    }
+
+    private static String normalizeExportScopeId(String fullUri, String originalId) {
+        String normalized = normalizeSyntheticObjId(safe(originalId));
+        if (!normalized.isEmpty()) {
+            return normalized;
+        }
+
+        String local = normalizeSyntheticObjId(lastSegment(fullUri));
+        if (looksLikeLocalOriginalId(local)) {
+            return local;
+        }
+
+        String abbreviated = URIUtils.replaceNameSpaceEx(safe(fullUri));
+        if (!abbreviated.isEmpty()) {
+            return abbreviated;
+        }
+
+        return local;
+    }
+
+    private static String normalizeSyntheticObjId(String value) {
+        String v = safe(value).trim();
+        if (!v.startsWith("OBJ_")) {
+            return v;
+        }
+        int idx = v.lastIndexOf('_');
+        if (idx >= 0 && idx + 1 < v.length()) {
+            return v.substring(idx + 1);
+        }
+        return v;
+    }
+
+    private static boolean looksLikeLocalOriginalId(String value) {
+        String v = safe(value);
+        if (v.isEmpty()) return false;
+        if (v.contains("/CTS/")) return true;
+        return v.matches("^(INS|CMP|CST|SLT|COD|ROP|VCO|SOC|STD|STUDY).*");
     }
 
     private static String lastSegment(String uri) {
@@ -355,6 +477,35 @@ public class DSGSSD {
             return fallback;
         }
         return "";
+    }
+
+    private static boolean isComponentType(StudyObject obj) {
+        if (obj == null) {
+            return false;
+        }
+        String typeUri = URIUtils.replacePrefixEx(safe(obj.getTypeUri())).toLowerCase();
+        return typeUri.contains("#component");
+    }
+
+    private static String resolveComponentAttributeLookupUri(String lookupUri, String originalId) {
+        String expandedLookup = URIUtils.replacePrefixEx(safe(lookupUri));
+        String cleanOriginal = safe(originalId).trim();
+
+        if (expandedLookup.contains("#OBJ_componentcollection_")) {
+            return expandedLookup;
+        }
+        if (cleanOriginal.isEmpty()) {
+            return expandedLookup;
+        }
+
+        if ((cleanOriginal.startsWith("COM") || cleanOriginal.startsWith("CSM")) && expandedLookup.contains("#")) {
+            int idx = expandedLookup.lastIndexOf('#');
+            if (idx >= 0 && idx + 1 < expandedLookup.length()) {
+                return expandedLookup.substring(0, idx + 1) + "OBJ_componentcollection_" + cleanOriginal;
+            }
+        }
+
+        return expandedLookup;
     }
 
     private static String safe(String val) { return val == null ? "" : val; }

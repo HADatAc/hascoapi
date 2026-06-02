@@ -348,6 +348,7 @@ public abstract class HADatAcThing {
     public void delete() { throw new NotImplementedException("Used unimplemented HADatAcThing.delete() method"); }
 
     private Model generateRDFModel(boolean withValidation, Model model) {
+        System.out.println("[RDF-GEN ENTRY] generateRDFModel() called for object class: " + getClass().getSimpleName() + " (" + getClass().getName() + ")");
         Map<String, Object> row = new ConcurrentHashMap<String, Object>();
         List<Map<String, Object>> reversed_rows = new ArrayList<Map<String, Object>>();
         Map<String,List<String>>  property_lists = new ConcurrentHashMap<String,List<String>>();
@@ -355,7 +356,7 @@ public abstract class HADatAcThing {
         try {
             Class<?> currentClass = getClass();
             while(currentClass != null) {
-                // System.out.println("inside HADatAcThing.generateRDFModel: currentClass: " + currentClass.getName());
+                System.out.println("[RDF-GEN DEBUG] Processing currentClass: " + currentClass.getName());
                 // System.out.println("inside HADatAcThing.generateRDFModel(): hasURI: [" + uri + "]");
 
                 for (Field field: currentClass.getDeclaredFields()) {
@@ -418,11 +419,12 @@ public abstract class HADatAcThing {
                         if (field.getType().equals(List.class)) {
                             //System.out.println("inside HADatAcThing.saveToTripleStore(): Element is list.");
                             List<?> list = (List<?>)field.get(this);
+                            System.out.println("[RDF-GEN DEBUG] Field " + field.getName() + " is List, size=" + (list != null ? list.size() : "null"));
                             if (list != null && !list.isEmpty() && list.get(0) instanceof String) {
                                 List<String> elements = new ArrayList<String>();
                                 for (String element : (List<String>)list) {
                                     if (element != null && !element.isEmpty()) {
-                                        //System.out.println("in List assigned [" + element + "] to [" + propertyUri + "]");
+                                        System.out.println("[RDF-GEN DEBUG]   in List assigned [" + element + "] to [" + propertyUri + "]");
                                         elements.add(element);
                                     }
                                 }
