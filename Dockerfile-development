@@ -4,7 +4,7 @@ WORKDIR /hascoapi
 
 RUN sed -i -e 's|http://ports.ubuntu.com/ubuntu-ports|https://ports.ubuntu.com/ubuntu-ports|g' /etc/apt/sources.list && \
     apt-get update && \
-    apt-get install -y --no-install-recommends tmux && \
+    apt-get install -y --no-install-recommends tmux curl ca-certificates r-base-core && \
     rm -rf /var/lib/apt/lists/*
 
 # Avoid Maven Central rate-limits by mirroring it via Google Cloud Storage.
@@ -16,6 +16,7 @@ central.type=tree
 EOF
 
 ENV COURSIER_MIRRORS=/root/.config/coursier/mirror.properties
+ENV R_SCRIPT_BIN=/usr/bin/Rscript
 
 # Copy build definition files first so dependency resolution can be cached.
 COPY build.sbt ./

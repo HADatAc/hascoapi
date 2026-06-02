@@ -38,6 +38,12 @@ FROM eclipse-temurin:11-jre
 
 WORKDIR /hascoapi
 
+RUN apt-get update && \
+	apt-get install -y --no-install-recommends r-base-core curl ca-certificates && \
+	rm -rf /var/lib/apt/lists/*
+
+ENV R_SCRIPT_BIN=/usr/bin/Rscript
+
 COPY --from=build-java /hascoapi/target/universal/hascoapi-10.0.1-SNAPSHOT /hascoapi
 
 COPY ./conf/hascoapi-docker.conf /hascoapi/conf/hascoapi.conf
