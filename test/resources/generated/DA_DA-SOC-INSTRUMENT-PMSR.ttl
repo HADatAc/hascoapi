@@ -1,4 +1,4 @@
-@prefix :                  <http://purl.obolibrary.org/obo/pato.owl#> .
+@prefix :                  <http://purl.obolibrary.org/obo/exo.owl#> .
 @prefix ahead:             <http://hadatac.org/ont/arrowhead/> .
 @prefix bfo:               <http://purl.obolibrary.org/obo/BFO_> .
 @prefix bspo:              <http://purl.obolibrary.org/obo/bspo#> .
@@ -8,15 +8,20 @@
 @prefix chebi3:            <http://purl.obolibrary.org/obo/chebi#1> .
 @prefix cl:                <http://purl.obolibrary.org/obo/cl#> .
 @prefix core:              <http://purl.obolibrary.org/obo/uberon/core#> .
+@prefix daml:              <http://www.daml.org/2001/03/daml+oil#> .
 @prefix dc:                <http://purl.org/dc/elements/1.1/> .
+@prefix dcat:              <http://www.w3.org/ns/dcat#> .
+@prefix dcmitype:          <http://purl.org/dc/dcmitype/> .
 @prefix dcterms:           <http://purl.org/dc/terms/> .
 @prefix default:           <http://hadatac.org/kb/default/> .
 @prefix doap:              <http://usefulinc.com/ns/doap#> .
 @prefix envo:              <http://purl.obolibrary.org/obo/ENVO_> .
+@prefix exo:               <http://purl.obolibrary.org/obo/ExO_> .
 @prefix fhir:              <http://hl7.org/fhir/> .
 @prefix foaf:              <http://xmlns.com/foaf/0.1/> .
 @prefix foo:               <http://geneontology.org/foo/> .
 @prefix go:                <http://purl.obolibrary.org/obo/go#> .
+@prefix grddl:             <http://www.w3.org/2003/g/data-view#> .
 @prefix hadatac:           <http://hadatac.org/kb/default/> .
 @prefix hasco:             <http://hadatac.org/ont/hasco/> .
 @prefix lcc-639-1:         <https://www.omg.org/spec/LCC/Languages/ISO639-1-LanguageCodes/> .
@@ -49,7 +54,1308 @@
 @prefix uberon:            <http://purl.obolibrary.org/obo/UBERON_> .
 @prefix ubprop:            <http://purl.obolibrary.org/obo/ubprop#> .
 @prefix unit:              <http://qudt.org/vocab/unit/> .
+@prefix void:              <http://rdfs.org/ns/void#> .
 @prefix vstoi:             <http://hadatac.org/ont/vstoi#> .
 @prefix xml:               <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd:               <http://www.w3.org/2001/XMLSchema#> .
 @prefix xsp:               <http://www.owl-ontologies.com/2005/08/07/xsp.owl#> .
+
+pmsr:OBJ_instrumentcollection_INS1739451831725785
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "A Virtual Patient Anatomy Simulator is an advanced educational tool that combines interactive computer simulations with detailed anatomical models to enhance healthcare training. These simulators allow learners to engage in realistic clinical scenarios while exploring human anatomy in a virtual environment." ;
+        rdfs:label                      "Virtual Patient Anatomy Simulator" ;
+        rdfs:subClassOf                 "pmsr:VirtualMedicalSimulator" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://geekymedics.com/virtual-patient-simulator/" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739451831725785" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/VirtualPatientAnatomySimulator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739288499528465
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "The Chison CBit 9 is a cart-based digital color Doppler ultrasound system designed to deliver high-quality imaging across various medical specialties, including cardiology, obstetrics and gynecology, radiology, and point-of-care applications. It features a 21.5-inch high-definition LED monitor and a 10.1-inch customizable touch screen, enhancing user interaction and image visualization. The system supports multiple transducer types, such as convex, linear, transvaginal, and phased array probes, providing versatility for comprehensive diagnostic needs. Advanced imaging technologies integrated into the CBit 9 include Auto EF, Strain and Strain Rate, Stress Echo, Tissue Doppler Imaging (TDI), SonoContrast, Shear Wave Elastography, and 4D imaging capabilities. These features collectively enhance diagnostic accuracy and efficiency, making the CBit 9 a valuable tool in modern medical practice." ;
+        rdfs:label                      "Chison Cbit-9 Stationary Ultrasound" ;
+        rdfs:subClassOf                 "pmsr:/INS1739288428472235" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.chison.com/cbit/cbit-9.html" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739288499528465" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/ChisonCbit9StationaryUltrasound" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739288006994165
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "A Diagnostic Imaging Simulator is a specialized training tool designed to replicate medical imaging procedures, such as MRI, CT scans, and X-rays, in a controlled and risk-free environment. These simulators enable healthcare professionals and students to practice image acquisition, interpretation, and patient management without exposing patients to actual procedures or ionizing radiation." ;
+        rdfs:label                      "Diagnostic Imaging Simulator" ;
+        rdfs:subClassOf                 "pmsr:/INS1739287021517805" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://widi.xray.ufl.edu/widi-sim/emergent-critical-care-imaging-simulation/" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739288006994165" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/DiagnosticImagingSimulator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739392122823235
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "Training in medical/surgical procedures, including those that are rare or complex. Medical educators use simulators such as lifelike mannequins or virtual representations of patients to practice clinical scenarios. These tools can simulate realistic anatomy, tissue, and tactile feedback. Other simulators prepare clinicians for procedures by using realistic workflows, including planning, warm-up exercises, and rehearsal for a specific procedure." ;
+        rdfs:label                      "Procedure Simulator" ;
+        rdfs:subClassOf                 "pmsr:PhysicalMedicalSimulator" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.nibib.nih.gov/science-education/science-topics/medical-simulators" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739392122823235" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/ProcedureSimulator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739301189412025
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "A CAD-CAM system integrates Computer-Aided Design (CAD) and Computer-Aided Manufacturing (CAM) technologies to streamline the design and production processes. CAD involves the use of computer software to create detailed 2D or 3D models of products, enabling designers and engineers to visualize and refine their concepts digitally. CAM utilizes these digital models to control and automate manufacturing equipment, such as CNC machines, facilitating the efficient and precise production of physical components. This integration enhances productivity, reduces manual intervention, and ensures a seamless transition from design to manufacturing." ;
+        rdfs:label                      "CAD-CAM System" ;
+        rdfs:subClassOf                 "pmsr:/INS1739300958884615" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.autodesk.com/solutions/cad-cam" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739301189412025" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/CADCAMSystem" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739303195193785
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "The Geriatric Simulator is an award-winning educational tool designed to help students develop empathy and a deeper understanding of the challenges faced by older patients or individuals with limited mobility. This wearable simulator allows students to experience firsthand the physical and visual impairments that many older adults live with daily, including stooped posture, restricted range of motion, and conditions like glaucoma." ;
+        rdfs:label                      "Geriatic Care Simulator" ;
+        rdfs:subClassOf                 "pmsr:/INS1739301711235865" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.realityworks.com/product/realcare-geriatric-simulator/?srsltid=AfmBOooiYNGJCNfk6Mw3AETNgjYD0eXXI9BSZNJmKgo7ITKMKCF_D" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739303195193785" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/GeriaticCareSimulator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+<http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv>
+        hasco:hasDasocDataAcquisition  <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasFileId                "DFL-RT-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasFileStatus            "PROCESSED" ;
+        hasco:hasFilename              "DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasLog                   "2026-06-03 19:41:08 [LOG] DASOC ingestion for DA: &lt;http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv&gt;<br>2026-06-03 19:41:08 [LOG] Using Study: &lt;http://pmsr.net/ont/pmsr#STD-STUDY-PMSR-Simulators-1&gt;<br>2026-06-03 19:41:08 [LOG] DA &lt;http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv&gt; not found, creating new DA record<br>2026-06-03 19:41:10 [LOG] ✅ Created DA record linked to study: &lt;http://pmsr.net/ont/pmsr#STD-STUDY-PMSR-Simulators-1&gt;<br>2026-06-03 19:41:10 [LOG] Building originalID map for Study: &lt;http://pmsr.net/ont/pmsr#STD-STUDY-PMSR-Simulators-1&gt;<br>2026-06-03 19:41:10 [LOG] Querying all StudyObjects in Study with originalIDs...<br>2026-06-03 19:41:10 [WARNING] Duplicate originalID found, keeping existing URI: INS1739823398493725 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739823398493725, ignored=http://pmsr.net/ont/pmsr#INS1739823398493725]<br>2026-06-03 19:41:11 [WARNING] Duplicate originalID found, keeping existing URI: INS1739300958884615 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739300958884615, ignored=http://pmsr.net/ont/pmsr#INS1739300958884615]<br>2026-06-03 19:41:11 [WARNING] Duplicate originalID found, keeping existing URI: INS1739301814401805 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739301814401805, ignored=http://pmsr.net/ont/pmsr#INS1739301814401805]<br>2026-06-03 19:41:11 [WARNING] Duplicate originalID found, keeping existing URI: INS1739452063713965 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739452063713965, ignored=http://pmsr.net/ont/pmsr#INS1739452063713965]<br>2026-06-03 19:41:11 [WARNING] Duplicate originalID found, keeping existing URI: INS1739451831725785 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739451831725785, ignored=http://pmsr.net/ont/pmsr#INS1739451831725785]<br>2026-06-03 19:41:11 [WARNING] Duplicate originalID found, keeping existing URI: INS1739401557396065 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739401557396065, ignored=http://pmsr.net/ont/pmsr#INS1739401557396065]<br>2026-06-03 19:41:11 [WARNING] Duplicate originalID found, keeping existing URI: INS1739488340413085 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739488340413085, ignored=http://pmsr.net/ont/pmsr#INS1739488340413085]<br>2026-06-03 19:41:12 [WARNING] Duplicate originalID found, keeping existing URI: INS1739288566447555 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739288566447555, ignored=http://pmsr.net/ont/pmsr#INS1739288566447555]<br>2026-06-03 19:41:12 [WARNING] Duplicate originalID found, keeping existing URI: INS1739392122823235 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739392122823235, ignored=http://pmsr.net/ont/pmsr#INS1739392122823235]<br>2026-06-03 19:41:12 [WARNING] Duplicate originalID found, keeping existing URI: INS1739288428472235 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739288428472235, ignored=http://pmsr.net/ont/pmsr#INS1739288428472235]<br>2026-06-03 19:41:12 [WARNING] Duplicate originalID found, keeping existing URI: INS1739287092102085 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739287092102085, ignored=http://pmsr.net/ont/pmsr#INS1739287092102085]<br>2026-06-03 19:41:12 [WARNING] Duplicate originalID found, keeping existing URI: INS1739287021517805 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739287021517805, ignored=http://pmsr.net/ont/pmsr#INS1739287021517805]<br>2026-06-03 19:41:13 [WARNING] Duplicate originalID found, keeping existing URI: INS1739288006994165 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739288006994165, ignored=http://pmsr.net/ont/pmsr#INS1739288006994165]<br>2026-06-03 19:41:13 [WARNING] Duplicate originalID found, keeping existing URI: INS1739301711235865 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739301711235865, ignored=http://pmsr.net/ont/pmsr#INS1739301711235865]<br>2026-06-03 19:41:13 [WARNING] Duplicate originalID found, keeping existing URI: INS1739397137461495 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739397137461495, ignored=http://pmsr.net/ont/pmsr#INS1739397137461495]<br>2026-06-03 19:41:13 [WARNING] Duplicate originalID found, keeping existing URI: INS1739398437257165 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739398437257165, ignored=http://pmsr.net/ont/pmsr#INS1739398437257165]<br>2026-06-03 19:41:13 [WARNING] Duplicate originalID found, keeping existing URI: INS1739392275798255 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739392275798255, ignored=http://pmsr.net/ont/pmsr#INS1739392275798255]<br>2026-06-03 19:41:13 [WARNING] Duplicate originalID found, keeping existing URI: INS1739287159797795 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739287159797795, ignored=http://pmsr.net/ont/pmsr#INS1739287159797795]<br>2026-06-03 19:41:13 [WARNING] Duplicate originalID found, keeping existing URI: INS1739400689838665 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739400689838665, ignored=http://pmsr.net/ont/pmsr#INS1739400689838665]<br>2026-06-03 19:41:14 [WARNING] Duplicate originalID found, keeping existing URI: INS1739821032633525 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739821032633525, ignored=http://pmsr.net/ont/pmsr#INS1739821032633525]<br>2026-06-03 19:41:14 [WARNING] Duplicate originalID found, keeping existing URI: INS1739452783104705 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739452783104705, ignored=http://pmsr.net/ont/pmsr#INS1739452783104705]<br>2026-06-03 19:41:14 [WARNING] Duplicate originalID found, keeping existing URI: INS1739392182337835 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739392182337835, ignored=http://pmsr.net/ont/pmsr#INS1739392182337835]<br>2026-06-03 19:41:16 [WARNING] Duplicate originalID found, keeping existing URI: INS1739878730369725 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739878730369725, ignored=http://pmsr.net/ont/pmsr#INS1739878730369725]<br>2026-06-03 19:41:17 [WARNING] Duplicate originalID found, keeping existing URI: INS1739288153666735 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739288153666735, ignored=http://pmsr.net/ont/pmsr#INS1739288153666735]<br>2026-06-03 19:41:17 [WARNING] Duplicate originalID found, keeping existing URI: INS1739301009974715 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739301009974715, ignored=http://pmsr.net/ont/pmsr#INS1739301009974715]<br>2026-06-03 19:41:17 [WARNING] Duplicate originalID found, keeping existing URI: INS1739819782231595 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739819782231595, ignored=http://pmsr.net/ont/pmsr#INS1739819782231595]<br>2026-06-03 19:41:17 [WARNING] Duplicate originalID found, keeping existing URI: INS1739819116467195 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739819116467195, ignored=http://pmsr.net/ont/pmsr#INS1739819116467195]<br>2026-06-03 19:41:17 [WARNING] Duplicate originalID found, keeping existing URI: INS1739819955334025 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739819955334025, ignored=http://pmsr.net/ont/pmsr#INS1739819955334025]<br>2026-06-03 19:41:18 [WARNING] Duplicate originalID found, keeping existing URI: INS1739819599670195 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739819599670195, ignored=http://pmsr.net/ont/pmsr#INS1739819599670195]<br>2026-06-03 19:41:18 [WARNING] Duplicate originalID found, keeping existing URI: INS1739819868350395 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739819868350395, ignored=http://pmsr.net/ont/pmsr#INS1739819868350395]<br>2026-06-03 19:41:18 [WARNING] Duplicate originalID found, keeping existing URI: INS1739301317613705 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739301317613705, ignored=http://pmsr.net/ont/pmsr#INS1739301317613705]<br>2026-06-03 19:41:18 [WARNING] Duplicate originalID found, keeping existing URI: INS1739402230863265 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739402230863265, ignored=http://pmsr.net/ont/pmsr#INS1739402230863265]<br>2026-06-03 19:41:18 [WARNING] Duplicate originalID found, keeping existing URI: INS1739288625580975 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739288625580975, ignored=http://pmsr.net/ont/pmsr#INS1739288625580975]<br>2026-06-03 19:41:18 [WARNING] Duplicate originalID found, keeping existing URI: INS1739288691415495 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739288691415495, ignored=http://pmsr.net/ont/pmsr#INS1739288691415495]<br>2026-06-03 19:41:19 [WARNING] Duplicate originalID found, keeping existing URI: INS1739301189412025 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739301189412025, ignored=http://pmsr.net/ont/pmsr#INS1739301189412025]<br>2026-06-03 19:41:19 [WARNING] Duplicate originalID found, keeping existing URI: INS1739820624939265 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739820624939265, ignored=http://pmsr.net/ont/pmsr#INS1739820624939265]<br>2026-06-03 19:41:19 [WARNING] Duplicate originalID found, keeping existing URI: INS1739879206550705 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739879206550705, ignored=http://pmsr.net/ont/pmsr#INS1739879206550705]<br>2026-06-03 19:41:19 [WARNING] Duplicate originalID found, keeping existing URI: INS1739288499528465 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739288499528465, ignored=http://pmsr.net/ont/pmsr#INS1739288499528465]<br>2026-06-03 19:41:19 [WARNING] Duplicate originalID found, keeping existing URI: INS1739287212610855 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739287212610855, ignored=http://pmsr.net/ont/pmsr#INS1739287212610855]<br>2026-06-03 19:41:19 [WARNING] Duplicate originalID found, keeping existing URI: INS1739404158691525 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739404158691525, ignored=http://pmsr.net/ont/pmsr#INS1739404158691525]<br>2026-06-03 19:41:19 [WARNING] Duplicate originalID found, keeping existing URI: INS1739301133578555 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739301133578555, ignored=http://pmsr.net/ont/pmsr#INS1739301133578555]<br>2026-06-03 19:41:20 [WARNING] Duplicate originalID found, keeping existing URI: INS1739403188428355 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739403188428355, ignored=http://pmsr.net/ont/pmsr#INS1739403188428355]<br>2026-06-03 19:41:20 [WARNING] Duplicate originalID found, keeping existing URI: INS1739303195193785 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739303195193785, ignored=http://pmsr.net/ont/pmsr#INS1739303195193785]<br>2026-06-03 19:41:20 [WARNING] Duplicate originalID found, keeping existing URI: INS1739397556188145 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739397556188145, ignored=http://pmsr.net/ont/pmsr#INS1739397556188145]<br>2026-06-03 19:41:20 [WARNING] Duplicate originalID found, keeping existing URI: INS1739402037946315 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739402037946315, ignored=http://pmsr.net/ont/pmsr#INS1739402037946315]<br>2026-06-03 19:41:20 [WARNING] Duplicate originalID found, keeping existing URI: INS1739404046114785 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739404046114785, ignored=http://pmsr.net/ont/pmsr#INS1739404046114785]<br>2026-06-03 19:41:20 [WARNING] Duplicate originalID found, keeping existing URI: INS1739301081410085 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739301081410085, ignored=http://pmsr.net/ont/pmsr#INS1739301081410085]<br>2026-06-03 19:41:22 [WARNING] Duplicate originalID found, keeping existing URI: INS1739487989328225 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739487989328225, ignored=http://pmsr.net/ont/pmsr#INS1739487989328225]<br>2026-06-03 19:41:22 [WARNING] Duplicate originalID found, keeping existing URI: INS1739398519577895 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739398519577895, ignored=http://pmsr.net/ont/pmsr#INS1739398519577895]<br>2026-06-03 19:41:22 [WARNING] Duplicate originalID found, keeping existing URI: INS1739392367425715 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739392367425715, ignored=http://pmsr.net/ont/pmsr#INS1739392367425715]<br>2026-06-03 19:41:22 [WARNING] Duplicate originalID found, keeping existing URI: INS1740143777940835 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1740143777940835, ignored=http://pmsr.net/ont/pmsr#INS1740143777940835]<br>2026-06-03 19:41:22 [WARNING] Duplicate originalID found, keeping existing URI: INS1739403078441215 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739403078441215, ignored=http://pmsr.net/ont/pmsr#INS1739403078441215]<br>2026-06-03 19:41:23 [WARNING] Duplicate originalID found, keeping existing URI: INS1739483351917145 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739483351917145, ignored=http://pmsr.net/ont/pmsr#INS1739483351917145]<br>2026-06-03 19:41:23 [WARNING] Duplicate originalID found, keeping existing URI: INS1740143878244085 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1740143878244085, ignored=http://pmsr.net/ont/pmsr#INS1740143878244085]<br>2026-06-03 19:41:23 [WARNING] Duplicate originalID found, keeping existing URI: INS1739303333850795 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739303333850795, ignored=http://pmsr.net/ont/pmsr#INS1739303333850795]<br>2026-06-03 19:41:23 [WARNING] Duplicate originalID found, keeping existing URI: INS1740087575777435 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1740087575777435, ignored=http://pmsr.net/ont/pmsr#INS1740087575777435]<br>2026-06-03 19:41:23 [WARNING] Duplicate originalID found, keeping existing URI: INS1739403291912375 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739403291912375, ignored=http://pmsr.net/ont/pmsr#INS1739403291912375]<br>2026-06-03 19:41:23 [WARNING] Duplicate originalID found, keeping existing URI: INS1740087239872215 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1740087239872215, ignored=http://pmsr.net/ont/pmsr#INS1740087239872215]<br>2026-06-03 19:41:24 [WARNING] Duplicate originalID found, keeping existing URI: INS1739453043505715 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739453043505715, ignored=http://pmsr.net/ont/pmsr#INS1739453043505715]<br>2026-06-03 19:41:24 [WARNING] Duplicate originalID found, keeping existing URI: INS1739482671461295 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739482671461295, ignored=http://pmsr.net/ont/pmsr#INS1739482671461295]<br>2026-06-03 19:41:24 [WARNING] Duplicate originalID found, keeping existing URI: INS1739287640585765 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739287640585765, ignored=http://pmsr.net/ont/pmsr#INS1739287640585765]<br>2026-06-03 19:41:24 [WARNING] Duplicate originalID found, keeping existing URI: INS1739402477829135 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739402477829135, ignored=http://pmsr.net/ont/pmsr#INS1739402477829135]<br>2026-06-03 19:41:24 [WARNING] Duplicate originalID found, keeping existing URI: INS1739452868256965 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739452868256965, ignored=http://pmsr.net/ont/pmsr#INS1739452868256965]<br>2026-06-03 19:41:24 [WARNING] Duplicate originalID found, keeping existing URI: INS1739878788687655 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739878788687655, ignored=http://pmsr.net/ont/pmsr#INS1739878788687655]<br>2026-06-03 19:41:25 [WARNING] Duplicate originalID found, keeping existing URI: INS1739401836683455 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739401836683455, ignored=http://pmsr.net/ont/pmsr#INS1739401836683455]<br>2026-06-03 19:41:25 [WARNING] Duplicate originalID found, keeping existing URI: INS1739301891301765 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739301891301765, ignored=http://pmsr.net/ont/pmsr#INS1739301891301765]<br>2026-06-03 19:41:25 [WARNING] Duplicate originalID found, keeping existing URI: INS1739401657491675 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739401657491675, ignored=http://pmsr.net/ont/pmsr#INS1739401657491675]<br>2026-06-03 19:41:25 [WARNING] Duplicate originalID found, keeping existing URI: INS1739402585415785 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739402585415785, ignored=http://pmsr.net/ont/pmsr#INS1739402585415785]<br>2026-06-03 19:41:25 [WARNING] Duplicate originalID found, keeping existing URI: INS1739302175458785 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739302175458785, ignored=http://pmsr.net/ont/pmsr#INS1739302175458785]<br>2026-06-03 19:41:25 [WARNING] Duplicate originalID found, keeping existing URI: INS1739288297796655 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739288297796655, ignored=http://pmsr.net/ont/pmsr#INS1739288297796655]<br>2026-06-03 19:41:26 [WARNING] Duplicate originalID found, keeping existing URI: INS1739303008518495 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739303008518495, ignored=http://pmsr.net/ont/pmsr#INS1739303008518495]<br>2026-06-03 19:41:26 [LOG] ✅ Found 71 objects with originalIDs in Study (0 SIR objects)<br>2026-06-03 19:41:26 [LOG] ✅ Created originalID&lt;-&gt;URI map with 71 elements<br>2026-06-03 19:41:26 [LOG] Processing CSV with originalID column: 'originalID'<br>2026-06-03 19:41:27 [LOG] Property columns: 16<br>2026-06-03 19:41:28 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739287021517805<br>2026-06-03 19:41:28 [LOG]   Enriched Instrument: Diagnostic Simulators<br>2026-06-03 19:41:28 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739287092102085<br>2026-06-03 19:41:28 [LOG]   Enriched Instrument: Medical Examination Simulators<br>2026-06-03 19:41:29 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739287159797795<br>2026-06-03 19:41:29 [LOG]   Enriched Instrument: High-Fidelity Mannequin<br>2026-06-03 19:41:29 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739287212610855<br>2026-06-03 19:41:29 [LOG]   Enriched Instrument: Dani Model<br>2026-06-03 19:41:30 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739287640585765<br>2026-06-03 19:41:30 [LOG]   Enriched Instrument: Rectal Examination Simulator<br>2026-06-03 19:41:30 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739288006994165<br>2026-06-03 19:41:30 [LOG]   Enriched Instrument: Diagnostic Imaging Simulator<br>2026-06-03 19:41:31 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739288153666735<br>2026-06-03 19:41:31 [LOG]   Enriched Instrument: Diagnostic Ultrasound<br>2026-06-03 19:41:31 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739288297796655<br>2026-06-03 19:41:34 [LOG]   Enriched Instrument: Vascular Access Ultrasound Simulator<br>2026-06-03 19:41:34 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739288428472235<br>2026-06-03 19:41:34 [LOG]   Enriched Instrument: Ultrasound<br>2026-06-03 19:41:35 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739288499528465<br>2026-06-03 19:41:36 [LOG]   Enriched Instrument: Chison Cbit-9 Stationary Ultrasound<br>2026-06-03 19:41:37 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739288566447555<br>2026-06-03 19:41:38 [LOG]   Enriched Instrument: Portable Ultrasound<br>2026-06-03 19:41:38 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739288625580975<br>2026-06-03 19:41:38 [LOG]   Enriched Instrument: Butterfly IQ+<br>2026-06-03 19:41:39 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739288691415495<br>2026-06-03 19:41:39 [LOG]   Enriched Instrument: Butterfly Ultrasound Probes<br>2026-06-03 19:41:39 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739300958884615<br>2026-06-03 19:41:40 [LOG]   Enriched Instrument: Imaging<br>2026-06-03 19:41:40 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739301009974715<br>2026-06-03 19:41:40 [LOG]   Enriched Instrument: ARTEC LEO Scanner<br>2026-06-03 19:41:40 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739301081410085<br>2026-06-03 19:41:41 [LOG]   Enriched Instrument: Intraoral Scanner<br>2026-06-03 19:41:41 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739301133578555<br>2026-06-03 19:41:41 [LOG]   Enriched Instrument: Extraoral Scanner<br>2026-06-03 19:41:41 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739301189412025<br>2026-06-03 19:41:41 [LOG]   Enriched Instrument: CAD-CAM System<br>2026-06-03 19:41:42 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739301317613705<br>2026-06-03 19:41:42 [LOG]   Enriched Instrument: Automated External Defibrilator<br>2026-06-03 19:41:42 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739301711235865<br>2026-06-03 19:41:44 [LOG]   Enriched Instrument: Care Simulators<br>2026-06-03 19:41:44 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739301814401805<br>2026-06-03 19:41:44 [LOG]   Enriched Instrument: Medical Procedure Simulator<br>2026-06-03 19:41:44 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739301891301765<br>2026-06-03 19:41:45 [LOG]   Enriched Instrument: Suture Simulator<br>2026-06-03 19:41:45 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739302175458785<br>2026-06-03 19:41:45 [LOG]   Enriched Instrument: Vascular Access Simulator<br>2026-06-03 19:41:45 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739303008518495<br>2026-06-03 19:41:46 [LOG]   Enriched Instrument: Ventilator Care Simulator<br>2026-06-03 19:41:46 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739303195193785<br>2026-06-03 19:41:46 [LOG]   Enriched Instrument: Geriatic Care Simulator<br>2026-06-03 19:41:46 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739303333850795<br>2026-06-03 19:41:47 [LOG]   Enriched Instrument: Oncology Care Simulator<br>2026-06-03 19:41:47 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739392122823235<br>2026-06-03 19:41:49 [LOG]   Enriched Instrument: Procedure Simulator<br>2026-06-03 19:41:49 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739392182337835<br>2026-06-03 19:41:50 [LOG]   Enriched Instrument: Cardiac Procedure Simulator<br>2026-06-03 19:41:50 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739392275798255<br>2026-06-03 19:41:50 [LOG]   Enriched Instrument: ResusciAnne DAE Simulator<br>2026-06-03 19:41:50 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739392367425715<br>2026-06-03 19:41:51 [LOG]   Enriched Instrument: Laerdal DAE Simulator<br>2026-06-03 19:41:51 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739397137461495<br>2026-06-03 19:41:51 [LOG]   Enriched Instrument: Low-Fidelity Mannequin<br>2026-06-03 19:41:51 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739397556188145<br>2026-06-03 19:41:52 [LOG]   Enriched Instrument: Gynaecological Examination Mannequin<br>2026-06-03 19:41:52 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739398437257165<br>2026-06-03 19:41:52 [LOG]   Enriched Instrument: Airway Simulator<br>2026-06-03 19:41:52 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739398519577895<br>2026-06-03 19:41:53 [LOG]   Enriched Instrument: Laerdal Airway Simulator<br>2026-06-03 19:41:53 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739400689838665<br>2026-06-03 19:41:53 [LOG]   Enriched Instrument: Nursing Care Simulator<br>2026-06-03 19:41:53 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739401557396065<br>2026-06-03 19:41:55 [LOG]   Enriched Instrument: Laerdal Nursing Care Simulator<br>2026-06-03 19:41:55 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739401657491675<br>2026-06-03 19:41:56 [LOG]   Enriched Instrument: Urine Bag Maintenance Simulator<br>2026-06-03 19:41:56 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739401836683455<br>2026-06-03 19:41:58 [LOG]   Enriched Instrument: Stomach Bag Maintenance Simulator<br>2026-06-03 19:41:58 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739402037946315<br>2026-06-03 19:41:58 [LOG]   Enriched Instrument: IV Fluid Administration<br>2026-06-03 19:41:58 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739402230863265<br>2026-06-03 19:41:59 [LOG]   Enriched Instrument: Blood Pressure Measurement Simulator<br>2026-06-03 19:41:59 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739402477829135<br>2026-06-03 19:42:00 [LOG]   Enriched Instrument: Rectal Medicine Administration Simulator<br>2026-06-03 19:42:00 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739402585415785<br>2026-06-03 19:42:01 [LOG]   Enriched Instrument: Vaginal Medicine Administration Simulator<br>2026-06-03 19:42:01 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739403078441215<br>2026-06-03 19:42:01 [LOG]   Enriched Instrument: Male Genitalia Catherization Simulator<br>2026-06-03 19:42:01 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739403188428355<br>2026-06-03 19:42:02 [LOG]   Enriched Instrument: Female Genitalia Catherization Simulator<br>2026-06-03 19:42:02 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739403291912375<br>2026-06-03 19:42:02 [LOG]   Enriched Instrument: Penis Foreskin Cleaning Simulator<br>2026-06-03 19:42:02 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739404046114785<br>2026-06-03 19:42:03 [LOG]   Enriched Instrument: Intramuscular Injections Simulator<br>2026-06-03 19:42:03 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739404158691525<br>2026-06-03 19:42:03 [LOG]   Enriched Instrument: Ear Irrigation Simulator<br>2026-06-03 19:42:04 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739451831725785<br>2026-06-03 19:42:04 [LOG]   Enriched Instrument: Virtual Patient Anatomy Simulator<br>2026-06-03 19:42:04 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739452063713965<br>2026-06-03 19:42:04 [LOG]   Enriched Instrument: Anatomage Table Simulator<br>2026-06-03 19:42:04 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739452783104705<br>2026-06-03 19:42:05 [LOG]   Enriched Instrument: Skin Care Procedure Simulator<br>2026-06-03 19:42:06 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739452868256965<br>2026-06-03 19:42:07 [LOG]   Enriched Instrument: SimSleeves Lymphedema Simulator<br>2026-06-03 19:42:07 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739453043505715<br>2026-06-03 19:42:07 [LOG]   Enriched Instrument: Pitting Edema Simulator<br>2026-06-03 19:42:07 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739482671461295<br>2026-06-03 19:42:08 [LOG]   Enriched Instrument: Prostate Model<br>2026-06-03 19:42:08 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739483351917145<br>2026-06-03 19:42:08 [LOG]   Enriched Instrument: Male Inguinal Hernia Anatomy Model<br>2026-06-03 19:42:08 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739487989328225<br>2026-06-03 19:42:09 [LOG]   Enriched Instrument: Laerdal ALS Baby Trainer 200<br>2026-06-03 19:42:09 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739488340413085<br>2026-06-03 19:42:09 [LOG]   Enriched Instrument: Virtual Patient Interaction Simulator<br>2026-06-03 19:42:09 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739819116467195<br>2026-06-03 19:42:10 [LOG]   Enriched Instrument: Anatomage Large Table<br>2026-06-03 19:42:10 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739819599670195<br>2026-06-03 19:42:10 [LOG]   Enriched Instrument: Anatomage Small Tablet<br>2026-06-03 19:42:10 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739819782231595<br>2026-06-03 19:42:12 [LOG]   Enriched Instrument: Anatomage Clinical Table<br>2026-06-03 19:42:12 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739819868350395<br>2026-06-03 19:42:13 [LOG]   Enriched Instrument: Anatomage Vet Table<br>2026-06-03 19:42:13 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739819955334025<br>2026-06-03 19:42:14 [LOG]   Enriched Instrument: Anatomage Science Table<br>2026-06-03 19:42:14 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739820624939265<br>2026-06-03 19:42:14 [LOG]   Enriched Instrument: Cancer Patient Simulator<br>2026-06-03 19:42:15 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739821032633525<br>2026-06-03 19:42:17 [LOG]   Enriched Instrument: Monitoring Virtual Simulator<br>2026-06-03 19:42:17 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739823398493725<br>2026-06-03 19:42:17 [LOG]   Enriched Instrument: Laerdal Nursing Anne Mannequin<br>2026-06-03 19:42:18 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739878730369725<br>2026-06-03 19:42:18 [LOG]   Enriched Instrument: Body Interact Simulator<br>2026-06-03 19:42:18 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739878788687655<br>2026-06-03 19:42:19 [LOG]   Enriched Instrument: Sophia Body Interact AI Assistant<br>2026-06-03 19:42:19 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1739879206550705<br>2026-06-03 19:42:19 [LOG]   Enriched Instrument: Cancer Patient Simulator<br>2026-06-03 19:42:19 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1740087239872215<br>2026-06-03 19:42:20 [LOG]   Enriched Instrument: Physiology Simulator<br>2026-06-03 19:42:20 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1740087575777435<br>2026-06-03 19:42:22 [LOG]   Enriched Instrument: Patient Monitor Simulator<br>2026-06-03 19:42:22 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1740143777940835<br>2026-06-03 19:42:22 [LOG]   Enriched Instrument: Male Examination Mannequin<br>2026-06-03 19:42:22 [LOG]   [SIR-PURE] Adding properties to pure SIR object: INS1740143878244085<br>2026-06-03 19:42:23 [LOG]   Enriched Instrument: Obstetric Simulator<br>2026-06-03 19:42:23 [LOG] Inserted 1137 triples into graph &lt;http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv&gt;<br>2026-06-03 19:42:23 [LOG] ✅ Processing complete: 71 rows processed, 0 skipped, 0 errors<br>2026-06-03 19:42:23 [LOG] ✅ Successfully processed 71 rows<br>2026-06-03 19:42:24 [LOG] ✅ Successfully ingested 71 rows<br>" ;
+        hasco:hasStudy                 pmsr:STD-STUDY-PMSR-Simulators-1 ;
+        vstoi:hasSIRManagerEmail       "roundtrip@hascoapi.org" .
+
+pmsr:OBJ_instrumentcollection_INS1740087575777435
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "A patient monitor simulator is a specialized device used to test and verify the performance of patient monitoring equipment. These simulators generate precise physiological signals that mimic human vital signs, allowing biomedical technicians and healthcare professionals to ensure that patient monitors are accurately measuring and displaying data such as heart rate, blood pressure, respiratory rate, and other critical parameters. Regular testing with patient monitor simulators is essential to maintain the reliability and safety of monitoring devices, ensuring they function correctly during patient care." ;
+        rdfs:label                      "Patient Monitor Simulator" ;
+        rdfs:subClassOf                 "pmsr:/INS1739821032633525" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.flukebiomedical.com/patient-monitor-simulator" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1740087575777435" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/PatientMonitorSimulator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1740143777940835
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "A male examination manikin is a life-sized anatomical model designed to simulate the male human body, serving as a vital tool in medical education and clinical training. These manikins enable healthcare professionals and students to practice and refine various examination techniques in a controlled, risk-free environment." ;
+        rdfs:label                      "Male Examination Mannequin" ;
+        rdfs:subClassOf                 "pmsr:/INS1739397137461495" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.gtsimulators.com/products/simbodies-standard-adult-male-manikin-tr0209?srsltid=AfmBOopYYS5dnwkQKAzfSFfAFxHEZIzj3qJ4q" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1740143777940835" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/MaleExaminationMannequin" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739398437257165
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "Airway: The part of the respiratory system between the nose or mouth and the lungs." ;
+        rdfs:label                      "Airway Simulator" ;
+        rdfs:subClassOf                 "pmsr:/INS1739301814401805" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C89842" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739398437257165" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/AirwaySimulator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739401557396065
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "Building competency in nursing and patient care skills heavily relies on immersive and realistic practice. Laerdal offers a wide range of training products that provide basic and advanced hands-on experience for managing various in-hospital patient scenarios. Discover our nursing training solutions and patient simulators to enhance your team's skills and improve patient care." ;
+        rdfs:label                      "Laerdal Nursing Care Simulator" ;
+        rdfs:subClassOf                 "pmsr:/INS1739400689838665" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://laerdal.com/us/products/simulation-training/nursing/?srsltid=AfmBOorG0V-hFVr8Z7E2oKWU0-ypl96Q2p7Es4ipqUKZGJC3w1C5HtQd" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739401557396065" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/LaerdalNursingCareSimulator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739288566447555
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "A portable ultrasound is a compact medical imaging device designed to be easily transported and used in various settings, including small spaces, patient bedsides, or in the field. These devices utilize high-frequency sound waves to create images of internal body structures, aiding in the diagnosis and monitoring of medical conditions. Portable ultrasound machines can be cart-based, tablet-based, or hand-carried, offering flexibility and convenience in diverse clinical environments." ;
+        rdfs:label                      "Portable Ultrasound" ;
+        rdfs:subClassOf                 "pmsr:/INS1739288428472235" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.mindray.com/na/news-and-events/blog/what-are-portable-ultrasound-machines-and-how-are-they-changing-the-way-we-think" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739288566447555" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/PortableUltrasound" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739401836683455
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "Stomach Bag replacement after simulating Stomach Bag being filled, by fill the simulation bag with green fluid" ;
+        rdfs:label                      "Stomach Bag Maintenance Simulator" ;
+        rdfs:subClassOf                 "pmsr:/INS1739401557396065" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://laerdal.com/us/item/320-12950/?srsltid=AfmBOorBew07xuqT37KVkjCPVRl8onk8Nxir4el5as2wL_5KybgW0W8Z" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739401836683455" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/StomachBagMaintenanceSimulator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1740143878244085
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "An obstetric simulator is a specialized training tool designed to replicate various aspects of childbirth and prenatal care, enabling healthcare professionals and students to practice and enhance their obstetric skills in a controlled, risk-free environment. These simulators range from basic anatomical models to advanced, computer-controlled manikins that mimic realistic physiological responses during labor and delivery." ;
+        rdfs:label                      "Obstetric Simulator" ;
+        rdfs:subClassOf                 "pmsr:/INS1739397137461495" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://pubmed.ncbi.nlm.nih.gov/29889745/" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1740143878244085" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/ObstetricSimulator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739287159797795
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "A high-fidelity mannequin, also known as a high-fidelity simulator or manikin, is an advanced medical training device engineered to closely replicate human anatomy and physiological responses. These sophisticated simulators are integral to healthcare education, providing a realistic platform for learners to practice and refine their clinical skills in a controlled, risk-free environment." ;
+        rdfs:label                      "High-Fidelity Mannequin" ;
+        rdfs:subClassOf                 "pmsr:/INS1739287092102085" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://sim.ucla.edu/resources/high-fidelity-simulators" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739287159797795" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/HighFidelityMannequin" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739288625580975
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "The Butterfly iQ+ is a portable, handheld ultrasound device designed to provide whole-body imaging through a single probe. Utilizing advanced ultrasound-on-chip technology, it connects seamlessly to iOS and Android devices via the Butterfly iQ app, offering over 20 presets for various clinical applications. This innovation allows healthcare professionals to perform diagnostic imaging and measurements across multiple areas, including abdominal, cardiac, lung, bladder, musculoskeletal, and obstetric assessments. The device is particularly valuable in diverse settings, from traditional clinical environments to remote areas lacking access to conventional ultrasound equipment. Its user-friendly interface and comprehensive imaging capabilities make it a versatile tool in modern medical practice." ;
+        rdfs:label                      "Butterfly IQ+" ;
+        rdfs:subClassOf                 "pmsr:/INS1739288566447555" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.butterflynetwork.com/iq-plus?srsltid=AfmBOoo1ksMTfGdd55l8x3QWyNpJrt7knCdTevHEs9xTURzqd1pXT_7d" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739288625580975" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/ButterflyIQ+" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739453043505715
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "Kyoto KagakuÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¾ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢s Pitting Edema Strap On Simulator is comprised of five variations of pitting edema pads. Graded from Normal to +4, it offers different resistances, depths of indentations, and length of time to rebound." ;
+        rdfs:label                      "Pitting Edema Simulator" ;
+        rdfs:subClassOf                 "pmsr:/INS1739452783104705" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.gtsimulators.com/products/pitting-edema-simulator-kk-mw1?srsltid=AfmBOoqp-jD1usis37HnF3eB0Yk79c7I8TDS4ONqGfkf2EC90ks" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739453043505715" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/PittingEdemaSimulator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739402477829135
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "A Rectal Medicine Administration Simulator is a specialized training device designed to help healthcare professionals practice and master the proper techniques for administering medications via the rectal route. These simulators provide a realistic and safe environment for learners to develop their skills without posing any risk to actual patients." ;
+        rdfs:label                      "Rectal Medicine Administration Simulator" ;
+        rdfs:subClassOf                 "pmsr:/INS1739401557396065" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.3bscientific.com/us/enema-administration-simulator-1005626-w44094-lifeform-lf00957u%2Cp_1168_4967.html" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739402477829135" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/RectalMedicineAdministrationSimulator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1740087239872215
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "A physiology simulator is an educational tool designed to replicate human physiological processes, enabling learners to study and interact with complex bodily functions in a controlled environment. These simulators range from computer-based models to advanced manikins that mimic real-time physiological responses, providing a dynamic platform for understanding how various systems of the body operate and respond to different conditions." ;
+        rdfs:label                      "Physiology Simulator" ;
+        rdfs:subClassOf                 "pmsr:/INS1739488340413085" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://simzine.news/tech-en/a-new-era-of-physiology-simulation/" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1740087239872215" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/PhysiologySimulator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739403188428355
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "A Female Catheterization Simulator is a specialized training device designed to help healthcare professionals practice and master the technique of urinary catheterization in female patients. These simulators provide a realistic and safe environment for learners to develop their skills without causing discomfort or harm to actual patients." ;
+        rdfs:label                      "Female Genitalia Catherization Simulator" ;
+        rdfs:subClassOf                 "pmsr:/INS1739401557396065" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://avkin.com/avcath-catheterization-simulator/" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739403188428355" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/FemaleGenitaliaCatherizationSimulator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739878788687655
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "Sophia, the new AI assistant in Body Interact, transforms learnersÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¾ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ preparation for virtual patient simulations. By engaging in conversation before each clinical scenario, students can plan their approach, ask critical questions, and develop a deeper awareness of their decision-making process, by engaging in conversation before each clinical scenario." ;
+        rdfs:label                      "Sophia Body Interact AI Assistant" ;
+        rdfs:subClassOf                 "pmsr:/INS1739878730369725" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://bodyinteract.com/blog/ai-assistant/" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739878788687655" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/SophiaBodyInteractAIAssistant" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739452868256965
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "SimSleevesÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¾ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ simulate the look and feel of lymphedema. Light beige sleeves are designed to zip over the arms of manikins from various manufacturers and can also be worn by standardized patients. The sleeve covers the arm from shoulder to wrist. No messy prep or cleanup time required! Latex-free sleeves are made in a scent-free environment and store easily in the provided storage bag. Sleeves are also easy to care for - simply machine wash the outer covering, then dry in a warm dryer. Sold in pairs. Fits most adult high-fidelity manikins and standardized patients." ;
+        rdfs:label                      "SimSleeves Lymphedema Simulator" ;
+        rdfs:subClassOf                 "pmsr:/INS1739452783104705" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.nascoeducation.com/simsleeves-lymphedema-large-sb50965.html?srsltid=AfmBOoopHKtWAb7MaJsSY6-xQpe-j-mM400OLp-hQYXIxbtu" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739452868256965" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/SimSleevesLymphedemaSimulator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739288691415495
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "Butterfly ultrasound probes, such as the Butterfly iQ3ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¾ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢, are handheld, portable devices designed to perform whole-body ultrasound imaging using a single probe. Unlike traditional ultrasound systems that rely on piezoelectric crystals, Butterfly probes utilize Ultrasound-on-ChipÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¾ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ technology, which integrates the entire ultrasound system onto a semiconductor chip. This innovation allows the probe to emulate various transducer typesÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¯Ãƒâ€šÃ‚Â¿Ãƒâ€šÃ‚Â½linear, curved, and phasedÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¯Ãƒâ€šÃ‚Â¿Ãƒâ€šÃ‚Â½enabling a wide range of clinical applications with a single device. The probes connect to compatible iOS and Android devices via the Butterfly iQ app, providing real-time imaging and access to over 20 presets tailored for different medical specialties. This versatility makes Butterfly probes valuable tools in diverse healthcare settings, from primary care and emergency medicine to critical care and remote medical missions." ;
+        rdfs:label                      "Butterfly Ultrasound Probes" ;
+        rdfs:subClassOf                 "pmsr:/INS1739288566447555" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.butterflynetwork.com/press-releases/butterfly-network-launches-butterfly-iq3?srsltid=AfmBOoq-HJjGqnlpXIQL-ovz-24uh1Z" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739288691415495" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/ButterflyUltrasoundProbes" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739404158691525
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "An Ear Irrigation Simulator is a specialized training device designed to help healthcare professionals practice and master the procedure of ear irrigation, which involves flushing the ear canal to remove excess cerumen (earwax) or foreign materials. These simulators provide a realistic and safe environment for learners to develop their skills without the risk of causing discomfort or injury to actual patients." ;
+        rdfs:label                      "Ear Irrigation Simulator" ;
+        rdfs:subClassOf                 "pmsr:/INS1739401557396065" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://academic.oup.com/milmed/article/188/11-12/e3463/7193025?login=false" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739404158691525" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/EarIrrigationSimulator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739819868350395
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "Anatomage Table Vet is the first dissection table fully dedicated to veterinary education. Featuring the worldÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¾ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢s most comprehensive canine cadaver, the Anatomage Table Vet promises to bring real animal bodies back to life and visualize them in 3D accuracy." ;
+        rdfs:label                      "Anatomage Vet Table" ;
+        rdfs:subClassOf                 "pmsr:/INS1739452063713965" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://eu.anatomage.com/table-vet/" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739819868350395" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/AnatomageVetTable" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739452783104705
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "A Skin Care Procedure Simulator is a specialized training tool designed to replicate various dermatological treatments and procedures, enabling healthcare professionals and estheticians to practice and refine their skills in a controlled, risk-free environment. These simulators can range from virtual applications utilizing artificial intelligence to physical models that mimic human skin properties." ;
+        rdfs:label                      "Skin Care Procedure Simulator" ;
+        rdfs:subClassOf                 "pmsr:/INS1739392122823235" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.skininc.com/business/industry-news/article/22920072/perfect-corp-ai-simulator-debuted-for-derms-and-esthys" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739452783104705" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/SkinCareProcedureSimulator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739819116467195
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "The Anatomage Table is an advanced, highly technological virtual dissection and visualization tool. With the release of Table 10, the Anatomage bodiesÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¾ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ anatomical details have been refined, updated and improved to become the worldÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¾ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢s most comprehensive 3D anatomical models." ;
+        rdfs:label                      "Anatomage Large Table" ;
+        rdfs:subClassOf                 "pmsr:/INS1739452063713965" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://eu.anatomage.com/table/" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739819116467195" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/AnatomageLargeTable" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739404046114785
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "An Intramuscular Injection Simulator is a specialized training device designed to help healthcare professionals practice and master the technique of administering intramuscular (IM) injections. These simulators provide a realistic and safe environment for learners to develop their skills without posing any risk to actual patients." ;
+        rdfs:label                      "Intramuscular Injections Simulator" ;
+        rdfs:subClassOf                 "pmsr:/INS1739401557396065" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.3bscientific.com/us/im-injection-simulator-1005586-w44004-lifeform-lf00961u%2Cp_34_4882.html" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739404046114785" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/IntramuscularInjectionsSimulator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739287640585765
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "Digital Rectal Examination Simulator is a unique trainer designed for training in palpation to identify rectal tumors and polyps." ;
+        rdfs:label                      "Rectal Examination Simulator" ;
+        rdfs:subClassOf                 "pmsr:/INS1739287092102085" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.kyotokagaku.com/en/products_data/m92/" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739287640585765" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/RectalExaminationSimulator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739487989328225
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "The Laerdal ALS Baby is a portable skill trainer for realistic infant resuscitation training. Laerdal ALS Baby manikin simulates a three to six-month-old infant with a (simulated) weight of 6 kg. The Laerdal ALS baby offers the opportunity to practice advanced resuscitation skills, including airway management, professional rescuer CPR, vascular access, and 4-lead ECG monitoring. Laerdal ALS Baby comes in a 20L hard plastic Carry Case with a HeartSim 200 Rhytm Generator." ;
+        rdfs:label                      "Laerdal ALS Baby Trainer 200" ;
+        rdfs:subClassOf                 "pmsr:/INS1739397137461495" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://laerdal.com/item/08003140/" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739487989328225" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/LaerdalALSBabyTrainer200" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739303333850795
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "utilizes simulated clinical scenarios to train healthcare professionals in oncology care. Simulation models have been developed to estimate the population-level gain in survival resulting from new treatments over long periods of time. These models capture time-varying treatment patterns, but only for a single cancer stage and/or line of therapy, not for the entire patient journey from diagnosis to death." ;
+        rdfs:label                      "Oncology Care Simulator" ;
+        rdfs:subClassOf                 "pmsr:/INS1739301711235865" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://pmc.ncbi.nlm.nih.gov/articles/PMC9673939/" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739303333850795" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/OncologyCareSimulator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739820624939265
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "These virtual human simulations can answer your questions about cancer. They provide an interactive conversation guided by questions about cancer that you choose. Doctors can practice talking to patients about their mental health, neutropenia, and prostate cancer." ;
+        rdfs:label                      "Cancer Patient Simulator" ;
+        rdfs:subClassOf                 "pmsr:/INS1739820055529155" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.cdc.gov/cancer/resources/simulations.html" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739820624939265" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/CancerPatientSimulator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739402230863265
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "Blood Pressure (BP) Arm - Nursing Anne Simulator features bilateral BP Arms for non-invasive measurement of blood pressure. The specially adjusted BP Cuff allows measurement of BP manually by auscultation of Korotkoff sounds or palpation of pulses. It uses LLEAP and SimPad." ;
+        rdfs:label                      "Blood Pressure Measurement Simulator" ;
+        rdfs:subClassOf                 "pmsr:/INS1739401557396065" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://laerdal.com/products/skills-proficiency/defibrillation-cardiology/blood-pressure-training-arm/" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739402230863265" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/BloodPressureMeasurementSimulator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739392367425715
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "Designed to represent the typical AED use experience, the AED Trainer helps build basic competency in using an AED device as part of more efficient BLS, First Aid, and Community CPR programs. Simple enough for bystanders and powerful enough for professionals, the hand-held device can be used for standalone AED training or as part of CPR scenarios integrating with QCPR app." ;
+        rdfs:label                      "Laerdal DAE Simulator" ;
+        rdfs:subClassOf                 "pmsr:/INS1739392275798255" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://laerdal.com/us/products/simulation-training/resuscitation-training/aed-trainer/?srsltid=AfmBOoqsWI5s2L1i7IkQFNtWRHTtC7wn" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739392367425715" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/LaerdalDAESimulator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739288153666735
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "Diagnostic Ultrasound" ;
+        rdfs:label                      "Diagnostic Ultrasound" ;
+        rdfs:subClassOf                 "pmsr:/INS1739288006994165" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739288153666735" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/DiagnosticUltrasound" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739819955334025
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "AnatomageÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¾ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢s Science Table provides an immersive and realistic learning experience through virtual scientific experiments. With stunning and detailed 3D simulations, this advanced technology is an essential resource for Biology, Chemistry, and Physics classrooms." ;
+        rdfs:label                      "Anatomage Science Table" ;
+        rdfs:subClassOf                 "pmsr:/INS1739452063713965" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://eu.anatomage.com/science-table/" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739819955334025" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/AnatomageScienceTable" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739398519577895
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "Realistic practice is the key to developing proficiency in airway management skills. The Laerdal Airway Management Trainer realistically simulates an adult airway, and the lifelike upper torso and head can be used to demonstrate and practice intubation, ventilation, and suction techniques. In addition, it can be used to demonstrate upper airway bronchoscopy and bronchoscopy guided endotracheal intubation." ;
+        rdfs:label                      "Laerdal Airway Simulator" ;
+        rdfs:subClassOf                 "pmsr:/INS1739398437257165" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://laerdal.com/us/products/skills-proficiency/airway-management-trainers/laerdal-airway-management-trainer/" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739398519577895" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/LaerdalAirwaySimulator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739287212610855
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "The DANi Teen & Young Adult Advanced Patient Simulator is a comprehensive training tool designed to enhance the education of healthcare professionals in managing adolescent and young adult patients. This simulator addresses critical areas such as drug abuse, sexual assault, mental health issues, and self-harm, providing a realistic platform for learners to practice and refine their skills." ;
+        rdfs:label                      "Dani Model" ;
+        rdfs:subClassOf                 "pmsr:/INS1739287092102085" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.healthysimulation.com/nasco-teenage-adult-manikin-dani/" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739287212610855" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/DaniModel" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739400689838665
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "A Nursing Care Simulator is an educational tool designed to replicate clinical scenarios, enabling nursing students and professionals to practice and refine their skills in a controlled, risk-free environment. These simulators range from simple models to advanced computerized manikins that mimic real-life patient responses." ;
+        rdfs:label                      "Nursing Care Simulator" ;
+        rdfs:subClassOf                 "pmsr:/INS1739301711235865" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://mastersnursing.marquette.edu/blog/nursing-simulation-labs/" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739400689838665" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/NursingCareSimulator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739301133578555
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "An extraoral scanner is a device used in dentistry to capture detailed digital impressions of a patient's dental structures from outside the mouth. Unlike intraoral scanners, which acquire images from within the oral cavity, extraoral scanners digitize physical models or impressions of the teeth and jaws. This process involves scanning gypsum casts or conventional impressions to create accurate 3D digital models. These digital representations are then utilized in computer-aided design and manufacturing (CAD/CAM) workflows for designing and fabricating dental prosthetics, such as crowns, bridges, and implants. Extraoral scanners are particularly valued for their precision and are commonly employed in dental laboratories to ensure high-quality restorative outcomes." ;
+        rdfs:label                      "Extraoral Scanner" ;
+        rdfs:subClassOf                 "pmsr:/INS1739300958884615" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.mdpi.com/2077-0383/12/18/5833" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739301133578555" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/ExtraoralScanner" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739819782231595
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "Based on the Anatomage Table, the most technologically advanced 3D anatomy visualization system for anatomy education, Table Clinical is the premier clinical solution for looking at real patient anatomy, medical education, clinical planning, and it is FDA cleared for use in medical diagnosis." ;
+        rdfs:label                      "Anatomage Clinical Table" ;
+        rdfs:subClassOf                 "pmsr:/INS1739452063713965" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://eu.anatomage.com/table-clinical/" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739819782231595" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/AnatomageClinicalTable" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739301317613705
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "An Automated External Defibrillator (AED) is a portable medical device designed to treat individuals experiencing sudden cardiac arrestÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¯Ãƒâ€šÃ‚Â¿Ãƒâ€šÃ‚Â½a condition where the heart unexpectedly stops beating. The AED analyzes the heart's rhythm and, if it detects an abnormality such as ventricular fibrillation or pulseless ventricular tachycardia, delivers an electric shock (defibrillation) to help restore a normal heartbeat. These devices are user-friendly, featuring audio and visual prompts to guide even untrained bystanders through the process, making them essential tools in emergency situations to improve survival rates." ;
+        rdfs:label                      "Automated External Defibrilator" ;
+        rdfs:subClassOf                 "ncit:C80461" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.heart.org/-/media/files/health-topics/answers-by-heart/what-is-an-aed.pdf" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739301317613705" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/AutomatedExternalDefibrilator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739392275798255
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "The Resusci Anne QCPR AED is an adult manikin designed for the Laerdal LINK system. The special LINK electrodes can be used for training with the Philips Heartstart FR2 and FR3 training devices. LINK technology gives you feedback on the correct placement of the electrodes. The model has been equipped with various feedback options that allow objective visualization of CPR performance. All feedback devices clearly indicate how the student can improve their CPR skills. The full-body version offers a realistic training scenario. Resusci Anne QCPR can be easily transported using the practical carrying case. The scope of delivery also includes a training mat on which the mannequin is placed and which serves as a support for the students' knees." ;
+        rdfs:label                      "ResusciAnne DAE Simulator" ;
+        rdfs:subClassOf                 "pmsr:/INS1739392182337835" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.desfibrilhadorshop.pt/laerdal-resusci-anne-qcpr-aed-corpo-inteiro.html" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739392275798255" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/ResusciAnneDAESimulator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739287092102085
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "Medical examination simulators are specialized tools designed to replicate various aspects of human anatomy and physiology, enabling healthcare professionals and students to practice and refine their clinical skills in a controlled, risk-free environment. These simulators range from simple anatomical models to advanced computerized manikins that mimic real-life patient responses." ;
+        rdfs:label                      "Medical Examination Simulators" ;
+        rdfs:subClassOf                 "pmsr:/INS1739287021517805" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://blog.virtualmedicalcoaching.com/en/what-does-medical-simulation-do" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739287092102085" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/MedicalExaminationSimulators" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739302175458785
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "A vascular access simulator is a training tool designed to help healthcare professionals develop and refine the skills necessary for establishing access to a patient's vascular system. These simulators provide a controlled environment where practitioners can practice procedures such as venipuncture, central venous catheterization, and arterial line insertion without posing any risk to actual patients." ;
+        rdfs:label                      "Vascular Access Simulator" ;
+        rdfs:subClassOf                 "pmsr:/INS1739301814401805" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.emdservices.com/vascular-access-simulator/" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739302175458785" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/VascularAccessSimulator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739303008518495
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "A Ventilator Care Simulator is a specialized training tool designed to help healthcare professionals develop and refine the skills necessary for managing mechanical ventilation in patients. These simulators provide a controlled environment where practitioners can practice ventilator setup, operation, and troubleshooting without posing any risk to actual patients." ;
+        rdfs:label                      "Ventilator Care Simulator" ;
+        rdfs:subClassOf                 "pmsr:/INS1739301711235865" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.openpediatrics.org/" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739303008518495" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/VentilatorCareSimulator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739879206550705
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "These virtual human simulations can answer your questions about cancer. They provide an interactive conversation guided by questions about cancer that you choose. Doctors can practice talking to patients about their mental health, neutropenia, and prostate cancer." ;
+        rdfs:label                      "Cancer Patient Simulator" ;
+        rdfs:subClassOf                 "pmsr:/INS1739488340413085" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.cdc.gov/cancer/resources/simulations.html" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739879206550705" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/CancerPatientSimulator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739482671461295
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "Complete Prostate Model includes six full size prostates. Conditions shown include: normal prostate; normal size prostate with hard nodule below right lobe surface; prostate with enlarged right lobe; enlarged prostate, symmetrical surface, slight median furrow; enlarged prostate, hard nodule below right base surface; enlarged prostate with hard irregular surface and seminal vesicle involvement." ;
+        rdfs:label                      "Prostate Model" ;
+        rdfs:subClassOf                 "pmsr:/INS1739397137461495" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.3bscientific.com/us/prostate-model-1019544-w33366-3000,p_59_27117.html" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739482671461295" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/ProstateModel" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739397137461495
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "A low-fidelity manikin is a basic, low-cost training tool used in healthcare education to help learners practice fundamental clinical skills. These manikins are typically static and lack advanced features, focusing instead on allowing users to develop and refine specific psychomotor abilities. For example, they may be used to practice procedures like CPR, wound dressing, or basic patient positioning." ;
+        rdfs:label                      "Low-Fidelity Mannequin" ;
+        rdfs:subClassOf                 "pmsr:/INS1739287092102085" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.ubisimvr.com/blog/value-low-fidelity-simulation-high-fidelity-simulation-nursing" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739397137461495" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/LowFidelityMannequin" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739287021517805
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "Welcome to your medical practice with Medical Diagnostic Simulator, an immersive simulation where you play the role of a general practitioner. Start your professional adventure with common cases and progress to more complex medical challenges, requiring precise and thoughtful diagnoses." ;
+        rdfs:label                      "Diagnostic Simulators" ;
+        rdfs:subClassOf                 "pmsr:PhysicalMedicalSimulator" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://store.steampowered.com/app/2925880/Medical_Diagnostic_Simulator/" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739287021517805" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/DiagnosticSimulators" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739823398493725
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "NursingAnneÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â® is a mannequin designed for scenario-based training to care for and supervise a wide range of patients in hospital. NursingAnne is an efficient, effective and flexible manikin for clinical training in gynecology, obstetrics, postpartum, injury assessment and treatment, as well as general patient analysis and care." ;
+        rdfs:label                      "Laerdal Nursing Anne Mannequin" ;
+        rdfs:subClassOf                 "pmsr:/INS1739287159797795" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://laerdal.com/br/nursinganne" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasFirst                  "pmsr:/INS1739823398493725/CTS/0001" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739823398493725" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/LaerdalNursingAnneMannequin" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739402037946315
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "An IV Fluid Administration Simulator is a specialized training device designed to help healthcare professionals practice and master the techniques of intravenous (IV) fluid and medication administration. These simulators provide a realistic and controlled environment for learners to develop their skills without posing any risk to actual patients." ;
+        rdfs:label                      "IV Fluid Administration" ;
+        rdfs:subClassOf                 "pmsr:/INS1739401557396065" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://remedysim.com/products/ivy-iv-administration-trainer" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739402037946315" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/IVFluidAdministration" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739301814401805
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "A medical procedure simulator is a tool that replicates real-world medical scenarios, allowing healthcare professionals to practice and assess their skills in a controlled, risk-free environment. These simulators can utilize various methods, including full-body manikins, task trainers, virtual reality, and actors portraying patients, to create realistic clinical situations." ;
+        rdfs:label                      "Medical Procedure Simulator" ;
+        rdfs:subClassOf                 "pmsr:/INS1739301711235865" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://columbiasurgery.org/news/2013/09/30/what-medical-simulation" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739301814401805" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/MedicalProcedureSimulator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739401657491675
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "Urine bag replacement after simulating urine bag being filled, by fill the simulation bag with yellow fluid" ;
+        rdfs:label                      "Urine Bag Maintenance Simulator" ;
+        rdfs:subClassOf                 "pmsr:/INS1739401557396065" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://laerdal.com/us/item/320-17050/?srsltid=AfmBOooolRQP6zLMkrP2IYkEnAX8XB4s3-sLkr4uT30qm9GAP9kWVPKy" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739401657491675" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/UrineBagMaintenanceSimulator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739403291912375
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "A Penis Foreskin Cleaning Simulator is a specialized training device designed to help healthcare professionals practice and master the proper techniques for retracting and cleaning the foreskin, as well as performing related procedures such as catheterization and circumcision. These simulators provide a realistic and safe environment for learners to develop their skills without posing any risk to actual patients." ;
+        rdfs:label                      "Penis Foreskin Cleaning Simulator" ;
+        rdfs:subClassOf                 "pmsr:/INS1739401557396065" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://mededuquest.com/product/adult-male-circumcision-simulator-light/?srsltid=AfmBOor-3dpiNULA2ussgrI5v6JeEknqEFLUX3DfG-jx0Xa" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739403291912375" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/PenisForeskinCleaningSimulator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739300958884615
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "An imaging simulator is a specialized tool designed to replicate medical imaging procedures, such as MRI, CT scans, and X-rays, in a controlled and risk-free environment. These simulators enable healthcare professionals and students to practice image acquisition, interpretation, and patient management without exposing patients to actual procedures or ionizing radiation." ;
+        rdfs:label                      "Imaging" ;
+        rdfs:subClassOf                 "ncit:C16830" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://scanlabmr.com/mri-simulator/" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739300958884615" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/Imaging" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739392182337835
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "Cardiac Procedure: CDISC SDTM Cardiac Procedure Indication Terminology Terminology associated with the cardiac procedure indication codelist of the Clinical Data Interchange Standards Consortium (CDISC) Study Data Tabulation Model (SDTM)." ;
+        rdfs:label                      "Cardiac Procedure Simulator" ;
+        rdfs:subClassOf                 "pmsr:/INS1739392122823235" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C101859" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739392182337835" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/CardiacProcedureSimulator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739301891301765
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "A suture simulator is a training tool designed to replicate the experience of performing suturing techniques, enabling healthcare professionals and students to practice and refine their skills in a controlled, risk-free environment. These simulators range from simple suture pads to advanced models that mimic human anatomy and provide feedback on performance." ;
+        rdfs:label                      "Suture Simulator" ;
+        rdfs:subClassOf                 "pmsr:/INS1739301814401805" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://kyotokagaku.com/en/products_data/m57b/" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739301891301765" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/SutureSimulator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739819599670195
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "Anatomage Tablet is a cost-effective learning solution utilizing AnatomageÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¾ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢s world-class anatomy 3D visualization technology. Used alongside the Anatomage Table, or as a standalone learning tool, the Anatomage Tablet offers the most accurate learning data made for accredited anatomy and physiology programs." ;
+        rdfs:label                      "Anatomage Small Tablet" ;
+        rdfs:subClassOf                 "pmsr:/INS1739452063713965" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://eu.anatomage.com/tablet/" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739819599670195" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/AnatomageSmallTablet" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739397556188145
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "One of our most popular products! The full size female adult lower body gives students and educators a graphic experience in vaginal speculum examination, bi-manual pelvic examination, IUD insertion techniques, diaphragm sizing and fitting, uterine sounding, and viewing of normal and abnormal cervices." ;
+        rdfs:label                      "Gynaecological Examination Mannequin" ;
+        rdfs:subClassOf                 "pmsr:/INS1739397137461495" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.gtsimulators.com/collections/gynecologic-simulators/products/gyn-aid-gynecologic-simulator-s503#BeginDescription" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739397556188145" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/GynaecologicalExaminationMannequin" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739301711235865
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "Healthcare Simulation is the modern way to educate and train healthcare professionals to master cognitive, technical, and behavioral skill sets through technologically advanced, crafted experiences. This experiential learning style enables professionals and learners to practice and test their profession while building confidence in their abilities before working in real-world scenarios. In addition, Medical Simulation mimics a clinical situation without the risk of potentially harmful clinical outcomes. Healthcare Simulation is also referred to as Medical Simulation, Clinical Simulation, or, in specific circumstances, Surgical Simulation and Nursing Simulation. Check out the homepage for the latest clinical simulation CE courses, webinars, books, research, conferences and jobs!" ;
+        rdfs:label                      "Care Simulators" ;
+        rdfs:subClassOf                 "pmsr:PhysicalMedicalSimulator" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.healthysimulation.com/healthcare-simulation/" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739301711235865" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/CareSimulators" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739288297796655
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "A Vascular Access Ultrasound Simulator is a specialized training tool designed to help healthcare professionals develop and refine the skills necessary for performing ultrasound-guided vascular access procedures. These simulators provide a controlled environment where practitioners can practice techniques such as venipuncture, central venous catheterization, and arterial line insertion without posing any risk to actual patients." ;
+        rdfs:label                      "Vascular Access Ultrasound Simulator" ;
+        rdfs:subClassOf                 "pmsr:/INS1739288153666735" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://simzine.news/tech-en/sim-corner-en/simulators-for-ultrasound-guided-vascular-accesses/" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739288297796655" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/VascularAccessUltrasoundSimulator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739402585415785
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "A Vaginal Medicine Administration Simulator is a specialized training tool designed to help healthcare professionals practice and master the proper techniques for administering medications via the vaginal route. These simulators provide a realistic and safe environment for learners to develop their skills without posing any risk to actual patients." ;
+        rdfs:label                      "Vaginal Medicine Administration Simulator" ;
+        rdfs:subClassOf                 "pmsr:/INS1739401557396065" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://nursesim.com.au/course/administration-of-vaginal-medications/" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739402585415785" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/VaginalMedicineAdministrationSimulator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739483351917145
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "This natural-sized, graphic model shows the anatomical structures of a male groin with an indirect inguinal hernia, opened in layers. Two diagrammatic illustrations on the base allow for a comparison of direct and indirect hernia. A useful model to help inform patients before undergoing surgical interventions. Mounted on base." ;
+        rdfs:label                      "Male Inguinal Hernia Anatomy Model" ;
+        rdfs:subClassOf                 "pmsr:/INS1739397137461495" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.gtsimulators.com/products/inguinal-hernia-model-includes-3b-smart-anatomy-h13?srsltid=AfmBOooKWMn-XXTVoaSnNrbdaXX9dT" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739483351917145" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/MaleInguinalHerniaAnatomyModel" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739488340413085
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "A Virtual Patient Interaction Simulator is an interactive computer-based program designed to emulate real-life clinical scenarios, enabling healthcare professionals and students to practice patient interactions, clinical decision-making, and diagnostic skills in a risk-free environment. These simulators present users with virtual patients exhibiting various medical conditions, allowing learners to engage in patient interviews, physical examinations, and management planning." ;
+        rdfs:label                      "Virtual Patient Interaction Simulator" ;
+        rdfs:subClassOf                 "pmsr:VirtualMedicalSimulator" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.wolterskluwer.com/en/expert-insights/virtual-patient-simulators-improve-clinical-decision-making-learning-and-engage" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739488340413085" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/VirtualPatientInteractionSimulator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739821032633525
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "This involves the use of digital technologies to monitor and collect medical and health data from patients in one location, which is then electronically transmitted to healthcare providers in a different location for assessment and recommendations. RPM enables continuous monitoring of patient health data, facilitating proactive management of chronic conditions and post-operative care. Devices used in RPM include blood pressure monitors, glucose meters, and wearable sensors that track various physiological parameters." ;
+        rdfs:label                      "Monitoring Virtual Simulator" ;
+        rdfs:subClassOf                 "vstoi:Model" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://psnet.ahrq.gov/perspective/remote-patient-monitoring" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739821032633525" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/MonitoringVirtualSimulator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739288428472235
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "An ultrasound simulator is a training tool designed to replicate the experience of performing ultrasound examinations, enabling healthcare professionals to develop and refine their sonography skills in a controlled, risk-free environment. These simulators typically consist of a mock probe connected to a computer system that displays ultrasound images corresponding to the probe's position and movements. Advanced models may include a human mannequin or torso to enhance the realism of the training experience." ;
+        rdfs:label                      "Ultrasound" ;
+        rdfs:subClassOf                 "ncit:C16830" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.researchgate.net/publication/366737847_The_ultrasound_use_of_simulators_current_view_and_perspectives_Requirements_a" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739288428472235" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/Ultrasound" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739878730369725
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "The first and most advanced Virtual Patient Simulator. Enhance clinical reasoning and decision-making skills, boost confidence and promote team-work: 1200+ expert-reviewed scenarios, 50+ therapeutic areas, Multiple patients encounters, Increasing degrees of difficulty." ;
+        rdfs:label                      "Body Interact Simulator" ;
+        rdfs:subClassOf                 "pmsr:/INS1739488340413085" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://bodyinteract.com/" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739878730369725" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/BodyInteractSimulator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739403078441215
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "A Male Catheterization Simulator is a specialized training device designed to help healthcare professionals practice and master the technique of inserting a catheter into the male urinary bladder via the urethra. These simulators provide a realistic and safe environment for learners to develop their skills without posing any risk to actual patients." ;
+        rdfs:label                      "Male Genitalia Catherization Simulator" ;
+        rdfs:subClassOf                 "pmsr:/INS1739401557396065" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.3bscientific.com/us/catheterization-simulator-pro-male-light-skin-1023009-p93spc-m-3b-scientific%2Cp_1057_32277.html" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739403078441215" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/MaleGenitaliaCatherizationSimulator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+<http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv>
+        rdf:type                        hasco:DataAcquisition ;
+        rdfs:comment                    "Data Acquisition for DA-SOC-INSTRUMENT-PMSR.csv" ;
+        rdfs:label                      "DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataFile               <http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 hasco:DataAcquisition ;
+        hasco:isMemberOf                pmsr:STD-STUDY-PMSR-Simulators-1 ;
+        vstoi:hasSIRManagerEmail        "roundtrip@hascoapi.org" ;
+        vstoi:hasStatus                 "UNPROCESSED" .
+
+pmsr:OBJ_instrumentcollection_INS1739301009974715
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "The Artec Leo is a professional handheld 3D scanner that offers a fully wireless and standalone scanning experience. Equipped with an advanced NVIDIA Jetson TX2 processor, a 5.5-inch HD touch panel display, and an integrated battery, it allows users to capture high-quality 3D data without the need for external devices or cables. The scanner provides real-time visualization of the scanned object on its display, enabling users to monitor progress and ensure complete data acquisition. With a scanning speed of up to 80 frames per second and a large field of view, the Artec Leo is suitable for capturing a wide range of objects, from small mechanical parts to large scenes like crime sites or industrial equipment. Its versatility and user-friendly design make it a valuable tool in various industries, including automotive, healthcare, and art preservation." ;
+        rdfs:label                      "ARTEC LEO Scanner" ;
+        rdfs:subClassOf                 "pmsr:/INS1739300958884615" ;
+        hasco:hasDataAcquisition        "http://example.org/dasoc-smoke-1780407534974/DA-SMOKE" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/dasoc-smoke-1780407534974/DFL-SMOKE" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.artec3d.com/portable-3d-scanners/artec-leo" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        <http://hadatac.org/ont/pharma#altitude_m>
+                "12.5" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739301009974715" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/ARTECLEOScanner" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739301081410085
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "An intraoral scanner is a handheld device used in dentistry to create precise digital impressions of a patient's oral cavity, including teeth and gums. By projecting a light source onto the area to be scanned, the device captures a series of images that are processed by specialized software to produce an accurate 3D model of the intraoral structures." ;
+        rdfs:label                      "Intraoral Scanner" ;
+        rdfs:subClassOf                 "pmsr:/INS1739300958884615" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.3shape.com/en-us/blog/digital-dentistry/complete-introduction-to-intraoral-scanning" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739301081410085" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/IntraoralScanner" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:OBJ_instrumentcollection_INS1739452063713965
+        rdf:type                        "vstoi:Instrument" ;
+        rdfs:comment                    "The Anatomage Table is an advanced, highly technological virtual dissection and visualization tool. With the release of Table 10, the Anatomage bodiesÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¾ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ anatomical details have been refined, updated and improved to become the worldÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¾ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢s most comprehensive 3D anatomical models. Product Link: https://eu.anatomage.com/table/." ;
+        rdfs:label                      "Anatomage Table Simulator" ;
+        rdfs:subClassOf                 "pmsr:/INS1739451831725785" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-INSTRUMENT-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-INSTRUMENT-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:41:26.495Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://hsasf.hsa.washington.edu/wp-content/uploads/2023/12/Table_EDU_10.0_Application_User_s_Manual__Rev_A_.pdf" ;
+        hasco:hascoType                 "vstoi:Instrument" ;
+        vstoi:hasInstrument             "pmsr:INST-INS1739452063713965" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasShortName              "pmsr:/AnatomageTableSimulator" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .

@@ -1,0 +1,436 @@
+@prefix :                  <http://purl.obolibrary.org/obo/exo.owl#> .
+@prefix ahead:             <http://hadatac.org/ont/arrowhead/> .
+@prefix bfo:               <http://purl.obolibrary.org/obo/BFO_> .
+@prefix bspo:              <http://purl.obolibrary.org/obo/bspo#> .
+@prefix chebi:             <http://purl.obolibrary.org/obo/chebi#2> .
+@prefix chebi1:            <http://purl.obolibrary.org/obo/chebi#3> .
+@prefix chebi2:            <http://purl.obolibrary.org/obo/chebi#1> .
+@prefix chebi3:            <http://purl.obolibrary.org/obo/chebi#1> .
+@prefix cl:                <http://purl.obolibrary.org/obo/cl#> .
+@prefix core:              <http://purl.obolibrary.org/obo/uberon/core#> .
+@prefix daml:              <http://www.daml.org/2001/03/daml+oil#> .
+@prefix dc:                <http://purl.org/dc/elements/1.1/> .
+@prefix dcat:              <http://www.w3.org/ns/dcat#> .
+@prefix dcmitype:          <http://purl.org/dc/dcmitype/> .
+@prefix dcterms:           <http://purl.org/dc/terms/> .
+@prefix default:           <http://hadatac.org/kb/default/> .
+@prefix doap:              <http://usefulinc.com/ns/doap#> .
+@prefix envo:              <http://purl.obolibrary.org/obo/ENVO_> .
+@prefix exo:               <http://purl.obolibrary.org/obo/ExO_> .
+@prefix fhir:              <http://hl7.org/fhir/> .
+@prefix foaf:              <http://xmlns.com/foaf/0.1/> .
+@prefix foo:               <http://geneontology.org/foo/> .
+@prefix go:                <http://purl.obolibrary.org/obo/go#> .
+@prefix grddl:             <http://www.w3.org/2003/g/data-view#> .
+@prefix hadatac:           <http://hadatac.org/kb/default/> .
+@prefix hasco:             <http://hadatac.org/ont/hasco/> .
+@prefix lcc-639-1:         <https://www.omg.org/spec/LCC/Languages/ISO639-1-LanguageCodes/> .
+@prefix ncbitaxon:         <http://purl.obolibrary.org/obo/ncbitaxon#> .
+@prefix ncit:              <http://purl.obolibrary.org/obo/NCIT_> .
+@prefix obo:               <http://purl.obolibrary.org/obo/> .
+@prefix oboInOwl:          <http://www.geneontology.org/formats/oboInOwl#> .
+@prefix owl:               <http://www.w3.org/2002/07/owl#> .
+@prefix pato:              <http://purl.obolibrary.org/obo/PATO_> .
+@prefix pmsr:              <http://pmsr.net/ont/pmsr#> .
+@prefix pr:                <http://purl.obolibrary.org/obo/pr#> .
+@prefix process_attribute: <http://purl.obolibrary.org/obo/envo-p/patterns/process_attribute/> .
+@prefix protege:           <http://protege.stanford.edu/plugins/owl/protege#> .
+@prefix prov:              <http://www.w3.org/ns/prov#> .
+@prefix rdf:               <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:              <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema:            <https://schema.org/> .
+@prefix sio:               <http://semanticscience.org/resource/> .
+@prefix skos:              <http://www.w3.org/2004/02/skos/core#> .
+@prefix sssom:             <https://w3id.org/sssom/> .
+@prefix subsets:           <http://purl.obolibrary.org/obo/ro/subsets#> .
+@prefix swrl:              <http://www.w3.org/2003/11/swrl#> .
+@prefix swrla:             <http://swrl.stanford.edu/ontologies/3.3/swrla.owl#> .
+@prefix swrlb:             <http://www.w3.org/2003/11/swrlb#> .
+@prefix taxslim:           <http://purl.obolibrary.org/obo/ncbitaxon/subsets/taxslim.obo#> .
+@prefix terms:             <http://purl.org/dc/terms/> .
+@prefix terms3:            <http://www.geneontology.org/formats/oboInOwl#http://purl.org/dc/terms/> .
+@prefix test:              <http://hadatac.org/kb/test/> .
+@prefix time:              <http://www.w3.org/2006/time#> .
+@prefix uberon:            <http://purl.obolibrary.org/obo/UBERON_> .
+@prefix ubprop:            <http://purl.obolibrary.org/obo/ubprop#> .
+@prefix unit:              <http://qudt.org/vocab/unit/> .
+@prefix void:              <http://rdfs.org/ns/void#> .
+@prefix vstoi:             <http://hadatac.org/ont/vstoi#> .
+@prefix xml:               <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd:               <http://www.w3.org/2001/XMLSchema#> .
+@prefix xsp:               <http://www.owl-ontologies.com/2005/08/07/xsp.owl#> .
+
+pmsr:ROP1740092924252535
+        rdf:type                        "vstoi:ResponseOption" ;
+        rdfs:comment                    "Neonatal Cubital fossa Median antecubital, cephalic and basilic veins - Median antecubital, cephalic and basilic veins are easy to hit and tend to last quite well if splinted properly.  These veins are the preferred sites for insertion of percutaneous central venous catheters.  These should be avoided unless absolutely necessary in any infant likely to need long term IV therapy. The median nerve and brachial artery are both in the same anatomical vicinity and therefore vulnerable to damage." ;
+        rdfs:label                      "LOC ROP1740092924252535 - STD-STUDY-PMSR" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:38:49.023Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.safercare.vic.gov.au/best-practice-improvement/clinical-guidance/neonatal/peripheral-intravenous-iv-catheter-inserti" ;
+        hasco:hascoType                 "vstoi:ResponseOption" ;
+        vstoi:hasContent                "pmsr:/Neonatal Cubital fossa veins" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:ROP1740093084185465
+        rdf:type                        "vstoi:ResponseOption" ;
+        rdfs:comment                    "The saphenous vein runs just behind the medial aspect of the knee and is often visible behind the knee and as it curves around the top of the tibia.  Access is easy and lasts well if properly splinted. However, this vein is a good site for the insertion of percutaneous central venous catheters and should be avoided if possible in any infant likely to need long term IV access." ;
+        rdfs:label                      "LOC ROP1740093084185465 - STD-STUDY-PMSR" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:38:49.023Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.safercare.vic.gov.au/best-practice-improvement/clinical-guidance/neonatal/peripheral-intravenous-iv-catheter-inserti" ;
+        hasco:hascoType                 "vstoi:ResponseOption" ;
+        vstoi:hasContent                "pmsr:/Neonatal Leg Saphenous vein at the knee" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+<http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv>
+        rdf:type                        hasco:DataAcquisition ;
+        rdfs:comment                    "Data Acquisition for DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        rdfs:label                      "DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasDataFile               <http://example.org/roundtrip/DFL-DA-SOC-RESPONSE-OPTION-PMSR.csv> ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 hasco:DataAcquisition ;
+        hasco:isMemberOf                pmsr:STD-STUDY-PMSR-Simulators-1 ;
+        vstoi:hasSIRManagerEmail        "roundtrip@hascoapi.org" ;
+        vstoi:hasStatus                 "UNPROCESSED" .
+
+pmsr:ROP1740091964174345
+        rdf:type                        "vstoi:ResponseOption" ;
+        rdfs:comment                    "The cephalic vein is often quite large and can often be felt better than it can be seen. It is one of the veins to try if you must cannulate ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¹ÃƒÆ’Ã¢â‚¬Â¦ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œblindÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¾ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ in a large baby. Cannulas in this position  tend to last quite well, making this a good secondary site.  It can also be used for insertion of percutaneous central venous catheters." ;
+        rdfs:label                      "LOC ROP1740091964174345 - STD-STUDY-PMSR" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:38:49.023Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.safercare.vic.gov.au/best-practice-improvement/clinical-guidance/neonatal/peripheral-intravenous-iv-catheter-inserti" ;
+        hasco:hascoType                 "vstoi:ResponseOption" ;
+        vstoi:hasContent                "pmsr:/Neonatal Hand Cephalic vein, in anatomical snuffbox" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:ROP1738095777366775
+        rdf:type                        "vstoi:ResponseOption" ;
+        rdfs:comment                    "The portion representing the Stoma, in the mannequin, appears to be inflated." ;
+        rdfs:label                      "LOC ROP1738095777366775 - STD-STUDY-PMSR" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:38:49.023Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ResponseOption" ;
+        vstoi:hasContent                "pmsr:/Stoma Inflated" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:ROP1740092870887125
+        rdf:type                        "vstoi:ResponseOption" ;
+        rdfs:comment                    "Veins are easily seen on the volar side of the wrist.  They are usually quite small and fragile and whilst easily cannulated, do not last well. They are useful secondary sites, but must be carefully watched when noxious substances (eg Dopamine, Vancomycin) are infused, as they are prone to ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¹ÃƒÆ’Ã¢â‚¬Â¦ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œburnÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¾ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢." ;
+        rdfs:label                      "LOC ROP1740092870887125 - STD-STUDY-PMSR" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:38:49.023Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.safercare.vic.gov.au/best-practice-improvement/clinical-guidance/neonatal/peripheral-intravenous-iv-catheter-inserti" ;
+        hasco:hascoType                 "vstoi:ResponseOption" ;
+        vstoi:hasContent                "pmsr:/Neonatal Wrist Volar aspect" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:ROP1740092979307615
+        rdf:type                        "vstoi:ResponseOption" ;
+        rdfs:comment                    "Dorsal arch veins are small, but easily cannulated and last surprisingly well.  The vein on the lateral aspect, running below malleolus, is easy to access, but must be splinted carefully and watched for infiltration. Veins leading up to short saphenous are often good options." ;
+        rdfs:label                      "LOC ROP1740092979307615 - STD-STUDY-PMSR" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:38:49.023Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.safercare.vic.gov.au/best-practice-improvement/clinical-guidance/neonatal/peripheral-intravenous-iv-catheter-inserti" ;
+        hasco:hascoType                 "vstoi:ResponseOption" ;
+        vstoi:hasContent                "pmsr:/Neonatal Foot Dorsal arch" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:ROP1738148709128504
+        rdf:type                        "vstoi:ResponseOption" ;
+        rdfs:comment                    "Process failed" ;
+        rdfs:label                      "LOC ROP1738148709128504 - STD-STUDY-PMSR" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:38:49.023Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ResponseOption" ;
+        vstoi:hasContent                "pmsr:/FAIL" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:ROP1738099077224615
+        rdf:type                        "vstoi:ResponseOption" ;
+        rdfs:comment                    "Pulse has not been detected" ;
+        rdfs:label                      "LOC ROP1738099077224615 - STD-STUDY-PMSR" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:38:49.023Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ResponseOption" ;
+        vstoi:hasContent                "pmsr:/Pulse Not Detected" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:ROP1738240106626233
+        rdf:type                        "vstoi:ResponseOption" ;
+        rdfs:comment                    "Pressao Nao Aplicada" ;
+        rdfs:label                      "LOC ROP1738240106626233 - STD-STUDY-PMSR" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:38:49.023Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ResponseOption" ;
+        vstoi:hasContent                "pmsr:/Pressao Nao Aplicada" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:ROP1740097681776505
+        rdf:type                        "vstoi:ResponseOption" ;
+        rdfs:comment                    "LOC ROP1740097681776505 - STD-STUDY-PMSR" ;
+        rdfs:label                      "LOC ROP1740097681776505 - STD-STUDY-PMSR" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:38:49.023Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ResponseOption" ;
+        vstoi:hasContent                "pmsr:/Small Pupil" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:ROP1740092812728705
+        rdf:type                        "vstoi:ResponseOption" ;
+        rdfs:comment                    "The cephalic vein is often quite large and can often be felt better than it can be seen. It is one of the veins to try if you must cannulate ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¹ÃƒÆ’Ã¢â‚¬Â¦ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œblindÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¾ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ in a large baby. Cannulas in this position  tend to last quite well, making this a good secondary site.  It can also be used for insertion of percutaneous central venous catheters." ;
+        rdfs:label                      "LOC ROP1740092812728705 - STD-STUDY-PMSR" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:38:49.023Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.safercare.vic.gov.au/best-practice-improvement/clinical-guidance/neonatal/peripheral-intravenous-iv-catheter-inserti" ;
+        hasco:hascoType                 "vstoi:ResponseOption" ;
+        vstoi:hasContent                "pmsr:/Neonatal Hand Cephalic vein, in anatomical snuffbox" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:ROP1738095646552695
+        rdf:type                        "vstoi:ResponseOption" ;
+        rdfs:comment                    "The portion representing the Chest, in the mannequin, appears to be deflated." ;
+        rdfs:label                      "LOC ROP1738095646552695 - STD-STUDY-PMSR" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:38:49.023Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ResponseOption" ;
+        vstoi:hasContent                "pmsr:/Chest Deflated" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:ROP1738099044174655
+        rdf:type                        "vstoi:ResponseOption" ;
+        rdfs:comment                    "Pulse has been detected" ;
+        rdfs:label                      "LOC ROP1738099044174655 - STD-STUDY-PMSR" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:38:49.023Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ResponseOption" ;
+        vstoi:hasContent                "pmsr:/Pulse Detected" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:ROP1740092117171475
+        rdf:type                        "vstoi:ResponseOption" ;
+        rdfs:comment                    "The saphenous vein runs reliably just anterior to medial malleolus and is large and straight. It is easy to access and lasts well although is not always readily visualised. These veins are also good sites for insertion of percutaneous central venous catheters and should again be avoided in an infant likely to need long term IV access." ;
+        rdfs:label                      "LOC ROP1740092117171475 - STD-STUDY-PMSR" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:38:49.023Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.safercare.vic.gov.au/best-practice-improvement/clinical-guidance/neonatal/peripheral-intravenous-iv-catheter-inserti" ;
+        hasco:hascoType                 "vstoi:ResponseOption" ;
+        vstoi:hasContent                "pmsr:/Neonatal Foot Saphenous vein, ankle" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:ROP1738148696123634
+        rdf:type                        "vstoi:ResponseOption" ;
+        rdfs:comment                    "Process complete successfully" ;
+        rdfs:label                      "LOC ROP1738148696123634 - STD-STUDY-PMSR" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:38:49.023Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ResponseOption" ;
+        vstoi:hasContent                "pmsr:/PASS" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:ROP1740097706849295
+        rdf:type                        "vstoi:ResponseOption" ;
+        rdfs:comment                    "LOC ROP1740097706849295 - STD-STUDY-PMSR" ;
+        rdfs:label                      "LOC ROP1740097706849295 - STD-STUDY-PMSR" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:38:49.023Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ResponseOption" ;
+        vstoi:hasContent                "pmsr:/Medium Pupil" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:ROP1738095538691005
+        rdf:type                        "vstoi:ResponseOption" ;
+        rdfs:comment                    "The chest portion of the mannequin appears to be inflated" ;
+        rdfs:label                      "LOC ROP1738095538691005 - STD-STUDY-PMSR" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:38:49.023Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ResponseOption" ;
+        vstoi:hasContent                "pmsr:/Chest Inflated" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+<http://example.org/roundtrip/DFL-DA-SOC-RESPONSE-OPTION-PMSR.csv>
+        hasco:hasDasocDataAcquisition  <http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv> ;
+        hasco:hasFileId                "DFL-RT-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasFileStatus            "PROCESSED" ;
+        hasco:hasFilename              "DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasLog                   "2026-06-03 19:38:32 [LOG] DASOC ingestion for DA: &lt;http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv&gt;<br>2026-06-03 19:38:32 [LOG] Using Study: &lt;http://pmsr.net/ont/pmsr#STD-STUDY-PMSR-Simulators-1&gt;<br>2026-06-03 19:38:32 [LOG] DA &lt;http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv&gt; not found, creating new DA record<br>2026-06-03 19:38:33 [LOG] ✅ Created DA record linked to study: &lt;http://pmsr.net/ont/pmsr#STD-STUDY-PMSR-Simulators-1&gt;<br>2026-06-03 19:38:33 [LOG] Building originalID map for Study: &lt;http://pmsr.net/ont/pmsr#STD-STUDY-PMSR-Simulators-1&gt;<br>2026-06-03 19:38:33 [LOG] Querying all StudyObjects in Study with originalIDs...<br>2026-06-03 19:38:33 [WARNING] Duplicate originalID found, keeping existing URI: INS1739823398493725 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739823398493725, ignored=http://pmsr.net/ont/pmsr#INS1739823398493725]<br>2026-06-03 19:38:33 [WARNING] Duplicate originalID found, keeping existing URI: INS1739300958884615 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739300958884615, ignored=http://pmsr.net/ont/pmsr#INS1739300958884615]<br>2026-06-03 19:38:35 [WARNING] Duplicate originalID found, keeping existing URI: INS1739301814401805 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739301814401805, ignored=http://pmsr.net/ont/pmsr#INS1739301814401805]<br>2026-06-03 19:38:35 [WARNING] Duplicate originalID found, keeping existing URI: INS1739452063713965 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739452063713965, ignored=http://pmsr.net/ont/pmsr#INS1739452063713965]<br>2026-06-03 19:38:35 [WARNING] Duplicate originalID found, keeping existing URI: INS1739451831725785 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739451831725785, ignored=http://pmsr.net/ont/pmsr#INS1739451831725785]<br>2026-06-03 19:38:35 [WARNING] Duplicate originalID found, keeping existing URI: INS1739401557396065 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739401557396065, ignored=http://pmsr.net/ont/pmsr#INS1739401557396065]<br>2026-06-03 19:38:35 [WARNING] Duplicate originalID found, keeping existing URI: INS1739488340413085 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739488340413085, ignored=http://pmsr.net/ont/pmsr#INS1739488340413085]<br>2026-06-03 19:38:35 [WARNING] Duplicate originalID found, keeping existing URI: INS1739288566447555 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739288566447555, ignored=http://pmsr.net/ont/pmsr#INS1739288566447555]<br>2026-06-03 19:38:36 [WARNING] Duplicate originalID found, keeping existing URI: INS1739392122823235 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739392122823235, ignored=http://pmsr.net/ont/pmsr#INS1739392122823235]<br>2026-06-03 19:38:36 [WARNING] Duplicate originalID found, keeping existing URI: INS1739288428472235 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739288428472235, ignored=http://pmsr.net/ont/pmsr#INS1739288428472235]<br>2026-06-03 19:38:36 [WARNING] Duplicate originalID found, keeping existing URI: INS1739287092102085 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739287092102085, ignored=http://pmsr.net/ont/pmsr#INS1739287092102085]<br>2026-06-03 19:38:36 [WARNING] Duplicate originalID found, keeping existing URI: INS1739287021517805 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739287021517805, ignored=http://pmsr.net/ont/pmsr#INS1739287021517805]<br>2026-06-03 19:38:36 [WARNING] Duplicate originalID found, keeping existing URI: INS1739288006994165 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739288006994165, ignored=http://pmsr.net/ont/pmsr#INS1739288006994165]<br>2026-06-03 19:38:36 [WARNING] Duplicate originalID found, keeping existing URI: INS1739301711235865 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739301711235865, ignored=http://pmsr.net/ont/pmsr#INS1739301711235865]<br>2026-06-03 19:38:37 [WARNING] Duplicate originalID found, keeping existing URI: INS1739397137461495 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739397137461495, ignored=http://pmsr.net/ont/pmsr#INS1739397137461495]<br>2026-06-03 19:38:37 [WARNING] Duplicate originalID found, keeping existing URI: INS1739398437257165 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739398437257165, ignored=http://pmsr.net/ont/pmsr#INS1739398437257165]<br>2026-06-03 19:38:37 [WARNING] Duplicate originalID found, keeping existing URI: INS1739392275798255 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739392275798255, ignored=http://pmsr.net/ont/pmsr#INS1739392275798255]<br>2026-06-03 19:38:37 [WARNING] Duplicate originalID found, keeping existing URI: INS1739287159797795 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739287159797795, ignored=http://pmsr.net/ont/pmsr#INS1739287159797795]<br>2026-06-03 19:38:37 [WARNING] Duplicate originalID found, keeping existing URI: INS1739400689838665 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739400689838665, ignored=http://pmsr.net/ont/pmsr#INS1739400689838665]<br>2026-06-03 19:38:37 [WARNING] Duplicate originalID found, keeping existing URI: INS1739821032633525 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739821032633525, ignored=http://pmsr.net/ont/pmsr#INS1739821032633525]<br>2026-06-03 19:38:37 [WARNING] Duplicate originalID found, keeping existing URI: INS1739452783104705 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739452783104705, ignored=http://pmsr.net/ont/pmsr#INS1739452783104705]<br>2026-06-03 19:38:38 [WARNING] Duplicate originalID found, keeping existing URI: INS1739392182337835 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739392182337835, ignored=http://pmsr.net/ont/pmsr#INS1739392182337835]<br>2026-06-03 19:38:38 [WARNING] Duplicate originalID found, keeping existing URI: INS1739878730369725 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739878730369725, ignored=http://pmsr.net/ont/pmsr#INS1739878730369725]<br>2026-06-03 19:38:38 [WARNING] Duplicate originalID found, keeping existing URI: INS1739288153666735 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739288153666735, ignored=http://pmsr.net/ont/pmsr#INS1739288153666735]<br>2026-06-03 19:38:38 [WARNING] Duplicate originalID found, keeping existing URI: INS1739301009974715 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739301009974715, ignored=http://pmsr.net/ont/pmsr#INS1739301009974715]<br>2026-06-03 19:38:38 [WARNING] Duplicate originalID found, keeping existing URI: INS1739819782231595 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739819782231595, ignored=http://pmsr.net/ont/pmsr#INS1739819782231595]<br>2026-06-03 19:38:38 [WARNING] Duplicate originalID found, keeping existing URI: INS1739819116467195 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739819116467195, ignored=http://pmsr.net/ont/pmsr#INS1739819116467195]<br>2026-06-03 19:38:39 [WARNING] Duplicate originalID found, keeping existing URI: INS1739819955334025 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739819955334025, ignored=http://pmsr.net/ont/pmsr#INS1739819955334025]<br>2026-06-03 19:38:39 [WARNING] Duplicate originalID found, keeping existing URI: INS1739819599670195 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739819599670195, ignored=http://pmsr.net/ont/pmsr#INS1739819599670195]<br>2026-06-03 19:38:40 [WARNING] Duplicate originalID found, keeping existing URI: INS1739819868350395 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739819868350395, ignored=http://pmsr.net/ont/pmsr#INS1739819868350395]<br>2026-06-03 19:38:40 [WARNING] Duplicate originalID found, keeping existing URI: INS1739301317613705 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739301317613705, ignored=http://pmsr.net/ont/pmsr#INS1739301317613705]<br>2026-06-03 19:38:41 [WARNING] Duplicate originalID found, keeping existing URI: INS1739402230863265 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739402230863265, ignored=http://pmsr.net/ont/pmsr#INS1739402230863265]<br>2026-06-03 19:38:41 [WARNING] Duplicate originalID found, keeping existing URI: INS1739288625580975 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739288625580975, ignored=http://pmsr.net/ont/pmsr#INS1739288625580975]<br>2026-06-03 19:38:41 [WARNING] Duplicate originalID found, keeping existing URI: INS1739288691415495 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739288691415495, ignored=http://pmsr.net/ont/pmsr#INS1739288691415495]<br>2026-06-03 19:38:41 [WARNING] Duplicate originalID found, keeping existing URI: INS1739301189412025 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739301189412025, ignored=http://pmsr.net/ont/pmsr#INS1739301189412025]<br>2026-06-03 19:38:41 [WARNING] Duplicate originalID found, keeping existing URI: INS1739820624939265 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739820624939265, ignored=http://pmsr.net/ont/pmsr#INS1739820624939265]<br>2026-06-03 19:38:41 [WARNING] Duplicate originalID found, keeping existing URI: INS1739879206550705 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739879206550705, ignored=http://pmsr.net/ont/pmsr#INS1739879206550705]<br>2026-06-03 19:38:42 [WARNING] Duplicate originalID found, keeping existing URI: INS1739288499528465 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739288499528465, ignored=http://pmsr.net/ont/pmsr#INS1739288499528465]<br>2026-06-03 19:38:42 [WARNING] Duplicate originalID found, keeping existing URI: INS1739287212610855 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739287212610855, ignored=http://pmsr.net/ont/pmsr#INS1739287212610855]<br>2026-06-03 19:38:42 [WARNING] Duplicate originalID found, keeping existing URI: INS1739404158691525 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739404158691525, ignored=http://pmsr.net/ont/pmsr#INS1739404158691525]<br>2026-06-03 19:38:42 [WARNING] Duplicate originalID found, keeping existing URI: INS1739301133578555 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739301133578555, ignored=http://pmsr.net/ont/pmsr#INS1739301133578555]<br>2026-06-03 19:38:42 [WARNING] Duplicate originalID found, keeping existing URI: INS1739403188428355 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739403188428355, ignored=http://pmsr.net/ont/pmsr#INS1739403188428355]<br>2026-06-03 19:38:42 [WARNING] Duplicate originalID found, keeping existing URI: INS1739303195193785 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739303195193785, ignored=http://pmsr.net/ont/pmsr#INS1739303195193785]<br>2026-06-03 19:38:43 [WARNING] Duplicate originalID found, keeping existing URI: INS1739397556188145 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739397556188145, ignored=http://pmsr.net/ont/pmsr#INS1739397556188145]<br>2026-06-03 19:38:43 [WARNING] Duplicate originalID found, keeping existing URI: INS1739402037946315 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739402037946315, ignored=http://pmsr.net/ont/pmsr#INS1739402037946315]<br>2026-06-03 19:38:43 [WARNING] Duplicate originalID found, keeping existing URI: INS1739404046114785 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739404046114785, ignored=http://pmsr.net/ont/pmsr#INS1739404046114785]<br>2026-06-03 19:38:43 [WARNING] Duplicate originalID found, keeping existing URI: INS1739301081410085 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739301081410085, ignored=http://pmsr.net/ont/pmsr#INS1739301081410085]<br>2026-06-03 19:38:43 [WARNING] Duplicate originalID found, keeping existing URI: INS1739487989328225 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739487989328225, ignored=http://pmsr.net/ont/pmsr#INS1739487989328225]<br>2026-06-03 19:38:43 [WARNING] Duplicate originalID found, keeping existing URI: INS1739398519577895 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739398519577895, ignored=http://pmsr.net/ont/pmsr#INS1739398519577895]<br>2026-06-03 19:38:43 [WARNING] Duplicate originalID found, keeping existing URI: INS1739392367425715 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739392367425715, ignored=http://pmsr.net/ont/pmsr#INS1739392367425715]<br>2026-06-03 19:38:44 [WARNING] Duplicate originalID found, keeping existing URI: INS1740143777940835 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1740143777940835, ignored=http://pmsr.net/ont/pmsr#INS1740143777940835]<br>2026-06-03 19:38:44 [WARNING] Duplicate originalID found, keeping existing URI: INS1739403078441215 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739403078441215, ignored=http://pmsr.net/ont/pmsr#INS1739403078441215]<br>2026-06-03 19:38:44 [WARNING] Duplicate originalID found, keeping existing URI: INS1739483351917145 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739483351917145, ignored=http://pmsr.net/ont/pmsr#INS1739483351917145]<br>2026-06-03 19:38:44 [WARNING] Duplicate originalID found, keeping existing URI: INS1740143878244085 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1740143878244085, ignored=http://pmsr.net/ont/pmsr#INS1740143878244085]<br>2026-06-03 19:38:44 [WARNING] Duplicate originalID found, keeping existing URI: INS1739303333850795 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739303333850795, ignored=http://pmsr.net/ont/pmsr#INS1739303333850795]<br>2026-06-03 19:38:44 [WARNING] Duplicate originalID found, keeping existing URI: INS1740087575777435 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1740087575777435, ignored=http://pmsr.net/ont/pmsr#INS1740087575777435]<br>2026-06-03 19:38:46 [WARNING] Duplicate originalID found, keeping existing URI: INS1739403291912375 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739403291912375, ignored=http://pmsr.net/ont/pmsr#INS1739403291912375]<br>2026-06-03 19:38:46 [WARNING] Duplicate originalID found, keeping existing URI: INS1740087239872215 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1740087239872215, ignored=http://pmsr.net/ont/pmsr#INS1740087239872215]<br>2026-06-03 19:38:46 [WARNING] Duplicate originalID found, keeping existing URI: INS1739453043505715 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739453043505715, ignored=http://pmsr.net/ont/pmsr#INS1739453043505715]<br>2026-06-03 19:38:46 [WARNING] Duplicate originalID found, keeping existing URI: INS1739482671461295 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739482671461295, ignored=http://pmsr.net/ont/pmsr#INS1739482671461295]<br>2026-06-03 19:38:46 [WARNING] Duplicate originalID found, keeping existing URI: INS1739287640585765 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739287640585765, ignored=http://pmsr.net/ont/pmsr#INS1739287640585765]<br>2026-06-03 19:38:47 [WARNING] Duplicate originalID found, keeping existing URI: INS1739402477829135 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739402477829135, ignored=http://pmsr.net/ont/pmsr#INS1739402477829135]<br>2026-06-03 19:38:47 [WARNING] Duplicate originalID found, keeping existing URI: INS1739452868256965 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739452868256965, ignored=http://pmsr.net/ont/pmsr#INS1739452868256965]<br>2026-06-03 19:38:47 [WARNING] Duplicate originalID found, keeping existing URI: INS1739878788687655 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739878788687655, ignored=http://pmsr.net/ont/pmsr#INS1739878788687655]<br>2026-06-03 19:38:47 [WARNING] Duplicate originalID found, keeping existing URI: INS1739401836683455 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739401836683455, ignored=http://pmsr.net/ont/pmsr#INS1739401836683455]<br>2026-06-03 19:38:47 [WARNING] Duplicate originalID found, keeping existing URI: INS1739301891301765 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739301891301765, ignored=http://pmsr.net/ont/pmsr#INS1739301891301765]<br>2026-06-03 19:38:47 [WARNING] Duplicate originalID found, keeping existing URI: INS1739401657491675 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739401657491675, ignored=http://pmsr.net/ont/pmsr#INS1739401657491675]<br>2026-06-03 19:38:48 [WARNING] Duplicate originalID found, keeping existing URI: INS1739402585415785 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739402585415785, ignored=http://pmsr.net/ont/pmsr#INS1739402585415785]<br>2026-06-03 19:38:48 [WARNING] Duplicate originalID found, keeping existing URI: INS1739302175458785 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739302175458785, ignored=http://pmsr.net/ont/pmsr#INS1739302175458785]<br>2026-06-03 19:38:48 [WARNING] Duplicate originalID found, keeping existing URI: INS1739288297796655 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739288297796655, ignored=http://pmsr.net/ont/pmsr#INS1739288297796655]<br>2026-06-03 19:38:48 [WARNING] Duplicate originalID found, keeping existing URI: INS1739303008518495 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739303008518495, ignored=http://pmsr.net/ont/pmsr#INS1739303008518495]<br>2026-06-03 19:38:48 [LOG] ✅ Found 197 objects with originalIDs in Study (0 SIR objects)<br>2026-06-03 19:38:48 [LOG] ✅ Created originalID&lt;-&gt;URI map with 197 elements<br>2026-06-03 19:38:49 [LOG] Processing CSV with originalID column: 'originalID'<br>2026-06-03 19:38:49 [LOG] Property columns: 12<br>2026-06-03 19:38:49 [LOG]   [SIR-PURE] Adding properties to pure SIR object: ROP1738095538691005<br>2026-06-03 19:38:49 [LOG]   Enriched ResponseOption: LOC ROP1738095538691005 - STD-STUDY-PMSR<br>2026-06-03 19:38:49 [LOG]   [SIR-PURE] Adding properties to pure SIR object: ROP1738095646552695<br>2026-06-03 19:38:50 [LOG]   Enriched ResponseOption: LOC ROP1738095646552695 - STD-STUDY-PMSR<br>2026-06-03 19:38:50 [LOG]   [SIR-PURE] Adding properties to pure SIR object: ROP1738095777366775<br>2026-06-03 19:38:51 [LOG]   Enriched ResponseOption: LOC ROP1738095777366775 - STD-STUDY-PMSR<br>2026-06-03 19:38:51 [LOG]   [SIR-PURE] Adding properties to pure SIR object: ROP1738095892998425<br>2026-06-03 19:38:52 [LOG]   Enriched ResponseOption: LOC ROP1738095892998425 - STD-STUDY-PMSR<br>2026-06-03 19:38:52 [LOG]   [SIR-PURE] Adding properties to pure SIR object: ROP1738099044174655<br>2026-06-03 19:38:52 [LOG]   Enriched ResponseOption: LOC ROP1738099044174655 - STD-STUDY-PMSR<br>2026-06-03 19:38:52 [LOG]   [SIR-PURE] Adding properties to pure SIR object: ROP1738099077224615<br>2026-06-03 19:38:53 [LOG]   Enriched ResponseOption: LOC ROP1738099077224615 - STD-STUDY-PMSR<br>2026-06-03 19:38:53 [LOG]   [SIR-PURE] Adding properties to pure SIR object: ROP1738148696123634<br>2026-06-03 19:38:53 [LOG]   Enriched ResponseOption: LOC ROP1738148696123634 - STD-STUDY-PMSR<br>2026-06-03 19:38:53 [LOG]   [SIR-PURE] Adding properties to pure SIR object: ROP1738148709128504<br>2026-06-03 19:38:54 [LOG]   Enriched ResponseOption: LOC ROP1738148709128504 - STD-STUDY-PMSR<br>2026-06-03 19:38:54 [LOG]   [SIR-PURE] Adding properties to pure SIR object: ROP1738240077172043<br>2026-06-03 19:38:54 [LOG]   Enriched ResponseOption: LOC ROP1738240077172043 - STD-STUDY-PMSR<br>2026-06-03 19:38:54 [LOG]   [SIR-PURE] Adding properties to pure SIR object: ROP1738240106626233<br>2026-06-03 19:38:55 [LOG]   Enriched ResponseOption: LOC ROP1738240106626233 - STD-STUDY-PMSR<br>2026-06-03 19:38:55 [LOG]   [SIR-PURE] Adding properties to pure SIR object: ROP1740091964174345<br>2026-06-03 19:38:55 [LOG]   Enriched ResponseOption: LOC ROP1740091964174345 - STD-STUDY-PMSR<br>2026-06-03 19:38:55 [LOG]   [SIR-PURE] Adding properties to pure SIR object: ROP1740092117171475<br>2026-06-03 19:38:56 [LOG]   Enriched ResponseOption: LOC ROP1740092117171475 - STD-STUDY-PMSR<br>2026-06-03 19:38:56 [LOG]   [SIR-PURE] Adding properties to pure SIR object: ROP1740092157438785<br>2026-06-03 19:38:57 [LOG]   Enriched ResponseOption: LOC ROP1740092157438785 - STD-STUDY-PMSR<br>2026-06-03 19:38:58 [LOG]   [SIR-PURE] Adding properties to pure SIR object: ROP1740092758910575<br>2026-06-03 19:38:58 [LOG]   Enriched ResponseOption: LOC ROP1740092758910575 - STD-STUDY-PMSR<br>2026-06-03 19:38:58 [LOG]   [SIR-PURE] Adding properties to pure SIR object: ROP1740092812728705<br>2026-06-03 19:38:58 [LOG]   Enriched ResponseOption: LOC ROP1740092812728705 - STD-STUDY-PMSR<br>2026-06-03 19:38:59 [LOG]   [SIR-PURE] Adding properties to pure SIR object: ROP1740092870887125<br>2026-06-03 19:38:59 [LOG]   Enriched ResponseOption: LOC ROP1740092870887125 - STD-STUDY-PMSR<br>2026-06-03 19:38:59 [LOG]   [SIR-PURE] Adding properties to pure SIR object: ROP1740092924252535<br>2026-06-03 19:38:59 [LOG]   Enriched ResponseOption: LOC ROP1740092924252535 - STD-STUDY-PMSR<br>2026-06-03 19:39:00 [LOG]   [SIR-PURE] Adding properties to pure SIR object: ROP1740092979307615<br>2026-06-03 19:39:00 [LOG]   Enriched ResponseOption: LOC ROP1740092979307615 - STD-STUDY-PMSR<br>2026-06-03 19:39:00 [LOG]   [SIR-PURE] Adding properties to pure SIR object: ROP1740093031555435<br>2026-06-03 19:39:00 [LOG]   Enriched ResponseOption: LOC ROP1740093031555435 - STD-STUDY-PMSR<br>2026-06-03 19:39:01 [LOG]   [SIR-PURE] Adding properties to pure SIR object: ROP1740093084185465<br>2026-06-03 19:39:01 [LOG]   Enriched ResponseOption: LOC ROP1740093084185465 - STD-STUDY-PMSR<br>2026-06-03 19:39:01 [LOG]   [SIR-PURE] Adding properties to pure SIR object: ROP1740097681776505<br>2026-06-03 19:39:01 [LOG]   Enriched ResponseOption: LOC ROP1740097681776505 - STD-STUDY-PMSR<br>2026-06-03 19:39:03 [LOG]   [SIR-PURE] Adding properties to pure SIR object: ROP1740097706849295<br>2026-06-03 19:39:03 [LOG]   Enriched ResponseOption: LOC ROP1740097706849295 - STD-STUDY-PMSR<br>2026-06-03 19:39:03 [LOG]   [SIR-PURE] Adding properties to pure SIR object: ROP1740097719729375<br>2026-06-03 19:39:04 [LOG]   Enriched ResponseOption: LOC ROP1740097719729375 - STD-STUDY-PMSR<br>2026-06-03 19:39:04 [LOG] Inserted 309 triples into graph &lt;http://example.org/roundtrip/DFL-DA-SOC-RESPONSE-OPTION-PMSR.csv&gt;<br>2026-06-03 19:39:04 [LOG] ✅ Processing complete: 23 rows processed, 0 skipped, 0 errors<br>2026-06-03 19:39:04 [LOG] ✅ Successfully processed 23 rows<br>2026-06-03 19:39:04 [LOG] ✅ Successfully ingested 23 rows<br>" ;
+        hasco:hasStudy                 pmsr:STD-STUDY-PMSR-Simulators-1 ;
+        vstoi:hasSIRManagerEmail       "roundtrip@hascoapi.org" .
+
+pmsr:ROP1738240077172043
+        rdf:type                        "vstoi:ResponseOption" ;
+        rdfs:comment                    "Pressao Aplicada" ;
+        rdfs:label                      "LOC ROP1738240077172043 - STD-STUDY-PMSR" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:38:49.023Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ResponseOption" ;
+        vstoi:hasContent                "pmsr:/Pressao Aplicada" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:ROP1740097719729375
+        rdf:type                        "vstoi:ResponseOption" ;
+        rdfs:comment                    "LOC ROP1740097719729375 - STD-STUDY-PMSR" ;
+        rdfs:label                      "LOC ROP1740097719729375 - STD-STUDY-PMSR" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:38:49.023Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ResponseOption" ;
+        vstoi:hasContent                "pmsr:/Large Pupils" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:ROP1740092758910575
+        rdf:type                        "vstoi:ResponseOption" ;
+        rdfs:comment                    "Dorsal arch veins are best seen on the back of the hand, but are usually larger and easier to see and palpate over the back of the wrist.  Skin entry should be more distally. IVs inserted here are easily splinted and any infiltration easily spotted, so these veins are the preferred site. The feeder veins over the dorsum of the hand in the first interspace need to be treated with respect, as it is possible to cannulate an artery here, risking loss of a thumb, or part thereof. (princeps pollicis artery). This is present in about 10% of infants.  If present it is usually the sole supply to thumb." ;
+        rdfs:label                      "LOC ROP1740092758910575 - STD-STUDY-PMSR" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:38:49.023Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.safercare.vic.gov.au/best-practice-improvement/clinical-guidance/neonatal/peripheral-intravenous-iv-catheter-inserti" ;
+        hasco:hascoType                 "vstoi:ResponseOption" ;
+        vstoi:hasContent                "pmsr:/Neonatal Hand Dorsal arch veins" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:ROP1738095892998425
+        rdf:type                        "vstoi:ResponseOption" ;
+        rdfs:comment                    "The portion representing the Stoma, in the mannequin, appears to be deflated." ;
+        rdfs:label                      "LOC ROP1738095892998425 - STD-STUDY-PMSR" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:38:49.023Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ResponseOption" ;
+        vstoi:hasContent                "pmsr:/Stoma Deflated" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:ROP1740092157438785
+        rdf:type                        "vstoi:ResponseOption" ;
+        rdfs:comment                    "The saphenous vein runs just behind the medial aspect of the knee and is often visible behind the knee and as it curves around the top of the tibia.  Access is easy and lasts well if properly splinted. However, this vein is a good site for the insertion of percutaneous central venous catheters and should be avoided if possible in any infant likely to need long term IV access." ;
+        rdfs:label                      "LOC ROP1740092157438785 - STD-STUDY-PMSR" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:38:49.023Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.safercare.vic.gov.au/best-practice-improvement/clinical-guidance/neonatal/peripheral-intravenous-iv-catheter-inserti" ;
+        hasco:hascoType                 "vstoi:ResponseOption" ;
+        vstoi:hasContent                "pmsr:/Neonatal Leg Saphenous vein at the knee" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:ROP1740093031555435
+        rdf:type                        "vstoi:ResponseOption" ;
+        rdfs:comment                    "The saphenous vein runs reliably just anterior to medial malleolus and is large and straight. It is easy to access and lasts well although is not always readily visualised. These veins are also good sites for insertion of percutaneous central venous catheters and should again be avoided in an infant likely to need long term IV access." ;
+        rdfs:label                      "LOC ROP1740093031555435 - STD-STUDY-PMSR" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-RESPONSE-OPTION-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-RESPONSE-OPTION-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:38:49.023Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://www.safercare.vic.gov.au/best-practice-improvement/clinical-guidance/neonatal/peripheral-intravenous-iv-catheter-inserti" ;
+        hasco:hascoType                 "vstoi:ResponseOption" ;
+        vstoi:hasContent                "pmsr:/Neonatal Foot Saphenous vein, ankle" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .

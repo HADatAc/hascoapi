@@ -129,10 +129,17 @@ public class URIPage extends Controller {
     public static HADatAcThing objectFromUri(String uri) {
         System.out.println("URIPage.objectFromUri(): URI [" + uri + "]");
         
-        // CRITICAL FIX: Don't try to resolve ontology classes, literals, or non-instance URIs
+        // FIXED: Try to resolve ontology classes (owl:Class) instead of skipping them
         if (isOntologyClass(uri)) {
-            System.out.println("[DEBUG] URIPage.objectFromUri(): Skipping non-instance URI [" + uri + "]");
-            return null; // Silently return null for non-instances
+            System.out.println("[DEBUG] URIPage.objectFromUri(): Detected ontology class URI [" + uri + "], attempting to resolve as HADatAcClass");
+            HADatAcClass classObj = HADatAcClass.find(uri);
+            if (classObj != null) {
+                System.out.println("[DEBUG] URIPage.objectFromUri(): Successfully resolved class [" + uri + "] with label [" + classObj.getLabel() + "]");
+                return classObj;
+            } else {
+                System.out.println("[DEBUG] URIPage.objectFromUri(): Could not resolve class [" + uri + "], returning null");
+                return null;
+            }
         }
         
         String typeUri = "";
@@ -324,19 +331,43 @@ public class URIPage extends Controller {
      * - Version numbers (pmsr#1, pmsr#2, etc.)
      * - VSTOI ontology classes
      */
+    /**
+     * Determines if a URI represents an ontology class (owl:Class) or a literal/version identifier.
+     * 
+     * This method identifies:
+     * - VSTOI ontology classes (e.g., vstoi#Instrument, vstoi#PhysicalInstrument, vstoi#Component)
+     * - Language literals (e.g., URIs ending with /en, #en)
+     * - Version literals (e.g., pmsr#1, pmsr#2 - pure numeric fragments only)
+     * 
+     * Note: This method is used to determine whether to resolve a URI as an ontology class
+     * (via HADatAcClass.find()) or as an instance (via GenericInstance.find()).
+     * 
+     * @param uri The URI to check
+     * @return true if the URI represents an ontology class or literal, false otherwise
+     */
     private static boolean isOntologyClass(String uri) {
         if (uri == null || uri.isEmpty()) {
             return false;
         }
         
         // VSTOI ontology classes (not instances)
-        if (uri.contains("vstoi#") && 
-            (uri.endsWith("Instrument") || 
-             uri.endsWith("Component") ||
-             uri.endsWith("Container") ||
-             uri.endsWith("ComponentStem") ||
-             uri.endsWith("Codebook") ||
-             uri.endsWith("ResponseOption"))) {
+        // Match any URI in the vstoi namespace with a fragment identifier (class name after #)
+        // Examples: vstoi#Instrument, vstoi#PhysicalInstrument, vstoi#GroundBasedInstrument
+        if (uri.contains("vstoi#")) {
+            String fragment = uri.substring(uri.indexOf("vstoi#") + 6); // Extract after "vstoi#"
+            
+            // Check if fragment looks like a class name (starts with uppercase, contains letters)
+            // This covers all VSTOI class names: Instrument, PhysicalInstrument, ComponentStem, etc.
+            if (!fragment.isEmpty() && 
+                Character.isUpperCase(fragment.charAt(0)) && 
+                fragment.matches("^[A-Z][a-zA-Z]*$")) {
+                return true;
+            }
+        }
+        
+        // Also check for other common ontology patterns (HASCO, SCHEMA, etc.)
+        // Match patterns like hasco#Something, schema#Something
+        if (uri.matches(".*[/#](hasco|schema|sio|prov|foaf|dcterms|skos)#[A-Z][a-zA-Z]*$")) {
             return true;
         }
         

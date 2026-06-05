@@ -1,0 +1,1455 @@
+@prefix :                  <http://purl.obolibrary.org/obo/exo.owl#> .
+@prefix ahead:             <http://hadatac.org/ont/arrowhead/> .
+@prefix bfo:               <http://purl.obolibrary.org/obo/BFO_> .
+@prefix bspo:              <http://purl.obolibrary.org/obo/bspo#> .
+@prefix chebi:             <http://purl.obolibrary.org/obo/chebi#2> .
+@prefix chebi1:            <http://purl.obolibrary.org/obo/chebi#3> .
+@prefix chebi2:            <http://purl.obolibrary.org/obo/chebi#1> .
+@prefix chebi3:            <http://purl.obolibrary.org/obo/chebi#1> .
+@prefix cl:                <http://purl.obolibrary.org/obo/cl#> .
+@prefix core:              <http://purl.obolibrary.org/obo/uberon/core#> .
+@prefix daml:              <http://www.daml.org/2001/03/daml+oil#> .
+@prefix dc:                <http://purl.org/dc/elements/1.1/> .
+@prefix dcat:              <http://www.w3.org/ns/dcat#> .
+@prefix dcmitype:          <http://purl.org/dc/dcmitype/> .
+@prefix dcterms:           <http://purl.org/dc/terms/> .
+@prefix default:           <http://hadatac.org/kb/default/> .
+@prefix doap:              <http://usefulinc.com/ns/doap#> .
+@prefix envo:              <http://purl.obolibrary.org/obo/ENVO_> .
+@prefix exo:               <http://purl.obolibrary.org/obo/ExO_> .
+@prefix fhir:              <http://hl7.org/fhir/> .
+@prefix foaf:              <http://xmlns.com/foaf/0.1/> .
+@prefix foo:               <http://geneontology.org/foo/> .
+@prefix go:                <http://purl.obolibrary.org/obo/go#> .
+@prefix grddl:             <http://www.w3.org/2003/g/data-view#> .
+@prefix hadatac:           <http://hadatac.org/kb/default/> .
+@prefix hasco:             <http://hadatac.org/ont/hasco/> .
+@prefix lcc-639-1:         <https://www.omg.org/spec/LCC/Languages/ISO639-1-LanguageCodes/> .
+@prefix ncbitaxon:         <http://purl.obolibrary.org/obo/ncbitaxon#> .
+@prefix ncit:              <http://purl.obolibrary.org/obo/NCIT_> .
+@prefix obo:               <http://purl.obolibrary.org/obo/> .
+@prefix oboInOwl:          <http://www.geneontology.org/formats/oboInOwl#> .
+@prefix owl:               <http://www.w3.org/2002/07/owl#> .
+@prefix pato:              <http://purl.obolibrary.org/obo/PATO_> .
+@prefix pmsr:              <http://pmsr.net/ont/pmsr#> .
+@prefix pr:                <http://purl.obolibrary.org/obo/pr#> .
+@prefix process_attribute: <http://purl.obolibrary.org/obo/envo-p/patterns/process_attribute/> .
+@prefix protege:           <http://protege.stanford.edu/plugins/owl/protege#> .
+@prefix prov:              <http://www.w3.org/ns/prov#> .
+@prefix rdf:               <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:              <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema:            <https://schema.org/> .
+@prefix sio:               <http://semanticscience.org/resource/> .
+@prefix skos:              <http://www.w3.org/2004/02/skos/core#> .
+@prefix sssom:             <https://w3id.org/sssom/> .
+@prefix subsets:           <http://purl.obolibrary.org/obo/ro/subsets#> .
+@prefix swrl:              <http://www.w3.org/2003/11/swrl#> .
+@prefix swrla:             <http://swrl.stanford.edu/ontologies/3.3/swrla.owl#> .
+@prefix swrlb:             <http://www.w3.org/2003/11/swrlb#> .
+@prefix taxslim:           <http://purl.obolibrary.org/obo/ncbitaxon/subsets/taxslim.obo#> .
+@prefix terms:             <http://purl.org/dc/terms/> .
+@prefix terms3:            <http://www.geneontology.org/formats/oboInOwl#http://purl.org/dc/terms/> .
+@prefix test:              <http://hadatac.org/kb/test/> .
+@prefix time:              <http://www.w3.org/2006/time#> .
+@prefix uberon:            <http://purl.obolibrary.org/obo/UBERON_> .
+@prefix ubprop:            <http://purl.obolibrary.org/obo/ubprop#> .
+@prefix unit:              <http://qudt.org/vocab/unit/> .
+@prefix void:              <http://rdfs.org/ns/void#> .
+@prefix vstoi:             <http://hadatac.org/ont/vstoi#> .
+@prefix xml:               <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd:               <http://www.w3.org/2001/XMLSchema#> .
+@prefix xsp:               <http://www.owl-ontologies.com/2005/08/07/xsp.owl#> .
+
+pmsr:CSM1740443697533425
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Muscle Structure - Muscle structures are contractile cells, tissues or organs that are found in multicellular organisms[GO]." ;
+        rdfs:label                      "Muscle Function Component Stem" ;
+        rdfs:subClassOf                 "vstoi:ComponentStem" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "uberon:0005090" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Muscle Function Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740447091733785
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "Pulse Detection in Carotid Artery Segment - One of: the common carotid artery, or its branches, the external and internal carotid arteries." ;
+        rdfs:label                      "Bilateral Carotid Pulse Detection Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740446522327095" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "uberon:0005396" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Bilateral Carotid Pulse Detection Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740444652328675
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Chest Expansion" ;
+        rdfs:label                      "Chest Volume Change Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740444383351465" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Chest Volume Change Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740441702625375
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Conductivity - A measure of the ion-facilitated electron current through a material." ;
+        rdfs:label                      "Electrical Conductivity Component Stem" ;
+        rdfs:subClassOf                 "vstoi:ComponentStem" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C134263" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Electrical Conductivity Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740442123782475
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Magnetic Field - The region around a magnetic material or a moving electric charge within which the force of magnetism acts." ;
+        rdfs:label                      "Magnetic Field Component Stem" ;
+        rdfs:subClassOf                 "vstoi:ComponentStem" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C151962" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Magnetic Field Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740443581797785
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Inertia - the physical force that keeps something in the same position or moving in the same direction" ;
+        rdfs:label                      "Inertial Component Stem" ;
+        rdfs:subClassOf                 "pmsr:MotionComponentStem" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://dictionary.cambridge.org/dictionary/english-portuguese/inertia" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Inertial Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740445145396065
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Fluid - A continuous amorphous substance that tends to flow and to conform to the outline of its container (i.e., a liquid or a gas). Also used as an adjective to describe something with properties like that of a fluid." ;
+        rdfs:label                      "Fluid Volume Pressure Component Stem" ;
+        rdfs:subClassOf                 "pmsr:PressureComponentStem" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C25278" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Fluid Volume Pressure Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+<http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv>
+        rdf:type                        hasco:DataAcquisition ;
+        rdfs:comment                    "Data Acquisition for DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        rdfs:label                      "DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataFile               <http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 hasco:DataAcquisition ;
+        hasco:isMemberOf                pmsr:STD-STUDY-PMSR-Simulators-1 ;
+        vstoi:hasSIRManagerEmail        "roundtrip@hascoapi.org" ;
+        vstoi:hasStatus                 "UNPROCESSED" .
+
+pmsr:CSM1738147171631954
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Gastrostomy Port" ;
+        rdfs:label                      "Gastrostomy Port" ;
+        rdfs:subClassOf                 "vstoi:ItemStem" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Gastrostomy Port" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740496601265315
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "Tissue Condition Component Stem" ;
+        rdfs:label                      "Tissue Condition Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740496547465865" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Tissue Condition Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740437282801875
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Signal - A detectable physical quantity or impulse (e.g., voltage, current, or magnetic field strength). Non discrete voltage and current fluctuations associated with Audio Signal (Raw or transformed)." ;
+        rdfs:label                      "Audio Signal Component Stem" ;
+        rdfs:subClassOf                 "vstoi:ComponentStem" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C43382" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Audio Signal Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1738147228960084
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Stoma Port" ;
+        rdfs:label                      "Stoma Port" ;
+        rdfs:subClassOf                 "vstoi:ItemStem" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Stoma Port" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1738147902799874
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Session Viewer, SimView Server and SimView Mobile are applications that record video and patient monitor screens captured during the simulation, in addition to providing an interface to debrief your session. After a session is ended, log files generated in LLEAP and on SimPad are transferred and merged with the video files in Session Viewer, SimView Server, SimCapture and SimView Mobile for the debriefing." ;
+        rdfs:label                      "SimView Mobile" ;
+        rdfs:subClassOf                 "vstoi:ItemStem" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/SimView Mobile" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740440664135085
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Inner Ear Canal - The tubular ducts of the inner ear." ;
+        rdfs:label                      "Ear Canal Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740439784224395" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "uberon:0003950" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Ear Canal Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740445674854915
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Blood Pressure - The pressure of the circulating blood against the walls of the blood vessels." ;
+        rdfs:label                      "Blood Pressure Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740445405467405" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C54706" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Blood Pressure Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1738147746249824
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/The Patient Monitor application emulates a typical hospital patient monitor. It is the learnerâ€™s console and can be set up and controlled by the instructor, as well as by the learner, through on-screen touch menus." ;
+        rdfs:label                      "Patient Monitor" ;
+        rdfs:subClassOf                 "vstoi:ItemStem" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Patient Monitor" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1738147770921394
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Voice Conference Application (VCA) transmits all vocal sounds used during simulation. It enables the instructor to communicate through the simulator during the session." ;
+        rdfs:label                      "Voice Conference Application" ;
+        rdfs:subClassOf                 "vstoi:ItemStem" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Voice Conference Application" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740441049946055
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/An ostomy is surgery to create an opening (stoma) from an area inside the body to the outside. It treats certain diseases of the digestive or urinary systems. It can be permanent, when an organ must be removed. It can be temporary, when the organ needs time to heal. The organ could be the small intestine, colon, rectum, or bladder. With an ostomy, there must be a new way for wastes to leave the body." ;
+        rdfs:label                      "Ostonomy Access Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740439895785025" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "https://medlineplus.gov/ostomy.html" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Ostonomy Access Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740441287738155
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Catheterization - A technique in which a hollow, flexible tube is used to drain body fluids or to introduce fluids into the body, or to examine or widen a narrowed vein or artery." ;
+        rdfs:label                      "Urinary Catheterization Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740439895785025" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C38045" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Urinary Catheterization Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740446522327095
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Pulse - The rhythmic wave within the arteries occurring with each contraction of the left ventricle." ;
+        rdfs:label                      "Pulse Pressure Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740445674854915" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C25749" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Pulse Pressure Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740439028843245
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Oviduct - A tube or collection of tubes in an animal from the ovaries to the outside of the body." ;
+        rdfs:label                      "Vaginal Canal Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740438431997615" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "uberon:0000993" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Vaginal Canal Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740437412550265
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Audio Acquisition - The process of recording sound to a storage device." ;
+        rdfs:label                      "Audio Input Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740437282801875" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C190513" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Audio Input Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1738147254698104
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/IV Arm" ;
+        rdfs:label                      "IV Arm" ;
+        rdfs:subClassOf                 "vstoi:ItemStem" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/IV Arm" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740496547465865
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "Visual Inspection Component Stem" ;
+        rdfs:label                      "Visual Inspection Component Stem" ;
+        rdfs:subClassOf                 "vstoi:ComponentStem" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Visual Inspection Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1738147074330614
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/..." ;
+        rdfs:label                      "Central Line Opening" ;
+        rdfs:subClassOf                 "vstoi:ItemStem" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Central Line Opening" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740442013649755
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Electrode Device - A conductor that is designed to make contact with part of a circuit or system." ;
+        rdfs:label                      "Electrode Contact Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740441702625375" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C49936" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Electrode Contact Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740437740905335
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "Concentration - The quantity of a substance per unit volume or weight; a measure of the amount of substance present in a unit amount of mixture, particularly, the amount of solute dissolved in a solvent. The amounts can be expressed as moles, masses, volumes, or parts. Chemical - A substance with a defined atomic or molecular structure that results from, or takes part in, reactions involving changes in its structure, composition, or properties. (web document - NCIT: http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48807)" ;
+        rdfs:label                      "Chemical Concentration Component Stem" ;
+        rdfs:subClassOf                 "vstoi:ComponentStem" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C41185" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Chemical Concentration Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1738147120801784
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/BP Arm" ;
+        rdfs:label                      "BP Arm" ;
+        rdfs:subClassOf                 "vstoi:ItemStem" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/BP Arm" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1738147616287344
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Blood Pressure Palpation and Auscultation" ;
+        rdfs:label                      "Blood Pressure Palpation and Auscultation" ;
+        rdfs:subClassOf                 "vstoi:ItemStem" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Blood Pressure Palpation and Auscultation" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740437031786785
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Simulated Respiratory System Finding - Symptoms, physical examination results, and/or laboratory test results related to the respiratory system." ;
+        rdfs:label                      "Patient Respiratory Efficiency Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740436912687875" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C45233" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Patient Respiratory Efficiency Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740438251712755
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Touch - The faculty of touch, the sensation produced by pressure receptors in the skin." ;
+        rdfs:label                      "Contact Component Stem" ;
+        rdfs:subClassOf                 "vstoi:ComponentStem" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C38535" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Contact Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1738147420648364
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Nasal Intubation" ;
+        rdfs:label                      "Nasal Intubation" ;
+        rdfs:subClassOf                 "vstoi:ItemStem" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Nasal Intubation" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740483968948655
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "Time Component Stem" ;
+        rdfs:label                      "Time Component Stem" ;
+        rdfs:subClassOf                 "vstoi:ComponentStem" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Time Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740443161927215
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Unit of Acceleration - A unit of the rate of change of linear or angular velocity with respect to time." ;
+        rdfs:label                      "Acceleration Component Stem" ;
+        rdfs:subClassOf                 "pmsr:MotionComponentStem" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C48450" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Acceleration Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740442452413465
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Magnetometer Device - A device designed to measure the strength of a magnetic field." ;
+        rdfs:label                      "Magnetometer Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740442123782475" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C50053" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Magnetometer Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740484159315465
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Duration of an Outcome. Outcome Measure Time Frame - The timespan over which the study outcome measure is assessed." ;
+        rdfs:label                      "Phenomenon Duration Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740483968948655" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C165859" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Phenomenon Duration Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1738147344438204
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Oral Intubation" ;
+        rdfs:label                      "Oral Intubation" ;
+        rdfs:subClassOf                 "vstoi:ItemStem" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Oral Intubation" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740443851413515
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "Eyelid - A fold of skin that covers and protects part of the eyeball. Examples: upper eyelid, lower eyelid, nictitating membrane." ;
+        rdfs:label                      "Eyelid Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740443697533425" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "uberon:0001711" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Eyelid Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740485818393165
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Skin of Body - The organ covering the body that consists of the dermis and epidermis." ;
+        rdfs:label                      "Skin Function Component Stem" ;
+        rdfs:subClassOf                 "vstoi:ComponentStem" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "uberon:0002097" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Skin Function Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740444383351465
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Muscle Contraction - The process where thick (myosin) and thin (actin) filaments slide against each other to produce a shortening or tensing of the muscle cell or fiber." ;
+        rdfs:label                      "Muscle Volume Change Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740443697533425" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C30085" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Muscle Volume Change Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740436692667015
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/The continuous movement characteristic of a liquid or gas." ;
+        rdfs:label                      "Flow Component Stem" ;
+        rdfs:subClassOf                 "vstoi:ComponentStem" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C41141" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Flow Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740438062194255
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Oxygen Saturation Measurement - The measurement of the ratio of oxygenated hemoglobin to total hemoglobin in the blood." ;
+        rdfs:label                      "Oxygen Saturation Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740437866582725" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C60832" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Oxygen Saturation Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1738147054281244
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/..." ;
+        rdfs:label                      "Tracheostomy Opening" ;
+        rdfs:subClassOf                 "vstoi:ItemStem" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Tracheostomy Opening" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740446357332915
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "Blood Pressure Arm Component Stem" ;
+        rdfs:label                      "Blood Pressure Arm Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740445674854915" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Blood Pressure Arm Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740436912687875
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/The total volume of gas in a specified airway or set of airways at a specified point in time in the respiratory cycle." ;
+        rdfs:label                      "Airflow Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740436692667015" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C170457" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Airflow Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740496660323315
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "Skin Condition Component Stem" ;
+        rdfs:label                      "Skin Condition Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740496601265315" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Skin Condition Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740440784583545
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Oviduct - A tube or collection of tubes in an animal from the ovaries to the outside of the body." ;
+        rdfs:label                      "Vaginal Canal Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740439784224395" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "uberon:0000993" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Vaginal Canal Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740484738112245
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Duration of Pressure Action" ;
+        rdfs:label                      "Pressure Duration Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740484159315465" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Pressure Duration Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740440484451525
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/The terminal part of the large intestine, continuous proximally with the rectum and distally terminates with the anus." ;
+        rdfs:label                      "Anal Canal Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740439784224395" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "uberon:0000159" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Anal Canal Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740442552157815
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "Squid Component Stem" ;
+        rdfs:label                      "Squid Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740442123782475" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Squid Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740437502864855
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Microphone Device - A device designed to convert sound to an electrical signal." ;
+        rdfs:label                      "Microphone Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740437412550265" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C50068" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Microphone Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740436636919135
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/A device designed to measure temperature." ;
+        rdfs:label                      "Thermometer Stem" ;
+        rdfs:subClassOf                 "vstoi:ComponentStem" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C50059" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Thermometer Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740446693867765
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Pulse Detection in Dorsalis Pedis Artery - A blood vessel of the lower limb that carries oxygenated blood to the dorsal surface of the foot. It arises at the anterior aspect of the ankle joint and is a continuation of the anterior tibial artery. It terminates at the proximal part of the first intermetatarsal space, where it divides into two branches, the first dorsal metatarsal artery and the deep plantar artery. Along its course, it is accompanied by a deep vein, the dorsalis pedis vein. [WP,unvetted]." ;
+        rdfs:label                      "Bilateral Dorsalis Pedis Pulse Detection Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740446522327095" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "uberon:0001539" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Bilateral Dorsalis Pedis Pulse Detection Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740496730370115
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Excess fluid collection in tissues, causing swelling. It is the result of obstruction of lymphatic vessels or lymph nodes." ;
+        rdfs:label                      "Lymphedema Condition Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740496660323315" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C3207" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Lymphedema Condition Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1738147318494444
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Tracheostomy Suctioning" ;
+        rdfs:label                      "Tracheostomy Suctioning" ;
+        rdfs:subClassOf                 "vstoi:ItemStem" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Tracheostomy Suctioning" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740439895785025
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Penetration -  The act of entering into or through something." ;
+        rdfs:label                      "Tissue Penetration Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740438251712755" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C25612" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Tissue Penetration Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1738147929714654
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/SimDesigner for configuring your own pre-programmed scenarios. It can also be used to analyze and print out a graphical representation of a scenario. SimDesigner must be installed to allow conversion of legacy instructor application files to LLEAP compatible file formats." ;
+        rdfs:label                      "SimDesigner" ;
+        rdfs:subClassOf                 "vstoi:ItemStem" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/SimDesigner" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1738147271827494
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Spontaneous Breathing" ;
+        rdfs:label                      "Spontaneous Breathing" ;
+        rdfs:subClassOf                 "vstoi:ItemStem" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Spontaneous Breathing" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1738147440613974
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/LMA Placement" ;
+        rdfs:label                      "LMA Placement" ;
+        rdfs:subClassOf                 "vstoi:ItemStem" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/LMA Placement" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740484833520785
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Pressure applied to a surface by an human being" ;
+        rdfs:label                      "Human Interaction Pressure Duration Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740484738112245" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Human Interaction Pressure Duration Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1738147398647414
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Oxygen delivery via BVM ventilation, Nasal Canula, Non-Rebreather Mask" ;
+        rdfs:label                      "Oxygen Delivery BVM Ventilation" ;
+        rdfs:subClassOf                 "vstoi:ItemStem" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Oxygen Delivery BVM Ventilation" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740441403432965
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Vascular Access Device Placement - A procedure that involves the insertion of a catheter in a blood vessel. It is used in patients who require prolonged treatments (e.g., chemotherapy) or infusion of nutritional substances." ;
+        rdfs:label                      "Vascular Access Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740439895785025" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C38097" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Vascular Access Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1738147708363004
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Laerdal Simulation Home is an application where LLEAP and other Laerdal programs related to patient simulation can be found and started. The help files are also opened from here. Laerdal Simulation Home is located in the Laerdal Medical folder under the Windows start menu (Windows 7) and can be launched using the desktop shortcut on Windows 8." ;
+        rdfs:label                      "Laerdal Simulation Home" ;
+        rdfs:subClassOf                 "vstoi:ItemStem" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Laerdal Simulation Home" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740485875624345
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Volume - The amount of three dimensional space occupied by an object or the capacity of a space or container." ;
+        rdfs:label                      "Skin Volume Change Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740485818393165" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C25335" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Skin Volume Change Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740445405467405
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Blood - A fluid that is composed of blood plasma and erythrocytes." ;
+        rdfs:label                      "Blood Volume Pressure Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740445281682125" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "uberon:0000178" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Blood Volume Pressure Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1738148506577754
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Electrode Pads" ;
+        rdfs:label                      "Electrode Pads" ;
+        rdfs:subClassOf                 "vstoi:ItemStem" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Electrode Pads" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1738147009814904
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/..." ;
+        rdfs:label                      "Microphone" ;
+        rdfs:subClassOf                 "vstoi:ItemStem" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Microphone" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740441132486725
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "Tissue Insertion Depth Component Stem" ;
+        rdfs:label                      "Tissue Insertion Depth Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740439895785025" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Tissue Insertion Depth Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740445525229885
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Urine - Excretion that is the output of a kidney." ;
+        rdfs:label                      "Urinary Output Volume Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740445281682125" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "uberon:0001088" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Urinary Output Volume Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740437866582725
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Molecule - An aggregate of two or more atoms in a defined arrangement held together by chemical bonds." ;
+        rdfs:label                      "Biological Molecule Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740437740905335" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C63816" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Biological Molecule Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740446930361395
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Pulse Detection in Radial Artery - Branch of the brachial artery beginning below the elbow and extending down the forearm around the wrist and into the palm." ;
+        rdfs:label                      "Bilateral Radial Pulse Detection Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740446522327095" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "uberon:0001404" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Bilateral Radial Pulse Detection Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1738148024236124
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Bilateral Carotid Pulse" ;
+        rdfs:label                      "Bilateral Carotid Pulse" ;
+        rdfs:subClassOf                 "vstoi:ItemStem" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Bilateral Carotid Pulse" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740437967966325
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Glucose Measurement - The determination of the amount of glucose present in a sample." ;
+        rdfs:label                      "Glucose Level Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740437866582725" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C105585" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Glucose Level Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1738147291317174
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Tracheostomy care" ;
+        rdfs:label                      "Tracheostomy care" ;
+        rdfs:subClassOf                 "vstoi:ItemStem" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Tracheostomy care" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1738147744185174
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/The Patient Monitor application emulates a typical hospital patient monitor. It is the learnerâ€™s console and can be set up and controlled by the instructor, as well as by the learner, through on-screen touch menus." ;
+        rdfs:label                      "Patient Monitor" ;
+        rdfs:subClassOf                 "vstoi:ItemStem" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Patient Monitor" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1738147882690524
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/..." ;
+        rdfs:label                      "SimView Server" ;
+        rdfs:subClassOf                 "vstoi:ItemStem" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/SimView Server" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740443969903335
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Pupil - The central circular aperture of the iris through which light rays enter the eye." ;
+        rdfs:label                      "Pupilary Muscle Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740443697533425" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "uberon:0001771" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Pupilary Muscle Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740438352180225
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Body Cavity - A natural hollow or sinus within the body." ;
+        rdfs:label                      "Cavity Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740438251712755" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C25444" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Cavity Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740445281682125
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Bodily Fluid - Liquid components of living organisms. includes fluids that are excreted or secreted from the body as well as body water that normally is not." ;
+        rdfs:label                      "Bodly Fluid Volume Pressure Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740445145396065" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "uberon:0006314" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Bodly Fluid Volume Pressure Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+<http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv>
+        hasco:hasDasocDataAcquisition  <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasFileId                "DFL-RT-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasFileStatus            "PROCESSED" ;
+        hasco:hasFilename              "DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasLog                   "2026-06-03 19:39:05 [LOG] DASOC ingestion for DA: &lt;http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv&gt;<br>2026-06-03 19:39:05 [LOG] Using Study: &lt;http://pmsr.net/ont/pmsr#STD-STUDY-PMSR-Simulators-1&gt;<br>2026-06-03 19:39:05 [LOG] DA &lt;http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv&gt; not found, creating new DA record<br>2026-06-03 19:39:05 [LOG] ✅ Created DA record linked to study: &lt;http://pmsr.net/ont/pmsr#STD-STUDY-PMSR-Simulators-1&gt;<br>2026-06-03 19:39:06 [LOG] Building originalID map for Study: &lt;http://pmsr.net/ont/pmsr#STD-STUDY-PMSR-Simulators-1&gt;<br>2026-06-03 19:39:06 [LOG] Querying all StudyObjects in Study with originalIDs...<br>2026-06-03 19:39:06 [WARNING] Duplicate originalID found, keeping existing URI: INS1739823398493725 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739823398493725, ignored=http://pmsr.net/ont/pmsr#INS1739823398493725]<br>2026-06-03 19:39:06 [WARNING] Duplicate originalID found, keeping existing URI: INS1739300958884615 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739300958884615, ignored=http://pmsr.net/ont/pmsr#INS1739300958884615]<br>2026-06-03 19:39:06 [WARNING] Duplicate originalID found, keeping existing URI: INS1739301814401805 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739301814401805, ignored=http://pmsr.net/ont/pmsr#INS1739301814401805]<br>2026-06-03 19:39:08 [WARNING] Duplicate originalID found, keeping existing URI: INS1739452063713965 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739452063713965, ignored=http://pmsr.net/ont/pmsr#INS1739452063713965]<br>2026-06-03 19:39:08 [WARNING] Duplicate originalID found, keeping existing URI: INS1739451831725785 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739451831725785, ignored=http://pmsr.net/ont/pmsr#INS1739451831725785]<br>2026-06-03 19:39:08 [WARNING] Duplicate originalID found, keeping existing URI: INS1739401557396065 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739401557396065, ignored=http://pmsr.net/ont/pmsr#INS1739401557396065]<br>2026-06-03 19:39:08 [WARNING] Duplicate originalID found, keeping existing URI: INS1739488340413085 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739488340413085, ignored=http://pmsr.net/ont/pmsr#INS1739488340413085]<br>2026-06-03 19:39:08 [WARNING] Duplicate originalID found, keeping existing URI: INS1739288566447555 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739288566447555, ignored=http://pmsr.net/ont/pmsr#INS1739288566447555]<br>2026-06-03 19:39:09 [WARNING] Duplicate originalID found, keeping existing URI: INS1739392122823235 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739392122823235, ignored=http://pmsr.net/ont/pmsr#INS1739392122823235]<br>2026-06-03 19:39:09 [WARNING] Duplicate originalID found, keeping existing URI: INS1739288428472235 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739288428472235, ignored=http://pmsr.net/ont/pmsr#INS1739288428472235]<br>2026-06-03 19:39:09 [WARNING] Duplicate originalID found, keeping existing URI: INS1739287092102085 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739287092102085, ignored=http://pmsr.net/ont/pmsr#INS1739287092102085]<br>2026-06-03 19:39:09 [WARNING] Duplicate originalID found, keeping existing URI: INS1739287021517805 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739287021517805, ignored=http://pmsr.net/ont/pmsr#INS1739287021517805]<br>2026-06-03 19:39:09 [WARNING] Duplicate originalID found, keeping existing URI: INS1739288006994165 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739288006994165, ignored=http://pmsr.net/ont/pmsr#INS1739288006994165]<br>2026-06-03 19:39:09 [WARNING] Duplicate originalID found, keeping existing URI: INS1739301711235865 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739301711235865, ignored=http://pmsr.net/ont/pmsr#INS1739301711235865]<br>2026-06-03 19:39:09 [WARNING] Duplicate originalID found, keeping existing URI: INS1739397137461495 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739397137461495, ignored=http://pmsr.net/ont/pmsr#INS1739397137461495]<br>2026-06-03 19:39:10 [WARNING] Duplicate originalID found, keeping existing URI: INS1739398437257165 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739398437257165, ignored=http://pmsr.net/ont/pmsr#INS1739398437257165]<br>2026-06-03 19:39:10 [WARNING] Duplicate originalID found, keeping existing URI: INS1739392275798255 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739392275798255, ignored=http://pmsr.net/ont/pmsr#INS1739392275798255]<br>2026-06-03 19:39:10 [WARNING] Duplicate originalID found, keeping existing URI: INS1739287159797795 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739287159797795, ignored=http://pmsr.net/ont/pmsr#INS1739287159797795]<br>2026-06-03 19:39:10 [WARNING] Duplicate originalID found, keeping existing URI: INS1739400689838665 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739400689838665, ignored=http://pmsr.net/ont/pmsr#INS1739400689838665]<br>2026-06-03 19:39:10 [WARNING] Duplicate originalID found, keeping existing URI: INS1739821032633525 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739821032633525, ignored=http://pmsr.net/ont/pmsr#INS1739821032633525]<br>2026-06-03 19:39:10 [WARNING] Duplicate originalID found, keeping existing URI: INS1739452783104705 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739452783104705, ignored=http://pmsr.net/ont/pmsr#INS1739452783104705]<br>2026-06-03 19:39:11 [WARNING] Duplicate originalID found, keeping existing URI: INS1739392182337835 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739392182337835, ignored=http://pmsr.net/ont/pmsr#INS1739392182337835]<br>2026-06-03 19:39:11 [WARNING] Duplicate originalID found, keeping existing URI: INS1739878730369725 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739878730369725, ignored=http://pmsr.net/ont/pmsr#INS1739878730369725]<br>2026-06-03 19:39:11 [WARNING] Duplicate originalID found, keeping existing URI: INS1739288153666735 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739288153666735, ignored=http://pmsr.net/ont/pmsr#INS1739288153666735]<br>2026-06-03 19:39:11 [WARNING] Duplicate originalID found, keeping existing URI: INS1739301009974715 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739301009974715, ignored=http://pmsr.net/ont/pmsr#INS1739301009974715]<br>2026-06-03 19:39:11 [WARNING] Duplicate originalID found, keeping existing URI: INS1739819782231595 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739819782231595, ignored=http://pmsr.net/ont/pmsr#INS1739819782231595]<br>2026-06-03 19:39:11 [WARNING] Duplicate originalID found, keeping existing URI: INS1739819116467195 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739819116467195, ignored=http://pmsr.net/ont/pmsr#INS1739819116467195]<br>2026-06-03 19:39:12 [WARNING] Duplicate originalID found, keeping existing URI: INS1739819955334025 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739819955334025, ignored=http://pmsr.net/ont/pmsr#INS1739819955334025]<br>2026-06-03 19:39:12 [WARNING] Duplicate originalID found, keeping existing URI: INS1739819599670195 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739819599670195, ignored=http://pmsr.net/ont/pmsr#INS1739819599670195]<br>2026-06-03 19:39:12 [WARNING] Duplicate originalID found, keeping existing URI: INS1739819868350395 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739819868350395, ignored=http://pmsr.net/ont/pmsr#INS1739819868350395]<br>2026-06-03 19:39:12 [WARNING] Duplicate originalID found, keeping existing URI: INS1739301317613705 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739301317613705, ignored=http://pmsr.net/ont/pmsr#INS1739301317613705]<br>2026-06-03 19:39:14 [WARNING] Duplicate originalID found, keeping existing URI: INS1739402230863265 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739402230863265, ignored=http://pmsr.net/ont/pmsr#INS1739402230863265]<br>2026-06-03 19:39:14 [WARNING] Duplicate originalID found, keeping existing URI: INS1739288625580975 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739288625580975, ignored=http://pmsr.net/ont/pmsr#INS1739288625580975]<br>2026-06-03 19:39:14 [WARNING] Duplicate originalID found, keeping existing URI: INS1739288691415495 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739288691415495, ignored=http://pmsr.net/ont/pmsr#INS1739288691415495]<br>2026-06-03 19:39:14 [WARNING] Duplicate originalID found, keeping existing URI: INS1739301189412025 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739301189412025, ignored=http://pmsr.net/ont/pmsr#INS1739301189412025]<br>2026-06-03 19:39:14 [WARNING] Duplicate originalID found, keeping existing URI: INS1739820624939265 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739820624939265, ignored=http://pmsr.net/ont/pmsr#INS1739820624939265]<br>2026-06-03 19:39:14 [WARNING] Duplicate originalID found, keeping existing URI: INS1739879206550705 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739879206550705, ignored=http://pmsr.net/ont/pmsr#INS1739879206550705]<br>2026-06-03 19:39:15 [WARNING] Duplicate originalID found, keeping existing URI: INS1739288499528465 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739288499528465, ignored=http://pmsr.net/ont/pmsr#INS1739288499528465]<br>2026-06-03 19:39:15 [WARNING] Duplicate originalID found, keeping existing URI: INS1739287212610855 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739287212610855, ignored=http://pmsr.net/ont/pmsr#INS1739287212610855]<br>2026-06-03 19:39:15 [WARNING] Duplicate originalID found, keeping existing URI: INS1739404158691525 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739404158691525, ignored=http://pmsr.net/ont/pmsr#INS1739404158691525]<br>2026-06-03 19:39:15 [WARNING] Duplicate originalID found, keeping existing URI: INS1739301133578555 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739301133578555, ignored=http://pmsr.net/ont/pmsr#INS1739301133578555]<br>2026-06-03 19:39:15 [WARNING] Duplicate originalID found, keeping existing URI: INS1739403188428355 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739403188428355, ignored=http://pmsr.net/ont/pmsr#INS1739403188428355]<br>2026-06-03 19:39:15 [WARNING] Duplicate originalID found, keeping existing URI: INS1739303195193785 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739303195193785, ignored=http://pmsr.net/ont/pmsr#INS1739303195193785]<br>2026-06-03 19:39:15 [WARNING] Duplicate originalID found, keeping existing URI: INS1739397556188145 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739397556188145, ignored=http://pmsr.net/ont/pmsr#INS1739397556188145]<br>2026-06-03 19:39:16 [WARNING] Duplicate originalID found, keeping existing URI: INS1739402037946315 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739402037946315, ignored=http://pmsr.net/ont/pmsr#INS1739402037946315]<br>2026-06-03 19:39:16 [WARNING] Duplicate originalID found, keeping existing URI: INS1739404046114785 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739404046114785, ignored=http://pmsr.net/ont/pmsr#INS1739404046114785]<br>2026-06-03 19:39:16 [WARNING] Duplicate originalID found, keeping existing URI: INS1739301081410085 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739301081410085, ignored=http://pmsr.net/ont/pmsr#INS1739301081410085]<br>2026-06-03 19:39:16 [WARNING] Duplicate originalID found, keeping existing URI: INS1739487989328225 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739487989328225, ignored=http://pmsr.net/ont/pmsr#INS1739487989328225]<br>2026-06-03 19:39:16 [WARNING] Duplicate originalID found, keeping existing URI: INS1739398519577895 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739398519577895, ignored=http://pmsr.net/ont/pmsr#INS1739398519577895]<br>2026-06-03 19:39:16 [WARNING] Duplicate originalID found, keeping existing URI: INS1739392367425715 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739392367425715, ignored=http://pmsr.net/ont/pmsr#INS1739392367425715]<br>2026-06-03 19:39:17 [WARNING] Duplicate originalID found, keeping existing URI: INS1740143777940835 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1740143777940835, ignored=http://pmsr.net/ont/pmsr#INS1740143777940835]<br>2026-06-03 19:39:17 [WARNING] Duplicate originalID found, keeping existing URI: INS1739403078441215 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739403078441215, ignored=http://pmsr.net/ont/pmsr#INS1739403078441215]<br>2026-06-03 19:39:17 [WARNING] Duplicate originalID found, keeping existing URI: INS1739483351917145 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739483351917145, ignored=http://pmsr.net/ont/pmsr#INS1739483351917145]<br>2026-06-03 19:39:17 [WARNING] Duplicate originalID found, keeping existing URI: INS1740143878244085 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1740143878244085, ignored=http://pmsr.net/ont/pmsr#INS1740143878244085]<br>2026-06-03 19:39:17 [WARNING] Duplicate originalID found, keeping existing URI: INS1739303333850795 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739303333850795, ignored=http://pmsr.net/ont/pmsr#INS1739303333850795]<br>2026-06-03 19:39:17 [WARNING] Duplicate originalID found, keeping existing URI: INS1740087575777435 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1740087575777435, ignored=http://pmsr.net/ont/pmsr#INS1740087575777435]<br>2026-06-03 19:39:18 [WARNING] Duplicate originalID found, keeping existing URI: INS1739403291912375 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739403291912375, ignored=http://pmsr.net/ont/pmsr#INS1739403291912375]<br>2026-06-03 19:39:19 [WARNING] Duplicate originalID found, keeping existing URI: INS1740087239872215 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1740087239872215, ignored=http://pmsr.net/ont/pmsr#INS1740087239872215]<br>2026-06-03 19:39:19 [WARNING] Duplicate originalID found, keeping existing URI: INS1739453043505715 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739453043505715, ignored=http://pmsr.net/ont/pmsr#INS1739453043505715]<br>2026-06-03 19:39:19 [WARNING] Duplicate originalID found, keeping existing URI: INS1739482671461295 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739482671461295, ignored=http://pmsr.net/ont/pmsr#INS1739482671461295]<br>2026-06-03 19:39:19 [WARNING] Duplicate originalID found, keeping existing URI: INS1739287640585765 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739287640585765, ignored=http://pmsr.net/ont/pmsr#INS1739287640585765]<br>2026-06-03 19:39:20 [WARNING] Duplicate originalID found, keeping existing URI: INS1739402477829135 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739402477829135, ignored=http://pmsr.net/ont/pmsr#INS1739402477829135]<br>2026-06-03 19:39:20 [WARNING] Duplicate originalID found, keeping existing URI: INS1739452868256965 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739452868256965, ignored=http://pmsr.net/ont/pmsr#INS1739452868256965]<br>2026-06-03 19:39:20 [WARNING] Duplicate originalID found, keeping existing URI: INS1739878788687655 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739878788687655, ignored=http://pmsr.net/ont/pmsr#INS1739878788687655]<br>2026-06-03 19:39:20 [WARNING] Duplicate originalID found, keeping existing URI: INS1739401836683455 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739401836683455, ignored=http://pmsr.net/ont/pmsr#INS1739401836683455]<br>2026-06-03 19:39:20 [WARNING] Duplicate originalID found, keeping existing URI: INS1739301891301765 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739301891301765, ignored=http://pmsr.net/ont/pmsr#INS1739301891301765]<br>2026-06-03 19:39:20 [WARNING] Duplicate originalID found, keeping existing URI: INS1739401657491675 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739401657491675, ignored=http://pmsr.net/ont/pmsr#INS1739401657491675]<br>2026-06-03 19:39:21 [WARNING] Duplicate originalID found, keeping existing URI: INS1739402585415785 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739402585415785, ignored=http://pmsr.net/ont/pmsr#INS1739402585415785]<br>2026-06-03 19:39:21 [WARNING] Duplicate originalID found, keeping existing URI: INS1739302175458785 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739302175458785, ignored=http://pmsr.net/ont/pmsr#INS1739302175458785]<br>2026-06-03 19:39:21 [WARNING] Duplicate originalID found, keeping existing URI: INS1739288297796655 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739288297796655, ignored=http://pmsr.net/ont/pmsr#INS1739288297796655]<br>2026-06-03 19:39:21 [WARNING] Duplicate originalID found, keeping existing URI: INS1739303008518495 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739303008518495, ignored=http://pmsr.net/ont/pmsr#INS1739303008518495]<br>2026-06-03 19:39:21 [LOG] ✅ Found 174 objects with originalIDs in Study (0 SIR objects)<br>2026-06-03 19:39:21 [LOG] ✅ Created originalID&lt;-&gt;URI map with 174 elements<br>2026-06-03 19:39:22 [LOG] Processing CSV with originalID column: 'originalID'<br>2026-06-03 19:39:22 [LOG] Property columns: 13<br>2026-06-03 19:39:22 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1738147009814904<br>2026-06-03 19:39:22 [LOG]   Enriched ComponentStem: Microphone<br>2026-06-03 19:39:22 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1738147054281244<br>2026-06-03 19:39:23 [LOG]   Enriched ComponentStem: Tracheostomy Opening<br>2026-06-03 19:39:23 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1738147074330614<br>2026-06-03 19:39:23 [LOG]   Enriched ComponentStem: Central Line Opening<br>2026-06-03 19:39:24 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1738147120801784<br>2026-06-03 19:39:24 [LOG]   Enriched ComponentStem: BP Arm<br>2026-06-03 19:39:25 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1738147171631954<br>2026-06-03 19:39:25 [LOG]   Enriched ComponentStem: Gastrostomy Port<br>2026-06-03 19:39:25 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1738147228960084<br>2026-06-03 19:39:25 [LOG]   Enriched ComponentStem: Stoma Port<br>2026-06-03 19:39:25 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1738147254698104<br>2026-06-03 19:39:26 [LOG]   Enriched ComponentStem: IV Arm<br>2026-06-03 19:39:26 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1738147271827494<br>2026-06-03 19:39:26 [LOG]   Enriched ComponentStem: Spontaneous Breathing<br>2026-06-03 19:39:26 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1738147291317174<br>2026-06-03 19:39:27 [LOG]   Enriched ComponentStem: Tracheostomy care <br>2026-06-03 19:39:27 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1738147318494444<br>2026-06-03 19:39:27 [LOG]   Enriched ComponentStem: Tracheostomy Suctioning<br>2026-06-03 19:39:27 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1738147344438204<br>2026-06-03 19:39:28 [LOG]   Enriched ComponentStem: Oral Intubation<br>2026-06-03 19:39:28 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1738147398647414<br>2026-06-03 19:39:28 [LOG]   Enriched ComponentStem: Oxygen Delivery BVM Ventilation<br>2026-06-03 19:39:28 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1738147420648364<br>2026-06-03 19:39:29 [LOG]   Enriched ComponentStem: Nasal Intubation<br>2026-06-03 19:39:29 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1738147440613974<br>2026-06-03 19:39:31 [LOG]   Enriched ComponentStem: LMA Placement<br>2026-06-03 19:39:31 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1738147616287344<br>2026-06-03 19:39:31 [LOG]   Enriched ComponentStem: Blood Pressure Palpation and Auscultation<br>2026-06-03 19:39:31 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1738147663522324<br>2026-06-03 19:39:32 [LOG]   Enriched ComponentStem: LLEAP<br>2026-06-03 19:39:32 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1738147708363004<br>2026-06-03 19:39:32 [LOG]   Enriched ComponentStem: Laerdal Simulation Home<br>2026-06-03 19:39:32 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1738147744185174<br>2026-06-03 19:39:33 [LOG]   Enriched ComponentStem: Patient Monitor<br>2026-06-03 19:39:33 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1738147746249824<br>2026-06-03 19:39:33 [LOG]   Enriched ComponentStem: Patient Monitor<br>2026-06-03 19:39:33 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1738147770921394<br>2026-06-03 19:39:34 [LOG]   Enriched ComponentStem: Voice Conference Application<br>2026-06-03 19:39:34 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1738147815465654<br>2026-06-03 19:39:34 [LOG]   Enriched ComponentStem: Session Viewer<br>2026-06-03 19:39:34 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1738147882690524<br>2026-06-03 19:39:34 [LOG]   Enriched ComponentStem: SimView Server<br>2026-06-03 19:39:36 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1738147902799874<br>2026-06-03 19:39:36 [LOG]   Enriched ComponentStem: SimView Mobile<br>2026-06-03 19:39:36 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1738147929714654<br>2026-06-03 19:39:36 [LOG]   Enriched ComponentStem: SimDesigner<br>2026-06-03 19:39:37 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1738148024236124<br>2026-06-03 19:39:37 [LOG]   Enriched ComponentStem: Bilateral Carotid Pulse<br>2026-06-03 19:39:37 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1738148506577754<br>2026-06-03 19:39:37 [LOG]   Enriched ComponentStem: Electrode Pads<br>2026-06-03 19:39:38 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740436636919135<br>2026-06-03 19:39:38 [LOG]   Enriched ComponentStem: Thermometer Stem<br>2026-06-03 19:39:38 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740436692667015<br>2026-06-03 19:39:38 [LOG]   Enriched ComponentStem: Flow Component Stem<br>2026-06-03 19:39:39 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740436912687875<br>2026-06-03 19:39:39 [LOG]   Enriched ComponentStem: Airflow Component Stem<br>2026-06-03 19:39:39 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740437031786785<br>2026-06-03 19:39:39 [LOG]   Enriched ComponentStem: Patient Respiratory Efficiency Component Stem<br>2026-06-03 19:39:40 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740437282801875<br>2026-06-03 19:39:40 [LOG]   Enriched ComponentStem: Audio Signal Component Stem<br>2026-06-03 19:39:40 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740437412550265<br>2026-06-03 19:39:42 [LOG]   Enriched ComponentStem: Audio Input Component Stem<br>2026-06-03 19:39:42 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740437502864855<br>2026-06-03 19:39:42 [LOG]   Enriched ComponentStem: Microphone Component Stem<br>2026-06-03 19:39:42 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740437740905335<br>2026-06-03 19:39:42 [LOG]   Enriched ComponentStem: Chemical Concentration Component Stem<br>2026-06-03 19:39:43 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740437866582725<br>2026-06-03 19:39:43 [LOG]   Enriched ComponentStem: Biological Molecule Component Stem<br>2026-06-03 19:39:43 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740437967966325<br>2026-06-03 19:39:43 [LOG]   Enriched ComponentStem: Glucose Level Component Stem<br>2026-06-03 19:39:44 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740438062194255<br>2026-06-03 19:39:44 [LOG]   Enriched ComponentStem: Oxygen Saturation Component Stem<br>2026-06-03 19:39:44 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740438251712755<br>2026-06-03 19:39:44 [LOG]   Enriched ComponentStem: Contact Component Stem<br>2026-06-03 19:39:45 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740438352180225<br>2026-06-03 19:39:45 [LOG]   Enriched ComponentStem: Cavity Component Stem<br>2026-06-03 19:39:45 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740439028843245<br>2026-06-03 19:39:45 [LOG]   Enriched ComponentStem: Vaginal Canal Component Stem<br>2026-06-03 19:39:46 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740439784224395<br>2026-06-03 19:39:47 [LOG]   Enriched ComponentStem: Human Body Cavity Component Stem<br>2026-06-03 19:39:47 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740439895785025<br>2026-06-03 19:39:48 [LOG]   Enriched ComponentStem: Tissue Penetration Component Stem<br>2026-06-03 19:39:48 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740440484451525<br>2026-06-03 19:39:48 [LOG]   Enriched ComponentStem: Anal Canal Component Stem<br>2026-06-03 19:39:48 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740440664135085<br>2026-06-03 19:39:48 [LOG]   Enriched ComponentStem: Ear Canal Component Stem<br>2026-06-03 19:39:49 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740440784583545<br>2026-06-03 19:39:49 [LOG]   Enriched ComponentStem: Vaginal Canal Component Stem<br>2026-06-03 19:39:49 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740441049946055<br>2026-06-03 19:39:49 [LOG]   Enriched ComponentStem: Ostonomy Access Component Stem<br>2026-06-03 19:39:50 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740441132486725<br>2026-06-03 19:39:50 [LOG]   Enriched ComponentStem: Tissue Insertion Depth Component Stem<br>2026-06-03 19:39:50 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740441287738155<br>2026-06-03 19:39:50 [LOG]   Enriched ComponentStem: Urinary Catheterization Component Stem<br>2026-06-03 19:39:51 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740441403432965<br>2026-06-03 19:39:51 [LOG]   Enriched ComponentStem: Vascular Access Component Stem<br>2026-06-03 19:39:51 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740441702625375<br>2026-06-03 19:39:53 [LOG]   Enriched ComponentStem: Electrical Conductivity Component Stem<br>2026-06-03 19:39:53 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740442013649755<br>2026-06-03 19:39:53 [LOG]   Enriched ComponentStem: Electrode Contact Component Stem<br>2026-06-03 19:39:53 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740442123782475<br>2026-06-03 19:39:54 [LOG]   Enriched ComponentStem: Magnetic Field Component Stem<br>2026-06-03 19:39:54 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740442452413465<br>2026-06-03 19:39:54 [LOG]   Enriched ComponentStem: Magnetometer Component Stem<br>2026-06-03 19:39:54 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740442552157815<br>2026-06-03 19:39:55 [LOG]   Enriched ComponentStem: Squid Component Stem<br>2026-06-03 19:39:55 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740443161927215<br>2026-06-03 19:39:55 [LOG]   Enriched ComponentStem: Acceleration Component Stem<br>2026-06-03 19:39:55 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740443581797785<br>2026-06-03 19:39:56 [LOG]   Enriched ComponentStem: Inertial Component Stem<br>2026-06-03 19:39:56 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740443697533425<br>2026-06-03 19:39:56 [LOG]   Enriched ComponentStem: Muscle Function Component Stem<br>2026-06-03 19:39:56 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740443851413515<br>2026-06-03 19:39:57 [LOG]   Enriched ComponentStem: Eyelid Component Stem<br>2026-06-03 19:39:57 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740443969903335<br>2026-06-03 19:39:58 [LOG]   Enriched ComponentStem: Pupilary Muscle Component Stem<br>2026-06-03 19:39:58 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740444383351465<br>2026-06-03 19:39:59 [LOG]   Enriched ComponentStem: Muscle Volume Change Component Stem<br>2026-06-03 19:39:59 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740444652328675<br>2026-06-03 19:39:59 [LOG]   Enriched ComponentStem: Chest Volume Change Component Stem<br>2026-06-03 19:39:59 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740444729596175<br>2026-06-03 19:40:00 [LOG]   Enriched ComponentStem: Stomach Volume Change Component<br>2026-06-03 19:40:00 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740445145396065<br>2026-06-03 19:40:01 [LOG]   Enriched ComponentStem: Fluid Volume Pressure Component Stem<br>2026-06-03 19:40:01 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740445281682125<br>2026-06-03 19:40:02 [LOG]   Enriched ComponentStem: Bodly Fluid Volume Pressure Component Stem<br>2026-06-03 19:40:02 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740445405467405<br>2026-06-03 19:40:02 [LOG]   Enriched ComponentStem: Blood Volume Pressure Component Stem<br>2026-06-03 19:40:02 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740445525229885<br>2026-06-03 19:40:03 [LOG]   Enriched ComponentStem: Urinary Output Volume Component Stem<br>2026-06-03 19:40:03 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740445674854915<br>2026-06-03 19:40:04 [LOG]   Enriched ComponentStem: Blood Pressure Component Stem<br>2026-06-03 19:40:04 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740446357332915<br>2026-06-03 19:40:04 [LOG]   Enriched ComponentStem: Blood Pressure Arm Component Stem<br>2026-06-03 19:40:04 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740446522327095<br>2026-06-03 19:40:05 [LOG]   Enriched ComponentStem: Pulse Pressure Component Stem<br>2026-06-03 19:40:05 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740446693867765<br>2026-06-03 19:40:05 [LOG]   Enriched ComponentStem: Bilateral Dorsalis Pedis Pulse Detection Component Stem<br>2026-06-03 19:40:05 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740446815908435<br>2026-06-03 19:40:06 [LOG]   Enriched ComponentStem: Bilateral Femoral Pulse Detection Component Stem<br>2026-06-03 19:40:06 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740446930361395<br>2026-06-03 19:40:06 [LOG]   Enriched ComponentStem: Bilateral Radial Pulse Detection Component Stem<br>2026-06-03 19:40:06 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740447091733785<br>2026-06-03 19:40:07 [LOG]   Enriched ComponentStem: Bilateral Carotid Pulse Detection Component Stem<br>2026-06-03 19:40:07 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740483968948655<br>2026-06-03 19:40:07 [LOG]   Enriched ComponentStem: Time Component Stem<br>2026-06-03 19:40:07 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740484159315465<br>2026-06-03 19:40:07 [LOG]   Enriched ComponentStem: Phenomenon Duration Component Stem<br>2026-06-03 19:40:08 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740484738112245<br>2026-06-03 19:40:08 [LOG]   Enriched ComponentStem: Pressure Duration Component Stem<br>2026-06-03 19:40:08 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740484833520785<br>2026-06-03 19:40:09 [LOG]   Enriched ComponentStem: Human Interaction Pressure Duration Component Stem<br>2026-06-03 19:40:09 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740485818393165<br>2026-06-03 19:40:10 [LOG]   Enriched ComponentStem: Skin Function Component Stem<br>2026-06-03 19:40:10 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740485875624345<br>2026-06-03 19:40:10 [LOG]   Enriched ComponentStem: Skin Volume Change Component Stem<br>2026-06-03 19:40:10 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740496547465865<br>2026-06-03 19:40:11 [LOG]   Enriched ComponentStem: Visual Inspection Component Stem<br>2026-06-03 19:40:11 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740496601265315<br>2026-06-03 19:40:11 [LOG]   Enriched ComponentStem: Tissue Condition Component Stem<br>2026-06-03 19:40:11 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740496660323315<br>2026-06-03 19:40:12 [LOG]   Enriched ComponentStem: Skin Condition Component Stem<br>2026-06-03 19:40:12 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CSM1740496730370115<br>2026-06-03 19:40:12 [LOG]   Enriched ComponentStem: Lymphedema Condition Component Stem<br>2026-06-03 19:40:12 [LOG] Inserted 1208 triples into graph &lt;http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv&gt;<br>2026-06-03 19:40:13 [LOG] ✅ Processing complete: 83 rows processed, 0 skipped, 0 errors<br>2026-06-03 19:40:13 [LOG] ✅ Successfully processed 83 rows<br>2026-06-03 19:40:13 [LOG] ✅ Successfully ingested 83 rows<br>" ;
+        hasco:hasStudy                 pmsr:STD-STUDY-PMSR-Simulators-1 ;
+        vstoi:hasSIRManagerEmail       "roundtrip@hascoapi.org" .
+
+pmsr:CSM1740439784224395
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "Anatomical Cavity - Anatomical space which contains portions of one or more body substances and is bounded by the internal surface of one maximally connected anatomical structure. Examples: cranial cavity, pharyngeal recess space, nasal cavity, tooth socket, cavity of serous sac, lumen of stomach, lumen of artery, fornix of vagina." ;
+        rdfs:label                      "Human Body Cavity Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740438352180225" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "uberon:0002553" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Human Body Cavity Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740444729596175
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Stomach Expansion" ;
+        rdfs:label                      "Stomach Volume Change Component" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740444383351465" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Stomach Volume Change Component" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1740446815908435
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Pulse Detection in Femoral Artery - The femoral artery is a large artery in the muscles of the thigh. It is a continuation of external iliac artery where it enters the femoral triangle at the mid inguinal point behind the inguinal ligament. It leaves femoral triangle through apex beneath the sartorius muscle. It enters the popliteal fossa by passing through the 5th osseo-aponeurotic(adductor hiatus) opening of adductor magnus where it becomes the Popliteal Artery. [WP,unvetted]." ;
+        rdfs:label                      "Bilateral Femoral Pulse Detection Component Stem" ;
+        rdfs:subClassOf                 "pmsr:/CSM1740446522327095" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hasWebDocument            "uberon:0002060" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Bilateral Femoral Pulse Detection Component Stem" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1738147815465654
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/Session Viewer, SimView Server and SimView Mobile are applications that record video and patient monitor screens captured during the simulation and provide an interface to debrief your session. After a session is ended, log files generated in LLEAP and on SimPad are transferred and merged with the video files in Session Viewer, SimView Server, SimCapture and SimView Mobile for the debriefing." ;
+        rdfs:label                      "Session Viewer" ;
+        rdfs:subClassOf                 "vstoi:ItemStem" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/Session Viewer" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .
+
+pmsr:CSM1738147663522324
+        rdf:type                        "vstoi:ComponentStem" ;
+        rdfs:comment                    "pmsr:/LLEAP is the instructorâ€™s application from where the simulation session is run, controlled, and monitored. Installed on a laptop, PC or tablet, LLEAP can be operated in Automatic or Manual mode. Automatic mode is used for pre-programmed scenarios while Manual mode allows the instructor full manual control over the simulation session. Running simulations in Manual mode generally requires some medical expertise to create clinically sound simulations." ;
+        rdfs:label                      "LLEAP" ;
+        rdfs:subClassOf                 "vstoi:ItemStem" ;
+        hasco:hasDataAcquisition        "http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-COMPONENT-STEM-PMSR.csv> ;
+        hasco:hasDataFile               "http://example.org/roundtrip/DFL-DA-SOC-COMPONENT-STEM-PMSR.csv" ;
+        hasco:hasTimestamp              "2026-06-03T19:39:22.055Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:ComponentStem" ;
+        vstoi:hasContent                "pmsr:/LLEAP" ;
+        vstoi:hasLanguage               "pmsr:/en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "pmsr:/1" .

@@ -1,0 +1,249 @@
+@prefix :                  <http://purl.obolibrary.org/obo/exo.owl#> .
+@prefix ahead:             <http://hadatac.org/ont/arrowhead/> .
+@prefix bfo:               <http://purl.obolibrary.org/obo/BFO_> .
+@prefix bspo:              <http://purl.obolibrary.org/obo/bspo#> .
+@prefix chebi:             <http://purl.obolibrary.org/obo/chebi#2> .
+@prefix chebi1:            <http://purl.obolibrary.org/obo/chebi#3> .
+@prefix chebi2:            <http://purl.obolibrary.org/obo/chebi#1> .
+@prefix chebi3:            <http://purl.obolibrary.org/obo/chebi#1> .
+@prefix cl:                <http://purl.obolibrary.org/obo/cl#> .
+@prefix core:              <http://purl.obolibrary.org/obo/uberon/core#> .
+@prefix daml:              <http://www.daml.org/2001/03/daml+oil#> .
+@prefix dc:                <http://purl.org/dc/elements/1.1/> .
+@prefix dcat:              <http://www.w3.org/ns/dcat#> .
+@prefix dcmitype:          <http://purl.org/dc/dcmitype/> .
+@prefix dcterms:           <http://purl.org/dc/terms/> .
+@prefix default:           <http://hadatac.org/kb/default/> .
+@prefix doap:              <http://usefulinc.com/ns/doap#> .
+@prefix envo:              <http://purl.obolibrary.org/obo/ENVO_> .
+@prefix exo:               <http://purl.obolibrary.org/obo/ExO_> .
+@prefix fhir:              <http://hl7.org/fhir/> .
+@prefix foaf:              <http://xmlns.com/foaf/0.1/> .
+@prefix foo:               <http://geneontology.org/foo/> .
+@prefix go:                <http://purl.obolibrary.org/obo/go#> .
+@prefix grddl:             <http://www.w3.org/2003/g/data-view#> .
+@prefix hadatac:           <http://hadatac.org/kb/default/> .
+@prefix hasco:             <http://hadatac.org/ont/hasco/> .
+@prefix lcc-639-1:         <https://www.omg.org/spec/LCC/Languages/ISO639-1-LanguageCodes/> .
+@prefix ncbitaxon:         <http://purl.obolibrary.org/obo/ncbitaxon#> .
+@prefix ncit:              <http://purl.obolibrary.org/obo/NCIT_> .
+@prefix obo:               <http://purl.obolibrary.org/obo/> .
+@prefix oboInOwl:          <http://www.geneontology.org/formats/oboInOwl#> .
+@prefix owl:               <http://www.w3.org/2002/07/owl#> .
+@prefix pato:              <http://purl.obolibrary.org/obo/PATO_> .
+@prefix pmsr:              <http://pmsr.net/ont/pmsr#> .
+@prefix pr:                <http://purl.obolibrary.org/obo/pr#> .
+@prefix process_attribute: <http://purl.obolibrary.org/obo/envo-p/patterns/process_attribute/> .
+@prefix protege:           <http://protege.stanford.edu/plugins/owl/protege#> .
+@prefix prov:              <http://www.w3.org/ns/prov#> .
+@prefix rdf:               <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:              <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema:            <https://schema.org/> .
+@prefix sio:               <http://semanticscience.org/resource/> .
+@prefix skos:              <http://www.w3.org/2004/02/skos/core#> .
+@prefix sssom:             <https://w3id.org/sssom/> .
+@prefix subsets:           <http://purl.obolibrary.org/obo/ro/subsets#> .
+@prefix swrl:              <http://www.w3.org/2003/11/swrl#> .
+@prefix swrla:             <http://swrl.stanford.edu/ontologies/3.3/swrla.owl#> .
+@prefix swrlb:             <http://www.w3.org/2003/11/swrlb#> .
+@prefix taxslim:           <http://purl.obolibrary.org/obo/ncbitaxon/subsets/taxslim.obo#> .
+@prefix terms:             <http://purl.org/dc/terms/> .
+@prefix terms3:            <http://www.geneontology.org/formats/oboInOwl#http://purl.org/dc/terms/> .
+@prefix test:              <http://hadatac.org/kb/test/> .
+@prefix time:              <http://www.w3.org/2006/time#> .
+@prefix uberon:            <http://purl.obolibrary.org/obo/UBERON_> .
+@prefix ubprop:            <http://purl.obolibrary.org/obo/ubprop#> .
+@prefix unit:              <http://qudt.org/vocab/unit/> .
+@prefix void:              <http://rdfs.org/ns/void#> .
+@prefix vstoi:             <http://hadatac.org/ont/vstoi#> .
+@prefix xml:               <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd:               <http://www.w3.org/2001/XMLSchema#> .
+@prefix xsp:               <http://www.owl-ontologies.com/2005/08/07/xsp.owl#> .
+
+pmsr:CBK1738239681967443
+        rdf:type                        "vstoi:Codebook" ;
+        rdfs:comment                    "Simulador de pulsacao" ;
+        rdfs:label                      "Pulse Bulb Response" ;
+        hasco:hasDataAcquisition        "https://hadatac.org/ont/hadatac#/DA01777563105471461" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-CODEBOOK-PMSR.csv> ;
+        hasco:hasDataFile               "https://hadatac.org/ont/hadatac#/DFL1777563105471461" ;
+        hasco:hasTimestamp              "2026-06-03T19:38:23.886Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:Codebook" ;
+        vstoi:hasLanguage               "pt" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "1" .
+
+pmsr:CBK1738096258564815
+        rdf:type                        "vstoi:Codebook" ;
+        rdfs:comment                    "Possible visible states of the portion of the mannequin that is representing the human chest." ;
+        rdfs:label                      "Chest Inflator Responses" ;
+        hasco:hasDataAcquisition        "https://hadatac.org/ont/hadatac#/DA01777563105471461" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-CODEBOOK-PMSR.csv> ;
+        hasco:hasDataFile               "https://hadatac.org/ont/hadatac#/DFL1777563105471461" ;
+        hasco:hasTimestamp              "2026-06-03T19:38:23.886Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:Codebook" ;
+        vstoi:hasLanguage               "en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "1" .
+
+pmsr:CBK1740091832821965
+        rdf:type                        "vstoi:Codebook" ;
+        rdfs:comment                    "Location in the body for inserting Intravenus needles to administer medicine or extract blood" ;
+        rdfs:label                      "IV Access Locations" ;
+        hasco:hasDataAcquisition        "https://hadatac.org/ont/hadatac#/DA01777563105471461" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-CODEBOOK-PMSR.csv> ;
+        hasco:hasDataFile               "https://hadatac.org/ont/hadatac#/DFL1777563105471461" ;
+        hasco:hasTimestamp              "2026-06-03T19:38:23.886Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:Codebook" ;
+        vstoi:hasLanguage               "en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "1" .
+
+<http://example.org/roundtrip/DFL-DA-SOC-CODEBOOK-PMSR.csv>
+        hasco:hasDasocDataAcquisition  <http://example.org/roundtrip/DA-DA-SOC-CODEBOOK-PMSR.csv> ;
+        hasco:hasFileId                "DFL-RT-DA-SOC-CODEBOOK-PMSR.csv" ;
+        hasco:hasFileStatus            "PROCESSED" ;
+        hasco:hasFilename              "DA-SOC-CODEBOOK-PMSR.csv" ;
+        hasco:hasLog                   "2026-06-03 19:38:07 [LOG] DASOC ingestion for DA: &lt;http://example.org/roundtrip/DA-DA-SOC-CODEBOOK-PMSR.csv&gt;<br>2026-06-03 19:38:07 [LOG] Using Study: &lt;http://pmsr.net/ont/pmsr#STD-STUDY-PMSR-Simulators-1&gt;<br>2026-06-03 19:38:08 [LOG] DA &lt;http://example.org/roundtrip/DA-DA-SOC-CODEBOOK-PMSR.csv&gt; not found, creating new DA record<br>2026-06-03 19:38:08 [LOG] ✅ Created DA record linked to study: &lt;http://pmsr.net/ont/pmsr#STD-STUDY-PMSR-Simulators-1&gt;<br>2026-06-03 19:38:08 [LOG] Building originalID map for Study: &lt;http://pmsr.net/ont/pmsr#STD-STUDY-PMSR-Simulators-1&gt;<br>2026-06-03 19:38:08 [LOG] Querying all StudyObjects in Study with originalIDs...<br>2026-06-03 19:38:08 [WARNING] Duplicate originalID found, keeping existing URI: INS1739823398493725 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739823398493725, ignored=http://pmsr.net/ont/pmsr#INS1739823398493725]<br>2026-06-03 19:38:09 [WARNING] Duplicate originalID found, keeping existing URI: INS1739300958884615 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739300958884615, ignored=http://pmsr.net/ont/pmsr#INS1739300958884615]<br>2026-06-03 19:38:09 [WARNING] Duplicate originalID found, keeping existing URI: INS1739301814401805 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739301814401805, ignored=http://pmsr.net/ont/pmsr#INS1739301814401805]<br>2026-06-03 19:38:09 [WARNING] Duplicate originalID found, keeping existing URI: INS1739452063713965 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739452063713965, ignored=http://pmsr.net/ont/pmsr#INS1739452063713965]<br>2026-06-03 19:38:09 [WARNING] Duplicate originalID found, keeping existing URI: INS1739451831725785 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739451831725785, ignored=http://pmsr.net/ont/pmsr#INS1739451831725785]<br>2026-06-03 19:38:09 [WARNING] Duplicate originalID found, keeping existing URI: INS1739401557396065 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739401557396065, ignored=http://pmsr.net/ont/pmsr#INS1739401557396065]<br>2026-06-03 19:38:09 [WARNING] Duplicate originalID found, keeping existing URI: INS1739488340413085 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739488340413085, ignored=http://pmsr.net/ont/pmsr#INS1739488340413085]<br>2026-06-03 19:38:10 [WARNING] Duplicate originalID found, keeping existing URI: INS1739288566447555 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739288566447555, ignored=http://pmsr.net/ont/pmsr#INS1739288566447555]<br>2026-06-03 19:38:10 [WARNING] Duplicate originalID found, keeping existing URI: INS1739392122823235 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739392122823235, ignored=http://pmsr.net/ont/pmsr#INS1739392122823235]<br>2026-06-03 19:38:10 [WARNING] Duplicate originalID found, keeping existing URI: INS1739288428472235 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739288428472235, ignored=http://pmsr.net/ont/pmsr#INS1739288428472235]<br>2026-06-03 19:38:10 [WARNING] Duplicate originalID found, keeping existing URI: INS1739287092102085 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739287092102085, ignored=http://pmsr.net/ont/pmsr#INS1739287092102085]<br>2026-06-03 19:38:10 [WARNING] Duplicate originalID found, keeping existing URI: INS1739287021517805 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739287021517805, ignored=http://pmsr.net/ont/pmsr#INS1739287021517805]<br>2026-06-03 19:38:10 [WARNING] Duplicate originalID found, keeping existing URI: INS1739288006994165 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739288006994165, ignored=http://pmsr.net/ont/pmsr#INS1739288006994165]<br>2026-06-03 19:38:11 [WARNING] Duplicate originalID found, keeping existing URI: INS1739301711235865 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739301711235865, ignored=http://pmsr.net/ont/pmsr#INS1739301711235865]<br>2026-06-03 19:38:11 [WARNING] Duplicate originalID found, keeping existing URI: INS1739397137461495 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739397137461495, ignored=http://pmsr.net/ont/pmsr#INS1739397137461495]<br>2026-06-03 19:38:12 [WARNING] Duplicate originalID found, keeping existing URI: INS1739398437257165 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739398437257165, ignored=http://pmsr.net/ont/pmsr#INS1739398437257165]<br>2026-06-03 19:38:12 [WARNING] Duplicate originalID found, keeping existing URI: INS1739392275798255 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739392275798255, ignored=http://pmsr.net/ont/pmsr#INS1739392275798255]<br>2026-06-03 19:38:12 [WARNING] Duplicate originalID found, keeping existing URI: INS1739287159797795 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739287159797795, ignored=http://pmsr.net/ont/pmsr#INS1739287159797795]<br>2026-06-03 19:38:12 [WARNING] Duplicate originalID found, keeping existing URI: INS1739400689838665 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739400689838665, ignored=http://pmsr.net/ont/pmsr#INS1739400689838665]<br>2026-06-03 19:38:12 [WARNING] Duplicate originalID found, keeping existing URI: INS1739821032633525 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739821032633525, ignored=http://pmsr.net/ont/pmsr#INS1739821032633525]<br>2026-06-03 19:38:13 [WARNING] Duplicate originalID found, keeping existing URI: INS1739452783104705 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739452783104705, ignored=http://pmsr.net/ont/pmsr#INS1739452783104705]<br>2026-06-03 19:38:13 [WARNING] Duplicate originalID found, keeping existing URI: INS1739392182337835 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739392182337835, ignored=http://pmsr.net/ont/pmsr#INS1739392182337835]<br>2026-06-03 19:38:13 [WARNING] Duplicate originalID found, keeping existing URI: INS1739878730369725 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739878730369725, ignored=http://pmsr.net/ont/pmsr#INS1739878730369725]<br>2026-06-03 19:38:13 [WARNING] Duplicate originalID found, keeping existing URI: INS1739288153666735 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739288153666735, ignored=http://pmsr.net/ont/pmsr#INS1739288153666735]<br>2026-06-03 19:38:13 [WARNING] Duplicate originalID found, keeping existing URI: INS1739301009974715 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739301009974715, ignored=http://pmsr.net/ont/pmsr#INS1739301009974715]<br>2026-06-03 19:38:13 [WARNING] Duplicate originalID found, keeping existing URI: INS1739819782231595 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739819782231595, ignored=http://pmsr.net/ont/pmsr#INS1739819782231595]<br>2026-06-03 19:38:13 [WARNING] Duplicate originalID found, keeping existing URI: INS1739819116467195 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739819116467195, ignored=http://pmsr.net/ont/pmsr#INS1739819116467195]<br>2026-06-03 19:38:14 [WARNING] Duplicate originalID found, keeping existing URI: INS1739819955334025 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739819955334025, ignored=http://pmsr.net/ont/pmsr#INS1739819955334025]<br>2026-06-03 19:38:14 [WARNING] Duplicate originalID found, keeping existing URI: INS1739819599670195 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739819599670195, ignored=http://pmsr.net/ont/pmsr#INS1739819599670195]<br>2026-06-03 19:38:14 [WARNING] Duplicate originalID found, keeping existing URI: INS1739819868350395 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739819868350395, ignored=http://pmsr.net/ont/pmsr#INS1739819868350395]<br>2026-06-03 19:38:14 [WARNING] Duplicate originalID found, keeping existing URI: INS1739301317613705 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739301317613705, ignored=http://pmsr.net/ont/pmsr#INS1739301317613705]<br>2026-06-03 19:38:14 [WARNING] Duplicate originalID found, keeping existing URI: INS1739402230863265 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739402230863265, ignored=http://pmsr.net/ont/pmsr#INS1739402230863265]<br>2026-06-03 19:38:14 [WARNING] Duplicate originalID found, keeping existing URI: INS1739288625580975 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739288625580975, ignored=http://pmsr.net/ont/pmsr#INS1739288625580975]<br>2026-06-03 19:38:15 [WARNING] Duplicate originalID found, keeping existing URI: INS1739288691415495 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739288691415495, ignored=http://pmsr.net/ont/pmsr#INS1739288691415495]<br>2026-06-03 19:38:15 [WARNING] Duplicate originalID found, keeping existing URI: INS1739301189412025 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739301189412025, ignored=http://pmsr.net/ont/pmsr#INS1739301189412025]<br>2026-06-03 19:38:15 [WARNING] Duplicate originalID found, keeping existing URI: INS1739820624939265 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739820624939265, ignored=http://pmsr.net/ont/pmsr#INS1739820624939265]<br>2026-06-03 19:38:15 [WARNING] Duplicate originalID found, keeping existing URI: INS1739879206550705 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739879206550705, ignored=http://pmsr.net/ont/pmsr#INS1739879206550705]<br>2026-06-03 19:38:15 [WARNING] Duplicate originalID found, keeping existing URI: INS1739288499528465 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739288499528465, ignored=http://pmsr.net/ont/pmsr#INS1739288499528465]<br>2026-06-03 19:38:15 [WARNING] Duplicate originalID found, keeping existing URI: INS1739287212610855 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739287212610855, ignored=http://pmsr.net/ont/pmsr#INS1739287212610855]<br>2026-06-03 19:38:16 [WARNING] Duplicate originalID found, keeping existing URI: INS1739404158691525 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739404158691525, ignored=http://pmsr.net/ont/pmsr#INS1739404158691525]<br>2026-06-03 19:38:16 [WARNING] Duplicate originalID found, keeping existing URI: INS1739301133578555 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739301133578555, ignored=http://pmsr.net/ont/pmsr#INS1739301133578555]<br>2026-06-03 19:38:16 [WARNING] Duplicate originalID found, keeping existing URI: INS1739403188428355 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739403188428355, ignored=http://pmsr.net/ont/pmsr#INS1739403188428355]<br>2026-06-03 19:38:16 [WARNING] Duplicate originalID found, keeping existing URI: INS1739303195193785 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739303195193785, ignored=http://pmsr.net/ont/pmsr#INS1739303195193785]<br>2026-06-03 19:38:16 [WARNING] Duplicate originalID found, keeping existing URI: INS1739397556188145 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739397556188145, ignored=http://pmsr.net/ont/pmsr#INS1739397556188145]<br>2026-06-03 19:38:16 [WARNING] Duplicate originalID found, keeping existing URI: INS1739402037946315 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739402037946315, ignored=http://pmsr.net/ont/pmsr#INS1739402037946315]<br>2026-06-03 19:38:18 [WARNING] Duplicate originalID found, keeping existing URI: INS1739404046114785 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739404046114785, ignored=http://pmsr.net/ont/pmsr#INS1739404046114785]<br>2026-06-03 19:38:18 [WARNING] Duplicate originalID found, keeping existing URI: INS1739301081410085 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739301081410085, ignored=http://pmsr.net/ont/pmsr#INS1739301081410085]<br>2026-06-03 19:38:18 [WARNING] Duplicate originalID found, keeping existing URI: INS1739487989328225 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739487989328225, ignored=http://pmsr.net/ont/pmsr#INS1739487989328225]<br>2026-06-03 19:38:18 [WARNING] Duplicate originalID found, keeping existing URI: INS1739398519577895 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739398519577895, ignored=http://pmsr.net/ont/pmsr#INS1739398519577895]<br>2026-06-03 19:38:18 [WARNING] Duplicate originalID found, keeping existing URI: INS1739392367425715 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739392367425715, ignored=http://pmsr.net/ont/pmsr#INS1739392367425715]<br>2026-06-03 19:38:19 [WARNING] Duplicate originalID found, keeping existing URI: INS1740143777940835 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1740143777940835, ignored=http://pmsr.net/ont/pmsr#INS1740143777940835]<br>2026-06-03 19:38:19 [WARNING] Duplicate originalID found, keeping existing URI: INS1739403078441215 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739403078441215, ignored=http://pmsr.net/ont/pmsr#INS1739403078441215]<br>2026-06-03 19:38:19 [WARNING] Duplicate originalID found, keeping existing URI: INS1739483351917145 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739483351917145, ignored=http://pmsr.net/ont/pmsr#INS1739483351917145]<br>2026-06-03 19:38:19 [WARNING] Duplicate originalID found, keeping existing URI: INS1740143878244085 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1740143878244085, ignored=http://pmsr.net/ont/pmsr#INS1740143878244085]<br>2026-06-03 19:38:19 [WARNING] Duplicate originalID found, keeping existing URI: INS1739303333850795 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739303333850795, ignored=http://pmsr.net/ont/pmsr#INS1739303333850795]<br>2026-06-03 19:38:19 [WARNING] Duplicate originalID found, keeping existing URI: INS1740087575777435 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1740087575777435, ignored=http://pmsr.net/ont/pmsr#INS1740087575777435]<br>2026-06-03 19:38:20 [WARNING] Duplicate originalID found, keeping existing URI: INS1739403291912375 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739403291912375, ignored=http://pmsr.net/ont/pmsr#INS1739403291912375]<br>2026-06-03 19:38:20 [WARNING] Duplicate originalID found, keeping existing URI: INS1740087239872215 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1740087239872215, ignored=http://pmsr.net/ont/pmsr#INS1740087239872215]<br>2026-06-03 19:38:20 [WARNING] Duplicate originalID found, keeping existing URI: INS1739453043505715 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739453043505715, ignored=http://pmsr.net/ont/pmsr#INS1739453043505715]<br>2026-06-03 19:38:20 [WARNING] Duplicate originalID found, keeping existing URI: INS1739482671461295 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739482671461295, ignored=http://pmsr.net/ont/pmsr#INS1739482671461295]<br>2026-06-03 19:38:20 [WARNING] Duplicate originalID found, keeping existing URI: INS1739287640585765 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739287640585765, ignored=http://pmsr.net/ont/pmsr#INS1739287640585765]<br>2026-06-03 19:38:20 [WARNING] Duplicate originalID found, keeping existing URI: INS1739402477829135 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739402477829135, ignored=http://pmsr.net/ont/pmsr#INS1739402477829135]<br>2026-06-03 19:38:21 [WARNING] Duplicate originalID found, keeping existing URI: INS1739452868256965 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739452868256965, ignored=http://pmsr.net/ont/pmsr#INS1739452868256965]<br>2026-06-03 19:38:21 [WARNING] Duplicate originalID found, keeping existing URI: INS1739878788687655 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739878788687655, ignored=http://pmsr.net/ont/pmsr#INS1739878788687655]<br>2026-06-03 19:38:21 [WARNING] Duplicate originalID found, keeping existing URI: INS1739401836683455 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739401836683455, ignored=http://pmsr.net/ont/pmsr#INS1739401836683455]<br>2026-06-03 19:38:21 [WARNING] Duplicate originalID found, keeping existing URI: INS1739301891301765 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739301891301765, ignored=http://pmsr.net/ont/pmsr#INS1739301891301765]<br>2026-06-03 19:38:21 [WARNING] Duplicate originalID found, keeping existing URI: INS1739401657491675 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739401657491675, ignored=http://pmsr.net/ont/pmsr#INS1739401657491675]<br>2026-06-03 19:38:21 [WARNING] Duplicate originalID found, keeping existing URI: INS1739402585415785 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739402585415785, ignored=http://pmsr.net/ont/pmsr#INS1739402585415785]<br>2026-06-03 19:38:22 [WARNING] Duplicate originalID found, keeping existing URI: INS1739302175458785 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739302175458785, ignored=http://pmsr.net/ont/pmsr#INS1739302175458785]<br>2026-06-03 19:38:22 [WARNING] Duplicate originalID found, keeping existing URI: INS1739288297796655 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739288297796655, ignored=http://pmsr.net/ont/pmsr#INS1739288297796655]<br>2026-06-03 19:38:22 [WARNING] Duplicate originalID found, keeping existing URI: INS1739303008518495 [kept=http://pmsr.net/ont/pmsr#OBJ_instrumentcollection_INS1739303008518495, ignored=http://pmsr.net/ont/pmsr#INS1739303008518495]<br>2026-06-03 19:38:23 [LOG] ✅ Found 209 objects with originalIDs in Study (0 SIR objects)<br>2026-06-03 19:38:23 [LOG] ✅ Created originalID&lt;-&gt;URI map with 209 elements<br>2026-06-03 19:38:23 [LOG] Processing CSV with originalID column: 'originalID'<br>2026-06-03 19:38:24 [LOG] Property columns: 10<br>2026-06-03 19:38:24 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CBK1738087261869295<br>2026-06-03 19:38:24 [LOG]   Enriched Codebook: Airway Medical Device Responses<br>2026-06-03 19:38:24 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CBK1738088009248155<br>2026-06-03 19:38:24 [LOG]   Enriched Codebook: Intubation Results<br>2026-06-03 19:38:25 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CBK1738096048734595<br>2026-06-03 19:38:25 [LOG]   Enriched Codebook: Stomach Inflator Responses<br>2026-06-03 19:38:25 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CBK1738096258564815<br>2026-06-03 19:38:25 [LOG]   Enriched Codebook: Chest Inflator Responses<br>2026-06-03 19:38:26 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CBK1738098997597015<br>2026-06-03 19:38:26 [LOG]   Enriched Codebook: Pulse Detection<br>2026-06-03 19:38:26 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CBK1738148623334734<br>2026-06-03 19:38:26 [LOG]   Enriched Codebook: PASS and FAIL<br>2026-06-03 19:38:27 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CBK1738186252574965<br>2026-06-03 19:38:27 [LOG]   Enriched Codebook: Eletrodes Adult Responses<br>2026-06-03 19:38:27 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CBK1738187728844755<br>2026-06-03 19:38:27 [LOG]   Enriched Codebook: Eletrodes Pediatric Responses<br>2026-06-03 19:38:28 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CBK1738190767525383<br>2026-06-03 19:38:29 [LOG]   Enriched Codebook: CB<br>2026-06-03 19:38:29 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CBK1738239681967443<br>2026-06-03 19:38:30 [LOG]   Enriched Codebook: Pulse Bulb Response<br>2026-06-03 19:38:30 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CBK1740091832821965<br>2026-06-03 19:38:30 [LOG]   Enriched Codebook: IV Access Locations<br>2026-06-03 19:38:30 [LOG]   [SIR-PURE] Adding properties to pure SIR object: CBK1740097825927975<br>2026-06-03 19:38:31 [LOG]   Enriched Codebook: Pupil Simulator Size<br>2026-06-03 19:38:31 [LOG] Inserted 144 triples into graph &lt;http://example.org/roundtrip/DFL-DA-SOC-CODEBOOK-PMSR.csv&gt;<br>2026-06-03 19:38:31 [LOG] ✅ Processing complete: 12 rows processed, 0 skipped, 0 errors<br>2026-06-03 19:38:31 [LOG] ✅ Successfully processed 12 rows<br>2026-06-03 19:38:31 [LOG] ✅ Successfully ingested 12 rows<br>" ;
+        hasco:hasStudy                 pmsr:STD-STUDY-PMSR-Simulators-1 ;
+        vstoi:hasSIRManagerEmail       "roundtrip@hascoapi.org" .
+
+<http://example.org/roundtrip/DA-DA-SOC-CODEBOOK-PMSR.csv>
+        rdf:type                        hasco:DataAcquisition ;
+        rdfs:comment                    "Data Acquisition for DA-SOC-CODEBOOK-PMSR.csv" ;
+        rdfs:label                      "DA-SOC-CODEBOOK-PMSR.csv" ;
+        hasco:hasDataFile               <http://example.org/roundtrip/DFL-DA-SOC-CODEBOOK-PMSR.csv> ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 hasco:DataAcquisition ;
+        hasco:isMemberOf                pmsr:STD-STUDY-PMSR-Simulators-1 ;
+        vstoi:hasSIRManagerEmail        "roundtrip@hascoapi.org" ;
+        vstoi:hasStatus                 "UNPROCESSED" .
+
+pmsr:CBK1738087261869295
+        rdf:type                        "vstoi:Codebook" ;
+        rdfs:comment                    "Codebook to list the medical devices which can be use in airway medical procedures, for example: intubation" ;
+        rdfs:label                      "Airway Medical Device Responses" ;
+        hasco:hasDataAcquisition        "https://hadatac.org/ont/hadatac#/DA01777563105471461" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-CODEBOOK-PMSR.csv> ;
+        hasco:hasDataFile               "https://hadatac.org/ont/hadatac#/DFL1777563105471461" ;
+        hasco:hasTimestamp              "2026-06-03T19:38:23.886Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:Codebook" ;
+        vstoi:hasLanguage               "en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "1" .
+
+pmsr:CBK1738190767525383
+        rdf:type                        "vstoi:Codebook" ;
+        rdfs:comment                    "Test" ;
+        rdfs:label                      "CB" ;
+        hasco:hasDataAcquisition        "https://hadatac.org/ont/hadatac#/DA01777563105471461" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-CODEBOOK-PMSR.csv> ;
+        hasco:hasDataFile               "https://hadatac.org/ont/hadatac#/DFL1777563105471461" ;
+        hasco:hasTimestamp              "2026-06-03T19:38:23.886Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:Codebook" ;
+        vstoi:hasLanguage               "en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "1" .
+
+pmsr:CBK1738098997597015
+        rdf:type                        "vstoi:Codebook" ;
+        rdfs:comment                    "checks if the pulse is detected or not, when the practitioner places his index and middle finger in the neck area of the mannequin" ;
+        rdfs:label                      "Pulse Detection" ;
+        hasco:hasDataAcquisition        "https://hadatac.org/ont/hadatac#/DA01777563105471461" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-CODEBOOK-PMSR.csv> ;
+        hasco:hasDataFile               "https://hadatac.org/ont/hadatac#/DFL1777563105471461" ;
+        hasco:hasTimestamp              "2026-06-03T19:38:23.886Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:Codebook" ;
+        vstoi:hasLanguage               "en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "1" .
+
+pmsr:CBK1738088009248155
+        rdf:type                        "vstoi:Codebook" ;
+        rdfs:comment                    "Codebook that gathers the results of intubation" ;
+        rdfs:label                      "Intubation Results" ;
+        hasco:hasDataAcquisition        "https://hadatac.org/ont/hadatac#/DA01777563105471461" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-CODEBOOK-PMSR.csv> ;
+        hasco:hasDataFile               "https://hadatac.org/ont/hadatac#/DFL1777563105471461" ;
+        hasco:hasTimestamp              "2026-06-03T19:38:23.886Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:Codebook" ;
+        vstoi:hasLanguage               "en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "1" .
+
+pmsr:CBK1738148623334734
+        rdf:type                        "vstoi:Codebook" ;
+        rdfs:comment                    "PASS and FAILS responses." ;
+        rdfs:label                      "PASS and FAIL" ;
+        hasco:hasDataAcquisition        "https://hadatac.org/ont/hadatac#/DA01777563105471461" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-CODEBOOK-PMSR.csv> ;
+        hasco:hasDataFile               "https://hadatac.org/ont/hadatac#/DFL1777563105471461" ;
+        hasco:hasTimestamp              "2026-06-03T19:38:23.886Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:Codebook" ;
+        vstoi:hasLanguage               "en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "1" .
+
+pmsr:CBK1740097825927975
+        rdf:type                        "vstoi:Codebook" ;
+        rdfs:comment                    "Pupil Simulator Size" ;
+        rdfs:label                      "Pupil Simulator Size" ;
+        hasco:hasDataAcquisition        "https://hadatac.org/ont/hadatac#/DA01777563105471461" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-CODEBOOK-PMSR.csv> ;
+        hasco:hasDataFile               "https://hadatac.org/ont/hadatac#/DFL1777563105471461" ;
+        hasco:hasTimestamp              "2026-06-03T19:38:23.886Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:Codebook" ;
+        vstoi:hasLanguage               "en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "1" .
+
+pmsr:CBK1738186252574965
+        rdf:type                        "vstoi:Codebook" ;
+        rdfs:comment                    "Eletrodes specially designed to be used in adults" ;
+        rdfs:label                      "Eletrodes Adult Responses" ;
+        hasco:hasDataAcquisition        "https://hadatac.org/ont/hadatac#/DA01777563105471461" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-CODEBOOK-PMSR.csv> ;
+        hasco:hasDataFile               "https://hadatac.org/ont/hadatac#/DFL1777563105471461" ;
+        hasco:hasTimestamp              "2026-06-03T19:38:23.886Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:Codebook" ;
+        vstoi:hasLanguage               "en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "1" .
+
+pmsr:CBK1738187728844755
+        rdf:type                        "vstoi:Codebook" ;
+        rdfs:comment                    "Eletrodes specially designed to be used in pediactric setting" ;
+        rdfs:label                      "Eletrodes Pediatric Responses" ;
+        hasco:hasDataAcquisition        "https://hadatac.org/ont/hadatac#/DA01777563105471461" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-CODEBOOK-PMSR.csv> ;
+        hasco:hasDataFile               "https://hadatac.org/ont/hadatac#/DFL1777563105471461" ;
+        hasco:hasTimestamp              "2026-06-03T19:38:23.886Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:Codebook" ;
+        vstoi:hasLanguage               "en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "1" .
+
+pmsr:CBK1738096048734595
+        rdf:type                        "vstoi:Codebook" ;
+        rdfs:comment                    "Possible visible states of the portion of the mannequin that is representing the human stomach." ;
+        rdfs:label                      "Stomach Inflator Responses" ;
+        hasco:hasDataAcquisition        "https://hadatac.org/ont/hadatac#/DA01777563105471461" ;
+        hasco:hasDataAcquisition        <http://example.org/roundtrip/DA-DA-SOC-CODEBOOK-PMSR.csv> ;
+        hasco:hasDataFile               "https://hadatac.org/ont/hadatac#/DFL1777563105471461" ;
+        hasco:hasTimestamp              "2026-06-03T19:38:23.886Z" ;
+        hasco:hasTotalRecordedMessages  "0" ;
+        hasco:hascoType                 "vstoi:Codebook" ;
+        vstoi:hasLanguage               "en" ;
+        vstoi:hasStatus                 "UNPROCESSED" ;
+        vstoi:hasVersion                "1" .

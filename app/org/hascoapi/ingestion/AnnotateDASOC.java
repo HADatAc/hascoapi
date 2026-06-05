@@ -484,7 +484,21 @@ public class AnnotateDASOC {
 
             // Get headers
             Map<String, Integer> headerMap = csvParser.getHeaderMap();
-            List<String> headers = new ArrayList<>(headerMap.keySet());
+            // Keep header order exactly as in CSV (HashMap keySet order is not guaranteed).
+            List<String> headers = headerMap.entrySet().stream()
+                    .sorted(Map.Entry.comparingByValue())
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toList());
+
+            // Remove BOM from the first header when present.
+            if (!headers.isEmpty()) {
+                String firstHeader = headers.get(0);
+                if (firstHeader.startsWith("\uFEFF") || firstHeader.startsWith("﻿")) {
+                    String cleaned = firstHeader.replace("\uFEFF", "").replace("﻿", "").trim();
+                    headers.set(0, cleaned);
+                    dataFile.getLogger().println("Warning: BOM detected in CSV header, removed automatically");
+                }
+            }
 
             if (headers.size() < 2) {
                 dataFile.getLogger().printException("CSV must have at least 2 columns (originalID + property columns)");
@@ -556,7 +570,12 @@ public class AnnotateDASOC {
                         String value = record.get(propertyUri).trim();
 
                         if (!value.isEmpty() && !propertyUri.isEmpty()) {
-                            Property property = model.createProperty(propertyUri);
+                            String expandedPropertyUri = URIUtils.replacePrefixEx(propertyUri);
+                            if (expandedPropertyUri == null || expandedPropertyUri.isEmpty()) {
+                                expandedPropertyUri = propertyUri;
+                            }
+
+                            Property property = model.createProperty(expandedPropertyUri);
                             objectResource.addProperty(property, value);
                             hasProperties = true;
                         }

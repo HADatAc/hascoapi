@@ -1127,7 +1127,7 @@ public class IngestionAPI extends Controller {
                     break;
                 case "dsg":
                     System.out.println("  Calling DSGGen.genByStatus()...");
-                    generationResult = DSGGen.genByStatus(status,filename,mediaFolder,verifyUri);
+                    generationResult = DSGGen.genByStatus(status,filename,mediaFolder,verifyUri,shouldGenerateDASOCs);
                     System.out.println("  DSGGen.genByStatus() returned: [" + generationResult + "]");
                     break;
                 case "kgr":
@@ -1295,7 +1295,7 @@ public class IngestionAPI extends Controller {
         String resp = "";
         switch (selectorType) {
             case "study":
-                resp = DSGGen.genByStudy((Study)element,filename,mediaFolder,verifyUri);
+                resp = DSGGen.genByStudy((Study)element,filename,mediaFolder,verifyUri,shouldGenerateDASOCs);
                 break;
             case "instrument":
                 resp = INSGen.genByInstrument((Instrument)element,filename,mediaFolder,verifyUri);
@@ -1321,11 +1321,18 @@ public class IngestionAPI extends Controller {
                 System.out.println(errorMsg);
                 return ok(ApiUtil.createResponse(errorMsg,false));
         }
-        if (resp.equals("")) {
-            return ok(ApiUtil.createResponse(resp, true));
-        } else {
+
+        boolean isFailed = resp != null &&
+                (resp.toLowerCase().contains("error") || resp.toLowerCase().contains("failure"));
+        if (isFailed) {
             return ok(ApiUtil.createResponse(resp, false));
         }
+
+        if (resp == null || resp.isEmpty() || resp.equals("SUCCESS") || resp.equals("null")) {
+            resp = filename;
+        }
+
+        return ok(ApiUtil.createResponse(resp, true));
     }
 
     public Result mtGenByManager(String elementtype, String datafileuri, String useremail, String status, String filename, String mediaFolder, String verifyUri, Boolean generateDASOCs) {
@@ -1359,25 +1366,37 @@ public class IngestionAPI extends Controller {
             System.out.println(errorMsg);
             return ok(ApiUtil.createResponse(errorMsg,false));
         }
+        String generationResult = null;
         switch (elementtype) {
             case "ins":
-                INSGen.genByManager(useremail, status, filename, mediaFolder, verifyUri);
+                generationResult = INSGen.genByManager(useremail, status, filename, mediaFolder, verifyUri);
                 break;
             case "kgr":
-                KGRGen.genByManager(useremail, status, filename, mediaFolder, verifyUri);
+                generationResult = KGRGen.genByManager(useremail, status, filename, mediaFolder, verifyUri);
                 break;
             case "dsg":
-                DSGGen.genByManager(useremail, status, filename, mediaFolder, verifyUri, shouldGenerateDASOCs);
+                generationResult = DSGGen.genByManager(useremail, status, filename, mediaFolder, verifyUri, shouldGenerateDASOCs);
                 break;
             case "wkf":
-                WKFGen.genByManager(useremail, status, filename, mediaFolder, verifyUri);
+                generationResult = WKFGen.genByManager(useremail, status, filename, mediaFolder, verifyUri);
                 break;
             default:
                 String errorMsg = "[ERROR] IngestionAPI.mtGenByStatus() invalid elementtype=[" + elementtype + "]";
                 System.out.println(errorMsg);
                 return ok(ApiUtil.createResponse(errorMsg,false));
         }
-        return ok(ApiUtil.createResponse("", true));
+
+        boolean isFailed = generationResult != null &&
+                (generationResult.toLowerCase().contains("error") || generationResult.toLowerCase().contains("failure"));
+        if (isFailed) {
+            return ok(ApiUtil.createResponse(generationResult, false));
+        }
+
+        if (generationResult == null || generationResult.isEmpty() || generationResult.equals("SUCCESS") || generationResult.equals("null")) {
+            generationResult = filename;
+        }
+
+        return ok(ApiUtil.createResponse(generationResult, true));
     }
 
     public Result mtGetGenerated(String filename) {
@@ -1406,9 +1425,19 @@ public class IngestionAPI extends Controller {
                 "[ERROR] IngestionAPI.mtGetGenerated(): File not found.", false));
         }
 
+        String lowerName = file.getName().toLowerCase();
+        String mimeType;
+        if (lowerName.endsWith(".zip")) {
+            mimeType = "application/zip";
+        } else if (lowerName.endsWith(".csv")) {
+            mimeType = "text/csv";
+        } else {
+            mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+        }
+
         // Serve file for download
         return ok(file)
-            .as("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") // Proper MIME for Excel (XLSX)
+            .as(mimeType)
             .withHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
     }
 
