@@ -71,6 +71,12 @@ libraryDependencies ++= Seq(
   "ch.qos.logback" % "logback-classic" % "1.4.8",
   "net.aichler" % "jupiter-interface" % "0.11.1" % Test ,
 
+  // Test dependencies
+  "org.junit.jupiter" % "junit-jupiter-api" % "5.8.2" % Test,
+  "org.junit.jupiter" % "junit-jupiter-engine" % "5.8.2" % Test,
+  "io.rest-assured" % "rest-assured" % "5.3.0" % Test,
+  "io.rest-assured" % "json-schema-validator" % "5.3.0" % Test,
+
   //For Java > 8
   "javax.xml.bind" % "jaxb-api" % "2.3.1",
   "javax.annotation" % "javax.annotation-api" % "1.3.2",
