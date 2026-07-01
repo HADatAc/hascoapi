@@ -636,6 +636,7 @@ public class WKFGen {
         tasksHeaderRow.createCell(15).setCellValue("vstoi:hasRequiredInstrument");
         tasksHeaderRow.createCell(16).setCellValue("hasco:hasImage");
         tasksHeaderRow.createCell(17).setCellValue("hasco:hasWebDocument");
+        tasksHeaderRow.createCell(18).setCellValue("vstoi:hasIterationConstraint");
 
         // Initialize RequiredInstruments headers
         Row requiredInstrumentsHeaderRow = requiredInstrumentsSheet.createRow(0);
@@ -645,9 +646,10 @@ public class WKFGen {
         requiredInstrumentsHeaderRow.createCell(3).setCellValue("rdfs:label");
         requiredInstrumentsHeaderRow.createCell(4).setCellValue("rdfs:comment");
         requiredInstrumentsHeaderRow.createCell(5).setCellValue("vstoi:usesInstrument");
-        requiredInstrumentsHeaderRow.createCell(6).setCellValue("vstoi:hasRequiredComponent");
-        requiredInstrumentsHeaderRow.createCell(7).setCellValue("hasco:hasImage");
-        requiredInstrumentsHeaderRow.createCell(8).setCellValue("hasco:hasWebDocument");
+        requiredInstrumentsHeaderRow.createCell(6).setCellValue("vstoi:isRelatedToTask");
+        requiredInstrumentsHeaderRow.createCell(7).setCellValue("vstoi:hasInstrumentConfig");
+        requiredInstrumentsHeaderRow.createCell(8).setCellValue("hasco:hasImage");
+        requiredInstrumentsHeaderRow.createCell(9).setCellValue("hasco:hasWebDocument");
 
         return workbook;
     }

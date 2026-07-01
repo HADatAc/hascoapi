@@ -105,10 +105,13 @@ public class VSTOI {
     public static final String HAS_TEMPORAL_DEPENDENCY      = VSTOI + "hasTemporalDependency";
     public static final String HAS_TOP_TASK                 = VSTOI + "hasTopTask";
     public static final String HAS_VERSION                  = VSTOI + "hasVersion";
+    public static final String HAS_ITERATION_CONSTRAINT     = VSTOI + "hasIterationConstraint";
+    public static final String HAS_INSTRUMENT_CONFIG        = VSTOI + "hasInstrumentConfig";
     public static final String HOST_TYPE                    = VSTOI + "hostType";
     public static final String IS_ATTRIBUTE_OF              = VSTOI + "isAttributeOf";
     public static final String IS_DAMAGED                   = VSTOI + "isDamaged";
     public static final String IS_FIELD_OF_VIEW_OF          = VSTOI + "isFieldOfViewOf";
+    public static final String IS_RELATED_TO_TASK           = VSTOI + "isRelatedToTask";
     public static final String OF_CODEBOOK                  = VSTOI + "ofCodebook";
     public static final String USES_COMPONENT               = VSTOI + "usesComponent";
     public static final String USES_INSTRUMENT              = VSTOI + "usesInstrument";

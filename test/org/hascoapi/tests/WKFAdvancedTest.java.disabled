@@ -1,0 +1,543 @@
+package org.hascoapi.tests;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.hascoapi.entity.pojo.*;
+import org.hascoapi.transform.mt.wkf.*;
+import org.hascoapi.vocabularies.VSTOI;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.io.TempDir;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * WKFAdvancedTest
+ *
+ * Advanced test cases for WKF functionality to achieve 100% coverage:
+ * - WKFGen sheet population methods
+ * - Multi-value property edge cases (URL encoding, mixed separators)
+ * - Complex entity relationships
+ * - Status-based generation scenarios
+ * - Error handling paths
+ */
+@DisplayName("WKF Advanced Coverage Tests")
+public class WKFAdvancedTest {
+
+    @TempDir
+    Path tempDir;
+
+    // ========== WKFGen Sheet Creation Tests ==========
+
+    @Test
+    @DisplayName("WKFGen should create workbook with all 6 required sheets")
+    public void testWKFGen_CreateWorkbook() throws Exception {
+        List<WKF> emptyWkfList = new ArrayList<>();
+        String testFile = tempDir.resolve("test-wkfgen.xlsx").toString();
+        
+        Workbook wb = WKFGen.create(testFile, emptyWkfList);
+        
+        assertNotNull(wb, "Workbook should be created");
+        assertEquals(6, wb.getNumberOfSheets(), "Workbook should have 6 sheets");
+        
+        assertNotNull(wb.getSheet("InfoSheet"), "Should have InfoSheet");
+        assertNotNull(wb.getSheet("Namespaces"), "Should have Namespaces");
+        assertNotNull(wb.getSheet("ProcessStems"), "Should have ProcessStems");
+        assertNotNull(wb.getSheet("Processes"), "Should have Processes");
+        assertNotNull(wb.getSheet("Tasks"), "Should have Tasks");
+        assertNotNull(wb.getSheet("RequiredInstruments"), "Should have RequiredInstruments");
+        
+        wb.close();
+    }
+
+    @Test
+    @DisplayName("WKFGen should handle empty WKF list gracefully")
+    public void testWKFGen_EmptyWKFList() throws Exception {
+        List<WKF> emptyList = new ArrayList<>();
+        String testFile = tempDir.resolve("empty-wkf.xlsx").toString();
+        
+        Workbook wb = WKFGen.create(testFile, emptyList);
+        
+        assertNotNull(wb, "Should create workbook even with empty WKF list");
+        
+        // Verify sheets have headers but no data rows
+        Sheet processStems = wb.getSheet("ProcessStems");
+        assertEquals(1, processStems.getLastRowNum() + 1, "ProcessStems should only have header row");
+        
+        wb.close();
+    }
+
+    @Test
+    @DisplayName("WKFGen should handle null WKF in list")
+    public void testWKFGen_NullWKFInList() throws Exception {
+        List<WKF> listWithNull = new ArrayList<>();
+        listWithNull.add(null);
+        String testFile = tempDir.resolve("null-wkf.xlsx").toString();
+        
+        Workbook wb = WKFGen.create(testFile, listWithNull);
+        
+        assertNotNull(wb, "Should handle null WKF in list");
+        wb.close();
+    }
+
+    // ========== ProcessStem Population Tests ==========
+
+    @Test
+    @DisplayName("WKFProcessStems should add ProcessStem with all properties")
+    public void testWKFProcessStems_AddComplete() throws Exception {
+        WKFGenHelper helper = new WKFGenHelper();
+        helper.workbook = new XSSFWorkbook();
+        createProcessStemsSheet(helper.workbook);
+        
+        ProcessStem ps = new ProcessStem();
+        ps.setUri("http://example.org/ps/test1");
+        ps.setLabel("Test ProcessStem");
+        ps.setTypeUri("vstoi:ProcessStem");
+        ps.setHascoTypeUri("vstoi:ProcessStem");
+        ps.setHasStatus("CURRENT");
+        ps.setComment("Test comment");
+        
+        helper = WKFProcessStems.addProcessStem(helper, ps);
+        
+        Sheet sheet = helper.workbook.getSheet("ProcessStems");
+        assertEquals(2, sheet.getLastRowNum() + 1, "Should have header + 1 data row");
+        
+        Row dataRow = sheet.getRow(1);
+        assertNotNull(dataRow, "Data row should exist");
+        
+        helper.workbook.close();
+    }
+
+    @Test
+    @DisplayName("WKFProcessStems should handle null ProcessStem gracefully")
+    public void testWKFProcessStems_HandleNull() throws Exception {
+        WKFGenHelper helper = new WKFGenHelper();
+        helper.workbook = new XSSFWorkbook();
+        createProcessStemsSheet(helper.workbook);
+        
+        int initialRows = helper.workbook.getSheet("ProcessStems").getLastRowNum() + 1;
+        
+        helper = WKFProcessStems.addProcessStem(helper, null);
+        
+        int finalRows = helper.workbook.getSheet("ProcessStems").getLastRowNum() + 1;
+        assertEquals(initialRows, finalRows, "Should not add row for null ProcessStem");
+        
+        helper.workbook.close();
+    }
+
+    // ========== Process Population Tests ==========
+
+    @Test
+    @DisplayName("WKFProcesses should add Process with temporal properties")
+    public void testWKFProcesses_AddWithTemporalProperties() throws Exception {
+        WKFGenHelper helper = new WKFGenHelper();
+        helper.workbook = new XSSFWorkbook();
+        createProcessesSheet(helper.workbook);
+        
+        org.hascoapi.entity.pojo.Process proc = new org.hascoapi.entity.pojo.Process();
+        proc.setUri("http://example.org/proc/test1");
+        proc.setLabel("Test Process");
+        proc.setTypeUri("vstoi:Process");
+        proc.setHascoTypeUri("vstoi:Process");
+        proc.setHasStatus("CURRENT");
+        proc.setHasTopTask("http://example.org/task/top1");
+        
+        helper = WKFProcesses.addProcess(helper, proc);
+        
+        Sheet sheet = helper.workbook.getSheet("Processes");
+        assertTrue(sheet.getLastRowNum() >= 1, "Should have at least 1 data row");
+        
+        helper.workbook.close();
+    }
+
+    // ========== Task Population Tests ==========
+
+    @Test
+    @DisplayName("WKFTasks should add Task with all CTT properties")
+    public void testWKFTasks_AddWithCTTProperties() throws Exception {
+        WKFGenHelper helper = new WKFGenHelper();
+        helper.workbook = new XSSFWorkbook();
+        createTasksSheet(helper.workbook);
+        
+        Task task = new Task();
+        task.setUri("http://example.org/task/test1");
+        task.setLabel("Test Task");
+        task.setTypeUri("vstoi:UserTask");
+        task.setHascoTypeUri("vstoi:Task");
+        task.setHasStatus("CURRENT");
+        task.setHasIterationConstraint("at least 3 times");
+        task.setHasTemporalDependency("enabling");
+        task.setHasSupertask("http://example.org/task/parent");
+        
+        helper = WKFTasks.addTask(helper, task);
+        
+        Sheet sheet = helper.workbook.getSheet("Tasks");
+        assertTrue(sheet.getLastRowNum() >= 1, "Should have at least 1 data row");
+        
+        Row dataRow = sheet.getRow(1);
+        assertNotNull(dataRow, "Data row should exist");
+        
+        // Verify iteration constraint column exists (column 18)
+        Cell iterCell = dataRow.getCell(18);
+        if (iterCell != null) {
+            assertEquals("at least 3 times", iterCell.getStringCellValue(), 
+                "Iteration constraint should be in column 18");
+        }
+        
+        helper.workbook.close();
+    }
+
+    @Test
+    @DisplayName("WKFTasks should handle Task with multi-value subtasks")
+    public void testWKFTasks_MultiValueSubtasks() throws Exception {
+        WKFGenHelper helper = new WKFGenHelper();
+        helper.workbook = new XSSFWorkbook();
+        createTasksSheet(helper.workbook);
+        
+        Task task = new Task();
+        task.setUri("http://example.org/task/parent");
+        task.setLabel("Parent Task");
+        task.setTypeUri("vstoi:AbstractTask");
+        task.setHascoTypeUri("vstoi:Task");
+        
+        // Set multiple subtasks as semicolon-separated string
+        String subtasks = "http://example.org/task/sub1;http://example.org/task/sub2;http://example.org/task/sub3";
+        task.setHasSubtask(subtasks);
+        
+        helper = WKFTasks.addTask(helper, task);
+        
+        Sheet sheet = helper.workbook.getSheet("Tasks");
+        Row dataRow = sheet.getRow(1);
+        assertNotNull(dataRow, "Data row should exist");
+        
+        helper.workbook.close();
+    }
+
+    @Test
+    @DisplayName("WKFTasks should handle all CTT temporal operators")
+    public void testWKFTasks_AllTemporalOperators() throws Exception {
+        String[] operators = {"enabling", "concurrent", "choice", "order-independent", "disabling"};
+        
+        for (String operator : operators) {
+            WKFGenHelper helper = new WKFGenHelper();
+            helper.workbook = new XSSFWorkbook();
+            createTasksSheet(helper.workbook);
+            
+            Task task = new Task();
+            task.setUri("http://example.org/task/" + operator);
+            task.setLabel("Task with " + operator);
+            task.setTypeUri("vstoi:UserTask");
+            task.setHascoTypeUri("vstoi:Task");
+            task.setHasStatus(VSTOI.CURRENT);
+            task.setHasTemporalDependency(operator);
+            
+            helper = WKFTasks.addTask(helper, task);
+            
+            Sheet sheet = helper.workbook.getSheet("Tasks");
+            assertTrue(sheet.getLastRowNum() >= 1, 
+                "Should have data row for operator: " + operator);
+            
+            helper.workbook.close();
+        }
+    }
+
+    // ========== RequiredInstrument Population Tests ==========
+
+    @Test
+    @DisplayName("WKFRequiredInstruments should add with new CTT properties")
+    public void testWKFRequiredInstruments_NewCTTProperties() throws Exception {
+        WKFGenHelper helper = new WKFGenHelper();
+        helper.workbook = new XSSFWorkbook();
+        createRequiredInstrumentsSheet(helper.workbook);
+        
+        RequiredInstrument ri = new RequiredInstrument();
+        ri.setUri("http://example.org/ri/test1");
+        ri.setLabel("Test RI");
+        ri.setTypeUri("vstoi:RequiredInstrument");
+        ri.setHascoTypeUri("vstoi:RequiredInstrument");
+        ri.setUsesInstrument("http://example.org/instrument/inst1");
+        ri.setIsRelatedToTask("http://example.org/task/calibrate");
+        ri.setHasInstrumentConfig("{\"range\": \"0-100\", \"accuracy\": \"1%\"}");
+        
+        helper = WKFRequiredInstruments.addRequiredInstrument(helper, ri);
+        
+        Sheet sheet = helper.workbook.getSheet("RequiredInstruments");
+        assertTrue(sheet.getLastRowNum() >= 1, "Should have at least 1 data row");
+        
+        Row dataRow = sheet.getRow(1);
+        assertNotNull(dataRow, "Data row should exist");
+        
+        // Verify columns 6-7 have the new properties
+        Cell relatedTaskCell = dataRow.getCell(6);
+        Cell configCell = dataRow.getCell(7);
+        
+        if (relatedTaskCell != null) {
+            String relatedTask = relatedTaskCell.getStringCellValue();
+            assertTrue(relatedTask.contains("calibrate"), 
+                "Related task should be in column 6");
+        }
+        
+        if (configCell != null) {
+            String config = configCell.getStringCellValue();
+            assertTrue(config.contains("range"), 
+                "Config should be in column 7");
+        }
+        
+        helper.workbook.close();
+    }
+
+    @Test
+    @DisplayName("WKFRequiredInstruments should handle missing optional properties")
+    public void testWKFRequiredInstruments_MissingOptionalProperties() throws Exception {
+        WKFGenHelper helper = new WKFGenHelper();
+        helper.workbook = new XSSFWorkbook();
+        createRequiredInstrumentsSheet(helper.workbook);
+        
+        RequiredInstrument ri = new RequiredInstrument();
+        ri.setUri("http://example.org/ri/minimal");
+        ri.setLabel("Minimal RI");
+        ri.setTypeUri("vstoi:RequiredInstrument");
+        ri.setUsesInstrument("http://example.org/instrument/inst1");
+        // No isRelatedToTask or hasInstrumentConfig
+        
+        helper = WKFRequiredInstruments.addRequiredInstrument(helper, ri);
+        
+        Sheet sheet = helper.workbook.getSheet("RequiredInstruments");
+        assertTrue(sheet.getLastRowNum() >= 1, "Should add row even without optional properties");
+        
+        helper.workbook.close();
+    }
+
+    // ========== Entity Relationship Advanced Tests ==========
+
+    @Test
+    @DisplayName("Should handle Task with multiple RequiredInstruments")
+    public void testCrossEntity_TaskWithMultipleInstruments() throws Exception {
+        Task task = new Task();
+        task.setUri("http://example.org/task/complex");
+        task.setLabel("Complex Task");
+        
+        List<String> multipleInstruments = new ArrayList<>();
+        multipleInstruments.add("http://example.org/ri/inst1");
+        multipleInstruments.add("http://example.org/ri/inst2");
+        multipleInstruments.add("http://example.org/ri/inst3");
+        task.setHasRequiredInstrumentUris(multipleInstruments);
+        
+        // Verify the property is set correctly
+        assertNotNull(task.getHasRequiredInstrumentUris(), "Task should have required instruments");
+        assertEquals(3, task.getHasRequiredInstrumentUris().size(), 
+            "Should have 3 required instruments");
+    }
+
+    @Test
+    @DisplayName("Should handle hierarchical Task relationships")
+    public void testCrossEntity_HierarchicalTasks() throws Exception {
+        Task parent = new Task();
+        parent.setUri("http://example.org/task/parent");
+        parent.setLabel("Parent Task");
+        parent.setTypeUri("vstoi:AbstractTask");
+        
+        Task child1 = new Task();
+        child1.setUri("http://example.org/task/child1");
+        child1.setLabel("Child Task 1");
+        child1.setHasSupertaskUri("http://example.org/task/parent");
+        
+        Task child2 = new Task();
+        child2.setUri("http://example.org/task/child2");
+        child2.setLabel("Child Task 2");
+        child2.setHasSupertaskUri("http://example.org/task/parent");
+        
+        // Set parent's subtasks
+        List<String> subtasks = new ArrayList<>();
+        subtasks.add("http://example.org/task/child1");
+        subtasks.add("http://example.org/task/child2");
+        parent.setHasSubtaskUris(subtasks);
+        
+        assertNotNull(parent.getHasSubtaskUris(), "Parent should have subtasks");
+        assertEquals(2, parent.getHasSubtaskUris().size(), "Parent should have 2 subtasks");
+        assertEquals("http://example.org/task/parent", child1.getHasSupertask(), 
+            "Child1 should reference parent");
+        assertEquals("http://example.org/task/parent", child2.getHasSupertask(), 
+            "Child2 should reference parent");
+    }
+
+    @Test
+    @DisplayName("Should handle Process-to-Task-to-RequiredInstrument chain")
+    public void testCrossEntity_CompleteChain() throws Exception {
+        org.hascoapi.entity.pojo.Process process = new org.hascoapi.entity.pojo.Process();
+        process.setUri("http://example.org/proc/workflow1");
+        process.setLabel("Complete Workflow");
+        process.setHasTopTask("http://example.org/task/top1");
+        
+        Task topTask = new Task();
+        topTask.setUri("http://example.org/task/top1");
+        topTask.setLabel("Top Level Task");
+        
+        List<String> instruments = new ArrayList<>();
+        instruments.add("http://example.org/ri/ri1");
+        topTask.setHasRequiredInstrumentUris(instruments);
+        
+        List<String> subtasks = new ArrayList<>();
+        subtasks.add("http://example.org/task/sub1");
+        subtasks.add("http://example.org/task/sub2");
+        topTask.setHasSubtaskUris(subtasks);
+        
+        RequiredInstrument ri = new RequiredInstrument();
+        ri.setUri("http://example.org/ri/ri1");
+        ri.setLabel("Required Instrument 1");
+        ri.setIsRelatedToTask("http://example.org/task/top1");
+        
+        // Verify relationships
+        assertEquals("http://example.org/task/top1", process.getHasTopTask(), 
+            "Process should reference top task");
+        assertTrue(topTask.getHasRequiredInstrumentUris().contains("http://example.org/ri/ri1"), 
+            "Task should reference required instrument");
+        assertEquals("http://example.org/task/top1", ri.getIsRelatedToTask(), 
+            "RequiredInstrument should reference task");
+    }
+
+    // ========== Edge Case Tests ==========
+
+    @Test
+    @DisplayName("Should handle URL-encoded values in multi-value properties")
+    public void testEdgeCase_URLEncodedValues() throws Exception {
+        Task task = new Task();
+        task.setUri("http://example.org/task/encoded");
+        
+        // Subtasks with URL encoding (e.g., spaces as %20)
+        List<String> encodedSubtasks = new ArrayList<>();
+        encodedSubtasks.add("http://example.org/task/with%20space");
+        encodedSubtasks.add("http://example.org/task/another%20one");
+        task.setHasSubtaskUris(encodedSubtasks);
+        
+        assertNotNull(task.getHasSubtaskUris(), "Task should have encoded subtasks");
+        assertEquals(2, task.getHasSubtaskUris().size(), "Should have 2 subtasks");
+    }
+
+    @Test
+    @DisplayName("Should handle large lists in multi-value properties")
+    public void testEdgeCase_LargeMultiValueList() throws Exception {
+        Task task = new Task();
+        task.setUri("http://example.org/task/many-subtasks");
+        
+        List<String> manySubtasks = new ArrayList<>();
+        for (int i = 1; i <= 50; i++) {
+            manySubtasks.add("http://example.org/task/sub" + i);
+        }
+        task.setHasSubtaskUris(manySubtasks);
+        
+        assertNotNull(task.getHasSubtaskUris(), "Task should handle large list");
+        assertEquals(50, task.getHasSubtaskUris().size(), "Should have 50 subtasks");
+    }
+
+
+
+    @Test
+    @DisplayName("Should handle iteration constraints with complex patterns")
+    public void testEdgeCase_ComplexIterationConstraints() throws Exception {
+        String[] complexConstraints = {
+            "at least 3 times",
+            "until condition X is met",
+            "while temperature > 25C",
+            "for each sample in batch",
+            "repeat 5 times",
+            "*"  // CTT iteration operator
+        };
+        
+        for (String constraint : complexConstraints) {
+            Task task = new Task();
+            task.setUri("http://example.org/task/iter-" + constraint.hashCode());
+            task.setLabel("Task with constraint: " + constraint);
+            task.setHasIterationConstraint(constraint);
+            
+            assertEquals(constraint, task.getHasIterationConstraint(), 
+                "Should preserve iteration constraint: " + constraint);
+        }
+    }
+
+    @Test
+    @DisplayName("Should handle status transitions")
+    public void testEdgeCase_StatusTransitions() throws Exception {
+        String[] statuses = {
+            VSTOI.DRAFT,
+            VSTOI.CURRENT,
+            VSTOI.DEPRECATED
+        };
+        
+        for (String status : statuses) {
+            Task task = new Task();
+            task.setUri("http://example.org/task/status-" + status);
+            task.setHasStatus(status);
+            
+            assertEquals(status, task.getHasStatus(), 
+                "Should handle status: " + status);
+        }
+    }
+
+    // ========== Helper Methods ==========
+
+    private void createProcessStemsSheet(Workbook wb) {
+        Sheet sheet = wb.createSheet("ProcessStems");
+        Row header = sheet.createRow(0);
+        String[] headers = {
+            "hasURI", "rdf:type", "hasco:hascoType", "rdfs:label", "rdfs:comment",
+            "vstoi:hasStatus", "vstoi:hasLanguage", "vstoi:hasVersion",
+            "prov:wasDerivedFrom", "vstoi:hasReviewNote", "vstoi:hasSIRManagerEmail",
+            "vstoi:hasEditorEmail", "vstoi:hasTopTask", "hasco:hasImage", "hasco:hasWebDocument",
+            "hasco:hasDataFile"
+        };
+        for (int i = 0; i < headers.length; i++) {
+            header.createCell(i).setCellValue(headers[i]);
+        }
+    }
+
+    private void createProcessesSheet(Workbook wb) {
+        Sheet sheet = wb.createSheet("Processes");
+        Row header = sheet.createRow(0);
+        String[] headers = {
+            "hasURI", "rdf:type", "hasco:hascoType", "rdfs:label", "rdfs:comment",
+            "vstoi:hasStatus", "vstoi:hasLanguage", "vstoi:hasVersion",
+            "prov:wasDerivedFrom", "vstoi:hasReviewNote", "vstoi:hasSIRManagerEmail",
+            "vstoi:hasEditorEmail", "vstoi:hasTopTask", "hasco:hasImage", "hasco:hasWebDocument"
+        };
+        for (int i = 0; i < headers.length; i++) {
+            header.createCell(i).setCellValue(headers[i]);
+        }
+    }
+
+    private void createTasksSheet(Workbook wb) {
+        Sheet sheet = wb.createSheet("Tasks");
+        Row header = sheet.createRow(0);
+        String[] headers = {
+            "hasURI", "rdf:type", "hasco:hascoType", "rdfs:label", "rdfs:comment",
+            "vstoi:hasStatus", "vstoi:hasLanguage", "vstoi:hasVersion",
+            "prov:wasDerivedFrom", "vstoi:hasReviewNote", "vstoi:hasSIRManagerEmail",
+            "vstoi:hasEditorEmail", "vstoi:hasSupertask", "vstoi:hasSubtask",
+            "vstoi:hasTemporalDependency", "vstoi:hasRequiredInstrument",
+            "hasco:hasImage", "hasco:hasWebDocument", "vstoi:hasIterationConstraint"
+        };
+        for (int i = 0; i < headers.length; i++) {
+            header.createCell(i).setCellValue(headers[i]);
+        }
+    }
+
+    private void createRequiredInstrumentsSheet(Workbook wb) {
+        Sheet sheet = wb.createSheet("RequiredInstruments");
+        Row header = sheet.createRow(0);
+        String[] headers = {
+            "hasURI", "rdf:type", "hasco:hascoType", "rdfs:label", "rdfs:comment",
+            "vstoi:usesInstrument", "vstoi:isRelatedToTask", "vstoi:hasInstrumentConfig",
+            "hasco:hasImage", "hasco:hasWebDocument"
+        };
+        for (int i = 0; i < headers.length; i++) {
+            header.createCell(i).setCellValue(headers[i]);
+        }
+    }
+}

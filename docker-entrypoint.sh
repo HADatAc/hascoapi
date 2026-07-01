@@ -18,15 +18,30 @@ echo "[startup] R runtime: $(command -v "${R_BIN}")"
 FUSEKI_EFFECTIVE_URL="${FUSEKI_URL:-http://localhost:3030}"
 echo "[startup] Effective FUSEKI_URL=${FUSEKI_EFFECTIVE_URL}"
 
-# Probe connectivity as startup diagnostics (best effort, do not block app startup).
+# Wait for Fuseki to be fully ready (up to 60 seconds)
 if command -v curl >/dev/null 2>&1; then
-    if curl -fsS --max-time 3 "${FUSEKI_EFFECTIVE_URL}/$/ping" >/dev/null 2>&1 || \
-       curl -fsS --max-time 3 "${FUSEKI_EFFECTIVE_URL}" >/dev/null 2>&1; then
-        echo "[startup] Fuseki connectivity check: OK"
+    echo "[startup] Waiting for Fuseki to be ready..."
+    MAX_WAIT=60
+    COUNTER=0
+    until curl -fsS --max-time 2 "${FUSEKI_EFFECTIVE_URL}/$/ping" >/dev/null 2>&1 || [ $COUNTER -eq $MAX_WAIT ]; do
+        echo "[startup] Waiting for Fuseki... ($COUNTER/$MAX_WAIT)"
+        sleep 2
+        COUNTER=$((COUNTER+2))
+    done
+    
+    if [ $COUNTER -eq $MAX_WAIT ]; then
+        echo "[WARN] Fuseki did not respond within ${MAX_WAIT} seconds (API will still start)"
     else
-        echo "[WARN] Fuseki connectivity check failed for ${FUSEKI_EFFECTIVE_URL} (API will still start)"
+        echo "[startup] Fuseki connectivity check: OK (after ${COUNTER}s)"
     fi
 fi
 
-# Start the application
-exec bin/hascoapi "$@"
+# Debug: Show environment and arguments
+echo "[startup] ====== PRODUCTION LAUNCHER DEBUG ======"
+echo "[startup] JAVA_OPTS: ${JAVA_OPTS}"
+echo "[startup] Using config: hascoapi-docker.conf"
+echo "[startup] About to execute: bin/hascoapi -v -Dconfig.resource=hascoapi-docker.conf $@"
+echo "[startup] =========================================="
+
+# Start the application with hascoapi-docker.conf
+exec bin/hascoapi -v -Dconfig.resource=hascoapi-docker.conf "$@"

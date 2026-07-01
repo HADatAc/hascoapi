@@ -20,7 +20,9 @@ public class CollectionUtil {
 
     public void initConfigCache() {
         configCache = new HashMap<String, String>();
-        configCache.put("hascoapi.repository.triplestore", ConfigFactory.load().getString("hascoapi.repository.triplestore"));
+        String triplestoreUrl = ConfigFactory.load().getString("hascoapi.repository.triplestore");
+        System.out.println("[CollectionUtil] Triplestore URL from config: " + triplestoreUrl);
+        configCache.put("hascoapi.repository.triplestore", triplestoreUrl);
     }
 
     // static method to create instance of Singleton class

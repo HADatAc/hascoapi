@@ -13,12 +13,6 @@ services:
                     - fuseki
         volumes:
             - hascoapi-fuseki-data:/fuseki/databases
-        healthcheck:
-            test: ["CMD-SHELL", "wget -q --spider http://localhost:3030/$$/ping || exit 1"]
-            interval: 10s
-            timeout: 5s
-            retries: 12
-            start_period: 20s
         restart: always
 
     fuseki-yasgui:
@@ -33,19 +27,16 @@ services:
         environment:
             DEFAULT_SPARQL_ENDPOINT: "http://localhost:3030/store/sparql"  # Corrigido
         depends_on:
-            fuseki:
-                condition: service_healthy
+            - fuseki
     
     hascoapi:
         build:
             context: .
             dockerfile: Dockerfile
-        stdin_open: true    
-        tty: true
         ports:
             - "9001:9001"
         environment:
-            JAVA_OPTS: "-Xms128m -Xmx12g"
+            JAVA_OPTS: "-Xms128m -Xmx7372m"
             FUSEKI_URL: "http://fuseki:3030"
             R_SCRIPT_BIN: "/usr/bin/Rscript"
         volumes:
@@ -53,8 +44,7 @@ services:
             - hascoapi-resources:/var/hascoapi/resources
             - hascoapi-media:/var/hascoapi/media
         depends_on:
-            fuseki:
-                condition: service_healthy
+            - fuseki
         networks:
             hascoapi:
                 aliases:

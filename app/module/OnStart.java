@@ -23,10 +23,21 @@ public class OnStart {
 
     @Inject
     public OnStart() {
-        initDirectoryStructure();
-        RepositoryInstance.getInstance();
-        NameSpaces.getInstance().updateLocalNamespace();
-		StreamTopic.initiateStreamTopics();
+        try {
+            System.out.println("[OnStart] Step 1: Initializing directory structure...");
+            initDirectoryStructure();
+            System.out.println("[OnStart] Step 2: Getting RepositoryInstance...");
+            RepositoryInstance.getInstance();
+            System.out.println("[OnStart] Step 3: Updating local namespace...");
+            NameSpaces.getInstance().updateLocalNamespace();
+            System.out.println("[OnStart] Step 4: Initiating StreamTopics...");
+            StreamTopic.initiateStreamTopics();
+            System.out.println("[OnStart] Step 5: Startup complete!");
+        } catch (Exception e) {
+            System.err.println("[OnStart] FATAL ERROR during startup:");
+            e.printStackTrace();
+            throw new RuntimeException("Startup failed", e);
+        }
     }
 
     private void initDirectoryStructure() {

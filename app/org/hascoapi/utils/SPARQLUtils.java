@@ -19,7 +19,6 @@ public class SPARQLUtils {
         try {
             Query query = QueryFactory.create(queryString);
             QueryExecution qexec = QueryExecutionFactory.sparqlService(sparqlService, query);
-            
             ResultSet results = qexec.execSelect();
             ResultSetRewindable resultsrw = ResultSetFactory.copyResults(results);
             qexec.close();
@@ -34,17 +33,23 @@ public class SPARQLUtils {
 
     public static Model describe(String sparqlService, String queryString) {
         //System.out.println("\nqueryString: " + queryString + "\n");
+        System.out.println("[SPARQLUtils] describe() called with sparqlService: " + sparqlService);
 
         try {
             Query query = QueryFactory.create(queryString);
             QueryExecution qexec = QueryExecutionFactory.sparqlService(sparqlService, query);
-            
             Model model = qexec.execDescribe();
             qexec.close();
 
             return model;
         } catch (QueryParseException e) {
             System.out.println("[ERROR] queryString: " + queryString);
+            throw e;
+        } catch (Exception e) {
+            System.err.println("[SPARQLUtils] describe() failed with exception:");
+            System.err.println("[SPARQLUtils] Service URL: " + sparqlService);
+            System.err.println("[SPARQLUtils] Query: " + queryString);
+            e.printStackTrace();
             throw e;
         }
     }

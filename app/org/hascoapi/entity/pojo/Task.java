@@ -61,6 +61,9 @@ public class Task extends HADatAcThing implements Comparable<Task> {
     @PropertyField(uri="vstoi:hasSubtask", valueType=PropertyValueType.URI)
     private List<String> hasSubtaskUris = new ArrayList<String>();
 
+    @PropertyField(uri="vstoi:hasIterationConstraint")
+    private String hasIterationConstraint;
+
     public String getHasStatus() {
         return hasStatus;
     }
@@ -224,6 +227,14 @@ public class Task extends HADatAcThing implements Comparable<Task> {
         return this.hasSubtaskUris;
     }
 
+    public String getHasIterationConstraint() {
+        return hasIterationConstraint;
+    }
+
+    public void setHasIterationConstraint(String hasIterationConstraint) {
+        this.hasIterationConstraint = hasIterationConstraint;
+    }
+
     // Backward-compatible alias used by some clients (e.g., workflow editor)
     public List<Task> getSubtask() {
         List<Task> resp = new ArrayList<Task>();
@@ -359,6 +370,8 @@ public class Task extends HADatAcThing implements Comparable<Task> {
                     } else {
                         task.addHasSubtaskUri(object);
                     }
+                } else if (predicate.equals(VSTOI.HAS_ITERATION_CONSTRAINT)) {
+                    task.setHasIterationConstraint(object);
                 }
             }
         }

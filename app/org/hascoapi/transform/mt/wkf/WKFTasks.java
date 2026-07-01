@@ -95,6 +95,7 @@ public class WKFTasks {
 
             row.createCell(16).setCellValue(URIUtils.replaceNameSpaceEx(safe(t.getHasImageUri())));
             row.createCell(17).setCellValue(safe(t.getHasWebDocument()));
+            row.createCell(18).setCellValue(safe(t.getHasIterationConstraint()));
 
             System.out.println("[WKFTasks] Added Task row: uri=" + t.getUri());
         }
@@ -157,6 +158,7 @@ public class WKFTasks {
 
         row.createCell(16).setCellValue(URIUtils.replaceNameSpaceEx(safe(t.getHasImageUri())));
         row.createCell(17).setCellValue(safe(t.getHasWebDocument()));
+        row.createCell(18).setCellValue(safe(t.getHasIterationConstraint()));
 
         System.out.println("[WKFTasks] Added Task row: uri=" + t.getUri() + ", label=" + t.getLabel() + ", typeUri=" + typeUri);
 

@@ -379,7 +379,9 @@ public class StreamTopic extends HADatAcThing implements Comparable<StreamTopic>
      *   topics that are not inactive are set to be inactive,
      */
     public static void initiateStreamTopics() {
+        System.out.println("[StreamTopic] initiateStreamTopics() called - starting...");
         List<StreamTopic> openTopics = StreamTopic.findOpenStreamTopics();
+        System.out.println("[StreamTopic] findOpenStreamTopics() returned: " + (openTopics == null ? "null" : openTopics.size() + " topics"));
         if (openTopics != null && openTopics.size() > 0) {
             System.out.println("StreamTopic.initiateStreamTopics() called to fix " + openTopics.size() + " topics.");
             for (StreamTopic topic : openTopics) {
@@ -387,16 +389,19 @@ public class StreamTopic extends HADatAcThing implements Comparable<StreamTopic>
                 topic.save();
             }
         }
+        System.out.println("[StreamTopic] initiateStreamTopics() completed!");
     }
 
     /* Open streams are those with ended_at_date =  9999-12-31T23:59:59.999Z */
     public static List<StreamTopic> findOpenStreamTopics() {
+        System.out.println("[StreamTopic] findOpenStreamTopics() - building query...");
         String query = NameSpaces.getInstance().printSparqlNameSpaceList() +
             "SELECT ?uri WHERE { " +
             "   ?uri a hasco:StreamTopic . " +
             "   ?uri hasco:hasTopicStatus ?status . " +
             "   FILTER (?status != hasco:Inactive) " +
             "} ";
+        System.out.println("[StreamTopic] findOpenStreamTopics() - executing SPARQL query...");
         return findManyByQuery(query);
     }
 

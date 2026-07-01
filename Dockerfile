@@ -1,7 +1,7 @@
 # The first part of this Dockerfile is inspired by an existing Dockerfile hosted at https://github.com/mozilla/docker-sbt/blob/main/Dockerfile
 # The important parts have been copied over to remove a dependency on two public Docker containers
 #FROM openjdk:11
-FROM sbtscala/scala-sbt:eclipse-temurin-11.0.16_1.7.2_2.12.17 as build-java
+FROM sbtscala/scala-sbt:eclipse-temurin-17.0.19_10_1.12.13_2.12.21 as build-java
 
 RUN sed -i -e 's|http://ports.ubuntu.com/ubuntu-ports|https://ports.ubuntu.com/ubuntu-ports|g' /etc/apt/sources.list && \
 	apt-get update && \
@@ -17,7 +17,7 @@ central.type=tree
 EOF
 
 ENV COURSIER_MIRRORS=/root/.config/coursier/mirror.properties
-ENV JAVA_OPTS="-Xms6048m -Xmx10000m"
+ENV JAVA_OPTS="-Xms3629m -Xmx6000m"
 WORKDIR /hascoapi
 
 # Copy over the basic configuration files
@@ -34,7 +34,7 @@ COPY . /hascoapi
 RUN sbt playUpdateSecret && sbt dist
 RUN cd /hascoapi/target/universal/ && unzip hascoapi-10.0.1-SNAPSHOT.zip
 
-FROM eclipse-temurin:11-jre
+FROM eclipse-temurin:17-jre
 
 WORKDIR /hascoapi
 
@@ -46,11 +46,12 @@ ENV R_SCRIPT_BIN=/usr/bin/Rscript
 
 COPY --from=build-java /hascoapi/target/universal/hascoapi-10.0.1-SNAPSHOT /hascoapi
 
-COPY ./conf/hascoapi-docker.conf /hascoapi/conf/hascoapi.conf
+# Copy Docker-specific configuration
+COPY ./conf/hascoapi-docker.conf /hascoapi/conf/hascoapi-docker.conf
 COPY ./docker-entrypoint.sh /hascoapi/docker-entrypoint.sh
 
 RUN chmod +x /hascoapi/docker-entrypoint.sh
 
-EXPOSE 9000
+EXPOSE 9001
 
 ENTRYPOINT [ "/hascoapi/docker-entrypoint.sh" ]

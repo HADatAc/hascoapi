@@ -78,13 +78,10 @@ public class WKFRequiredInstruments {
             row.createCell(3).setCellValue(safe(ri.getLabel()));
             row.createCell(4).setCellValue(safe(ri.getComment()));
             row.createCell(5).setCellValue(URIUtils.replaceNameSpaceEx(safe(ri.getUsesInstrument())));
-
-            // hasRequiredComponent is a list - join with pipes
-            String componentsStr = joinUriList(ri.getHasRequiredComponents());
-            row.createCell(6).setCellValue(componentsStr);
-
-            row.createCell(7).setCellValue(URIUtils.replaceNameSpaceEx(safe(ri.getHasImageUri())));
-            row.createCell(8).setCellValue(safe(ri.getHasWebDocument()));
+            row.createCell(6).setCellValue(URIUtils.replaceNameSpaceEx(safe(ri.getIsRelatedToTask())));
+            row.createCell(7).setCellValue(safe(ri.getHasInstrumentConfig()));
+            row.createCell(8).setCellValue(URIUtils.replaceNameSpaceEx(safe(ri.getHasImageUri())));
+            row.createCell(9).setCellValue(safe(ri.getHasWebDocument()));
 
             System.out.println("[WKFRequiredInstruments] Added RequiredInstrument row: uri=" + ri.getUri());
         }
@@ -114,13 +111,10 @@ public class WKFRequiredInstruments {
         row.createCell(3).setCellValue(safe(ri.getLabel()));
         row.createCell(4).setCellValue(safe(ri.getComment()));
         row.createCell(5).setCellValue(URIUtils.replaceNameSpaceEx(safe(ri.getUsesInstrument())));
-
-        // hasRequiredComponent is a list - join with pipes
-        String componentsStr = joinUriList(ri.getHasRequiredComponents());
-        row.createCell(6).setCellValue(componentsStr);
-
-        row.createCell(7).setCellValue(URIUtils.replaceNameSpaceEx(safe(ri.getHasImageUri())));
-        row.createCell(8).setCellValue(safe(ri.getHasWebDocument()));
+        row.createCell(6).setCellValue(URIUtils.replaceNameSpaceEx(safe(ri.getIsRelatedToTask())));
+        row.createCell(7).setCellValue(safe(ri.getHasInstrumentConfig()));
+        row.createCell(8).setCellValue(URIUtils.replaceNameSpaceEx(safe(ri.getHasImageUri())));
+        row.createCell(9).setCellValue(safe(ri.getHasWebDocument()));
 
         System.out.println("[WKFRequiredInstruments] Added RequiredInstrument row: uri=" + ri.getUri() + ", usesInstrument=" + ri.getUsesInstrument());
 
@@ -129,23 +123,5 @@ public class WKFRequiredInstruments {
 
     private static String safe(String val) {
         return val == null ? "" : val;
-    }
-
-    private static String joinUriList(List<String> uris) {
-        if (uris == null || uris.isEmpty()) {
-            return "";
-        }
-
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < uris.size(); i++) {
-            if (i > 0) {
-                sb.append(" | ");
-            }
-            String uri = uris.get(i);
-            if (uri != null && !uri.isEmpty()) {
-                sb.append(URIUtils.replaceNameSpaceEx(uri));
-            }
-        }
-        return sb.toString();
     }
 }

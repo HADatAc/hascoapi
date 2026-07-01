@@ -36,6 +36,12 @@ public class RequiredInstrument extends HADatAcThing {
 	@PropertyField(uri="vstoi:usesInstrument")
     protected String usesInstrument;
 
+	@PropertyField(uri="vstoi:isRelatedToTask")
+	protected String isRelatedToTask;
+
+	@PropertyField(uri="vstoi:hasInstrumentConfig")
+	protected String hasInstrumentConfig;
+
 	@PropertyField(uri="vstoi:hasRequiredComponent")
 	private List<String> hasRequiredComponentURIs;
 
@@ -45,6 +51,22 @@ public class RequiredInstrument extends HADatAcThing {
 
 	public void setUsesInstrument(String usesInstrument) {
 		this.usesInstrument = usesInstrument;
+	}
+
+	public String getIsRelatedToTask() {
+		return isRelatedToTask;
+	}
+
+	public void setIsRelatedToTask(String isRelatedToTask) {
+		this.isRelatedToTask = isRelatedToTask;
+	}
+
+	public String getHasInstrumentConfig() {
+		return hasInstrumentConfig;
+	}
+
+	public void setHasInstrumentConfig(String hasInstrumentConfig) {
+		this.hasInstrumentConfig = hasInstrumentConfig;
 	}
 
 	public Instrument getInstrument() {
@@ -153,8 +175,10 @@ public class RequiredInstrument extends HADatAcThing {
 				} else if (statement.getPredicate().getURI().equals(HASCO.HASCO_TYPE)) {
 					requiredInstrument.setHascoTypeUri(str);
 				} else if (statement.getPredicate().getURI().equals(VSTOI.USES_INSTRUMENT)) {
-					requiredInstrument.setUsesInstrument(str);
-				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_REQUIRED_COMPONENT)) {
+					requiredInstrument.setUsesInstrument(str);				} else if (statement.getPredicate().getURI().equals(VSTOI.IS_RELATED_TO_TASK)) {
+					requiredInstrument.setIsRelatedToTask(str);
+				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_INSTRUMENT_CONFIG)) {
+					requiredInstrument.setHasInstrumentConfig(str);				} else if (statement.getPredicate().getURI().equals(VSTOI.HAS_REQUIRED_COMPONENT)) {
 					requiredInstrument.addHasRequiredComponent(str);
 				}
 			}
