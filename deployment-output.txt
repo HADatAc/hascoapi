@@ -1,0 +1,47 @@
+
+[0;32m========================================[0m
+[0;32mHASCOAPI Deployment Started[0m
+[0;32m========================================[0m
+
+[0;34m[INFO][0m Target: ubuntu@34.254.221.79
+[0;34m[INFO][0m Log file: deployment-20260515-144323.log
+
+[0;32m========================================[0m
+[0;32mStep 1/8: Verifying SSH Connection[0m
+[0;32m========================================[0m
+
+[0;32m[SUCCESS][0m SSH connection verified
+
+[0;32m========================================[0m
+[0;32mStep 2/8: Creating Dockerfile[0m
+[0;32m========================================[0m
+
+[0;32m[SUCCESS][0m Dockerfile created
+
+[0;32m========================================[0m
+[0;32mStep 3/8: Creating docker-compose configuration[0m
+[0;32m========================================[0m
+
+[0;32m[SUCCESS][0m docker-compose configuration created
+
+[0;32m========================================[0m
+[0;32mStep 4/8: Setting up remote directory[0m
+[0;32m========================================[0m
+
+[0;32m[SUCCESS][0m Remote directory configured
+
+[0;32m========================================[0m
+[0;32mStep 5/8: Copying files to AWS server (this may take a few minutes)[0m
+[0;32m========================================[0m
+
+[0;34m[INFO][0m Transferring source code...
+[0;32m[SUCCESS][0m Files transferred successfully
+
+[0;32m========================================[0m
+[0;32mStep 6/8: Building on AWS server (this will take several minutes)[0m
+[0;32m========================================[0m
+
+[0;34m[INFO][0m Pulling dependencies container...
+[0;34m[INFO][0m Building HASCOAPI with hadatac-libs...
+[0;34m[INFO][0m Building Fuseki...
+[0;34m[INFO][0m You can monitor progress in: deployment-20260515-144323.log

@@ -19,6 +19,7 @@ public class SPARQLUtils {
         try {
             Query query = QueryFactory.create(queryString);
             QueryExecution qexec = QueryExecutionFactory.sparqlService(sparqlService, query);
+            
             ResultSet results = qexec.execSelect();
             ResultSetRewindable resultsrw = ResultSetFactory.copyResults(results);
             qexec.close();
@@ -37,6 +38,7 @@ public class SPARQLUtils {
         try {
             Query query = QueryFactory.create(queryString);
             QueryExecution qexec = QueryExecutionFactory.sparqlService(sparqlService, query);
+            
             Model model = qexec.execDescribe();
             qexec.close();
 

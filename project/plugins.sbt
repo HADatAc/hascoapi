@@ -1,3 +1,6 @@
+// Use Google's Maven mirror to avoid Maven Central rate limiting
+resolvers += "Google Maven Central" at "https://maven-central-storage.googleapis.com/maven2/"
+resolvers += "Google Maven Mirror" at "https://maven-central.storage-download.googleapis.com/maven2/"
 resolvers += "Typesafe repository" at "https://repo.typesafe.com/typesafe/releases/"
 
 // The Play plugin
@@ -17,13 +20,15 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-digest" % "1.1.4")
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-mocha" % "1.1.2")
 
-addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.10.0-RC1")
+// Disabled - not needed for building, only for development tools
+// addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.10.0-RC1")
 
 addSbtPlugin("com.typesafe.sbt" %% "sbt-play-ebean" % "6.1.0-RC3")
 
 //addSbtPlugin("com.typesafe.sbt" % "sbt-play-enhancer" % "1.2.2")
 
-addSbtPlugin("com.github.sbt" % "sbt-eclipse" % "6.0.0")
+// Disabled - Eclipse IDE support not needed for Docker builds  
+// addSbtPlugin("com.github.sbt" % "sbt-eclipse" % "6.0.0")
 
 addSbtPlugin("net.aichler" % "sbt-jupiter-interface" % "0.9.0")
 

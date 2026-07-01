@@ -1,0 +1,37 @@
+# Multi-stage build using dependency cache base image
+# This Dockerfile uses pre-cached dependencies from paulopinheiro1234/hascoapi-deps
+# Build time: 30-60 seconds (vs 10+ minutes without cache)
+
+# Stage 1: Build application using dependency cache
+FROM paulopinheiro1234/hascoapi-deps:latest AS builder
+
+WORKDIR /hascoapi
+
+# Copy entire source code
+COPY . .
+
+# Build the application (dependencies already cached in base image!)
+RUN sbt playUpdateSecret && sbt dist
+
+# Unzip the distribution
+RUN unzip -q target/universal/hascoapi-*.zip && \
+    mv hascoapi-* hascoapi-dist
+
+# Stage 2: Runtime image (minimal, production-ready)
+FROM eclipse-temurin:11-jre-jammy
+
+WORKDIR /hascoapi
+
+# Copy the built application from builder stage
+COPY --from=builder /hascoapi/hascoapi-dist/lib ./lib
+COPY --from=builder /hascoapi/hascoapi-dist/bin ./bin
+COPY --from=builder /hascoapi/hascoapi-dist/conf ./conf
+
+# Create necessary directories
+RUN mkdir -p logs
+
+# Expose Play application port
+EXPOSE 9000
+
+# Run the application
+CMD ["bin/hascoapi", "-Dconfig.file=conf/application.conf"]

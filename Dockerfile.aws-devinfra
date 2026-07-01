@@ -1,0 +1,38 @@
+# Multi-stage build - using dependencies container for build tools only
+# hadatac-libs/ contains the actual JARs needed (aopalliance, etc.)
+
+FROM kaykael/hascoapi-dependencies:latest AS builder
+
+WORKDIR /hascoapi
+
+# Copy everything including hadatac-libs which has the actual JARs
+COPY . .
+
+# Create lib/ directory and copy hadatac-libs to it (SBT default unmanagedBase)
+RUN mkdir -p lib && cp hadatac-libs/*.jar lib/
+
+# Build the application - SBT will use lib/ for unmanaged dependencies
+RUN sbt playUpdateSecret && sbt dist
+
+# Unzip the distribution (overwrite without prompting)
+RUN cd target/universal/ && unzip -qo hascoapi-10.0.1-SNAPSHOT.zip
+
+# Stage 2: Runtime image
+FROM eclipse-temurin:11-jre
+
+WORKDIR /hascoapi
+
+COPY --from=builder /hascoapi/target/universal/hascoapi-10.0.1-SNAPSHOT /hascoapi
+COPY ./conf/hascoapi-docker.conf /hascoapi/conf/hascoapi.conf
+COPY ./docker-entrypoint.sh /hascoapi/docker-entrypoint.sh
+COPY ./load-pharma-ontology.sh /hascoapi/load-pharma-ontology.sh
+
+RUN mkdir -p /var/hascoapi/app_ontology
+COPY ./app_ontology/pharma.owl /var/hascoapi/app_ontology/pharma.owl
+
+RUN chmod +x /hascoapi/docker-entrypoint.sh && \
+    chmod +x /hascoapi/load-pharma-ontology.sh
+
+EXPOSE 9000
+
+ENTRYPOINT [ "/hascoapi/docker-entrypoint.sh" ]

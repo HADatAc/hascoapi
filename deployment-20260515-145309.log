@@ -1,0 +1,68 @@
+
+[0;32m========================================[0m
+[0;32mHASCOAPI Deployment Started[0m
+[0;32m========================================[0m
+
+[2026-05-15 14:53:09] [STEP] HASCOAPI Deployment Started
+[0;34m[INFO][0m Target: ubuntu@34.254.221.79
+[2026-05-15 14:53:09] [INFO] Target: ubuntu@34.254.221.79
+[0;34m[INFO][0m Log file: deployment-20260515-145309.log
+[2026-05-15 14:53:09] [INFO] Log file: deployment-20260515-145309.log
+
+[0;32m========================================[0m
+[0;32mStep 1/8: Verifying SSH Connection[0m
+[0;32m========================================[0m
+
+[2026-05-15 14:53:09] [STEP] Step 1/8: Verifying SSH Connection
+Connection OK
+[0;32m[SUCCESS][0m SSH connection verified
+[2026-05-15 14:53:10] [SUCCESS] SSH connection verified
+
+[0;32m========================================[0m
+[0;32mStep 2/8: Creating Dockerfile[0m
+[0;32m========================================[0m
+
+[2026-05-15 14:53:10] [STEP] Step 2/8: Creating Dockerfile
+[0;32m[SUCCESS][0m Dockerfile created
+[2026-05-15 14:53:10] [SUCCESS] Dockerfile created
+
+[0;32m========================================[0m
+[0;32mStep 3/8: Creating docker-compose configuration[0m
+[0;32m========================================[0m
+
+[2026-05-15 14:53:10] [STEP] Step 3/8: Creating docker-compose configuration
+[0;32m[SUCCESS][0m docker-compose configuration created
+[2026-05-15 14:53:10] [SUCCESS] docker-compose configuration created
+
+[0;32m========================================[0m
+[0;32mStep 4/8: Setting up remote directory[0m
+[0;32m========================================[0m
+
+[2026-05-15 14:53:10] [STEP] Step 4/8: Setting up remote directory
+[0;32m[SUCCESS][0m Remote directory configured
+[2026-05-15 14:53:40] [SUCCESS] Remote directory configured
+
+[0;32m========================================[0m
+[0;32mStep 5/8: Copying files to AWS server (this may take a few minutes)[0m
+[0;32m========================================[0m
+
+[2026-05-15 14:53:40] [STEP] Step 5/8: Copying files to AWS server (this may take a few minutes)
+[0;34m[INFO][0m Transferring source code...
+[2026-05-15 14:53:40] [INFO] Transferring source code...
+Transfer starting: 791 files
+./
+Dockerfile.aws-devinfra
+           1261 100%   19.11MB/s   00:00:00 (xfer#1, to-check=8/791)
+deploy-with-logging.sh
+           8951 100%   37.97MB/s   00:00:00 (xfer#2, to-check=28/791)
+deployment-final.txt
+           1293 100%   19.52MB/s   00:00:00 (xfer#3, to-check=29/791)
+deployment-output.txt
+           1752 100%    2.03MB/s   00:00:00 (xfer#4, to-check=30/791)
+docker-compose-aws-devinfra.yml
+           1787 100%   15.78MB/s   00:00:00 (xfer#5, to-check=31/791)
+
+sent 58806 bytes  received 256 bytes  222791 bytes/sec
+total size is 185510212  speedup is 3140.94
+[0;32m[SUCCESS][0m Files transferred successfully
+[2026-05-15 14:53:41] [SUCCESS] Files transferred successfully
