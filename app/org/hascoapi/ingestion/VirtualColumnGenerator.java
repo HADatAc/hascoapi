@@ -63,18 +63,7 @@ public class VirtualColumnGenerator extends BaseGenerator {
             return null;
         }
         
-        // CRITICAL FIX: Check typeUri FIRST before checking SOCReference
-        // SKIP VirtualColumn for ObjectCollection/StudyObjectCollection (VSTOI types)
-        // These use DA-SOC enrichment instead of VirtualColumns
-        boolean isObjectCollection = typeUri.contains("ObjectCollection") || 
-                                    typeUri.contains("StudyObjectCollection");
-        
-        if (isObjectCollection) {
-            logger.println("  [SKIP] Skipping VirtualColumn for generic ObjectCollection (VSTOI type): " + typeUri);
-            return null;
-        }
-            
-        // For traditional HASCO collection types (SubjectGroup, etc.), SOC reference is required
+        // SOC reference is required for VirtualColumn creation
         if (SOCReference == null || SOCReference.isEmpty()) {
             logger.printExceptionById("DSG_00009");
             return null;

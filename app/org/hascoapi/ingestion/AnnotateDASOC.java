@@ -478,16 +478,48 @@ public class AnnotateDASOC {
             throw new Exception("File not found: " + file.getAbsolutePath());
         }
 
-        // Parse CSV
-        try (FileReader reader = new FileReader(file);
-             CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
+        // CRITICAL FIX: Pre-read first line to clean empty column headers
+        // Apache Commons CSV throws IllegalArgumentException for empty header names
+        // even with withAllowMissingColumnNames(true), so we need to replace them first
+        String firstLine = null;
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            firstLine = br.readLine();
+        }
+        
+        if (firstLine == null || firstLine.trim().isEmpty()) {
+            throw new Exception("CSV file is empty or has no header row");
+        }
+        
+        // Split header line and replace empty columns with placeholders
+        String[] rawHeaders = firstLine.split(",", -1); // -1 keeps trailing empty strings
+        int emptyCount = 0;
+        for (int i = 0; i < rawHeaders.length; i++) {
+            if (rawHeaders[i] == null || rawHeaders[i].trim().isEmpty()) {
+                rawHeaders[i] = "EMPTY_COL_" + i;
+                emptyCount++;
+            }
+        }
+        
+        if (emptyCount > 0) {
+            dataFile.getLogger().println(String.format("Warning: Replaced %d empty column headers with placeholders", emptyCount));
+            System.out.println(String.format("[DASOC] Cleaned %d empty column headers", emptyCount));
+        }
 
-            // Get headers
+        // Parse CSV with cleaned headers
+        try (BufferedReader br = new BufferedReader(new FileReader(file));
+             CSVParser csvParser = CSVFormat.DEFAULT
+                     .withHeader(rawHeaders) // Use our cleaned headers
+                     .withSkipHeaderRecord(true) // Skip the original header line
+                     .withAllowMissingColumnNames(true)
+                     .parse(br)) {
+
+            // Get headers (now cleaned)
             Map<String, Integer> headerMap = csvParser.getHeaderMap();
-            // Keep header order exactly as in CSV (HashMap keySet order is not guaranteed).
+            // Keep header order exactly as in CSV and filter out our placeholder columns
             List<String> headers = headerMap.entrySet().stream()
                     .sorted(Map.Entry.comparingByValue())
                     .map(Map.Entry::getKey)
+                    .filter(key -> key != null && !key.startsWith("EMPTY_COL_")) // Filter out placeholder headers
                     .collect(Collectors.toList());
 
             // Remove BOM from the first header when present.
@@ -809,13 +841,16 @@ public class AnnotateDASOC {
             Map<String, Integer> headerMap = csvParser.getHeaderMap();
             
             // CRITICAL FIX: headerMap.keySet() has no guaranteed order - must sort by column index
+            // ALSO: Filter out columns with empty/null header names (trailing commas in CSV)
             List<String> headers = headerMap.entrySet().stream()
                 .sorted(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey)
+                .filter(key -> key != null && !key.trim().isEmpty()) // Filter out empty headers
                 .collect(Collectors.toList());
 
             // DEBUG: Log raw headers to see if there's BOM or encoding issues
             System.out.println("[DEBUG] Raw headers count: " + headers.size());
+            System.out.println("[DEBUG] Original headerMap size (before filtering): " + headerMap.size());
             for (int i = 0; i < Math.min(3, headers.size()); i++) {
                 String h = headers.get(i);
                 System.out.println("[DEBUG] Header[" + i + "]: '" + h + "' (length=" + h.length() + ", first char code=" + (h.length() > 0 ? (int)h.charAt(0) : "N/A") + ")");

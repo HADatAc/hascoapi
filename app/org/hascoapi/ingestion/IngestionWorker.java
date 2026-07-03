@@ -791,7 +791,15 @@ public class IngestionWorker {
             return null;
         }
 
-        String finalStudyUri = studyKG + ":" + Constants.PREFIX_STUDY + "-" + trimmedStudyUri;
+        // Per DSG-SPEC-V5, hasStudyURI must already contain STD- prefix in InfoSheet
+        // If it already starts with STD-, use as-is without adding another prefix
+        String finalStudyUri;
+        if (trimmedStudyUri.startsWith("STD-")) {
+            finalStudyUri = studyKG + ":" + trimmedStudyUri;
+        } else {
+            // Legacy fallback: add STD- prefix if missing (for backward compatibility)
+            finalStudyUri = studyKG + ":" + Constants.PREFIX_STUDY + "-" + trimmedStudyUri;
+        }
         finalStudyUri = URIUtils.replacePrefixEx(finalStudyUri);
 
         finalStudyUri = finalStudyUri.replace("#/","#");

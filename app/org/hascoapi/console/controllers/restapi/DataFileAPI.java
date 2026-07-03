@@ -240,6 +240,15 @@ public class DataFileAPI extends Controller {
                         System.out.println("[INFO] DataFileAPI.uploadFile(): Element IS a DataFile, using elementUri: " + dataFileUri);
                     }
                 }
+                
+                // FALLBACK: If URI contains DFL prefix, assume it's a DataFile URI
+                if (dataFileUri == null || dataFileUri.trim().isEmpty()) {
+                    String uriSegment = URIUtils.uriLastSegment(elementUri);
+                    if (uriSegment != null && uriSegment.startsWith("DFL")) {
+                        dataFileUri = elementUri;
+                        System.out.println("[INFO] DataFileAPI.uploadFile(): URI contains DFL prefix, assuming DataFile: " + dataFileUri);
+                    }
+                }
             } else {
                 System.out.println("[WARN] DataFileAPI.uploadFile(): No instance to check (typedInstance and genericInstance are both null)");
             }

@@ -184,7 +184,8 @@ public class DAAPI extends Controller {
                 QuerySolution soln = results.next();
                 if (soln != null && soln.getResource("uri") != null) {
                     ObjectNode dataFile = mapper.createObjectNode();
-                    dataFile.put("uri", soln.getResource("uri").getURI());
+                    String dataFileUri = soln.getResource("uri").getURI();
+                    dataFile.put("uri", dataFileUri);
                     
                     if (soln.getLiteral("filename") != null) {
                         dataFile.put("filename", soln.getLiteral("filename").getString());
@@ -197,6 +198,20 @@ public class DAAPI extends Controller {
                     if (soln.getResource("daUri") != null) {
                         dataFile.put("daUri", soln.getResource("daUri").getURI());
                     }
+                    
+                    // Check if DataFile URI graph contains data (DA-SOC data is stored in DataFile URI graph)
+                    boolean hasData = false;
+                    try {
+                        String checkQuery = "SELECT ?s WHERE { GRAPH <" + dataFileUri + "> { ?s ?p ?o } } LIMIT 1";
+                        ResultSetRewindable checkResults = SPARQLUtils.select(
+                            CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), 
+                            checkQuery);
+                        hasData = checkResults.hasNext();
+                    } catch (Exception e) {
+                        // If check fails, assume no data
+                        hasData = false;
+                    }
+                    dataFile.put("ingested", hasData);
                     
                     dataFiles.add(dataFile);
                 }
