@@ -51,6 +51,15 @@ public class Process extends HADatAcThing implements Comparable<Process> {
     @PropertyField(uri = "vstoi:hasTopTask")
     private String hasTopTaskUri;
 
+    @PropertyField(uri = "vstoi:hasLearningObjectives")
+    private String hasLearningObjectives;
+
+    @PropertyField(uri = "vstoi:hasCriticalActions")
+    private String hasCriticalActions;
+
+    @PropertyField(uri = "vstoi:hasDebriefingFocus")
+    private String hasDebriefingFocus;
+
     public String getHasStatus() {
         return hasStatus;
     }
@@ -122,6 +131,30 @@ public class Process extends HADatAcThing implements Comparable<Process> {
         this.hasTopTaskUri = hasTopTaskUri;
     }
 
+    public String getHasLearningObjectives() {
+        return hasLearningObjectives;
+    }
+
+    public void setHasLearningObjectives(String hasLearningObjectives) {
+        this.hasLearningObjectives = hasLearningObjectives;
+    }
+
+    public String getHasCriticalActions() {
+        return hasCriticalActions;
+    }
+
+    public void setHasCriticalActions(String hasCriticalActions) {
+        this.hasCriticalActions = hasCriticalActions;
+    }
+
+    public String getHasDebriefingFocus() {
+        return hasDebriefingFocus;
+    }
+
+    public void setHasDebriefingFocus(String hasDebriefingFocus) {
+        this.hasDebriefingFocus = hasDebriefingFocus;
+    }
+
     public static Process find(String uri) {
  		if (uri == null || uri.isEmpty()) {
 			return null;
@@ -182,6 +215,12 @@ public class Process extends HADatAcThing implements Comparable<Process> {
                     process.setHasEditorEmail(object);
                 } else if (predicate.equals(VSTOI.HAS_TOP_TASK)) {
                     process.setHasTopTaskUri(object);
+                } else if (predicate.equals(VSTOI.HAS_LEARNING_OBJECTIVES)) {
+                    process.setHasLearningObjectives(object);
+                } else if (predicate.equals(VSTOI.HAS_CRITICAL_ACTIONS)) {
+                    process.setHasCriticalActions(object);
+                } else if (predicate.equals(VSTOI.HAS_DEBRIEFING_FOCUS)) {
+                    process.setHasDebriefingFocus(object);
                 }
             }
         }

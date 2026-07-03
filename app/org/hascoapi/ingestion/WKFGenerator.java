@@ -61,7 +61,22 @@ public class WKFGenerator extends BaseGenerator {
         } else if (elementType.equals("process")) {
             row.put("hasco:hascoType", VSTOI.PROCESS);
         } else if (elementType.equals("task")) {
-            row.put("hasco:hascoType", VSTOI.TASK);
+            // CRITICAL FIX: Preserve CTT task type from Excel, don't override
+            // The hasco:hascoType should already be in the row from Excel (column C in Tasks sheet)
+            // Only set default if missing, and validate if present
+            if (!row.containsKey("hasco:hascoType") || row.get("hasco:hascoType").toString().trim().isEmpty()) {
+                // No type specified in Excel - use generic Task as fallback
+                row.put("hasco:hascoType", VSTOI.TASK);
+                System.out.println("[WKFGenerator] WARNING: Task " + row.get("hasURI") + " missing hasco:hascoType, using generic vstoi:Task");
+            } else {
+                // Validate the CTT task type from Excel
+                String taskType = row.get("hasco:hascoType").toString().trim();
+                if (!isValidCTTTaskType(taskType)) {
+                    System.out.println("[WKFGenerator] WARNING: Task " + row.get("hasURI") + " has invalid CTT task type: " + taskType + ", keeping it but validation may fail");
+                    this.dataFile.getLogger().printWarningByIdWithArgs("WKF_00009", row.get("hasURI").toString(), taskType);
+                }
+                // Keep the value from Excel - don't override it
+            }
         } else if (elementType.equals("requiredinstrument")) {
             row.put("hasco:hascoType", VSTOI.REQUIRED_INSTRUMENT);
             // For RequiredInstruments: split concatenated components
@@ -135,6 +150,44 @@ public class WKFGenerator extends BaseGenerator {
                 System.out.println("[WKFGenerator] Split " + propertyKey + " into " + uris.size() + " values: " + uris);
             }
         }
+    }
+
+    /**
+     * Validate if the provided task type is a valid CTT (ConcurTaskTree) task type.
+     * According to WKF-SPEC-V1, valid CTT task types are:
+     * - vstoi:UserTask - Cognitive/motor tasks performed by user
+     * - vstoi:ApplicationTask / vstoi:SystemTask - Automated system tasks
+     * - vstoi:InteractiveTask - User-system collaboration tasks
+     * - vstoi:AbstractTask - High-level decomposable tasks
+     * - Domain-specific extensions (vstoi:*, pmsr:*, etc.)
+     */
+    private boolean isValidCTTTaskType(String taskType) {
+        if (taskType == null || taskType.trim().isEmpty()) {
+            return false;
+        }
+        
+        // Check against standard CTT task types
+        if (taskType.equals(VSTOI.USER_TASK) ||
+            taskType.equals(VSTOI.APPLICATION_TASK) ||
+            taskType.equals(VSTOI.INTERACTIVE_TASK) ||
+            taskType.equals(VSTOI.ABSTRACT_TASK) ||
+            taskType.equals(VSTOI.TASK)) {  // Generic task is also valid
+            return true;
+        }
+        
+        // Check if it's a domain-specific extension (vstoi:*, pmsr:*, etc.)
+        // These are valid as long as they follow the namespace pattern
+        if (taskType.startsWith("vstoi:") || taskType.startsWith("pmsr:") || 
+            taskType.startsWith("hasco:") || taskType.contains("Task")) {
+            return true;
+        }
+        
+        // Check if it's a full URI (starts with http://)
+        if (taskType.startsWith("http://") && taskType.contains("Task")) {
+            return true;
+        }
+        
+        return false;
     }
 
     @Override

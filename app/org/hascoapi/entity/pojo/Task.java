@@ -64,6 +64,9 @@ public class Task extends HADatAcThing implements Comparable<Task> {
     @PropertyField(uri="vstoi:hasIterationConstraint")
     private String hasIterationConstraint;
 
+    @PropertyField(uri="vstoi:supportsObjective")
+    private String supportsObjective;
+
     public String getHasStatus() {
         return hasStatus;
     }
@@ -235,6 +238,14 @@ public class Task extends HADatAcThing implements Comparable<Task> {
         this.hasIterationConstraint = hasIterationConstraint;
     }
 
+    public String getSupportsObjective() {
+        return supportsObjective;
+    }
+
+    public void setSupportsObjective(String supportsObjective) {
+        this.supportsObjective = supportsObjective;
+    }
+
     // Backward-compatible alias used by some clients (e.g., workflow editor)
     public List<Task> getSubtask() {
         List<Task> resp = new ArrayList<Task>();
@@ -372,6 +383,8 @@ public class Task extends HADatAcThing implements Comparable<Task> {
                     }
                 } else if (predicate.equals(VSTOI.HAS_ITERATION_CONSTRAINT)) {
                     task.setHasIterationConstraint(object);
+                } else if (predicate.equals(VSTOI.SUPPORTS_OBJECTIVE)) {
+                    task.setSupportsObjective(object);
                 }
             }
         }

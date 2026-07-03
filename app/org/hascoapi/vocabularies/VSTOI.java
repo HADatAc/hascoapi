@@ -107,6 +107,10 @@ public class VSTOI {
     public static final String HAS_VERSION                  = VSTOI + "hasVersion";
     public static final String HAS_ITERATION_CONSTRAINT     = VSTOI + "hasIterationConstraint";
     public static final String HAS_INSTRUMENT_CONFIG        = VSTOI + "hasInstrumentConfig";
+    public static final String HAS_LEARNING_OBJECTIVES      = VSTOI + "hasLearningObjectives";
+    public static final String HAS_CRITICAL_ACTIONS         = VSTOI + "hasCriticalActions";
+    public static final String HAS_DEBRIEFING_FOCUS         = VSTOI + "hasDebriefingFocus";
+    public static final String SUPPORTS_OBJECTIVE           = VSTOI + "supportsObjective";
     public static final String HOST_TYPE                    = VSTOI + "hostType";
     public static final String IS_ATTRIBUTE_OF              = VSTOI + "isAttributeOf";
     public static final String IS_DAMAGED                   = VSTOI + "isDamaged";

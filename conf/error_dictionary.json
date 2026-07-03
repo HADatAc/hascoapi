@@ -307,7 +307,7 @@
       "content": [
         {
           "id": "GBL_00001",
-          "detail": "Unsupported file name prefix. Accepted prefixes are: DA-, DD-, DOI-, DP2-, DSG-, INS-, KGR-, SDD-, STR-.",
+          "detail": "Unsupported file name prefix. Accepted prefixes are: DA-, DD-, DOI-, DP2-, DSG-, INS-, KGR-, SDD-, STR-, WKF-.",
           "solution": "Rename the file so that its name starts with one of the accepted prefixes followed by a hyphen (for example, 'DSG-myfile.xlsx')."
         },
         {
