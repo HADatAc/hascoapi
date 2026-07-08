@@ -150,37 +150,15 @@ public class StudyGenerator extends BaseGenerator {
             return null;
         }
         
-        // Read hasStudyKG, hasVariableDesign, hasVersion directly from InfoSheet if not already set
-        if ((hasStudyKG == null || hasStudyKG.isEmpty() || 
-             hasVariableDesign == null || hasVariableDesign.isEmpty() || 
-             hasVersion == null || hasVersion.isEmpty()) && 
-            dataFile != null && dataFile.getRecordFile() != null) {
-            
-            System.out.println("StudyGenerator.createRow(): Attempting to read from InfoSheet...");
-            System.out.println("StudyGenerator.createRow(): RecordFile has " + dataFile.getRecordFile().getRecords().size() + " records");
-            
-            for (Record infoRec : dataFile.getRecordFile().getRecords()) {
-                String fieldName = infoRec.getValueByColumnIndex(0);
-                String fieldValue = infoRec.getValueByColumnIndex(1);
-                
-                System.out.println("StudyGenerator.createRow(): InfoSheet row - Field: [" + fieldName + "], Value: [" + fieldValue + "]");
-                
-                if ("hasStudyKG".equals(fieldName) && (hasStudyKG == null || hasStudyKG.isEmpty())) {
-                    hasStudyKG = fieldValue;
-                    System.out.println("StudyGenerator.createRow(): ✅ Read hasStudyKG from InfoSheet: " + hasStudyKG);
-                }
-                if ("hasVariableDesign".equals(fieldName) && (hasVariableDesign == null || hasVariableDesign.isEmpty())) {
-                    hasVariableDesign = fieldValue;
-                    System.out.println("StudyGenerator.createRow(): ✅ Read hasVariableDesign from InfoSheet: " + hasVariableDesign);
-                }
-                if ("hasVersion".equals(fieldName) && (hasVersion == null || hasVersion.isEmpty())) {
-                    hasVersion = fieldValue;
-                    System.out.println("StudyGenerator.createRow(): ✅ Read hasVersion from InfoSheet: " + hasVersion);
-                }
-            }
-            
-            System.out.println("StudyGenerator.createRow(): After InfoSheet read - hasStudyKG: " + hasStudyKG + ", hasVariableDesign: " + hasVariableDesign + ", hasVersion: " + hasVersion);
-        }
+        // Note: hasStudyKG, hasVariableDesign, hasVersion are set via preprocessuris() 
+        // from the GeneratorChain which reads them from the InfoSheet.
+        // Do NOT attempt to read from dataFile.getRecordFile() here as it points to 
+        // the STD sheet at this point, not the InfoSheet.
+        
+        System.out.println("StudyGenerator.createRow(): Using values from preprocessuris():");
+        System.out.println("  hasStudyKG: " + hasStudyKG);
+        System.out.println("  hasVariableDesign: " + hasVariableDesign);
+        System.out.println("  hasVersion: " + hasVersion);
         
         //System.out.println("Inside of StudyGenerator.createRow()");
         Map<String, Object> row = new HashMap<String, Object>();
