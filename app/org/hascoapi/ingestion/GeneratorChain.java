@@ -164,15 +164,14 @@ public class GeneratorChain {
 
                 System.out.println("  → Step 4/5: PostProcess");
                 generator.postprocess();
-                uris = generator.postprocessuris();
-
-                System.out.println("  ✓ Generator completed successfully");
-                System.out.println("  ✓ Generator completed successfully");
+                // Get new URIs from generator and merge with existing map (preserving InfoSheet metadata)
                 Map<String,String> newUris = generator.postprocessuris();
                 System.out.println("GeneratorChain: Generator " + generator.getClass().getSimpleName() + " returned " + newUris.size() + " URIs from postprocessuris()");
-                // Merge new URIs into existing map instead of replacing
+                System.out.println("GeneratorChain: Current uris map size BEFORE merge: " + uris.size());
+                // Merge new URIs into existing map instead of replacing (preserves hasStudyKG, hasVariableDesign, hasVersion from setInfoSheetMetadata)
                 uris.putAll(newUris);
                 System.out.println("GeneratorChain: After merge, uris map now has " + uris.size() + " entries");
+                System.out.println("  ✓ Generator completed successfully");
             } catch (Exception e) {
                 System.out.println("  ✗ GENERATOR FAILED with exception:");
                 System.out.println("     " + e.getClass().getSimpleName() + ": " + e.getMessage());

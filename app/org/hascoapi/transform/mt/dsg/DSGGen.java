@@ -216,13 +216,14 @@ public class DSGGen {
             System.out.println("[DSGGen] No studies found; STD/SSD population skipped");
         }
 
-        // After populating the workbook, keep only the namespaces that are actually referenced.
-        try {
-            pruneUnusedNamespaces(helper.workbook);
-        } catch (Throwable t) {
-            System.err.println("[DSGGen] WARN: failed to prune unused namespaces: " + t.getMessage());
-            t.printStackTrace();
-        }
+        // DISABLED: Namespace pruning removed because DA-SOC files may use prefixes not found in DSG sheets.
+        // The Namespaces sheet is user-curated and should be preserved as-is.
+        // try {
+        //     pruneUnusedNamespaces(helper.workbook);
+        // } catch (Throwable t) {
+        //     System.err.println("[DSGGen] WARN: failed to prune unused namespaces: " + t.getMessage());
+        //     t.printStackTrace();
+        // }
 
         String saveResult;
         try {
@@ -304,13 +305,14 @@ public class DSGGen {
             t.printStackTrace();
         }
 
-        // After populating the workbook, keep only the namespaces that are actually referenced.
-        try {
-            pruneUnusedNamespaces(helper.workbook);
-        } catch (Throwable t) {
-            System.err.println("[DSGGen] WARN: failed to prune unused namespaces: " + t.getMessage());
-            t.printStackTrace();
-        }
+        // DISABLED: Namespace pruning removed because DA-SOC files may use prefixes not found in DSG sheets.
+        // The Namespaces sheet is user-curated and should be preserved as-is.
+        // try {
+        //     pruneUnusedNamespaces(helper.workbook);
+        // } catch (Throwable t) {
+        //     System.err.println("[DSGGen] WARN: failed to prune unused namespaces: " + t.getMessage());
+        //     t.printStackTrace();
+        // }
 
         String saveResult;
         try {
@@ -410,13 +412,14 @@ public class DSGGen {
             System.out.println("[DSGGen] No studies found for manager/status; STD/SSD population skipped");
         }
 
-        // After populating the workbook, keep only the namespaces that are actually referenced.
-        try {
-            pruneUnusedNamespaces(helper.workbook);
-        } catch (Throwable t) {
-            System.err.println("[DSGGen] WARN: failed to prune unused namespaces: " + t.getMessage());
-            t.printStackTrace();
-        }
+        // DISABLED: Namespace pruning removed because DA-SOC files may use prefixes not found in DSG sheets.
+        // The Namespaces sheet is user-curated and should be preserved as-is.
+        // try {
+        //     pruneUnusedNamespaces(helper.workbook);
+        // } catch (Throwable t) {
+        //     System.err.println("[DSGGen] WARN: failed to prune unused namespaces: " + t.getMessage());
+        //     t.printStackTrace();
+        // }
 
         String saveResult;
         try {
@@ -708,6 +711,9 @@ public class DSGGen {
         usedPrefixes.add("rdfs");
         usedPrefixes.add("owl");
         usedPrefixes.add("xsd");
+        // Keep building ontology prefixes - often used in DA-SOC files (not DSG sheets)
+        usedPrefixes.add("brick");
+        usedPrefixes.add("bot");
 
         // Namespaces sheet columns: 0=hasPrefix, 1=hasNameSpace, 2=hasFormat, 3=hasSource
         // We delete rows whose prefix isn't used.
