@@ -48,20 +48,27 @@ done
 
 USE_NO_CACHE=false
 REBUILD_VOLUME=false
+DRY_RUN=false
+CONFIG_FILE=""
 for arg in "$@"; do
   if [ "$arg" = "--no-cache" ]; then
     USE_NO_CACHE=true
-  fi
-  if [ "$arg" = "--rebuild-volume" ]; then
+  elif [ "$arg" = "--rebuild-volume" ]; then
     REBUILD_VOLUME=true
+  elif [ "$arg" = "--dry-run" ] || [ "$arg" = "--validate-only" ]; then
+    DRY_RUN=true
+  elif [[ "$arg" == -* ]]; then
+    error "Unknown flag: $arg"
+  elif [[ "$arg" != -* ]] && [ -z "$CONFIG_FILE" ]; then
+    CONFIG_FILE="$arg"
+  elif [[ "$arg" != -* ]]; then
+    error "Unexpected extra positional argument: $arg"
   fi
 done
 
-if [ $# -lt 1 ]; then
-  error "infra-config.local.json path is required.\n\nUsage: $0 /path/to/infra-config.local.json [--no-cache] [--rebuild-volume]"
+if [ -z "$CONFIG_FILE" ]; then
+  error "infra-config.local.json path is required.\n\nUsage: $0 /path/to/infra-config.local.json [--dry-run] [--no-cache] [--rebuild-volume]"
 fi
-
-CONFIG_FILE="$1"
 if [ ! -f "$CONFIG_FILE" ]; then
   error "Configuration file not found: $CONFIG_FILE"
 fi
@@ -107,6 +114,11 @@ info "  Host: $HOST"
 info "  Port: $PORT"
 info "  Node Environment: $NODE_ENV"
 info "  Log Level: $LOG_LEVEL"
+
+if [ "$DRY_RUN" = true ]; then
+  success "Dry-run validation passed for rdf-hub-a (HASCOAPI) (no Docker actions executed)."
+  exit 0
+fi
 
 # Handle volume rebuild if requested
 if [ "$REBUILD_VOLUME" = true ]; then
