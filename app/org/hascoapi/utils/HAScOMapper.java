@@ -18,6 +18,23 @@ public class HAScOMapper {
 
     public static final String ESSENTIAL = "essential";
 
+    private static boolean isTaskType(String typeUri) {
+        if (typeUri == null || typeUri.isEmpty()) {
+            return false;
+        }
+
+        if (typeUri.equals(VSTOI.TASK) ||
+            typeUri.equals(VSTOI.ABSTRACT_TASK) ||
+            typeUri.equals(VSTOI.APPLICATION_TASK) ||
+            typeUri.equals(VSTOI.INTERACTIVE_TASK) ||
+            typeUri.equals(VSTOI.USER_TASK)) {
+            return true;
+        }
+
+        // Accept ontology/domain task extensions like ClinicalTask, etc.
+        return typeUri.endsWith("Task");
+    }
+
     /**
      *
      * This method requests a typeResult that is the main HAScO concept to be
@@ -573,14 +590,14 @@ public class HAScOMapper {
         }
 
         // TASK
-        if (mode.equals(FULL) && typeResult.equals(VSTOI.TASK)) {
+        if (mode.equals(FULL) && isTaskType(typeResult)) {
             filterProvider.addFilter("taskFilter", SimpleBeanPropertyFilter.serializeAll());
         } else {
             filterProvider.addFilter("taskFilter",
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
                             "hasImageUri", "hasWebDocument", "hascoTypeLabel", "comment", "hasLanguage", "hasVersion", 
                             "hasTemporalDependency", "temporalDependencyLabel", 
-                            "wasDerivedFrom", "wasGeneratedBy", "hasSIRManagerEmail", "hasEditorEmail", "hasSupertask", "subtask", 
+                            "wasDerivedFrom", "wasGeneratedBy", "hasSIRManagerEmail", "hasEditorEmail", "hasSupertask", "hasSupertaskUri", "subtask", "hasSubtaskUris",
                             "requiredInstrumentation"));
         }
  

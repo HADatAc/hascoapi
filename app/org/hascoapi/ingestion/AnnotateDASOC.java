@@ -28,6 +28,7 @@ import org.hascoapi.entity.pojo.ContainerSlot;
 import org.hascoapi.entity.pojo.Codebook;
 import org.hascoapi.entity.pojo.ResponseOption;
 import org.hascoapi.entity.pojo.AnnotationStem;
+import org.hascoapi.RepositoryInstance;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.ErrorDictionary;
 import org.hascoapi.utils.GSPClient;
@@ -64,6 +65,60 @@ public class AnnotateDASOC {
 
     private static final int BATCH_SIZE = 10000;
     private static final String TIMESTAMP_PREDICATE = "http://hadatac.org/ont/hasco/hasTimestamp";
+    private static final Map<String, String> DASOC_DEFAULT_PREDICATES = createDasocDefaultPredicates();
+
+    private static Map<String, String> createDasocDefaultPredicates() {
+        Map<String, String> map = new HashMap<>();
+        map.put("containedinplace", "http://schema.org/containedInPlace");
+        map.put("sameas", "http://schema.org/sameAs");
+        map.put("alternatename", "http://schema.org/alternateName");
+        map.put("url", "http://schema.org/url");
+        map.put("name", "http://schema.org/name");
+        map.put("description", "http://schema.org/description");
+        map.put("latitude", "http://schema.org/latitude");
+        map.put("longitude", "http://schema.org/longitude");
+        return map;
+    }
+
+    private static String normalizePredicateHeader(String predicateHeader) {
+        if (predicateHeader == null) {
+            return "";
+        }
+
+        String trimmed = predicateHeader.trim();
+        if (trimmed.isEmpty()) {
+            return "";
+        }
+
+        String expanded = URIUtils.replacePrefixEx(trimmed);
+        if (expanded != null && (expanded.startsWith("http://") || expanded.startsWith("https://"))) {
+            return expanded;
+        }
+
+        // If the header is a bare token, map common DA-SOC columns to schema.org predicates.
+        if (!trimmed.contains(":")) {
+            String mapped = DASOC_DEFAULT_PREDICATES.get(trimmed.toLowerCase());
+            if (mapped != null) {
+                return mapped;
+            }
+
+            // For unprefixed headers, use the repository default namespace (e.g., pharma:).
+            // This prevents Jena from resolving bare names against a localhost base URI.
+            String defaultNamespace = null;
+            if (RepositoryInstance.getInstance() != null) {
+                defaultNamespace = RepositoryInstance.getInstance().getHasDefaultNamespaceURL();
+            }
+            if (defaultNamespace != null && !defaultNamespace.trim().isEmpty()) {
+                String ns = defaultNamespace.trim();
+                if (!ns.endsWith("/") && !ns.endsWith("#")) {
+                    ns = ns + "/";
+                }
+                return ns + trimmed;
+            }
+        }
+
+        return expanded == null ? trimmed : expanded;
+    }
 
     /**
      * IngestionWorker-compatible exec method that returns GeneratorChain.
@@ -465,6 +520,7 @@ public class AnnotateDASOC {
         int totalRows = 0;
         int skippedRows = 0;
         int errorRows = 0;
+        Set<String> unresolvedPredicateHeaders = new HashSet<>();
         Model model = ModelFactory.createDefaultModel();
 
         // Add namespace prefixes
@@ -602,9 +658,14 @@ public class AnnotateDASOC {
                         String value = record.get(propertyUri).trim();
 
                         if (!value.isEmpty() && !propertyUri.isEmpty()) {
-                            String expandedPropertyUri = URIUtils.replacePrefixEx(propertyUri);
+                            String expandedPropertyUri = normalizePredicateHeader(propertyUri);
                             if (expandedPropertyUri == null || expandedPropertyUri.isEmpty()) {
                                 expandedPropertyUri = propertyUri;
+                            }
+
+                            // Debug visibility: capture headers that did not expand into absolute URIs.
+                            if (!expandedPropertyUri.startsWith("http://") && !expandedPropertyUri.startsWith("https://")) {
+                                unresolvedPredicateHeaders.add(propertyUri + " -> " + expandedPropertyUri);
                             }
 
                             Property property = model.createProperty(expandedPropertyUri);
@@ -639,7 +700,7 @@ public class AnnotateDASOC {
                                 // Collect properties for enrichment
                                 Map<String, String> propertiesMap = new HashMap<>();
                                 for (int i = 1; i < headers.size(); i++) {
-                                    String predicateUri = URIUtils.replacePrefixEx(headers.get(i));
+                                    String predicateUri = normalizePredicateHeader(headers.get(i));
                                     String columnName = headers.get(i);
                                     String value = record.get(columnName).trim();
                                     if (!value.isEmpty()) {
@@ -680,7 +741,48 @@ public class AnnotateDASOC {
         // Save model to triplestore if we have data
         if (totalRows > 0) {
             String namedGraphUri = dataFile.getUri();
+
+            if (!unresolvedPredicateHeaders.isEmpty()) {
+                String unresolvedList = String.join(", ", unresolvedPredicateHeaders);
+                dataFile.getLogger().printWarning(
+                    "[STEP4->STEP5] Unresolved/non-URI predicate headers detected: " + unresolvedList);
+                System.out.println(
+                    "[STEP4->STEP5][WARNING] Unresolved/non-URI predicate headers: " + unresolvedList);
+            }
+
+            // Debug bridge between Step 4 (rows processed/model built) and Step 5 (graph write).
+            long modelTripleCount = model.size();
+            int beforeGraphCount = getGraphTripleCount(namedGraphUri, dataFile);
+            String namespaceSummary = summarizePredicateNamespaces(model);
+
+            dataFile.getLogger().println(String.format(
+                "[STEP4->STEP5] Pre-write diagnostics: rowsProcessed=%d, modelTriples=%d, targetGraph=<%s>, graphTriplesBefore=%d",
+                totalRows, modelTripleCount, namedGraphUri, beforeGraphCount));
+            dataFile.getLogger().println("[STEP4->STEP5] Predicate namespace summary: " + namespaceSummary);
+
+            System.out.println(String.format(
+                "[STEP4->STEP5] rowsProcessed=%d modelTriples=%d targetGraph=%s graphTriplesBefore=%d",
+                totalRows, modelTripleCount, namedGraphUri, beforeGraphCount));
+            System.out.println("[STEP4->STEP5] predicateNamespaces=" + namespaceSummary);
+
             saveModelToTriplestore(model, namedGraphUri, dataFile);
+
+            int afterGraphCount = getGraphTripleCount(namedGraphUri, dataFile);
+            int delta = (beforeGraphCount >= 0 && afterGraphCount >= 0) ? (afterGraphCount - beforeGraphCount) : -1;
+
+            dataFile.getLogger().println(String.format(
+                "[STEP4->STEP5] Post-write diagnostics: graphTriplesAfter=%d, delta=%d",
+                afterGraphCount, delta));
+            System.out.println(String.format(
+                "[STEP4->STEP5] graphTriplesAfter=%d delta=%d",
+                afterGraphCount, delta));
+
+            if (beforeGraphCount >= 0 && afterGraphCount >= 0 && modelTripleCount > 0 && delta <= 0) {
+                dataFile.getLogger().printWarning(
+                    "[STEP4->STEP5] Graph triple count did not increase after write. Check graph URI and predicate namespaces.");
+                System.out.println(
+                    "[STEP4->STEP5][WARNING] Graph triple count did not increase after write.");
+            }
 
             dataFile.getLogger().println(String.format(
                 "✅ Processing complete: %d rows processed, %d skipped, %d errors",
@@ -915,8 +1017,8 @@ public class AnnotateDASOC {
                             continue; // Skip empty values
                         }
 
-                        // Expand predicate URI if it uses prefixes
-                        predicateUri = URIUtils.replacePrefixEx(predicateUri);
+                        // Normalize predicate URI (prefix expansion + bare-token default namespace fallback)
+                        predicateUri = normalizePredicateHeader(predicateUri);
 
                         // Create property
                         Property predicate = model.createProperty(predicateUri);
@@ -943,7 +1045,7 @@ public class AnnotateDASOC {
                     // Coleta todas as propriedades desta linha para enriquecer a entidade vstoi correspondente
                     Map<String, String> properties = new HashMap<>();
                     for (int i = 1; i < headers.size(); i++) {
-                        String predicateUri = URIUtils.replacePrefixEx(headers.get(i));
+                        String predicateUri = normalizePredicateHeader(headers.get(i));
                         String columnName = headers.get(i);  // ✅ FIX: Use column name
                         String value = record.get(columnName).trim();  // ✅ FIX: Access by column name
                         if (!value.isEmpty()) {
@@ -1040,6 +1142,62 @@ public class AnnotateDASOC {
         if (pharmaNamespace != null && pharmaNamespace.getUri() != null) {
             model.setNsPrefix("pharma", pharmaNamespace.getUri());
         }
+    }
+
+    private static int getGraphTripleCount(String graphUri, DataFile dataFile) {
+        try {
+            String queryString = "SELECT (COUNT(*) AS ?n) WHERE { GRAPH <" + graphUri + "> { ?s ?p ?o } }";
+            org.apache.jena.query.ResultSet results = SPARQLUtils.select(
+                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY),
+                    queryString);
+
+            if (results.hasNext()) {
+                org.apache.jena.query.QuerySolution soln = results.next();
+                if (soln.get("n") != null && soln.get("n").isLiteral()) {
+                    // Use lexical form instead of toString() to avoid values like
+                    // "746^^http://www.w3.org/2001/XMLSchema#integer".
+                    String lexical = soln.getLiteral("n").getLexicalForm();
+                    return Integer.parseInt(lexical);
+                }
+            }
+        } catch (Exception e) {
+            dataFile.getLogger().printWarning("[STEP4->STEP5] Could not query graph triple count: " + e.getMessage());
+            System.out.println("[STEP4->STEP5][WARNING] Could not query graph triple count: " + e.getMessage());
+        }
+        return -1;
+    }
+
+    private static String summarizePredicateNamespaces(Model model) {
+        try {
+            Map<String, Integer> counts = new HashMap<>();
+            StmtIterator stmtIterator = model.listStatements();
+            while (stmtIterator.hasNext()) {
+                Statement st = stmtIterator.nextStatement();
+                String predUri = st.getPredicate().getURI();
+                String ns = extractNamespace(predUri);
+                counts.put(ns, counts.getOrDefault(ns, 0) + 1);
+            }
+
+            return counts.entrySet().stream()
+                    .sorted((a, b) -> Integer.compare(b.getValue(), a.getValue()))
+                    .map(e -> e.getKey() + "=" + e.getValue())
+                    .collect(Collectors.joining(", "));
+        } catch (Exception e) {
+            return "namespace-summary-error=" + e.getMessage();
+        }
+    }
+
+    private static String extractNamespace(String uri) {
+        if (uri == null || uri.isEmpty()) {
+            return "<empty>";
+        }
+        int hashIdx = uri.lastIndexOf('#');
+        int slashIdx = uri.lastIndexOf('/');
+        int idx = Math.max(hashIdx, slashIdx);
+        if (idx >= 0) {
+            return uri.substring(0, idx + 1);
+        }
+        return uri;
     }
 
     /**

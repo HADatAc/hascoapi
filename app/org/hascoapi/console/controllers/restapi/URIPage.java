@@ -278,7 +278,11 @@ public class URIPage extends Controller {
                 finalResult = WKF.find(uri);
             } else if (hascoTypeUri.equals(VSTOI.SUBCONTAINER)) {
                 finalResult = Subcontainer.find(uri);
-            } else if (hascoTypeUri.equals(VSTOI.TASK)) {
+            } else if (hascoTypeUri.equals(VSTOI.TASK) ||
+                       hascoTypeUri.equals(VSTOI.ABSTRACT_TASK) ||
+                       hascoTypeUri.equals(VSTOI.APPLICATION_TASK) ||
+                       hascoTypeUri.equals(VSTOI.INTERACTIVE_TASK) ||
+                       hascoTypeUri.equals(VSTOI.USER_TASK)) {
                 finalResult = Task.find(uri);
             } else if (hascoTypeUri.equals(SIO.UNIT)) {
                 finalResult = Unit.find(uri);
