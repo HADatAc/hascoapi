@@ -162,7 +162,13 @@ public class Task extends HADatAcThing implements Comparable<Task> {
     }
 
     public void addHasRequiredInstrumentUri(String hasRequiredInstrumentUri) {
-        this.hasRequiredInstrumentUris.add(hasRequiredInstrumentUri);
+        if (hasRequiredInstrumentUri == null || hasRequiredInstrumentUri.trim().isEmpty()) {
+            return;
+        }
+        String cleanUri = hasRequiredInstrumentUri.trim();
+        if (!this.hasRequiredInstrumentUris.contains(cleanUri)) {
+            this.hasRequiredInstrumentUris.add(cleanUri);
+        }
     }
 
     public List<RequiredInstrument> getRequiredInstrument() {
@@ -217,7 +223,13 @@ public class Task extends HADatAcThing implements Comparable<Task> {
     }
 
     public void addHasSubtaskUri(String hasSubtaskUri) {
-        this.hasSubtaskUris.add(hasSubtaskUri);
+        if (hasSubtaskUri == null || hasSubtaskUri.trim().isEmpty()) {
+            return;
+        }
+        String cleanUri = hasSubtaskUri.trim();
+        if (!this.hasSubtaskUris.contains(cleanUri)) {
+            this.hasSubtaskUris.add(cleanUri);
+        }
     }
 
     public void removeHasSubtaskUri(String hasSubtaskUri) {
@@ -287,26 +299,35 @@ public class Task extends HADatAcThing implements Comparable<Task> {
 			return null;
 		}
 		Task task = null;
-		// Construct the SELECT query to retrieve named graphs
-		String queryString = "SELECT DISTINCT ?graph ?p ?o WHERE { GRAPH ?graph { <" + uri + "> ?p ?o } }";
-		ResultSet resultSet = SPARQLUtils.select(CollectionUtil.getCollectionPath(
+
+        // Retrieve one named graph where the task exists (for compatibility with update flows).
+        String graphQuery = "SELECT ?graph WHERE { GRAPH ?graph { <" + uri + "> ?p ?o } } LIMIT 1";
+        ResultSet graphResultSet = SPARQLUtils.select(CollectionUtil.getCollectionPath(
+        	CollectionUtil.Collection.SPARQL_QUERY), graphQuery);
+
+        String namedGraph = "";
+        if (graphResultSet != null && graphResultSet.hasNext()) {
+            QuerySolution gqs = graphResultSet.next();
+            if (gqs.contains("graph")) {
+                namedGraph = gqs.get("graph").toString();
+            }
+        }
+
+        // Deduplicate across graphs by selecting only predicate/object pairs.
+        String queryString = "SELECT DISTINCT ?p ?o WHERE { GRAPH ?graph { <" + uri + "> ?p ?o } }";
+        ResultSet resultSet = SPARQLUtils.select(CollectionUtil.getCollectionPath(
         	CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
 		if (!resultSet.hasNext()) {
 			return null;
 		} else {
             task = new Task();
+            task.setNamedGraph(namedGraph);
 		}
 
 		// Iterate over results
 		while (resultSet.hasNext()) {
 			QuerySolution qs = resultSet.next();
-			
-			// Retrieve the named graph URI
-			if (qs.contains("graph")) {
-				task.setNamedGraph(qs.get("graph").toString());
-				//System.out.println("Graph: " + graphURI);
-			}
 			
 			// Retrieve predicate and object (optional)
 			if (qs.contains("p") && qs.contains("o")) {

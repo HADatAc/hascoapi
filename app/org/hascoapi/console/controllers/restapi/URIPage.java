@@ -14,8 +14,10 @@ import org.hascoapi.Constants;
 import org.hascoapi.RepositoryInstance;
 import org.hascoapi.entity.pojo.*;
 import org.hascoapi.utils.ApiUtil;
+import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.HAScOMapper;
 import org.hascoapi.utils.NameSpaces;
+import org.hascoapi.utils.SPARQLUtils;
 import org.hascoapi.utils.Utils;
 import org.hascoapi.vocabularies.FOAF;
 import org.hascoapi.vocabularies.HASCO;
@@ -23,16 +25,34 @@ import org.hascoapi.vocabularies.OWL;
 import org.hascoapi.vocabularies.SCHEMA;
 import org.hascoapi.vocabularies.SIO;
 import org.hascoapi.vocabularies.VSTOI;
+import org.apache.jena.query.ResultSetRewindable;
 import play.mvc.Controller;
 import play.mvc.Result;
 
 public class URIPage extends Controller {
+
+    private Result apiError(int statusCode, String code, String message) {
+        ObjectNode response = new ObjectMapper().createObjectNode();
+        response.put("isSuccessful", false);
+        response.put("code", code);
+        response.put("body", message == null ? "" : message);
+        return status(statusCode, response);
+    }
 
     public Result getUri(String uri) {
 
         //System.out.println("URIPage.getUri() with uri [" + uri + "]");
         if (!uri.startsWith("http://") && !uri.startsWith("https://")) {
             return ok(ApiUtil.createResponse("[" + uri + "] is an invalid URI", false));
+        }
+
+        // Determine upfront whether this URI belongs to a Task family element.
+        GenericInstance preResolved = GenericInstance.find(uri);
+        boolean isTaskUri = false;
+        if (preResolved != null) {
+            String preHascoType = preResolved.getHascoTypeUri() == null ? "" : preResolved.getHascoTypeUri();
+            String preType = preResolved.getTypeUri() == null ? "" : preResolved.getTypeUri();
+            isTaskUri = isTaskType(preHascoType, preType);
         }
 
         // Handle URI sets (multiple URIs separated by semicolons)
@@ -51,6 +71,9 @@ public class URIPage extends Controller {
 
         HADatAcThing finalResult = URIPage.objectFromUri(uri);
         if (finalResult == null) {
+            if (isTaskUri) {
+                return apiError(404, "URI_NOT_FOUND", "No element with URI [" + uri + "] has been found");
+            }
             return ok(ApiUtil.createResponse("Uri [" + uri + "] returned no object from the knowledge graph", false));
         }
 
@@ -58,6 +81,9 @@ public class URIPage extends Controller {
         if (hascoTypeUri == null || hascoTypeUri.equals("")) {
             String typeUri = finalResult.getTypeUri();
             if (typeUri == null || typeUri.equals("")) {
+                if (isTaskUri) {
+                    return apiError(404, "TYPE_NOT_RESOLVED", "No type-specific instance found for uri [" + uri + "]");
+                }
                 return ok(ApiUtil.createResponse("No type-specific instance found for uri [" + uri + "]", false));
             }
         }
@@ -278,11 +304,7 @@ public class URIPage extends Controller {
                 finalResult = WKF.find(uri);
             } else if (hascoTypeUri.equals(VSTOI.SUBCONTAINER)) {
                 finalResult = Subcontainer.find(uri);
-            } else if (hascoTypeUri.equals(VSTOI.TASK) ||
-                       hascoTypeUri.equals(VSTOI.ABSTRACT_TASK) ||
-                       hascoTypeUri.equals(VSTOI.APPLICATION_TASK) ||
-                       hascoTypeUri.equals(VSTOI.INTERACTIVE_TASK) ||
-                       hascoTypeUri.equals(VSTOI.USER_TASK)) {
+            } else if (isTaskType(hascoTypeUri, resultTypeUri)) {
                 finalResult = Task.find(uri);
             } else if (hascoTypeUri.equals(SIO.UNIT)) {
                 finalResult = Unit.find(uri);
@@ -326,6 +348,65 @@ public class URIPage extends Controller {
             e.printStackTrace();
         }
         return "";
+    }
+
+    /**
+     * Determines whether an instance type should be resolved as Task.
+     * Supports exact known VSTOI task types and ontology subclass expansion.
+     */
+    private static boolean isTaskType(String hascoTypeUri, String rdfTypeUri) {
+        if (isKnownTaskType(hascoTypeUri) || isKnownTaskType(rdfTypeUri)) {
+            return true;
+        }
+
+        // Fallback heuristic for domain-specific extensions (e.g., custom *Task classes).
+        if (looksLikeTaskType(hascoTypeUri) || looksLikeTaskType(rdfTypeUri)) {
+            return true;
+        }
+
+        // Final fallback: ask the ontology if either type is a subclass of vstoi:Task.
+        return isSubclassOfTask(hascoTypeUri) || isSubclassOfTask(rdfTypeUri);
+    }
+
+    private static boolean isKnownTaskType(String typeUri) {
+        if (typeUri == null || typeUri.isEmpty()) {
+            return false;
+        }
+        return typeUri.equals(VSTOI.TASK)
+                || typeUri.equals(VSTOI.ABSTRACT_TASK)
+                || typeUri.equals(VSTOI.APPLICATION_TASK)
+                || typeUri.equals(VSTOI.INTERACTIVE_TASK)
+                || typeUri.equals(VSTOI.USER_TASK);
+    }
+
+    private static boolean looksLikeTaskType(String typeUri) {
+        if (typeUri == null || typeUri.isEmpty()) {
+            return false;
+        }
+        int hash = typeUri.lastIndexOf('#');
+        int slash = typeUri.lastIndexOf('/');
+        int idx = Math.max(hash, slash);
+        String local = idx >= 0 && idx < typeUri.length() - 1 ? typeUri.substring(idx + 1) : typeUri;
+        return local.endsWith("Task");
+    }
+
+    private static boolean isSubclassOfTask(String typeUri) {
+        if (typeUri == null || typeUri.isEmpty() || !typeUri.startsWith("http")) {
+            return false;
+        }
+        String query = NameSpaces.getInstance().printSparqlNameSpaceList()
+                + "SELECT ?cls WHERE { "
+                + "<" + typeUri + "> rdfs:subClassOf* vstoi:Task . "
+                + "BIND(<" + typeUri + "> AS ?cls) "
+                + "} LIMIT 1";
+        try {
+            ResultSetRewindable rs = SPARQLUtils.select(
+                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY),
+                    query);
+            return rs != null && rs.hasNext();
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     /**
