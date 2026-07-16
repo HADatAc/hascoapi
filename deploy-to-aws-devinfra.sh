@@ -54,15 +54,9 @@ COPY --from=builder /hascoapi/target/universal/hascoapi-10.0.1-SNAPSHOT /hascoap
 # Copy configuration files (overwrite defaults)
 COPY ./conf/hascoapi-docker.conf /hascoapi/conf/hascoapi.conf
 COPY ./docker-entrypoint.sh /hascoapi/docker-entrypoint.sh
-COPY ./load-pharma-ontology.sh /hascoapi/load-pharma-ontology.sh
-
-# Copy pharma ontology
-RUN mkdir -p /var/hascoapi/app_ontology
-COPY ./app_ontology/pharma.owl /var/hascoapi/app_ontology/pharma.owl
 
 # Make scripts executable
-RUN chmod +x /hascoapi/docker-entrypoint.sh && \
-    chmod +x /hascoapi/load-pharma-ontology.sh
+RUN chmod +x /hascoapi/docker-entrypoint.sh
 
 EXPOSE 9000
 
