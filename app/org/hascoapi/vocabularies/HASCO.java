@@ -148,6 +148,16 @@ public class HASCO {
     public static final String HAS_STUDY_KG                           = "http://hadatac.org/ont/hasco/hasStudyKG";
     public static final String HAS_STUDY_OBJECT                       = "http://hadatac.org/ont/hasco/hasStudyObject";
     public static final String HAS_STUDY_OBJECT_TYPE                  = "http://hadatac.org/ont/hasco/hasStudyObjectType";
+    
+    // ProcessBasedStudy properties (NEW - v1.1)
+    public static final String HAS_PROCESS                            = "http://hadatac.org/ont/hasco/hasProcess";
+    public static final String HAS_STUDY_ID                           = "http://hadatac.org/ont/hasco/hasStudyID";
+    public static final String HAS_SPECIFIC_AIMS                      = "http://hadatac.org/ont/hasco/hasSpecificAims";
+    public static final String HAS_SIGNIFICANCE                       = "http://hadatac.org/ont/hasco/hasSignificance";
+    public static final String HAS_CONTACT_EMAIL                      = "http://hadatac.org/ont/hasco/hasContactEmail";
+    public static final String HAS_START_DATE                         = "http://hadatac.org/ont/hasco/hasStartDate";
+    public static final String HAS_END_DATE                           = "http://hadatac.org/ont/hasco/hasEndDate";
+    
     public static final String HAS_SUBMISSION_TIME                    = "http://hadatac.org/ont/hasco/hasSumissionTime";
     public static final String HAS_THIRD_COORDINATE                   = "http://hadatac.org/ont/hasco/hasThirdCoordinate";
     public static final String HAS_THIRD_COORDINATE_UNIT              = "http://hadatac.org/ont/hasco/hasThirdCoordinateUnit";

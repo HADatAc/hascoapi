@@ -60,6 +60,34 @@ public class Process extends HADatAcThing implements Comparable<Process> {
     @PropertyField(uri = "vstoi:hasDebriefingFocus")
     private String hasDebriefingFocus;
 
+    // NEW v1.1: Study metadata properties (from WKF Excel columns S-AA)
+    @PropertyField(uri = "hasco:hasStudyID")
+    private String studyID;
+
+    @PropertyField(uri = "hasco:hasStudyTitle")
+    private String studyTitle;
+
+    @PropertyField(uri = "hasco:hasSpecificAims")
+    private String specificAims;
+
+    @PropertyField(uri = "hasco:hasSignificance")
+    private String significance;
+
+    @PropertyField(uri = "hasco:hasInstitution")
+    private String institution;
+
+    @PropertyField(uri = "hasco:hasPrincipalInvestigator")
+    private String principalInvestigator;
+
+    @PropertyField(uri = "hasco:hasContactEmail")
+    private String contactEmail;
+
+    @PropertyField(uri = "hasco:hasStartDate")
+    private String startDate;
+
+    @PropertyField(uri = "hasco:hasEndDate")
+    private String endDate;
+
     public String getHasStatus() {
         return hasStatus;
     }
@@ -155,6 +183,79 @@ public class Process extends HADatAcThing implements Comparable<Process> {
         this.hasDebriefingFocus = hasDebriefingFocus;
     }
 
+    // NEW v1.1: Getters and Setters for study metadata properties
+    public String getStudyID() {
+        return studyID;
+    }
+
+    public void setStudyID(String studyID) {
+        this.studyID = studyID;
+    }
+
+    public String getStudyTitle() {
+        return studyTitle;
+    }
+
+    public void setStudyTitle(String studyTitle) {
+        this.studyTitle = studyTitle;
+    }
+
+    public String getSpecificAims() {
+        return specificAims;
+    }
+
+    public void setSpecificAims(String specificAims) {
+        this.specificAims = specificAims;
+    }
+
+    public String getSignificance() {
+        return significance;
+    }
+
+    public void setSignificance(String significance) {
+        this.significance = significance;
+    }
+
+    public String getInstitution() {
+        return institution;
+    }
+
+    public void setInstitution(String institution) {
+        this.institution = institution;
+    }
+
+    public String getPrincipalInvestigator() {
+        return principalInvestigator;
+    }
+
+    public void setPrincipalInvestigator(String principalInvestigator) {
+        this.principalInvestigator = principalInvestigator;
+    }
+
+    public String getContactEmail() {
+        return contactEmail;
+    }
+
+    public void setContactEmail(String contactEmail) {
+        this.contactEmail = contactEmail;
+    }
+
+    public String getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
+    }
+
+    public String getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(String endDate) {
+        this.endDate = endDate;
+    }
+
     public static Process find(String uri) {
  		if (uri == null || uri.isEmpty()) {
 			return null;
@@ -221,6 +322,25 @@ public class Process extends HADatAcThing implements Comparable<Process> {
                     process.setHasCriticalActions(object);
                 } else if (predicate.equals(VSTOI.HAS_DEBRIEFING_FOCUS)) {
                     process.setHasDebriefingFocus(object);
+                // NEW v1.1: Handle study metadata properties
+                } else if (predicate.equals(HASCO.HAS_STUDY_ID)) {
+                    process.setStudyID(object);
+                } else if (predicate.equals(HASCO.HAS_TITLE)) {
+                    process.setStudyTitle(object);
+                } else if (predicate.equals(HASCO.HAS_SPECIFIC_AIMS)) {
+                    process.setSpecificAims(object);
+                } else if (predicate.equals(HASCO.HAS_SIGNIFICANCE)) {
+                    process.setSignificance(object);
+                } else if (predicate.equals(HASCO.HAS_INSTITUTION)) {
+                    process.setInstitution(object);
+                } else if (predicate.equals(HASCO.HAS_PI)) {
+                    process.setPrincipalInvestigator(object);
+                } else if (predicate.equals(HASCO.HAS_CONTACT_EMAIL)) {
+                    process.setContactEmail(object);
+                } else if (predicate.equals(HASCO.HAS_START_DATE)) {
+                    process.setStartDate(object);
+                } else if (predicate.equals(HASCO.HAS_END_DATE)) {
+                    process.setEndDate(object);
                 }
             }
         }
