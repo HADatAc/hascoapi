@@ -115,24 +115,8 @@
     <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
   </owl:DatatypeProperty>
 
-  <!-- Process Study Extension -->
-  <owl:ObjectProperty rdf:about="https://pharma.graxiom.com/ont/hasProcess">
-    <rdfs:label>has Process</rdfs:label>
-    <rdfs:comment>Links a specialized study to at least one workflow process.</rdfs:comment>
-    <rdfs:domain rdf:resource="https://pharma.graxiom.com/ont/ProcessStudy"/>
-    <rdfs:range rdf:resource="http://hadatac.org/ont/vstoi#Process"/>
-  </owl:ObjectProperty>
-
-  <owl:Class rdf:about="https://pharma.graxiom.com/ont/ProcessStudy">
-    <rdfs:label>Process Study</rdfs:label>
-    <rdfs:comment>Specialization of hasco:Study that requires at least one vstoi:Process.</rdfs:comment>
-    <rdfs:subClassOf rdf:resource="http://hadatac.org/ont/hasco/Study"/>
-    <rdfs:subClassOf>
-      <owl:Restriction>
-        <owl:onProperty rdf:resource="https://pharma.graxiom.com/ont/hasProcess"/>
-        <owl:someValuesFrom rdf:resource="http://hadatac.org/ont/vstoi#Process"/>
-      </owl:Restriction>
-    </rdfs:subClassOf>
-  </owl:Class>
+  <!-- NOTE: ProcessBasedStudy is defined in HASCO v1.5 as hasco:ProcessBasedStudy -->
+  <!-- Use hasco:ProcessBasedStudy instead of pharma:ProcessStudy -->
+  <!-- The correct property is hasco:hasProcess, not pharma:hasProcess -->
 
 </rdf:RDF>
