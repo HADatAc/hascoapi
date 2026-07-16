@@ -298,11 +298,226 @@ public class ProcessBasedStudy extends Study {
     }
 
     /**
-     * Delete ProcessBasedStudy and associated Process
-     * Implements cascade delete as per migration plan
+     * Find ProcessBasedStudy by its associated Process URI
+     * @param processUri The URI of the Process/Workflow
+     * @return ProcessBasedStudy object or null if not found
+     */
+    public static ProcessBasedStudy findByProcess(String processUri) {
+        if (processUri == null || processUri.isEmpty()) {
+            return null;
+        }
+
+        // Query for ProcessBasedStudy where hasco:hasProcess = processUri
+        String queryString = 
+            "PREFIX hasco: <http://hadatac.org/ont/hasco/> " +
+            "SELECT DISTINCT ?study WHERE { " +
+            "  ?study a hasco:ProcessBasedStudy . " +
+            "  ?study hasco:hasProcess <" + processUri + "> . " +
+            "}";
+
+        ResultSet resultSet = SPARQLUtils.select(
+            CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), 
+            queryString
+        );
+
+        if (!resultSet.hasNext()) {
+            return null;
+        }
+
+        QuerySolution qs = resultSet.next();
+        if (qs.contains("study")) {
+            String studyUri = qs.getResource("study").getURI();
+            return find(studyUri);
+        }
+
+        return null;
+    }
+
+    /**
+     * Find all ProcessBasedStudy entities with pagination
+     * @param pageSize Number of results per page
+     * @param offset Starting offset
+     * @return List of ProcessBasedStudy objects
+     */
+    public static List<ProcessBasedStudy> findWithPages(int pageSize, int offset) {
+        List<ProcessBasedStudy> studies = new ArrayList<>();
+
+        String queryString = 
+            "PREFIX hasco: <http://hadatac.org/ont/hasco/> " +
+            "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " +
+            "SELECT DISTINCT ?uri ?label WHERE { " +
+            "  ?uri a hasco:ProcessBasedStudy . " +
+            "  OPTIONAL { ?uri rdfs:label ?label } " +
+            "} " +
+            "ORDER BY ?label " +
+            "LIMIT " + pageSize + " " +
+            "OFFSET " + offset;
+
+        ResultSet resultSet = SPARQLUtils.select(
+            CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), 
+            queryString
+        );
+
+        while (resultSet.hasNext()) {
+            QuerySolution qs = resultSet.next();
+            if (qs.contains("uri")) {
+                String studyUri = qs.getResource("uri").getURI();
+                ProcessBasedStudy study = find(studyUri);
+                if (study != null) {
+                    studies.add(study);
+                }
+            }
+        }
+
+        return studies;
+    }
+
+    /**
+     * Find total count of ProcessBasedStudy entities
+     * @return Total count
+     */
+    public static int findTotal() {
+        String queryString = 
+            "PREFIX hasco: <http://hadatac.org/ont/hasco/> " +
+            "SELECT (COUNT(DISTINCT ?uri) AS ?count) WHERE { " +
+            "  ?uri a hasco:ProcessBasedStudy . " +
+            "}";
+
+        ResultSet resultSet = SPARQLUtils.select(
+            CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), 
+            queryString
+        );
+
+        if (resultSet.hasNext()) {
+            QuerySolution qs = resultSet.next();
+            if (qs.contains("count")) {
+                return qs.getLiteral("count").getInt();
+            }
+        }
+
+        return 0;
+    }
+
+    /**
+     * Search ProcessBasedStudy by keyword in title, aims, or significance
+     * @param keyword Search keyword
+     * @param pageSize Number of results per page
+     * @param offset Starting offset
+     * @return List of matching ProcessBasedStudy objects
+     */
+    public static List<ProcessBasedStudy> findByKeyword(String keyword, int pageSize, int offset) {
+        List<ProcessBasedStudy> studies = new ArrayList<>();
+
+        String queryString = 
+            "PREFIX hasco: <http://hadatac.org/ont/hasco/> " +
+            "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " +
+            "SELECT DISTINCT ?uri WHERE { " +
+            "  ?uri a hasco:ProcessBasedStudy . " +
+            "  { " +
+            "    ?uri hasco:hasTitle ?title . " +
+            "    FILTER(CONTAINS(LCASE(?title), LCASE(\"" + keyword + "\"))) " +
+            "  } UNION { " +
+            "    ?uri hasco:hasSpecificAims ?aims . " +
+            "    FILTER(CONTAINS(LCASE(?aims), LCASE(\"" + keyword + "\"))) " +
+            "  } UNION { " +
+            "    ?uri hasco:hasSignificance ?significance . " +
+            "    FILTER(CONTAINS(LCASE(?significance), LCASE(\"" + keyword + "\"))) " +
+            "  } UNION { " +
+            "    ?uri hasco:hasStudyID ?studyID . " +
+            "    FILTER(CONTAINS(LCASE(?studyID), LCASE(\"" + keyword + "\"))) " +
+            "  } " +
+            "} " +
+            "LIMIT " + pageSize + " " +
+            "OFFSET " + offset;
+
+        ResultSet resultSet = SPARQLUtils.select(
+            CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), 
+            queryString
+        );
+
+        while (resultSet.hasNext()) {
+            QuerySolution qs = resultSet.next();
+            if (qs.contains("uri")) {
+                String studyUri = qs.getResource("uri").getURI();
+                ProcessBasedStudy study = find(studyUri);
+                if (study != null) {
+                    studies.add(study);
+                }
+            }
+        }
+
+        return studies;
+    }
+
+    /**
+     * Validate ProcessBasedStudy entity before saving
+     * @return true if valid, false otherwise
+     */
+    public boolean validate() {
+        // ProcessBasedStudy MUST have a Process URI
+        if (processUri == null || processUri.isEmpty()) {
+            errorMessage = "ProcessBasedStudy requires a Process URI (hasco:hasProcess)";
+            return false;
+        }
+
+        // Process URI must match expected pattern
+        if (!processUri.contains("/PROC/")) {
+            errorMessage = "Invalid Process URI format (must contain /PROC/): " + processUri;
+            return false;
+        }
+
+        // Study ID validation (if present)
+        if (studyID != null && !studyID.isEmpty() && !studyID.startsWith("STD-")) {
+            errorMessage = "Study ID must start with 'STD-': " + studyID;
+            return false;
+        }
+
+        // Email validation (if present)
+        if (contactEmail != null && !contactEmail.isEmpty() && !contactEmail.contains("@")) {
+            errorMessage = "Invalid email format: " + contactEmail;
+            return false;
+        }
+
+        // Date format validation (basic check - ISO 8601)
+        if (startDate != null && !startDate.isEmpty() && !startDate.matches("\\d{4}-\\d{2}-\\d{2}")) {
+            errorMessage = "Invalid start date format (must be YYYY-MM-DD): " + startDate;
+            return false;
+        }
+
+        if (endDate != null && !endDate.isEmpty() && !endDate.matches("\\d{4}-\\d{2}-\\d{2}")) {
+            errorMessage = "Invalid end date format (must be YYYY-MM-DD): " + endDate;
+            return false;
+        }
+
+        return true;
+    }
+
+    private String errorMessage = "";
+
+    /**
+     * Get validation error message
+     * @return Error message from last validation
+     */
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    /**
+     * Save ProcessBasedStudy to triplestore
+     * @return Number of triples inserted
      */
     @Override
-    public void delete() {
+    public int save() {
+        return saveToTripleStore();
+    }
+
+    /**
+     * Delete ProcessBasedStudy and associated Process
+     * Implements cascade delete as per migration plan
+     * @return Number of triples deleted
+     */
+    @Override
+    public int delete() {
         // Delete associated Process (cascade delete)
         if (processUri != null && !processUri.isEmpty()) {
             Process process = Process.find(processUri);
@@ -313,7 +528,7 @@ public class ProcessBasedStudy extends Study {
         }
 
         // Call parent delete (handles SOCs, measurements, etc.)
-        super.delete();
+        return deleteFromTripleStore();
     }
 
     @Override
