@@ -205,6 +205,8 @@ public class GenericFind<T> {
             return URIUtils.replaceNameSpace(HASCO.DSG);
         } else if (clazz == Study.class) {
             return URIUtils.replaceNameSpace(HASCO.STUDY);
+        } else if (clazz == ProcessBasedStudy.class) {
+            return URIUtils.replaceNameSpace(HASCO.PROCESS_BASED_STUDY);
         } else if (clazz == StudyObjectCollection.class) {
             return URIUtils.replaceNameSpace(HASCO.STUDY_OBJECT_COLLECTION);
         } else if (clazz == StudyObject.class) {
