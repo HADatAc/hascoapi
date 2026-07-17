@@ -1018,7 +1018,7 @@ public class GenericFind<T> {
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
         if (!resultsrw.hasNext()) {
-            return null;
+            return list;  // Return empty list instead of null
         }
 
         while (resultsrw.hasNext()) {
