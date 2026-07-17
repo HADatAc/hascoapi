@@ -386,4 +386,52 @@ public class ProcessBasedStudyAPI extends Controller {
             return ok(ApiUtil.createResponse("Error searching ProcessBasedStudy: " + e.getMessage(), false));
         }
     }
+
+    /**
+     * Generate DSG Excel file from ProcessBasedStudy
+     * GET /api/processbasedstudy/dsg/:uri
+     * 
+     * @param uri ProcessBasedStudy URI
+     * @return Excel file download or error response
+     */
+    public Result generateDSG(String uri) {
+        if (uri == null || uri.isEmpty()) {
+            return ok(ApiUtil.createResponse("No URI provided", false));
+        }
+
+        try {
+            ProcessBasedStudy study = ProcessBasedStudy.find(uri);
+            if (study == null) {
+                return ok(ApiUtil.createResponse("ProcessBasedStudy not found: " + uri, false));
+            }
+
+            // Generate filename
+            String studyId = study.getStudyID() != null ? study.getStudyID() : "STUDY";
+            String filename = studyId + "_DSG_" + System.currentTimeMillis() + ".xlsx";
+            
+            // Get temp directory
+            String tempDir = System.getProperty("java.io.tmpdir");
+            
+            // Generate DSG using ProcessBasedStudyDSGGen
+            String outputPath = org.hascoapi.transform.mt.dsg.ProcessBasedStudyDSGGen.generateFromProcessBasedStudy(
+                study, filename, tempDir
+            );
+            
+            if (outputPath == null) {
+                return ok(ApiUtil.createResponse("Failed to generate DSG", false));
+            }
+            
+            // Return file for download
+            java.io.File file = new java.io.File(outputPath);
+            if (!file.exists()) {
+                return ok(ApiUtil.createResponse("Generated file not found", false));
+            }
+            
+            response().setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+            return ok(file).as("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            
+        } catch (Exception e) {
+            return ok(ApiUtil.createResponse("Error generating DSG: " + e.getMessage(), false));
+        }
+    }
 }

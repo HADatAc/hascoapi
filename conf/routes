@@ -83,6 +83,7 @@ GET     /hascoapi/api/processbasedstudy/delete/:uri                             
 GET     /hascoapi/api/processbasedstudy/elements/:pageSize/:offset                        org.hascoapi.console.controllers.restapi.ProcessBasedStudyAPI.getProcessBasedStudiesWithPage(pageSize: Integer, offset: Integer)
 GET     /hascoapi/api/processbasedstudy/elements/total                                    org.hascoapi.console.controllers.restapi.ProcessBasedStudyAPI.getTotalProcessBasedStudies()
 GET     /hascoapi/api/processbasedstudy/search/:keyword/:pageSize/:offset                 org.hascoapi.console.controllers.restapi.ProcessBasedStudyAPI.searchProcessBasedStudies(keyword: String, pageSize: Integer, offset: Integer)
+GET     /hascoapi/api/processbasedstudy/dsg/:uri                                          org.hascoapi.console.controllers.restapi.ProcessBasedStudyAPI.generateDSG(uri: String)
 
 # MANAGEMENT GENERIC 
 
