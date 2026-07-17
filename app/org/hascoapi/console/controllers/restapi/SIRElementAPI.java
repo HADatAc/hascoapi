@@ -471,6 +471,19 @@ public class SIRElementAPI extends Controller {
                 message = e.getMessage();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
+        } else if (clazz == ProcessBasedStudy.class) {
+            try {
+                ProcessBasedStudy object;
+                object = (ProcessBasedStudy)objectMapper.readValue(json, clazz);
+                // Validate before saving
+                if (!object.validate()) {
+                    return ok(ApiUtil.createResponse("ProcessBasedStudy validation failed: " + object.getErrorMessage(), false));
+                }
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
         } else if (clazz == StudyObject.class) {
             try {
                 StudyObject object;
@@ -840,6 +853,13 @@ public class SIRElementAPI extends Controller {
             if (object == null) {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
+            object.delete();
+        } else if (clazz == ProcessBasedStudy.class) {
+            ProcessBasedStudy object = ProcessBasedStudy.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            // Cascade deletes associated Process
             object.delete();
         } else if (clazz == StudyObject.class) {
             StudyObject object = StudyObject.find(uri);

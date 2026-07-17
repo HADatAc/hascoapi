@@ -95,6 +95,8 @@ public class GenericFind<T> {
             return PostalAddress.class;
         } else if (elementType.equals("process")) {
             return Process.class;
+        } else if (elementType.equals("processbasedstudy")) {
+            return ProcessBasedStudy.class;
         } else if (elementType.equals("processstem")) {
             return ProcessStem.class;
         } else if (elementType.equals("project")) {
