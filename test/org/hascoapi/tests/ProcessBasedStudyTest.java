@@ -25,7 +25,7 @@ import java.util.Date;
 public class ProcessBasedStudyTest {
 
     private ProcessBasedStudy study;
-    private static final String TEST_PROCESS_URI = "http://localhost/kb/pmsr/WKF-001-PROC-001";
+    private static final String TEST_PROCESS_URI = "http://localhost/kb/pmsr/WKF-001/PROC/0001";
     private static final String TEST_STUDY_URI = "http://localhost/kb/pmsr/STD-001";
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -92,8 +92,8 @@ public class ProcessBasedStudyTest {
     @DisplayName("ProcessBasedStudy should support Institution property")
     public void testInstitution() {
         String institution = "Johns Hopkins University";
-        study.setInstitution(institution);
-        assertEquals(institution, study.getInstitution(),
+        study.setInstitutionName(institution);
+        assertEquals(institution, study.getInstitutionName(),
             "ProcessBasedStudy should store and retrieve Institution");
     }
 

@@ -517,6 +517,14 @@ public class ProcessBasedStudy extends Study {
             return false;
         }
 
+        // Date range validation: end date must not be before start date
+        if (startDate != null && !startDate.isEmpty() && endDate != null && !endDate.isEmpty()) {
+            if (endDate.compareTo(startDate) < 0) {
+                errorMessage = "End date cannot be before start date: " + endDate + " < " + startDate;
+                return false;
+            }
+        }
+
         return true;
     }
 
