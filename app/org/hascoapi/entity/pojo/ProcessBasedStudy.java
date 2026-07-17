@@ -56,11 +56,20 @@ public class ProcessBasedStudy extends Study {
     @PropertyField(uri = "hasco:hasStudyID")
     private String studyID;
 
+    @PropertyField(uri = "hasco:hasStudyTitle")
+    private String studyTitle;
+
     @PropertyField(uri = "hasco:hasSpecificAims")
     private String specificAims;
 
     @PropertyField(uri = "hasco:hasSignificance")
     private String significance;
+
+    @PropertyField(uri = "hasco:hasInstitutionName")
+    private String institutionName;
+
+    @PropertyField(uri = "hasco:hasPrincipalInvestigator")
+    private String principalInvestigator;
 
     @PropertyField(uri = "hasco:hasContactEmail")
     private String contactEmail;
@@ -78,8 +87,11 @@ public class ProcessBasedStudy extends Study {
         super();
         this.processUri = "";
         this.studyID = "";
+        this.studyTitle = "";
         this.specificAims = "";
         this.significance = "";
+        this.institutionName = "";
+        this.principalInvestigator = "";
         this.contactEmail = "";
         this.startDate = "";
         this.endDate = "";
@@ -136,6 +148,14 @@ public class ProcessBasedStudy extends Study {
         this.studyID = studyID;
     }
 
+    public String getStudyTitle() {
+        return studyTitle;
+    }
+
+    public void setStudyTitle(String studyTitle) {
+        this.studyTitle = studyTitle;
+    }
+
     public String getSpecificAims() {
         return specificAims;
     }
@@ -150,6 +170,22 @@ public class ProcessBasedStudy extends Study {
 
     public void setSignificance(String significance) {
         this.significance = significance;
+    }
+
+    public String getInstitutionName() {
+        return institutionName;
+    }
+
+    public void setInstitutionName(String institutionName) {
+        this.institutionName = institutionName;
+    }
+
+    public String getPrincipalInvestigator() {
+        return principalInvestigator;
+    }
+
+    public void setPrincipalInvestigator(String principalInvestigator) {
+        this.principalInvestigator = principalInvestigator;
     }
 
     public String getContactEmail() {
@@ -174,23 +210,6 @@ public class ProcessBasedStudy extends Study {
 
     public void setEndDate(String endDate) {
         this.endDate = endDate;
-    }
-
-    /**
-     * Validate ProcessBasedStudy
-     * A ProcessBasedStudy MUST have a process URI
-     * @return true if valid, false otherwise
-     */
-    public boolean validate() {
-        if (processUri == null || processUri.trim().isEmpty()) {
-            log.error("ProcessBasedStudy validation failed: processUri is required");
-            return false;
-        }
-        if (!processUri.contains("/PROC/")) {
-            log.error("ProcessBasedStudy validation failed: processUri must contain /PROC/");
-            return false;
-        }
-        return true;
     }
 
     /**
@@ -282,10 +301,16 @@ public class ProcessBasedStudy extends Study {
                     study.setProcessUri(object);
                 } else if (predicate.equals(HASCO.HAS_STUDY_ID)) {
                     study.setStudyID(object);
+                } else if (predicate.equals(HASCO.HAS_STUDY_TITLE)) {
+                    study.setStudyTitle(object);
                 } else if (predicate.equals(HASCO.HAS_SPECIFIC_AIMS)) {
                     study.setSpecificAims(object);
                 } else if (predicate.equals(HASCO.HAS_SIGNIFICANCE)) {
                     study.setSignificance(object);
+                } else if (predicate.equals("http://hadatac.org/ont/hasco/hasInstitutionName")) {
+                    study.setInstitutionName(object);
+                } else if (predicate.equals(HASCO.HAS_PRINCIPAL_INVESTIGATOR)) {
+                    study.setPrincipalInvestigator(object);
                 } else if (predicate.equals(HASCO.HAS_CONTACT_EMAIL)) {
                     study.setContactEmail(object);
                 } else if (predicate.equals(HASCO.HAS_START_DATE)) {
@@ -507,20 +532,18 @@ public class ProcessBasedStudy extends Study {
 
     /**
      * Save ProcessBasedStudy to triplestore
-     * @return Number of triples inserted
      */
     @Override
-    public int save() {
-        return saveToTripleStore();
+    public void save() {
+        saveToTripleStore();
     }
 
     /**
      * Delete ProcessBasedStudy and associated Process
      * Implements cascade delete as per migration plan
-     * @return Number of triples deleted
      */
     @Override
-    public int delete() {
+    public void delete() {
         // Delete associated Process (cascade delete)
         if (processUri != null && !processUri.isEmpty()) {
             Process process = Process.find(processUri);
@@ -531,7 +554,7 @@ public class ProcessBasedStudy extends Study {
         }
 
         // Call parent delete (handles SOCs, measurements, etc.)
-        return deleteFromTripleStore();
+        deleteFromTripleStore();
     }
 
     @Override
