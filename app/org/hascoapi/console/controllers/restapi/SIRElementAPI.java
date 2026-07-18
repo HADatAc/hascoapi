@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.hascoapi.entity.pojo.*;
 import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.HAScOMapper;
+import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.VSTOI;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -475,6 +476,9 @@ public class SIRElementAPI extends Controller {
             try {
                 ProcessBasedStudy object;
                 object = (ProcessBasedStudy)objectMapper.readValue(json, clazz);
+                // Set RDF type and HASCO type (required for proper RDF generation)
+                object.setTypeUri(HASCO.PROCESS_BASED_STUDY);  // Specific subclass for rdf:type
+                object.setHascoTypeUri(HASCO.STUDY);           // Fundamental concept for hasco:hascoType
                 // Validate before saving
                 if (!object.validate()) {
                     return ok(ApiUtil.createResponse("ProcessBasedStudy validation failed: " + object.getErrorMessage(), false));
@@ -1012,6 +1016,14 @@ public class SIRElementAPI extends Controller {
             GenericFind<Entity> query = new GenericFind<Entity>();
             List<Entity> results = query.findByKeywordWithPages(Entity.class,keyword, pageSize, offset);
             return EntityAPI.getEntities(results);
+        } else if (elementType.equals("study")) {
+            GenericFind<Study> query = new GenericFind<Study>();
+            List<Study> results = query.findByKeywordWithPages(Study.class,keyword, pageSize, offset);
+            return StudyAPI.getStudies(results);
+        } else if (elementType.equals("processbasedstudy")) {
+            GenericFind<ProcessBasedStudy> query = new GenericFind<ProcessBasedStudy>();
+            List<ProcessBasedStudy> results = query.findByKeywordWithPages(ProcessBasedStudy.class,keyword, pageSize, offset);
+            return ProcessBasedStudyAPI.getProcessBasedStudies(results);
         }  else if (elementType.equals("attribute")) {
             GenericFind<Attribute> query = new GenericFind<Attribute>();
             List<Attribute> results = query.findByKeywordWithPages(Attribute.class,keyword, pageSize, offset);
@@ -1072,6 +1084,10 @@ public class SIRElementAPI extends Controller {
             GenericFind<Study> query = new GenericFind<Study>();
             List<Study> results = query.findByKeywordWithPages(Study.class,keyword, pageSize, offset);
             return StudyAPI.getStudies(results);
+        }  else if (elementType.equals("processbasedstudy")) {
+            GenericFind<ProcessBasedStudy> query = new GenericFind<ProcessBasedStudy>();
+            List<ProcessBasedStudy> results = query.findByKeywordWithPages(ProcessBasedStudy.class,keyword, pageSize, offset);
+            return ProcessBasedStudyAPI.getProcessBasedStudies(results);
         }  else if (elementType.equals("studyobjectcollection")) {
             GenericFind<StudyObjectCollection> query = new GenericFind<StudyObjectCollection>();
             List<StudyObjectCollection> results = query.findByKeywordWithPages(StudyObjectCollection.class,keyword, pageSize, offset);

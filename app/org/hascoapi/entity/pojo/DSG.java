@@ -10,6 +10,7 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 
+import org.hascoapi.RepositoryInstance;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.SPARQLUtils;
 import org.hascoapi.utils.URIUtils;
@@ -75,6 +76,14 @@ public class DSG extends MetadataTemplate {
         }
 
         dsg.setUri(uri);
+        
+        // CRITICAL FIX: Restore the correct namedGraph for deletion
+        // setHasDataFileUri() incorrectly changed namedGraph to the DataFile URI,
+        // but DSG was saved to the repository namespace. Restore it here.
+        if (RepositoryInstance.getInstance() != null && 
+            RepositoryInstance.getInstance().getHasDefaultNamespaceURL() != null) {
+            dsg.setNamedGraph(RepositoryInstance.getInstance().getHasDefaultNamespaceURL());
+        }
         
         return dsg;
     }

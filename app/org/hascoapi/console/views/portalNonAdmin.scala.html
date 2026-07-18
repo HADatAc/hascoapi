@@ -215,8 +215,13 @@
                     <br>
                 </div>
                 <div class="col-md-1 text-center">
-                    <div class="dashNumber">@GenericFind.getNumberElements("study")</div>
+                    <div class="dashNumber">@GenericFind.findTotalByKeyword(classOf[org.hascoapi.entity.pojo.Study], "_")</div>
                     <a href="" id="study" class="btn btn-primary w-100 disabled" role="button">Studies</a>
+                    <br>
+                </div>
+                <div class="col-md-1 text-center">
+                    <div class="dashNumber">@GenericFind.getNumberElements("process")</div>
+                    <a href="" id="process" class="btn btn-primary w-100 disabled" role="button">Procedures</a>
                     <br>
                 </div>
                 <div class="col-md-1 text-center">

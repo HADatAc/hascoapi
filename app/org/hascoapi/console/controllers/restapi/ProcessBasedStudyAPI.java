@@ -143,91 +143,36 @@ public class ProcessBasedStudyAPI extends Controller {
         }
 
         try {
-            // Parse JSON
+            // Standard pattern: Deserialize JSON with ObjectMapper
             ObjectMapper mapper = new ObjectMapper();
-            JsonNode jsonNode = mapper.readTree(json);
+            ProcessBasedStudy study = mapper.readValue(json, ProcessBasedStudy.class);
             
-            // Extract required fields
-            String processUri = jsonNode.has("processUri") ? jsonNode.get("processUri").asText() : null;
+            // Expand URI prefixes (if needed)
+            if (study.getUri() != null && !study.getUri().isEmpty()) {
+                study.setUri(URIUtils.replacePrefixEx(study.getUri()));
+            }
+            if (study.getProcessUri() != null && !study.getProcessUri().isEmpty()) {
+                study.setProcessUri(URIUtils.replacePrefixEx(study.getProcessUri()));
+            }
             
-            if (processUri == null || processUri.isEmpty()) {
-                return ok(ApiUtil.createResponse("ProcessBasedStudy requires a Process URI (processUri field)", false));
-            }
-
-            // Verify Process exists
-            String expandedProcessUri = URIUtils.replacePrefixEx(processUri);
-            Process process = Process.find(expandedProcessUri);
-            if (process == null) {
-                return ok(ApiUtil.createResponse("Process not found: " + processUri, false));
-            }
-
-            // Create ProcessBasedStudy entity
-            ProcessBasedStudy study = new ProcessBasedStudy();
-            study.setProcessUri(expandedProcessUri);
-
-            // Extract optional study metadata
-            if (jsonNode.has("studyID")) {
-                String studyID = jsonNode.get("studyID").asText();
-                study.setStudyID(studyID);
-                // Derive URI from study ID
-                String studyUri = Constants.PREFIX_STUDY + "-" + studyID.replace("STD-", "");
-                study.setUri(studyUri);
-            } else {
-                // Derive study ID and URI from Process URI
-                String derivedUri = study.deriveStudyUriFromProcess();
-                if (derivedUri == null) {
-                    return ok(ApiUtil.createResponse("Failed to derive Study URI from Process URI", false));
-                }
-                study.setUri(derivedUri);
-                // Extract study ID from URI
-                String studyID = derivedUri.substring(derivedUri.lastIndexOf("/") + 1);
-                study.setStudyID(studyID);
-            }
-
-            // Set study metadata from JSON (optional fields)
-            if (jsonNode.has("title")) {
-                study.setTitle(jsonNode.get("title").asText());
-            }
-            if (jsonNode.has("specificAims")) {
-                study.setSpecificAims(jsonNode.get("specificAims").asText());
-            }
-            if (jsonNode.has("significance")) {
-                study.setSignificance(jsonNode.get("significance").asText());
-            }
-            if (jsonNode.has("institution")) {
-                study.setInstitutionUri(jsonNode.get("institution").asText());
-            }
-            if (jsonNode.has("principalInvestigator")) {
-                study.setPIUri(jsonNode.get("principalInvestigator").asText());
-            }
-            if (jsonNode.has("contactEmail")) {
-                study.setContactEmail(jsonNode.get("contactEmail").asText());
-            }
-            if (jsonNode.has("startDate")) {
-                study.setStartDate(jsonNode.get("startDate").asText());
-            }
-            if (jsonNode.has("endDate")) {
-                study.setEndDate(jsonNode.get("endDate").asText());
-            }
-
+            // Set RDF type and HASCO type (required for proper RDF generation)
+            study.setTypeUri(HASCO.PROCESS_BASED_STUDY);  // Specific subclass for rdf:type
+            study.setHascoTypeUri(HASCO.STUDY);           // Fundamental concept for hasco:hascoType
+            
             // Validate before saving
             if (!study.validate()) {
                 return ok(ApiUtil.createResponse("ProcessBasedStudy validation failed: " + study.getErrorMessage(), false));
             }
 
             // Save to triplestore
-            int result = study.save();
-            if (result > 0) {
-                Map<String, String> responseData = new HashMap<>();
-                responseData.put("uri", study.getUri());
-                responseData.put("studyID", study.getStudyID());
-                responseData.put("processUri", study.getProcessUri());
-                
-                JsonNode responseJson = mapper.convertValue(responseData, JsonNode.class);
-                return ok(ApiUtil.createResponse(responseJson, true));
-            } else {
-                return ok(ApiUtil.createResponse("Failed to save ProcessBasedStudy to triplestore", false));
-            }
+            study.save();
+            Map<String, String> responseData = new HashMap<>();
+            responseData.put("uri", study.getUri());
+            responseData.put("studyID", study.getStudyID());
+            responseData.put("processUri", study.getProcessUri());
+            
+            JsonNode responseJson = mapper.convertValue(responseData, JsonNode.class);
+            return ok(ApiUtil.createResponse(responseJson, true));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -265,14 +210,20 @@ public class ProcessBasedStudyAPI extends Controller {
             JsonNode jsonNode = mapper.readTree(json);
 
             // Update mutable fields (processUri is immutable)
-            if (jsonNode.has("title")) {
-                study.setTitle(jsonNode.get("title").asText());
+            if (jsonNode.has("studyTitle")) {
+                study.setStudyTitle(jsonNode.get("studyTitle").asText());
             }
             if (jsonNode.has("specificAims")) {
                 study.setSpecificAims(jsonNode.get("specificAims").asText());
             }
             if (jsonNode.has("significance")) {
                 study.setSignificance(jsonNode.get("significance").asText());
+            }
+            if (jsonNode.has("institutionName")) {
+                study.setInstitutionName(jsonNode.get("institutionName").asText());
+            }
+            if (jsonNode.has("principalInvestigator")) {
+                study.setPrincipalInvestigator(jsonNode.get("principalInvestigator").asText());
             }
             if (jsonNode.has("contactEmail")) {
                 study.setContactEmail(jsonNode.get("contactEmail").asText());
@@ -285,12 +236,8 @@ public class ProcessBasedStudyAPI extends Controller {
             }
 
             // Save changes
-            int result = study.save();
-            if (result > 0) {
-                return ok(ApiUtil.createResponse("ProcessBasedStudy updated successfully", true));
-            } else {
-                return ok(ApiUtil.createResponse("Failed to update ProcessBasedStudy", false));
-            }
+            study.save();
+            return ok(ApiUtil.createResponse("ProcessBasedStudy updated successfully", true));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -319,12 +266,8 @@ public class ProcessBasedStudyAPI extends Controller {
             }
 
             // Delete (cascade deletes Process)
-            int result = study.delete();
-            if (result > 0) {
-                return ok(ApiUtil.createResponse("ProcessBasedStudy deleted successfully (Process also deleted)", true));
-            } else {
-                return ok(ApiUtil.createResponse("Failed to delete ProcessBasedStudy", false));
-            }
+            study.delete();
+            return ok(ApiUtil.createResponse("ProcessBasedStudy deleted successfully (Process also deleted)", true));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -427,8 +370,9 @@ public class ProcessBasedStudyAPI extends Controller {
                 return ok(ApiUtil.createResponse("Generated file not found", false));
             }
             
-            response().setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
-            return ok(file).as("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            return ok(file)
+                .as("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                .withHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
             
         } catch (Exception e) {
             return ok(ApiUtil.createResponse("Error generating DSG: " + e.getMessage(), false));

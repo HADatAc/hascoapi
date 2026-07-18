@@ -1089,6 +1089,126 @@ public class StudyObjectCollection extends HADatAcThing implements Comparable<St
         return findManyByQuery(q);
     }
 
+    public static List<StudyObjectCollection> findStudyObjectCollectionsByStudyFlexibleWithPage(String studyUri, int pageSize, int offset) {
+        if (studyUri == null || studyUri.isEmpty()) {
+            return new java.util.ArrayList<>();
+        }
+
+        String ns = NameSpaces.getInstance().printSparqlNameSpaceList();
+        String su = URIUtils.replacePrefixEx(studyUri);
+
+        String q = ns +
+                "SELECT DISTINCT ?uri WHERE { \n" +
+                "  { \n" +
+                "    ?uri hasco:isMemberOf <" + su + "> . \n" +
+                "    ?uri hasco:hascoType <" + HASCO.STUDY_OBJECT_COLLECTION + "> . \n" +
+                "  } \n" +
+                "  UNION \n" +
+                "  { GRAPH ?g { \n" +
+                "      ?uri hasco:isMemberOf <" + su + "> . \n" +
+                "      ?uri hasco:hascoType <" + HASCO.STUDY_OBJECT_COLLECTION + "> . \n" +
+                "    } \n" +
+                "  } \n" +
+                "  UNION \n" +
+                "  { \n" +
+                "    ?uri hasco:isMemberOf <" + su + "> . \n" +
+                "    ?socType rdfs:subClassOf* hasco:StudyObjectCollection . \n" +
+                "    ?uri a ?socType . \n" +
+                "  } \n" +
+                "  UNION \n" +
+                "  { GRAPH ?g { \n" +
+                "      ?uri hasco:isMemberOf <" + su + "> . \n" +
+                "      ?socType rdfs:subClassOf* hasco:StudyObjectCollection . \n" +
+                "      ?uri a ?socType . \n" +
+                "    } \n" +
+                "  } \n" +
+                "} ORDER BY ASC(STR(?uri)) LIMIT " + pageSize + " OFFSET " + offset;
+
+        return findManyByQuery(q);
+    }
+
+    public static List<StudyObjectCollection> findStudyObjectCollectionsByStudyAndManagerEmailWithPage(String studyUri, String managerEmail, int pageSize, int offset) {
+        if (studyUri == null || studyUri.isEmpty() || managerEmail == null || managerEmail.isEmpty()) {
+            return new java.util.ArrayList<>();
+        }
+
+        String ns = NameSpaces.getInstance().printSparqlNameSpaceList();
+        String su = URIUtils.replacePrefixEx(studyUri);
+
+        String q = ns +
+                "SELECT DISTINCT ?uri WHERE { \n" +
+                "  { \n" +
+                "    ?uri hasco:isMemberOf <" + su + "> . \n" +
+                "    ?uri hasco:hascoType <" + HASCO.STUDY_OBJECT_COLLECTION + "> . \n" +
+                "    ?uri hasco:hasSIRManagerEmail \"" + managerEmail + "\" . \n" +
+                "  } \n" +
+                "  UNION \n" +
+                "  { GRAPH ?g { \n" +
+                "      ?uri hasco:isMemberOf <" + su + "> . \n" +
+                "      ?uri hasco:hascoType <" + HASCO.STUDY_OBJECT_COLLECTION + "> . \n" +
+                "      ?uri hasco:hasSIRManagerEmail \"" + managerEmail + "\" . \n" +
+                "    } \n" +
+                "  } \n" +
+                "  UNION \n" +
+                "  { \n" +
+                "    ?uri hasco:isMemberOf <" + su + "> . \n" +
+                "    ?socType rdfs:subClassOf* hasco:StudyObjectCollection . \n" +
+                "    ?uri a ?socType . \n" +
+                "    ?uri hasco:hasSIRManagerEmail \"" + managerEmail + "\" . \n" +
+                "  } \n" +
+                "  UNION \n" +
+                "  { GRAPH ?g { \n" +
+                "      ?uri hasco:isMemberOf <" + su + "> . \n" +
+                "      ?socType rdfs:subClassOf* hasco:StudyObjectCollection . \n" +
+                "      ?uri a ?socType . \n" +
+                "      ?uri hasco:hasSIRManagerEmail \"" + managerEmail + "\" . \n" +
+                "    } \n" +
+                "  } \n" +
+                "} ORDER BY ASC(STR(?uri)) LIMIT " + pageSize + " OFFSET " + offset;
+
+        return findManyByQuery(q);
+    }
+
+    public static int findTotalStudyObjectCollectionsByStudyAndManagerEmail(String studyUri, String managerEmail) {
+        if (studyUri == null || studyUri.isEmpty() || managerEmail == null || managerEmail.isEmpty()) {
+            return 0;
+        }
+        String ns = NameSpaces.getInstance().printSparqlNameSpaceList();
+        String su = URIUtils.replacePrefixEx(studyUri);
+        
+        String query = ns +
+                " SELECT (COUNT(DISTINCT ?uri) as ?tot) WHERE { \n" +
+                "  { \n" +
+                "    ?uri hasco:isMemberOf <" + su + "> . \n" +
+                "    ?uri hasco:hascoType <" + HASCO.STUDY_OBJECT_COLLECTION + "> . \n" +
+                "    ?uri hasco:hasSIRManagerEmail \"" + managerEmail + "\" . \n" +
+                "  } \n" +
+                "  UNION \n" +
+                "  { GRAPH ?g { \n" +
+                "      ?uri hasco:isMemberOf <" + su + "> . \n" +
+                "      ?uri hasco:hascoType <" + HASCO.STUDY_OBJECT_COLLECTION + "> . \n" +
+                "      ?uri hasco:hasSIRManagerEmail \"" + managerEmail + "\" . \n" +
+                "    } \n" +
+                "  } \n" +
+                "  UNION \n" +
+                "  { \n" +
+                "    ?uri hasco:isMemberOf <" + su + "> . \n" +
+                "    ?socType rdfs:subClassOf* hasco:StudyObjectCollection . \n" +
+                "    ?uri a ?socType . \n" +
+                "    ?uri hasco:hasSIRManagerEmail \"" + managerEmail + "\" . \n" +
+                "  } \n" +
+                "  UNION \n" +
+                "  { GRAPH ?g { \n" +
+                "      ?uri hasco:isMemberOf <" + su + "> . \n" +
+                "      ?socType rdfs:subClassOf* hasco:StudyObjectCollection . \n" +
+                "      ?uri a ?socType . \n" +
+                "      ?uri hasco:hasSIRManagerEmail \"" + managerEmail + "\" . \n" +
+                "    } \n" +
+                "  } \n" +
+                "} ";
+        return GenericFind.findTotalByQuery(query);
+    }
+
     private static List<String> findStudyObjectCollectionUrisByStudy(String study_uri) {
         //System.out.println("findStudyObjectCollectionUris() is called");
         //System.out.println("study_uri: " + study_uri);

@@ -42,9 +42,9 @@ public class GSPClient {
             requestUriBuilder.addParameter("graph", graph);
             URI requestUri = requestUriBuilder.build();
             
-            System.out.println("[GSPClient] REQUEST URI: " + requestUri);
-            System.out.println("[GSPClient] REQUEST GRAPH: " + graph);
-            System.out.println("[GSPClient] PROVIDED MIMETYPE: " + mimeType);
+            // System.out.println("[GSPClient] REQUEST URI: " + requestUri);
+            // System.out.println("[GSPClient] REQUEST GRAPH: " + graph);
+            // System.out.println("[GSPClient] PROVIDED MIMETYPE: " + mimeType);
             
             HttpRequest request = HttpRequest.newBuilder(requestUri)
                     .POST(HttpRequest.BodyPublishers.ofInputStream(streamSupplier))
@@ -53,7 +53,7 @@ public class GSPClient {
             HttpResponse<String> response = HttpClient.newHttpClient()
                     .send(request, HttpResponse.BodyHandlers.ofString());
             
-            System.out.println("[GSPClient] Response: " + response.statusCode() + ". Body: '" + response.body() + "'");
+            // System.out.println("[GSPClient] Response: " + response.statusCode() + ". Body: '" + response.body() + "'");
             
             // Check for HTTP errors
             if (response.statusCode() < 200 || response.statusCode() >= 300) {

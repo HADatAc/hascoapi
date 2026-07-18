@@ -477,9 +477,9 @@ public class GenericFind<T> {
         if (className == null && superclassName == null) {
             return null;
         }
-        //System.out.println("findByKeywordWithPages: className=[" + className + "]");
-        //System.out.println("findByKeywordWithPages: superclassName=[" + superclassName + "]");
-        //System.out.println("findByKeywordWithPages: isSIR=[" + isSIR(clazz) + "]");
+        System.out.println("findByKeywordWithPages: className=[" + className + "]");
+        System.out.println("findByKeywordWithPages: superclassName=[" + superclassName + "]");
+        System.out.println("findByKeywordWithPages: isSIR=[" + isSIR(clazz) + "]");
         if (clazz.equals(Annotation.class)) {
             return findAnnotationsByKeywordWithPages(clazz, className, keyword, pageSize, offset);
         } else if (isSIR(clazz) && superclassName != null) {
@@ -529,15 +529,18 @@ public class GenericFind<T> {
 
     public static <T> List<T> findSIRInstancesByKeywordWithPages(Class clazz, String className, String keyword, int pageSize, int offset) {
         //System.out.println("GenericFind.findSIRInstancesByKeywordWithPages: " + className + " " + keyword + "  " + pageSize + "  " + offset);
+        
+        // ProcessBasedStudy uses rdf:type (specific class) instead of hascoType (fundamental class = Study)
+        boolean useRdfType = clazz == ProcessBasedStudy.class;
+        String typeProperty = useRdfType ? "a" : "hasco:hascoType";
+        
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                //" ?type rdfs:subClassOf* " + className + " . " +
-                //" ?uri a ?type ." +
-                " ?uri hasco:hascoType " + className + " . " +
-                " ?uri vstoi:hasContent ?content . " +
-                "   FILTER regex(?content, \"" + keyword + "\", \"i\") " +
+                " ?uri " + typeProperty + " " + className + " . " +
+                (keyword.isEmpty() ? "" : " ?uri vstoi:hasContent ?content . " +
+                "   FILTER regex(?content, \"" + keyword + "\", \"i\") ") +
                 "} " +
-                " ORDER BY ASC(?content) " +
+                (keyword.isEmpty() ? "" : " ORDER BY ASC(?content) ") +
                 " LIMIT " + pageSize +
                 " OFFSET " + offset;
 
@@ -564,18 +567,21 @@ public class GenericFind<T> {
 
     public static <T> List<T> findInstancesByKeywordWithPages(Class clazz, String className, String keyword, int pageSize, int offset) {
         //System.out.println("GenericFind.findInstancesByKeywordWithPages: " + superclassName + "  " + keyword + " " + pageSize + "  " + offset);
+        
+        // ProcessBasedStudy uses rdf:type (specific class) instead of hascoType (fundamental class = Study)
+        boolean useRdfType = clazz == ProcessBasedStudy.class;
+        String typeProperty = useRdfType ? "a" : "hasco:hascoType";
+        
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                //" ?type rdfs:subClassOf* " + className + " . " +
-                //" ?uri a ?type ." +
-                " ?uri hasco:hascoType " + className + " . " +
-                " ?uri rdfs:label ?label . " +
-                "   FILTER regex(?label, \"" + keyword + "\", \"i\") " +
+                " ?uri " + typeProperty + " " + className + " . " +
+                (keyword.isEmpty() ? "" : " ?uri rdfs:label ?label . " +
+                "   FILTER regex(?label, \"" + keyword + "\", \"i\") ") +
                 "} " +
-                " ORDER BY ASC(?label) " +
+                (keyword.isEmpty() ? "" : " ORDER BY ASC(?label) ") +
                 " LIMIT " + pageSize +
                 " OFFSET " + offset;
-        //System.out.println("GenericFind.findInstancesByKeywordWithPages: [" + queryString + "]");
+        System.out.println("GenericFind.findInstancesByKeywordWithPages: [" + queryString + "]");
         return findByQuery(clazz, queryString);
     }
 
@@ -874,8 +880,13 @@ public class GenericFind<T> {
             //" ?model rdfs:subClassOf* " + className + " . " +
             //" ?uri a ?model ." +
             " ?uri hasco:hascoType " + className + " . " +
-            " OPTIONAL { ?uri rdfs:label ?label . } " +
-            " ?uri vstoi:hasSIRManagerEmail ?managerEmail . ";
+            " OPTIONAL { ?uri rdfs:label ?label . } ";
+        
+        // Only add manager email filter if not wildcard
+        if (!managerEmail.equals("_")) {
+            queryString += " ?uri vstoi:hasSIRManagerEmail ?managerEmail . ";
+        }
+        
         if (clazz.equals(StudyObject.class)) {
             queryString += "   ?uri hasco:isMemberOf ?socuri . " +
                     "   ?socuri hasco:isMemberOf <" + studyuri + "> . "; 
@@ -885,8 +896,13 @@ public class GenericFind<T> {
         } else {
             queryString += "   ?uri hasco:isMemberOf <" + studyuri + "> . "; 
         }
-        queryString += "   FILTER (?managerEmail = \"" + managerEmail + "\") " +
-            "}" +
+        
+        // Only add manager email filter if not wildcard
+        if (!managerEmail.equals("_")) {
+            queryString += "   FILTER (?managerEmail = \"" + managerEmail + "\") ";
+        }
+        
+        queryString += "}" +
             " ORDER BY ASC(?label) " +
             " LIMIT " + pageSize +
             " OFFSET " + offset;
@@ -964,9 +980,14 @@ public class GenericFind<T> {
         } else {
             queryString += "   ?uri hasco:isMemberOf <" + studyuri + "> . "; 
         }
-        queryString += " ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
-			"   FILTER (?managerEmail = \"" + manageremail + "\") " +
-			"}";
+        
+        // Only add manager email filter if not wildcard
+        if (!manageremail.equals("_")) {
+            queryString += " ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
+			    "   FILTER (?managerEmail = \"" + manageremail + "\") ";
+        }
+        
+        queryString += "}";
         return findTotalByQuery(queryString);
 	}
 

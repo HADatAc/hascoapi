@@ -544,6 +544,19 @@ public class HAScOMapper {
                             "hasVariableDesign", "hasVersion", "hasDataFileUri"));
         }
 
+        // PROCESS-BASED STUDY
+        if (mode.equals(FULL) && typeResult.equals(HASCO.PROCESS_BASED_STUDY)) {
+            filterProvider.addFilter("processBasedStudyFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("processBasedStudyFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
+                            "hasImageUri", "hasWebDocument", 
+                            "hascoTypeLabel", "comment", "studyID", "studyTitle", "specificAims", "significance",
+                            "institutionName", "principalInvestigator", "contactEmail", "startDate", "endDate",
+                            "processUri", "hasStudyKG", "hasSIRManagerEmail", "project", "externalSource", 
+                            "hasVariableDesign", "hasVersion", "hasDataFileUri"));
+        }
+
         // STUDY OBJECT
         if (mode.equals(FULL) && typeResult.equals(HASCO.STUDY_OBJECT)) {
             filterProvider.addFilter("studyObjectFilter", SimpleBeanPropertyFilter.serializeAll());
@@ -565,7 +578,7 @@ public class HAScOMapper {
                             "hasImageUri", "hasWebDocument", 
                             "virtualColumnUri", "virtualColumn", "hasSOCReference", "hasGroundingLabel",
                             "hasScopeUri", "timeScopeUris", "spaceScopeUris",
-                            "hascoTypeLabel", "comment", "isMemberOfUri", "isMemberOf"));
+                            "hascoTypeLabel", "comment", "isMemberOfUri", "isMemberOf", "numOfObjects"));
         }
 
         // STUDY ROLE
@@ -696,6 +709,8 @@ public class HAScOMapper {
             return getFiltered(mode, HASCO.STR);
         } else if (clazz == Study.class) {
             return getFiltered(mode, HASCO.STUDY);
+        } else if (clazz == ProcessBasedStudy.class) {
+            return getFiltered(mode, HASCO.PROCESS_BASED_STUDY);
         } else if (clazz == StudyObject.class) {
             return getFiltered(mode, HASCO.STUDY_OBJECT);
         } else if (clazz == StudyObjectCollection.class) {

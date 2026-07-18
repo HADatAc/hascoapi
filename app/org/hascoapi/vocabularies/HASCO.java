@@ -153,8 +153,10 @@ public class HASCO {
     // ProcessBasedStudy properties (NEW - v1.1)
     public static final String HAS_PROCESS                            = "http://hadatac.org/ont/hasco/hasProcess";
     public static final String HAS_STUDY_ID                           = "http://hadatac.org/ont/hasco/hasStudyID";
+    public static final String HAS_STUDY_TITLE                        = "http://hadatac.org/ont/hasco/hasStudyTitle";
     public static final String HAS_SPECIFIC_AIMS                      = "http://hadatac.org/ont/hasco/hasSpecificAims";
     public static final String HAS_SIGNIFICANCE                       = "http://hadatac.org/ont/hasco/hasSignificance";
+    public static final String HAS_PRINCIPAL_INVESTIGATOR             = "http://hadatac.org/ont/hasco/hasPrincipalInvestigator";
     public static final String HAS_CONTACT_EMAIL                      = "http://hadatac.org/ont/hasco/hasContactEmail";
     public static final String HAS_START_DATE                         = "http://hadatac.org/ont/hasco/hasStartDate";
     public static final String HAS_END_DATE                           = "http://hadatac.org/ont/hasco/hasEndDate";

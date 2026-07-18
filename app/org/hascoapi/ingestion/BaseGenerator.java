@@ -354,7 +354,9 @@ public abstract class BaseGenerator {
             logger.println(String.format("%d triple(s) have been committed to triple store", model.size()));
             System.out.println("✓ Successfully committed " + model.size() + " triples");
         } else {
-            System.out.println("✗ No triples committed (model size: " + (model != null ? model.size() : "null") + ")");
+            // Note: Some generators (e.g., StudyObjectGenerator) use object-based commits only
+            // and don't produce row-based triples. This is expected behavior, not an error.
+            System.out.println("ℹ No row-based triples created (model size: " + (model != null ? model.size() : "null") + ")");
         }
 
         System.out.println("========== BaseGenerator.commitRowsToTripleStore() END ==========\n");
@@ -378,18 +380,18 @@ public abstract class BaseGenerator {
 
         for (HADatAcThing obj : objects) {
             obj.setNamedGraph(getNamedGraphUri());
-            System.out.println("[COMMIT DEBUG] Object class: " + obj.getClass().getSimpleName() + ", URI: " + obj.getUri());
+            //System.out.println("[COMMIT DEBUG] Object class: " + obj.getClass().getSimpleName() + ", URI: " + obj.getUri());
 
             // FIX: Use .equals() instead of == for string comparison
             // The == operator compares object references, not string content
             if ("StudyObjectCollection".equals(obj.getClass().getSimpleName())) {
-                System.out.println("[COMMIT DEBUG]   -> StudyObjectCollection path (no model)");
+                //System.out.println("[COMMIT DEBUG]   -> StudyObjectCollection path (no model)");
                 obj.saveToTripleStore(false, false, null, query);
                 count++; // Increment count for SOCs too!
             } else {
-                System.out.println("[COMMIT DEBUG]   -> Regular path (with shared model)");
+                //System.out.println("[COMMIT DEBUG]   -> Regular path (with shared model)");
                 boolean saved = obj.saveToTripleStore(withValidation, false, model);
-                System.out.println("[COMMIT DEBUG]   -> saveToTripleStore returned: " + saved);
+                //System.out.println("[COMMIT DEBUG]   -> saveToTripleStore returned: " + saved);
                 if (saved) {
                     count++;
                 }

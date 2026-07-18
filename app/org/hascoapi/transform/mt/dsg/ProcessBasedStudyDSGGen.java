@@ -173,7 +173,7 @@ public class ProcessBasedStudyDSGGen {
         row.createCell(1).setCellValue(safe(study.getStudyTitle()));
         row.createCell(2).setCellValue(safe(study.getSpecificAims()));
         row.createCell(3).setCellValue(safe(study.getSignificance()));
-        row.createCell(4).setCellValue(safe(study.getInstitution()));
+        row.createCell(4).setCellValue(safe(study.getInstitutionName()));
         row.createCell(5).setCellValue(safe(study.getPrincipalInvestigator()));
         row.createCell(6).setCellValue(""); // PI Address - not in ProcessBasedStudy
         row.createCell(7).setCellValue(""); // PI City

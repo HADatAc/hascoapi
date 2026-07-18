@@ -38,6 +38,10 @@ public class StudyObjectCollectionAPI extends Controller {
         if (manageremail == null || manageremail.isEmpty()) {
             return ok(ApiUtil.createResponse("No Manager Email has been provided", false));
         }
+        // Use '_' wildcard to get all elements regardless of manager
+        if (manageremail.equals("_")) {
+            return getElementsBySOC(studyobjectcollectionuri, elementtype, pagesize, offset);
+        }
         if (elementtype.equals("studyobject")) {
             GenericFind<StudyObject> query = new GenericFind<StudyObject>();
             List<StudyObject> results = query.findByManagerEmailWithPagesBySOC(StudyObject.class, studyobjectcollectionuri, manageremail, pagesize, offset);
@@ -62,6 +66,10 @@ public class StudyObjectCollectionAPI extends Controller {
         //System.out.println("SIRElementAPI: getTotalElementsByManagerEmailByStudy");
         if (elementtype == null || elementtype.isEmpty()) {
             return ok(ApiUtil.createResponse("No elementtype has been provided", false));
+        }
+        // Use '_' wildcard to get total count regardless of manager
+        if (manageremail != null && manageremail.equals("_")) {
+            return getTotalElementsBySOC(studyobjectcollectionuri, elementtype);
         }
         Class clazz = GenericFind.getElementClass(elementtype);
         if (clazz == null) {        
@@ -95,6 +103,56 @@ public class StudyObjectCollectionAPI extends Controller {
     public Result getSOCsByStudy(String studyUri){
         List<StudyObjectCollection> results = StudyObjectCollection.findStudyObjectCollectionsByStudyFlexible(studyUri);
         return getStudyObjectCollections(results);
+    }
+
+    /**
+     *   GET SOCS BY STUDY WITH PAGINATION (no email filter - all SOCs visible to everyone)
+     */
+    public Result getSOCsByStudyWithPage(String studyUri, int pagesize, int offset) {
+        List<StudyObjectCollection> results = StudyObjectCollection.findStudyObjectCollectionsByStudyFlexibleWithPage(studyUri, pagesize, offset);
+        return getStudyObjectCollections(results);
+    }
+
+    /**
+     *   GET TOTAL SOCS BY STUDY (no email filter - all SOCs visible to everyone)
+     */
+    public Result getTotalSOCsByStudy(String studyUri) {
+        int totalElements = StudyObjectCollection.findTotalStudyObjectCollectionsByStudyFlexible(studyUri);
+        if (totalElements >= 0) {
+            String totalElementsJSON = "{\"total\":" + totalElements + "}";
+            return ok(ApiUtil.createResponse(totalElementsJSON, true));
+        }
+        return ok(ApiUtil.createResponse("Query method getTotalSOCsByStudy() failed to retrieve total number of SOCs", false));
+    }
+
+    /**
+     *   GET SOCS BY MANAGER EMAIL AND STUDY WITH PAGE (for backward compatibility)
+     */
+    public Result getSOCsByManagerEmailByStudy(String studyUri, String manageremail, int pagesize, int offset) {
+        if (manageremail == null || manageremail.isEmpty() || manageremail.equals("_")) {
+            // Use wildcard - return all SOCs for this study with pagination
+            return getSOCsByStudyWithPage(studyUri, pagesize, offset);
+        }
+        // Filter by manager email
+        List<StudyObjectCollection> results = StudyObjectCollection.findStudyObjectCollectionsByStudyAndManagerEmailWithPage(studyUri, manageremail, pagesize, offset);
+        return getStudyObjectCollections(results);
+    }
+
+    /**
+     *   GET TOTAL SOCS BY MANAGER EMAIL AND STUDY (for backward compatibility)
+     */
+    public Result getTotalSOCsByManagerEmailByStudy(String studyUri, String manageremail) {
+        if (manageremail == null || manageremail.isEmpty() || manageremail.equals("_")) {
+            // Use wildcard - count all SOCs for this study
+            return getTotalSOCsByStudy(studyUri);
+        }
+        // Filter by manager email
+        int totalElements = StudyObjectCollection.findTotalStudyObjectCollectionsByStudyAndManagerEmail(studyUri, manageremail);
+        if (totalElements >= 0) {
+            String totalElementsJSON = "{\"total\":" + totalElements + "}";
+            return ok(ApiUtil.createResponse(totalElementsJSON, true));
+        }
+        return ok(ApiUtil.createResponse("Query method getTotalSOCsByManagerEmailByStudy() failed to retrieve total number of SOCs", false));
     }
 
     public Result findTotalSOCsByStudy(String studyuri) {
