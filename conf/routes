@@ -15,6 +15,10 @@ POST    /hascoapi/version                                       org.hascoapi.con
 
 # RETRIEVAL GENERIC
 
+GET     /hascoapi/api/statistics/instruments/count              org.hascoapi.console.controllers.restapi.StatisticsAPI.getInstrumentsCount()
+GET     /hascoapi/api/statistics/procedures/count               org.hascoapi.console.controllers.restapi.StatisticsAPI.getClinicalProceduresCount()
+GET     /hascoapi/api/statistics/anatomy/count                  org.hascoapi.console.controllers.restapi.StatisticsAPI.getAnatomicalStructuresCount()
+
 GET     /hascoapi/api/uri/:uri                                  org.hascoapi.console.controllers.restapi.URIPage.getUri(uri: String)
 GET     /hascoapi/api/urigen/:elementtype                       org.hascoapi.console.controllers.restapi.URIPage.uriGen(elementtype: String)
 GET     /hascoapi/api/usage/:uri                                org.hascoapi.console.controllers.restapi.SIRElementAPI.usage(uri: String)
@@ -151,6 +155,10 @@ GET     /hascoapi/api/annotationsbycontainerposition/:containerUri/:positionUri 
 GET     /hascoapi/api/slots/bycodebook/:codebookUri                                 org.hascoapi.console.controllers.restapi.CodebookSlotAPI.getCodebookSlotsByCodebook(codebookUri: String)
 
 GET     /hascoapi/api/studyobjectcollection/bystudy/:studyUri                       org.hascoapi.console.controllers.restapi.StudyObjectCollectionAPI.getSOCsByStudy(studyUri: String)
+GET     /hascoapi/api/studyobjectcollection/bystudy/:studyUri/:pageSize/:offset    org.hascoapi.console.controllers.restapi.StudyObjectCollectionAPI.getSOCsByStudyWithPage(studyUri: String, pageSize: Integer, offset: Integer)
+GET     /hascoapi/api/studyobjectcollection/bystudy/total/:studyUri                org.hascoapi.console.controllers.restapi.StudyObjectCollectionAPI.getTotalSOCsByStudy(studyUri: String)
+GET     /hascoapi/api/studyobjectcollection/manageremailbystudy/:studyUri/:manageremail/:pageSize/:offset    org.hascoapi.console.controllers.restapi.StudyObjectCollectionAPI.getSOCsByManagerEmailByStudy(studyUri: String, manageremail: String, pageSize: Integer, offset: Integer)
+GET     /hascoapi/api/studyobjectcollection/manageremailbystudy/total/:studyUri/:manageremail              org.hascoapi.console.controllers.restapi.StudyObjectCollectionAPI.getTotalSOCsByManagerEmailByStudy(studyUri: String, manageremail: String)
 GET     /hascoapi/api/virtualcolumn/bystudy/:studyUri                               org.hascoapi.console.controllers.restapi.VirtualColumnAPI.getVCsByStudy(studyUri: String)
 GET     /hascoapi/api/studyobject/bysoc/:socUri/:pageSize/:offset                   org.hascoapi.console.controllers.restapi.StudyObjectAPI.getStudyObjectsBySOCWithPage(socUri: String, pageSize: Integer, offset: Integer)
 GET     /hascoapi/api/studyobject/bysoc/total/:socUri                               org.hascoapi.console.controllers.restapi.StudyObjectAPI.getTotalStudyObjectsBySOC(socUri: String)
