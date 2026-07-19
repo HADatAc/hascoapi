@@ -58,6 +58,18 @@ public class StatisticsAPI extends Controller {
     }
 
     /**
+     * Get count of medical devices (NCIT device classes)
+     * GET /hascoapi/api/statistics/medical-devices/count
+     */
+    public Result getMedicalDevicesCount() {
+        int count = countMedicalDevices();
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode result = mapper.createObjectNode();
+        result.put("total", count);
+        return ok(ApiUtil.createResponse(result, true));
+    }
+
+    /**
      * Count instruments: number of subclasses of vstoi:Instrument + 1
      */
     private int countInstruments() {
@@ -110,6 +122,26 @@ public class StatisticsAPI extends Controller {
                 "SELECT (COUNT(DISTINCT ?class) as ?count) WHERE { " +
                 "   ?class a owl:Class . " +
                 "   FILTER(STRSTARTS(STR(?class), \"http://purl.obolibrary.org/obo/UBERON_\")) " +
+                "} ";
+
+        ResultSetRewindable resultsrw = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+        if (resultsrw.hasNext()) {
+            QuerySolution soln = resultsrw.next();
+            return soln.getLiteral("count").getInt();
+        }
+        return 0;
+    }
+
+    /**
+     * Count medical devices from NCIT ontology
+     * Counts classes that are subclasses of NCIT_C97325 (Manufactured Object)
+     */
+    private int countMedicalDevices() {
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
+                "SELECT (COUNT(DISTINCT ?class) as ?count) WHERE { " +
+                "   ?class rdfs:subClassOf* <http://purl.obolibrary.org/obo/NCIT_C97325> . " +
                 "} ";
 
         ResultSetRewindable resultsrw = SPARQLUtils.select(

@@ -18,6 +18,7 @@ POST    /hascoapi/version                                       org.hascoapi.con
 GET     /hascoapi/api/statistics/instruments/count              org.hascoapi.console.controllers.restapi.StatisticsAPI.getInstrumentsCount()
 GET     /hascoapi/api/statistics/procedures/count               org.hascoapi.console.controllers.restapi.StatisticsAPI.getClinicalProceduresCount()
 GET     /hascoapi/api/statistics/anatomy/count                  org.hascoapi.console.controllers.restapi.StatisticsAPI.getAnatomicalStructuresCount()
+GET     /hascoapi/api/statistics/medical-devices/count          org.hascoapi.console.controllers.restapi.StatisticsAPI.getMedicalDevicesCount()
 
 GET     /hascoapi/api/uri/:uri                                  org.hascoapi.console.controllers.restapi.URIPage.getUri(uri: String)
 GET     /hascoapi/api/urigen/:elementtype                       org.hascoapi.console.controllers.restapi.URIPage.uriGen(elementtype: String)
@@ -110,6 +111,7 @@ GET     /hascoapi/api/repo/namespace/delete/:abbreviation   org.hascoapi.console
 GET     /hascoapi/api/repo/namespace/topclasses/:uri        org.hascoapi.console.controllers.restapi.RepoPage.getTopClasses(uri : String)
 GET     /hascoapi/api/repo/namespace/delete                 org.hascoapi.console.controllers.restapi.RepoPage.deleteNamespace()
 POST    /hascoapi/api/repo/namespace/app                    org.hascoapi.console.controllers.restapi.RepoPage.ingestAppOntology(request: play.mvc.Http.Request)
+POST    /hascoapi/api/repo/namespace/ingest/:namespaceUri   org.hascoapi.console.controllers.restapi.RepoPage.ingestNamespaceOntology(request: play.mvc.Http.Request, namespaceUri : String)
 GET     /hascoapi/api/repo/table/informants                 org.hascoapi.console.controllers.restapi.RepoPage.getInformants()
 GET     /hascoapi/api/repo/table/languages                  org.hascoapi.console.controllers.restapi.RepoPage.getLanguages()
 GET     /hascoapi/api/repo/table/generationactivities       org.hascoapi.console.controllers.restapi.RepoPage.getGenerationActivities()

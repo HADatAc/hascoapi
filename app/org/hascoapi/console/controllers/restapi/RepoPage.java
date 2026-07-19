@@ -29,11 +29,14 @@ import org.apache.jena.query.ResultSetRewindable;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.BodyParser;
 import com.typesafe.config.ConfigFactory;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -248,6 +251,194 @@ public class RepoPage extends Controller {
         });
 
         return ok(ApiUtil.createResponse("Ontology upload and ingestion in progress.", true));
+    }
+
+    /**
+     * Handles arbitrary namespace ontology ingestion with auto-registration.
+     * If the namespace doesn't exist, creates it dynamically following NameSpaceGenerator protocol.
+     * Accepts a namespace URI as parameter and TTL content as request body.
+     * 
+     * @param request HTTP request containing TTL file as raw body
+     * @param namespaceUri URL-encoded namespace URI (e.g., http://pmsr.net/ont/pmsr)
+     * @return Result indicating success or failure
+     */
+    @BodyParser.Of(BodyParser.Raw.class)
+    public Result ingestNamespaceOntology(Http.Request request, String namespaceUri) {
+        File tempFile = request.body().asRaw().asFile();
+        if (tempFile == null) {
+            return ok(ApiUtil.createResponse(
+                "[ERROR] RepoPage.ingestNamespaceOntology(): No file has been provided for ingestion.", false
+            ));
+        }
+
+        // Decode the namespace URI
+        String decodedUri = java.net.URLDecoder.decode(namespaceUri, java.nio.charset.StandardCharsets.UTF_8);
+        System.out.println("ingestNamespaceOntology: namespaceUri=[" + decodedUri + "]");
+        System.out.println("ingestNamespaceOntology: File size: " + tempFile.length() + " bytes");
+
+        // Derive label from URI for lookup/registration
+        String derivedLabel = deriveNamespaceLabel(decodedUri);
+        
+        // Find or create the namespace (must be final for lambda)
+        final NameSpace namespace;
+        NameSpace existingNamespace = NameSpaces.getInstance().getNamespacesByUri().get(decodedUri);
+        
+        if (existingNamespace == null) {
+            // Check if a namespace with this label already exists (might have wrong URI)
+            NameSpace existingByLabel = NameSpaces.getInstance().getNamespaces().get(derivedLabel);
+            
+            if (existingByLabel != null) {
+                // Found namespace by label but different URI - update it
+                System.out.println("ingestNamespaceOntology: Found existing namespace by label '" + derivedLabel + 
+                    "' with different URI (old: " + existingByLabel.getUri() + ", new: " + decodedUri + ") - updating");
+                
+                // Update the URI and other properties
+                existingByLabel.setUri(decodedUri);
+                existingByLabel.setSourceMime("text/turtle");
+                existingByLabel.setSource(""); // No remote source, manual upload
+                existingByLabel.setComment("Updated via namespace ontology ingestion");
+                
+                try {
+                    existingByLabel.save();
+                    System.out.println("ingestNamespaceOntology: Successfully updated namespace: " + derivedLabel);
+                } catch (Exception e) {
+                    System.err.println("[ERROR] Failed to update namespace: " + e.getMessage());
+                    e.printStackTrace();
+                    return badRequest(ApiUtil.createResponse(
+                        "[ERROR] Failed to update namespace: " + e.getMessage(), false
+                    ));
+                }
+                
+                namespace = existingByLabel;
+            } else {
+                // No existing namespace - create new one
+                System.out.println("ingestNamespaceOntology: Namespace not found, auto-registering: " + decodedUri);
+                
+                // Auto-register namespace following NameSpaceGenerator protocol
+                NameSpace newNamespace = new NameSpace();
+                newNamespace.setNamedGraph(Constants.DEFAULT_REPOSITORY);
+                newNamespace.setLabel(derivedLabel);
+                newNamespace.setUri(decodedUri);
+                newNamespace.setTypeUri(HASCO.ONTOLOGY);
+                newNamespace.setHascoTypeUri(HASCO.ONTOLOGY);
+                newNamespace.setSourceMime("text/turtle");
+                newNamespace.setSource(""); // No remote source, manual upload
+                newNamespace.setComment("Auto-registered via namespace ontology ingestion");
+                newNamespace.setPriority(100);
+                newNamespace.setPermanent(false);
+                
+                // Add to in-memory cache BEFORE saving (required by NameSpaceGenerator protocol)
+                NameSpaces.getInstance().addNamespace(newNamespace);
+                
+                // Save to triplestore
+                try {
+                    newNamespace.save();
+                    System.out.println("ingestNamespaceOntology: Successfully registered namespace: " + derivedLabel);
+                } catch (Exception e) {
+                    System.err.println("[ERROR] Failed to register namespace: " + e.getMessage());
+                    e.printStackTrace();
+                    return badRequest(ApiUtil.createResponse(
+                        "[ERROR] Failed to register namespace: " + e.getMessage(), false
+                    ));
+                }
+                
+                namespace = newNamespace;
+            }
+        } else {
+            // Found by URI - update MIME type to ensure it's correct
+            System.out.println("ingestNamespaceOntology: Found existing namespace by URI: " + decodedUri);
+            existingNamespace.setSourceMime("text/turtle");
+            try {
+                existingNamespace.save();
+            } catch (Exception e) {
+                System.err.println("[ERROR] Failed to update namespace MIME type: " + e.getMessage());
+            }
+            namespace = existingNamespace;
+        }
+
+        // Ensure source MIME type is correct
+        namespace.setSourceMime("text/turtle");
+
+        // Copy temp file to a permanent location before async processing
+        // (Play Framework cleans up temp files after request completes)
+        File permanentFile = null;
+        try {
+            permanentFile = File.createTempFile("ontology_ingest_", ".ttl");
+            permanentFile.deleteOnExit();
+            java.nio.file.Files.copy(tempFile.toPath(), permanentFile.toPath(), 
+                java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            System.out.println("ingestNamespaceOntology: Copied temp file to: " + permanentFile.getAbsolutePath());
+        } catch (Exception e) {
+            System.err.println("[ERROR] Failed to copy temp file: " + e.getMessage());
+            e.printStackTrace();
+            return badRequest(ApiUtil.createResponse(
+                "[ERROR] Failed to prepare file for ingestion: " + e.getMessage(), false
+            ));
+        }
+
+        final File fileToIngest = permanentFile;
+
+        // Run asynchronously to avoid blocking the HTTP thread
+        CompletableFuture.runAsync(() -> {
+            try {
+                System.out.println("ingestNamespaceOntology: Starting ingestion for namespace: " + namespace.getLabel());
+
+                // Remove existing triples from the same named graph
+                namespace.deleteTriples();
+                System.out.println("ingestNamespaceOntology: Deleted existing triples for namespace: " + namespace.getLabel());
+
+                // Load triples from the uploaded file directly (no permanent storage needed for external ontologies)
+                namespace.loadTriples(fileToIngest.getAbsolutePath(), false);
+
+                // Update triple count to reflect loaded data
+                namespace.setNumberOfLoadedTriples();
+                namespace.save();
+                
+                System.out.println("[INFO] Namespace ontology ingestion complete for: " + namespace.getLabel() + " (" + decodedUri + ")");
+                System.out.println("ingestNamespaceOntology: Triple count updated: " + namespace.getNumberOfLoadedTriples() + " triples");
+
+                // Clean up the permanent temp file after ingestion
+                try {
+                    fileToIngest.delete();
+                    System.out.println("ingestNamespaceOntology: Cleaned up temp file: " + fileToIngest.getAbsolutePath());
+                } catch (Exception e) {
+                    System.err.println("[WARNING] Failed to delete temp file: " + e.getMessage());
+                }
+
+            } catch (Exception e) {
+                System.err.println("[ERROR] Failed during namespace ontology ingestion: " + e.getMessage());
+                e.printStackTrace();
+            }
+        });
+
+        return ok(ApiUtil.createResponse("Ontology upload and ingestion in progress for namespace: " + namespace.getLabel(), true));
+    }
+
+    /**
+     * Derive a namespace label from its URI.
+     * Extracts the last meaningful segment from the URI.
+     * Examples:
+     *   http://pmsr.net/ont/pmsr -> pmsr
+     *   http://purl.obolibrary.org/obo/uberon.owl -> uberon
+     *   http://purl.obolibrary.org/obo/ncit.owl -> ncit
+     */
+    private String deriveNamespaceLabel(String uri) {
+        if (uri == null || uri.isEmpty()) {
+            return "unknown";
+        }
+        
+        // Remove trailing slashes and anchors
+        String cleaned = uri.replaceAll("[/#]+$", "");
+        
+        // Get last segment
+        String[] segments = cleaned.split("[/#]");
+        String lastSegment = segments[segments.length - 1];
+        
+        // Remove .owl, .ttl, .rdf extensions
+        lastSegment = lastSegment.replaceAll("\\.(owl|ttl|rdf)$", "");
+        
+        // Convert to lowercase for consistency with NameSpaceGenerator requirements
+        return lastSegment.toLowerCase();
     }
 
 
