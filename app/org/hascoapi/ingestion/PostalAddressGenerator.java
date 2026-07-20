@@ -65,6 +65,16 @@ public class PostalAddressGenerator extends BaseGenerator {
 		mapCol.put("PostalAddressLocality", templates.getPostalAddressLocality());
 		mapCol.put("PostalAddressRegion", templates.getPostalAddressRegion());
 		mapCol.put("PostalAddressCountry", templates.getPostalAddressCountry());
+		
+		// Add optional latitude and longitude mappings if configured
+		String latitudeMapping = templates.getPostalAddressLatitude();
+		if (latitudeMapping != null && !latitudeMapping.isEmpty()) {
+			mapCol.put("PostalAddressLatitude", latitudeMapping);
+		}
+		String longitudeMapping = templates.getPostalAddressLongitude();
+		if (longitudeMapping != null && !longitudeMapping.isEmpty()) {
+			mapCol.put("PostalAddressLongitude", longitudeMapping);
+		}
 	}
 
     private String getPostalAddressType(Record rec) {
@@ -115,6 +125,24 @@ public class PostalAddressGenerator extends BaseGenerator {
 		return "";
 	}
 
+	private String getPostalAddressLatitude(Record rec) {
+		String columnName = mapCol.get("PostalAddressLatitude");
+		if (columnName == null || columnName.isEmpty()) {
+			return "";
+		}
+		String value = rec.getValueByColumnName(columnName);
+		return (value != null && !value.trim().isEmpty()) ? value.trim() : "";
+	}
+
+	private String getPostalAddressLongitude(Record rec) {
+		String columnName = mapCol.get("PostalAddressLongitude");
+		if (columnName == null || columnName.isEmpty()) {
+			return "";
+		}
+		String value = rec.getValueByColumnName(columnName);
+		return (value != null && !value.trim().isEmpty()) ? value.trim() : "";
+	}
+
 	public String createPostalAddressUri() throws Exception {
 
         // Generate a random integer between 10000 and 99999
@@ -162,6 +190,17 @@ public class PostalAddressGenerator extends BaseGenerator {
 		row.put("schema:addressLocality", getPostalAddressLocality(rec));
 		row.put("schema:addressRegion", getPostalAddressRegion(rec));
 		row.put("schema:addressCountry", getPostalAddressCountry(rec));
+		
+		// Add latitude and longitude if available (optional fields)
+		String latitude = getPostalAddressLatitude(rec);
+		if (latitude != null && !latitude.isEmpty()) {
+			row.put("schema:latitude", latitude);
+		}
+		String longitude = getPostalAddressLongitude(rec);
+		if (longitude != null && !longitude.isEmpty()) {
+			row.put("schema:longitude", longitude);
+		}
+		
 		row.put("vstoi:hasStatus", URIUtils.replaceNameSpaceEx(status));
 		row.put("vstoi:hasSIRManagerEmail", managerEmail);
 		row.put("vstoi:hasStatus", status);

@@ -53,6 +53,12 @@ public class PostalAddress extends HADatAcThing implements Comparable<PostalAddr
 	@PropertyField(uri="vstoi:hasSIRManagerEmail")
 	private String hasSIRManagerEmail;
 
+	@PropertyField(uri="schema:latitude")
+	private String hasLatitude;
+
+	@PropertyField(uri="schema:longitude")
+	private String hasLongitude;
+
     public String getHasStatus() {
         return hasStatus;
     }
@@ -119,6 +125,20 @@ public class PostalAddress extends HADatAcThing implements Comparable<PostalAddr
 	}
 	public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
 		this.hasSIRManagerEmail = hasSIRManagerEmail;
+	}
+
+	public String getHasLatitude() {
+		return hasLatitude;
+	}
+	public void setHasLatitude(String hasLatitude) {
+		this.hasLatitude = hasLatitude;
+	}
+
+	public String getHasLongitude() {
+		return hasLongitude;
+	}
+	public void setHasLongitude(String hasLongitude) {
+		this.hasLongitude = hasLongitude;
 	}
 
     public static PostalAddress findByPostalCode(String postalCode) {
@@ -430,6 +450,10 @@ public class PostalAddress extends HADatAcThing implements Comparable<PostalAddr
 					postalAddress.setHasPostalCode(object);
 				} else if (predicate.equals(SCHEMA.ADDRESS_COUNTRY)) {
 					postalAddress.setHasAddressCountryUri(object);
+				} else if (predicate.equals(SCHEMA.LATITUDE)) {
+					postalAddress.setHasLatitude(object);
+				} else if (predicate.equals(SCHEMA.LONGITUDE)) {
+					postalAddress.setHasLongitude(object);
 				} else if (predicate.equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
 					postalAddress.setHasSIRManagerEmail(object);
 				}

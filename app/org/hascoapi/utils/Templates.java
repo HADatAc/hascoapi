@@ -221,4 +221,18 @@ public class Templates {
     public String getPostalAddressCountry() { return iniConfig.getSection("KGR").getString("postalAddressCountry"); }
     public String getPostalAddressLocality() { return iniConfig.getSection("KGR").getString("postalAddressLocality"); }
     public String getPostalAddressRegion() { return iniConfig.getSection("KGR").getString("postalAddressRegion"); }
+    public String getPostalAddressLatitude() { 
+        try {
+            return iniConfig.getSection("KGR").getString("postalAddressLatitude");
+        } catch (Exception e) {
+            return null; // Optional field - return null if not configured
+        }
+    }
+    public String getPostalAddressLongitude() { 
+        try {
+            return iniConfig.getSection("KGR").getString("postalAddressLongitude");
+        } catch (Exception e) {
+            return null; // Optional field - return null if not configured
+        }
+    }
 }

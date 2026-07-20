@@ -21,6 +21,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.zip.*;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -445,6 +446,82 @@ public class DataFileAPI extends Controller {
         }
     
         return ok(ApiUtil.createResponse("File upload in progress. It will be saved shortly.", true));
+    }
+
+    /**
+     * Deletes an entire media folder and all its contents.
+     * 
+     * @param foldername The folder name under the media directory to delete
+     * @return Result indicating success or failure
+     */
+    public Result deleteMediaFolder(String foldername, Http.Request request) {
+        log.info("deleteMediaFolder: foldername='{}' method={} path={}", 
+            foldername, request.method(), request.path());
+
+        if (foldername == null || foldername.trim().isEmpty()) {
+            return ok(ApiUtil.createResponse("[ERROR] DataFileAPI.deleteMediaFolder(): No foldername value has been provided.", false));
+        }
+
+        // Prevent deleting parent directories
+        if (foldername.contains("..") || foldername.contains("/") || foldername.contains("\\")) {
+            return ok(ApiUtil.createResponse("[ERROR] DataFileAPI.deleteMediaFolder(): Invalid foldername. Only simple folder names are allowed.", false));
+        }
+
+        String basePath = ConfigProp.getPathIngestion();
+        if (basePath == null || basePath.trim().isEmpty()) {
+            log.error("deleteMediaFolder: Invalid file storage path from ConfigProp.getPathIngestion()");
+            return internalServerError(ApiUtil.createResponse("[ERROR] DataFileAPI.deleteMediaFolder(): Invalid file storage path.", false));
+        }
+
+        Path targetDir = Paths.get(basePath, Constants.MEDIA_FOLDER, foldername);
+        
+        if (!Files.exists(targetDir)) {
+            log.info("deleteMediaFolder: folder does not exist: {}", targetDir);
+            return ok(ApiUtil.createResponse("Folder does not exist or already deleted: " + foldername, true));
+        }
+
+        if (!Files.isDirectory(targetDir)) {
+            log.warn("deleteMediaFolder: path exists but is not a directory: {}", targetDir);
+            return ok(ApiUtil.createResponse("[ERROR] DataFileAPI.deleteMediaFolder(): Path exists but is not a directory.", false));
+        }
+
+        try {
+            long deletedCount = deleteDirectoryRecursively(targetDir);
+            log.info("deleteMediaFolder: successfully deleted folder '{}' ({} files/dirs removed)", foldername, deletedCount);
+            return ok(ApiUtil.createResponse("Media folder '" + foldername + "' deleted successfully (" + deletedCount + " items removed).", true));
+        } catch (IOException e) {
+            log.error("deleteMediaFolder: failed to delete folder '{}': {}", foldername, e.getMessage());
+            return internalServerError(ApiUtil.createResponse("[ERROR] DataFileAPI.deleteMediaFolder(): Failed to delete folder: " + e.getMessage(), false));
+        }
+    }
+
+    /**
+     * Recursively deletes a directory and all its contents.
+     * 
+     * @param dir The directory path to delete
+     * @return Number of files and directories deleted
+     * @throws IOException if deletion fails
+     */
+    private long deleteDirectoryRecursively(Path dir) throws IOException {
+        final long[] count = {0};
+        
+        Files.walkFileTree(dir, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                Files.delete(file);
+                count[0]++;
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                Files.delete(dir);
+                count[0]++;
+                return FileVisitResult.CONTINUE;
+            }
+        });
+        
+        return count[0];
     }
 
     /**

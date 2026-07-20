@@ -1890,6 +1890,22 @@ public class SIRElementAPI extends Controller {
             GenericFindSocial<PostalAddress> query = new GenericFindSocial<PostalAddress>();
             List<PostalAddress> results = query.findByKeywordTypeManagerEmailandStatusWithPages(PostalAddress.class, project, keyword, type, managerEmail, status, pageSize, offset);
             return PostalAddressAPI.getPostalAddresses(results);
+        } else if (elementType.equals("kgr")) {
+            GenericFindSocial<KGR> query = new GenericFindSocial<KGR>();
+            List<KGR> results = query.findByKeywordTypeManagerEmailandStatusWithPages(KGR.class, project, keyword, type, managerEmail, status, pageSize, offset);
+            return KGRAPI.getKGRs(results);
+        } else if (elementType.equals("fundingscheme")) {
+            GenericFindSocial<FundingScheme> query = new GenericFindSocial<FundingScheme>();
+            List<FundingScheme> results = query.findByKeywordTypeManagerEmailandStatusWithPages(FundingScheme.class, project, keyword, type, managerEmail, status, pageSize, offset);
+            return FundingSchemeAPI.getFundingSchemes(results);
+        } else if (elementType.equals("project")) {
+            GenericFindSocial<Project> query = new GenericFindSocial<Project>();
+            List<Project> results = query.findByKeywordTypeManagerEmailandStatusWithPages(Project.class, project, keyword, type, managerEmail, status, pageSize, offset);
+            return ProjectAPI.getProjects(results);
+        } else if (elementType.equals("task")) {
+            GenericFindSocial<Task> query = new GenericFindSocial<Task>();
+            List<Task> results = query.findByKeywordTypeManagerEmailandStatusWithPages(Task.class, project, keyword, type, managerEmail, status, pageSize, offset);
+            return TaskAPI.getTasks(results);
         } 
         return ok("[getElementsByKeywordTypeManagerEmailAnStatusWithPage] No valid element type.");
     }

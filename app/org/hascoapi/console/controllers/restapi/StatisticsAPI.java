@@ -71,11 +71,12 @@ public class StatisticsAPI extends Controller {
 
     /**
      * Count instruments: number of subclasses of vstoi:Instrument + 1
+     * Fixed to avoid counting vstoi:Instrument multiple times across different graphs
      */
     private int countInstruments() {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 "SELECT (COUNT(DISTINCT ?class) as ?count) WHERE { " +
-                "   ?class rdfs:subClassOf* vstoi:Instrument . " +
+                "   ?class rdfs:subClassOf+ vstoi:Instrument . " +  // Changed from * to + to exclude vstoi:Instrument itself
                 "} ";
 
         ResultSetRewindable resultsrw = SPARQLUtils.select(
@@ -83,7 +84,9 @@ public class StatisticsAPI extends Controller {
 
         if (resultsrw.hasNext()) {
             QuerySolution soln = resultsrw.next();
-            return soln.getLiteral("count").getInt();
+            int subclasses = soln.getLiteral("count").getInt();
+            // Add 1 to include vstoi:Instrument itself in the count
+            return subclasses + 1;
         }
         return 0;
     }

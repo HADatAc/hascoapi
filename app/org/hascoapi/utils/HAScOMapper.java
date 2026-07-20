@@ -314,7 +314,7 @@ public class HAScOMapper {
                         "hasStatus", "hascoTypeUri",
                         "hasImageUri", "hasWebDocument", 
                         "hascoTypeLabel", "comment", "name", "mbox", "telephone", "url", 
-                        "parentOrganizationUri", "childrenOrganizations"));
+                        "parentOrganizationUri", "childrenOrganizations", "hasAddressUri", "hasAddress"));
         }
 
         // PERSON
@@ -380,7 +380,8 @@ public class HAScOMapper {
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", 
                         "hasStatus", "hascoTypeUri", "hasImageUri", "hasWebDocument", 
                         "hascoTypeLabel", "comment", "name", "hasStreetAddress", "hasPostalCode", "hasAddressLocalityUri",
-                        "hasAddressRegionUri", "hasAddressCountryUri", "hasAddressLocality", "hasAddressRegion", "hasAddressCountry"));
+                        "hasAddressRegionUri", "hasAddressCountryUri", "hasAddressLocality", "hasAddressRegion", "hasAddressCountry",
+                        "hasLatitude", "hasLongitude"));
         }
  
         // PROCESS
