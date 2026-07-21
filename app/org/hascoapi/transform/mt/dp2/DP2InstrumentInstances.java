@@ -9,9 +9,8 @@ import org.hascoapi.utils.URIUtils;
 public class DP2InstrumentInstances {
 
     public static void setHeaders(Sheet sheet) {
-        // Fix: Remove skos:definition and owl:sameAs
-        // Fix: Add vstoi:hasStatus and hasco:hasWebDocument
-        String[] headers = { "hasURI", "a", "rdfs:label", "vstoi:hasSerialNumber", "vstoi:hasStatus", "hasco:hasWebDocument" };
+        // Updated to match DP2-PMSR.xlsx structure with vstoi:hasOwner
+        String[] headers = { "hasURI", "a", "rdfs:label", "vstoi:hasSerialNumber", "skos:definition", "owl:sameAs", "vstoi:hasOwner" };
 
         Row row = sheet.createRow(0);
         for (int i = 0; i < headers.length; i++) {
@@ -48,26 +47,27 @@ public class DP2InstrumentInstances {
         // Create the new row
         Row newRow = instrumentinstancessheet.createRow(rowIndex);
 
+        // Column A: hasURI
         newRow.createCell(0).setCellValue(instrumentInstance.getUri() != null ? URIUtils.replaceNameSpaceEx(instrumentInstance.getUri()) : "");
 
-        // CRITICAL FIX: Use typeUri (the actual Instrument class from INS) instead of hascoTypeUri (generic vstoi:InstrumentInstance)
+        // Column B: a (rdf:type) - Use typeUri (the actual Instrument class from INS) instead of hascoTypeUri
         newRow.createCell(1).setCellValue(instrumentInstance.getTypeUri() != null ? URIUtils.replaceNameSpaceEx(instrumentInstance.getTypeUri()) : "");
 
+        // Column C: rdfs:label
         newRow.createCell(2).setCellValue(instrumentInstance.getLabel() != null ? instrumentInstance.getLabel() : "");
+        
+        // Column D: vstoi:hasSerialNumber
         newRow.createCell(3).setCellValue(instrumentInstance.getHasSerialNumber() != null ? instrumentInstance.getHasSerialNumber() : "");
 
-        // Fix: Add vstoi:hasStatus with default value vstoi:OPERATIONAL
-        String status = instrumentInstance.getHasStatus();
-        if (status == null || status.isEmpty()) {
-            status = "vstoi:OPERATIONAL";
-        } else if (!status.contains(":")) {
-            // Ensure it has a prefix
-            status = "vstoi:" + status;
-        }
-        newRow.createCell(4).setCellValue(status);
+        // Column E: skos:definition (not currently mapped in Java class)
+        newRow.createCell(4).setCellValue("");
 
-        // Fix: Add hasco:hasWebDocument
-        newRow.createCell(5).setCellValue(instrumentInstance.getHasWebDocument() != null ? instrumentInstance.getHasWebDocument() : "");
+        // Column F: owl:sameAs (not currently mapped in Java class)
+        newRow.createCell(5).setCellValue("");
+
+        // Column G: vstoi:hasOwner
+        String ownerUri = instrumentInstance.getHasOwnerUri();
+        newRow.createCell(6).setCellValue(ownerUri != null && !ownerUri.isEmpty() ? URIUtils.replaceNameSpaceEx(ownerUri) : "");
 
         return helper;
 

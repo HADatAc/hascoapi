@@ -15,6 +15,9 @@ POST    /hascoapi/version                                       org.hascoapi.con
 
 # RETRIEVAL GENERIC
 
+GET     /hascoapi/api/statistics/ontologies/count               org.hascoapi.console.controllers.restapi.StatisticsAPI.getOntologiesCount()
+GET     /hascoapi/api/statistics/classes/count                  org.hascoapi.console.controllers.restapi.StatisticsAPI.getClassesCount()
+GET     /hascoapi/api/statistics/instances/count                org.hascoapi.console.controllers.restapi.StatisticsAPI.getInstancesCount()
 GET     /hascoapi/api/statistics/instruments/count              org.hascoapi.console.controllers.restapi.StatisticsAPI.getInstrumentsCount()
 GET     /hascoapi/api/statistics/procedures/count               org.hascoapi.console.controllers.restapi.StatisticsAPI.getClinicalProceduresCount()
 GET     /hascoapi/api/statistics/anatomy/count                  org.hascoapi.console.controllers.restapi.StatisticsAPI.getAnatomicalStructuresCount()

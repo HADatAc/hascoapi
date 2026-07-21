@@ -170,7 +170,7 @@ public class SpreadsheetRecordFile implements RecordFile {
             }
             currentRow.clear();
             if (!isHeaderRow) {
-                System.out.println("  [SheetHandler] Starting data row " + (rowNum + 1));
+                //System.out.println("  [SheetHandler] Starting data row " + (rowNum + 1));
             }
         }
 
@@ -183,7 +183,7 @@ public class SpreadsheetRecordFile implements RecordFile {
             if (isHeaderRow) {
                 headers = new ArrayList<>(currentRow);
                 isHeaderRow = false;
-                System.out.println("[SheetHandler] Headers parsed: " + headers);
+                //System.out.println("[SheetHandler] Headers parsed: " + headers);
             } else {
                 // Skip rows that are entirely empty (common in formatted Excel sheets).
                 boolean allEmpty = true;
@@ -194,17 +194,17 @@ public class SpreadsheetRecordFile implements RecordFile {
                     }
                 }
                 if (!allEmpty) {
-                    System.out.println("  [SheetHandler] Row " + (rowNum + 1) + " data: " + currentRow);
+                    //System.out.println("  [SheetHandler] Row " + (rowNum + 1) + " data: " + currentRow);
                     rowRecords.add(new SimpleRecord(new ArrayList<>(currentRow), headers));
                     rowCount++;
                     consecutiveEmptyRows = 0; // reset counter
-                    System.out.println("  [SheetHandler] ✓ Added record #" + rowCount);
+                    //System.out.println("  [SheetHandler] ✓ Added record #" + rowCount);
                 } else {
                     consecutiveEmptyRows++;
-                    System.out.println("  [SheetHandler] ✗ Skipped empty row " + (rowNum + 1) + " (consecutive: " + consecutiveEmptyRows + ")");
+                    //System.out.println("  [SheetHandler] ✗ Skipped empty row " + (rowNum + 1) + " (consecutive: " + consecutiveEmptyRows + ")");
 
                     if (consecutiveEmptyRows >= MAX_CONSECUTIVE_EMPTY_ROWS) {
-                        System.out.println("  [SheetHandler] ⚠ Reached " + MAX_CONSECUTIVE_EMPTY_ROWS + " consecutive empty rows. Stopping sheet parsing.");
+                        //System.out.println("  [SheetHandler] ⚠ Reached " + MAX_CONSECUTIVE_EMPTY_ROWS + " consecutive empty rows. Stopping sheet parsing.");
                         shouldStopProcessing = true;
                     }
                 }

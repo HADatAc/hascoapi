@@ -70,6 +70,42 @@ public class StatisticsAPI extends Controller {
     }
 
     /**
+     * Get count of ontologies (named graphs)
+     * GET /hascoapi/api/statistics/ontologies/count
+     */
+    public Result getOntologiesCount() {
+        int count = countOntologies();
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode result = mapper.createObjectNode();
+        result.put("total", count);
+        return ok(ApiUtil.createResponse(result, true));
+    }
+
+    /**
+     * Get count of classes across all ontologies
+     * GET /hascoapi/api/statistics/classes/count
+     */
+    public Result getClassesCount() {
+        int count = countClasses();
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode result = mapper.createObjectNode();
+        result.put("total", count);
+        return ok(ApiUtil.createResponse(result, true));
+    }
+
+    /**
+     * Get count of instances across the entire knowledge graph
+     * GET /hascoapi/api/statistics/instances/count
+     */
+    public Result getInstancesCount() {
+        int count = countInstances();
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode result = mapper.createObjectNode();
+        result.put("total", count);
+        return ok(ApiUtil.createResponse(result, true));
+    }
+
+    /**
      * Count instruments: number of subclasses of vstoi:Instrument + 1
      * Fixed to avoid counting vstoi:Instrument multiple times across different graphs
      */
@@ -155,5 +191,26 @@ public class StatisticsAPI extends Controller {
             return soln.getLiteral("count").getInt();
         }
         return 0;
+    }
+
+    /**
+     * Count ontologies using existing NameSpace method
+     */
+    private int countOntologies() {
+        return org.hascoapi.entity.pojo.NameSpace.getNumberOntologies();
+    }
+
+    /**
+     * Count classes using existing HADatAcClass method
+     */
+    private int countClasses() {
+        return org.hascoapi.entity.pojo.HADatAcClass.getNumberClasses();
+    }
+
+    /**
+     * Count instances using existing HADatAcThing method
+     */
+    private int countInstances() {
+        return org.hascoapi.entity.pojo.HADatAcThing.getNumberInstances();
     }
 }
