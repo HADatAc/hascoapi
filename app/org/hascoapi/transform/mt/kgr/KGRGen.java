@@ -458,9 +458,9 @@ public class KGRGen {
         // Create sheet named 'Person'
         Sheet personSheet = workbook.createSheet(KGRGen.PERSONS);
         String[] personHeaders = { "hasURI", "hasco:hascoType", "rdfs:label", 
-            "hasco:originalID", "rdf:type", "foaf:givenName", "foaf:familyName", 
+            "schema:alternateName", "rdf:type", "foaf:givenName", "foaf:familyName", 
         	"foaf:mbox", "foaf:member", "hasco:hasImage", "hasco:hasWebDocument", 
-            "rdfs:comment" };
+            "rdfs:comment", "hasco:userName", "hasco:userEmail", "hasco:userID" };
 
         // Create header row
         Row personHeaderRow = personSheet.createRow(0);

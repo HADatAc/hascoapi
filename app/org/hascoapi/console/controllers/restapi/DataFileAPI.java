@@ -733,4 +733,35 @@ public class DataFileAPI extends Controller {
         }
     }
 
+    /**
+     * Delete a DataFile and its associated named graph containing all RDF triples.
+     * 
+     * @param uri The URI of the DataFile to delete
+     * @return JSON response indicating success/failure
+     */
+    public Result deleteDataFile(String uri) {
+        if (uri == null || uri.trim().isEmpty()) {
+            return ok(ApiUtil.createResponse("No URI provided for DataFile deletion", false));
+        }
+
+        try {
+            // Find the DataFile entity
+            DataFile dataFile = DataFile.find(uri);
+            if (dataFile == null) {
+                return ok(ApiUtil.createResponse("DataFile not found: " + uri, false));
+            }
+
+            // Delete the DataFile (this also deletes the named graph with all RDF triples)
+            dataFile.delete();
+
+            return ok(ApiUtil.createResponse("DataFile and associated RDF data deleted successfully: " + uri, true));
+
+        } catch (Exception e) {
+            String errorMsg = "Error deleting DataFile " + uri + ": " + e.getMessage();
+            System.out.println("[ERROR] " + errorMsg);
+            e.printStackTrace();
+            return ok(ApiUtil.createResponse(errorMsg, false));
+        }
+    }
+
 }

@@ -253,6 +253,8 @@ POST    /hascoapi/api/uploadFile/:elementuri/:filename                          
 POST    /hascoapi/api/uploadMedia/:foldername/:filename                             org.hascoapi.console.controllers.restapi.DataFileAPI.uploadMedia(foldername: String, filename: String, request: play.mvc.Http.Request)
 DELETE  /hascoapi/api/deleteMedia/:foldername                                       org.hascoapi.console.controllers.restapi.DataFileAPI.deleteMediaFolder(foldername: String, request: play.mvc.Http.Request)
 POST    /hascoapi/api/downloadFile/:elementuri/:filename                            org.hascoapi.console.controllers.restapi.DataFileAPI.downloadFile(elementuri: String, filename: String)
+POST    /hascoapi/api/datafile/delete/:uri                                          org.hascoapi.console.controllers.restapi.DataFileAPI.deleteDataFile(uri: String)
+GET     /hascoapi/api/datafile/delete/:uri                                          org.hascoapi.console.controllers.restapi.DataFileAPI.deleteDataFile(uri: String)
 
 # TESTING METHODS
 

@@ -1,6 +1,7 @@
 package org.hascoapi.ingestion;
 
 import org.hascoapi.Constants;
+import org.hascoapi.entity.pojo.HADatAcThing;
 import org.hascoapi.entity.pojo.Organization;
 import org.hascoapi.entity.pojo.PostalAddress;
 import org.hascoapi.entity.pojo.DataFile;
@@ -63,6 +64,9 @@ public class PersonGenerator extends BaseGenerator {
 		mapCol.put("JobTitle", templates.getAgentJobTitle());
 		mapCol.put("Affiliation", templates.getAgentHasAffiliationUri());
 		mapCol.put("Address", templates.getAgentAddress());
+		mapCol.put("UserName", templates.getAgentUserName());
+		mapCol.put("UserEmail", templates.getAgentUserEmail());
+		mapCol.put("UserID", templates.getAgentUserID());
 	}
 
     private String getOriginalID(Record rec) {
@@ -127,6 +131,18 @@ public class PersonGenerator extends BaseGenerator {
 		return "";
 	}
 
+	private String getUserName(Record rec) {
+		return rec.getValueByColumnName(mapCol.get("UserName"));
+	}
+
+	private String getUserEmail(Record rec) {
+		return rec.getValueByColumnName(mapCol.get("UserEmail"));
+	}
+
+	private String getUserID(Record rec) {
+		return rec.getValueByColumnName(mapCol.get("UserID"));
+	}
+
 	public String createPersonUri() throws Exception {
 
         // Generate a random integer between 10000 and 99999
@@ -153,6 +169,9 @@ public class PersonGenerator extends BaseGenerator {
 		row.put("schema:jobTitle", getJobTitle(rec));
 		row.put("foaf:member", getHasAffiliationUri(rec));
 		row.put("schema:address", getAddress(rec));
+		row.put("hasco:userName", getUserName(rec));
+		row.put("hasco:userEmail", getUserEmail(rec));
+		row.put("hasco:userID", getUserID(rec));
 		row.put("vstoi:hasStatus", URIUtils.replaceNameSpaceEx(status));
 		row.put("vstoi:hasSIRManagerEmail", managerEmail);
 		row.put("vstoi:hasStatus", status);
@@ -167,6 +186,90 @@ public class PersonGenerator extends BaseGenerator {
 	@Override
 	public String getErrorMsg(Exception e) {
 		return "Error in PersonGenerator: " + e.getMessage();
+	}
+
+	/**
+	 * Count the number of valid Person records in the KGR metadata template.
+	 * Excludes header rows and any invalid/duplicate rows.
+	 */
+	private int countValidInputRecords() {
+		if (records == null || records.isEmpty()) {
+			return 0;
+		}
+
+		int validCount = 0;
+		Record lastRecord = null;
+		
+		for (Record record : records) {
+			// Skip empty records
+			if (record.size() <= 0) {
+				continue;
+			}
+			
+			// Skip duplicate records
+			if (lastRecord != null && record.equals(lastRecord)) {
+				continue;
+			}
+			
+			// Check if this is a valid Person record (has required fields)
+			String givenName = getGivenName(record);
+			String familyName = getFamilyName(record);
+			
+			// A valid Person must have at least a name
+			if ((givenName != null && !givenName.trim().isEmpty()) || 
+			    (familyName != null && !familyName.trim().isEmpty())) {
+				validCount++;
+				lastRecord = record;
+			}
+		}
+		
+		return validCount;
+	}
+
+	/**
+	 * Verify that all Person records from the KGR metadata template were successfully ingested.
+	 * Logs a warning if there's a mismatch between input records and committed objects.
+	 */
+	private void verifyIngestionCompleteness() {
+		int inputRecordCount = countValidInputRecords();
+		int committedObjectCount = 0;
+		
+		// Count successfully committed Person objects
+		for (HADatAcThing obj : objects) {
+			if (obj != null && "Person".equals(obj.getClass().getSimpleName())) {
+				committedObjectCount++;
+			}
+		}
+		
+		logger.println(String.format("[PersonGenerator] Ingestion verification: %d Person record(s) in KGR template, %d Person(s) committed to knowledge graph", 
+			inputRecordCount, committedObjectCount));
+		
+		if (committedObjectCount < inputRecordCount) {
+			int missingCount = inputRecordCount - committedObjectCount;
+			logger.println(String.format("[WARNING] PersonGenerator: Not all Person records were successfully ingested! %d Person record(s) from the KGR metadata template are missing in the knowledge graph.", 
+				missingCount));
+			logger.println("[WARNING] PersonGenerator: Please review the ingestion logs for errors. Some Person records may have been skipped due to validation failures or duplicate emails.");
+		} else if (committedObjectCount > inputRecordCount) {
+			logger.println("[INFO] PersonGenerator: More Person objects were committed than input records. This may occur if records were deduplicated or processed differently.");
+		} else {
+			logger.println(String.format("[SUCCESS] PersonGenerator: All %d Person record(s) from the KGR metadata template were successfully verified and ingested into the knowledge graph.", 
+				committedObjectCount));
+		}
+	}
+
+	@Override
+	public boolean commitObjectsToTripleStore(List<HADatAcThing> objects) {
+		// Call parent implementation to actually commit the objects
+		boolean success = super.commitObjectsToTripleStore(objects);
+		
+		// Perform ingestion completeness verification
+		if (success) {
+			verifyIngestionCompleteness();
+		} else {
+			logger.println("[ERROR] PersonGenerator: Ingestion failed during commit to triple store. Verification skipped.");
+		}
+		
+		return success;
 	}
  	 
 }

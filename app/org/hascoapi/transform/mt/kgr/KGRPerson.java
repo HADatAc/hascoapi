@@ -69,6 +69,18 @@ public class KGRPerson {
         Cell cell12 = newRow.createCell(11);
         cell12.setCellValue(person.getComment() != null ? person.getComment() : "");
 
+        // "hasco:userName"
+        Cell cell13 = newRow.createCell(12);
+        cell13.setCellValue(person.getUserName() != null ? person.getUserName() : "");
+
+        // "hasco:userEmail"
+        Cell cell14 = newRow.createCell(13);
+        cell14.setCellValue(person.getUserEmail() != null ? person.getUserEmail() : "");
+
+        // "hasco:userID"
+        Cell cell15 = newRow.createCell(14);
+        cell15.setCellValue(person.getUserID() != null ? person.getUserID() : "");
+
         return helper;
     }
 }

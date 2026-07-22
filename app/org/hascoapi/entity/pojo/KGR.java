@@ -285,6 +285,21 @@ public class KGR extends MetadataTemplate {
                             System.out.println("[WARNING] KGR.java: Not found isMemberOf [" + hasAffiliationUri + "] for PersonID [" + personID + "]");
                         }
                     }
+                    String userName = "";
+                    if (!record.getValueByColumnName(this.getTemplates().getAgentUserName()).isEmpty()) {
+                        userName = record.getValueByColumnName(this.getTemplates().getAgentUserName());
+                    }
+                    mapPersonProperties.put(this.getTemplates().getAgentUserName(), userName);
+                    String userEmail = "";
+                    if (!record.getValueByColumnName(this.getTemplates().getAgentUserEmail()).isEmpty()) {
+                        userEmail = record.getValueByColumnName(this.getTemplates().getAgentUserEmail());
+                    }
+                    mapPersonProperties.put(this.getTemplates().getAgentUserEmail(), userEmail);
+                    String userID = "";
+                    if (!record.getValueByColumnName(this.getTemplates().getAgentUserID()).isEmpty()) {
+                        userID = record.getValueByColumnName(this.getTemplates().getAgentUserID());
+                    }
+                    mapPersonProperties.put(this.getTemplates().getAgentUserID(), userID);
                     mapPersonProperties.put(this.getTemplates().getManagerEmail(), getHasSIRManagerEmail());
                 }
             }

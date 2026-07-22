@@ -191,6 +191,9 @@ public class HASCO {
     public static final String LIST_POSITION                          = "http://hadatac.org/ont/hasco/listPosition";
     public static final String HASCO_TYPE                             = "http://hadatac.org/ont/hasco/hascoType";
     public static final String ORIGINAL_ID                            = "http://hadatac.org/ont/hasco/originalID";
+    public static final String USER_NAME                              = "http://hadatac.org/ont/hasco/userName";
+    public static final String USER_EMAIL                             = "http://hadatac.org/ont/hasco/userEmail";
+    public static final String USER_ID                                = "http://hadatac.org/ont/hasco/userID";
     public static final String PART_OF                                = "http://hadatac.org/ont/hasco/partOf";
     public static final String PART_OF_SCHEMA                         = "http://hadatac.org/ont/hasco/partOfSchema";
 

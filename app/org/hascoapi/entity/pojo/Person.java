@@ -37,6 +37,15 @@ public class Person extends Agent {
     @PropertyField(uri="foaf:member")
     protected String hasAffiliationUri;
 
+    @PropertyField(uri="hasco:userName")
+    protected String userName;
+
+    @PropertyField(uri="hasco:userEmail")
+    protected String userEmail;
+
+    @PropertyField(uri="hasco:userID")
+    protected String userID;
+
     public String getFamilyName() {
         return familyName;
     }
@@ -70,6 +79,27 @@ public class Person extends Agent {
             return null;
         }
         return Organization.find(this.getHasAffiliationUri());
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getUserEmail() {
+        return userEmail;
+    }
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
+    }
+
+    public String getUserID() {
+        return userID;
+    }
+    public void setUserID(String userID) {
+        this.userID = userID;
     }
 
     public static Person findByEmail(String email) {
@@ -197,6 +227,12 @@ public class Person extends Agent {
                     person.setJobTitle(object);
                 } else if (predicate.equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
                     person.setHasSIRManagerEmail(object);
+                } else if (predicate.equals(HASCO.USER_NAME)) {
+                    person.setUserName(object);
+                } else if (predicate.equals(HASCO.USER_EMAIL)) {
+                    person.setUserEmail(object);
+                } else if (predicate.equals(HASCO.USER_ID)) {
+                    person.setUserID(object);
                 }
             }
         }

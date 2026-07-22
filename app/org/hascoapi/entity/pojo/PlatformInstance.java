@@ -17,6 +17,8 @@ import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.FirstLabel;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.SPARQLUtils;
+import org.hascoapi.utils.URIUtils;
+import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.SIO;
 import org.hascoapi.vocabularies.VSTOI;
 import org.slf4j.Logger;
@@ -322,50 +324,80 @@ public class PlatformInstance extends VSTOIInstance {
                 getFirstCoordinateCharacteristic().equals(LAT) &&
                 getSecondCoordinateCharacteristic().equals(LONG);
     }
-    /*
-    } else if (statement.getPredicate().getURI().equals(HASCO.HAS_FIRST_COORDINATE)) {
-                platform.setFirstCoordinate(Float.parseFloat(str));
-            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_FIRST_COORDINATE_UNIT)) {
-                platform.setFirstCoordinateUnit(str);
-            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_FIRST_COORDINATE_CHARACTERISTIC)) {
-                platform.setFirstCoordinateCharacteristic(str);
-            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_SECOND_COORDINATE)) {
-                platform.setSecondCoordinate(Float.parseFloat(str));
-            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_SECOND_COORDINATE_UNIT)) {
-                platform.setSecondCoordinateUnit(str);
-            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_SECOND_COORDINATE_CHARACTERISTIC)) {
-                platform.setSecondCoordinateCharacteristic(str);
-            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_THIRD_COORDINATE)) {
-                platform.setThirdCoordinate(Float.parseFloat(str));
-            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_THIRD_COORDINATE_UNIT)) {
-            	platform.setThirdCoordinateUnit(str);
-            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_THIRD_COORDINATE_CHARACTERISTIC)) {
-            	platform.setThirdCoordinateCharacteristic(str);
-            } else if (statement.getSubject().getURI().equals(uri) && statement.getPredicate().getURI().equals(HASCO.PART_OF)) {
-            	platform.setPartOf(str);
-            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_LAYOUT)) {
-                platform.setLayout(str);
-            } else if (statement.getSubject().getURI().equals(uri) && statement.getPredicate().getURI().equals(HASCO.HAS_REFERENCE_LAYOUT)) {
-                platform.setReferenceLayout(str);
-            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_LAYOUT_WIDTH)) {
-                platform.setWidth(Float.parseFloat(str));
-            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_LAYOUT_WIDTH_UNIT)) {
-                platform.setWidthUnit(str);
-            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_LAYOUT_DEPTH)) {
-                platform.setDepth(Float.parseFloat(str));
-            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_LAYOUT_DEPTH_UNIT)) {
-                platform.setDepthUnit(str);
-            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_LAYOUT_HEIGHT)) {
-                platform.setHeight(Float.parseFloat(str));
-            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_LAYOUT_HEIGHT_UNIT)) {
-                platform.setHeightUnit(str);
-            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_URL)) {
-                platform.setURL(str);
-     */
 
 	public static PlatformInstance find(String uri) {
-		PlatformInstance instance = new PlatformInstance();
-		return (PlatformInstance)VSTOIInstance.find(instance,uri);
+		if (uri == null || uri.isEmpty()) {
+			return null;
+		}
+
+		// First get basic properties from parent class
+		PlatformInstance platform = new PlatformInstance();
+		VSTOIInstance.find(platform, uri);
+		
+		// Now get platform-specific properties
+		Statement statement;
+		RDFNode object;
+		
+		String queryString = "DESCRIBE <" + uri + ">";
+		Model model = SPARQLUtils.describe(CollectionUtil.getCollectionPath(
+				CollectionUtil.Collection.SPARQL_QUERY), queryString);
+		
+		StmtIterator stmtIterator = model.listStatements();
+		
+		while (stmtIterator.hasNext()) {
+			statement = stmtIterator.next();
+			object = statement.getObject();
+			String str = URIUtils.objectRDFToString(object);
+			
+			if (str != null && !str.isEmpty()) {
+				try {
+					if (statement.getPredicate().getURI().equals(HASCO.HAS_FIRST_COORDINATE)) {
+						platform.setFirstCoordinate(Float.parseFloat(str));
+					} else if (statement.getPredicate().getURI().equals(HASCO.HAS_FIRST_COORDINATE_UNIT)) {
+						platform.setFirstCoordinateUnit(str);
+					} else if (statement.getPredicate().getURI().equals(HASCO.HAS_FIRST_COORDINATE_CHARACTERISTIC)) {
+						platform.setFirstCoordinateCharacteristic(str);
+					} else if (statement.getPredicate().getURI().equals(HASCO.HAS_SECOND_COORDINATE)) {
+						platform.setSecondCoordinate(Float.parseFloat(str));
+					} else if (statement.getPredicate().getURI().equals(HASCO.HAS_SECOND_COORDINATE_UNIT)) {
+						platform.setSecondCoordinateUnit(str);
+					} else if (statement.getPredicate().getURI().equals(HASCO.HAS_SECOND_COORDINATE_CHARACTERISTIC)) {
+						platform.setSecondCoordinateCharacteristic(str);
+					} else if (statement.getPredicate().getURI().equals(HASCO.HAS_THIRD_COORDINATE)) {
+						platform.setThirdCoordinate(Float.parseFloat(str));
+					} else if (statement.getPredicate().getURI().equals(HASCO.HAS_THIRD_COORDINATE_UNIT)) {
+						platform.setThirdCoordinateUnit(str);
+					} else if (statement.getPredicate().getURI().equals(HASCO.HAS_THIRD_COORDINATE_CHARACTERISTIC)) {
+						platform.setThirdCoordinateCharacteristic(str);
+					} else if (statement.getPredicate().getURI().equals(HASCO.PART_OF)) {
+						platform.setPartOf(str);
+					} else if (statement.getPredicate().getURI().equals(HASCO.HAS_LAYOUT)) {
+						platform.setLayout(str);
+					} else if (statement.getPredicate().getURI().equals(HASCO.HAS_REFERENCE_LAYOUT)) {
+						platform.setReferenceLayout(str);
+					} else if (statement.getPredicate().getURI().equals(HASCO.HAS_LAYOUT_WIDTH)) {
+						platform.setWidth(Float.parseFloat(str));
+					} else if (statement.getPredicate().getURI().equals(HASCO.HAS_LAYOUT_WIDTH_UNIT)) {
+						platform.setWidthUnit(str);
+					} else if (statement.getPredicate().getURI().equals(HASCO.HAS_LAYOUT_DEPTH)) {
+						platform.setDepth(Float.parseFloat(str));
+					} else if (statement.getPredicate().getURI().equals(HASCO.HAS_LAYOUT_DEPTH_UNIT)) {
+						platform.setDepthUnit(str);
+					} else if (statement.getPredicate().getURI().equals(HASCO.HAS_LAYOUT_HEIGHT)) {
+						platform.setHeight(Float.parseFloat(str));
+					} else if (statement.getPredicate().getURI().equals(HASCO.HAS_LAYOUT_HEIGHT_UNIT)) {
+						platform.setHeightUnit(str);
+					} else if (statement.getPredicate().getURI().equals(HASCO.HAS_URL)) {
+						platform.setURL(str);
+					}
+				} catch (NumberFormatException e) {
+					// Silently skip if coordinate values can't be parsed as Float
+					log.debug("Could not parse numeric value for property {}: {}", statement.getPredicate().getURI(), str);
+				}
+			}
+		}
+		
+		return platform;
 	} 
 
     public static List<PlatformInstance> findByPlaformWithPage(String platformUri, int pageSize, int offset) {
