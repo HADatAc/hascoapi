@@ -256,14 +256,16 @@ public class RepoPage extends Controller {
     /**
      * Handles arbitrary namespace ontology ingestion with auto-registration.
      * If the namespace doesn't exist, creates it dynamically following NameSpaceGenerator protocol.
-     * Accepts a namespace URI as parameter and TTL content as request body.
+     * Accepts a namespace abbreviation and URI as parameters and TTL content as request body.
+     * The abbreviation MUST be provided and will be used exactly as given - NOT derived from URI.
      * 
      * @param request HTTP request containing TTL file as raw body
+     * @param abbreviation The namespace abbreviation (e.g., pmsr, uberon, ncit)
      * @param namespaceUri URL-encoded namespace URI (e.g., http://pmsr.net/ont/pmsr)
      * @return Result indicating success or failure
      */
     @BodyParser.Of(BodyParser.Raw.class)
-    public Result ingestNamespaceOntology(Http.Request request, String namespaceUri) {
+    public Result ingestNamespaceOntology(Http.Request request, String abbreviation, String namespaceUri) {
         File tempFile = request.body().asRaw().asFile();
         if (tempFile == null) {
             return ok(ApiUtil.createResponse(
@@ -271,103 +273,35 @@ public class RepoPage extends Controller {
             ));
         }
 
-        // Decode the namespace URI
-        String decodedUri = java.net.URLDecoder.decode(namespaceUri, java.nio.charset.StandardCharsets.UTF_8);
-        System.out.println("ingestNamespaceOntology: namespaceUri=[" + decodedUri + "]");
+        // Decode the namespace URI and abbreviation
+        final String decodedUri = java.net.URLDecoder.decode(namespaceUri, java.nio.charset.StandardCharsets.UTF_8);
+        final String decodedAbbrev = java.net.URLDecoder.decode(abbreviation, java.nio.charset.StandardCharsets.UTF_8);
+        System.out.println("ingestNamespaceOntology: abbreviation=[" + decodedAbbrev + "], namespaceUri=[" + decodedUri + "]");
         System.out.println("ingestNamespaceOntology: File size: " + tempFile.length() + " bytes");
-
-        // Derive label from URI for lookup/registration
-        String derivedLabel = deriveNamespaceLabel(decodedUri);
         
-        // Find or create the namespace (must be final for lambda)
-        final NameSpace namespace;
-        NameSpace existingNamespace = NameSpaces.getInstance().getNamespacesByUri().get(decodedUri);
+        // Determine MIME type from file name
+        String tempFileName = tempFile.getName();
+        final String sourceMime;
         
-        if (existingNamespace == null) {
-            // Check if a namespace with this label already exists (might have wrong URI)
-            NameSpace existingByLabel = NameSpaces.getInstance().getNamespaces().get(derivedLabel);
-            
-            if (existingByLabel != null) {
-                // Found namespace by label but different URI - update it
-                System.out.println("ingestNamespaceOntology: Found existing namespace by label '" + derivedLabel + 
-                    "' with different URI (old: " + existingByLabel.getUri() + ", new: " + decodedUri + ") - updating");
-                
-                // Update the URI and other properties
-                existingByLabel.setUri(decodedUri);
-                existingByLabel.setSourceMime("text/turtle");
-                existingByLabel.setSource(""); // No remote source, manual upload
-                existingByLabel.setComment("Updated via namespace ontology ingestion");
-                
-                try {
-                    existingByLabel.save();
-                    System.out.println("ingestNamespaceOntology: Successfully updated namespace: " + derivedLabel);
-                } catch (Exception e) {
-                    System.err.println("[ERROR] Failed to update namespace: " + e.getMessage());
-                    e.printStackTrace();
-                    return badRequest(ApiUtil.createResponse(
-                        "[ERROR] Failed to update namespace: " + e.getMessage(), false
-                    ));
-                }
-                
-                namespace = existingByLabel;
-            } else {
-                // No existing namespace - create new one
-                System.out.println("ingestNamespaceOntology: Namespace not found, auto-registering: " + decodedUri);
-                
-                // Auto-register namespace following NameSpaceGenerator protocol
-                NameSpace newNamespace = new NameSpace();
-                newNamespace.setNamedGraph(Constants.DEFAULT_REPOSITORY);
-                newNamespace.setLabel(derivedLabel);
-                newNamespace.setUri(decodedUri);
-                newNamespace.setTypeUri(HASCO.ONTOLOGY);
-                newNamespace.setHascoTypeUri(HASCO.ONTOLOGY);
-                newNamespace.setSourceMime("text/turtle");
-                newNamespace.setSource(""); // No remote source, manual upload
-                newNamespace.setComment("Auto-registered via namespace ontology ingestion");
-                newNamespace.setPriority(100);
-                newNamespace.setPermanent(false);
-                
-                // Add to in-memory cache BEFORE saving (required by NameSpaceGenerator protocol)
-                NameSpaces.getInstance().addNamespace(newNamespace);
-                
-                // Save to triplestore
-                try {
-                    newNamespace.save();
-                    System.out.println("ingestNamespaceOntology: Successfully registered namespace: " + derivedLabel);
-                } catch (Exception e) {
-                    System.err.println("[ERROR] Failed to register namespace: " + e.getMessage());
-                    e.printStackTrace();
-                    return badRequest(ApiUtil.createResponse(
-                        "[ERROR] Failed to register namespace: " + e.getMessage(), false
-                    ));
-                }
-                
-                namespace = newNamespace;
-            }
+        if (tempFileName.endsWith(".owl")) {
+            sourceMime = "application/rdf+xml";
+        } else if (tempFileName.endsWith(".ttl")) {
+            sourceMime = "text/turtle";
         } else {
-            // Found by URI - update MIME type to ensure it's correct
-            System.out.println("ingestNamespaceOntology: Found existing namespace by URI: " + decodedUri);
-            existingNamespace.setSourceMime("text/turtle");
-            try {
-                existingNamespace.save();
-            } catch (Exception e) {
-                System.err.println("[ERROR] Failed to update namespace MIME type: " + e.getMessage());
-            }
-            namespace = existingNamespace;
+            // Default to turtle
+            sourceMime = "text/turtle";
         }
-
-        // Ensure source MIME type is correct
-        namespace.setSourceMime("text/turtle");
-
-        // Copy temp file to a permanent location before async processing
-        // (Play Framework cleans up temp files after request completes)
-        File permanentFile = null;
+        
+        System.out.println("ingestNamespaceOntology: Detected MIME type: " + sourceMime + " from temp file: " + tempFileName);
+        
+        // Copy temp file to avoid Play Framework cleanup before async processing completes
+        File workingFile = null;
         try {
-            permanentFile = File.createTempFile("ontology_ingest_", ".ttl");
-            permanentFile.deleteOnExit();
-            java.nio.file.Files.copy(tempFile.toPath(), permanentFile.toPath(), 
+            workingFile = File.createTempFile("ontology_ingest_", tempFileName.endsWith(".owl") ? ".owl" : ".ttl");
+            workingFile.deleteOnExit();
+            java.nio.file.Files.copy(tempFile.toPath(), workingFile.toPath(), 
                 java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-            System.out.println("ingestNamespaceOntology: Copied temp file to: " + permanentFile.getAbsolutePath());
+            System.out.println("ingestNamespaceOntology: Copied temp file to: " + workingFile.getAbsolutePath());
         } catch (Exception e) {
             System.err.println("[ERROR] Failed to copy temp file: " + e.getMessage());
             e.printStackTrace();
@@ -375,8 +309,134 @@ public class RepoPage extends Controller {
                 "[ERROR] Failed to prepare file for ingestion: " + e.getMessage(), false
             ));
         }
+        
+        // Create file:// URI from working file path for named graph and source
+        final String fileUri = workingFile.toURI().toString();
+        System.out.println("ingestNamespaceOntology: Working file path: " + workingFile.getAbsolutePath());
+        System.out.println("ingestNamespaceOntology: File URI (named graph & source): " + fileUri);
+        
+        final File fileToIngest = workingFile;
+        
+        // Find or auto-register the namespace
+        final NameSpace namespace;
+        NameSpace existingByUri = NameSpaces.getInstance().getNamespacesByUri().get(decodedUri);
+        NameSpace existingByLabel = NameSpaces.getInstance().getNamespaces().get(decodedAbbrev);
+        
+        if (existingByUri != null) {
+            // Found namespace by URI - verify abbreviation matches
+            if (!existingByUri.getLabel().equals(decodedAbbrev)) {
+                return badRequest(ApiUtil.createResponse(
+                    "[ERROR] Namespace URI conflict: URI '" + decodedUri + "' exists with abbreviation '" + 
+                    existingByUri.getLabel() + "' but trying to ingest with abbreviation '" + decodedAbbrev + "'. " +
+                    "The namespace abbreviation must match. " +
+                    "Please delete the incorrect namespace or use the correct abbreviation.", false
+                ));
+            }
+            namespace = existingByUri;
+            System.out.println("ingestNamespaceOntology: Found existing namespace by URI: " + namespace.getLabel());
+            System.out.println("ingestNamespaceOntology: Will update existing namespace with new file URI");
+            
+        } else if (existingByLabel != null) {
+            // Found namespace by label but different URI - delete and recreate (immutable pattern)
+            System.out.println("ingestNamespaceOntology: Found existing namespace '" + decodedAbbrev + "' with URI '" + 
+                existingByLabel.getUri() + "' but new URI is '" + decodedUri + "' - deleting old namespace");
+            
+            // Delete old namespace following delete-then-recreate pattern
+            String deleteResponse = NameSpace.deleteNamespace(decodedAbbrev);
+            if (!deleteResponse.isEmpty()) {
+                System.err.println("[ERROR] Failed to delete conflicting namespace: " + deleteResponse);
+                return badRequest(ApiUtil.createResponse(
+                    "[ERROR] Cannot update namespace '" + decodedAbbrev + "': " + deleteResponse, false
+                ));
+            }
+            
+            // Refresh namespace cache after deletion
+            NameSpaces.getInstance().resetNameSpaces();
+            System.out.println("ingestNamespaceOntology: Deleted old namespace, will create new one");
+            
+            // Fall through to create new namespace
+            NameSpace newNamespace = new NameSpace();
+            newNamespace.setNamedGraph(fileUri);
+            newNamespace.setLabel(decodedAbbrev);
+            newNamespace.setUri(decodedUri);
+            newNamespace.setTypeUri(HASCO.ONTOLOGY);
+            newNamespace.setHascoTypeUri(HASCO.ONTOLOGY);
+            newNamespace.setSourceMime(sourceMime);
+            newNamespace.setSource(fileUri);
+            newNamespace.setComment("Auto-registered via namespace ontology ingestion");
+            newNamespace.setPriority(100);
+            newNamespace.setPermanent(false);
+            
+            NameSpaces.getInstance().addNamespace(newNamespace);
+            
+            try {
+                newNamespace.save();
+                System.out.println("ingestNamespaceOntology: Successfully recreated namespace: " + decodedAbbrev);
+            } catch (Exception e) {
+                System.err.println("[ERROR] Failed to recreate namespace: " + e.getMessage());
+                e.printStackTrace();
+                NameSpaces.getInstance().getNamespaces().remove(decodedAbbrev);
+                NameSpaces.getInstance().getNamespacesByUri().remove(decodedUri);
+                return badRequest(ApiUtil.createResponse(
+                    "[ERROR] Failed to recreate namespace: " + e.getMessage(), false
+                ));
+            }
+            
+            namespace = newNamespace;
+            
+        } else {
+            // Namespace doesn't exist - auto-register it with the provided abbreviation (NOT derived)
+            System.out.println("ingestNamespaceOntology: Auto-registering new namespace: " + decodedAbbrev + " -> " + decodedUri);
+            
+            NameSpace newNamespace = new NameSpace();
+            newNamespace.setNamedGraph(fileUri);  // Use file:// URI as named graph
+            newNamespace.setLabel(decodedAbbrev);
+            newNamespace.setUri(decodedUri);
+            newNamespace.setTypeUri(HASCO.ONTOLOGY);
+            newNamespace.setHascoTypeUri(HASCO.ONTOLOGY);
+            newNamespace.setSourceMime(sourceMime);  // Set based on file extension
+            newNamespace.setSource(fileUri);  // Use file:// URI as source
+            newNamespace.setComment("Auto-registered via namespace ontology ingestion");
+            newNamespace.setPriority(100);
+            newNamespace.setPermanent(false);
+            
+            // Add to in-memory cache BEFORE saving (required by NameSpaceGenerator protocol)
+            NameSpaces.getInstance().addNamespace(newNamespace);
+            
+            // Save to triplestore
+            try {
+                newNamespace.save();
+                System.out.println("ingestNamespaceOntology: Successfully auto-registered namespace: " + decodedAbbrev);
+            } catch (Exception e) {
+                System.err.println("[ERROR] Failed to auto-register namespace: " + e.getMessage());
+                e.printStackTrace();
+                // Remove from cache on failure
+                NameSpaces.getInstance().getNamespaces().remove(decodedAbbrev);
+                NameSpaces.getInstance().getNamespacesByUri().remove(decodedUri);
+                return badRequest(ApiUtil.createResponse(
+                    "[ERROR] Failed to auto-register namespace: " + e.getMessage(), false
+                ));
+            }
+            
+            namespace = newNamespace;
+        }
 
-        final File fileToIngest = permanentFile;
+        // Update namespace metadata with file URI and MIME type
+        namespace.setSourceMime(sourceMime);
+        namespace.setSource(fileUri);
+        namespace.setNamedGraph(fileUri);
+        
+        // Save metadata updates to triplestore
+        try {
+            namespace.save();
+            System.out.println("ingestNamespaceOntology: Updated namespace metadata (source, MIME, named graph)");
+        } catch (Exception e) {
+            System.err.println("[ERROR] Failed to save namespace metadata: " + e.getMessage());
+            e.printStackTrace();
+            return badRequest(ApiUtil.createResponse(
+                "[ERROR] Failed to save namespace metadata: " + e.getMessage(), false
+            ));
+        }
 
         // Run asynchronously to avoid blocking the HTTP thread
         CompletableFuture.runAsync(() -> {
@@ -387,8 +447,38 @@ public class RepoPage extends Controller {
                 namespace.deleteTriples();
                 System.out.println("ingestNamespaceOntology: Deleted existing triples for namespace: " + namespace.getLabel());
 
-                // Load triples from the uploaded file directly (no permanent storage needed for external ontologies)
+                // Load triples from the temp file
                 namespace.loadTriples(fileToIngest.getAbsolutePath(), false);
+
+                // CRITICAL: Scan for and delete any auto-created namespaces
+                // hascoapi must NOT create namespaces from TTL content (owl:Ontology + rdfs:label)
+                // We only allow the explicitly requested namespace
+                System.out.println("ingestNamespaceOntology: Scanning for unwanted auto-created namespaces...");
+                java.util.List<NameSpace> allNamespaces = NameSpace.find();
+                java.util.List<String> unwantedNamespaces = new java.util.ArrayList<>();
+                
+                for (NameSpace ns : allNamespaces) {
+                    // Check if this namespace points to our graph URI but has wrong abbreviation
+                    if (ns.getUri().equals(decodedUri) && !ns.getLabel().equals(decodedAbbrev)) {
+                        System.out.println("[WARNING] Found unwanted namespace: '" + ns.getLabel() + "' -> " + ns.getUri());
+                        System.out.println("[WARNING] This was auto-created from TTL metadata (rdfs:label)");
+                        unwantedNamespaces.add(ns.getLabel());
+                        
+                        // Delete from cache
+                        NameSpaces.getInstance().getNamespaces().remove(ns.getLabel());
+                        NameSpaces.getInstance().getNamespacesByUri().remove(ns.getUri(), ns);
+                        
+                        // Delete from triplestore
+                        ns.delete();
+                        System.out.println("[INFO] Deleted unwanted namespace: " + ns.getLabel());
+                    }
+                }
+                
+                if (!unwantedNamespaces.isEmpty()) {
+                    System.out.println("[ERROR] POLICY VIOLATION: hascoapi auto-created namespaces from TTL content!");
+                    System.out.println("[ERROR] Deleted unwanted namespaces: " + String.join(", ", unwantedNamespaces));
+                    System.out.println("[ERROR] ROOT CAUSE: hascoapi must be fixed to NOT derive namespaces from owl:Ontology + rdfs:label");
+                }
 
                 // Update triple count to reflect loaded data
                 namespace.setNumberOfLoadedTriples();
@@ -396,8 +486,9 @@ public class RepoPage extends Controller {
                 
                 System.out.println("[INFO] Namespace ontology ingestion complete for: " + namespace.getLabel() + " (" + decodedUri + ")");
                 System.out.println("ingestNamespaceOntology: Triple count updated: " + namespace.getNumberOfLoadedTriples() + " triples");
+                System.out.println("ingestNamespaceOntology: Named graph: " + fileUri);
 
-                // Clean up the permanent temp file after ingestion
+                // Clean up the temp file after ingestion
                 try {
                     fileToIngest.delete();
                     System.out.println("ingestNamespaceOntology: Cleaned up temp file: " + fileToIngest.getAbsolutePath());
@@ -413,34 +504,6 @@ public class RepoPage extends Controller {
 
         return ok(ApiUtil.createResponse("Ontology upload and ingestion in progress for namespace: " + namespace.getLabel(), true));
     }
-
-    /**
-     * Derive a namespace label from its URI.
-     * Extracts the last meaningful segment from the URI.
-     * Examples:
-     *   http://pmsr.net/ont/pmsr -> pmsr
-     *   http://purl.obolibrary.org/obo/uberon.owl -> uberon
-     *   http://purl.obolibrary.org/obo/ncit.owl -> ncit
-     */
-    private String deriveNamespaceLabel(String uri) {
-        if (uri == null || uri.isEmpty()) {
-            return "unknown";
-        }
-        
-        // Remove trailing slashes and anchors
-        String cleaned = uri.replaceAll("[/#]+$", "");
-        
-        // Get last segment
-        String[] segments = cleaned.split("[/#]");
-        String lastSegment = segments[segments.length - 1];
-        
-        // Remove .owl, .ttl, .rdf extensions
-        lastSegment = lastSegment.replaceAll("\\.(owl|ttl|rdf)$", "");
-        
-        // Convert to lowercase for consistency with NameSpaceGenerator requirements
-        return lastSegment.toLowerCase();
-    }
-
 
     public Result loadOntologies(){
         String kb = ConfigFactory.load().getString("hascoapi.repository.triplestore");

@@ -69,6 +69,7 @@ public class HASCO {
     public static final String HAS_DATASET                            = "http://hadatac.org/ont/hasco/hasDataset";
     public static final String HAS_DATASET_PATTERN                    = "http://hadatac.org/ont/hasco/hasDatasetPattern";
     public static final String HAS_DD                                 = "http://hadatac.org/ont/hasco/hasDD";
+    public static final String HAS_CTT_URL                            = "http://hadatac.org/ont/hasco/hasCTTURL";
     public static final String HAS_DEFAULT_NAMESPACE_PREFIX           = "http://hadatac.org/ont/hasco/hasDefaultNamespacePrefix";
     public static final String HAS_DEFAULT_NAMESPACE_SOURCE           = "http://hadatac.org/ont/hasco/hasDefaultNamespaceSource";
     public static final String HAS_DEFAULT_NAMESPACE_SOURCE_MIME      = "http://hadatac.org/ont/hasco/hasDefaultNamespaceSourceMime";
@@ -118,6 +119,12 @@ public class HASCO {
     public static final String HAS_NODE_ID                            = "http://hadatac.org/ont/hasco/hasNodeID";
     public static final String HAS_NUMBER_DATA_POINTS                 = "http://hadatac.org/ont/hasco/hasNumberDataPoints";    
     public static final String HAS_NUMBER_LOADED_TRIPLES              = "http://hadatac.org/ont/hasco/hasNumberLoadedTriples";
+    public static final String HAS_PMSR_LANDING_ENABLED               = "http://hadatac.org/ont/hasco/hasPMSRLandingEnabled";
+    public static final String HAS_REP_AS_HOME                        = "http://hadatac.org/ont/hasco/hasREPAsHome";
+    public static final String HAS_SAGRES_BASE_URL                    = "http://hadatac.org/ont/hasco/hasSagresBaseURL";
+    public static final String HAS_SAGRES_ENABLED                     = "http://hadatac.org/ont/hasco/hasSagresEnabled";
+    public static final String HAS_SOCIAL_ENABLED                     = "http://hadatac.org/ont/hasco/hasSocialEnabled";
+    public static final String HAS_SOCIAL_INITIATIVE_URI              = "http://hadatac.org/ont/hasco/hasSocialInitiativeURI";
     public static final String HAS_OBJECT                             = "http://hadatac.org/ont/hasco/hasObject";
     public static final String HAS_OBJECT_SCOPE                       = "http://hadatac.org/ont/hasco/hasObjectScope";
     public static final String HAS_OPCUA_OBJECT_STATUS                = "http://hadatac.org/ont/hasco/hasOpcUaObjectStatus";

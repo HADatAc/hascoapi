@@ -77,6 +77,27 @@ public class Repository extends HADatAcThing {
     @PropertyField(uri="vstoi:hasVersion")
     private String hasVersion;
 
+    @PropertyField(uri="hasco:hasSocialInitiativeURI", valueType=PropertyValueType.URI)
+    private String hasSocialInitiativeURI = "";
+
+    @PropertyField(uri="hasco:hasSagresBaseURL", valueType=PropertyValueType.URI)
+    private String hasSagresBaseURL = "";
+
+    @PropertyField(uri="hasco:hasCTTURL", valueType=PropertyValueType.URI)
+    private String hasCTTURL = "";
+
+    @PropertyField(uri="hasco:hasREPAsHome")
+    private boolean hasREPAsHome = false;
+
+    @PropertyField(uri="hasco:hasSagresEnabled")
+    private boolean hasSagresEnabled = false;
+
+    @PropertyField(uri="hasco:hasSocialEnabled")
+    private boolean hasSocialEnabled = false;
+
+    @PropertyField(uri="hasco:hasPMSRLandingEnabled")
+    private boolean hasPMSRLandingEnabled = false;
+
     public Repository() {
         this.uri = Constants.DEFAULT_REPOSITORY;
         this.typeUri = HASCO.REPOSITORY;
@@ -96,6 +117,13 @@ public class Repository extends HADatAcThing {
         this.hasNamespaceAbbreviation = "";
         this.hasNamespaceURL = "";
         this.hasVersion = Constants.REPOSITORY_VERSION;
+        this.hasSocialInitiativeURI = "";
+        this.hasSagresBaseURL = "";
+        this.hasCTTURL = "";
+        this.hasREPAsHome = false;
+        this.hasSagresEnabled = false;
+        this.hasSocialEnabled = false;
+        this.hasPMSRLandingEnabled = false;
     }
 
     public String getTitle() {
@@ -242,6 +270,71 @@ public class Repository extends HADatAcThing {
         this.hasVersion = hasVersion;
     }
 
+    public String getHasSocialInitiativeURI() {
+        if (hasSocialInitiativeURI != null && hasSocialInitiativeURI.equals("")) {
+            return null;
+        }
+        return hasSocialInitiativeURI;
+    }
+
+    public void setHasSocialInitiativeURI(String hasSocialInitiativeURI) {
+        this.hasSocialInitiativeURI = hasSocialInitiativeURI;
+    }
+
+    public String getHasSagresBaseURL() {
+        if (hasSagresBaseURL != null && hasSagresBaseURL.equals("")) {
+            return null;
+        }
+        return hasSagresBaseURL;
+    }
+
+    public void setHasSagresBaseURL(String hasSagresBaseURL) {
+        this.hasSagresBaseURL = hasSagresBaseURL;
+    }
+
+    public String getHasCTTURL() {
+        if (hasCTTURL != null && hasCTTURL.equals("")) {
+            return null;
+        }
+        return hasCTTURL;
+    }
+
+    public void setHasCTTURL(String hasCTTURL) {
+        this.hasCTTURL = hasCTTURL;
+    }
+
+    public boolean getHasREPAsHome() {
+        return hasREPAsHome;
+    }
+
+    public void setHasREPAsHome(boolean hasREPAsHome) {
+        this.hasREPAsHome = hasREPAsHome;
+    }
+
+    public boolean getHasSagresEnabled() {
+        return hasSagresEnabled;
+    }
+
+    public void setHasSagresEnabled(boolean hasSagresEnabled) {
+        this.hasSagresEnabled = hasSagresEnabled;
+    }
+
+    public boolean getHasSocialEnabled() {
+        return hasSocialEnabled;
+    }
+
+    public void setHasSocialEnabled(boolean hasSocialEnabled) {
+        this.hasSocialEnabled = hasSocialEnabled;
+    }
+
+    public boolean getHasPMSRLandingEnabled() {
+        return hasPMSRLandingEnabled;
+    }
+
+    public void setHasPMSRLandingEnabled(boolean hasPMSRLandingEnabled) {
+        this.hasPMSRLandingEnabled = hasPMSRLandingEnabled;
+    }
+
     // set Start Time Methods
     public void setStartedAt(String startedAt) {
         if (startedAt == null || startedAt.equals("")) {
@@ -323,6 +416,8 @@ public class Repository extends HADatAcThing {
             //System.out.println(statement.getPredicate().getURI() + "  [" + str + "]");
             if (statement.getPredicate().getURI().equals(RDFS.LABEL)) {
                 repo.setLabel(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_TITLE)) {
+                repo.setTitle(str);
             } else if (statement.getPredicate().getURI().equals(RDF.TYPE)) {
                 repo.setTypeUri(str); 
             } else if (statement.getPredicate().getURI().equals(RDFS.COMMENT)) {
@@ -355,6 +450,20 @@ public class Repository extends HADatAcThing {
                 repo.setHasNamespaceURL(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_VERSION)) {
                 repo.setHasVersion(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_SOCIAL_INITIATIVE_URI)) {
+                repo.setHasSocialInitiativeURI(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_SAGRES_BASE_URL)) {
+                repo.setHasSagresBaseURL(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_CTT_URL)) {
+                repo.setHasCTTURL(str);
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_REP_AS_HOME)) {
+                repo.setHasREPAsHome(str.equals("true"));
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_SAGRES_ENABLED)) {
+                repo.setHasSagresEnabled(str.equals("true"));
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_SOCIAL_ENABLED)) {
+                repo.setHasSocialEnabled(str.equals("true"));
+            } else if (statement.getPredicate().getURI().equals(HASCO.HAS_PMSR_LANDING_ENABLED)) {
+                repo.setHasPMSRLandingEnabled(str.equals("true"));
             }
 		}
 

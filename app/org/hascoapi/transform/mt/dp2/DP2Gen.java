@@ -60,21 +60,21 @@ public class DP2Gen {
 
         Row dataRow5 = infoSheet.createRow(5);
         Cell isDataCell5_1 = dataRow5.createCell(0);
-        isDataCell5_1.setCellValue("InstrumentInstances");
+        isDataCell5_1.setCellValue("FieldsOfView");
         Cell isDataCell5_2 = dataRow5.createCell(1);
-        isDataCell5_2.setCellValue("#" + INSTRUMENTINSTANCES);
+        isDataCell5_2.setCellValue("#" + FIELDSOFVIEW);
 
         Row dataRow6 = infoSheet.createRow(6);
         Cell isDataCell6_1 = dataRow6.createCell(0);
-        isDataCell6_1.setCellValue("ComponentInstances");
+        isDataCell6_1.setCellValue("InstrumentInstances");
         Cell isDataCell6_2 = dataRow6.createCell(1);
-        isDataCell6_2.setCellValue("#" + COMPONENTINSTANCES);
+        isDataCell6_2.setCellValue("#" + INSTRUMENTINSTANCES);
 
         Row dataRow7 = infoSheet.createRow(7);
         Cell isDataCell7_1 = dataRow7.createCell(0);
-        isDataCell7_1.setCellValue("FieldsOfView");
+        isDataCell7_1.setCellValue("ComponentInstances");
         Cell isDataCell7_2 = dataRow7.createCell(1);
-        isDataCell7_2.setCellValue("#" + FIELDSOFVIEW);
+        isDataCell7_2.setCellValue("#" + COMPONENTINSTANCES);
 
         Row dataRow8 = infoSheet.createRow(8);
         Cell isDataCell8_1 = dataRow8.createCell(0);
@@ -82,23 +82,23 @@ public class DP2Gen {
         Cell isDataCell8_2 = dataRow8.createCell(1);
         isDataCell8_2.setCellValue("#" + SENSINGPERSPECTIVE);
 
-        // Create sheets
-        workbook.createSheet(NAMESPACE);  // Changed to singular
+        // Create sheets in exact order as DP2-PMSR.xlsx
+        workbook.createSheet(NAMESPACE);
         workbook.createSheet(DEPLOYMENTS);
         workbook.createSheet(PLATFORMS);
         workbook.createSheet(PLATFORMINTANCES);
-        workbook.createSheet(FIELDSOFVIEW);
         workbook.createSheet(INSTRUMENTINSTANCES);
         workbook.createSheet(COMPONENTINSTANCES);
+        workbook.createSheet(FIELDSOFVIEW);
         workbook.createSheet(SENSINGPERSPECTIVE);
 
         // IMPORTANT: set headers for each sheet so add() methods write into the correct columns
         DP2Deployments.setHeaders(workbook.getSheet(DEPLOYMENTS));
         DP2Plataforms.setHeaders(workbook.getSheet(PLATFORMS));
         DP2PlataformInstances.setHeaders(workbook.getSheet(PLATFORMINTANCES));
-        DP2FieldsOfView.setHeaders(workbook.getSheet(FIELDSOFVIEW));
         DP2InstrumentInstances.setHeaders(workbook.getSheet(INSTRUMENTINSTANCES));
         DP2ComponentsInstances.setHeaders(workbook.getSheet(COMPONENTINSTANCES));
+        DP2FieldsOfView.setHeaders(workbook.getSheet(FIELDSOFVIEW));
         // DP2SensingPerspective headers are not implemented yet
 
         return workbook;

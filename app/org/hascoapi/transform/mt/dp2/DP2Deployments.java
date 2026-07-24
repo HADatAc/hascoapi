@@ -11,10 +11,18 @@ import org.hascoapi.utils.URIUtils;
 public class DP2Deployments {
 
     public static void setHeaders(Sheet sheet) {
-        // Fix: Remove vstoi:hasComponentInstance, vstoi:designedAtTime, prov:startedAtTime, prov:endedAtTime
-        // Fix: Add vstoi:hasDeploymentTime
-        String[] headers = { "hasURI", "a", "rdfs:label", "vstoi:hasPlatformInstance", "vstoi:hasInstrumentInstance",
-                "vstoi:hasDeploymentTime" };
+        // Must match DP2-PMSR.xlsx golden standard exactly
+        String[] headers = { 
+            "hasURI", 
+            "a", 
+            "rdfs:label", 
+            "vstoi:hasPlatformInstance", 
+            "vstoi:hasInstrumentInstance",
+            "vstoi:hasDetectorInstance", 
+            "vstoi:designedAtTime", 
+            "prov:startedAtTime", 
+            "prov:endedAtTime" 
+        };
 
         Row row = sheet.createRow(0);
         for (int i = 0; i < headers.length; i++) {
@@ -47,12 +55,18 @@ public class DP2Deployments {
         }
         newRow.createCell(2).setCellValue(label);
 
-        // Use CURIE style for object references
+        // vstoi:hasPlatformInstance - URI reference to PlatformInstances.hasURI
         newRow.createCell(3).setCellValue(deploy.getPlatformInstanceUri() != null ? URIUtils.replaceNameSpaceEx(deploy.getPlatformInstanceUri()) : "");
+        
+        // vstoi:hasInstrumentInstance - URI reference to InstrumentInstances.hasURI
         newRow.createCell(4).setCellValue(deploy.getInstrumentInstanceUri() != null ? URIUtils.replaceNameSpaceEx(deploy.getInstrumentInstanceUri()) : "");
 
-        // Fix: Add vstoi:hasDeploymentTime (can be empty)
+        // Optional fields in the golden template are currently not available in Deployment POJO.
+        // Keep columns present and leave values blank.
         newRow.createCell(5).setCellValue("");
+        newRow.createCell(6).setCellValue("");
+        newRow.createCell(7).setCellValue("");
+        newRow.createCell(8).setCellValue("");
 
         return helper;
     }
