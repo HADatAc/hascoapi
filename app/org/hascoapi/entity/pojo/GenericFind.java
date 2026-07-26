@@ -29,6 +29,22 @@ import org.hascoapi.vocabularies.VSTOI;
 
 public class GenericFind<T> {
 
+    private static boolean useRdfTypeHierarchyForClass(Class clazz) {
+        return clazz == Study.class || clazz == ProcessBasedStudy.class;
+    }
+
+    private static String buildInstanceTypePattern(Class clazz, String className) {
+        if (clazz == Study.class) {
+            return " { ?uri a hasco:Study . } " +
+                   " UNION { ?uri a hasco:ProcessBasedStudy . } " +
+                   " UNION { ?type rdfs:subClassOf* hasco:Study . ?uri a ?type . } ";
+        }
+        if (useRdfTypeHierarchyForClass(clazz)) {
+            return " ?type rdfs:subClassOf* " + className + " . ?uri a ?type . ";
+        }
+        return " ?uri hasco:hascoType " + className + " . ";
+    }
+
     public static Class getElementClass(String elementType) {
         
         if (elementType.equals("agent")) {
@@ -530,13 +546,9 @@ public class GenericFind<T> {
     public static <T> List<T> findSIRInstancesByKeywordWithPages(Class clazz, String className, String keyword, int pageSize, int offset) {
         //System.out.println("GenericFind.findSIRInstancesByKeywordWithPages: " + className + " " + keyword + "  " + pageSize + "  " + offset);
         
-        // ProcessBasedStudy uses rdf:type (specific class) instead of hascoType (fundamental class = Study)
-        boolean useRdfType = clazz == ProcessBasedStudy.class;
-        String typeProperty = useRdfType ? "a" : "hasco:hascoType";
-        
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?uri " + typeProperty + " " + className + " . " +
+            buildInstanceTypePattern(clazz, className) +
                 (keyword.isEmpty() ? "" : " ?uri vstoi:hasContent ?content . " +
                 "   FILTER regex(?content, \"" + keyword + "\", \"i\") ") +
                 "} " +
@@ -568,13 +580,9 @@ public class GenericFind<T> {
     public static <T> List<T> findInstancesByKeywordWithPages(Class clazz, String className, String keyword, int pageSize, int offset) {
         //System.out.println("GenericFind.findInstancesByKeywordWithPages: " + superclassName + "  " + keyword + " " + pageSize + "  " + offset);
         
-        // ProcessBasedStudy uses rdf:type (specific class) instead of hascoType (fundamental class = Study)
-        boolean useRdfType = clazz == ProcessBasedStudy.class;
-        String typeProperty = useRdfType ? "a" : "hasco:hascoType";
-        
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 " SELECT ?uri WHERE { " +
-                " ?uri " + typeProperty + " " + className + " . " +
+            buildInstanceTypePattern(clazz, className) +
                 (keyword.isEmpty() ? "" : " ?uri rdfs:label ?label . " +
                 "   FILTER regex(?label, \"" + keyword + "\", \"i\") ") +
                 "} " +
@@ -595,9 +603,7 @@ public class GenericFind<T> {
         }
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
             " SELECT (count(?uri) as ?tot) WHERE { " +
-            //" ?type rdfs:subClassOf* " + className + " . " +
-            //" ?uri a ?type . " +
-            " ?uri hasco:hascoType " + hascoType + " . ";
+            buildInstanceTypePattern(clazz, hascoType);
         if (keyword != null) {
             queryString += " ?uri rdfs:label ?label . " +
                 "   FILTER regex(?label, \"" + keyword + "\", \"i\") ";
@@ -701,9 +707,7 @@ public class GenericFind<T> {
 	public static <T> List<T> findElementsByKeywordAndLanguageWithPages(Class clazz, String hascoType, String keyword, String language, String type, String manageremail, String status, int pageSize, int offset) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
 		queryString += " SELECT ?uri WHERE { " +
-				//" ?type rdfs:subClassOf* " + className + " . " +
-				//" ?uri a ?type .";
-                " ?uri hasco:hascoType " + hascoType + " . ";
+                buildInstanceTypePattern(clazz, hascoType);
 		if (!language.isEmpty()) {
 			queryString += " ?uri vstoi:hasLanguage ?language . ";
 		}
@@ -768,9 +772,7 @@ public class GenericFind<T> {
         }
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
 		queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
-//				" ?type rdfs:subClassOf* " + classNameWithNamespace(clazz) + " . " +
-//				" ?uri a ?type .";
-                " ?uri hasco:hascoType " + hascoType + " . ";
+                buildInstanceTypePattern(clazz, hascoType);
 		if (!language.isEmpty()) {
 			queryString += " ?uri vstoi:hasLanguage ?language . ";
 		}
@@ -860,9 +862,7 @@ public class GenericFind<T> {
 	public List<T> findElementsByManagerEmailWithPages(Class clazz, String hascoTypeStr, String managerEmail, int pageSize, int offset) {
 		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
         queryString += " SELECT ?uri WHERE { " +
-				//" ?model rdfs:subClassOf* " + className + " . " +
-				//" ?uri a ?model ." +
-				" ?uri hasco:hascoType " + hascoTypeStr + " . " +
+                buildInstanceTypePattern(clazz, hascoTypeStr) +
 				" OPTIONAL { ?uri rdfs:label ?label . } " +
 				" ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
 				"   FILTER (?managerEmail = \"" + managerEmail + "\") " +
@@ -951,6 +951,15 @@ public class GenericFind<T> {
             }
             if (hascoTypeStr == null || hascoTypeStr.isEmpty()) {
                 return -1;
+            }
+            if (useRdfTypeHierarchyForClass(clazz)) {
+                String queryString = NameSpaces.getInstance().printSparqlNameSpaceList();
+                queryString += " SELECT (count(?uri) as ?tot) WHERE { " +
+                    buildInstanceTypePattern(clazz, hascoTypeStr) +
+                    " ?uri vstoi:hasSIRManagerEmail ?managerEmail . " +
+                    " FILTER (?managerEmail = \"" + managerEmail + "\") " +
+                    "}";
+                return findTotalByQuery(queryString);
             }
             return findTotalElementsByManagerEmail(hascoTypeStr,managerEmail);
         }

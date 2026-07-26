@@ -145,7 +145,7 @@ public class IngestionWorker {
                 // WKF post-processing: Create ProcessBasedStudy entities from Process entities
                 String fileNameBase = FilenameUtils.getBaseName(dataFile.getFilename());
                 if (fileNameBase.startsWith("WKF-")) {
-                    generateProcessBasedStudies(dataFile);
+                    AnnotateWKF.postProcessAfterIngestion(dataFile);
                 }
 
                 dataFile.setFileStatus(DataFile.PROCESSED);
@@ -276,6 +276,12 @@ public class IngestionWorker {
         } else if (fileName.startsWith("SDD-")) {
             chain = AnnotateSDD.exec(dataFile, templateFile);
 
+        } else if (fileName.startsWith("WKF_")) {
+            dataFile.getLogger().printException("ERROR: Invalid WKF filename prefix 'WKF_'. Use 'WKF-' (hyphen). Ingestion rejected.");
+            dataFile.setFileStatus(DataFile.UNPROCESSED);
+            dataFile.save();
+            return null;
+
         } else if (fileName.startsWith("WKF-")) {
             chain = AnnotateWKF.exec(dataFile, templateFile, status);
 
@@ -330,111 +336,6 @@ public class IngestionWorker {
         }
 
         return false;
-    }
-
-    /**
-     * Generate ProcessBasedStudy entities from Process entities created during WKF ingestion.
-     * This method:
-     * 1. Queries for all Process entities in the DataFile's named graph
-     * 2. For each Process with study metadata, creates a ProcessBasedStudyGenerator
-     * 3. Generates ProcessBasedStudy entity with auto-generated metadata
-     * 4. Inserts triples into the triplestore
-     * 
-     * Called after WKF ingestion completes successfully.
-     */
-    private static void generateProcessBasedStudies(DataFile dataFile) {
-        dataFile.getLogger().println("\n========== WKF Post-Processing: Creating ProcessBasedStudy Entities ==========");
-        
-        try {
-            // Query for all Process entities in this DataFile's named graph
-            String queryString = 
-                "PREFIX hasco: <http://hadatac.org/ont/hasco/> " +
-                "PREFIX vstoi: <http://hadatac.org/ont/vstoi#> " +
-                "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
-                "SELECT DISTINCT ?processUri WHERE { " +
-                "  GRAPH <" + dataFile.getUri() + "> { " +
-                "    ?processUri a vstoi:Process . " +
-                "    ?processUri hasco:hascoType vstoi:Process . " +
-                "  } " +
-                "}";
-
-            ResultSetRewindable results = SPARQLUtils.select(
-                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
-
-            if (results == null || !results.hasNext()) {
-                dataFile.getLogger().println("  No Process entities found in WKF file - skipping ProcessBasedStudy generation");
-                return;
-            }
-
-            int processCount = 0;
-            int studyCount = 0;
-
-            // Iterate through each Process and create ProcessBasedStudy
-            while (results.hasNext()) {
-                QuerySolution solution = results.next();
-                String processUri = solution.getResource("processUri").getURI();
-                processCount++;
-
-                dataFile.getLogger().println("  Processing: " + processUri);
-
-                try {
-                    // Create generator for this Process
-                    ProcessBasedStudyGenerator generator = new ProcessBasedStudyGenerator(
-                        dataFile, 
-                        processUri,
-                        dataFile.getHasSIRManagerEmail(),
-                        null  // Use current date
-                    );
-
-                    // Validate that the Process exists
-                    if (!generator.validateProcess()) {
-                        dataFile.getLogger().println("    ⚠️  Process validation failed, skipping: " + processUri);
-                        continue;
-                    }
-
-                    // Generate the ProcessBasedStudy row
-                    Map<String, Object> studyRow = generator.createRowFromProcess();
-                    
-                    if (studyRow == null) {
-                        dataFile.getLogger().println("    ⚠️  Failed to generate study row, skipping: " + processUri);
-                        continue;
-                    }
-
-                    String studyUri = (String) studyRow.get("hasURI");
-                    dataFile.getLogger().println("    ✓ Generated ProcessBasedStudy: " + studyUri);
-
-                    // Insert triples into triplestore
-                    // Use BaseGenerator's insertRow method via a temporary generator instance
-                    generator.setNamedGraphUri(dataFile.getUri());
-                    generator.getRows().add(studyRow);
-                    generator.createObjects();
-                    
-                    // Commit the study entity to triplestore
-                    boolean committed = generator.commitRowsToTripleStore(generator.getRows());
-                    if (committed) {
-                        dataFile.getLogger().println("    ✓ Committed study to triplestore: " + studyUri);
-                        studyCount++;
-                    } else {
-                        dataFile.getLogger().println("    ⚠️  Failed to commit study: " + studyUri);
-                    }
-
-                } catch (Exception e) {
-                    dataFile.getLogger().println("    ✗ Error generating study for Process " + processUri + ": " + e.getMessage());
-                    e.printStackTrace();
-                    // Continue with next Process - don't fail entire WKF ingestion
-                }
-            }
-
-            dataFile.getLogger().println("========== ProcessBasedStudy Generation Complete ==========");
-            dataFile.getLogger().println("  Processed " + processCount + " Process entities");
-            dataFile.getLogger().println("  Created " + studyCount + " ProcessBasedStudy entities");
-            dataFile.getLogger().println("=============================================================\n");
-
-        } catch (Exception e) {
-            dataFile.getLogger().println("ERROR in ProcessBasedStudy generation: " + e.getMessage());
-            e.printStackTrace();
-            // Don't throw - log error but allow WKF ingestion to complete
-        }
     }
 
     private static boolean verifySheetsInSSD(DataFile dataFile) {

@@ -250,6 +250,17 @@ public class IngestionAPI extends Controller {
             return ok(ApiUtil.createResponse("IngestionAPI.ingest(): File FAILED to be ingested: could not retrieve DataFile.",false));
         }
 
+        // Strict WKF filename validation: only "WKF-" is accepted.
+        if (elementType.equals("wkf")) {
+            String wkfFilename = dataFile.getFilename() == null ? "" : dataFile.getFilename().trim();
+            if (wkfFilename.startsWith("WKF_")) {
+                dataFile.setFileStatus(DataFile.UNPROCESSED);
+                dataFile.getLogger().printException("ERROR: Invalid WKF filename prefix 'WKF_'. Use 'WKF-' (hyphen). Ingestion rejected.");
+                dataFile.save();
+                return ok(ApiUtil.createResponse("WKF ingestion rejected: invalid filename prefix 'WKF_'. Please rename file to start with 'WKF-' and retry.", false));
+            }
+        }
+
         System.out.println("IngestionAPI.ingest(): DataFile retrieved - URI: " + dataFile.getUri() + ", Filename: " + dataFile.getFilename());
 
         File fileToIngest = null;

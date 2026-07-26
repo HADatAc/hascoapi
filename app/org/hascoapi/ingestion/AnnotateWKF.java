@@ -2,6 +2,16 @@ package org.hascoapi.ingestion;
 
 import org.hascoapi.Constants;
 import org.hascoapi.entity.pojo.DataFile;
+import org.hascoapi.entity.pojo.Study;
+import org.hascoapi.entity.pojo.StudyObjectCollection;
+import org.hascoapi.entity.pojo.StudyRole;
+import org.hascoapi.entity.pojo.VirtualColumn;
+import org.hascoapi.utils.CollectionUtil;
+import org.hascoapi.utils.SPARQLUtils;
+import org.hascoapi.utils.Utils;
+import org.hascoapi.vocabularies.HASCO;
+import org.apache.jena.query.QuerySolution;
+import org.apache.jena.query.ResultSetRewindable;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -161,6 +171,166 @@ public class AnnotateWKF extends BaseAnnotator {
 
         System.out.println("========== AnnotateWKF.exec() END (SUCCESS) ==========\n");
         return chain;
+    }
+
+    /**
+     * WKF-specific post-processing after successful generator-chain commit.
+     * Creates ProcessBasedStudy entities from WKF Process entities and ensures
+     * default SOC placeholders expected for workflow-derived studies.
+     */
+    public static void postProcessAfterIngestion(DataFile dataFile) {
+        generateProcessBasedStudies(dataFile);
+    }
+
+    /**
+     * Generate ProcessBasedStudy entities from Process entities created during WKF ingestion.
+     */
+    private static void generateProcessBasedStudies(DataFile dataFile) {
+        dataFile.getLogger().println("\n========== WKF Post-Processing: Creating ProcessBasedStudy Entities ==========");
+
+        try {
+            String queryString =
+                "PREFIX hasco: <http://hadatac.org/ont/hasco/> " +
+                "PREFIX vstoi: <http://hadatac.org/ont/vstoi#> " +
+                "SELECT DISTINCT ?processUri WHERE { " +
+                "  ?processUri a vstoi:Process . " +
+                "  ?processUri hasco:hasDataFile <" + dataFile.getUri() + "> . " +
+                "}";
+
+            ResultSetRewindable results = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+            if (results == null || !results.hasNext()) {
+                dataFile.getLogger().println("  No Process entities found in WKF file - skipping ProcessBasedStudy generation");
+                return;
+            }
+
+            int processCount = 0;
+            int studyCount = 0;
+
+            while (results.hasNext()) {
+                QuerySolution solution = results.next();
+                String processUri = solution.getResource("processUri").getURI();
+                processCount++;
+
+                dataFile.getLogger().println("  Processing: " + processUri);
+
+                try {
+                    ProcessBasedStudyGenerator generator = new ProcessBasedStudyGenerator(
+                        dataFile,
+                        processUri,
+                        dataFile.getHasSIRManagerEmail(),
+                        null
+                    );
+
+                    if (!generator.validateProcess()) {
+                        dataFile.getLogger().println("    Process validation failed, skipping: " + processUri);
+                        continue;
+                    }
+
+                    Map<String, Object> studyRow = generator.createRowFromProcess();
+                    if (studyRow == null) {
+                        dataFile.getLogger().println("    Failed to generate study row, skipping: " + processUri);
+                        continue;
+                    }
+
+                    String studyUri = (String) studyRow.get("hasURI");
+                    dataFile.getLogger().println("    Generated ProcessBasedStudy: " + studyUri);
+
+                    generator.setNamedGraphUri(dataFile.getUri());
+                    generator.getRows().add(studyRow);
+                    generator.createObjects();
+
+                    boolean committed = generator.commitRowsToTripleStore(generator.getRows());
+                    if (committed) {
+                        dataFile.getLogger().println("    Committed study to triplestore: " + studyUri);
+                        ensureDefaultWkfStudyStructures(dataFile, studyUri);
+                        studyCount++;
+                    } else {
+                        dataFile.getLogger().println("    Failed to commit study: " + studyUri);
+                    }
+
+                } catch (Exception e) {
+                    dataFile.getLogger().println("    Error generating study for Process " + processUri + ": " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+
+            dataFile.getLogger().println("========== ProcessBasedStudy Generation Complete ==========");
+            dataFile.getLogger().println("  Processed " + processCount + " Process entities");
+            dataFile.getLogger().println("  Created " + studyCount + " ProcessBasedStudy entities");
+            dataFile.getLogger().println("=============================================================\n");
+
+        } catch (Exception e) {
+            dataFile.getLogger().println("ERROR in ProcessBasedStudy generation: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Ensure workflow-derived studies have a default participant placeholder.
+     */
+    private static void ensureDefaultWkfStudyStructures(DataFile dataFile, String studyUri) {
+        if (studyUri == null || studyUri.trim().isEmpty()) {
+            return;
+        }
+
+        final String socLabel = "SOC-STUDENTS";
+
+        try {
+            Study study = Study.find(studyUri);
+            if (study == null) {
+                dataFile.getLogger().println("    Could not load Study for default WKF structure creation: " + studyUri);
+                return;
+            }
+
+            List<StudyObjectCollection> existingSocs = StudyObjectCollection.findStudyObjectCollectionsByStudyFlexible(studyUri);
+            if (existingSocs != null) {
+                for (StudyObjectCollection existingSoc : existingSocs) {
+                    if (existingSoc != null && socLabel.equalsIgnoreCase(existingSoc.getLabel())) {
+                        dataFile.getLogger().println("    Default " + socLabel + " already exists for study: " + studyUri);
+                        return;
+                    }
+                }
+            }
+
+            String managerEmail = dataFile.getHasSIRManagerEmail() == null ? "" : dataFile.getHasSIRManagerEmail();
+
+            StudyRole studentRole = new StudyRole();
+            studentRole.setUri(Utils.uriGen("studyrole"));
+            studentRole.setTypeUri(HASCO.STUDY_ROLE);
+            studentRole.setHascoTypeUri(HASCO.STUDY_ROLE);
+            studentRole.setLabel("Student");
+            studentRole.setComment("Default study role auto-created from WKF ingestion.");
+            studentRole.setIsMemberOfUri(studyUri);
+            studentRole.setHasSIRManagerEmail(managerEmail);
+            studentRole.setNamedGraph(dataFile.getUri());
+            studentRole.save();
+
+            VirtualColumn studentsVc = VirtualColumn.find(studyUri, socLabel);
+            if (studentsVc == null) {
+                studentsVc = new VirtualColumn(studyUri, "Student", socLabel, managerEmail);
+                studentsVc.setNamedGraph(dataFile.getUri());
+                studentsVc.save();
+            }
+
+            StudyObjectCollection studentsSoc = new StudyObjectCollection();
+            studentsSoc.setUri(Utils.uriGen("studyobjectcollection"));
+            studentsSoc.setTypeUri(HASCO.STUDY_OBJECT_COLLECTION);
+            studentsSoc.setHascoTypeUri(HASCO.STUDY_OBJECT_COLLECTION);
+            studentsSoc.setLabel(socLabel);
+            studentsSoc.setComment("Default placeholder collection auto-created from WKF ingestion for student participants.");
+            studentsSoc.setIsMemberOfUri(studyUri);
+            studentsSoc.setVirtualColumnUri(studentsVc.getUri());
+            studentsSoc.setRoleUri(studentRole.getUri());
+            studentsSoc.setHasSIRManagerEmail(managerEmail);
+            studentsSoc.setNamedGraph(dataFile.getUri());
+            studentsSoc.save();
+
+            dataFile.getLogger().println("    Created default " + socLabel + " structure for study: " + studyUri);
+        } catch (Exception e) {
+            dataFile.getLogger().println("    Failed to create default WKF study structures for " + studyUri + ": " + e.getMessage());
+        }
     }
 
     /**

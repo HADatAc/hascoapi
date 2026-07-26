@@ -1,7 +1,16 @@
 package org.hascoapi.ingestion;
 
 import org.hascoapi.entity.pojo.DataFile;
+import org.hascoapi.entity.pojo.Organization;
+import org.hascoapi.entity.pojo.Person;
+import org.hascoapi.entity.pojo.ProcessStem;
+import org.hascoapi.utils.CollectionUtil;
+import org.hascoapi.utils.NameSpaces;
+import org.hascoapi.utils.SPARQLUtils;
+import org.hascoapi.utils.URIUtils;
 import org.hascoapi.vocabularies.VSTOI;
+import org.apache.jena.query.QuerySolution;
+import org.apache.jena.query.ResultSetRewindable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,6 +19,7 @@ public class WKFGenerator extends BaseGenerator {
 
     protected String wkfUri = "";
     protected String hasStatus = "";
+    private Map<String, String> processStemLabelByUri = null;
 
     public String getWKFUri() {
         return wkfUri;
@@ -60,6 +70,8 @@ public class WKFGenerator extends BaseGenerator {
             row.put("hasco:hascoType", VSTOI.PROCESS_STEM);
         } else if (elementType.equals("process")) {
             row.put("hasco:hascoType", VSTOI.PROCESS);
+            String computedLabel = buildProcessInstanceLabel(row);
+            row.put("rdfs:label", computedLabel);
         } else if (elementType.equals("task")) {
             // CRITICAL FIX: Preserve CTT task type from Excel, don't override
             // The hasco:hascoType should already be in the row from Excel (column C in Tasks sheet)
@@ -102,6 +114,246 @@ public class WKFGenerator extends BaseGenerator {
 
         System.out.println("[WKFGenerator] WARNING: Row #" + rowNumber + " missing hasURI for elementType=" + elementType + " - skipping");
         return null;
+    }
+
+    /**
+     * Build process instance label as: [WorkflowStemLabel] at [Organization short-name].
+     */
+    private String buildProcessInstanceLabel(Map<String, Object> row) throws Exception {
+        String stemLabel = "";
+        String orgLabel = "";
+        String processUri = row.get("hasURI") == null ? "" : row.get("hasURI").toString().trim();
+        String stemRefUri = extractStemReferenceUri(row);
+
+        if (!stemRefUri.isEmpty()) {
+            try {
+                ProcessStem stem = ProcessStem.find(stemRefUri);
+                if (stem != null && stem.getLabel() != null && !stem.getLabel().trim().isEmpty()) {
+                    stemLabel = stem.getLabel().trim();
+                }
+            } catch (Exception e) {
+                // handled below via strict validation
+            }
+
+            // Generator order computes Process labels before ProcessStem commit.
+            // Resolve from current WKF workbook as strict in-file source of truth.
+            if (stemLabel.isEmpty()) {
+                stemLabel = resolveProcessStemLabelFromWorkbook(stemRefUri);
+            }
+        }
+
+        if (stemLabel.isEmpty()) {
+            String msg = "WKF strict labeling error: could not resolve WorkflowStem label (wasDerivedFrom/prov:wasDerivedFrom) for Process " + processUri;
+            this.dataFile.getLogger().printException(msg);
+            throw new Exception(msg);
+        }
+
+        String managerEmail = this.dataFile.getHasSIRManagerEmail();
+        if (managerEmail != null && !managerEmail.trim().isEmpty()) {
+            try {
+                Person person = Person.findByEmail(managerEmail.trim());
+                if (person != null) {
+                    Organization org = person.getHasAffiliation();
+                    if (org != null) {
+                        orgLabel = resolveOrganizationShortName(org);
+                    }
+                }
+            } catch (Exception e) {
+                // handled below via strict validation
+            }
+
+            // Keep strict short-name semantics, but resolve directly from manager email
+            // when Person affiliation mapping/predicate shape is incomplete.
+            if (orgLabel.isEmpty()) {
+                orgLabel = resolveOrganizationShortNameByManagerEmail(managerEmail.trim());
+            }
+        }
+
+        if (managerEmail == null || managerEmail.trim().isEmpty()) {
+            String msg = "WKF strict labeling error: DataFile has no manager email; cannot resolve organization for Process " + processUri;
+            this.dataFile.getLogger().printException(msg);
+            throw new Exception(msg);
+        }
+
+        if (orgLabel.isEmpty()) {
+            String msg = "WKF strict labeling error: could not resolve organization short-name (schema:alternateName) from manager email '" + managerEmail + "' for Process " + processUri;
+            this.dataFile.getLogger().printException(msg);
+            throw new Exception(msg);
+        }
+
+        return stemLabel + " at " + orgLabel;
+    }
+
+    private String resolveOrganizationShortName(Organization org) {
+        if (org == null) {
+            return "";
+        }
+
+        if (org.getHasShortName() != null && !org.getHasShortName().trim().isEmpty()) {
+            return org.getHasShortName().trim();
+        }
+
+        String orgUri = org.getUri();
+        if (orgUri == null || orgUri.trim().isEmpty()) {
+            return "";
+        }
+
+        // Strict short-name lookup only (schema:alternateName), but support both
+        // https://schema.org and legacy http://schema.org predicates.
+        // If absent, use rdfs:label as strict short label source.
+        String query = NameSpaces.getInstance().printSparqlNameSpaceList()
+            + "SELECT ?short ?rank WHERE { "
+            + "  { <" + orgUri + "> schema:alternateName ?short . BIND(1 AS ?rank) } "
+            + "  UNION "
+            + "  { <" + orgUri + "> <http://schema.org/alternateName> ?short . BIND(2 AS ?rank) } "
+            + "  UNION "
+            + "  { <" + orgUri + "> rdfs:label ?short . BIND(3 AS ?rank) } "
+            + "} ORDER BY ?rank LIMIT 1";
+
+        ResultSetRewindable results = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), query);
+        if (results != null && results.hasNext()) {
+            QuerySolution sol = results.next();
+            if (sol != null && sol.get("short") != null) {
+                String shortName = sol.get("short").toString();
+                if (shortName != null && !shortName.trim().isEmpty()) {
+                    return shortName.trim();
+                }
+            }
+        }
+
+        return "";
+    }
+
+    private String resolveOrganizationShortNameByManagerEmail(String managerEmail) {
+        if (managerEmail == null || managerEmail.trim().isEmpty()) {
+            return "";
+        }
+
+        String email = managerEmail.trim().replace("\\", "\\\\").replace("\"", "\\\"");
+        String query = NameSpaces.getInstance().printSparqlNameSpaceList()
+            + "SELECT DISTINCT ?short ?rank WHERE { "
+                + "  VALUES ?inputEmail { \"" + email + "\" } "
+                + "  { ?person foaf:mbox ?emailRaw . } "
+                + "  UNION { ?person hasco:userEmail ?emailRaw . } "
+                + "  UNION { ?person vstoi:hasSIRManagerEmail ?emailRaw . } "
+                + "  FILTER( LCASE(STR(?emailRaw)) = LCASE(?inputEmail) || LCASE(STR(?emailRaw)) = CONCAT(\"mailto:\", LCASE(?inputEmail)) ) "
+                + "  { ?person foaf:member ?org . } "
+                + "  UNION { ?org foaf:member ?person . } "
+            + "  { ?org schema:alternateName ?short . BIND(1 AS ?rank) } "
+            + "  UNION { ?org <http://schema.org/alternateName> ?short . BIND(2 AS ?rank) } "
+            + "  UNION { ?org rdfs:label ?short . BIND(3 AS ?rank) } "
+            + "} ORDER BY ?rank LIMIT 1";
+
+        ResultSetRewindable results = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), query);
+        if (results != null && results.hasNext()) {
+            QuerySolution sol = results.next();
+            if (sol != null && sol.get("short") != null) {
+                String shortName = sol.get("short").toString();
+                if (shortName != null && !shortName.trim().isEmpty()) {
+                    return shortName.trim();
+                }
+            }
+        }
+
+        return "";
+    }
+
+    private String extractStemReferenceUri(Map<String, Object> row) {
+        String[] keys = new String[] {
+            "prov:wasDerivedFrom",
+            "wasDerivedFrom",
+            "http://www.w3.org/ns/prov#wasDerivedFrom",
+            "prov:wasderivedfrom"
+        };
+
+        for (String key : keys) {
+            Object value = row.get(key);
+            if (value == null) {
+                continue;
+            }
+
+            String ref = normalizeUriValue(value.toString());
+            if (!ref.isEmpty()) {
+                return ref;
+            }
+        }
+
+        return "";
+    }
+
+    private String normalizeUriValue(String raw) {
+        if (raw == null) {
+            return "";
+        }
+
+        String value = raw.trim();
+        if (value.isEmpty()) {
+            return "";
+        }
+
+        try {
+            value = java.net.URLDecoder.decode(value, "UTF-8").trim();
+        } catch (Exception e) {
+            // keep original value if decoding fails
+        }
+
+        value = URIUtils.stripAngleBrackets(value);
+        value = URIUtils.replacePrefixEx(value);
+        return value == null ? "" : value.trim();
+    }
+
+    private String resolveProcessStemLabelFromWorkbook(String stemRefUri) {
+        if (stemRefUri == null || stemRefUri.trim().isEmpty() || this.dataFile == null || this.dataFile.getFile() == null) {
+            return "";
+        }
+
+        try {
+            if (processStemLabelByUri == null) {
+                processStemLabelByUri = new HashMap<>();
+                RecordFile stemSheet = new SpreadsheetRecordFile(this.dataFile.getFile(), "ProcessStems");
+                if (stemSheet == null || !stemSheet.isValid() || stemSheet.getRecords() == null) {
+                    return "";
+                }
+
+                for (Record record : stemSheet.getRecords()) {
+                    String uri = firstNonEmpty(record, "hasURI", "uri", "URI");
+                    String label = firstNonEmpty(record, "rdfs:label", "label", "Label");
+                    String normalizedUri = normalizeUriValue(uri);
+                    if (!normalizedUri.isEmpty() && !label.isEmpty()) {
+                        processStemLabelByUri.put(normalizedUri, label.trim());
+                    }
+                }
+            }
+
+            String normalizedStemRefUri = normalizeUriValue(stemRefUri);
+            if (normalizedStemRefUri.isEmpty()) {
+                return "";
+            }
+
+            String label = processStemLabelByUri.get(normalizedStemRefUri);
+            return label == null ? "" : label;
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    private String firstNonEmpty(Record record, String... columnNames) {
+        if (record == null || columnNames == null) {
+            return "";
+        }
+        for (String columnName : columnNames) {
+            try {
+                String value = record.getValueByColumnName(columnName);
+                if (value != null && !value.trim().isEmpty()) {
+                    return value;
+                }
+            } catch (Exception e) {
+                // ignore and continue
+            }
+        }
+        return "";
     }
 
     /**

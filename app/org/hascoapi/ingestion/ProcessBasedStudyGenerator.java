@@ -6,10 +6,17 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.jena.query.QuerySolution;
+import org.apache.jena.query.ResultSetRewindable;
 import org.hascoapi.Constants;
 import org.hascoapi.entity.pojo.DataFile;
+import org.hascoapi.entity.pojo.Organization;
+import org.hascoapi.entity.pojo.Person;
 import org.hascoapi.entity.pojo.Process;
 import org.hascoapi.entity.pojo.ProcessBasedStudy;
+import org.hascoapi.utils.CollectionUtil;
+import org.hascoapi.utils.NameSpaces;
+import org.hascoapi.utils.SPARQLUtils;
 import org.hascoapi.utils.URIUtils;
 import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.RDFS;
@@ -51,6 +58,13 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
     private String creatorEmail;
     private String creationDate;
 
+    private static class UserContext {
+        String personUri = "";
+        String personDisplay = "";
+        String organizationUri = "";
+        String organizationDisplay = "";
+    }
+
     public ProcessBasedStudyGenerator(DataFile dataFile, String processUri) {
         super(dataFile);
         this.processUri = processUri;
@@ -81,17 +95,26 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
             return null;
         }
 
-        // Extract WKF-{id} from URI like pmsr:WKF-SECRETION-001/PROC/0001
+        // Extract WKF token from URI like
+        //   .../WKF-SECRETION-001/PROC/0001 or .../WKF_SECRETION_001/PROC/0001
         try {
-            String[] parts = procUri.split("/");
-            if (parts.length > 0) {
-                String wkfPart = parts[0];
-                if (wkfPart.contains("WKF-")) {
-                    // Extract WKF-{id} and convert to STD-{id}
-                    String id = wkfPart.substring(wkfPart.indexOf("WKF-") + 4);
-                    return "STD-" + id;
-                }
+            String marker = "/PROC/";
+            int procIdx = procUri.indexOf(marker);
+            String head = procIdx > 0 ? procUri.substring(0, procIdx) : procUri;
+
+            int slashIdx = head.lastIndexOf('/');
+            String wkfPart = slashIdx >= 0 ? head.substring(slashIdx + 1) : head;
+
+            if (wkfPart.startsWith("WKF-")) {
+                String id = wkfPart.substring(4);
+                return "STD-" + id;
             }
+
+            if (wkfPart.startsWith("WKF_")) {
+                String id = wkfPart.substring(4);
+                return "STD_" + id;
+            }
+
             log.warn("Process URI does not contain WKF- pattern: {}", procUri);
             return null;
         } catch (Exception e) {
@@ -105,6 +128,16 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
      * Pattern: STD-{id} → pmsr:STD-{id}
      */
     private String deriveStudyUri(String studyId) {
+        if (processUri != null && !processUri.isEmpty() && processUri.contains("/PROC/")) {
+            String baseUri = processUri.substring(0, processUri.indexOf("/PROC/"));
+            if (baseUri.contains("/WKF-")) {
+                return baseUri.replace("/WKF-", "/STD-");
+            }
+            if (baseUri.contains("/WKF_")) {
+                return baseUri.replace("/WKF_", "/STD_");
+            }
+        }
+
         if (studyId == null || studyId.isEmpty()) {
             return null;
         }
@@ -198,6 +231,105 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
         }
     }
 
+    private UserContext resolveUserContext() {
+        UserContext context = new UserContext();
+
+        String email = creatorEmail != null ? creatorEmail.trim() : "";
+        if (email.isEmpty()) {
+            return context;
+        }
+
+        try {
+            Person person = Person.findByEmail(email);
+            if (person != null) {
+                if (person.getUri() != null) {
+                    context.personUri = person.getUri().trim();
+                }
+                if (person.getName() != null && !person.getName().trim().isEmpty()) {
+                    context.personDisplay = person.getName().trim();
+                } else if (person.getUserName() != null && !person.getUserName().trim().isEmpty()) {
+                    context.personDisplay = person.getUserName().trim();
+                } else if (person.getLabel() != null && !person.getLabel().trim().isEmpty()) {
+                    context.personDisplay = person.getLabel().trim();
+                }
+
+                String affiliationUri = person.getHasAffiliationUri();
+                if (affiliationUri != null && !affiliationUri.trim().isEmpty()) {
+                    context.organizationUri = affiliationUri.trim();
+                    try {
+                        Organization org = person.getHasAffiliation();
+                        if (org != null) {
+                            if (org.getName() != null && !org.getName().trim().isEmpty()) {
+                                context.organizationDisplay = org.getName().trim();
+                            } else if (org.getLabel() != null && !org.getLabel().trim().isEmpty()) {
+                                context.organizationDisplay = org.getLabel().trim();
+                            }
+                        }
+                    } catch (Exception ignored) {
+                        // Keep URI even if organization object lookup fails.
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Failed to resolve Person by email {}", email, e);
+        }
+
+        if (!context.personUri.isEmpty() && !context.organizationUri.isEmpty()) {
+            return context;
+        }
+
+        String escaped = email.replace("\\", "\\\\").replace("\"", "\\\"");
+        String query = NameSpaces.getInstance().printSparqlNameSpaceList()
+            + "SELECT DISTINCT ?person ?org ?pName ?pLabel ?oName ?oLabel WHERE { "
+            + "  VALUES ?inputEmail { \"" + escaped + "\" } "
+            + "  ?personType rdfs:subClassOf* schema:Person . "
+            + "  ?person a ?personType . "
+            + "  { ?person foaf:mbox ?emailRaw . } "
+            + "  UNION { ?person hasco:userEmail ?emailRaw . } "
+            + "  UNION { ?person vstoi:hasSIRManagerEmail ?emailRaw . } "
+            + "  FILTER( LCASE(STR(?emailRaw)) = LCASE(?inputEmail) || LCASE(STR(?emailRaw)) = CONCAT(\"mailto:\", LCASE(?inputEmail)) ) "
+            + "  OPTIONAL { ?person foaf:member ?org . } "
+            + "  OPTIONAL { ?org foaf:member ?person . } "
+            + "  OPTIONAL { ?person foaf:name ?pName . } "
+            + "  OPTIONAL { ?person rdfs:label ?pLabel . } "
+            + "  OPTIONAL { ?org foaf:name ?oName . } "
+            + "  OPTIONAL { ?org rdfs:label ?oLabel . } "
+            + "} LIMIT 1";
+
+        try {
+            ResultSetRewindable rs = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), query);
+            if (rs != null && rs.hasNext()) {
+                QuerySolution sol = rs.next();
+
+                if (context.personUri.isEmpty() && sol.get("person") != null && sol.get("person").isResource()) {
+                    context.personUri = sol.getResource("person").getURI();
+                }
+                if (context.organizationUri.isEmpty() && sol.get("org") != null && sol.get("org").isResource()) {
+                    context.organizationUri = sol.getResource("org").getURI();
+                }
+                if (context.personDisplay.isEmpty()) {
+                    if (sol.get("pName") != null) {
+                        context.personDisplay = sol.get("pName").toString();
+                    } else if (sol.get("pLabel") != null) {
+                        context.personDisplay = sol.get("pLabel").toString();
+                    }
+                }
+                if (context.organizationDisplay.isEmpty()) {
+                    if (sol.get("oName") != null) {
+                        context.organizationDisplay = sol.get("oName").toString();
+                    } else if (sol.get("oLabel") != null) {
+                        context.organizationDisplay = sol.get("oLabel").toString();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Failed to resolve user context by SPARQL for {}", email, e);
+        }
+
+        return context;
+    }
+
     /**
      * Creates a single ProcessBasedStudy row from a Process entity
      */
@@ -240,6 +372,18 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
         // 3. Auto-generate missing metadata
         autoGenerateMetadata(process, metadata);
 
+        // 3.1 Resolve current user context for URI-based Study ownership fields
+        UserContext userContext = resolveUserContext();
+        if (!userContext.personDisplay.isEmpty()) {
+            metadata.put("principalInvestigator", userContext.personDisplay);
+        } else if (creatorEmail != null && !creatorEmail.trim().isEmpty()) {
+            metadata.put("principalInvestigator", creatorEmail.trim());
+        }
+
+        if (!userContext.organizationDisplay.isEmpty()) {
+            metadata.put("institution", userContext.organizationDisplay);
+        }
+
         // 4. Derive Study URI
         String studyId = metadata.get("studyID");
         if (studyId == null || studyId.isEmpty()) {
@@ -257,6 +401,11 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
 
         log.info("Derived Study URI: {} from Study ID: {}", studyUri, studyId);
 
+        String studyLabel = buildStudyInstanceLabel(process);
+        if (metadata.get("studyTitle") == null || metadata.get("studyTitle").trim().isEmpty()) {
+            metadata.put("studyTitle", process.getLabel());
+        }
+
         // 5. Build the row with all properties
         Map<String, Object> row = new HashMap<>();
         
@@ -265,7 +414,7 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
         row.put("a", "hasco:ProcessBasedStudy");
         row.put("hasco:hascoType", HASCO.PROCESS_BASED_STUDY);
         row.put("hasco:hasId", studyId);
-        row.put("rdfs:label", studyId);
+        row.put("rdfs:label", studyLabel);
         row.put("hasco:hasProcess", processUri);  // CRITICAL: Link to Process
         
         // Study metadata
@@ -273,8 +422,18 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
         row.put("hasco:hasStudyID", studyId);
         row.put("hasco:hasSpecificAims", metadata.get("specificAims"));
         row.put("hasco:hasSignificance", metadata.get("significance"));
-        row.put("hasco:hasInstitution", metadata.get("institution"));
-        row.put("hasco:hasPrincipalInvestigator", metadata.get("principalInvestigator"));
+        if (userContext.organizationUri != null && !userContext.organizationUri.trim().isEmpty()) {
+            row.put("hasco:hasInstitution", userContext.organizationUri.trim());
+        }
+        if (metadata.get("institution") != null && !metadata.get("institution").trim().isEmpty()) {
+            row.put("hasco:hasInstitutionName", metadata.get("institution"));
+        }
+        if (userContext.personUri != null && !userContext.personUri.trim().isEmpty()) {
+            row.put("hasco:hasPI", userContext.personUri.trim());
+        }
+        if (metadata.get("principalInvestigator") != null && !metadata.get("principalInvestigator").trim().isEmpty()) {
+            row.put("hasco:hasPrincipalInvestigator", metadata.get("principalInvestigator"));
+        }
         row.put("hasco:hasContactEmail", metadata.get("contactEmail"));
         row.put("hasco:hasStartDate", metadata.get("startDate"));
         if (metadata.get("endDate") != null && !metadata.get("endDate").isEmpty()) {
@@ -288,6 +447,39 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
 
         log.info("Created ProcessBasedStudy row: URI={}, hasProcess={}", studyUri, processUri);
         return row;
+    }
+
+    /**
+     * Build study instance label as: [user name]'s [procedure label].
+     */
+    private String buildStudyInstanceLabel(Process process) {
+        String procedureLabel = process != null && process.getLabel() != null
+            ? process.getLabel().trim()
+            : "procedure";
+        if (procedureLabel.isEmpty()) {
+            procedureLabel = "procedure";
+        }
+
+        String userDisplayName = "User";
+        String email = creatorEmail != null ? creatorEmail.trim() : "";
+        if (!email.isEmpty()) {
+            try {
+                Person person = Person.findByEmail(email);
+                if (person != null) {
+                    if (person.getName() != null && !person.getName().trim().isEmpty()) {
+                        userDisplayName = person.getName().trim();
+                    } else if (person.getUserName() != null && !person.getUserName().trim().isEmpty()) {
+                        userDisplayName = person.getUserName().trim();
+                    } else if (person.getLabel() != null && !person.getLabel().trim().isEmpty()) {
+                        userDisplayName = person.getLabel().trim();
+                    }
+                }
+            } catch (Exception e) {
+                // Keep fallback behavior on lookup failure.
+            }
+        }
+
+        return userDisplayName + "'s " + procedureLabel;
     }
 
     @Override
