@@ -696,6 +696,8 @@ public class AnnotateWKF extends BaseAnnotator {
         if (processSheet == null || processSheet.trim().isEmpty()) {
             return; // No Processes sheet
         }
+
+        Map<String, Record> pbsByProcess = loadProcessBasedStudiesByProcess(dataFile, catalog);
         
         try {
             RecordFile processes = new SpreadsheetRecordFile(dataFile.getFile(), processSheet.replace("#", ""));
@@ -709,24 +711,25 @@ public class AnnotateWKF extends BaseAnnotator {
                 
                 // Check if this is an educational workflow
                 if (hascoType != null && isEducationalWorkflow(hascoType)) {
-                    String learningObjectives = rec.getValueByColumnName("vstoi:hasLearningObjectives");
-                    String criticalActions = rec.getValueByColumnName("vstoi:hasCriticalActions");
-                    String debriefingFocus = rec.getValueByColumnName("vstoi:hasDebriefingFocus");
+                    Record pbs = pbsByProcess.get(processUri);
+                    String learningObjectives = pbs != null ? pbs.getValueByColumnName("vstoi:hasLearningObjectives") : null;
+                    String criticalActions = pbs != null ? pbs.getValueByColumnName("vstoi:hasCriticalActions") : null;
+                    String debriefingFocus = pbs != null ? pbs.getValueByColumnName("vstoi:hasDebriefingFocus") : null;
                     
                     // Warn if educational workflow is missing educational properties
                     if (learningObjectives == null || learningObjectives.trim().isEmpty()) {
-                        System.out.println("[WKF Validation] WARNING: Educational process " + processUri + " is missing learning objectives (vstoi:hasLearningObjectives)");
-                        dataFile.getLogger().printWarning("Educational process " + processUri + " should define learning objectives for INACSL compliance");
+                        System.out.println("[WKF Validation] WARNING: Educational process " + processUri + " is missing learning objectives in ProcessBasedStudy (vstoi:hasLearningObjectives)");
+                        dataFile.getLogger().printWarning("Educational process " + processUri + " should define learning objectives in ProcessBasedStudy for INACSL compliance");
                     }
                     
                     if (criticalActions == null || criticalActions.trim().isEmpty()) {
-                        System.out.println("[WKF Validation] WARNING: Educational process " + processUri + " is missing critical actions (vstoi:hasCriticalActions)");
-                        dataFile.getLogger().printWarning("Educational process " + processUri + " should define critical actions for assessment");
+                        System.out.println("[WKF Validation] WARNING: Educational process " + processUri + " is missing critical actions in ProcessBasedStudy (vstoi:hasCriticalActions)");
+                        dataFile.getLogger().printWarning("Educational process " + processUri + " should define critical actions in ProcessBasedStudy for assessment");
                     }
                     
                     if (debriefingFocus == null || debriefingFocus.trim().isEmpty()) {
-                        System.out.println("[WKF Validation] INFO: Educational process " + processUri + " is missing debriefing focus (vstoi:hasDebriefingFocus)");
-                        dataFile.getLogger().printWarning("Educational process " + processUri + " should define debriefing topics for structured reflection");
+                        System.out.println("[WKF Validation] INFO: Educational process " + processUri + " is missing debriefing focus in ProcessBasedStudy (vstoi:hasDebriefingFocus)");
+                        dataFile.getLogger().printWarning("Educational process " + processUri + " should define debriefing topics in ProcessBasedStudy for structured reflection");
                     }
                 }
             }
@@ -769,6 +772,8 @@ public class AnnotateWKF extends BaseAnnotator {
         if (processSheet == null || taskSheet == null) {
             return; // Can't validate without both sheets
         }
+
+        Map<String, Record> pbsByProcess = loadProcessBasedStudiesByProcess(dataFile, catalog);
         
         try {
             RecordFile processes = new SpreadsheetRecordFile(dataFile.getFile(), processSheet.replace("#", ""));
@@ -781,7 +786,8 @@ public class AnnotateWKF extends BaseAnnotator {
             // For each process with learning objectives
             for (Record processRec : processes.getRecords()) {
                 String processUri = processRec.getValueByColumnName("hasURI");
-                String learningObjectivesStr = processRec.getValueByColumnName("vstoi:hasLearningObjectives");
+                Record pbs = pbsByProcess.get(processUri);
+                String learningObjectivesStr = pbs != null ? pbs.getValueByColumnName("vstoi:hasLearningObjectives") : null;
                 
                 if (learningObjectivesStr == null || learningObjectivesStr.trim().isEmpty()) {
                     continue; // No objectives to validate
@@ -804,10 +810,10 @@ public class AnnotateWKF extends BaseAnnotator {
                 unmappedObjectives.removeAll(taskObjectives);
                 
                 if (!unmappedObjectives.isEmpty()) {
-                    System.out.println("[WKF Validation] WARNING: Process " + processUri + " has objectives not mapped to any task:");
+                    System.out.println("[WKF Validation] WARNING: ProcessBasedStudy objectives for process " + processUri + " are not mapped to any task:");
                     for (String objective : unmappedObjectives) {
                         System.out.println("  - " + objective);
-                        dataFile.getLogger().printWarning("Process objective not mapped to task: " + objective);
+                        dataFile.getLogger().printWarning("ProcessBasedStudy objective not mapped to task: " + objective);
                     }
                 }
                 
@@ -816,10 +822,10 @@ public class AnnotateWKF extends BaseAnnotator {
                 undefinedObjectives.removeAll(processObjectives);
                 
                 if (!undefinedObjectives.isEmpty()) {
-                    System.out.println("[WKF Validation] WARNING: Tasks reference objectives not defined in Process " + processUri + ":");
+                    System.out.println("[WKF Validation] WARNING: Tasks reference objectives not defined in ProcessBasedStudy for process " + processUri + ":");
                     for (String objective : undefinedObjectives) {
                         System.out.println("  - " + objective);
-                        dataFile.getLogger().printWarning("Task references undefined objective: " + objective);
+                        dataFile.getLogger().printWarning("Task references objective undefined in ProcessBasedStudy: " + objective);
                     }
                 }
             }
@@ -848,5 +854,39 @@ public class AnnotateWKF extends BaseAnnotator {
         }
         
         return objectives;
+    }
+
+    /**
+     * Index ProcessBasedStudy rows by related process URI.
+     */
+    private static Map<String, Record> loadProcessBasedStudiesByProcess(DataFile dataFile, Map<String, String> catalog) {
+        Map<String, Record> byProcess = new HashMap<>();
+        String pbsSheet = catalog.get("ProcessBasedStudies");
+
+        if (pbsSheet == null || pbsSheet.trim().isEmpty()) {
+            pbsSheet = catalog.get("ProcessBasedStudy");
+        }
+
+        if (pbsSheet == null || pbsSheet.trim().isEmpty()) {
+            return byProcess;
+        }
+
+        try {
+            RecordFile pbsRows = new SpreadsheetRecordFile(dataFile.getFile(), pbsSheet.replace("#", ""));
+            if (!pbsRows.isValid()) {
+                return byProcess;
+            }
+
+            for (Record rec : pbsRows.getRecords()) {
+                String processUri = rec.getValueByColumnName("hasco:hasProcess");
+                if (processUri != null && !processUri.trim().isEmpty()) {
+                    byProcess.put(processUri.trim(), rec);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("[WKF Validation] Error loading ProcessBasedStudies sheet: " + e.getMessage());
+        }
+
+        return byProcess;
     }
 }

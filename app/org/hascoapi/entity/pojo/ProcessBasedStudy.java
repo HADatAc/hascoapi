@@ -80,6 +80,15 @@ public class ProcessBasedStudy extends Study {
     @PropertyField(uri = "hasco:hasEndDate")
     private String endDate;
 
+    @PropertyField(uri = "vstoi:hasLearningObjectives")
+    private String hasLearningObjectives;
+
+    @PropertyField(uri = "vstoi:hasCriticalActions")
+    private String hasCriticalActions;
+
+    @PropertyField(uri = "vstoi:hasDebriefingFocus")
+    private String hasDebriefingFocus;
+
     /**
      * Default constructor
      */
@@ -95,6 +104,9 @@ public class ProcessBasedStudy extends Study {
         this.contactEmail = "";
         this.startDate = "";
         this.endDate = "";
+        this.hasLearningObjectives = "";
+        this.hasCriticalActions = "";
+        this.hasDebriefingFocus = "";
     }
 
     /**
@@ -212,6 +224,30 @@ public class ProcessBasedStudy extends Study {
         this.endDate = endDate;
     }
 
+    public String getHasLearningObjectives() {
+        return hasLearningObjectives;
+    }
+
+    public void setHasLearningObjectives(String hasLearningObjectives) {
+        this.hasLearningObjectives = hasLearningObjectives;
+    }
+
+    public String getHasCriticalActions() {
+        return hasCriticalActions;
+    }
+
+    public void setHasCriticalActions(String hasCriticalActions) {
+        this.hasCriticalActions = hasCriticalActions;
+    }
+
+    public String getHasDebriefingFocus() {
+        return hasDebriefingFocus;
+    }
+
+    public void setHasDebriefingFocus(String hasDebriefingFocus) {
+        this.hasDebriefingFocus = hasDebriefingFocus;
+    }
+
     /**
      * Derive Study URI from Process URI
      * Pattern: pmsr:WKF-{id}/PROC/{proc_id} → pmsr:STD-{id}
@@ -317,6 +353,12 @@ public class ProcessBasedStudy extends Study {
                     study.setStartDate(object);
                 } else if (predicate.equals(HASCO.HAS_END_DATE)) {
                     study.setEndDate(object);
+                } else if (predicate.equals(VSTOI.HAS_LEARNING_OBJECTIVES)) {
+                    study.setHasLearningObjectives(object);
+                } else if (predicate.equals(VSTOI.HAS_CRITICAL_ACTIONS)) {
+                    study.setHasCriticalActions(object);
+                } else if (predicate.equals(VSTOI.HAS_DEBRIEFING_FOCUS)) {
+                    study.setHasDebriefingFocus(object);
                 }
             }
         }

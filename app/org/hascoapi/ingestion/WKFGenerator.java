@@ -17,6 +17,9 @@ import java.util.Map;
 
 public class WKFGenerator extends BaseGenerator {
 
+    private static final String LEGACY_PMSR_PROCESS_STEM_URI = "http://pmsr.net/ont/pmsr#MedicalSimulationProcessStem";
+    private static final String CANONICAL_PMSR_PROCESS_STEM_URI = "https://pmsr.net/ont/MedicalSimulationProcessStem";
+
     protected String wkfUri = "";
     protected String hasStatus = "";
     private Map<String, String> processStemLabelByUri = null;
@@ -70,6 +73,16 @@ public class WKFGenerator extends BaseGenerator {
             row.put("hasco:hascoType", VSTOI.PROCESS_STEM);
         } else if (elementType.equals("process")) {
             row.put("hasco:hascoType", VSTOI.PROCESS);
+
+            // Process type is represented by workflow stem reference.
+            // If WKF omits it, enforce the workflow-stem entry-level class.
+            String stemRefUri = extractStemReferenceUri(row);
+            if (stemRefUri.isEmpty()) {
+                row.put("prov:wasDerivedFrom", VSTOI.PROCESS_STEM);
+            } else {
+                row.put("prov:wasDerivedFrom", stemRefUri);
+            }
+
             String computedLabel = buildProcessInstanceLabel(row);
             row.put("rdfs:label", computedLabel);
         } else if (elementType.equals("task")) {
@@ -139,6 +152,12 @@ public class WKFGenerator extends BaseGenerator {
             // Resolve from current WKF workbook as strict in-file source of truth.
             if (stemLabel.isEmpty()) {
                 stemLabel = resolveProcessStemLabelFromWorkbook(stemRefUri);
+            }
+        }
+
+        if (stemLabel.isEmpty()) {
+            if (VSTOI.PROCESS_STEM.equals(stemRefUri)) {
+                stemLabel = "Process Stem";
             }
         }
 
@@ -301,6 +320,9 @@ public class WKFGenerator extends BaseGenerator {
 
         value = URIUtils.stripAngleBrackets(value);
         value = URIUtils.replacePrefixEx(value);
+        if (LEGACY_PMSR_PROCESS_STEM_URI.equals(value)) {
+            value = CANONICAL_PMSR_PROCESS_STEM_URI;
+        }
         return value == null ? "" : value.trim();
     }
 

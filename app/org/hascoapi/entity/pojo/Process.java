@@ -27,6 +27,9 @@ import static org.hascoapi.Constants.*;
 @JsonFilter("processFilter")
 public class Process extends HADatAcThing implements Comparable<Process> {
 
+    private static final String LEGACY_PMSR_PROCESS_STEM_URI = "http://pmsr.net/ont/pmsr#MedicalSimulationProcessStem";
+    private static final String CANONICAL_PMSR_PROCESS_STEM_URI = "https://pmsr.net/ont/MedicalSimulationProcessStem";
+
     @PropertyField(uri = "vstoi:hasStatus")
     private String hasStatus;
 
@@ -50,15 +53,6 @@ public class Process extends HADatAcThing implements Comparable<Process> {
 
     @PropertyField(uri = "vstoi:hasTopTask")
     private String hasTopTaskUri;
-
-    @PropertyField(uri = "vstoi:hasLearningObjectives")
-    private String hasLearningObjectives;
-
-    @PropertyField(uri = "vstoi:hasCriticalActions")
-    private String hasCriticalActions;
-
-    @PropertyField(uri = "vstoi:hasDebriefingFocus")
-    private String hasDebriefingFocus;
 
     // NEW v1.1: Study metadata properties (from WKF Excel columns S-AA)
     @PropertyField(uri = "hasco:hasStudyID")
@@ -157,30 +151,6 @@ public class Process extends HADatAcThing implements Comparable<Process> {
 
     public void setHasTopTaskUri(String hasTopTaskUri) {
         this.hasTopTaskUri = hasTopTaskUri;
-    }
-
-    public String getHasLearningObjectives() {
-        return hasLearningObjectives;
-    }
-
-    public void setHasLearningObjectives(String hasLearningObjectives) {
-        this.hasLearningObjectives = hasLearningObjectives;
-    }
-
-    public String getHasCriticalActions() {
-        return hasCriticalActions;
-    }
-
-    public void setHasCriticalActions(String hasCriticalActions) {
-        this.hasCriticalActions = hasCriticalActions;
-    }
-
-    public String getHasDebriefingFocus() {
-        return hasDebriefingFocus;
-    }
-
-    public void setHasDebriefingFocus(String hasDebriefingFocus) {
-        this.hasDebriefingFocus = hasDebriefingFocus;
     }
 
     // NEW v1.1: Getters and Setters for study metadata properties
@@ -316,12 +286,6 @@ public class Process extends HADatAcThing implements Comparable<Process> {
                     process.setHasEditorEmail(object);
                 } else if (predicate.equals(VSTOI.HAS_TOP_TASK)) {
                     process.setHasTopTaskUri(object);
-                } else if (predicate.equals(VSTOI.HAS_LEARNING_OBJECTIVES)) {
-                    process.setHasLearningObjectives(object);
-                } else if (predicate.equals(VSTOI.HAS_CRITICAL_ACTIONS)) {
-                    process.setHasCriticalActions(object);
-                } else if (predicate.equals(VSTOI.HAS_DEBRIEFING_FOCUS)) {
-                    process.setHasDebriefingFocus(object);
                 // NEW v1.1: Handle study metadata properties
                 } else if (predicate.equals(HASCO.HAS_STUDY_ID)) {
                     process.setStudyID(object);
@@ -357,7 +321,29 @@ public class Process extends HADatAcThing implements Comparable<Process> {
 
     @Override
     public void save() {
+        normalizeWorkflowStemReference();
         saveToTripleStore();
+    }
+
+    private void normalizeWorkflowStemReference() {
+        String stemUri = this.getWasDerivedFrom();
+
+        if (stemUri == null || stemUri.trim().isEmpty()) {
+            this.setWasDerivedFrom(VSTOI.PROCESS_STEM);
+            return;
+        }
+
+        String normalized = stemUri.trim();
+        if (LEGACY_PMSR_PROCESS_STEM_URI.equals(normalized)) {
+            normalized = CANONICAL_PMSR_PROCESS_STEM_URI;
+        }
+
+        if (ProcessStem.find(normalized) == null) {
+            this.setWasDerivedFrom(VSTOI.PROCESS_STEM);
+            return;
+        }
+
+        this.setWasDerivedFrom(normalized);
     }
 
     @Override

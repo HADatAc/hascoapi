@@ -145,7 +145,21 @@ public class ProcessBasedStudyAPI extends Controller {
         try {
             // Standard pattern: Deserialize JSON with ObjectMapper
             ObjectMapper mapper = new ObjectMapper();
+            JsonNode jsonNode = mapper.readTree(json);
             ProcessBasedStudy study = mapper.readValue(json, ProcessBasedStudy.class);
+
+            if (jsonNode.has("institution") && (study.getInstitutionName() == null || study.getInstitutionName().isEmpty())) {
+                study.setInstitutionName(jsonNode.get("institution").asText());
+            }
+            if (jsonNode.has("hasLearningObjectives")) {
+                study.setHasLearningObjectives(jsonNode.get("hasLearningObjectives").asText());
+            }
+            if (jsonNode.has("hasCriticalActions")) {
+                study.setHasCriticalActions(jsonNode.get("hasCriticalActions").asText());
+            }
+            if (jsonNode.has("hasDebriefingFocus")) {
+                study.setHasDebriefingFocus(jsonNode.get("hasDebriefingFocus").asText());
+            }
             
             // Expand URI prefixes (if needed)
             if (study.getUri() != null && !study.getUri().isEmpty()) {
@@ -221,6 +235,8 @@ public class ProcessBasedStudyAPI extends Controller {
             }
             if (jsonNode.has("institutionName")) {
                 study.setInstitutionName(jsonNode.get("institutionName").asText());
+            } else if (jsonNode.has("institution")) {
+                study.setInstitutionName(jsonNode.get("institution").asText());
             }
             if (jsonNode.has("principalInvestigator")) {
                 study.setPrincipalInvestigator(jsonNode.get("principalInvestigator").asText());
@@ -233,6 +249,15 @@ public class ProcessBasedStudyAPI extends Controller {
             }
             if (jsonNode.has("endDate")) {
                 study.setEndDate(jsonNode.get("endDate").asText());
+            }
+            if (jsonNode.has("hasLearningObjectives")) {
+                study.setHasLearningObjectives(jsonNode.get("hasLearningObjectives").asText());
+            }
+            if (jsonNode.has("hasCriticalActions")) {
+                study.setHasCriticalActions(jsonNode.get("hasCriticalActions").asText());
+            }
+            if (jsonNode.has("hasDebriefingFocus")) {
+                study.setHasDebriefingFocus(jsonNode.get("hasDebriefingFocus").asText());
             }
 
             // Save changes
