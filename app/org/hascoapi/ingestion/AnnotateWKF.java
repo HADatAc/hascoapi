@@ -189,7 +189,7 @@ public class AnnotateWKF extends BaseAnnotator {
         dataFile.getLogger().println("\n========== WKF Post-Processing: Creating ProcessBasedStudy Entities ==========");
 
         try {
-            String queryString =
+            String strictQuery =
                 "PREFIX hasco: <http://hadatac.org/ont/hasco/> " +
                 "PREFIX vstoi: <http://hadatac.org/ont/vstoi#> " +
                 "SELECT DISTINCT ?processUri WHERE { " +
@@ -198,7 +198,22 @@ public class AnnotateWKF extends BaseAnnotator {
                 "}";
 
             ResultSetRewindable results = SPARQLUtils.select(
-                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), strictQuery);
+
+            if (results == null || !results.hasNext()) {
+                dataFile.getLogger().println("  No Process found with rdf:type vstoi:Process; trying hasco:hascoType fallback...");
+
+                String fallbackQuery =
+                    "PREFIX hasco: <http://hadatac.org/ont/hasco/> " +
+                    "PREFIX vstoi: <http://hadatac.org/ont/vstoi#> " +
+                    "SELECT DISTINCT ?processUri WHERE { " +
+                    "  ?processUri hasco:hascoType vstoi:Process . " +
+                    "  ?processUri hasco:hasDataFile <" + dataFile.getUri() + "> . " +
+                    "}";
+
+                results = SPARQLUtils.select(
+                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), fallbackQuery);
+            }
 
             if (results == null || !results.hasNext()) {
                 dataFile.getLogger().println("  No Process entities found in WKF file - skipping ProcessBasedStudy generation");

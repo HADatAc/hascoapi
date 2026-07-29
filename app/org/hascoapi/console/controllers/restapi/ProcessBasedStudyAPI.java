@@ -224,6 +224,9 @@ public class ProcessBasedStudyAPI extends Controller {
             JsonNode jsonNode = mapper.readTree(json);
 
             // Update mutable fields (processUri is immutable)
+            if (jsonNode.has("studyID")) {
+                study.setStudyID(jsonNode.get("studyID").asText());
+            }
             if (jsonNode.has("studyTitle")) {
                 study.setStudyTitle(jsonNode.get("studyTitle").asText());
             }
@@ -272,7 +275,12 @@ public class ProcessBasedStudyAPI extends Controller {
 
     /**
      * POST /api/processbasedstudy/delete/:uri
-     * Delete a ProcessBasedStudy (cascade deletes associated Process)
+        * Delete a ProcessBasedStudy with conditional process/task cascade.
+        *
+        * Rules:
+        * - If associated process is shared by other ProcessBasedStudy entities,
+        *   delete only the current scenario and its direct DataFiles.
+        * - If not shared, also delete process + tasks and process-linked DataFiles.
      * 
      * @param uri The URI of the ProcessBasedStudy to delete
      * @return JSON response confirming deletion
@@ -290,9 +298,17 @@ public class ProcessBasedStudyAPI extends Controller {
                 return ok(ApiUtil.createResponse("ProcessBasedStudy not found: " + uri, false));
             }
 
-            // Delete (cascade deletes Process)
-            study.delete();
-            return ok(ApiUtil.createResponse("ProcessBasedStudy deleted successfully (Process also deleted)", true));
+            String processUri = study.getProcessUri();
+            int references = ProcessBasedStudy.countByProcess(processUri);
+            boolean processShared = references > 1;
+
+            if (processShared) {
+                study.deleteScenarioOnly();
+                return ok(ApiUtil.createResponse("ProcessBasedStudy deleted successfully (shared process was preserved)", true));
+            }
+
+            study.deleteScenarioWithProcessHierarchy();
+            return ok(ApiUtil.createResponse("ProcessBasedStudy deleted successfully (process, tasks, and related DataFiles also deleted)", true));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -310,7 +326,9 @@ public class ProcessBasedStudyAPI extends Controller {
      */
     public Result getProcessBasedStudiesWithPage(int pageSize, int offset) {
         try {
-            List<ProcessBasedStudy> results = ProcessBasedStudy.findWithPages(pageSize, offset);
+            // Prefer the keyword-backed path because it has proven resilient across
+            // mixed repository data shapes and still honors paging.
+            List<ProcessBasedStudy> results = ProcessBasedStudy.findByKeyword("_", pageSize, offset);
             return getProcessBasedStudies(results);
         } catch (Exception e) {
             return ok(ApiUtil.createResponse("Error retrieving ProcessBasedStudy list: " + e.getMessage(), false));

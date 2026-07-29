@@ -67,7 +67,7 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
 
     public ProcessBasedStudyGenerator(DataFile dataFile, String processUri) {
         super(dataFile);
-        this.processUri = processUri;
+        this.processUri = URIUtils.canonicalizePmsrUri(processUri);
         this.creatorEmail = dataFile.getHasSIRManagerEmail();
         // Use current date if not specified
         this.creationDate = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
@@ -75,7 +75,7 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
 
     public ProcessBasedStudyGenerator(DataFile dataFile, String processUri, String creatorEmail, String creationDate) {
         super(dataFile);
-        this.processUri = processUri;
+        this.processUri = URIUtils.canonicalizePmsrUri(processUri);
         this.creatorEmail = creatorEmail != null ? creatorEmail : dataFile.getHasSIRManagerEmail();
         this.creationDate = creationDate != null ? creationDate : LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
     }
@@ -95,6 +95,8 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
             return null;
         }
 
+        procUri = URIUtils.canonicalizePmsrUri(procUri);
+
         // Extract WKF token from URI like
         //   .../WKF-SECRETION-001/PROC/0001 or .../WKF_SECRETION_001/PROC/0001
         try {
@@ -107,12 +109,17 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
 
             if (wkfPart.startsWith("WKF-")) {
                 String id = wkfPart.substring(4);
-                return "STD-" + id;
+                return "STD-" + id.replace('_', '-');
             }
 
             if (wkfPart.startsWith("WKF_")) {
                 String id = wkfPart.substring(4);
-                return "STD_" + id;
+                return "STD-" + id.replace('_', '-');
+            }
+
+            if (wkfPart.startsWith("WFK-") || wkfPart.startsWith("WFK_")) {
+                String id = wkfPart.substring(4);
+                return "STD-" + id.replace('_', '-');
             }
 
             log.warn("Process URI does not contain WKF- pattern: {}", procUri);
@@ -129,12 +136,15 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
      */
     private String deriveStudyUri(String studyId) {
         if (processUri != null && !processUri.isEmpty() && processUri.contains("/PROC/")) {
-            String baseUri = processUri.substring(0, processUri.indexOf("/PROC/"));
+            String baseUri = URIUtils.canonicalizePmsrUri(processUri.substring(0, processUri.indexOf("/PROC/")));
             if (baseUri.contains("/WKF-")) {
-                return baseUri.replace("/WKF-", "/STD-");
+                return URIUtils.canonicalizePmsrUri(baseUri.replace("/WKF-", "/STD-"));
             }
             if (baseUri.contains("/WKF_")) {
-                return baseUri.replace("/WKF_", "/STD_");
+                return URIUtils.canonicalizePmsrUri(baseUri.replace("/WKF_", "/STD-"));
+            }
+            if (baseUri.contains("/WFK-") || baseUri.contains("/WFK_")) {
+                return URIUtils.canonicalizePmsrUri(baseUri.replace("/WFK-", "/STD-").replace("/WFK_", "/STD-"));
             }
         }
 
@@ -142,7 +152,8 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
             return null;
         }
         // Remove STD- prefix if present, then add it back with namespace
-        String id = studyId.startsWith("STD-") ? studyId.substring(4) : studyId;
+        String normalizedStudyId = studyId.replace('_', '-');
+        String id = normalizedStudyId.startsWith("STD-") ? normalizedStudyId.substring(4) : normalizedStudyId;
         return Constants.PREFIX_STUDY + "-" + id;
     }
 

@@ -19,8 +19,46 @@ import org.hascoapi.RepositoryInstance;
 
 public class URIUtils {
 
+    private static final String PMSR_CANONICAL_BASE = "https://pmsr.net/ont/";
+
     private static boolean isFullURI(String str) {
         return str.startsWith("http");
+    }
+
+    /**
+     * Normalizes namespace base URLs to canonical PMSR ontology base.
+     */
+    public static String normalizeNamespaceBase(String namespace) {
+        if (namespace == null || namespace.trim().isEmpty()) {
+            return namespace;
+        }
+
+        String normalized = namespace.trim()
+                .replaceAll("(?i)^https?://pmsr\\.net/ont/pmsr#/?", PMSR_CANONICAL_BASE)
+                .replaceAll("(?i)^http://pmsr\\.net/ont/", PMSR_CANONICAL_BASE);
+
+        if (!normalized.endsWith("/")) {
+            normalized += "/";
+        }
+
+        return normalized;
+    }
+
+    /**
+     * Canonicalizes PMSR URIs and known legacy identifier separator variants.
+     */
+    public static String canonicalizePmsrUri(String uri) {
+        if (uri == null || uri.trim().isEmpty()) {
+            return uri;
+        }
+
+        String normalized = uri.trim()
+                .replaceAll("(?i)^https?://pmsr\\.net/ont/pmsr#/?", PMSR_CANONICAL_BASE)
+                .replaceAll("(?i)^http://pmsr\\.net/ont/", PMSR_CANONICAL_BASE)
+                .replaceAll("(?i)/(WFK)[-_]", "/WKF-")
+                .replaceAll("(?i)/(WKF|STD)_", "/$1-");
+
+        return normalized;
     }
 
     /**
@@ -240,24 +278,24 @@ public class URIUtils {
         String resp = str;
         for (Map.Entry<String, NameSpace> entry : NameSpaces.getInstance().getNamespaces().entrySet()) {
             String abbrev = entry.getKey().toString();
-            String nsString = entry.getValue().getUri();
+            String nsString = normalizeNamespaceBase(entry.getValue().getUri());
             
             // Check for slash-prefixed format first: prefix:/localname
             if (str.startsWith(abbrev + ":/")) {
                 // Remove the slash: prefix:/localname → namespace + localname
                 String localName = str.substring((abbrev + ":/").length());
                 resp = nsString + localName;
-                return resp;
+                return canonicalizePmsrUri(resp);
             }
             // Check for standard format: prefix:localname
             else if (str.startsWith(abbrev + ":")) {
                 // Standard replacement: prefix:localname → namespace + localname
                 resp = str.replace(abbrev + ":", nsString);
-                return resp;
+                return canonicalizePmsrUri(resp);
             }
         }
 
-        return str;
+        return canonicalizePmsrUri(str);
     }
 
     public static String getBaseName(String str) {

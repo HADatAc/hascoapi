@@ -10,6 +10,7 @@ import org.hascoapi.annotations.PropertyValueType;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.SPARQLUtils;
+import org.hascoapi.utils.URIUtils;
 import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.RDF;
 import org.hascoapi.vocabularies.RDFS;
@@ -18,7 +19,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * ProcessBasedStudy - A specialization of Study that requires a Process/Workflow
@@ -39,6 +42,22 @@ public class ProcessBasedStudy extends Study {
     private static final Logger log = LoggerFactory.getLogger(ProcessBasedStudy.class);
 
     private static String className = "hasco:ProcessBasedStudy";
+
+    private static String normalizePredicate(String predicate) {
+        if (predicate == null) {
+            return "";
+        }
+        return predicate.replace("#/", "#");
+    }
+
+    private static boolean predicateEquals(String predicate, String expected) {
+        if (expected == null) {
+            return false;
+        }
+        String normalizedPredicate = normalizePredicate(predicate);
+        String normalizedExpected = normalizePredicate(expected);
+        return normalizedPredicate.equals(normalizedExpected);
+    }
 
     /**
      * URI of the Process/Workflow that defines this study
@@ -257,18 +276,25 @@ public class ProcessBasedStudy extends Study {
         if (processUri == null || processUri.isEmpty()) {
             return null;
         }
+
+        processUri = URIUtils.canonicalizePmsrUri(processUri);
         
         // Extract base from process URI and replace WKF- with STD-
         // Example: http://pmsr.net/ont/pmsr#/WKF_SECRETION_001/PROC/0001
         //       -> http://pmsr.net/ont/pmsr#/STD_SECRETION_001
-        if (processUri.contains("/WKF_") || processUri.contains("/WKF-")) {
+        if (processUri.contains("/WKF_") || processUri.contains("/WKF-") || processUri.contains("/WFK_") || processUri.contains("/WFK-")) {
             String baseUri = processUri.substring(0, processUri.indexOf("/PROC/"));
-            baseUri = baseUri.replace("/WKF_", "/STD_").replace("/WKF-", "/STD-");
-            return baseUri;
+            baseUri = baseUri
+                    .replace("/WKF_", "/STD-")
+                    .replace("/WKF-", "/STD-")
+                    .replace("/WFK_", "/STD-")
+                    .replace("/WFK-", "/STD-")
+                    .replace("_", "-");
+            return URIUtils.canonicalizePmsrUri(baseUri);
         }
         
         log.warn("Could not derive study URI from process URI: " + processUri);
-        return processUri.replace("/PROC/", "/STD/");
+        return URIUtils.canonicalizePmsrUri(processUri.replace("/PROC/", "/STD/"));
     }
 
     /**
@@ -282,8 +308,9 @@ public class ProcessBasedStudy extends Study {
         }
 
         ProcessBasedStudy study = null;
-        
-        // Construct SPARQL query
+
+        // Resolve ProcessBasedStudy from named graphs only.
+        // WKF-derived scenario content must be persisted in the DFL-associated graph.
         String queryString = "SELECT DISTINCT ?graph ?p ?o WHERE { GRAPH ?graph { <" + uri + "> ?p ?o } }";
         ResultSet resultSet = SPARQLUtils.select(
             CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), 
@@ -309,55 +336,57 @@ public class ProcessBasedStudy extends Study {
                 String object = qs.get("o").toString();
 
                 // Handle Study base properties
-                if (predicate.equals(RDFS.LABEL)) {
+                if (predicateEquals(predicate, RDFS.LABEL)) {
                     study.setLabel(object);
-                } else if (predicate.equals(HASCO.HAS_ID)) {
+                } else if (predicateEquals(predicate, HASCO.HAS_ID)) {
                     study.setId(object);
-                } else if (predicate.equals(HASCO.HAS_TITLE)) {
+                } else if (predicateEquals(predicate, HASCO.HAS_TITLE)) {
                     study.setTitle(object);
-                } else if (predicate.equals(RDF.TYPE)) {
+                } else if (predicateEquals(predicate, RDF.TYPE)) {
                     study.setTypeUri(object);
-                } else if (predicate.equals(HASCO.HASCO_TYPE)) {
+                } else if (predicateEquals(predicate, HASCO.HASCO_TYPE)) {
                     study.setHascoTypeUri(object);
-                } else if (predicate.equals(VSTOI.HAS_STATUS)) {
+                } else if (predicateEquals(predicate, VSTOI.HAS_STATUS)) {
                     study.setHasStatus(object);
-                } else if (predicate.equals(RDFS.COMMENT)) {
+                } else if (predicateEquals(predicate, VSTOI.HAS_SIR_MANAGER_EMAIL)) {
+                    study.setHasSIRManagerEmail(object);
+                } else if (predicateEquals(predicate, RDFS.COMMENT)) {
                     study.setComment(object);
-                } else if (predicate.equals(HASCO.HAS_PROJECT)) {
+                } else if (predicateEquals(predicate, HASCO.HAS_PROJECT)) {
                     study.setProject(object);
-                } else if (predicate.equals(HASCO.HAS_INSTITUTION)) {
+                } else if (predicateEquals(predicate, HASCO.HAS_INSTITUTION)) {
                     study.setInstitutionUri(object);
-                } else if (predicate.equals(HASCO.HAS_PI)) {
+                } else if (predicateEquals(predicate, HASCO.HAS_PI)) {
                     study.setPiUri(object);
-                } else if (predicate.equals(HASCO.HAS_VERSION)) {
+                } else if (predicateEquals(predicate, HASCO.HAS_VERSION)) {
                     study.setHasVersion(object);
                 
                 // Handle ProcessBasedStudy-specific properties
-                } else if (predicate.equals(HASCO.HAS_PROCESS)) {
+                } else if (predicateEquals(predicate, HASCO.HAS_PROCESS)) {
                     study.setProcessUri(object);
-                } else if (predicate.equals(HASCO.HAS_STUDY_ID)) {
+                } else if (predicateEquals(predicate, HASCO.HAS_STUDY_ID)) {
                     study.setStudyID(object);
-                } else if (predicate.equals(HASCO.HAS_STUDY_TITLE)) {
+                } else if (predicateEquals(predicate, HASCO.HAS_STUDY_TITLE)) {
                     study.setStudyTitle(object);
-                } else if (predicate.equals(HASCO.HAS_SPECIFIC_AIMS)) {
+                } else if (predicateEquals(predicate, HASCO.HAS_SPECIFIC_AIMS)) {
                     study.setSpecificAims(object);
-                } else if (predicate.equals(HASCO.HAS_SIGNIFICANCE)) {
+                } else if (predicateEquals(predicate, HASCO.HAS_SIGNIFICANCE)) {
                     study.setSignificance(object);
-                } else if (predicate.equals("http://hadatac.org/ont/hasco/hasInstitutionName")) {
+                } else if (predicateEquals(predicate, "http://hadatac.org/ont/hasco/hasInstitutionName")) {
                     study.setInstitutionName(object);
-                } else if (predicate.equals(HASCO.HAS_PRINCIPAL_INVESTIGATOR)) {
+                } else if (predicateEquals(predicate, HASCO.HAS_PRINCIPAL_INVESTIGATOR)) {
                     study.setPrincipalInvestigator(object);
-                } else if (predicate.equals(HASCO.HAS_CONTACT_EMAIL)) {
+                } else if (predicateEquals(predicate, HASCO.HAS_CONTACT_EMAIL)) {
                     study.setContactEmail(object);
-                } else if (predicate.equals(HASCO.HAS_START_DATE)) {
+                } else if (predicateEquals(predicate, HASCO.HAS_START_DATE)) {
                     study.setStartDate(object);
-                } else if (predicate.equals(HASCO.HAS_END_DATE)) {
+                } else if (predicateEquals(predicate, HASCO.HAS_END_DATE)) {
                     study.setEndDate(object);
-                } else if (predicate.equals(VSTOI.HAS_LEARNING_OBJECTIVES)) {
+                } else if (predicateEquals(predicate, VSTOI.HAS_LEARNING_OBJECTIVES)) {
                     study.setHasLearningObjectives(object);
-                } else if (predicate.equals(VSTOI.HAS_CRITICAL_ACTIONS)) {
+                } else if (predicateEquals(predicate, VSTOI.HAS_CRITICAL_ACTIONS)) {
                     study.setHasCriticalActions(object);
-                } else if (predicate.equals(VSTOI.HAS_DEBRIEFING_FOCUS)) {
+                } else if (predicateEquals(predicate, VSTOI.HAS_DEBRIEFING_FOCUS)) {
                     study.setHasDebriefingFocus(object);
                 }
             }
@@ -381,7 +410,7 @@ public class ProcessBasedStudy extends Study {
         String queryString = 
             "PREFIX hasco: <http://hadatac.org/ont/hasco/> " +
             "SELECT DISTINCT ?study WHERE { " +
-            "  ?study a hasco:ProcessBasedStudy . " +
+            "  { ?study a hasco:ProcessBasedStudy . } UNION { ?study hasco:hascoType hasco:ProcessBasedStudy . } " +
             "  ?study hasco:hasProcess <" + processUri + "> . " +
             "}";
 
@@ -404,6 +433,121 @@ public class ProcessBasedStudy extends Study {
     }
 
     /**
+     * Count ProcessBasedStudy entities that reference the given process URI.
+     */
+    public static int countByProcess(String processUri) {
+        if (processUri == null || processUri.isEmpty()) {
+            return 0;
+        }
+
+        String queryString =
+            "PREFIX hasco: <http://hadatac.org/ont/hasco/> " +
+            "SELECT (COUNT(DISTINCT ?study) AS ?count) WHERE { " +
+            "  { ?study a hasco:ProcessBasedStudy . } UNION { ?study hasco:hascoType hasco:ProcessBasedStudy . } " +
+            "  ?study hasco:hasProcess <" + processUri + "> . " +
+            "}";
+
+        ResultSet resultSet = SPARQLUtils.select(
+            CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY),
+            queryString
+        );
+
+        if (resultSet.hasNext()) {
+            QuerySolution qs = resultSet.next();
+            if (qs.contains("count")) {
+                return qs.getLiteral("count").getInt();
+            }
+        }
+
+        return 0;
+    }
+
+    /**
+     * Find DataFile URIs directly attached to a given owner URI via hasco:hasDataFile.
+     */
+    private static Set<String> findDataFileUrisForOwner(String ownerUri) {
+        Set<String> uris = new LinkedHashSet<>();
+        if (ownerUri == null || ownerUri.trim().isEmpty()) {
+            return uris;
+        }
+
+        String queryString =
+            NameSpaces.getInstance().printSparqlNameSpaceList() +
+            " SELECT DISTINCT ?df WHERE { " +
+            "   <" + ownerUri + "> hasco:hasDataFile ?df . " +
+            " }";
+
+        ResultSet resultSet = SPARQLUtils.select(
+            CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY),
+            queryString
+        );
+
+        while (resultSet.hasNext()) {
+            QuerySolution qs = resultSet.next();
+            if (qs.contains("df") && qs.get("df").isResource()) {
+                String dfUri = qs.getResource("df").getURI();
+                if (dfUri != null && !dfUri.trim().isEmpty()) {
+                    uris.add(dfUri.trim());
+                }
+            }
+        }
+
+        return uris;
+    }
+
+    /**
+     * Delete DataFile graphs for the provided DataFile URIs.
+     */
+    private static void deleteDataFiles(Set<String> dataFileUris) {
+        if (dataFileUris == null || dataFileUris.isEmpty()) {
+            return;
+        }
+
+        for (String dfUri : dataFileUris) {
+            try {
+                DataFile df = DataFile.find(dfUri);
+                if (df != null) {
+                    df.delete();
+                }
+            }
+            catch (Exception e) {
+                log.warn("Failed to delete DataFile {} during ProcessBasedStudy deletion: {}", dfUri, e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Delete only the ProcessBasedStudy (study layer) and its directly linked DataFiles.
+     */
+    public void deleteScenarioOnly() {
+        Set<String> dataFiles = findDataFileUrisForOwner(this.getUri());
+        deleteDataFiles(dataFiles);
+        super.delete();
+    }
+
+    /**
+     * Delete ProcessBasedStudy, linked process hierarchy (process + tasks), and linked DataFiles.
+     */
+    public void deleteScenarioWithProcessHierarchy() {
+        Set<String> dataFiles = new LinkedHashSet<>();
+        dataFiles.addAll(findDataFileUrisForOwner(this.getUri()));
+        if (processUri != null && !processUri.trim().isEmpty()) {
+            dataFiles.addAll(findDataFileUrisForOwner(processUri.trim()));
+        }
+
+        deleteDataFiles(dataFiles);
+
+        if (processUri != null && !processUri.trim().isEmpty()) {
+            Process process = Process.find(processUri.trim());
+            if (process != null) {
+                process.deleteWithTasks();
+            }
+        }
+
+        super.delete();
+    }
+
+    /**
      * Find all ProcessBasedStudy entities with pagination
      * @param pageSize Number of results per page
      * @param offset Starting offset
@@ -416,7 +560,7 @@ public class ProcessBasedStudy extends Study {
             "PREFIX hasco: <http://hadatac.org/ont/hasco/> " +
             "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " +
             "SELECT DISTINCT ?uri ?label WHERE { " +
-            "  ?uri a hasco:ProcessBasedStudy . " +
+            "  { ?uri a hasco:ProcessBasedStudy . } UNION { ?uri hasco:hascoType hasco:ProcessBasedStudy . } " +
             "  OPTIONAL { ?uri rdfs:label ?label } " +
             "} " +
             "ORDER BY ?label " +
@@ -450,7 +594,7 @@ public class ProcessBasedStudy extends Study {
         String queryString = 
             "PREFIX hasco: <http://hadatac.org/ont/hasco/> " +
             "SELECT (COUNT(DISTINCT ?uri) AS ?count) WHERE { " +
-            "  ?uri a hasco:ProcessBasedStudy . " +
+            "  { ?uri a hasco:ProcessBasedStudy . } UNION { ?uri hasco:hascoType hasco:ProcessBasedStudy . } " +
             "}";
 
         ResultSet resultSet = SPARQLUtils.select(
@@ -478,23 +622,28 @@ public class ProcessBasedStudy extends Study {
     public static List<ProcessBasedStudy> findByKeyword(String keyword, int pageSize, int offset) {
         List<ProcessBasedStudy> studies = new ArrayList<>();
 
+        String safeKeyword = (keyword == null) ? "" : keyword.trim();
+        if (safeKeyword.isEmpty() || safeKeyword.equals("_")) {
+            return findWithPages(pageSize, offset);
+        }
+
         String queryString = 
             "PREFIX hasco: <http://hadatac.org/ont/hasco/> " +
             "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " +
             "SELECT DISTINCT ?uri WHERE { " +
-            "  ?uri a hasco:ProcessBasedStudy . " +
+            "  { ?uri a hasco:ProcessBasedStudy . } UNION { ?uri hasco:hascoType hasco:ProcessBasedStudy . } " +
             "  { " +
             "    ?uri hasco:hasTitle ?title . " +
-            "    FILTER(CONTAINS(LCASE(?title), LCASE(\"" + keyword + "\"))) " +
+            "    FILTER(CONTAINS(LCASE(?title), LCASE(\"" + safeKeyword + "\"))) " +
             "  } UNION { " +
             "    ?uri hasco:hasSpecificAims ?aims . " +
-            "    FILTER(CONTAINS(LCASE(?aims), LCASE(\"" + keyword + "\"))) " +
+            "    FILTER(CONTAINS(LCASE(?aims), LCASE(\"" + safeKeyword + "\"))) " +
             "  } UNION { " +
             "    ?uri hasco:hasSignificance ?significance . " +
-            "    FILTER(CONTAINS(LCASE(?significance), LCASE(\"" + keyword + "\"))) " +
+            "    FILTER(CONTAINS(LCASE(?significance), LCASE(\"" + safeKeyword + "\"))) " +
             "  } UNION { " +
             "    ?uri hasco:hasStudyID ?studyID . " +
-            "    FILTER(CONTAINS(LCASE(?studyID), LCASE(\"" + keyword + "\"))) " +
+            "    FILTER(CONTAINS(LCASE(?studyID), LCASE(\"" + safeKeyword + "\"))) " +
             "  } " +
             "} " +
             "LIMIT " + pageSize + " " +
@@ -594,17 +743,8 @@ public class ProcessBasedStudy extends Study {
      */
     @Override
     public void delete() {
-        // Delete associated Process (cascade delete)
-        if (processUri != null && !processUri.isEmpty()) {
-            Process process = Process.find(processUri);
-            if (process != null) {
-                log.info("Cascade deleting process: " + processUri);
-                process.delete();
-            }
-        }
-
-        // Call parent delete (handles SOCs, measurements, etc.)
-        deleteFromTripleStore();
+        // Keep legacy behavior for callers that still use delete() directly.
+        deleteScenarioWithProcessHierarchy();
     }
 
     @Override

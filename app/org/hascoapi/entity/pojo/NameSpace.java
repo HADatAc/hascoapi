@@ -72,7 +72,7 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
             this.uri = "";
             return;
         }
-        this.uri = uri;
+        this.uri = URIUtils.normalizeNamespaceBase(uri);
     }
 
     public String getSourceMime() {

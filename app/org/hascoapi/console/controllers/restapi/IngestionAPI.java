@@ -114,6 +114,22 @@ public class IngestionAPI extends Controller {
             return ok(ApiUtil.createResponse("Could not find ingestion procedure for element type " + elementType,false));
         }
 
+        // WKF contract: manager email must be explicitly provided in ingest request.
+        // Example: POST /hascoapi/api/ingest/DRAFT/wkf/{wkfUri}?manageremail=user@example.org
+        String requestedManagerEmail = request.getQueryString("manageremail");
+        if ("wkf".equals(elementType)) {
+            if (requestedManagerEmail == null || requestedManagerEmail.trim().isEmpty()) {
+                return ok(ApiUtil.createResponse("WKF ingestion rejected: missing required query parameter 'manageremail'.", false));
+            }
+            requestedManagerEmail = requestedManagerEmail.trim();
+            if (requestedManagerEmail.toLowerCase().startsWith("mailto:")) {
+                requestedManagerEmail = requestedManagerEmail.substring("mailto:".length()).trim();
+            }
+            if (requestedManagerEmail.isEmpty() || !requestedManagerEmail.contains("@")) {
+                return ok(ApiUtil.createResponse("WKF ingestion rejected: invalid 'manageremail' value.", false));
+            }
+        }
+
         System.out.println("IngestionAPI.ingest(): inside elementType=[" + elementType + "]");
         System.out.println("IngestionAPI.ingest(): Retrieving MT instance and DataFile for element type: " + elementType);
 
@@ -244,6 +260,19 @@ public class IngestionAPI extends Controller {
                 return ok(ApiUtil.createResponse("IngestionAPI.ingest(): File FAILED to be ingested: could not retrieve " + elementType + ". ",false));
             }
             dataFile = DataFile.find(wkf.getHasDataFileUri());
+
+            // Enforce caller-provided manager email as source of truth for WKF ingestion.
+            if (dataFile != null && requestedManagerEmail != null && !requestedManagerEmail.isEmpty()) {
+                dataFile.setHasSIRManagerEmail(requestedManagerEmail);
+                dataFile.save();
+                System.out.println("[INGESTION FIX] Set DataFile.hasSIRManagerEmail from ingest request: " + requestedManagerEmail);
+            }
+
+            if (requestedManagerEmail != null && !requestedManagerEmail.isEmpty()) {
+                wkf.setHasSIRManagerEmail(requestedManagerEmail);
+                wkf.save();
+                System.out.println("[INGESTION FIX] Set WKF.hasSIRManagerEmail from ingest request: " + requestedManagerEmail);
+            }
         }
 
         if (dataFile == null) {

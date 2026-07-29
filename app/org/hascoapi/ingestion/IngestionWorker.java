@@ -4,6 +4,8 @@ import java.lang.String;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
@@ -11,7 +13,10 @@ import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSetRewindable;
 import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.Constants;
+import org.hascoapi.entity.pojo.Process;
+import org.hascoapi.entity.pojo.ProcessBasedStudy;
 import org.hascoapi.entity.pojo.Study;
+import org.hascoapi.entity.pojo.Task;
 import org.hascoapi.utils.URIUtils;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.ConfigProp;
@@ -21,6 +26,20 @@ import org.hascoapi.vocabularies.VSTOI;
 
 
 public class IngestionWorker {
+
+    private static class WKFVerificationResult {
+        boolean hasProcess;
+        boolean hasTaskModel;
+        boolean hasProcessBasedStudy;
+        String blocker;
+        Set<String> processUris = new LinkedHashSet<>();
+        Set<String> taskUris = new LinkedHashSet<>();
+        Set<String> studyUris = new LinkedHashSet<>();
+
+        boolean isValid() {
+            return hasProcess && hasTaskModel && hasProcessBasedStudy;
+        }
+    }
 
     public static void ingest(DataFile dataFile, File file, String templateFile, String status) {
 
@@ -146,6 +165,20 @@ public class IngestionWorker {
                 String fileNameBase = FilenameUtils.getBaseName(dataFile.getFilename());
                 if (fileNameBase.startsWith("WKF-")) {
                     AnnotateWKF.postProcessAfterIngestion(dataFile);
+
+                    WKFVerificationResult verification = waitForWKFVerification(dataFile, 8000);
+                    if (!verification.isValid()) {
+                        rollbackPartialWKFEntities(dataFile, verification);
+
+                        dataFile.setFileStatus(DataFile.UNPROCESSED);
+                        dataFile.setCompletionTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
+                        dataFile.save();
+
+                        dataFile.getLogger().printException(
+                            "WKF ingestion blocked: incomplete scenario creation. Missing element: " + verification.blocker +
+                            ". Ingestion rollback executed and file kept as UNPROCESSED.");
+                        return;
+                    }
                 }
 
                 dataFile.setFileStatus(DataFile.PROCESSED);
@@ -157,6 +190,386 @@ public class IngestionWorker {
                 e.printStackTrace();
             }
 
+        }
+    }
+
+    private static WKFVerificationResult waitForWKFVerification(DataFile dataFile, long timeoutMs) {
+        long deadline = System.currentTimeMillis() + timeoutMs;
+        long sleepMs = 200;
+        int attempt = 0;
+        WKFVerificationResult last = null;
+
+        while (System.currentTimeMillis() < deadline) {
+            attempt++;
+            last = verifyWKFScenarioElements(dataFile);
+            if (last.isValid()) {
+                if (attempt > 1) {
+                    dataFile.getLogger().println("WKF verification succeeded after retry attempt " + attempt + " (read-after-write consistency delay).");
+                }
+                return last;
+            }
+
+            try {
+                Thread.sleep(sleepMs);
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+            sleepMs = Math.min(1000, sleepMs * 2);
+        }
+
+        if (last == null) {
+            last = verifyWKFScenarioElements(dataFile);
+        }
+
+        dataFile.getLogger().println("WKF verification remained incomplete after retry window (" + timeoutMs + " ms).");
+        return last;
+    }
+
+    private static WKFVerificationResult verifyWKFScenarioElements(DataFile dataFile) {
+        WKFVerificationResult result = new WKFVerificationResult();
+        Set<String> wkfStemVariants = extractWkfStemVariants(dataFile);
+        Set<String> stdStemVariants = deriveStdStemVariants(wkfStemVariants);
+
+        // 1) Process verification
+        String processQuery =
+            "PREFIX hasco: <http://hadatac.org/ont/hasco/> " +
+            "PREFIX vstoi: <http://hadatac.org/ont/vstoi#> " +
+            "SELECT DISTINCT ?uri WHERE { " +
+            "  ?uri hasco:hasDataFile <" + dataFile.getUri() + "> . " +
+            "  { ?uri a vstoi:Process . } UNION { ?uri hasco:hascoType vstoi:Process . } " +
+            "}";
+        result.processUris = collectUris(processQuery);
+
+        // Fallback: detect Process entities by WKF stem in URI to avoid false negatives
+        // when hasco:hasDataFile triples are missing or stale.
+        String processByStemQuery =
+            "PREFIX hasco: <http://hadatac.org/ont/hasco/> " +
+            "PREFIX vstoi: <http://hadatac.org/ont/vstoi#> " +
+            "SELECT DISTINCT ?uri WHERE { " +
+            "  { ?uri a vstoi:Process . } UNION { ?uri hasco:hascoType vstoi:Process . } " +
+            "  FILTER(CONTAINS(STR(?uri), \"/PROC/\") && (" + buildContainsAnyExpr("STR(?uri)", wkfStemVariants) + ")) " +
+            "}";
+        result.processUris.addAll(collectUris(processByStemQuery));
+        result.hasProcess = !result.processUris.isEmpty();
+
+        // 2) Task model verification
+        // Detect tasks through process graph links (hasTopTask / hasSubtask*) so
+        // specialized task classes are considered part of the task model.
+        String taskGraphQuery =
+            "PREFIX hasco: <http://hadatac.org/ont/hasco/> " +
+            "PREFIX vstoi: <http://hadatac.org/ont/vstoi#> " +
+            "SELECT DISTINCT ?uri WHERE { " +
+            "  ?proc hasco:hasDataFile <" + dataFile.getUri() + "> . " +
+            "  { ?proc vstoi:hasTopTask ?uri . } " +
+            "  UNION { ?proc vstoi:hasTopTask ?top . ?top vstoi:hasSubtask* ?uri . } " +
+            "}";
+        result.taskUris.addAll(collectUris(taskGraphQuery));
+
+        // Fallback: detect task-like entities created from this DataFile when
+        // process linkage is missing/incomplete in source WKF content.
+        String taskLikeByTypeQuery =
+            "PREFIX hasco: <http://hadatac.org/ont/hasco/> " +
+            "SELECT DISTINCT ?uri WHERE { " +
+            "  ?uri hasco:hasDataFile <" + dataFile.getUri() + "> . " +
+            "  ?uri hasco:hascoType ?type . " +
+            "  FILTER(CONTAINS(LCASE(STR(?type)), \"task\")) " +
+            "}";
+        result.taskUris.addAll(collectUris(taskLikeByTypeQuery));
+
+        String taskLikeByUriQuery =
+            "PREFIX hasco: <http://hadatac.org/ont/hasco/> " +
+            "SELECT DISTINCT ?uri WHERE { " +
+            "  ?uri hasco:hasDataFile <" + dataFile.getUri() + "> . " +
+            "  FILTER(CONTAINS(STR(?uri), \"/TASK/\") || CONTAINS(STR(?uri), \"/Task/\") || CONTAINS(STR(?uri), \"/TSK/\")) " +
+            "}";
+        result.taskUris.addAll(collectUris(taskLikeByUriQuery));
+
+        // Fallback: detect task URIs by WKF stem even without hasDataFile links.
+        String taskByStemQuery =
+            "SELECT DISTINCT ?uri WHERE { " +
+            "  ?uri ?p ?o . " +
+            "  FILTER((CONTAINS(STR(?uri), \"/TASK/\") || CONTAINS(STR(?uri), \"/Task/\") || CONTAINS(STR(?uri), \"/TSK/\")) && (" +
+            buildContainsAnyExpr("STR(?uri)", wkfStemVariants) + ")) " +
+            "}";
+        result.taskUris.addAll(collectUris(taskByStemQuery));
+
+        // Also keep direct object check from Process entity to catch URI normalization differences.
+        for (String processUri : result.processUris) {
+            Process process = Process.find(processUri);
+            if (process == null) {
+                continue;
+            }
+
+            String topTaskUri = process.getHasTopTaskUri();
+            if (topTaskUri != null && !topTaskUri.trim().isEmpty()) {
+                Task topTask = Task.find(topTaskUri.trim());
+                if (topTask != null) {
+                    result.taskUris.add(topTaskUri.trim());
+                }
+            }
+        }
+        result.hasTaskModel = !result.taskUris.isEmpty();
+
+        // 3) ProcessBasedStudy verification
+        // Resolve by process URI first, then by deterministic URI derivation and
+        // by DataFile linkage to avoid false negatives from relation-shape drift.
+        for (String processUri : result.processUris) {
+            ProcessBasedStudy pbs = ProcessBasedStudy.findByProcess(processUri);
+            if (pbs != null && pbs.getUri() != null && !pbs.getUri().trim().isEmpty()) {
+                result.studyUris.add(pbs.getUri().trim());
+            }
+
+            String derivedStudyUri = deriveStudyUriFromProcessUri(processUri);
+            if (!derivedStudyUri.isEmpty()) {
+                ProcessBasedStudy derived = ProcessBasedStudy.find(derivedStudyUri);
+                if (derived != null && derived.getUri() != null && !derived.getUri().trim().isEmpty()) {
+                    result.studyUris.add(derived.getUri().trim());
+                }
+            }
+        }
+
+        String pbsByDataFileQuery =
+            "PREFIX hasco: <http://hadatac.org/ont/hasco/> " +
+            "SELECT DISTINCT ?uri WHERE { " +
+            "  ?uri hasco:hasDataFile <" + dataFile.getUri() + "> . " +
+            "  { ?uri a hasco:ProcessBasedStudy . } " +
+            "  UNION { ?uri hasco:hascoType hasco:ProcessBasedStudy . } " +
+            "}";
+        result.studyUris.addAll(collectUris(pbsByDataFileQuery));
+
+        // Fallback: detect ProcessBasedStudy entities by derived STD stem.
+        String pbsByStemQuery =
+            "PREFIX hasco: <http://hadatac.org/ont/hasco/> " +
+            "SELECT DISTINCT ?uri WHERE { " +
+            "  { ?uri a hasco:ProcessBasedStudy . } " +
+            "  UNION { ?uri hasco:hascoType hasco:ProcessBasedStudy . } " +
+            "  FILTER(" + buildContainsAnyExpr("STR(?uri)", stdStemVariants) + ") " +
+            "}";
+        result.studyUris.addAll(collectUris(pbsByStemQuery));
+        result.hasProcessBasedStudy = !result.studyUris.isEmpty();
+
+        if (!result.hasProcess) {
+            result.blocker = "process";
+        } else if (!result.hasTaskModel) {
+            result.blocker = "task model";
+        } else if (!result.hasProcessBasedStudy) {
+            result.blocker = "PBS";
+        } else {
+            result.blocker = "";
+        }
+
+        dataFile.getLogger().println(
+            "WKF verification summary: process=" + result.processUris.size() +
+            ", taskModel=" + result.taskUris.size() +
+            ", processBasedStudy=" + result.studyUris.size());
+
+        return result;
+    }
+
+    private static String deriveStudyUriFromProcessUri(String processUri) {
+        if (processUri == null || processUri.trim().isEmpty()) {
+            return "";
+        }
+
+        String normalized = URIUtils.canonicalizePmsrUri(processUri.trim());
+        int procIdx = normalized.indexOf("/PROC/");
+        if (procIdx <= 0) {
+            return "";
+        }
+
+        String head = normalized.substring(0, procIdx);
+        if (head.contains("/WKF-")) {
+            return head.replace("/WKF-", "/STD-");
+        }
+        if (head.contains("/WKF_")) {
+            return head.replace("/WKF_", "/STD-");
+        }
+        if (head.contains("/WFK-")) {
+            return head.replace("/WFK-", "/STD-");
+        }
+        if (head.contains("/WFK_")) {
+            return head.replace("/WFK_", "/STD-");
+        }
+
+        return "";
+    }
+
+    private static Set<String> collectUris(String queryString) {
+        Set<String> uris = new LinkedHashSet<>();
+        ResultSetRewindable results = SPARQLUtils.select(
+            CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY),
+            queryString);
+
+        if (results == null) {
+            return uris;
+        }
+
+        while (results.hasNext()) {
+            QuerySolution qs = results.next();
+            if (qs.contains("uri") && qs.get("uri").isResource()) {
+                String uri = qs.getResource("uri").getURI();
+                if (uri != null && !uri.trim().isEmpty()) {
+                    uris.add(uri.trim());
+                }
+            }
+        }
+
+        return uris;
+    }
+
+    private static Set<String> extractWkfStemVariants(DataFile dataFile) {
+        Set<String> variants = new LinkedHashSet<>();
+        if (dataFile == null || dataFile.getFilename() == null || dataFile.getFilename().trim().isEmpty()) {
+            return variants;
+        }
+
+        String base = FilenameUtils.getBaseName(dataFile.getFilename()).trim();
+        if (base.isEmpty()) {
+            return variants;
+        }
+
+        variants.add(base);
+        if (base.startsWith("WKF-")) {
+            variants.add("WKF_" + base.substring(4));
+        } else if (base.startsWith("WKF_")) {
+            variants.add("WKF-" + base.substring(4));
+        }
+
+        return variants;
+    }
+
+    private static Set<String> deriveStdStemVariants(Set<String> wkfStemVariants) {
+        Set<String> stdVariants = new LinkedHashSet<>();
+        if (wkfStemVariants == null) {
+            return stdVariants;
+        }
+
+        for (String stem : wkfStemVariants) {
+            if (stem == null || stem.trim().isEmpty()) {
+                continue;
+            }
+            String s = stem.trim();
+            if (s.startsWith("WKF-")) {
+                stdVariants.add("STD-" + s.substring(4));
+            } else if (s.startsWith("WKF_")) {
+                stdVariants.add("STD-" + s.substring(4));
+                stdVariants.add("STD_" + s.substring(4));
+            }
+        }
+
+        return stdVariants;
+    }
+
+    private static String buildContainsAnyExpr(String valueExpr, Set<String> tokens) {
+        if (tokens == null || tokens.isEmpty()) {
+            return "true";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        boolean first = true;
+        for (String token : tokens) {
+            if (token == null || token.trim().isEmpty()) {
+                continue;
+            }
+            if (!first) {
+                sb.append(" || ");
+            }
+            sb.append("CONTAINS(")
+              .append(valueExpr)
+              .append(", \"")
+              .append(escapeSparqlString(token.trim()))
+              .append("\")");
+            first = false;
+        }
+
+        return first ? "true" : sb.toString();
+    }
+
+    private static String escapeSparqlString(String value) {
+        return value.replace("\\", "\\\\").replace("\"", "\\\"");
+    }
+
+    private static void rollbackPartialWKFEntities(DataFile dataFile, WKFVerificationResult verification) {
+        dataFile.getLogger().println("WKF verification failed. Running rollback of partial scenario elements...");
+
+        // First, try to resolve PBS by process link even if verification failed to capture it.
+        Set<String> linkedPbsUris = new LinkedHashSet<>(verification.studyUris);
+        for (String processUri : verification.processUris) {
+            try {
+                ProcessBasedStudy linked = ProcessBasedStudy.findByProcess(processUri);
+                if (linked != null && linked.getUri() != null && !linked.getUri().trim().isEmpty()) {
+                    linkedPbsUris.add(linked.getUri().trim());
+                }
+            } catch (Exception e) {
+                dataFile.getLogger().println("  Rollback warning: failed resolving PBS for Process " + processUri + ": " + e.getMessage());
+            }
+        }
+
+        if (!linkedPbsUris.isEmpty()) {
+            for (String studyUri : linkedPbsUris) {
+                try {
+                    ProcessBasedStudy pbs = ProcessBasedStudy.find(studyUri);
+                    if (pbs != null) {
+                        pbs.deleteScenarioWithProcessHierarchy();
+                        dataFile.getLogger().println("  Rolled back ProcessBasedStudy hierarchy: " + studyUri);
+                    }
+                } catch (Exception e) {
+                    dataFile.getLogger().println("  Rollback warning: failed to delete ProcessBasedStudy " + studyUri + ": " + e.getMessage());
+                }
+            }
+            return;
+        }
+
+        // If no PBS exists, remove orphan process/task model fragments.
+        if (verification.hasProcess) {
+            for (String processUri : verification.processUris) {
+                try {
+                    Process process = Process.find(processUri);
+                    if (process != null) {
+                        process.deleteWithTasks();
+                        dataFile.getLogger().println("  Rolled back Process hierarchy: " + processUri);
+                    }
+                } catch (Exception e) {
+                    dataFile.getLogger().println("  Rollback warning: failed to delete Process " + processUri + ": " + e.getMessage());
+                }
+            }
+        }
+
+        if (verification.hasTaskModel) {
+            for (String taskUri : verification.taskUris) {
+                try {
+                    Task task = Task.find(taskUri);
+                    if (task != null) {
+                        Task.deleteWithSubtasks(task);
+                        dataFile.getLogger().println("  Rolled back orphan Task hierarchy: " + taskUri);
+                    }
+                } catch (Exception e) {
+                    dataFile.getLogger().println("  Rollback warning: failed to delete Task " + taskUri + ": " + e.getMessage());
+                }
+            }
+            return;
+        }
+
+        // Last-resort cleanup: delete orphan tasks discoverable only by URI stem.
+        Set<String> wkfStemVariants = extractWkfStemVariants(dataFile);
+        String orphanTaskByStemQuery =
+            "SELECT DISTINCT ?uri WHERE { " +
+            "  ?uri ?p ?o . " +
+            "  FILTER((CONTAINS(STR(?uri), \"/TASK/\") || CONTAINS(STR(?uri), \"/Task/\") || CONTAINS(STR(?uri), \"/TSK/\")) && (" +
+            buildContainsAnyExpr("STR(?uri)", wkfStemVariants) + ")) " +
+            "}";
+        Set<String> orphanTaskUris = collectUris(orphanTaskByStemQuery);
+        for (String taskUri : orphanTaskUris) {
+            try {
+                Task task = Task.find(taskUri);
+                if (task != null) {
+                    Task.deleteWithSubtasks(task);
+                    dataFile.getLogger().println("  Rolled back orphan Task by WKF stem: " + taskUri);
+                }
+            } catch (Exception e) {
+                dataFile.getLogger().println("  Rollback warning: failed to delete stem-matched Task " + taskUri + ": " + e.getMessage());
+            }
         }
     }
 

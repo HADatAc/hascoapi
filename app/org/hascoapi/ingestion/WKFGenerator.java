@@ -19,6 +19,9 @@ public class WKFGenerator extends BaseGenerator {
 
     private static final String LEGACY_PMSR_PROCESS_STEM_URI = "http://pmsr.net/ont/pmsr#MedicalSimulationProcessStem";
     private static final String CANONICAL_PMSR_PROCESS_STEM_URI = "https://pmsr.net/ont/MedicalSimulationProcessStem";
+    private static final String LEGACY_PMSR_BASE = "http://pmsr.net/ont/pmsr#/";
+    private static final String LEGACY_PMSR_BASE_HTTPS = "https://pmsr.net/ont/pmsr#/";
+    private static final String CANONICAL_PMSR_BASE = "https://pmsr.net/ont/";
 
     protected String wkfUri = "";
     protected String hasStatus = "";
@@ -55,7 +58,7 @@ public class WKFGenerator extends BaseGenerator {
             if (!header.trim().isEmpty()) {
                 String value = rec.getValueByColumnName(header);
                 if (value != null && !value.isEmpty()) {
-                    row.put(header, value);
+                    row.put(header, normalizeWkfValue(value));
                 }
             }
         }
@@ -189,15 +192,14 @@ public class WKFGenerator extends BaseGenerator {
         }
 
         if (managerEmail == null || managerEmail.trim().isEmpty()) {
-            String msg = "WKF strict labeling error: DataFile has no manager email; cannot resolve organization for Process " + processUri;
-            this.dataFile.getLogger().printException(msg);
-            throw new Exception(msg);
+            String msg = "WKF labeling fallback: DataFile has no manager email; using fallback organization label for Process " + processUri;
+            this.dataFile.getLogger().printWarning(msg);
         }
 
         if (orgLabel.isEmpty()) {
-            String msg = "WKF strict labeling error: could not resolve organization short-name (schema:alternateName) from manager email '" + managerEmail + "' for Process " + processUri;
-            this.dataFile.getLogger().printException(msg);
-            throw new Exception(msg);
+            String msg = "WKF labeling fallback: could not resolve organization short-name; using fallback organization label for Process " + processUri;
+            this.dataFile.getLogger().printWarning(msg);
+            orgLabel = "Unknown Organization";
         }
 
         return stemLabel + " at " + orgLabel;
@@ -320,10 +322,28 @@ public class WKFGenerator extends BaseGenerator {
 
         value = URIUtils.stripAngleBrackets(value);
         value = URIUtils.replacePrefixEx(value);
+        value = normalizeWkfValue(value);
         if (LEGACY_PMSR_PROCESS_STEM_URI.equals(value)) {
             value = CANONICAL_PMSR_PROCESS_STEM_URI;
         }
         return value == null ? "" : value.trim();
+    }
+
+    /**
+     * Apply canonical WKF replacements globally to incoming cell values.
+     */
+    private String normalizeWkfValue(String raw) {
+        if (raw == null) {
+            return "";
+        }
+
+        String value = raw;
+        value = value.replace(LEGACY_PMSR_BASE, CANONICAL_PMSR_BASE);
+        value = value.replace(LEGACY_PMSR_BASE_HTTPS, CANONICAL_PMSR_BASE);
+        value = value.replace("STD_", "STD-");
+        value = value.replace("WKF_", "WKF-");
+        value = URIUtils.canonicalizePmsrUri(value);
+        return value;
     }
 
     private String resolveProcessStemLabelFromWorkbook(String stemRefUri) {
@@ -413,6 +433,8 @@ public class WKFGenerator extends BaseGenerator {
                 } catch (Exception e) {
                     // If decoding fails, use the original value
                 }
+
+                cleanUri = normalizeWkfValue(cleanUri);
                 
                 if (!cleanUri.isEmpty()) {
                     uris.add(cleanUri);

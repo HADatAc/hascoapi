@@ -179,6 +179,7 @@ public class Utils {
             System.out.println("[ERROR] Utils.uriGen(): no baseURL found for current repository.");
             return null;
         }
+        repoUri = URIUtils.normalizeNamespaceBase(repoUri);
 
         String shortPrefix = Utils.shortPrefix(elementType);
         if (shortPrefix == null) {
@@ -190,7 +191,7 @@ public class Utils {
             repoUri += "/";
         }
 
-        String generatedUri = Utils.uriGen(repoUri, shortPrefix);
+        String generatedUri = URIUtils.canonicalizePmsrUri(Utils.uriGen(repoUri, shortPrefix));
         //System.out.println("Utils.uriGen() generated [" + generatedUri + "]");
 
         return generatedUri;
@@ -212,6 +213,7 @@ public class Utils {
             System.out.println("[ERROR] Utils.uriHashGen(): no baseURL found for current repository.");
             return null;
         }
+        repoUri = URIUtils.normalizeNamespaceBase(repoUri);
 
         String shortPrefix = Utils.shortPrefix(elementType);
         if (shortPrefix == null) {
@@ -256,7 +258,7 @@ public class Utils {
             return null;
         }
 
-        return repoUri + shortPrefix + hexString;
+        return URIUtils.canonicalizePmsrUri(repoUri + shortPrefix + hexString);
 
     }
 
@@ -303,6 +305,8 @@ public class Utils {
             return null;
         }
 
+        repoUri = URIUtils.normalizeNamespaceBase(repoUri);
+
         String finalUri = "";
         if (socReference != null && !socReference.isEmpty()) {
             finalUri = repoUri + ":" + shortPrefix + "_" + socReference.replace("??","") + "_" + identifier;
@@ -311,9 +315,7 @@ public class Utils {
         }
         finalUri = URIUtils.replacePrefixEx(finalUri);
 
-        finalUri = finalUri.replace("#/","#");
-
-        return finalUri;
+        return URIUtils.canonicalizePmsrUri(finalUri);
 
     }
 
