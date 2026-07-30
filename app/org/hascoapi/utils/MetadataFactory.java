@@ -36,8 +36,13 @@ public class MetadataFactory {
 
         ValueFactory factory = SimpleValueFactory.getInstance();
         IRI namedGraph = null;
-        if (!namedGraphUri.isEmpty()) {
-            namedGraph = factory.createIRI(namedGraphUri);
+        if (namedGraphUri != null && !namedGraphUri.isEmpty()) {
+            try {
+                namedGraph = factory.createIRI(namedGraphUri);
+            } catch (Exception e) {
+                System.out.println("[WARNING] Invalid named graph URI, falling back to default graph: [" + namedGraphUri + "]");
+                namedGraph = null;
+            }
         }
 
         int rowIndex = 0;
@@ -48,8 +53,17 @@ public class MetadataFactory {
             } else {
                 String subjectURI = (String)row.get("hasURI");
 
-
-                IRI sub = factory.createIRI(URIUtils.replacePrefixEx(subjectURI));
+                if (!URIUtils.isValidURI(subjectURI)) {
+                    System.out.println("[WARNING] Skipping row " + rowIndex + " due to invalid hasURI: [" + subjectURI + "]");
+                    continue;
+                }
+                IRI sub;
+                try {
+                    sub = factory.createIRI(URIUtils.replacePrefixEx(subjectURI));
+                } catch (Exception e) {
+                    System.out.println("[WARNING] Skipping row " + rowIndex + " due to invalid subject URI after prefix expansion: [" + subjectURI + "]");
+                    continue;
+                }
 
                 int propertyCount = 0;
                 for (String key : row.keySet()) {
@@ -60,9 +74,26 @@ public class MetadataFactory {
 
                     IRI pred = null;
                     if ("a".equals(key)) {
-                        pred = factory.createIRI(URIUtils.replacePrefixEx("rdf:type"));
+                        try {
+                            pred = factory.createIRI(URIUtils.replacePrefixEx("rdf:type"));
+                        } catch (Exception e) {
+                            System.out.println("[WARNING] Skipping invalid rdf:type predicate in row " + rowIndex);
+                            continue;
+                        }
                     } else {
-                        pred = factory.createIRI(URIUtils.replacePrefixEx(key));
+                        String predValue = URIUtils.replacePrefixEx(key);
+                        if (!URIUtils.isValidURI(predValue)) {
+                            // Some legacy INS files may contain non-property headers.
+                            // Skip invalid predicates instead of aborting whole ingestion.
+                            System.out.println("[WARNING] Skipping invalid predicate header in row " + rowIndex + ": [" + key + "]");
+                            continue;
+                        }
+                        try {
+                            pred = factory.createIRI(predValue);
+                        } catch (Exception e) {
+                            System.out.println("[WARNING] Skipping invalid predicate IRI in row " + rowIndex + ": [" + key + "]");
+                            continue;
+                        }
                     }
 
                     // Handle both single values and Lists
@@ -89,7 +120,13 @@ public class MetadataFactory {
                         }
 
                         if (URIUtils.isValidURI(cellValue)) {
-                            IRI obj = factory.createIRI(URIUtils.replacePrefixEx(cellValue));
+                            IRI obj;
+                            try {
+                                obj = factory.createIRI(URIUtils.replacePrefixEx(cellValue));
+                            } catch (Exception e) {
+                                System.out.println("[WARNING] Skipping invalid object IRI in row " + rowIndex + ": [" + cellValue + "]");
+                                continue;
+                            }
                             if (namedGraph == null) {
                                 model.add(sub, pred, obj);
                                 System.out.println("[WARNING] Triple (" + sub + "," + pred + "," + obj + ") is default named graph.");
@@ -112,12 +149,29 @@ public class MetadataFactory {
                 if (property_lists != null && property_lists.size() > 0) {
                     for (Map.Entry<String, List<String>> entry : property_lists.entrySet()) {
                         String predRaw = (String)entry.getKey();
-                        IRI pred = factory.createIRI(URIUtils.replacePrefixEx(predRaw));
+                        String predExpanded = URIUtils.replacePrefixEx(predRaw);
+                        if (!URIUtils.isValidURI(predExpanded)) {
+                            System.out.println("[WARNING] Skipping invalid property-list predicate in row " + rowIndex + ": [" + predRaw + "]");
+                            continue;
+                        }
+                        IRI pred;
+                        try {
+                            pred = factory.createIRI(predExpanded);
+                        } catch (Exception e) {
+                            System.out.println("[WARNING] Skipping malformed property-list predicate IRI in row " + rowIndex + ": [" + predRaw + "]");
+                            continue;
+                        }
                         List<String> list = (List<String>)entry.getValue();
                         if (list != null && list.size() > 0) {
                             for (String objRaw : list) {
                                 if (URIUtils.isValidURI(objRaw)) {
-                                    IRI obj = factory.createIRI(URIUtils.replacePrefixEx(objRaw));
+                                    IRI obj;
+                                    try {
+                                        obj = factory.createIRI(URIUtils.replacePrefixEx(objRaw));
+                                    } catch (Exception e) {
+                                        System.out.println("[WARNING] Skipping malformed property-list object IRI in row " + rowIndex + ": [" + objRaw + "]");
+                                        continue;
+                                    }
                                     if (namedGraph == null) {
                                         model.add(sub, pred, obj);
                                         System.out.println("[WARNING] Triple (" + sub + "," + pred + "," + obj + ") is default named graph.");

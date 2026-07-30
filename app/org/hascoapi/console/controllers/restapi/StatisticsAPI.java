@@ -1,6 +1,5 @@
 package org.hascoapi.console.controllers.restapi;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -20,6 +19,15 @@ import play.mvc.Result;
  * API Controller for statistics queries
  */
 public class StatisticsAPI extends Controller {
+
+    private static final String HASCO_WORKFLOW_STEM_ENTRY_POINT = "http://hadatac.org/ont/hasco/WorkflowStemEntryPoint";
+    private static final String HASCO_ANATOMICAL_PART_ENTRY_POINT = "http://hadatac.org/ont/hasco/AnatomicalPartEntryPoint";
+    private static final String HASCO_MEDICAL_DEVICE_ENTRY_POINT = "http://hadatac.org/ont/hasco/MedicalDeviceEntryPoint";
+    private static final String VSTOI_INSTRUMENT_ROOT = "http://hadatac.org/ont/vstoi#Instrument";
+    private static final String PMSR_PROCESS_STEM_CANONICAL = "https://pmsr.net/ont/MedicalSimulationProcessStem";
+    private static final String PMSR_PROCESS_STEM_LEGACY = "http://pmsr.net/ont/pmsr#MedicalSimulationProcessStem";
+    private static final String UBERON_ANATOMICAL_ENTITY = "http://purl.obolibrary.org/obo/UBERON_0001062";
+    private static final String NCIT_MANUFACTURED_OBJECT = "http://purl.obolibrary.org/obo/NCIT_C97325";
 
     /**
      * Get count of instruments (subclasses of vstoi:Instrument + 1)
@@ -106,82 +114,90 @@ public class StatisticsAPI extends Controller {
     }
 
     /**
-     * Count instruments: number of subclasses of vstoi:Instrument + 1
-     * Fixed to avoid counting vstoi:Instrument multiple times across different graphs
+     * Count simulator models as subclasses of vstoi:Instrument.
      */
     private int countInstruments() {
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 "SELECT (COUNT(DISTINCT ?class) as ?count) WHERE { " +
-                "   ?class rdfs:subClassOf+ vstoi:Instrument . " +  // Changed from * to + to exclude vstoi:Instrument itself
+                "   ?class <http://www.w3.org/2000/01/rdf-schema#subClassOf>* <" + VSTOI_INSTRUMENT_ROOT + "> . " +
+                "   FILTER(isIRI(?class)) " +
                 "} ";
 
-        ResultSetRewindable resultsrw = SPARQLUtils.select(
-                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
-
-        if (resultsrw.hasNext()) {
-            QuerySolution soln = resultsrw.next();
-            int subclasses = soln.getLiteral("count").getInt();
-            // Add 1 to include vstoi:Instrument itself in the count
-            return subclasses + 1;
-        }
-        return 0;
+        return runCountQuery(queryString);
     }
 
     /**
-     * Count clinical procedures from NCIT ontology
-     * Counts classes that are subclasses of pmsr:MedicalSimulationProcessStem
+     * Count clinical procedures as descendants of WorkflowStem entry-point roots.
      */
     private int countClinicalProcedures() {
-        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                "SELECT (COUNT(DISTINCT ?class) as ?count) WHERE { " +
-                "   { " +
-                "     ?class rdfs:subClassOf* <http://pmsr.net/ont/pmsr#MedicalSimulationProcessStem> . " +
-                "   } UNION { " +
-                "     ?class a owl:Class . " +
-                "     ?class rdfs:subClassOf* <http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C18020> . " +
-                "   } " +
-                "} ";
-
-        ResultSetRewindable resultsrw = SPARQLUtils.select(
-                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
-
-        if (resultsrw.hasNext()) {
-            QuerySolution soln = resultsrw.next();
-            return soln.getLiteral("count").getInt();
-        }
-        return 0;
+        return countClassesFromEntryPointOrFallback(
+                HASCO_WORKFLOW_STEM_ENTRY_POINT,
+                PMSR_PROCESS_STEM_CANONICAL,
+                PMSR_PROCESS_STEM_LEGACY
+        );
     }
 
     /**
-     * Count anatomical structures from UBERON ontology
-     * Counts all UBERON classes
+     * Count anatomical structures as descendants of AnatomicalPart entry-point roots.
      */
     private int countAnatomicalStructures() {
-        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
-                "SELECT (COUNT(DISTINCT ?class) as ?count) WHERE { " +
-                "   ?class a owl:Class . " +
-                "   FILTER(STRSTARTS(STR(?class), \"http://purl.obolibrary.org/obo/UBERON_\")) " +
-                "} ";
-
-        ResultSetRewindable resultsrw = SPARQLUtils.select(
-                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
-
-        if (resultsrw.hasNext()) {
-            QuerySolution soln = resultsrw.next();
-            return soln.getLiteral("count").getInt();
-        }
-        return 0;
+        return countClassesFromEntryPointOrFallback(
+                HASCO_ANATOMICAL_PART_ENTRY_POINT,
+                UBERON_ANATOMICAL_ENTITY
+        );
     }
 
     /**
-     * Count medical devices from NCIT ontology
-     * Counts classes that are subclasses of NCIT_C97325 (Manufactured Object)
+     * Count medical devices as descendants of MedicalDevice entry-point roots.
      */
     private int countMedicalDevices() {
+        return countClassesFromEntryPointOrFallback(
+                HASCO_MEDICAL_DEVICE_ENTRY_POINT,
+                NCIT_MANUFACTURED_OBJECT
+        );
+    }
+
+    /**
+     * Count classes reachable through rdfs:subClassOf* from mapped entrypoint roots,
+     * with explicit fallback roots when mappings are absent.
+     */
+    private int countClassesFromEntryPointOrFallback(String entryPointUri, String... fallbackRoots) {
+        if ((entryPointUri == null || entryPointUri.trim().isEmpty())
+                && (fallbackRoots == null || fallbackRoots.length == 0)) {
+            return 0;
+        }
+
+        String ep = entryPointUri == null ? "" : entryPointUri.replace("\"", "\\\"");
+        StringBuilder values = new StringBuilder();
+        if (fallbackRoots != null) {
+            for (String root : fallbackRoots) {
+                if (root != null && !root.trim().isEmpty()) {
+                    values.append("<").append(root.replace("\"", "\\\"")).append("> ");
+                }
+            }
+        }
+
+        String rootPattern =
+                "{ ?root <http://www.w3.org/2000/01/rdf-schema#subClassOf> <" + ep + "> . }";
+
+        if (values.length() > 0) {
+            rootPattern += " UNION { VALUES ?root { " + values.toString() + " } }";
+        }
+
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 "SELECT (COUNT(DISTINCT ?class) as ?count) WHERE { " +
-                "   ?class rdfs:subClassOf* <http://purl.obolibrary.org/obo/NCIT_C97325> . " +
+                "   " + rootPattern + " " +
+                "   ?class <http://www.w3.org/2000/01/rdf-schema#subClassOf>* ?root . " +
+                "   FILTER(isIRI(?class)) " +
                 "} ";
+
+        return runCountQuery(queryString);
+    }
+
+    private int runCountQuery(String queryString) {
+        if (queryString == null || queryString.trim().isEmpty()) {
+            return 0;
+        }
 
         ResultSetRewindable resultsrw = SPARQLUtils.select(
                 CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);

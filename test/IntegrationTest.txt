@@ -71,15 +71,15 @@ public class IntegrationTest {
 
     @Nested
     @Order(104)
-    public class ResetDetectors {
-        // Unit test deleteDetectorsForTesting
+    public class ResetComponents {
+        // Unit test deleteComponentsForTesting
         @Test
-        @DisplayName("Testing 104 reset Detectors")
+        @DisplayName("Testing 104 reset Components")
         public void test104ResetDetestors() {
             final DetectorAPI controller = new DetectorAPI();
             Result result;
-            result = controller.deleteDetectorsForTesting();
-            result = controller.deleteDetectorsForTesting();
+            result = controller.deleteComponentsForTesting();
+            result = controller.deleteComponentsForTesting();
             assertEquals(RESPONSE_NOK_RESET_DETECTORS,contentAsString(result));
         }
     }
@@ -177,14 +177,14 @@ public class IntegrationTest {
 
     @Nested
     @Order(204)
-    public class CreateDetectors {
-        // Unit test createDetectorsForTesting
+    public class CreateComponents {
+        // Unit test createComponentsForTesting
         @Test
-        @DisplayName("Testing 204 create Detectors")
+        @DisplayName("Testing 204 create Components")
         public void test204CreateDetestors() {
             final DetectorAPI controller = new DetectorAPI();
             Result result;
-            result = controller.createDetectorsForTesting();
+            result = controller.createComponentsForTesting();
             assertEquals(RESPONSE_OK_CREATE_DETECTORS,contentAsString(result));
         }
     }
@@ -210,14 +210,14 @@ public class IntegrationTest {
 
     @Nested
     @Order(604)
-    public class DeleteDetectors {
-        // Unit test deleteDetectorsForTesting
+    public class DeleteComponents {
+        // Unit test deleteComponentsForTesting
         @Test
-        @DisplayName("Testing 604 delete Detectors")
+        @DisplayName("Testing 604 delete Components")
         public void test204DeleteDetestors() {
             final DetectorAPI controller = new DetectorAPI();
             Result result;
-            result = controller.deleteDetectorsForTesting();
+            result = controller.deleteComponentsForTesting();
             assertEquals(RESPONSE_OK_DELETE_DETECTORS,contentAsString(result));
         }
     }

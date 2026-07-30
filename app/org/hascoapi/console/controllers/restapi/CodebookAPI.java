@@ -269,7 +269,7 @@ public class CodebookAPI extends Controller {
                         "Test Response Options 1 and 2 have been DETACHED from Test Codebook Slot 1.", true));
             }
         }
-        return ok(ApiUtil.createResponse("The detachment of Test Detectors 1 and 2 from Test Instrument HAS FAILED.",
+        return ok(ApiUtil.createResponse("The detachment of Test Components 1 and 2 from Test Instrument HAS FAILED.",
                 false));
     }
     

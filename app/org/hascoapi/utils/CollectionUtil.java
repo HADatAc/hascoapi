@@ -1,5 +1,8 @@
 package org.hascoapi.utils;
 
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -71,16 +74,88 @@ public class CollectionUtil {
     }
 
     public static String getCollectionPath(Collection collection) {
+        String triplestoreBaseUrl = resolveTriplestoreBaseUrl();
         String collectionName = null;
         switch (collection) {
             case SPARQL_QUERY:
             case SPARQL_UPDATE:
             case SPARQL_GRAPH :
-                collectionName = getConfigCache().get("hascoapi.repository.triplestore") + getCollectionName(collection.get());
+                collectionName = triplestoreBaseUrl + getCollectionName(collection.get());
                 break;
         }
 
         return collectionName;
+    }
+
+    /**
+     * Resolve triplestore base URL with runtime fallback.
+     *
+     * Strategy:
+     * 1) Try configured URL first (typically docker network host, e.g., fuseki)
+     * 2) If unreachable and host is not localhost, retry with localhost
+     */
+    private static String resolveTriplestoreBaseUrl() {
+        String configuredUrl = getConfigCache().get("hascoapi.repository.triplestore");
+        if (configuredUrl == null || configuredUrl.trim().isEmpty()) {
+            return configuredUrl;
+        }
+
+        configuredUrl = configuredUrl.trim();
+
+        if (isEndpointReachable(configuredUrl)) {
+            return configuredUrl;
+        }
+
+        String localhostUrl = replaceHostWithLocalhost(configuredUrl);
+        if (localhostUrl != null && !localhostUrl.equals(configuredUrl) && isEndpointReachable(localhostUrl)) {
+            System.out.println("[CollectionUtil] Triplestore endpoint fallback activated: "
+                    + configuredUrl + " -> " + localhostUrl);
+            getConfigCache().put("hascoapi.repository.triplestore", localhostUrl);
+            return localhostUrl;
+        }
+
+        return configuredUrl;
+    }
+
+    private static boolean isEndpointReachable(String baseUrl) {
+        try {
+            URI uri = URI.create(baseUrl);
+            String host = uri.getHost();
+            int port = uri.getPort();
+
+            if (host == null || port <= 0) {
+                return false;
+            }
+
+            try (Socket socket = new Socket()) {
+                socket.connect(new InetSocketAddress(host, port), 1000);
+                return true;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private static String replaceHostWithLocalhost(String baseUrl) {
+        try {
+            URI uri = URI.create(baseUrl);
+            String host = uri.getHost();
+            if (host == null || "localhost".equalsIgnoreCase(host) || "127.0.0.1".equals(host)) {
+                return baseUrl;
+            }
+
+            URI updated = new URI(
+                    uri.getScheme(),
+                    uri.getUserInfo(),
+                    "localhost",
+                    uri.getPort(),
+                    uri.getPath(),
+                    uri.getQuery(),
+                    uri.getFragment());
+            return updated.toString();
+        } catch (Exception e) {
+            return null;
+        }
     }
 }
 

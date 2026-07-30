@@ -7,6 +7,12 @@ import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.jena.query.QuerySolution;
@@ -23,9 +29,12 @@ import org.hascoapi.utils.ConfigProp;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.SPARQLUtils;
 import org.hascoapi.vocabularies.VSTOI;
+import com.typesafe.config.ConfigFactory;
 
 
 public class IngestionWorker {
+
+    private static final String NS_GENERATION_BLOCKED = "hascoapi.namespace.generation.blocked";
 
     private static class WKFVerificationResult {
         boolean hasProcess;
@@ -68,11 +77,17 @@ public class IngestionWorker {
             recordFile = new SpreadsheetRecordFile(file,dataFile.getFilename(),"InfoSheet");
         } else {
             dataFile.getLogger().printExceptionByIdWithArgs("GBL_00003", fileName);
+            dataFile.setFileStatus(DataFile.ERROR);
+            dataFile.setCompletionTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
+            dataFile.save();
             return;
         }
 
         if (!recordFile.isValid()) {
             dataFile.getLogger().printExceptionById("GBL_00005");
+            dataFile.setFileStatus(DataFile.ERROR);
+            dataFile.setCompletionTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
+            dataFile.save();
             return;
         }
 
@@ -128,13 +143,25 @@ public class IngestionWorker {
 
         boolean bSucceed = false;
 
-        GeneratorChain chain = getGeneratorChain(dataFile, studyUri, templateFile, effectiveStatus);
+        GeneratorChain chain = null;
+        try {
+            chain = getGeneratorChain(dataFile, studyUri, templateFile, effectiveStatus);
+        } catch (Exception e) {
+            dataFile.getLogger().printException("Failed to create generator chain: " + e.getMessage());
+            dataFile.setFileStatus(DataFile.ERROR);
+            dataFile.setCompletionTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
+            dataFile.save();
+            return;
+        }
 
         // If no chain was produced, log and throw exception to fail fast (as requested)
         if (chain == null) {
             String msg = "No generator chain produced. Aborting ingestion.";
-            dataFile.getLogger().println(msg);
-            throw new RuntimeException(msg);
+            dataFile.getLogger().printException(msg);
+            dataFile.setFileStatus(DataFile.ERROR);
+            dataFile.setCompletionTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
+            dataFile.save();
+            return;
         }
 
         // Only set study URI if a chain was produced
@@ -145,7 +172,28 @@ public class IngestionWorker {
         }
 
         try {
-            bSucceed = chain.generate();
+            String normalizedFileName = fileName == null ? "" : fileName.toUpperCase();
+            boolean isLegacyINS = normalizedFileName.startsWith("INS-") || normalizedFileName.contains("/INS-") || normalizedFileName.contains("\\INS-");
+            long timeoutMs = isLegacyINS ? 120000L : 0L;
+
+            if (timeoutMs > 0L) {
+                ExecutorService executor = Executors.newSingleThreadExecutor();
+                try {
+                    Future<Boolean> future = executor.submit((java.util.concurrent.Callable<Boolean>) chain::generate);
+                    bSucceed = future.get(timeoutMs, TimeUnit.MILLISECONDS);
+                } catch (TimeoutException te) {
+                    dataFile.getLogger().printException("INS ingestion exceeded timeout window and will be cancelled.");
+                    dataFile.getLogger().printException("INS ingestion timeout after " + timeoutMs + " ms. Aborting to avoid indefinite hang.");
+                    bSucceed = false;
+                } catch (ExecutionException ee) {
+                    Throwable cause = ee.getCause() == null ? ee : ee.getCause();
+                    throw new RuntimeException(cause.getMessage(), cause);
+                } finally {
+                    executor.shutdownNow();
+                }
+            } else {
+                bSucceed = chain.generate();
+            }
             chain.disposeChain();
         } catch (Exception e) {
             dataFile.getLogger().println("ERROR during ingestion: " + e.getMessage());
@@ -187,6 +235,16 @@ public class IngestionWorker {
                 dataFile.save();
             } catch (Exception e) {
                 dataFile.getLogger().println("ERROR during finalization: " + e.getMessage());
+                e.printStackTrace();
+            }
+
+        } else {
+            try {
+                dataFile.setFileStatus(DataFile.ERROR);
+                dataFile.setCompletionTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
+                dataFile.save();
+            } catch (Exception e) {
+                dataFile.getLogger().println("ERROR while setting failed ingestion status: " + e.getMessage());
                 e.printStackTrace();
             }
 
@@ -809,6 +867,21 @@ public class IngestionWorker {
      *========================================================================*/
 
     public static boolean nameSpaceGen(DataFile dataFile, Map<String, String> mapCatalog, String templateFile) {
+        boolean blocked = true;
+        try {
+            if (ConfigFactory.load().hasPath(NS_GENERATION_BLOCKED)) {
+                blocked = ConfigFactory.load().getBoolean(NS_GENERATION_BLOCKED);
+            }
+        } catch (Exception e) {
+            blocked = true;
+        }
+
+        if (blocked) {
+            dataFile.getLogger().println("Namespace generation is blocked by configuration (" + NS_GENERATION_BLOCKED + "=true).");
+            dataFile.getLogger().println("Only RepoPage.ingestNamespaceOntology is allowed to mutate namespace table at this time.");
+            return true;
+        }
+
         RecordFile nameSpaceRecordFile = null;
         
         // hasDependencies is a FIELD in InfoSheet, not a sheet name.

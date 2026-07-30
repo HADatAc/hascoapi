@@ -255,6 +255,8 @@ public class GenericFind<T> {
             return URIUtils.replaceNameSpace(SCHEMA.PROJECT);
         } else if (clazz == Task.class) {
             return URIUtils.replaceNameSpace(VSTOI.TASK);
+        } else if (clazz == Unit.class) {
+            return URIUtils.replaceNameSpace(SIO.UNIT);
         } else if (clazz == WKF.class) {
             return URIUtils.replaceNameSpace(HASCO.WKF);
         }

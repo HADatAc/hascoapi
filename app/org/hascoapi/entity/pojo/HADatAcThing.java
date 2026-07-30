@@ -678,14 +678,12 @@ public abstract class HADatAcThing {
 
         query += NameSpaces.getInstance().printSparqlNameSpaceList();
         //System.out.println("Deleting query namespaces [" + query + "]");
+        String subjectExpr = getUri().startsWith("http") ? "<" + getUri() + ">" : getUri();
+
         if ( this.getNamedGraph() != null && this.getNamedGraph().length() > 0 ) {
             query += "DELETE WHERE { \n" + " " +
                     "    GRAPH <" + this.getNamedGraph() + "> { \n";
-            if (getUri().startsWith("http")) {
-                query += "<" + this.getUri() + ">";
-            } else {
-                query += this.getUri();
-            }
+            query += subjectExpr;
             query += " ?p ?o . } \n";
             query += " } ";
             
@@ -705,11 +703,7 @@ public abstract class HADatAcThing {
             String query1 = query + " DELETE WHERE { \n " +
                    "    GRAPH <" + this.getNamedGraph() + "> " + 
                    " { \n";
-            if (getUri().startsWith("http")) {
-                query1 += "<" + this.getUri() + ">";
-            } else {
-                query1 += this.getUri();
-            }
+            query1 += subjectExpr;
             query1 += " ?p ?o . } \n";
             query1 += " } ";
             
@@ -748,6 +742,16 @@ public abstract class HADatAcThing {
              */
 
         }
+
+        // Defensive cleanup: remove any remaining subject triples regardless of graph.
+        String queryAllGraphs = NameSpaces.getInstance().printSparqlNameSpaceList() +
+            "DELETE WHERE { GRAPH ?g { " + subjectExpr + " ?p ?o . } }";
+        updateTripleStore(queryAllGraphs);
+
+        // Also clean default graph triples for the same subject.
+        String queryDefaultGraph = NameSpaces.getInstance().printSparqlNameSpaceList() +
+            "DELETE WHERE { " + subjectExpr + " ?p ?o . }";
+        updateTripleStore(queryDefaultGraph);
 
         //System.out.println("Deleted <" + getUri() + "> from triple store");
     }

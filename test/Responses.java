@@ -26,11 +26,11 @@ public class Responses {
     public static final String RESPONSE_OK_CREATE_INSTRUMENT  
         = "{\"isSuccessful\":true,\"body\":\"Instrument <http://hadatac.org/kb/test/TestInstrument> has been CREATED.\"}";
     public static final String RESPONSE_OK_CREATE_DETECTOR_STEMS  
-        = "{\"isSuccessful\":true,\"body\":\"Test Detector Stems 1 and 2 have been CREATED.\"}";
+        = "{\"isSuccessful\":true,\"body\":\"Test Component Stems 1 and 2 have been CREATED.\"}";
     public static final String RESPONSE_OK_CREATE_DETECTOr_SLOTS 
         = "{\"isSuccessful\":true,\"body\":\"A total of 2 containerSlots have been created for instrument <http://hadatac.org/kb/test/TestInstrument>.\"}";
     public static final String RESPONSE_OK_CREATE_DETECTORS 
-        = "{\"isSuccessful\":true,\"body\":\"Test Detectors 1 and 2 have been CREATED.\"}";
+        = "{\"isSuccessful\":true,\"body\":\"Test Components 1 and 2 have been CREATED.\"}";
 
 
     /** 
@@ -39,10 +39,10 @@ public class Responses {
     public static final String RESPONSE_OK_DELETE_INSTRUMENT  
         = "{\"isSuccessful\":true,\"body\":\"Instrument <http://hadatac.org/kb/test/TestInstrument> has been DELETED.\"}";
     public static final String RESPONSE_OK_DELETE_DETECTOR_STEMS  
-        = "{\"isSuccessful\":true,\"body\":\"Test Detector Stems 1 and 2 have been DELETED.\"}";
+        = "{\"isSuccessful\":true,\"body\":\"Test Component Stems 1 and 2 have been DELETED.\"}";
     public static final String RESPONSE_OK_DELETE_CONTAINER_SLOTS 
         = "{\"isSuccessful\":true,\"body\":\"ContainerSlots for Instrument <http://hadatac.org/kb/test/TestInstrument> have been deleted.\"}";
     public static final String RESPONSE_OK_DELETE_DETECTORS  
-        = "{\"isSuccessful\":true,\"body\":\"Test Detectors 1 and 2 have been DELETED.\"}";
+        = "{\"isSuccessful\":true,\"body\":\"Test Components 1 and 2 have been DELETED.\"}";
 
 }

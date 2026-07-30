@@ -265,8 +265,11 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
 			return null;
 		}
 		NameSpace ns = null;
-		// Construct the SELECT query to retrieve named graphs
-		String queryString = "SELECT DISTINCT ?graph ?p ?o WHERE { GRAPH ?graph { <" + uri + "> ?p ?o } }";
+        // Namespace metadata is persisted in the repository metadata graph only.
+        // Do not read ontology content graphs, otherwise labels can be derived from
+        // ontology rdfs:label values (e.g., PMSR_Ontology_v0_5) instead of the
+        // user-provided namespace abbreviation (e.g., pmsr).
+        String queryString = "SELECT DISTINCT ?p ?o WHERE { GRAPH <" + Constants.DEFAULT_REPOSITORY + "> { <" + uri + "> ?p ?o } }";
 		ResultSet resultSet = SPARQLUtils.select(CollectionUtil.getCollectionPath(
         	CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
@@ -283,12 +286,6 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
 		// Iterate over results
 		while (resultSet.hasNext()) {
 			QuerySolution qs = resultSet.next();
-			
-			// Retrieve the named graph URI
-			if (qs.contains("graph")) {
-				ns.setNamedGraph(qs.get("graph").toString());
-				//System.out.println("Graph: " + graphURI);
-			}
 			
 			// Retrieve predicate and object (optional)
 			if (qs.contains("p") && qs.contains("o")) {
@@ -345,14 +342,15 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
         ns.setNumberOfLoadedTriples();
 
         ns.setUri(uri);
+        ns.setNamedGraph(uri);
 		
 		return ns;
 	}
 
     public static List<NameSpace> find() {
         String query =
-            " SELECT ?uri ?graph WHERE { " +
-            "    GRAPH ?graph {  " +
+            " SELECT ?uri WHERE { " +
+            "    GRAPH <" + Constants.DEFAULT_REPOSITORY + "> {  " +
             "       ?uri  <" + HASCO.HASCO_TYPE + ">  <" + HASCO.ONTOLOGY + "> . " +
             "    } " +
             "} ";
@@ -368,10 +366,10 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
         while (resultsrw.hasNext()) {
             QuerySolution soln = resultsrw.next();
             String uri = soln.getResource("uri").getURI();
-            String graph = soln.getResource("graph").getURI();
             NameSpace ns = NameSpace.find(uri);
-            ns.setNamedGraph(graph);
-            nss.add(ns);
+            if (ns != null) {
+                nss.add(ns);
+            }
         }
 
         java.util.Collections.sort((List<NameSpace>) nss);
@@ -524,10 +522,16 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
     public void save() {
         // permanent name spaces are not saved into the triple store
         if (!this.permanent) {
-            // namespaces are always stored into the named graph called DEFAULT_REPOSITORY 
+            // Namespace metadata triples are stored in repository metadata graph,
+            // but keep the in-memory namedGraph as the ontology data graph.
+            String originalNamedGraph = this.getNamedGraph();
+            if (originalNamedGraph == null || originalNamedGraph.isEmpty()) {
+                originalNamedGraph = this.getUri();
+            }
             this.setNamedGraph(Constants.DEFAULT_REPOSITORY);
             System.out.println("   URI = [" + this.getUri() + "]");
             saveToTripleStore(false);
+            this.setNamedGraph(originalNamedGraph);
         }
      }
 
@@ -536,10 +540,16 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
      public void delete() {
          // permanent name spaces cannot be deleted from triple store because they are not store into the triple store
          if (!this.permanent) {
-             // namespaces are always stored into the named graph called DEFAULT_REPOSITORY 
+             // Delete namespace metadata from repository graph without changing
+             // the in-memory ontology data graph reference.
+             String originalNamedGraph = this.getNamedGraph();
+             if (originalNamedGraph == null || originalNamedGraph.isEmpty()) {
+                 originalNamedGraph = this.getUri();
+             }
              this.setNamedGraph(Constants.DEFAULT_REPOSITORY);
              System.out.println("   URI = [" + this.getUri() + "]");
              deleteFromTripleStore();
+             this.setNamedGraph(originalNamedGraph);
          }
      } 
 

@@ -13,14 +13,14 @@ import static test.Responses.*;
 
 @TestClassOrder(ClassOrderer.OrderAnnotation.class)
 @Order(004)
-public class ResetDetectors {
+public class ResetComponents {
 
-    // Unit test deleteDetectorsForTesting
+    // Unit test deleteComponentsForTesting
     @Test
     public void test004ResetDetestors() {
-		System.out.println("Testing 004 reset Detectors");
+		System.out.println("Testing 004 reset Components");
         final DetectorAPI controller = new DetectorAPI();
-        Result result = controller.deleteDetectorsForTesting();
+        Result result = controller.deleteComponentsForTesting();
         assertEquals(RESPONSE_NOK_RESET_DETECTORS,contentAsString(result));
     }
 

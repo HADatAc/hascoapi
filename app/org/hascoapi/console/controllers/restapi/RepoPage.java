@@ -33,15 +33,178 @@ import play.mvc.BodyParser;
 import com.typesafe.config.ConfigFactory;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 public class RepoPage extends Controller {
+
+    private static final String NS_APPROVAL_REQUIRED = "hascoapi.namespace.approval.required";
+    private static final String NS_APPROVAL_TOKEN = "hascoapi.namespace.approval.token";
+    private static final String NS_APPROVAL_HEADER = "X-Namespace-Approval";
+    private static final String NS_CHANGE_ID_HEADER = "X-Change-Id";
+    private static final String NS_COMPONENT_HEADER = "X-Namespace-Component";
+    private static final Set<String> ALLOWED_NS_COMPONENTS = new HashSet<>(Arrays.asList(
+        "pmsr-config-bootstrap",
+        "pmsr-ingest-ontologies"
+    ));
+
+    /**
+     * Blocks namespace mutations unless an explicit approval token is provided.
+     * Returns null when approved, otherwise a Result explaining the block.
+     */
+    private Result requireNamespaceApproval(String action, Http.Request req) {
+        boolean required = true;
+        try {
+            if (ConfigFactory.load().hasPath(NS_APPROVAL_REQUIRED)) {
+                required = ConfigFactory.load().getBoolean(NS_APPROVAL_REQUIRED);
+            }
+        } catch (Exception e) {
+            required = true;
+        }
+
+        if (!required) {
+            return null;
+        }
+
+        String expectedToken = "";
+        try {
+            if (ConfigFactory.load().hasPath(NS_APPROVAL_TOKEN)) {
+                expectedToken = ConfigFactory.load().getString(NS_APPROVAL_TOKEN);
+            }
+        } catch (Exception e) {
+            expectedToken = "";
+        }
+
+        if (expectedToken == null || expectedToken.trim().isEmpty()) {
+            System.err.println("[SECURITY] Namespace mutation blocked: approval token is not configured. action=" + action);
+            return forbidden(ApiUtil.createResponse(
+                "Namespace mutation blocked: approval token is not configured.", false
+            ));
+        }
+
+        String providedToken = req.getHeaders().get(NS_APPROVAL_HEADER).orElse("");
+        String changeId = req.getHeaders().get(NS_CHANGE_ID_HEADER).orElse("");
+
+        if (providedToken.trim().isEmpty() || changeId.trim().isEmpty()) {
+            System.err.println("[SECURITY] Namespace mutation blocked: missing approval headers. action=" + action);
+            return forbidden(ApiUtil.createResponse(
+                "Namespace mutation blocked: missing required approval headers ("
+                    + NS_APPROVAL_HEADER + ", " + NS_CHANGE_ID_HEADER + ").",
+                false
+            ));
+        }
+
+        if (!secureEquals(expectedToken, providedToken)) {
+            System.err.println("[SECURITY] Namespace mutation blocked: invalid approval token. action=" + action + ", changeId=" + changeId);
+            return forbidden(ApiUtil.createResponse(
+                "Namespace mutation blocked: invalid approval token.", false
+            ));
+        }
+
+        String component = req.getHeaders().get(NS_COMPONENT_HEADER).orElse("").trim().toLowerCase();
+        if (component.isEmpty() || !ALLOWED_NS_COMPONENTS.contains(component)) {
+            System.err.println("[SECURITY] Namespace mutation blocked: unauthorized component. action="
+                + action + ", component=" + component + ", changeId=" + changeId);
+            return forbidden(ApiUtil.createResponse(
+                "Namespace mutation blocked: unauthorized component. Allowed components are pmsr-config-bootstrap and pmsr-ingest-ontologies.",
+                false
+            ));
+        }
+
+        return null;
+    }
+
+    private boolean secureEquals(String a, String b) {
+        byte[] left = a.getBytes(StandardCharsets.UTF_8);
+        byte[] right = b.getBytes(StandardCharsets.UTF_8);
+        return MessageDigest.isEqual(left, right);
+    }
+
+    private void auditNamespaceMutation(String action, Http.Request req, String details) {
+        String changeId = req.getHeaders().get(NS_CHANGE_ID_HEADER).orElse("-");
+        String component = req.getHeaders().get(NS_COMPONENT_HEADER).orElse("-");
+        System.out.println("[AUDIT] namespaceMutation action=" + action
+            + " component=" + component + " changeId=" + changeId + " details=" + details);
+    }
+
+    private String validateNamespaceLabel(String label) {
+        if (label == null || label.trim().isEmpty()) {
+            return "label is required";
+        }
+        String normalized = label.trim().toLowerCase(Locale.ROOT);
+        if (!normalized.matches("[a-z][a-z0-9-]*")) {
+            return "label must match [a-z][a-z0-9-]*";
+        }
+        if (normalized.startsWith("ns_http___")) {
+            return "label pattern ns_http___* is blocked by policy";
+        }
+        return null;
+    }
+
+    private String validateNamespaceUri(String uri) {
+        if (uri == null || uri.trim().isEmpty()) {
+            return "uri is required";
+        }
+        String normalized = URIUtils.normalizeNamespaceBase(uri.trim());
+        if (!(normalized.startsWith("http://") || normalized.startsWith("https://"))) {
+            return "uri must start with http:// or https://";
+        }
+        if (!(normalized.endsWith("/") || normalized.endsWith("#") || normalized.endsWith("_"))) {
+            return "uri must end with '/', '#', or '_'";
+        }
+        return null;
+    }
+
+    private String validateNamespacePair(String label, String uri, String currentLabel) {
+        String labelError = validateNamespaceLabel(label);
+        if (labelError != null) {
+            return labelError;
+        }
+        String uriError = validateNamespaceUri(uri);
+        if (uriError != null) {
+            return uriError;
+        }
+
+        String normalizedLabel = label.trim().toLowerCase(Locale.ROOT);
+        String normalizedUri = URIUtils.normalizeNamespaceBase(uri.trim());
+
+        NameSpace sameLabel = NameSpaces.getInstance().getNamespaces().get(normalizedLabel);
+        if (sameLabel != null && (currentLabel == null || !sameLabel.getLabel().equals(currentLabel))) {
+            return "label already exists";
+        }
+
+        NameSpace sameUri = NameSpaces.getInstance().getNamespacesByUri().get(normalizedUri);
+        if (sameUri != null && (currentLabel == null || !sameUri.getLabel().equals(currentLabel))) {
+            return "uri already exists for label '" + sameUri.getLabel() + "'";
+        }
+
+        return null;
+    }
+
+    private Result blockNamespaceMutation(String action) {
+        System.err.println("[SECURITY] Namespace mutation endpoint is disabled. action=" + action);
+        return forbidden(ApiUtil.createResponse(
+            "Namespace mutation is disabled for this endpoint. Only ingestNamespaceOntology is currently allowed.", false
+        ));
+    }
+
+    private Result blockOntologyMutation(String action) {
+        System.err.println("[SECURITY] Ontology mutation endpoint is disabled. action=" + action);
+        return forbidden(ApiUtil.createResponse(
+            "Ontology mutation is disabled for this endpoint. Manage Ontologies is read-only.", false
+        ));
+    }
 
     public Result getRepository() {
         ObjectMapper mapper = new ObjectMapper();
@@ -94,107 +257,158 @@ public class RepoPage extends Controller {
         return ok(ApiUtil.createResponse("Repository's (description) has been UPDATED.", true));
     }
 
-    public Result updateDefaultNamespace(String prefix, String url, String sourceMime, String source) {
-        if (sourceMime.equals("_")) { 
-            sourceMime = "";
+    public Result updateDefaultNamespace(Http.Request request, String prefix, String url, String sourceMime, String source) {
+        Result approval = requireNamespaceApproval("updateDefaultNamespace", request);
+        if (approval != null) {
+            return approval;
         }
-        if (source.equals("_")) { 
-            source = "";
+
+        if (prefix == null || prefix.trim().isEmpty() || url == null || url.trim().isEmpty()) {
+            return badRequest(ApiUtil.createResponse(
+                "Default namespace update blocked: prefix and url are required.", false
+            ));
         }
-        //System.out.println("updateDefaultNamespace:");
-        //System.out.println("    - Namespace prefix: [" + prefix + "]");
-        //System.out.println("    - Namespace url: [" + url + "]");
-        //System.out.println("    - Namespace mime: [" + sourceMime + "]");
-        //System.out.println("    - Namespace source: [" + source + "]");
-        if (prefix == null || prefix.equals("")) {
-            return ok(ApiUtil.createResponse("No (prefix) has been provided.", false));
-        }
-        if (url == null || url.equals("")) {
-            return ok(ApiUtil.createResponse("No (url) has been provided.", false));
-        }
-        if (sourceMime == null) {
-            sourceMime = "";
-        }
-        if (source == null) {
-            source = "";
-        }
+
+        String safeMime = (sourceMime == null || "_".equals(sourceMime)) ? "" : sourceMime;
+        String safeSource = (source == null || "_".equals(source)) ? "" : source;
+
         RepositoryInstance.getInstance().setHasDefaultNamespacePrefix(prefix);
-        System.out.println("RepoPage: default namespace prefix is [" + prefix + "]");
         RepositoryInstance.getInstance().setHasDefaultNamespaceURL(url);
-        RepositoryInstance.getInstance().setHasDefaultNamespaceSourceMime(sourceMime);
-        RepositoryInstance.getInstance().setHasDefaultNamespaceSource(source);
+        RepositoryInstance.getInstance().setHasDefaultNamespaceSourceMime(safeMime);
+        RepositoryInstance.getInstance().setHasDefaultNamespaceSource(safeSource);
         RepositoryInstance.getInstance().save();
-        NameSpaces.getInstance().updateLocalNamespace();
-        return ok(ApiUtil.createResponse("Repository's local namespace has been UPDATED.", true));
+
+        return ok(ApiUtil.createResponse("Repository default namespace has been UPDATED.", true));
     }
 
-    public Result updateNamespace(String abbreviation, String url){
-        if (abbreviation == null || abbreviation.equals("")) {
-            return ok(ApiUtil.createResponse("No (abbreviation) has been provided.", false));
+    public Result updateNamespace(Http.Request request, String abbreviation, String url){
+        Result approval = requireNamespaceApproval("updateNamespace", request);
+        if (approval != null) {
+            return approval;
         }
-        if (url == null || url.equals("")) {
-            return ok(ApiUtil.createResponse("No (url) has been provided.", false));
+
+        if (abbreviation == null || abbreviation.trim().isEmpty() || url == null || url.trim().isEmpty()) {
+            return badRequest(ApiUtil.createResponse("Namespace update blocked: abbreviation and url are required.", false));
         }
-        RepositoryInstance.getInstance().setHasNamespaceAbbreviation(abbreviation);
-        RepositoryInstance.getInstance().setHasNamespaceURL(url);
-        RepositoryInstance.getInstance().save();
-        NameSpaces.getInstance().resetNameSpaces();;
-        return ok(ApiUtil.createResponse("Repository's local namespace has been UPDATED.", true));
+
+        NameSpace ns = NameSpaces.getInstance().getNamespaces().get(abbreviation);
+        if (ns == null) {
+            return badRequest(ApiUtil.createResponse("Could not find namespace with abbreviation [" + abbreviation + "]", false));
+        }
+
+        String pairError = validateNamespacePair(ns.getLabel(), url, ns.getLabel());
+        if (pairError != null) {
+            return badRequest(ApiUtil.createResponse("Namespace update blocked: " + pairError + ".", false));
+        }
+
+        String oldUri = ns.getUri();
+
+        ns.setUri(url);
+        ns.setNamedGraph(url);
+        ns.save();
+        NameSpaces.getInstance().resetNameSpaces();
+        auditNamespaceMutation("updateNamespace", request,
+            "label=" + ns.getLabel() + " oldUri=" + oldUri + " newUri=" + ns.getUri());
+        return ok(ApiUtil.createResponse("Namespace [" + abbreviation + "] has been UPDATED.", true));
     }
 
-    public Result createNamespace(String json){
-        if (json == null || json.equals("")) {
-            return ok(ApiUtil.createResponse("No JSON has been provided.", false));
+    public Result createNamespace(Http.Request request, String json){
+        Result approval = requireNamespaceApproval("createNamespace", request);
+        if (approval != null) {
+            return approval;
         }
-        if (RepositoryInstance.getInstance().newNamespace(json)) {
-            RepositoryInstance.getInstance().save();
-            //NameSpaces.getInstance().resetNameSpaces();
-            return ok(ApiUtil.createResponse("New namespace has been added to the repository.", true));
-        } else {
-            return ok(ApiUtil.createResponse("Failed to add new namespace into the repository.", false));
+
+        if (json == null || json.trim().isEmpty()) {
+            return badRequest(ApiUtil.createResponse("No namespace JSON payload has been provided.", false));
+        }
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode node = mapper.readTree(json);
+
+            String label = node.hasNonNull("label") ? node.get("label").asText() : "";
+            String uri = node.hasNonNull("uri") ? node.get("uri").asText() : "";
+            String source = node.hasNonNull("source") ? node.get("source").asText() : "";
+            String sourceMime = node.hasNonNull("sourceMime") ? node.get("sourceMime").asText() : "";
+
+            label = label.trim().toLowerCase(Locale.ROOT);
+            uri = URIUtils.normalizeNamespaceBase(uri.trim());
+
+            if (label.trim().isEmpty() || uri.trim().isEmpty()) {
+                return badRequest(ApiUtil.createResponse("Namespace creation blocked: label and uri are required.", false));
+            }
+
+            String pairError = validateNamespacePair(label, uri, null);
+            if (pairError != null) {
+                return badRequest(ApiUtil.createResponse("Namespace creation blocked: " + pairError + ".", false));
+            }
+
+            if (NameSpaces.getInstance().getNamespaces().containsKey(label)) {
+                return badRequest(ApiUtil.createResponse("Namespace [" + label + "] already exists.", false));
+            }
+
+            NameSpace ns = new NameSpace();
+            ns.setLabel(label);
+            ns.setUri(uri);
+            ns.setNamedGraph(uri);
+            ns.setTypeUri(HASCO.ONTOLOGY);
+            ns.setHascoTypeUri(HASCO.ONTOLOGY);
+            ns.setSource(source);
+            ns.setSourceMime(sourceMime);
+            ns.setPriority(100);
+            ns.setPermanent(false);
+
+            NameSpaces.getInstance().addNamespace(ns);
+            ns.save();
+            NameSpaces.getInstance().resetNameSpaces();
+            auditNamespaceMutation("createNamespace", request,
+                "label=" + label + " uri=" + uri + " sourceMime=" + sourceMime);
+            return ok(ApiUtil.createResponse("Namespace [" + label + "] has been CREATED.", true));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return badRequest(ApiUtil.createResponse("Failed to create namespace: " + e.getMessage(), false));
         }
     }
 
-    public Result resetNamespaces(){
-        if (RepositoryInstance.getInstance().resetNamespaces()) {
-            NameSpaces.getInstance().resetNameSpaces();;
-            return ok(ApiUtil.createResponse("Namespaces have been reset.", true));
-        } else {
-            return ok(ApiUtil.createResponse("Failed to reset namespaces.", false));
+    public Result resetNamespaces(Http.Request request){
+        Result approval = requireNamespaceApproval("resetNamespaces", request);
+        if (approval != null) {
+            return approval;
         }
+        NameSpaces.getInstance().resetNameSpaces();
+        auditNamespaceMutation("resetNamespaces", request, "cacheReset=true");
+        return ok(ApiUtil.createResponse("Namespace cache has been RESET.", true));
     }
 
-    public Result deleteSelectedNamespace(String abbreviation){
-        if (abbreviation == null || abbreviation.equals("")) {
-            return ok(ApiUtil.createResponse("No Namespace's ABBREVIATION has been provided.", false));
+    public Result deleteSelectedNamespace(Http.Request request, String abbreviation){
+        Result approval = requireNamespaceApproval("deleteSelectedNamespace", request);
+        if (approval != null) {
+            return approval;
         }
+
+        if (abbreviation == null || abbreviation.trim().isEmpty()) {
+            return badRequest(ApiUtil.createResponse("No namespace abbreviation has been provided.", false));
+        }
+
         String response = NameSpace.deleteNamespace(abbreviation);
-        NameSpaces.getInstance().resetNameSpaces();;
-        if (response.isEmpty()) {
-            return ok(ApiUtil.createResponse("Namespace [" + abbreviation + "] has been DELETED.", true));
-        } else {
-            return ok(ApiUtil.createResponse("Namespace [" + abbreviation + "] has NOT been DELETED. Reason: " + response, false));
+        if (!response.isEmpty()) {
+            return badRequest(ApiUtil.createResponse(response, false));
         }
+        NameSpaces.getInstance().resetNameSpaces();
+        auditNamespaceMutation("deleteSelectedNamespace", request, "label=" + abbreviation);
+        return ok(ApiUtil.createResponse("Namespace [" + abbreviation + "] has been DELETED.", true));
     }
 
-    public Result deleteNamespace(){
-        String prefix = RepositoryInstance.getInstance().getHasDefaultNamespacePrefix();
-        String url = RepositoryInstance.getInstance().getHasDefaultNamespaceURL();
-        String mime = RepositoryInstance.getInstance().getHasDefaultNamespaceSourceMime();
-        String source = RepositoryInstance.getInstance().getHasDefaultNamespaceSource();
-        if (prefix == null || prefix.equals("") || 
-            url == null    || url.equals("") ||
-            mime == null   || mime.equals("") ||
-            source == null || source.equals("")) {
-            return ok(ApiUtil.createResponse("There is no default namespace to be deleted.", false));
+    public Result deleteNamespace(Http.Request request){
+        Result approval = requireNamespaceApproval("deleteNamespace", request);
+        if (approval != null) {
+            return approval;
         }
-        RepositoryInstance.getInstance().setHasDefaultNamespacePrefix("");
-        RepositoryInstance.getInstance().setHasDefaultNamespaceURL("");
-        RepositoryInstance.getInstance().setHasDefaultNamespaceSourceMime("");
-        RepositoryInstance.getInstance().setHasDefaultNamespaceSource("");
-        RepositoryInstance.getInstance().save();
-        NameSpaces.getInstance().deleteLocalNamespace();
-        return ok(ApiUtil.createResponse("Repository's local namespace has been DELETED.", true));
+
+        NameSpace.deleteAll();
+        NameSpaces.getInstance().resetNameSpaces();
+        auditNamespaceMutation("deleteNamespace", request, "scope=all");
+        return ok(ApiUtil.createResponse("Namespace table delete has been requested.", true));
     }
 
     private Long manageTriples(String oper, String kb) {
@@ -206,51 +420,7 @@ public class RepoPage extends Controller {
      * Handles application ontology upload, save permanently, delete old triples, and ingest new ones.
      */
     public Result ingestAppOntology(Http.Request request) {
-        File tempFile = request.body().asRaw().asFile();
-        if (tempFile == null) {
-            return ok(ApiUtil.createResponse(
-                "[ERROR] RepoPage.ingestAppOntology(): No file has been provided for ingestion.", false
-            ));
-        }
-
-        String basePath = ConfigProp.getPathAppOntology();
-        if (basePath == null || basePath.trim().isEmpty()) {
-            System.err.println("[ERROR] RepoPage.ingestAppOntology(): Invalid file storage path from ConfigProp.getPathAppOntology()");
-            return internalServerError(ApiUtil.createResponse(
-                "[ERROR] RepoPage.ingestAppOntology(): Invalid file storage path.", false
-            ));
-        }
-
-        String filename = tempFile.getName();
-        Path permanentPath = Paths.get(basePath, filename);
-
-        // Run asynchronously to avoid blocking the HTTP thread
-        CompletableFuture.runAsync(() -> {
-            try {
-                // Save file permanently
-                DataFileAPI.saveFile(tempFile, permanentPath);
-
-                NameSpace appOntology = NameSpaces.getInstance().getAppOntology();
-                appOntology.setSourceMime("text/turtle");
-
-                System.out.println("ingestAppOntology: filename=[" + permanentPath + "]");
-                System.out.println("ingestAppOntology: appOntologyURI=[" + appOntology.getUri() + "]");
-
-                // Remove triples from the same named graph
-                appOntology.deleteTriples();
-
-                // Load triples from the newly saved local file
-                appOntology.loadTriples(permanentPath.toString(), false);
-
-                System.out.println("[INFO] Ontology ingestion complete for file: " + permanentPath);
-
-            } catch (Exception e) {
-                System.err.println("[ERROR] Failed during ontology ingestion: " + e.getMessage());
-                e.printStackTrace();
-            }
-        });
-
-        return ok(ApiUtil.createResponse("Ontology upload and ingestion in progress.", true));
+        return blockOntologyMutation("ingestAppOntology");
     }
 
     /**
@@ -266,6 +436,12 @@ public class RepoPage extends Controller {
      */
     @BodyParser.Of(BodyParser.Raw.class)
     public Result ingestNamespaceOntology(Http.Request request, String abbreviation, String namespaceUri) {
+        Result approval = requireNamespaceApproval("ingestNamespaceOntology", request);
+        if (approval != null) {
+            return approval;
+        }
+        final String auditChangeId = request.getHeaders().get(NS_CHANGE_ID_HEADER).orElse("-");
+        final String auditComponent = request.getHeaders().get(NS_COMPONENT_HEADER).orElse("-");
         File tempFile = request.body().asRaw().asFile();
         if (tempFile == null) {
             return ok(ApiUtil.createResponse(
@@ -273,9 +449,18 @@ public class RepoPage extends Controller {
             ));
         }
 
-        // Decode the namespace URI and abbreviation
-        final String decodedUri = java.net.URLDecoder.decode(namespaceUri, java.nio.charset.StandardCharsets.UTF_8);
-        final String decodedAbbrev = java.net.URLDecoder.decode(abbreviation, java.nio.charset.StandardCharsets.UTF_8);
+        // Decode and normalize namespace URI.
+        final String decodedUri = URIUtils.normalizeNamespaceBase(
+            java.net.URLDecoder.decode(namespaceUri, java.nio.charset.StandardCharsets.UTF_8)
+        );
+        final String decodedAbbrev = java.net.URLDecoder.decode(abbreviation, java.nio.charset.StandardCharsets.UTF_8).trim().toLowerCase(Locale.ROOT);
+
+        String pairError = validateNamespacePair(decodedAbbrev, decodedUri, decodedAbbrev);
+        if (pairError != null && !pairError.equals("label already exists")) {
+            return badRequest(ApiUtil.createResponse(
+                "Namespace ontology ingestion blocked: " + pairError + ".", false
+            ));
+        }
         System.out.println("ingestNamespaceOntology: abbreviation=[" + decodedAbbrev + "], namespaceUri=[" + decodedUri + "]");
         System.out.println("ingestNamespaceOntology: File size: " + tempFile.length() + " bytes");
         
@@ -310,53 +495,48 @@ public class RepoPage extends Controller {
             ));
         }
         
-        // Create file:// URI from working file path for named graph and source
+        // Create file:// URI for local source tracking.
         final String fileUri = workingFile.toURI().toString();
         System.out.println("ingestNamespaceOntology: Working file path: " + workingFile.getAbsolutePath());
-        System.out.println("ingestNamespaceOntology: File URI (named graph & source): " + fileUri);
+        System.out.println("ingestNamespaceOntology: File URI (source): " + fileUri);
+        System.out.println("ingestNamespaceOntology: Target named graph: " + decodedUri);
         
         final File fileToIngest = workingFile;
         
         // Find or auto-register the namespace
         final NameSpace namespace;
-        NameSpace existingByUri = NameSpaces.getInstance().getNamespacesByUri().get(decodedUri);
         NameSpace existingByLabel = NameSpaces.getInstance().getNamespaces().get(decodedAbbrev);
+        NameSpace existingByUri = NameSpaces.getInstance().getNamespacesByUri().get(decodedUri);
         
-        if (existingByUri != null) {
-            // Found namespace by URI - verify abbreviation matches
-            if (!existingByUri.getLabel().equals(decodedAbbrev)) {
-                return badRequest(ApiUtil.createResponse(
-                    "[ERROR] Namespace URI conflict: URI '" + decodedUri + "' exists with abbreviation '" + 
-                    existingByUri.getLabel() + "' but trying to ingest with abbreviation '" + decodedAbbrev + "'. " +
-                    "The namespace abbreviation must match. " +
-                    "Please delete the incorrect namespace or use the correct abbreviation.", false
-                ));
+        if (existingByLabel != null) {
+            // REQUIRED behavior: if abbreviation already exists (e.g., pmsr), treat as update-in-place.
+            // Keep the exact label and ingest into this namespace graph.
+            namespace = existingByLabel;
+            System.out.println("ingestNamespaceOntology: Found existing namespace by label: " + namespace.getLabel());
+            if (!decodedUri.equals(existingByLabel.getUri())) {
+                System.out.println("[WARNING] Requested URI differs from existing namespace URI. Keeping existing URI for label '" + namespace.getLabel() + "'.");
+                System.out.println("[WARNING] Existing URI: " + existingByLabel.getUri() + " | Requested URI: " + decodedUri);
             }
-            namespace = existingByUri;
-            System.out.println("ingestNamespaceOntology: Found existing namespace by URI: " + namespace.getLabel());
-            System.out.println("ingestNamespaceOntology: Will update existing namespace with new file URI");
-            
-        } else if (existingByLabel != null) {
-            // Found namespace by label but different URI - delete and recreate (immutable pattern)
-            System.out.println("ingestNamespaceOntology: Found existing namespace '" + decodedAbbrev + "' with URI '" + 
-                existingByLabel.getUri() + "' but new URI is '" + decodedUri + "' - deleting old namespace");
-            
-            // Delete old namespace following delete-then-recreate pattern
-            String deleteResponse = NameSpace.deleteNamespace(decodedAbbrev);
+            System.out.println("ingestNamespaceOntology: Will update existing namespace with new file URI and MIME");
+
+        } else if (existingByUri != null) {
+            // URI exists but with a different label. Replace it so requested abbreviation is preserved exactly.
+            String conflictingLabel = existingByUri.getLabel();
+            System.out.println("[WARNING] URI already exists with conflicting abbreviation: " + conflictingLabel +
+                ". Replacing with requested abbreviation: " + decodedAbbrev);
+
+            String deleteResponse = NameSpace.deleteNamespace(conflictingLabel);
             if (!deleteResponse.isEmpty()) {
                 System.err.println("[ERROR] Failed to delete conflicting namespace: " + deleteResponse);
                 return badRequest(ApiUtil.createResponse(
-                    "[ERROR] Cannot update namespace '" + decodedAbbrev + "': " + deleteResponse, false
+                    "[ERROR] Cannot replace conflicting namespace '" + conflictingLabel + "': " + deleteResponse, false
                 ));
             }
-            
-            // Refresh namespace cache after deletion
+
             NameSpaces.getInstance().resetNameSpaces();
-            System.out.println("ingestNamespaceOntology: Deleted old namespace, will create new one");
-            
-            // Fall through to create new namespace
+
             NameSpace newNamespace = new NameSpace();
-            newNamespace.setNamedGraph(fileUri);
+            newNamespace.setNamedGraph(decodedUri);
             newNamespace.setLabel(decodedAbbrev);
             newNamespace.setUri(decodedUri);
             newNamespace.setTypeUri(HASCO.ONTOLOGY);
@@ -366,36 +546,36 @@ public class RepoPage extends Controller {
             newNamespace.setComment("Auto-registered via namespace ontology ingestion");
             newNamespace.setPriority(100);
             newNamespace.setPermanent(false);
-            
+
             NameSpaces.getInstance().addNamespace(newNamespace);
-            
+
             try {
                 newNamespace.save();
-                System.out.println("ingestNamespaceOntology: Successfully recreated namespace: " + decodedAbbrev);
+                System.out.println("ingestNamespaceOntology: Successfully replaced conflicting namespace with: " + decodedAbbrev);
             } catch (Exception e) {
-                System.err.println("[ERROR] Failed to recreate namespace: " + e.getMessage());
+                System.err.println("[ERROR] Failed to create replacement namespace: " + e.getMessage());
                 e.printStackTrace();
                 NameSpaces.getInstance().getNamespaces().remove(decodedAbbrev);
                 NameSpaces.getInstance().getNamespacesByUri().remove(decodedUri);
                 return badRequest(ApiUtil.createResponse(
-                    "[ERROR] Failed to recreate namespace: " + e.getMessage(), false
+                    "[ERROR] Failed to create replacement namespace: " + e.getMessage(), false
                 ));
             }
-            
+
             namespace = newNamespace;
-            
+
         } else {
             // Namespace doesn't exist - auto-register it with the provided abbreviation (NOT derived)
             System.out.println("ingestNamespaceOntology: Auto-registering new namespace: " + decodedAbbrev + " -> " + decodedUri);
             
             NameSpace newNamespace = new NameSpace();
-            newNamespace.setNamedGraph(fileUri);  // Use file:// URI as named graph
+            newNamespace.setNamedGraph(decodedUri);
             newNamespace.setLabel(decodedAbbrev);
             newNamespace.setUri(decodedUri);
             newNamespace.setTypeUri(HASCO.ONTOLOGY);
             newNamespace.setHascoTypeUri(HASCO.ONTOLOGY);
             newNamespace.setSourceMime(sourceMime);  // Set based on file extension
-            newNamespace.setSource(fileUri);  // Use file:// URI as source
+            newNamespace.setSource(fileUri);
             newNamespace.setComment("Auto-registered via namespace ontology ingestion");
             newNamespace.setPriority(100);
             newNamespace.setPermanent(false);
@@ -424,7 +604,7 @@ public class RepoPage extends Controller {
         // Update namespace metadata with file URI and MIME type
         namespace.setSourceMime(sourceMime);
         namespace.setSource(fileUri);
-        namespace.setNamedGraph(fileUri);
+        namespace.setNamedGraph(namespace.getUri());
         
         // Save metadata updates to triplestore
         try {
@@ -459,7 +639,7 @@ public class RepoPage extends Controller {
                 
                 for (NameSpace ns : allNamespaces) {
                     // Check if this namespace points to our graph URI but has wrong abbreviation
-                    if (ns.getUri().equals(decodedUri) && !ns.getLabel().equals(decodedAbbrev)) {
+                    if (ns.getUri().equals(namespace.getUri()) && !ns.getLabel().equals(decodedAbbrev)) {
                         System.out.println("[WARNING] Found unwanted namespace: '" + ns.getLabel() + "' -> " + ns.getUri());
                         System.out.println("[WARNING] This was auto-created from TTL metadata (rdfs:label)");
                         unwantedNamespaces.add(ns.getLabel());
@@ -486,7 +666,10 @@ public class RepoPage extends Controller {
                 
                 System.out.println("[INFO] Namespace ontology ingestion complete for: " + namespace.getLabel() + " (" + decodedUri + ")");
                 System.out.println("ingestNamespaceOntology: Triple count updated: " + namespace.getNumberOfLoadedTriples() + " triples");
-                System.out.println("ingestNamespaceOntology: Named graph: " + fileUri);
+                System.out.println("ingestNamespaceOntology: Named graph: " + namespace.getUri());
+                System.out.println("[AUDIT] namespaceMutation action=ingestNamespaceOntology component="
+                    + auditComponent + " changeId=" + auditChangeId + " details=label=" + namespace.getLabel()
+                    + " uri=" + namespace.getUri() + " triples=" + namespace.getNumberOfLoadedTriples());
 
                 // Clean up the temp file after ingestion
                 try {
@@ -506,23 +689,12 @@ public class RepoPage extends Controller {
     }
 
     public Result loadOntologies(){
-        String kb = ConfigFactory.load().getString("hascoapi.repository.triplestore");
-        CompletableFuture<Long> completableFuture = CompletableFuture.supplyAsync(() -> manageTriples("load", kb));
-        //while (!completableFuture.isDone()) {
-        //    System.out.println("CompletableFuture is not finished yet...");
-        //}
-        //long result = completableFuture.get();
-        return ok(ApiUtil.createResponse("Repository's ontologies has been requested to be LOADED.", true));
+        manageTriples("load", "ontology");
+        return ok(ApiUtil.createResponse("Ontology loading process has started.", true));
     }
 
     public Result deleteOntologies(){
-        String kb = ConfigFactory.load().getString("hascoapi.repository.triplestore");
-        CompletableFuture<Long> completableFuture = CompletableFuture.supplyAsync(() -> manageTriples("delete", kb));
-        //while (!completableFuture.isDone()) {
-        //    System.out.println("CompletableFuture is not finished yet...");
-        //}
-        //long result = completableFuture.get();
-        return ok(ApiUtil.createResponse("Repository's ontologies have been requested to be DELETED.", true));
+        return blockOntologyMutation("deleteOntologies");
     }
 
     public Result getLanguages() {
