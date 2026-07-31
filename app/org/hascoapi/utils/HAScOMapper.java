@@ -223,6 +223,16 @@ public class HAScOMapper {
                             "hascoTypeLabel", "hasVersion", "comment", "hasDataFileUri", "hasDataFile", "hasSIRManagerEmail"));
         }
 
+        // WKF NAMESPACE
+        if (mode.equals(FULL) && typeResult.equals(HASCO.WKF_NAMESPACE)) {
+            filterProvider.addFilter("wkfNamespaceFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("wkfNamespaceFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "hascoTypeUri",
+                            "hasAbbreviation", "wkfNamespaceUri", "source", "sourceMime",
+                            "hasStatus", "hasVersion", "hasLanguage", "hasSIRManagerEmail", "comment"));
+        }
+
         // DSG
         if (mode.equals(FULL) && typeResult.equals(HASCO.DSG)) {
             filterProvider.addFilter("dsgFilter", SimpleBeanPropertyFilter.serializeAll());
@@ -726,6 +736,8 @@ public class HAScOMapper {
             return getFiltered(mode, HASCO.VIRTUAL_COLUMN);
         } else if (clazz == WKF.class) {
             return getFiltered(mode, HASCO.WKF);
+        } else if (clazz == WKFNamespace.class) {
+            return getFiltered(mode, HASCO.WKF_NAMESPACE);
         }
         return getFiltered(mode, "NONE");
     }

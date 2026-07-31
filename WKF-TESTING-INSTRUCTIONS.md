@@ -212,7 +212,7 @@ chmod +x /tmp/verify_wkf_upload.sh
 **1. Process Entity Created:**
 ```json
 {
-  "uri": "http://pmsr.net/ont/pmsr#/WKF-ASPIRACAO_SECRECOES_PSMR_0001_CTT/PROC/0001",
+  "uri": "https://pmsr.net/ont/WKF-ASPIRACAO_SECRECOES_PSMR_0001_CTT/PROC/0001",
   "label": "Aspiração de Secreções PSMR",
   "hasVersion": "0001"
 }
@@ -221,10 +221,10 @@ chmod +x /tmp/verify_wkf_upload.sh
 **2. ProcessBasedStudy Auto-Generated:**
 ```json
 {
-  "uri": "http://pmsr.net/ont/pmsr#STD-ASPIRACAO_SECRECOES_PSMR_0001_CTT",
+  "uri": "https://pmsr.net/ont/STD-ASPIRACAO_SECRECOES_PSMR_0001_CTT",
   "studyID": "STD-ASPIRACAO_SECRECOES_PSMR_0001_CTT",
   "studyTitle": "Aspiração de Secreções PSMR",
-  "processUri": "http://pmsr.net/ont/pmsr#/WKF-ASPIRACAO_SECRECOES_PSMR_0001_CTT/PROC/0001",
+  "processUri": "https://pmsr.net/ont/WKF-ASPIRACAO_SECRECOES_PSMR_0001_CTT/PROC/0001",
   "specificAims": "Clinical simulation study",
   "significance": "Clinical simulation study",
   "institution": "PMSR Repository",

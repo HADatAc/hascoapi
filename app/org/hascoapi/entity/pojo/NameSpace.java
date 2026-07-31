@@ -55,6 +55,66 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
     public NameSpace () {
     }
 
+    private static String safe(String value) {
+        return value == null ? "" : value;
+    }
+
+    private static String snapshot(NameSpace ns) {
+        if (ns == null) {
+            return "{}";
+        }
+        return "{label=" + safe(ns.getLabel())
+            + ",uri=" + safe(ns.getUri())
+            + ",namedGraph=" + safe(ns.getNamedGraph())
+            + ",sourceMime=" + safe(ns.getSourceMime())
+            + ",source=" + safe(ns.getSource())
+            + ",priority=" + ns.getPriority()
+            + ",permanent=" + ns.getPermanent()
+            + "}";
+    }
+
+    private static NameSpace copyOf(NameSpace ns) {
+        if (ns == null) {
+            return null;
+        }
+        NameSpace copy = new NameSpace();
+        copy.setLabel(ns.getLabel());
+        copy.setUri(ns.getUri());
+        copy.setNamedGraph(ns.getNamedGraph());
+        copy.setSourceMime(ns.getSourceMime());
+        copy.setSource(ns.getSource());
+        copy.setComment(ns.getComment());
+        copy.setVersion(ns.getVersion());
+        copy.setPriority(ns.getPriority());
+        copy.setPermanent(ns.getPermanent());
+        return copy;
+    }
+
+    private static NameSpace findByLabelFromTripleStore(String label) {
+        if (label == null || label.trim().isEmpty()) {
+            return null;
+        }
+        try {
+            for (NameSpace ns : NameSpace.find()) {
+                if (label.equals(ns.getLabel())) {
+                    return ns;
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("[AUDIT] namespaceTable warn=findByLabelFromTripleStore failed label=" + label + " err=" + e.getMessage());
+        }
+        return null;
+    }
+
+    private static void auditNamespaceTable(String operation, String detail, NameSpace before, NameSpace after) {
+        String timestamp = java.time.Instant.now().toString();
+        System.out.println("[AUDIT] namespaceTable ts=" + timestamp
+            + " operation=" + operation
+            + " detail=" + safe(detail)
+            + " before=" + snapshot(before)
+            + " after=" + snapshot(after));
+    }
+
     public NameSpace (String abbrev, String name, String sourceMime, String source, String comment, String version, int priority) {
         this.label = abbrev;
         this.uri = name;
@@ -357,6 +417,36 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
         return findManyByQuery(query);
     }
 
+    public static List<NameSpace> findWKFNamespaces() {
+        String query =
+            " SELECT ?uri WHERE { " +
+            "    GRAPH <" + Constants.DEFAULT_REPOSITORY + "> {  " +
+            "       ?uri  <" + HASCO.HASCO_TYPE + ">  <" + HASCO.WKF_NAMESPACE + "> . " +
+            "    } " +
+            "} ";
+        return findManyByQuery(query);
+    }
+
+    public static NameSpace findWKFNamespaceByAbbreviation(String abbreviation) {
+        if (abbreviation == null || abbreviation.trim().isEmpty()) {
+            return null;
+        }
+
+        String normalized = abbreviation.trim();
+        List<NameSpace> namespaces = findWKFNamespaces();
+        if (namespaces == null) {
+            return null;
+        }
+
+        for (NameSpace ns : namespaces) {
+            if (ns != null && normalized.equals(ns.getLabel())) {
+                return ns;
+            }
+        }
+
+        return null;
+    }
+
     public static List<NameSpace> findManyByQuery(String query) {
         List<NameSpace> nss = new ArrayList<NameSpace>();
 
@@ -520,6 +610,9 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
 
     @Override
     public void save() {
+        NameSpace before = findByLabelFromTripleStore(this.getLabel());
+        String operation = before == null ? "upsert:create" : "upsert:update";
+
         // permanent name spaces are not saved into the triple store
         if (!this.permanent) {
             // Namespace metadata triples are stored in repository metadata graph,
@@ -532,12 +625,17 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
             System.out.println("   URI = [" + this.getUri() + "]");
             saveToTripleStore(false);
             this.setNamedGraph(originalNamedGraph);
+            auditNamespaceTable(operation, "save", before, copyOf(this));
+        } else {
+            auditNamespaceTable("upsert:skip-permanent", "save", before, copyOf(this));
         }
      }
 
     
      @Override
      public void delete() {
+         NameSpace before = findByLabelFromTripleStore(this.getLabel());
+
          // permanent name spaces cannot be deleted from triple store because they are not store into the triple store
          if (!this.permanent) {
              // Delete namespace metadata from repository graph without changing
@@ -550,14 +648,20 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
              System.out.println("   URI = [" + this.getUri() + "]");
              deleteFromTripleStore();
              this.setNamedGraph(originalNamedGraph);
+             auditNamespaceTable("delete", "delete", before, null);
+         } else {
+             auditNamespaceTable("delete:skip-permanent", "delete", before, null);
          }
      } 
 
      public static String deleteNamespace(String abbreviation) {
 
+        NameSpace before = findByLabelFromTripleStore(abbreviation);
+
         // RETRIEVE FROM MEMORY
         NameSpace ns = NameSpace.findInMemoryByAbbreviation(abbreviation);
         if (ns == null) {
+            auditNamespaceTable("delete:missing", "deleteNamespace", before, null);
             return "Could not find namespace with abbreviation [" + abbreviation + "] to be deleted.";
         }
 
@@ -577,6 +681,7 @@ public class NameSpace extends HADatAcThing implements Comparable<NameSpace> {
         }
 
         NameSpaces.resetNameSpaces();
+        auditNamespaceTable("delete:completed", "deleteNamespace", before, null);
 
         return "";
     }

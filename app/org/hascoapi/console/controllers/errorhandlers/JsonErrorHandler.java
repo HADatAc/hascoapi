@@ -103,10 +103,20 @@ public class JsonErrorHandler implements HttpErrorHandler {
         String type = exceptionType == null ? "" : exceptionType.toLowerCase();
         String msg = message == null ? "" : message.toLowerCase();
         return type.contains("connectexception")
+                || type.contains("socketexception")
+                || type.contains("sockettimeoutexception")
+                || type.contains("httptimeoutexception")
+                || type.contains("eofexception")
+                || type.contains("queryexceptionhttp")
                 || type.contains("unresolvedaddressexception")
                 || type.contains("unknownhostexception")
                 || msg.contains("connectexception")
                 || msg.contains("unresolvedaddressexception")
+                || msg.contains("eof reached while reading")
+                || msg.contains("connection reset")
+                || msg.contains("broken pipe")
+                || msg.contains("timed out")
+                || msg.contains("timeout")
                 || msg.contains("connection refused")
                 || msg.contains("fuseki");
     }

@@ -47,7 +47,14 @@ public class URIPage extends Controller {
         }
 
         // Determine upfront whether this URI belongs to a Task family element.
-        GenericInstance preResolved = GenericInstance.find(uri);
+        // This pre-resolution is advisory only; keep endpoint resilient on
+        // transient triplestore read failures (for example EOF on HTTP stream).
+        GenericInstance preResolved = null;
+        try {
+            preResolved = findGenericInstanceWithRetry(uri);
+        } catch (Throwable ignored) {
+            preResolved = null;
+        }
         boolean isTaskUri = false;
         if (preResolved != null) {
             String preHascoType = preResolved.getHascoTypeUri() == null ? "" : preResolved.getHascoTypeUri();
@@ -90,6 +97,29 @@ public class URIPage extends Controller {
 
         return processResult(finalResult, finalResult.getHascoTypeUri(), uri);
 
+    }
+
+    private static GenericInstance findGenericInstanceWithRetry(String uri) {
+        RuntimeException last = null;
+        for (int attempt = 1; attempt <= 2; attempt++) {
+            try {
+                return GenericInstance.find(uri);
+            } catch (RuntimeException ex) {
+                last = ex;
+                if (attempt < 2) {
+                    try {
+                        Thread.sleep(80L);
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        throw ex;
+                    }
+                }
+            }
+        }
+        if (last != null) {
+            throw last;
+        }
+        return null;
     }
 
     public Result uriGen(String elementType) {
@@ -304,6 +334,8 @@ public class URIPage extends Controller {
                 finalResult = StudyRole.find(uri);
             } else if (hascoTypeUri.equals(HASCO.WKF)) {
                 finalResult = WKF.find(uri);
+            } else if (hascoTypeUri.equals(HASCO.WKF_NAMESPACE)) {
+                finalResult = WKFNamespace.find(uri);
             } else if (hascoTypeUri.equals(VSTOI.SUBCONTAINER)) {
                 finalResult = Subcontainer.find(uri);
             } else if (isTaskType(hascoTypeUri, resultTypeUri)) {
@@ -320,8 +352,7 @@ public class URIPage extends Controller {
             return (HADatAcThing) finalResult;
 
         } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+            throw new RuntimeException("Failed to resolve URI from triplestore: " + uri, e);
         }
     }
 

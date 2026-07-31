@@ -570,6 +570,15 @@ public class SIRElementAPI extends Controller {
                 message = e.getMessage();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
+        } else if (clazz == WKFNamespace.class) {
+            try {
+                WKFNamespace object;
+                object = (WKFNamespace)objectMapper.readValue(json, clazz);
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
         }
         if (!success) {
             return ok(ApiUtil.createResponse("Error processing JSON: " + message, false));
@@ -913,6 +922,12 @@ public class SIRElementAPI extends Controller {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
+        } else if (clazz == WKFNamespace.class) {
+            WKFNamespace object = WKFNamespace.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
         }
         return ok(ApiUtil.createResponse("Element with URI [" + uri + "] has been deleted", true));
     }
@@ -1040,6 +1055,12 @@ public class SIRElementAPI extends Controller {
             GenericFind<WKF> query = new GenericFind<WKF>();
             List<WKF> results = query.findByKeywordWithPages(WKF.class,keyword, pageSize, offset);
             return WKFAPI.getWKFs(results);
+        }  else if (elementType.equals("wkfnamespace")) {
+            GenericFind<WKFNamespace> query = new GenericFind<WKFNamespace>();
+            List<WKFNamespace> results = query.findByKeywordWithPages(WKFNamespace.class,keyword, pageSize, offset);
+            ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL, HASCO.WKF_NAMESPACE);
+            JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
+            return ok(ApiUtil.createResponse(jsonObject, true));
         }  else if (elementType.equals("da")) {
             GenericFind<DA> query = new GenericFind<DA>();
             List<DA> results = query.findByKeywordWithPages(DA.class,keyword, pageSize, offset);
@@ -1452,6 +1473,12 @@ public class SIRElementAPI extends Controller {
             GenericFind<WKF> query = new GenericFind<WKF>();
             List<WKF> results = query.findByManagerEmailWithPages(WKF.class, managerEmail, pageSize, offset);
             return WKFAPI.getWKFs(results);
+        }  else if (elementType.equals("wkfnamespace")) {
+            GenericFind<WKFNamespace> query = new GenericFind<WKFNamespace>();
+            List<WKFNamespace> results = query.findByManagerEmailWithPages(WKFNamespace.class, managerEmail, pageSize, offset);
+            ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL, HASCO.WKF_NAMESPACE);
+            JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
+            return ok(ApiUtil.createResponse(jsonObject, true));
         }
         return ok("[getElementsByManagerEmail] No valid element type.");
 
@@ -1536,6 +1563,12 @@ public class SIRElementAPI extends Controller {
             GenericFindWithStatus<WKF> query = new GenericFindWithStatus<WKF>();
             List<WKF> results = query.findByStatusWithPages(WKF.class, hasStatus, pageSize, offset);
             return WKFAPI.getWKFs(results);
+        }  else if (elementType.equals("wkfnamespace")) {
+            GenericFindWithStatus<WKFNamespace> query = new GenericFindWithStatus<WKFNamespace>();
+            List<WKFNamespace> results = query.findByStatusWithPages(WKFNamespace.class, hasStatus, pageSize, offset);
+            ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL, HASCO.WKF_NAMESPACE);
+            JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
+            return ok(ApiUtil.createResponse(jsonObject, true));
         }  else if (elementType.equals("da")) {
             GenericFindWithStatus<DA> query = new GenericFindWithStatus<DA>();
             List<DA> results = query.findByStatusWithPages(DA.class, hasStatus, pageSize, offset);
@@ -1724,6 +1757,12 @@ public class SIRElementAPI extends Controller {
             GenericFindWithStatus<WKF> query = new GenericFindWithStatus<WKF>();
             List<WKF> results = query.findByStatusManagerEmailWithPages(WKF.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
             return WKFAPI.getWKFs(results);
+        }  else if (elementType.equals("wkfnamespace")) {
+            GenericFindWithStatus<WKFNamespace> query = new GenericFindWithStatus<WKFNamespace>();
+            List<WKFNamespace> results = query.findByStatusManagerEmailWithPages(WKFNamespace.class, hasStatus, managerEmail, withCurrent, pageSize, offset);
+            ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL, HASCO.WKF_NAMESPACE);
+            JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
+            return ok(ApiUtil.createResponse(jsonObject, true));
         }  else if (elementType.equals("da")) {
             GenericFindWithStatus<DA> query = new GenericFindWithStatus<DA>();
             List<DA> results = query.findByStatusManagerEmailWithPages(DA.class, hasStatus, managerEmail, withCurrent, pageSize, offset);

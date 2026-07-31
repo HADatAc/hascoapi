@@ -139,7 +139,7 @@ Namespaces Sheet:
 +------------+----------------------------------------+-------------+------------------------------+
 | hasco      | http://hadatac.org/ont/hasco/          | text/turtle | https://hadatac.org/ont/...  |
 | vstoi      | http://hadatac.org/ont/vstoi#          | text/turtle | https://hadatac.org/ont/...  |
-| pmsr       | http://pmsr.net/ont/pmsr#              | text/turtle | https://hadatac.org/ont/...  |
+| pmsr       | https://pmsr.net/ont/              | text/turtle | https://hadatac.org/ont/...  |
 | rdf        | http://www.w3.org/1999/02/22-rdf-...   | text/turtle | https://www.w3.org/1999/...  |
 | rdfs       | http://www.w3.org/2000/01/rdf-schema#  | text/turtle | https://www.w3.org/2000/...  |
 | owl        | http://www.w3.org/2002/07/owl#         | text/turtle | https://www.w3.org/2002/...  |

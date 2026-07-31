@@ -89,6 +89,52 @@ public class IngestionAPI extends Controller {
         return config.getString("hascoapi.templates.template_filename");
     }
 
+    /**
+     * Normalize manager email query parameter values.
+     * Accepts plain emails, mailto: values, and defensive malformed cases such as
+     * "user@example.org?manageremail=user@example.org".
+     */
+    private String normalizeManagerEmailParam(String raw) {
+        if (raw == null) {
+            return "";
+        }
+
+        String value = raw.trim().toLowerCase();
+        if (value.isEmpty()) {
+            return "";
+        }
+
+        if (value.startsWith("mailto:")) {
+            value = value.substring("mailto:".length()).trim();
+        }
+
+        int managerIdx = value.indexOf("manageremail=");
+        if (managerIdx >= 0) {
+            int start = managerIdx + "manageremail=".length();
+            int endAmp = value.indexOf('&', start);
+            if (endAmp > start) {
+                value = value.substring(start, endAmp).trim();
+            } else {
+                value = value.substring(start).trim();
+            }
+        }
+
+        int qPos = value.indexOf('?');
+        if (qPos >= 0) {
+            value = value.substring(0, qPos).trim();
+        }
+
+        // Keep only the first email-looking token.
+        java.util.regex.Matcher m = java.util.regex.Pattern
+            .compile("[a-z0-9._%+\\-]+@[a-z0-9.\\-]+\\.[a-z]{2,}")
+            .matcher(value);
+        if (m.find()) {
+            value = m.group().trim();
+        }
+
+        return value;
+    }
+
     public Result ingest(String status, String elementType, String elementUri, Http.Request request) {
         System.out.println(" ");
         System.out.println(" ");
@@ -121,10 +167,7 @@ public class IngestionAPI extends Controller {
             if (requestedManagerEmail == null || requestedManagerEmail.trim().isEmpty()) {
                 return ok(ApiUtil.createResponse("WKF ingestion rejected: missing required query parameter 'manageremail'.", false));
             }
-            requestedManagerEmail = requestedManagerEmail.trim();
-            if (requestedManagerEmail.toLowerCase().startsWith("mailto:")) {
-                requestedManagerEmail = requestedManagerEmail.substring("mailto:".length()).trim();
-            }
+            requestedManagerEmail = normalizeManagerEmailParam(requestedManagerEmail);
             if (requestedManagerEmail.isEmpty() || !requestedManagerEmail.contains("@")) {
                 return ok(ApiUtil.createResponse("WKF ingestion rejected: invalid 'manageremail' value.", false));
             }

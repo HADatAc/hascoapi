@@ -18,7 +18,7 @@ O processo de ingestão de templates WKF falhava porque:
 
 ### 1. `app/org/hascoapi/utils/URIUtils.java`
 **Função**: `isValidURI()`  
-**Problema**: Rejeitava URIs HTTP absolutas com fragmentos (ex: `http://pmsr.net/ont/pmsr#/WKF123...`)
+**Problema**: Rejeitava URIs HTTP absolutas com fragmentos (ex: `https://pmsr.net/ont/WKF123...`)
 
 **Alterações**:
 - ✅ Aceita URIs HTTP/HTTPS bem formadas usando `isWellFormedURI()`
@@ -142,14 +142,14 @@ O processo de ingestão de templates WKF falhava porque:
 ### SPARQL Queries Executadas:
 ```sparql
 # Confirma que WKF persiste no triplestore
-ASK { <http://pmsr.net/ont/pmsr#/WKF1774538024738371> ?p ?o }
+ASK { <https://pmsr.net/ont/WKF1774538024738371> ?p ?o }
 # Resultado: true ✅
 
 # Verifica triples do WKF incluindo hasDataFile
 SELECT ?p ?o WHERE { 
-  <http://pmsr.net/ont/pmsr#/WKF1774538024738371> ?p ?o 
+  <https://pmsr.net/ont/WKF1774538024738371> ?p ?o 
 }
-# Confirma: hasco:hasDataFile <http://pmsr.net/ont/pmsr#/DFL1774538024738371> ✅
+# Confirma: hasco:hasDataFile <https://pmsr.net/ont/DFL1774538024738371> ✅
 ```
 
 ### Deployment:

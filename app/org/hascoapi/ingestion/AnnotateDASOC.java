@@ -1496,8 +1496,8 @@ public class AnnotateDASOC {
     /**
      * Helper method to convert originalID-based references to canonical VSTOI URIs
      * Examples:
-     *   pmsr:/CBK1738096258564815 -> http://pmsr.net/ont/pmsr#CBK1738096258564815
-     *   pmsr:/CSM1738097871592315 -> http://pmsr.net/ont/pmsr#CSM1738097871592315
+     *   pmsr:/CBK1738096258564815 -> https://pmsr.net/ont/CBK1738096258564815
+     *   pmsr:/CSM1738097871592315 -> https://pmsr.net/ont/CSM1738097871592315
      */
     private static String convertToVstoiUri(String value) {
         if (value == null || value.isEmpty()) {

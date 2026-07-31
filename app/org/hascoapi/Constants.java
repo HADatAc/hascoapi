@@ -110,6 +110,7 @@ public class Constants {
     public static final String PREFIX_SUBCONTAINER               = "SCT";
     public static final String PREFIX_VIRTUAL_COLUMN             = "VCO";
     public static final String PREFIX_WKF                        = "WKF";
+    public static final String PREFIX_WKF_NAMESPACE              = "WKN";
 
     /*
     public static final String PREFIX_ANNOTATION                 = "AN";

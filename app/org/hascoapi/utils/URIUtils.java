@@ -37,7 +37,8 @@ public class URIUtils {
                 .replaceAll("(?i)^https?://pmsr\\.net/ont/pmsr#/?", PMSR_CANONICAL_BASE)
                 .replaceAll("(?i)^http://pmsr\\.net/ont/", PMSR_CANONICAL_BASE);
 
-        if (!normalized.endsWith("/")) {
+        // Preserve canonical namespace bases that end with '_' or '#'.
+        if (!(normalized.endsWith("/") || normalized.endsWith("#") || normalized.endsWith("_"))) {
             normalized += "/";
         }
 
@@ -270,8 +271,8 @@ public class URIUtils {
      *  This enhancement enables DA-SOC CSV files to use either format for dependency URIs.
      *  
      *  Examples:
-     *  - "pmsr:CSM123" → "http://pmsr.net/ont/pmsr#CSM123"
-     *  - "pmsr:/CSM123" → "http://pmsr.net/ont/pmsr#CSM123" (same result, slash removed)
+     *  - "pmsr:CSM123" → "https://pmsr.net/ont/CSM123"
+     *  - "pmsr:/CSM123" → "https://pmsr.net/ont/CSM123" (same result, slash removed)
      *  - "http://full.uri/path" → "http://full.uri/path" (passthrough)
      */
     public static String replacePrefixEx(String str) {

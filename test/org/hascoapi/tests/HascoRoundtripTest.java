@@ -361,7 +361,7 @@ public class HascoRoundtripTest {
                 .replace("http://www.w3.org/2000/01/rdf-schema#", "rdfs:")
                 .replace("http://www.w3.org/ns/prov#", "prov:")
                 .replace("http://purl.obolibrary.org/obo/", "obo:")
-                .replace("http://pmsr.net/ont/pmsr#", "pmsr:")
+                .replace("https://pmsr.net/ont/", "pmsr:")
                 .replace("https://hadatac.org/ont/hadatac#", "hadatac:");
     }
 

@@ -56,7 +56,7 @@ hasVersion              | 1
 
 ```csv
 hasPrefix,hasNameSpace,hasFormat,hasSource
-pmsr,http://pmsr.net/ont/pmsr#,text/turtle,http://pmsr.net/ont/pmsr.ttl
+pmsr,https://pmsr.net/ont/,text/turtle,http://pmsr.net/ont/pmsr.ttl
 vstoi,http://hadatac.org/ont/vstoi#,text/turtle,http://hadatac.org/ont/vstoi.ttl
 hasco,http://hadatac.org/ont/hasco#,text/turtle,http://hadatac.org/ont/hasco.ttl
 ```

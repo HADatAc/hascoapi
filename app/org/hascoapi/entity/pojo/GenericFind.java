@@ -159,6 +159,8 @@ public class GenericFind<T> {
             return VirtualColumn.class;
         } else if (elementType.equals("wkf")) {
             return WKF.class;
+        } else if (elementType.equals("wkfnamespace")) {
+            return WKFNamespace.class;
         }
         return null;
     }
@@ -259,6 +261,8 @@ public class GenericFind<T> {
             return URIUtils.replaceNameSpace(SIO.UNIT);
         } else if (clazz == WKF.class) {
             return URIUtils.replaceNameSpace(HASCO.WKF);
+        } else if (clazz == WKFNamespace.class) {
+            return URIUtils.replaceNameSpace(HASCO.WKF_NAMESPACE);
         }
         return null;
     }

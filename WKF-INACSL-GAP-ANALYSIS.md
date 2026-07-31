@@ -338,7 +338,7 @@ R: vstoi:hasDebriefingFocus           [NEW - EDUCATIONAL]
 
 | Column | Property | Value |
 |--------|----------|-------|
-| A | hasURI | `http://pmsr.net/ont/pmsr#/WKF_HOME_CARE_WOUND_0001/PROC/0001` |
+| A | hasURI | `https://pmsr.net/ont/WKF_HOME_CARE_WOUND_0001/PROC/0001` |
 | B | rdf:type | `vstoi:Process` |
 | C | hasco:hascoType | `vstoi:ClinicalSimulation` |
 | D | rdfs:label | `Home Visit: Dependent Elder with Pressure Injuries` |
@@ -346,11 +346,11 @@ R: vstoi:hasDebriefingFocus           [NEW - EDUCATIONAL]
 | F | vstoi:hasStatus | `vstoi:Published` |
 | G | vstoi:hasLanguage | `pt` |
 | H | vstoi:hasVersion | `1.0` |
-| I | prov:wasDerivedFrom | `http://pmsr.net/ont/pmsr#/WKF_HOME_CARE_WOUND_0001/PST/0001` |
+| I | prov:wasDerivedFrom | `https://pmsr.net/ont/WKF_HOME_CARE_WOUND_0001/PST/0001` |
 | J | vstoi:hasReviewNote | `Validated by wound care CNS 2026-06-15` |
 | K | vstoi:hasSIRManagerEmail | `joao.instructor@pmsr.net` |
 | L | vstoi:hasEditorEmail | `nursing.simulation@pmsr.net` |
-| M | vstoi:hasTopTask | `http://pmsr.net/ont/pmsr#/WKF_HOME_CARE_WOUND_0001/TSK/0001` |
+| M | vstoi:hasTopTask | `https://pmsr.net/ont/WKF_HOME_CARE_WOUND_0001/TSK/0001` |
 | N | hasco:hasImage | `http://pmsr.net/scenarios/images/home-care-wound.jpg` |
 | O | hasco:hasWebDocument | `http://pmsr.net/scenarios/docs/home-care-wound-guide.pdf` |
 | **P** | **vstoi:hasLearningObjectives** | **`Conduct systematic home assessment using Braden Scale (score documented); Identify ≥2 caregiver learning needs through observation/interview; Develop evidence-based care plan with ≥1 community resource referral; Use therapeutic communication techniques with challenging caregivers`** |

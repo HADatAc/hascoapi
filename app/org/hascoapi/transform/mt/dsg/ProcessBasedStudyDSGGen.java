@@ -119,7 +119,7 @@ public class ProcessBasedStudyDSGGen {
         String[][] namespaces = {
             {"hasco", "http://hadatac.org/ont/hasco#"},
             {"vstoi", "http://hadatac.org/ont/vstoi#"},
-            {"pmsr", "http://pmsr.net/ont/pmsr#"},
+            {"pmsr", "https://pmsr.net/ont/"},
             {"sio", "http://semanticscience.org/resource/"},
             {"schema", "http://schema.org/"}
         };

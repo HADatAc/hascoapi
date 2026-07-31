@@ -280,8 +280,8 @@ public class ProcessBasedStudy extends Study {
         processUri = URIUtils.canonicalizePmsrUri(processUri);
         
         // Extract base from process URI and replace WKF- with STD-
-        // Example: http://pmsr.net/ont/pmsr#/WKF_SECRETION_001/PROC/0001
-        //       -> http://pmsr.net/ont/pmsr#/STD_SECRETION_001
+        // Example: https://pmsr.net/ont/WKF_SECRETION_001/PROC/0001
+        //       -> https://pmsr.net/ont/STD_SECRETION_001
         if (processUri.contains("/WKF_") || processUri.contains("/WKF-") || processUri.contains("/WFK_") || processUri.contains("/WFK-")) {
             String baseUri = processUri.substring(0, processUri.indexOf("/PROC/"));
             baseUri = baseUri

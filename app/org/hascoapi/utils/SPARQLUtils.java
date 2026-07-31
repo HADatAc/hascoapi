@@ -13,17 +13,36 @@ import org.hascoapi.utils.URIUtils;
 
 public class SPARQLUtils {
 
+    private static final int MAX_RETRIES = 3;
+    private static final long BASE_BACKOFF_MS = 120L;
+
     public static ResultSetRewindable select(String sparqlService, String queryString) {
         //System.out.println("queryString: " + queryString + "\n");
 
         try {
             Query query = QueryFactory.create(queryString);
-            QueryExecution qexec = QueryExecutionFactory.sparqlService(sparqlService, query);
-            ResultSet results = qexec.execSelect();
-            ResultSetRewindable resultsrw = ResultSetFactory.copyResults(results);
-            qexec.close();
+            RuntimeException lastRuntime = null;
 
-            return resultsrw;
+            for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+                QueryExecution qexec = null;
+                try {
+                    qexec = QueryExecutionFactory.sparqlService(sparqlService, query);
+                    ResultSet results = qexec.execSelect();
+                    return ResultSetFactory.copyResults(results);
+                } catch (RuntimeException e) {
+                    lastRuntime = e;
+                    if (!isTransientTransportFailure(e) || attempt == MAX_RETRIES) {
+                        throw e;
+                    }
+                    sleepBeforeRetry(attempt);
+                } finally {
+                    if (qexec != null) {
+                        qexec.close();
+                    }
+                }
+            }
+
+            throw lastRuntime == null ? new RuntimeException("SPARQL select failed") : lastRuntime;
         } catch (QueryParseException e) {
             System.out.println("[ERROR] sparqlService: " + sparqlService + "\n");
             System.out.println("[ERROR] queryString: " + queryString);
@@ -36,11 +55,27 @@ public class SPARQLUtils {
 
         try {
             Query query = QueryFactory.create(queryString);
-            QueryExecution qexec = QueryExecutionFactory.sparqlService(sparqlService, query);
-            Model model = qexec.execDescribe();
-            qexec.close();
+            RuntimeException lastRuntime = null;
 
-            return model;
+            for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+                QueryExecution qexec = null;
+                try {
+                    qexec = QueryExecutionFactory.sparqlService(sparqlService, query);
+                    return qexec.execDescribe();
+                } catch (RuntimeException e) {
+                    lastRuntime = e;
+                    if (!isTransientTransportFailure(e) || attempt == MAX_RETRIES) {
+                        throw e;
+                    }
+                    sleepBeforeRetry(attempt);
+                } finally {
+                    if (qexec != null) {
+                        qexec.close();
+                    }
+                }
+            }
+
+            throw lastRuntime == null ? new RuntimeException("SPARQL describe failed") : lastRuntime;
         } catch (QueryParseException e) {
             System.out.println("[ERROR] queryString: " + queryString);
             throw e;
@@ -92,6 +127,42 @@ public class SPARQLUtils {
                 "DESCRIBE " + target;
 
         return select("http://localhost:8890/sparql", queryString).toString();
+    }
+
+    private static boolean isTransientTransportFailure(Throwable error) {
+        Throwable current = error;
+        while (current != null) {
+            String type = current.getClass().getSimpleName().toLowerCase();
+            String message = String.valueOf(current.getMessage()).toLowerCase();
+
+            if (type.contains("eofexception")
+                    || type.contains("connectexception")
+                    || type.contains("socketexception")
+                    || type.contains("sockettimeoutexception")
+                    || type.contains("httptimeoutexception")
+                    || type.contains("queryexceptionhttp")
+                    || message.contains("eof reached while reading")
+                    || message.contains("connection reset")
+                    || message.contains("broken pipe")
+                    || message.contains("timed out")
+                    || message.contains("timeout")
+                    || message.contains("connection refused")
+                    || message.contains("temporarily unavailable")) {
+                return true;
+            }
+
+            current = current.getCause();
+        }
+        return false;
+    }
+
+    private static void sleepBeforeRetry(int attempt) {
+        long delay = BASE_BACKOFF_MS * attempt;
+        try {
+            Thread.sleep(delay);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+        }
     }
 
 }

@@ -53,8 +53,8 @@ if (str.startsWith(abbrev + ":")) {  // Looks for "pmsr:"
 
 When input is `pmsr:/CSM...`:
 - ✅ Matches `startsWith("pmsr:")`
-- ❌ But `replace("pmsr:", namespace)` produces `http://pmsr.net/ont/pmsr#/CSM...` (wrong!)
-- ✅ Correct should be: `http://pmsr.net/ont/pmsr#CSM...` (no slash before local name)
+- ❌ But `replace("pmsr:", namespace)` produces `https://pmsr.net/ont/CSM...` (wrong!)
+- ✅ Correct should be: `https://pmsr.net/ont/CSM...` (no slash before local name)
 
 ### Issue #2: Different Behavior in Different Code Paths
 
@@ -226,22 +226,22 @@ public static String replacePrefixEx(String str) {
 ### Test 1: Standard Prefix (Currently Works)
 ```
 Input: pmsr:CSM1738095066920345
-Expected: http://pmsr.net/ont/pmsr#CSM1738095066920345
+Expected: https://pmsr.net/ont/CSM1738095066920345
 Result: ✅ PASS
 ```
 
 ### Test 2: Slash Prefix (Currently Broken)
 ```
 Input: pmsr:/CSM1738095066920345
-Expected: http://pmsr.net/ont/pmsr#CSM1738095066920345
-Current Result: http://pmsr.net/ont/pmsr#/CSM1738095066920345 (extra slash!)
+Expected: https://pmsr.net/ont/CSM1738095066920345
+Current Result: https://pmsr.net/ont/CSM1738095066920345 (extra slash!)
 Result: ❌ FAIL
 ```
 
 ### Test 3: Full URI (Should Pass Through)
 ```
-Input: http://pmsr.net/ont/pmsr#CSM1738095066920345
-Expected: http://pmsr.net/ont/pmsr#CSM1738095066920345
+Input: https://pmsr.net/ont/CSM1738095066920345
+Expected: https://pmsr.net/ont/CSM1738095066920345
 Result: ✅ PASS
 ```
 
@@ -300,7 +300,7 @@ After implementing fixes:
 
 ### 1. Test Component Dependencies
 ```sparql
-PREFIX pmsr: <http://pmsr.net/ont/pmsr#>
+PREFIX pmsr: <https://pmsr.net/ont/>
 PREFIX vstoi: <http://hadatac.org/ont/vstoi#>
 
 SELECT ?component ?stem ?codebook WHERE {
@@ -325,8 +325,8 @@ LIMIT 10
 After re-ingesting DA-SOC-COMPONENT-PMSR_1.csv:
 ```
 [ENRICH-TRACE] Properties collected: 5
-[DEBUG-COMPONENT] Setting hasComponentStem to: http://pmsr.net/ont/pmsr#CSM1738095066920345
-[DEBUG-COMPONENT] Setting hasCodebook to: http://pmsr.net/ont/pmsr#CBK1738096258564815
+[DEBUG-COMPONENT] Setting hasComponentStem to: https://pmsr.net/ont/CSM1738095066920345
+[DEBUG-COMPONENT] Setting hasCodebook to: https://pmsr.net/ont/CBK1738096258564815
 [DEBUG-COMPONENT] Component MODIFIED - saving changes
   Enriched Component: Chest Inflator
 ```
@@ -374,8 +374,8 @@ After re-ingesting DA-SOC-COMPONENT-PMSR_1.csv:
 
 After implementing fixes:
 
-- [ ] `pmsr:/CSM...` resolves to `http://pmsr.net/ont/pmsr#CSM...` (no extra slash)
-- [ ] `pmsr:/CBK...` resolves to `http://pmsr.net/ont/pmsr#CBK...` (no extra slash)
+- [ ] `pmsr:/CSM...` resolves to `https://pmsr.net/ont/CSM...` (no extra slash)
+- [ ] `pmsr:/CBK...` resolves to `https://pmsr.net/ont/CBK...` (no extra slash)
 - [ ] Component UI shows ComponentStem as clickable link
 - [ ] Component UI shows Codebook as clickable link
 - [ ] ContainerSlot UI shows Instrument parent link
@@ -468,10 +468,10 @@ public static String replacePrefixEx(String str) {
 
 | Input Format | Output | Status |
 |--------------|--------|--------|
-| `pmsr:CSM123` | `http://pmsr.net/ont/pmsr#CSM123` | ✅ Works |
-| `pmsr:/CSM123` | `http://pmsr.net/ont/pmsr#CSM123` | ✅ **Fixed!** |
+| `pmsr:CSM123` | `https://pmsr.net/ont/CSM123` | ✅ Works |
+| `pmsr:/CSM123` | `https://pmsr.net/ont/CSM123` | ✅ **Fixed!** |
 | `vstoi:/Instrument` | `http://hadatac.org/ont/vstoi#Instrument` | ✅ **Fixed!** |
-| `http://pmsr.net/ont/pmsr#CSM123` | `http://pmsr.net/ont/pmsr#CSM123` | ✅ Works |
+| `https://pmsr.net/ont/CSM123` | `https://pmsr.net/ont/CSM123` | ✅ Works |
 
 ---
 

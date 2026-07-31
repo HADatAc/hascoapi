@@ -65,10 +65,49 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
         String organizationDisplay = "";
     }
 
+    /**
+     * Normalize email values from ingestion context.
+     */
+    private String normalizeEmailValue(String raw) {
+        if (raw == null) {
+            return "";
+        }
+
+        String value = raw.trim().toLowerCase();
+        if (value.isEmpty()) {
+            return "";
+        }
+
+        if (value.startsWith("mailto:")) {
+            value = value.substring("mailto:".length()).trim();
+        }
+
+        int managerIdx = value.indexOf("manageremail=");
+        if (managerIdx >= 0) {
+            int start = managerIdx + "manageremail=".length();
+            int endAmp = value.indexOf('&', start);
+            value = (endAmp > start) ? value.substring(start, endAmp).trim() : value.substring(start).trim();
+        }
+
+        int qPos = value.indexOf('?');
+        if (qPos >= 0) {
+            value = value.substring(0, qPos).trim();
+        }
+
+        java.util.regex.Matcher m = java.util.regex.Pattern
+            .compile("[a-z0-9._%+\\-]+@[a-z0-9.\\-]+\\.[a-z]{2,}")
+            .matcher(value);
+        if (m.find()) {
+            return m.group().trim();
+        }
+
+        return value;
+    }
+
     public ProcessBasedStudyGenerator(DataFile dataFile, String processUri) {
         super(dataFile);
         this.processUri = URIUtils.canonicalizePmsrUri(processUri);
-        this.creatorEmail = dataFile.getHasSIRManagerEmail();
+        this.creatorEmail = normalizeEmailValue(dataFile.getHasSIRManagerEmail());
         // Use current date if not specified
         this.creationDate = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
     }
@@ -76,7 +115,7 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
     public ProcessBasedStudyGenerator(DataFile dataFile, String processUri, String creatorEmail, String creationDate) {
         super(dataFile);
         this.processUri = URIUtils.canonicalizePmsrUri(processUri);
-        this.creatorEmail = creatorEmail != null ? creatorEmail : dataFile.getHasSIRManagerEmail();
+        this.creatorEmail = normalizeEmailValue(creatorEmail != null ? creatorEmail : dataFile.getHasSIRManagerEmail());
         this.creationDate = creationDate != null ? creationDate : LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
     }
 

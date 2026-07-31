@@ -302,7 +302,7 @@ InfoSheet:
 Namespaces (sheet separada):
   hasPrefix | hasNameSpace
   ----------|-------------
-  pmsr      | http://pmsr.net/ont/pmsr#
+  pmsr      | https://pmsr.net/ont/
   ...       | ...
 ```
 

@@ -25,7 +25,7 @@ public class StatisticsAPI extends Controller {
     private static final String HASCO_MEDICAL_DEVICE_ENTRY_POINT = "http://hadatac.org/ont/hasco/MedicalDeviceEntryPoint";
     private static final String VSTOI_INSTRUMENT_ROOT = "http://hadatac.org/ont/vstoi#Instrument";
     private static final String PMSR_PROCESS_STEM_CANONICAL = "https://pmsr.net/ont/MedicalSimulationProcessStem";
-    private static final String PMSR_PROCESS_STEM_LEGACY = "http://pmsr.net/ont/pmsr#MedicalSimulationProcessStem";
+    private static final String PMSR_PROCESS_STEM_LEGACY = "https://pmsr.net/ont/MedicalSimulationProcessStem";
     private static final String UBERON_ANATOMICAL_ENTITY = "http://purl.obolibrary.org/obo/UBERON_0001062";
     private static final String NCIT_MANUFACTURED_OBJECT = "http://purl.obolibrary.org/obo/NCIT_C97325";
 

@@ -21,7 +21,10 @@ import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.Constants;
 import org.hascoapi.entity.pojo.Process;
 import org.hascoapi.entity.pojo.ProcessBasedStudy;
+import org.hascoapi.entity.pojo.NameSpace;
 import org.hascoapi.entity.pojo.Study;
+import org.hascoapi.entity.pojo.WKFNamespace;
+import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.entity.pojo.Task;
 import org.hascoapi.utils.URIUtils;
 import org.hascoapi.utils.CollectionUtil;
@@ -29,12 +32,9 @@ import org.hascoapi.utils.ConfigProp;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.SPARQLUtils;
 import org.hascoapi.vocabularies.VSTOI;
-import com.typesafe.config.ConfigFactory;
 
 
 public class IngestionWorker {
-
-    private static final String NS_GENERATION_BLOCKED = "hascoapi.namespace.generation.blocked";
 
     private static class WKFVerificationResult {
         boolean hasProcess;
@@ -867,21 +867,10 @@ public class IngestionWorker {
      *========================================================================*/
 
     public static boolean nameSpaceGen(DataFile dataFile, Map<String, String> mapCatalog, String templateFile) {
-        boolean blocked = true;
-        try {
-            if (ConfigFactory.load().hasPath(NS_GENERATION_BLOCKED)) {
-                blocked = ConfigFactory.load().getBoolean(NS_GENERATION_BLOCKED);
-            }
-        } catch (Exception e) {
-            blocked = true;
-        }
+        return nameSpaceGen(dataFile, mapCatalog, templateFile, null);
+    }
 
-        if (blocked) {
-            dataFile.getLogger().println("Namespace generation is blocked by configuration (" + NS_GENERATION_BLOCKED + "=true).");
-            dataFile.getLogger().println("Only RepoPage.ingestNamespaceOntology is allowed to mutate namespace table at this time.");
-            return true;
-        }
-
+    public static boolean nameSpaceGen(DataFile dataFile, Map<String, String> mapCatalog, String templateFile, String metadataType) {
         RecordFile nameSpaceRecordFile = null;
         
         // hasDependencies is a FIELD in InfoSheet, not a sheet name.
@@ -915,22 +904,270 @@ public class IngestionWorker {
             } else if (nameSpaceRecordFile.getRecords() == null) {
                 dataFile.getLogger().printWarning("GBL_00010");
             } else {
-                dataFile.getLogger().println("Namespace generation completed using sheet: " + sheetName);
-                dataFile.setRecordFile(nameSpaceRecordFile);
-
-                GeneratorChain chain = new GeneratorChain();
-                chain.setNamedGraphUri(dataFile.getUri());
-                chain.addGenerator(new NameSpaceGenerator(dataFile,templateFile));
-                boolean isSuccess = false;
-                if (chain != null) {
-                    isSuccess = chain.generate();
+                if (Constants.MT_WKF.equalsIgnoreCase(safeTrim(metadataType))) {
+                    return wkfNameSpaceGen(dataFile, nameSpaceRecordFile, sheetName);
                 }
-                return isSuccess;
+
+                dataFile.getLogger().println("Namespace generation started using sheet: " + sheetName);
+
+                int created = 0;
+                int updated = 0;
+                int skipped = 0;
+                int ingested = 0;
+                int failed = 0;
+                int row = 1;
+
+                for (Record rec : nameSpaceRecordFile.getRecords()) {
+                    row++;
+                    try {
+                        String rowAbbrev = safeTrim(rec.getValueByColumnName("hasPrefix"));
+                        String rowUri = safeTrim(rec.getValueByColumnName("hasNameSpace"));
+                        String rowMime = safeTrim(rec.getValueByColumnName("hasFormat"));
+                        String rowSource = safeTrim(rec.getValueByColumnName("hasSource"));
+
+                        if (rowAbbrev.isEmpty()) {
+                            dataFile.getLogger().printWarning("Namespaces row " + row + " skipped: missing abbreviation (hasPrefix).");
+                            skipped++;
+                            continue;
+                        }
+
+                        NameSpace existing = findNamespaceByExactAbbreviation(rowAbbrev);
+
+                        if (existing == null) {
+                            // Rule 2: abbreviation does not match exactly -> create a new entry
+                            if (rowUri.isEmpty()) {
+                                dataFile.getLogger().printWarning("Namespaces row " + row + " failed: cannot create namespace '" + rowAbbrev + "' with empty URI.");
+                                failed++;
+                                continue;
+                            }
+
+                            NameSpace createdNs = new NameSpace();
+                            createdNs.setNamedGraph(Constants.DEFAULT_REPOSITORY);
+                            createdNs.setLabel(rowAbbrev);
+                            createdNs.setUri(rowUri);
+                            createdNs.setTypeUri(org.hascoapi.vocabularies.HASCO.ONTOLOGY);
+                            createdNs.setHascoTypeUri(org.hascoapi.vocabularies.HASCO.ONTOLOGY);
+                            createdNs.setSourceMime(rowMime);
+                            createdNs.setSource(rowSource);
+                            createdNs.setComment("Ingested by nameSpaceGen");
+                            createdNs.setPriority(100);
+                            createdNs.setPermanent(false);
+
+                            NameSpaces.getInstance().addNamespace(createdNs);
+                            createdNs.save();
+                            created++;
+
+                            // Rule 3: if MIME and source exist, ingest and update loaded triple count
+                            if (hasMimeAndSource(rowMime, rowSource)) {
+                                if (ingestNamespaceSource(dataFile, createdNs, rowAbbrev, row)) {
+                                    ingested++;
+                                } else {
+                                    failed++;
+                                }
+                            }
+                            continue;
+                        }
+
+                        // Rule 4/5: abbreviation matches exactly; keep unchanged if any of MIME/source/triples is present
+                        String existingMime = safeTrim(existing.getSourceMime());
+                        String existingSource = safeTrim(existing.getSource());
+                        int existingTriples = existing.getNumberOfLoadedTriples();
+
+                        if (!existingMime.isEmpty() || !existingSource.isEmpty() || existingTriples > 0) {
+                            dataFile.getLogger().println(
+                                "Namespaces row " + row + " skipped: existing namespace '" + rowAbbrev
+                                + "' already has metadata/content (mime='" + existingMime
+                                + "', source='" + existingSource
+                                + "', triples=" + existingTriples + ")."
+                            );
+                            skipped++;
+                            continue;
+                        }
+
+                        // Rule 6: matching abbreviation with empty MIME/source/triples -> update in place and ingest
+                        existing.setSourceMime(rowMime);
+                        existing.setSource(rowSource);
+                        existing.save();
+                        updated++;
+
+                        if (hasMimeAndSource(rowMime, rowSource)) {
+                            if (ingestNamespaceSource(dataFile, existing, rowAbbrev, row)) {
+                                ingested++;
+                            } else {
+                                failed++;
+                            }
+                        } else {
+                            dataFile.getLogger().printWarning(
+                                "Namespaces row " + row + " for '" + rowAbbrev
+                                + "' updated in table but not ingested because MIME/source is incomplete."
+                            );
+                        }
+                    } catch (Exception e) {
+                        failed++;
+                        dataFile.getLogger().printWarning("Namespaces row " + row + " failed: " + e.getMessage());
+                    }
+                }
+
+                dataFile.getLogger().println(
+                    "Namespace generation completed using sheet: " + sheetName
+                    + " | created=" + created
+                    + " updated=" + updated
+                    + " skipped=" + skipped
+                    + " ingested=" + ingested
+                    + " failed=" + failed
+                );
+
+                return failed == 0;
             }
         } else {
             dataFile.getLogger().printWarning("GBL_00011: Namespace/Namespaces sheet not found");
         }
         return false;
+    }
+
+    private static boolean wkfNameSpaceGen(DataFile dataFile, RecordFile nameSpaceRecordFile, String sheetName) {
+        dataFile.getLogger().println("WKF namespace generation started using sheet: " + sheetName);
+
+        int created = 0;
+        int updated = 0;
+        int skipped = 0;
+        int failed = 0;
+        int row = 1;
+
+        for (Record rec : nameSpaceRecordFile.getRecords()) {
+            row++;
+            try {
+                String rowAbbrev = safeTrim(rec.getValueByColumnName("hasPrefix"));
+                String rowUri = safeTrim(rec.getValueByColumnName("hasNameSpace"));
+                String rowMime = safeTrim(rec.getValueByColumnName("hasFormat"));
+                String rowSource = safeTrim(rec.getValueByColumnName("hasSource"));
+
+                if (rowAbbrev.isEmpty()) {
+                    dataFile.getLogger().printWarning("WKF Namespaces row " + row + " skipped: missing abbreviation (hasPrefix).");
+                    skipped++;
+                    continue;
+                }
+
+                // WKF policy: never mutate the main namespace table.
+                NameSpace existingMain = findNamespaceByExactAbbreviation(rowAbbrev);
+                if (existingMain != null) {
+                    dataFile.getLogger().println(
+                        "WKF Namespaces row " + row + " skipped: abbreviation '" + rowAbbrev
+                        + "' already exists in main namespace table. WKF ingestion cannot modify namespace table."
+                    );
+                    skipped++;
+                    continue;
+                }
+
+                if (rowUri.isEmpty()) {
+                    dataFile.getLogger().printWarning(
+                        "WKF Namespaces row " + row + " failed: cannot store abbreviation '" + rowAbbrev + "' with empty namespace URI."
+                    );
+                    failed++;
+                    continue;
+                }
+
+                WKFNamespace existingWkf = WKFNamespace.findByAbbreviation(rowAbbrev);
+                if (existingWkf == null) {
+                    WKFNamespace wkfNs = new WKFNamespace();
+                    wkfNs.setNamedGraph(Constants.DEFAULT_REPOSITORY);
+                    wkfNs.setUri(org.hascoapi.utils.Utils.uriGen("wkfnamespace"));
+                    wkfNs.setLabel(rowAbbrev);
+                    wkfNs.setHasAbbreviation(rowAbbrev);
+                    wkfNs.setWkfNamespaceUri(rowUri);
+                    wkfNs.setTypeUri(HASCO.WKF_NAMESPACE);
+                    wkfNs.setHascoTypeUri(HASCO.WKF_NAMESPACE);
+                    wkfNs.setSourceMime(rowMime);
+                    wkfNs.setSource(rowSource);
+                    wkfNs.setComment("WKF-requested namespace (no ontology ingestion)");
+                    wkfNs.setHasStatus("DRAFT");
+                    wkfNs.save();
+                    created++;
+                } else {
+                    existingWkf.setWkfNamespaceUri(rowUri);
+                    existingWkf.setTypeUri(HASCO.WKF_NAMESPACE);
+                    existingWkf.setHascoTypeUri(HASCO.WKF_NAMESPACE);
+                    existingWkf.setSourceMime(rowMime);
+                    existingWkf.setSource(rowSource);
+                    existingWkf.setComment("WKF-requested namespace (no ontology ingestion)");
+                    existingWkf.save();
+                    updated++;
+                }
+
+                // Explicit policy: no ontology upload for WKF namespace sheet entries.
+                dataFile.getLogger().println(
+                    "WKF Namespaces row " + row + " stored in WKFNamespaces for '" + rowAbbrev
+                    + "' (source/mime recorded; ontology content not ingested by policy)."
+                );
+            } catch (Exception e) {
+                failed++;
+                dataFile.getLogger().printWarning("WKF Namespaces row " + row + " failed: " + e.getMessage());
+            }
+        }
+
+        dataFile.getLogger().println(
+            "WKF namespace generation completed using sheet: " + sheetName
+            + " | created=" + created
+            + " updated=" + updated
+            + " skipped=" + skipped
+            + " failed=" + failed
+            + " (main namespace table unchanged by design)"
+        );
+
+        return failed == 0;
+    }
+
+    private static String safeTrim(String value) {
+        return value == null ? "" : value.trim();
+    }
+
+    private static boolean hasMimeAndSource(String mime, String source) {
+        return !safeTrim(mime).isEmpty() && !safeTrim(source).isEmpty();
+    }
+
+    private static NameSpace findNamespaceByExactAbbreviation(String abbreviation) {
+        if (abbreviation == null || abbreviation.isEmpty()) {
+            return null;
+        }
+
+        java.util.List<NameSpace> namespaces = NameSpace.find();
+        if (namespaces == null) {
+            return null;
+        }
+
+        for (NameSpace ns : namespaces) {
+            if (ns != null && abbreviation.equals(ns.getLabel())) {
+                return ns;
+            }
+        }
+        return null;
+    }
+
+    private static boolean ingestNamespaceSource(DataFile dataFile, NameSpace namespace, String abbreviation, int row) {
+        try {
+            namespace.deleteTriples();
+            namespace.loadTriples(namespace.getSource(), true);
+            namespace.setNumberOfLoadedTriples();
+            namespace.save();
+
+            int loaded = namespace.getNumberOfLoadedTriples();
+            if (loaded > 0) {
+                dataFile.getLogger().println(
+                    "Namespaces row " + row + " ingested for '" + abbreviation + "': loaded " + loaded + " triples."
+                );
+                return true;
+            }
+
+            dataFile.getLogger().printWarning(
+                "Namespaces row " + row + " ingestion for '" + abbreviation + "' completed but loaded 0 triples."
+            );
+            return true;
+        } catch (Exception e) {
+            dataFile.getLogger().printWarning(
+                "Namespaces row " + row + " ingestion failed for '" + abbreviation + "': " + e.getMessage()
+            );
+            return false;
+        }
     }
 
     public static boolean annotationGen(DataFile dataFile, Map<String, String> mapCatalog, String templateFile, String status) {

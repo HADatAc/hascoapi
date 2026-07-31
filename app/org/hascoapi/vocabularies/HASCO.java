@@ -45,6 +45,7 @@ public class HASCO {
     public static final String USER                                   = "http://hadatac.org/ont/hasco/User";
     public static final String VALUE                                  = "http://hadatac.org/ont/hasco/Value";
     public static final String WKF                                    = "http://hadatac.org/ont/hasco/WKF";
+    public static final String WKF_NAMESPACE                          = "http://hadatac.org/ont/hasco/WKFNamespace";
     public static final String VIRTUAL_COLUMN                         = "http://hadatac.org/ont/hasco/VirtualColumn";
 
     /*
@@ -190,6 +191,7 @@ public class HASCO {
     public static final String HAS_VIEWER_EMAIL                       = "http://hadatac.org/ont/hasco/hasViewerEmail";
     public static final String HAS_VIRTUAL_COLUMN                     = "http://hadatac.org/ont/hasco/hasVirtualColumn";
     public static final String HAS_WEB_DOCUMENT                       = "http://hadatac.org/ont/hasco/hasWebDocument";
+    public static final String WKF_NAMESPACE_URI                      = "http://hadatac.org/ont/hasco/WKFNamespaceUri";
     public static final String IN_RELATION_TO                         = "http://hadatac.org/ont/hasco/inRelationTo";
     public static final String IS_MEMBER_OF                           = "http://hadatac.org/ont/hasco/isMemberOf";
     public static final String IS_POSSIBLE_VALUE_OF                   = "http://hadatac.org/ont/hasco/isPossibleValueOf";

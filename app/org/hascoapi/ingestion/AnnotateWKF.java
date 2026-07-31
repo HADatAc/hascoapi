@@ -53,7 +53,7 @@ public class AnnotateWKF extends BaseAnnotator {
 
         // Generate namespace and messages
         System.out.println("→ Generating namespaces...");
-        boolean okNS = IngestionWorker.nameSpaceGen(dataFile, mapCatalog, templateFile);
+        boolean okNS = IngestionWorker.nameSpaceGen(dataFile, mapCatalog, templateFile, Constants.MT_WKF);
         System.out.println("→ Generating messages...");
         boolean okMsg = IngestionWorker.messageGen(dataFile, mapCatalog, templateFile, status);
 

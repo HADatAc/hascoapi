@@ -256,7 +256,7 @@ DA-SOC CSV values fall into two categories:
    - `hasCodebook`, `hasComponentStem`, `hasComponent`, `belongsTo`, `hasFirst`, `hasNext`, `hasPrevious`, `rdfs:subClassOf`, `hasMaker`, `isAttributeOf`
    - Format: Namespace prefix + originalID
    - ✅ Correct: `pmsr:/CBK001`, `pmsr:/COM002`, `uberon:0001004`
-   - ❌ Incorrect: `CBK001` (missing namespace), `http://pmsr.net/ont/pmsr#CBK001` (full URI not needed)
+   - ❌ Incorrect: `CBK001` (missing namespace), `https://pmsr.net/ont/CBK001` (full URI not needed)
 
 #### Example DA-SOC-COMPONENT.csv (Correct Format)
 
@@ -439,7 +439,7 @@ If you've ingested DA-SOC files in the wrong order:
 
 ### URI Transformation and Prefix Mapping
 
-**⚠️ CRITICAL**: DA-SOC CSV files contain originalIDs with abbreviated formats (e.g., `pmsr:/CBK001`), but VSTOI instances are stored with full prefixed URIs (e.g., `http://pmsr.net/ont/pmsr#CB-CBK001`). The system automatically transforms these during enrichment.
+**⚠️ CRITICAL**: DA-SOC CSV files contain originalIDs with abbreviated formats (e.g., `pmsr:/CBK001`), but VSTOI instances are stored with full prefixed URIs (e.g., `https://pmsr.net/ont/CB-CBK001`). The system automatically transforms these during enrichment.
 
 #### Transformation Rules
 
@@ -464,16 +464,16 @@ COM1738097990641815,pmsr:/CSM1738097871592315,pmsr:/CBK1738096258564815,uberon:0
 ```
 
 **System Processing**:
-1. Finds Component with URI: `http://pmsr.net/ont/pmsr#COMP-COM1738097990641815`
-2. Transforms `pmsr:/CSM1738097871592315` → `http://pmsr.net/ont/pmsr#CSTEM-CSM1738097871592315`
-3. Transforms `pmsr:/CBK1738096258564815` → `http://pmsr.net/ont/pmsr#CB-CBK1738096258564815`
+1. Finds Component with URI: `https://pmsr.net/ont/COMP-COM1738097990641815`
+2. Transforms `pmsr:/CSM1738097871592315` → `https://pmsr.net/ont/CSTEM-CSM1738097871592315`
+3. Transforms `pmsr:/CBK1738096258564815` → `https://pmsr.net/ont/CB-CBK1738096258564815`
 4. Sets properties on Component POJO
 5. Saves to triplestore with full URIs
 
 **Debug Output**:
 ```
-[DEBUG-URI-TRANSFORM] ComponentStem: pmsr:/CSM1738097871592315 -> http://pmsr.net/ont/pmsr#CSTEM-CSM1738097871592315
-[DEBUG-URI-TRANSFORM] Codebook: pmsr:/CBK1738096258564815 -> http://pmsr.net/ont/pmsr#CB-CBK1738096258564815
+[DEBUG-URI-TRANSFORM] ComponentStem: pmsr:/CSM1738097871592315 -> https://pmsr.net/ont/CSTEM-CSM1738097871592315
+[DEBUG-URI-TRANSFORM] Codebook: pmsr:/CBK1738096258564815 -> https://pmsr.net/ont/CB-CBK1738096258564815
 ```
 
 This transformation ensures that:
@@ -668,15 +668,15 @@ This fix was critical because:
 
 ### Fix #4: URI Prefix Mismatch Between DA-SOC References and VSTOI Instances
 
-**Problem**: DA-SOC CSV files contained abbreviated originalID references (e.g., `pmsr:/CBK1738096258564815`), but VSTOI instances were created with prefixed URIs (e.g., `http://pmsr.net/ont/pmsr#CB-CBK1738096258564815`). When enrichment methods tried to resolve these references using `find()`, they returned null because the URIs didn't match.
+**Problem**: DA-SOC CSV files contained abbreviated originalID references (e.g., `pmsr:/CBK1738096258564815`), but VSTOI instances were created with prefixed URIs (e.g., `https://pmsr.net/ont/CB-CBK1738096258564815`). When enrichment methods tried to resolve these references using `find()`, they returned null because the URIs didn't match.
 
 **Manifestation**:
-- Components saved `hasCodebook = http://pmsr.net/ont/pmsr#CBK1738096258564815` (missing `CB-` prefix)
-- Codebook stored as `http://pmsr.net/ont/pmsr#CB-CBK1738096258564815`
+- Components saved `hasCodebook = https://pmsr.net/ont/CBK1738096258564815` (missing `CB-` prefix)
+- Codebook stored as `https://pmsr.net/ont/CB-CBK1738096258564815`
 - `Codebook.find()` returned null → UI showed "None Provided"
 - Same issue affected: ComponentStems (`CSTEM-`), ContainerSlots (`CTSLOT-`), Instruments (`INST-`)
 
-**Root Cause**: The `URIUtils.replacePrefixEx()` method only expanded namespace prefixes (e.g., `pmsr:/` → `http://pmsr.net/ont/pmsr#`) but didn't add the entity type prefixes (`CB-`, `CSTEM-`, etc.) that `StudyObjectGenerator` uses when creating VSTOI instances.
+**Root Cause**: The `URIUtils.replacePrefixEx()` method only expanded namespace prefixes (e.g., `pmsr:/` → `https://pmsr.net/ont/`) but didn't add the entity type prefixes (`CB-`, `CSTEM-`, etc.) that `StudyObjectGenerator` uses when creating VSTOI instances.
 
 **Solution**: Created `convertToVstoiUri()` helper method that:
 1. Expands namespace prefixes
@@ -715,13 +715,13 @@ component.setHasComponentStem(convertToVstoiUri(value));
 
 **Problem**: When viewing entities (especially Codebooks) in the UI, the system was generating warnings about literal values:
 ```
-[WARNING] URIPage.objectFromUri(): No generic instance found for uri [http://pmsr.net/ont/pmsr#en]
-[WARNING] URIPage.objectFromUri(): No generic instance found for uri [http://pmsr.net/ont/pmsr#1]
+[WARNING] URIPage.objectFromUri(): No generic instance found for uri [https://pmsr.net/ont/en]
+[WARNING] URIPage.objectFromUri(): No generic instance found for uri [https://pmsr.net/ont/1]
 ```
 
 **Manifestation**:
 - DA-SOC CSV files contained literal values (language codes, version numbers) with namespace prefixes: `pmsr:/en`, `pmsr:/1`
-- These were being saved to the triplestore with full URIs: `http://pmsr.net/ont/pmsr#en`, `http://pmsr.net/ont/pmsr#1`
+- These were being saved to the triplestore with full URIs: `https://pmsr.net/ont/en`, `https://pmsr.net/ont/1`
 - When displaying entities in UI, the system tried to resolve these as entity URIs instead of literal strings
 - Result: Continuous warnings in logs, confusion about what properties are entities vs. literals
 
@@ -816,7 +816,7 @@ ORDER BY DESC(?count)
 
 #### Check Properties Were Enriched
 ```sparql
-PREFIX pmsr: <http://pmsr.net/ont/pmsr#>
+PREFIX pmsr: <https://pmsr.net/ont/>
 PREFIX vstoi: <http://hadatac.org/ont/vstoi#>
 
 SELECT ?instrument ?label ?language ?version ?status WHERE {
@@ -885,7 +885,7 @@ After successful ingestion and enrichment, the following should be verified in t
 
 **Verification**:
 ```
-[DEBUG-COMPONENT-UI] hasCodebook value: http://pmsr.net/ont/pmsr#CB-CBK...
+[DEBUG-COMPONENT-UI] hasCodebook value: https://pmsr.net/ont/CB-CBK...
 [DEBUG-CODEBOOK-FIND] Results found! Creating new Codebook instance
 ```
 
@@ -908,14 +908,14 @@ After successful ingestion and enrichment, the following should be verified in t
 
 **Debug Logging**:
 ```
-[DEBUG-SLOTS] Container.hasFirst = http://pmsr.net/ont/pmsr#CTSLOT-CTS...
+[DEBUG-SLOTS] Container.hasFirst = https://pmsr.net/ont/CTSLOT-CTS...
 [DEBUG-SLOTS] Found 5 slot elements
 ```
 
 #### Issue 3: "No results found for URI" in Logs
 
 **Symptoms**:
-- Debug logs show: `[DEBUG-CSTEM-FIND] No results found for URI: http://pmsr.net/ont/pmsr#CSM...`
+- Debug logs show: `[DEBUG-CSTEM-FIND] No results found for URI: https://pmsr.net/ont/CSM...`
 - Entity exists in triplestore with slightly different URI
 - UI shows null/empty references
 
@@ -1000,7 +1000,7 @@ COM001,en,1.0,pmsr:/CBK001
 3. Query triplestore directly to verify values:
    ```sparql
    SELECT * WHERE {
-     <http://pmsr.net/ont/pmsr#COMP-COM001> ?p ?o .
+     <https://pmsr.net/ont/COMP-COM001> ?p ?o .
    }
    ```
 
@@ -1009,8 +1009,8 @@ COM001,en,1.0,pmsr:/CBK001
 **Symptoms**:
 - Console logs show repeated warnings when viewing entities:
   ```
-  [WARNING] No generic instance found for uri [http://pmsr.net/ont/pmsr#en]
-  [WARNING] No generic instance found for uri [http://pmsr.net/ont/pmsr#1]
+  [WARNING] No generic instance found for uri [https://pmsr.net/ont/en]
+  [WARNING] No generic instance found for uri [https://pmsr.net/ont/1]
   ```
 - Warnings appear especially when viewing Codebooks, Instruments, or Components
 - Same entity shows warnings multiple times
@@ -1038,7 +1038,7 @@ COM001,en,1.0,pmsr:/CBK001
    } LIMIT 5
    ```
    - Language should show: `"en"` (string literal)
-   - NOT: `<http://pmsr.net/ont/pmsr#en>` (URI)
+   - NOT: `<https://pmsr.net/ont/en>` (URI)
 
 **Prevention**: Always use plain values for literal properties in DA-SOC CSVs:
 - ✅ Correct: `en`, `1`, `PUBLISHED`, `2.0`

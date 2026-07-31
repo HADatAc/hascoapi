@@ -17,11 +17,12 @@ import java.util.Map;
 
 public class WKFGenerator extends BaseGenerator {
 
-    private static final String LEGACY_PMSR_PROCESS_STEM_URI = "http://pmsr.net/ont/pmsr#MedicalSimulationProcessStem";
+    private static final String LEGACY_PMSR_PROCESS_STEM_URI = "https://pmsr.net/ont/MedicalSimulationProcessStem";
     private static final String CANONICAL_PMSR_PROCESS_STEM_URI = "https://pmsr.net/ont/MedicalSimulationProcessStem";
-    private static final String LEGACY_PMSR_BASE = "http://pmsr.net/ont/pmsr#/";
-    private static final String LEGACY_PMSR_BASE_HTTPS = "https://pmsr.net/ont/pmsr#/";
+    private static final String LEGACY_PMSR_BASE = "https://pmsr.net/ont/";
+    private static final String LEGACY_PMSR_BASE_HTTPS = "https://pmsr.net/ont/";
     private static final String CANONICAL_PMSR_BASE = "https://pmsr.net/ont/";
+    private static final java.util.regex.Pattern EMAIL_PATTERN = java.util.regex.Pattern.compile("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\\\.[A-Za-z]{2,}$");
 
     protected String wkfUri = "";
     protected String hasStatus = "";
@@ -121,7 +122,7 @@ public class WKFGenerator extends BaseGenerator {
 
         // Add data file reference
         row.put("hasco:hasDataFile", this.dataFile.getUri());
-        row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
+        row.put("vstoi:hasSIRManagerEmail", sanitizeManagerEmail(this.dataFile.getHasSIRManagerEmail()));
 
         // Only return row if it has a URI
         if (row.containsKey("hasURI") && !row.get("hasURI").toString().trim().isEmpty()) {
@@ -170,7 +171,7 @@ public class WKFGenerator extends BaseGenerator {
             throw new Exception(msg);
         }
 
-        String managerEmail = this.dataFile.getHasSIRManagerEmail();
+        String managerEmail = sanitizeManagerEmail(this.dataFile.getHasSIRManagerEmail());
         if (managerEmail != null && !managerEmail.trim().isEmpty()) {
             try {
                 Person person = Person.findByEmail(managerEmail.trim());
@@ -343,6 +344,44 @@ public class WKFGenerator extends BaseGenerator {
         value = value.replace("STD_", "STD-");
         value = value.replace("WKF_", "WKF-");
         value = URIUtils.canonicalizePmsrUri(value);
+        return value;
+    }
+
+    private String sanitizeManagerEmail(String raw) {
+        if (raw == null) {
+            return "";
+        }
+
+        String value = raw.trim();
+        if (value.isEmpty()) {
+            return "";
+        }
+
+        int lt = value.indexOf('<');
+        int gt = value.indexOf('>');
+        if (lt >= 0 && gt > lt) {
+            value = value.substring(lt + 1, gt).trim();
+        }
+
+        String lower = value.toLowerCase();
+        if (lower.startsWith("mailto:")) {
+            value = value.substring(7).trim();
+        }
+
+        int qPos = value.indexOf('?');
+        if (qPos >= 0) {
+            value = value.substring(0, qPos).trim();
+        }
+
+        int ampPos = value.indexOf('&');
+        if (ampPos >= 0) {
+            value = value.substring(0, ampPos).trim();
+        }
+
+        if (!EMAIL_PATTERN.matcher(value).matches()) {
+            return "";
+        }
+
         return value;
     }
 

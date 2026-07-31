@@ -109,6 +109,9 @@ public class Utils {
             case "wkf":
                 shortPrefix = Constants.PREFIX_WKF;
                 break;
+            case "wkfnamespace":
+                shortPrefix = Constants.PREFIX_WKF_NAMESPACE;
+                break;
             case "ins":
                 shortPrefix = Constants.PREFIX_INS;
                 break;

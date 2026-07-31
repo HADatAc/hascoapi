@@ -5,7 +5,7 @@
 When opening a WKF workflow in the frontend, the following error occurs:
 
 ```
-Bad IRI: 'http://pmsr.net/ont/pmsr#/WKF_PMSR_SIM_0001/RIN/0001%20%7C%20http://pmsr.net/ont/pmsr#/WKF_PMSR_SIM_0001/RIN/0002%20%7C%20http://pmsr.net/ont/pmsr#/WKF_PMSR_SIM_0001/RIN/0003'
+Bad IRI: 'https://pmsr.net/ont/WKF_PMSR_SIM_0001/RIN/0001%20%7C%20https://pmsr.net/ont/WKF_PMSR_SIM_0001/RIN/0002%20%7C%20https://pmsr.net/ont/WKF_PMSR_SIM_0001/RIN/0003'
 Code: 0/ILLEGAL_CHARACTER in FRAGMENT
 ```
 

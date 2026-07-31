@@ -14,6 +14,7 @@ import org.hascoapi.entity.pojo.HADatAcClass;
 import org.hascoapi.entity.pojo.NameSpace;
 import org.hascoapi.entity.pojo.Repository;
 import org.hascoapi.entity.pojo.Table;
+import org.hascoapi.entity.pojo.WKFNamespace;
 import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.ConfigProp;
@@ -51,12 +52,19 @@ public class RepoPage extends Controller {
 
     private static final String NS_APPROVAL_REQUIRED = "hascoapi.namespace.approval.required";
     private static final String NS_APPROVAL_TOKEN = "hascoapi.namespace.approval.token";
+    private static final String NS_APPROVAL_TOKEN_ENV = "HASCOAPI_NAMESPACE_APPROVAL_TOKEN";
+    private static final String NS_APPROVAL_TOKEN_FALLBACK = "rep-semantic-settings-token";
     private static final String NS_APPROVAL_HEADER = "X-Namespace-Approval";
     private static final String NS_CHANGE_ID_HEADER = "X-Change-Id";
     private static final String NS_COMPONENT_HEADER = "X-Namespace-Component";
+    private static final String MAP_ENTRYPOINTS_COMPONENT = "rep-map-entrypoints";
+    private static final String HASCO_NAMESPACE_LABEL = "hasco";
+    private static final String HASCO_NAMESPACE_URI = "http://hadatac.org/ont/hasco/";
     private static final Set<String> ALLOWED_NS_COMPONENTS = new HashSet<>(Arrays.asList(
         "pmsr-config-bootstrap",
-        "pmsr-ingest-ontologies"
+        "pmsr-ingest-ontologies",
+        "semantic-repository-settings",
+        MAP_ENTRYPOINTS_COMPONENT
     ));
 
     /**
@@ -84,6 +92,17 @@ public class RepoPage extends Controller {
             }
         } catch (Exception e) {
             expectedToken = "";
+        }
+
+        if (expectedToken == null || expectedToken.trim().isEmpty()) {
+            String envToken = System.getenv(NS_APPROVAL_TOKEN_ENV);
+            if (envToken != null && !envToken.trim().isEmpty()) {
+                expectedToken = envToken.trim();
+            }
+        }
+
+        if (expectedToken == null || expectedToken.trim().isEmpty()) {
+            expectedToken = NS_APPROVAL_TOKEN_FALLBACK;
         }
 
         if (expectedToken == null || expectedToken.trim().isEmpty()) {
@@ -117,7 +136,7 @@ public class RepoPage extends Controller {
             System.err.println("[SECURITY] Namespace mutation blocked: unauthorized component. action="
                 + action + ", component=" + component + ", changeId=" + changeId);
             return forbidden(ApiUtil.createResponse(
-                "Namespace mutation blocked: unauthorized component. Allowed components are pmsr-config-bootstrap and pmsr-ingest-ontologies.",
+                "Namespace mutation blocked: unauthorized component. Allowed components are pmsr-config-bootstrap, pmsr-ingest-ontologies, semantic-repository-settings, and rep-map-entrypoints.",
                 false
             ));
         }
@@ -269,14 +288,43 @@ public class RepoPage extends Controller {
             ));
         }
 
-        String safeMime = (sourceMime == null || "_".equals(sourceMime)) ? "" : sourceMime;
-        String safeSource = (source == null || "_".equals(source)) ? "" : source;
+        String normalizedPrefix = prefix.trim().toLowerCase(Locale.ROOT);
+        String normalizedUrl = URIUtils.normalizeNamespaceBase(url.trim());
+        String safeMime = (sourceMime == null || "_".equals(sourceMime)) ? "" : sourceMime.trim();
+        String safeSource = (source == null || "_".equals(source)) ? "" : source.trim();
 
-        RepositoryInstance.getInstance().setHasDefaultNamespacePrefix(prefix);
-        RepositoryInstance.getInstance().setHasDefaultNamespaceURL(url);
+        String pairError = validateNamespacePair(normalizedPrefix, normalizedUrl, normalizedPrefix);
+        if (pairError != null) {
+            return badRequest(ApiUtil.createResponse(
+                "Default namespace update blocked: " + pairError + ".", false
+            ));
+        }
+
+        RepositoryInstance.getInstance().setHasDefaultNamespacePrefix(normalizedPrefix);
+        RepositoryInstance.getInstance().setHasDefaultNamespaceURL(normalizedUrl);
         RepositoryInstance.getInstance().setHasDefaultNamespaceSourceMime(safeMime);
         RepositoryInstance.getInstance().setHasDefaultNamespaceSource(safeSource);
         RepositoryInstance.getInstance().save();
+
+        // Keep namespace table in sync with repository default namespace.
+        NameSpace ns = NameSpaces.getInstance().getNamespaces().get(normalizedPrefix);
+        if (ns == null) {
+            ns = new NameSpace();
+            ns.setLabel(normalizedPrefix);
+            ns.setTypeUri(HASCO.ONTOLOGY);
+            ns.setHascoTypeUri(HASCO.ONTOLOGY);
+            ns.setPriority(100);
+            ns.setPermanent(false);
+        }
+        ns.setUri(normalizedUrl);
+        ns.setNamedGraph(normalizedUrl);
+        ns.setSource(safeSource);
+        ns.setSourceMime(safeMime);
+        ns.save();
+        NameSpaces.getInstance().resetNameSpaces();
+
+        auditNamespaceMutation("updateDefaultNamespace", request,
+            "label=" + normalizedPrefix + " uri=" + normalizedUrl);
 
         return ok(ApiUtil.createResponse("Repository default namespace has been UPDATED.", true));
     }
@@ -454,6 +502,18 @@ public class RepoPage extends Controller {
             java.net.URLDecoder.decode(namespaceUri, java.nio.charset.StandardCharsets.UTF_8)
         );
         final String decodedAbbrev = java.net.URLDecoder.decode(abbreviation, java.nio.charset.StandardCharsets.UTF_8).trim().toLowerCase(Locale.ROOT);
+        final String normalizedComponent = auditComponent.trim().toLowerCase(Locale.ROOT);
+        final boolean mapEntrypointsComponent = MAP_ENTRYPOINTS_COMPONENT.equals(normalizedComponent);
+
+        if (mapEntrypointsComponent) {
+            final String normalizedHascoUri = URIUtils.normalizeNamespaceBase(HASCO_NAMESPACE_URI);
+            if (!HASCO_NAMESPACE_LABEL.equals(decodedAbbrev) || !normalizedHascoUri.equals(decodedUri)) {
+                return forbidden(ApiUtil.createResponse(
+                    "Namespace ontology ingestion blocked: rep-map-entrypoints can update only hasco -> http://hadatac.org/ont/hasco/.",
+                    false
+                ));
+            }
+        }
 
         String pairError = validateNamespacePair(decodedAbbrev, decodedUri, decodedAbbrev);
         if (pairError != null && !pairError.equals("label already exists")) {
@@ -520,6 +580,13 @@ public class RepoPage extends Controller {
             System.out.println("ingestNamespaceOntology: Will update existing namespace with new file URI and MIME");
 
         } else if (existingByUri != null) {
+            if (mapEntrypointsComponent && !decodedAbbrev.equals(existingByUri.getLabel())) {
+                return forbidden(ApiUtil.createResponse(
+                    "Namespace ontology ingestion blocked: rep-map-entrypoints cannot replace non-hasco namespace table entries.",
+                    false
+                ));
+            }
+
             // URI exists but with a different label. Replace it so requested abbreviation is preserved exactly.
             String conflictingLabel = existingByUri.getLabel();
             System.out.println("[WARNING] URI already exists with conflicting abbreviation: " + conflictingLabel +
@@ -623,9 +690,13 @@ public class RepoPage extends Controller {
             try {
                 System.out.println("ingestNamespaceOntology: Starting ingestion for namespace: " + namespace.getLabel());
 
-                // Remove existing triples from the same named graph
-                namespace.deleteTriples();
-                System.out.println("ingestNamespaceOntology: Deleted existing triples for namespace: " + namespace.getLabel());
+                if (!mapEntrypointsComponent) {
+                    // Remove existing triples from the same named graph
+                    namespace.deleteTriples();
+                    System.out.println("ingestNamespaceOntology: Deleted existing triples for namespace: " + namespace.getLabel());
+                } else {
+                    System.out.println("ingestNamespaceOntology: Append-only ingest enabled for rep-map-entrypoints component.");
+                }
 
                 // Load triples from the temp file
                 namespace.loadTriples(fileToIngest.getAbsolutePath(), false);
@@ -637,9 +708,13 @@ public class RepoPage extends Controller {
                 java.util.List<NameSpace> allNamespaces = NameSpace.find();
                 java.util.List<String> unwantedNamespaces = new java.util.ArrayList<>();
                 
+                String targetUri = URIUtils.normalizeNamespaceBase(namespace.getUri());
                 for (NameSpace ns : allNamespaces) {
-                    // Check if this namespace points to our graph URI but has wrong abbreviation
-                    if (ns.getUri().equals(namespace.getUri()) && !ns.getLabel().equals(decodedAbbrev)) {
+                    String nsUri = URIUtils.normalizeNamespaceBase(ns.getUri());
+
+                    // Check if this namespace points to our graph URI (normalized) but has wrong abbreviation.
+                    // This catches both exact and slash-variant collisions such as NCIT_ vs NCIT_/.
+                    if (targetUri.equals(nsUri) && !ns.getLabel().equals(decodedAbbrev)) {
                         System.out.println("[WARNING] Found unwanted namespace: '" + ns.getLabel() + "' -> " + ns.getUri());
                         System.out.println("[WARNING] This was auto-created from TTL metadata (rdfs:label)");
                         unwantedNamespaces.add(ns.getLabel());
@@ -767,6 +842,88 @@ public class RepoPage extends Controller {
             e.printStackTrace();
             return badRequest(ApiUtil.createResponse("Error retrieving namespaces", false));
         }
+    }
+
+    public Result getWKFNamespaces() {
+        ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL, HASCO.WKF_NAMESPACE);
+        try {
+            List<WKFNamespace> wkfNamespaces = WKFNamespace.find();
+            java.util.Collections.sort(wkfNamespaces);
+            ArrayNode array = mapper.convertValue(wkfNamespaces, ArrayNode.class);
+            JsonNode jsonObject = mapper.convertValue(array, JsonNode.class);
+            return ok(ApiUtil.createResponse(jsonObject, true));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return badRequest(ApiUtil.createResponse("Error retrieving WKF namespaces", false));
+        }
+    }
+
+    public Result updateWKFNamespace(String abbreviation, String json) {
+        if (abbreviation == null || abbreviation.trim().isEmpty()) {
+            return badRequest(ApiUtil.createResponse("No WKF namespace abbreviation has been provided.", false));
+        }
+        if (json == null || json.trim().isEmpty()) {
+            return badRequest(ApiUtil.createResponse("No WKF namespace JSON payload has been provided.", false));
+        }
+
+        try {
+            WKFNamespace existing = WKFNamespace.findByAbbreviation(abbreviation.trim());
+            if (existing == null) {
+                return badRequest(ApiUtil.createResponse("WKF namespace [" + abbreviation + "] was not found.", false));
+            }
+
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode node = mapper.readTree(json);
+
+            String uri = node.hasNonNull("wkfNamespaceUri") ? node.get("wkfNamespaceUri").asText() : existing.getWkfNamespaceUri();
+            if ((uri == null || uri.trim().isEmpty()) && node.hasNonNull("uri")) {
+                uri = node.get("uri").asText();
+            }
+            String source = node.hasNonNull("source") ? node.get("source").asText() : existing.getSource();
+            String sourceMime = node.hasNonNull("sourceMime") ? node.get("sourceMime").asText() : existing.getSourceMime();
+
+            uri = URIUtils.normalizeNamespaceBase((uri == null ? "" : uri).trim());
+
+            String uriError = validateNamespaceUri(uri);
+            if (uriError != null) {
+                return badRequest(ApiUtil.createResponse("WKF namespace update blocked: " + uriError + ".", false));
+            }
+
+            existing.setWkfNamespaceUri(uri);
+            existing.setTypeUri(HASCO.WKF_NAMESPACE);
+            existing.setHascoTypeUri(HASCO.WKF_NAMESPACE);
+            existing.setSource(source == null ? "" : source.trim());
+            existing.setSourceMime(sourceMime == null ? "" : sourceMime.trim());
+            existing.setComment("WKF-requested namespace (no ontology ingestion)");
+            existing.save();
+
+            return ok(ApiUtil.createResponse("WKF namespace [" + abbreviation + "] has been UPDATED.", true));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return badRequest(ApiUtil.createResponse("Failed to update WKF namespace: " + e.getMessage(), false));
+        }
+    }
+
+    public Result deleteWKFNamespace(String abbreviation) {
+        WKFNamespace existing = WKFNamespace.findByAbbreviation(abbreviation == null ? "" : abbreviation.trim());
+        if (existing == null) {
+            return badRequest(ApiUtil.createResponse("WKF namespace [" + abbreviation + "] was not found.", false));
+        }
+        return removeWKFNamespace(existing.getUri());
+    }
+
+    public Result removeWKFNamespace(String uri) {
+        if (uri == null || uri.trim().isEmpty()) {
+            return badRequest(ApiUtil.createResponse("No WKF namespace uri has been provided.", false));
+        }
+
+        WKFNamespace existing = WKFNamespace.find(uri.trim());
+        if (existing == null) {
+            return badRequest(ApiUtil.createResponse("WKF namespace with uri [" + uri + "] was not found.", false));
+        }
+
+        existing.delete();
+        return ok(ApiUtil.createResponse("WKF namespace with uri [" + uri + "] has been DELETED.", true));
     }
 
     public Result getTopClasses(String uri) {

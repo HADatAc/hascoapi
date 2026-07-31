@@ -27,7 +27,7 @@ import static org.hascoapi.Constants.*;
 @JsonFilter("processFilter")
 public class Process extends HADatAcThing implements Comparable<Process> {
 
-    private static final String LEGACY_PMSR_PROCESS_STEM_URI = "http://pmsr.net/ont/pmsr#MedicalSimulationProcessStem";
+    private static final String LEGACY_PMSR_PROCESS_STEM_URI = "https://pmsr.net/ont/MedicalSimulationProcessStem";
     private static final String CANONICAL_PMSR_PROCESS_STEM_URI = "https://pmsr.net/ont/MedicalSimulationProcessStem";
 
     @PropertyField(uri = "vstoi:hasStatus")
