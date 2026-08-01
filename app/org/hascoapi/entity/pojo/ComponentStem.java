@@ -208,23 +208,23 @@ public class ComponentStem extends HADatAcClass implements SIRElement, Comparabl
     }
 
     public static ComponentStem find(String uri) {
-        System.out.println("[DEBUG-CSTEM-FIND] ComponentStem.find() called with URI: " + uri);
+        // System.out.println("[DEBUG-CSTEM-FIND] ComponentStem.find() called with URI: " + uri);
 		if (uri == null || uri.isEmpty()) {
-            System.out.println("[DEBUG-CSTEM-FIND] URI is null or empty, returning null");
+            // System.out.println("[DEBUG-CSTEM-FIND] URI is null or empty, returning null");
 			return null;
 		}
 		ComponentStem ComponentStem = null;
 		// Construct the SELECT query to retrieve named graphs
 		String queryString = "SELECT DISTINCT ?graph ?p ?o WHERE { GRAPH ?graph { <" + uri + "> ?p ?o } }";
-        System.out.println("[DEBUG-CSTEM-FIND] Executing SPARQL query: " + queryString);
+        // System.out.println("[DEBUG-CSTEM-FIND] Executing SPARQL query: " + queryString);
 		ResultSet resultSet = SPARQLUtils.select(CollectionUtil.getCollectionPath(
         	CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
 		if (!resultSet.hasNext()) {
-            System.out.println("[DEBUG-CSTEM-FIND] No results found for URI: " + uri);
+            // System.out.println("[DEBUG-CSTEM-FIND] No results found for URI: " + uri);
 			return null;
 		} else {
-            System.out.println("[DEBUG-CSTEM-FIND] Results found! Creating new ComponentStem instance");
+            // System.out.println("[DEBUG-CSTEM-FIND] Results found! Creating new ComponentStem instance");
             ComponentStem = new ComponentStem(VSTOI.COMPONENT_STEM);
 		}
 
@@ -293,9 +293,9 @@ public class ComponentStem extends HADatAcClass implements SIRElement, Comparabl
             }
         }
 
-        System.out.println("[DEBUG-CSTEM-FIND] Loaded " + propertyCount + " properties for ComponentStem");
+		// System.out.println("[DEBUG-CSTEM-FIND] Loaded " + propertyCount + " properties for ComponentStem");
         ComponentStem.setUri(uri);
-        System.out.println("[DEBUG-CSTEM-FIND] Returning ComponentStem with URI: " + ComponentStem.getUri() + ", Label: " + ComponentStem.getLabel());
+		// System.out.println("[DEBUG-CSTEM-FIND] Returning ComponentStem with URI: " + ComponentStem.getUri() + ", Label: " + ComponentStem.getLabel());
 
         return ComponentStem;
     }

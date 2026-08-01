@@ -499,9 +499,9 @@ public class GenericFind<T> {
         if (className == null && superclassName == null) {
             return null;
         }
-        System.out.println("findByKeywordWithPages: className=[" + className + "]");
-        System.out.println("findByKeywordWithPages: superclassName=[" + superclassName + "]");
-        System.out.println("findByKeywordWithPages: isSIR=[" + isSIR(clazz) + "]");
+        // System.out.println("findByKeywordWithPages: className=[" + className + "]");
+        // System.out.println("findByKeywordWithPages: superclassName=[" + superclassName + "]");
+        // System.out.println("findByKeywordWithPages: isSIR=[" + isSIR(clazz) + "]");
         if (clazz.equals(Annotation.class)) {
             return findAnnotationsByKeywordWithPages(clazz, className, keyword, pageSize, offset);
         } else if (isSIR(clazz) && superclassName != null) {
@@ -595,7 +595,7 @@ public class GenericFind<T> {
                 (keyword.isEmpty() ? "" : " ORDER BY ASC(?label) ") +
                 " LIMIT " + pageSize +
                 " OFFSET " + offset;
-        System.out.println("GenericFind.findInstancesByKeywordWithPages: [" + queryString + "]");
+        // System.out.println("GenericFind.findInstancesByKeywordWithPages: [" + queryString + "]");
         return findByQuery(clazz, queryString);
     }
 

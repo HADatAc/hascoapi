@@ -126,11 +126,16 @@ public abstract class HADatAcThing {
         if (typeUri == null) {
             return "";
         }
-        Entity ent = Entity.find(typeUri);
-        if (ent == null || ent.getLabel() == null) {
+        try {
+            Entity ent = Entity.find(typeUri);
+            if (ent == null || ent.getLabel() == null) {
+                return "";
+            }
+            return ent.getLabel();
+        } catch (Exception e) {
+            // Avoid failing API payload serialization when triplestore calls are transiently unavailable.
             return "";
         }
-        return ent.getLabel();
     }
 
     public String getHascoTypeUri() { return hascoTypeUri; }
@@ -143,11 +148,16 @@ public abstract class HADatAcThing {
         if (hascoTypeUri == null) {
             return "";
         }
-        Entity ent = Entity.find(hascoTypeUri);
-        if (ent == null || ent.getLabel() == null) {
+        try {
+            Entity ent = Entity.find(hascoTypeUri);
+            if (ent == null || ent.getLabel() == null) {
+                return "";
+            }
+            return ent.getLabel();
+        } catch (Exception e) {
+            // Avoid failing API payload serialization when triplestore calls are transiently unavailable.
             return "";
         }
-        return ent.getLabel();
     }
 
     public String getTypeNamespace() {

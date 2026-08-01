@@ -28,6 +28,8 @@ import static org.hascoapi.Constants.*;
 @JsonFilter("taskFilter")
 public class Task extends HADatAcThing implements Comparable<Task> {
 
+    private static final String UBERON_ANATOMICAL_ENTITY_ROOT = "http://purl.obolibrary.org/obo/UBERON_0000465";
+
     @PropertyField(uri = "vstoi:hasStatus")
     private String hasStatus;
 
@@ -60,6 +62,9 @@ public class Task extends HADatAcThing implements Comparable<Task> {
 
     @PropertyField(uri="vstoi:hasSubtask", valueType=PropertyValueType.URI)
     private List<String> hasSubtaskUris = new ArrayList<String>();
+
+    @PropertyField(uri="vstoi:associatedAnatomy", valueType=PropertyValueType.URI)
+    private List<String> hasAssociatedAnatomyUris = new ArrayList<String>();
 
     @PropertyField(uri="vstoi:hasIterationConstraint")
     private String hasIterationConstraint;
@@ -258,6 +263,61 @@ public class Task extends HADatAcThing implements Comparable<Task> {
         this.supportsObjective = supportsObjective;
     }
 
+    public List<String> getHasAssociatedAnatomyUris() {
+        return hasAssociatedAnatomyUris;
+    }
+
+    // Backward-compatible alias used by some API payloads.
+    public List<String> getAssociatedAnatomyUris() {
+        return getHasAssociatedAnatomyUris();
+    }
+
+    public void setHasAssociatedAnatomyUris(List<String> hasAssociatedAnatomyUris) {
+        this.hasAssociatedAnatomyUris = new ArrayList<String>();
+        if (hasAssociatedAnatomyUris == null) {
+            return;
+        }
+        for (String anatomyUri : hasAssociatedAnatomyUris) {
+            addHasAssociatedAnatomyUri(anatomyUri);
+        }
+    }
+
+    // Backward-compatible alias used by some API payloads.
+    public void setAssociatedAnatomyUris(List<String> associatedAnatomyUris) {
+        setHasAssociatedAnatomyUris(associatedAnatomyUris);
+    }
+
+    public void addHasAssociatedAnatomyUri(String anatomyUri) {
+        if (anatomyUri == null || anatomyUri.trim().isEmpty()) {
+            return;
+        }
+        String cleanUri = anatomyUri.trim();
+        if (!isValidAssociatedAnatomyUri(cleanUri)) {
+            System.out.println("[Task] Ignoring associated anatomy URI outside UBERON anatomical entity hierarchy: " + cleanUri);
+            return;
+        }
+        if (!this.hasAssociatedAnatomyUris.contains(cleanUri)) {
+            this.hasAssociatedAnatomyUris.add(cleanUri);
+        }
+    }
+
+    private boolean isValidAssociatedAnatomyUri(String anatomyUri) {
+        if (anatomyUri.equals(UBERON_ANATOMICAL_ENTITY_ROOT)) {
+            return true;
+        }
+
+        String queryString = NameSpaces.getInstance().printSparqlNameSpaceList()
+                + " SELECT ?uri WHERE { \n"
+                + "  <" + anatomyUri + "> rdfs:subClassOf* <" + UBERON_ANATOMICAL_ENTITY_ROOT + "> . \n"
+                + "  BIND(<" + anatomyUri + "> as ?uri) \n"
+                + " } LIMIT 1 \n";
+
+        ResultSet resultSet = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+        return resultSet != null && resultSet.hasNext();
+    }
+
     // Backward-compatible alias used by some clients (e.g., workflow editor)
     public List<Task> getSubtask() {
         List<Task> resp = new ArrayList<Task>();
@@ -406,6 +466,23 @@ public class Task extends HADatAcThing implements Comparable<Task> {
                     task.setHasIterationConstraint(object);
                 } else if (predicate.equals(VSTOI.SUPPORTS_OBJECTIVE)) {
                     task.setSupportsObjective(object);
+                } else if (predicate.equals(VSTOI.ASSOCIATED_ANATOMY)) {
+                    // Split if the object contains multiple URIs separated by | or ;
+                    if (object != null && (object.contains("|") || object.contains(";"))) {
+                        String[] uriParts;
+                        if (object.contains("|")) {
+                            uriParts = object.split("\\s*\\|\\s*");
+                        } else {
+                            uriParts = object.split("\\s*;\\s*");
+                        }
+                        for (String uriPart : uriParts) {
+                            if (uriPart != null && !uriPart.trim().isEmpty()) {
+                                task.addHasAssociatedAnatomyUri(uriPart.trim());
+                            }
+                        }
+                    } else {
+                        task.addHasAssociatedAnatomyUri(object);
+                    }
                 }
             }
         }

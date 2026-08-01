@@ -69,6 +69,7 @@ public class VSTOI {
      */
 
     public static final String BELONGS_TO                   = VSTOI + "belongsTo";
+    public static final String ASSOCIATED_ANATOMY           = VSTOI + "associatedAnatomy";
     public static final String DESIGNED_AT_TIME             = VSTOI + "designedAtTime";
     public static final String HAS_ACQUISITION_DATE         = VSTOI + "hasAcquisitionDate";    
     public static final String HAS_ANNOTATION_STEM          = VSTOI + "hasAnnotationStem";

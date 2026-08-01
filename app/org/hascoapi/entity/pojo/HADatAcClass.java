@@ -455,7 +455,7 @@ public class HADatAcClass extends HADatAcThing {
     }
 
     public static List<HADatAcClass> getImmediateSubclasses(String superUri) {
-        System.out.println("HADatAcClass.ImmediateSubClasses of [" + superUri + "]");
+        // System.out.println("HADatAcClass.ImmediateSubClasses of [" + superUri + "]");
         List<HADatAcClass> subclasses = new ArrayList<HADatAcClass>();
         String queryString = NameSpaces.getInstance().printSparqlNameSpaceList() +
                 "SELECT ?uri WHERE { " +

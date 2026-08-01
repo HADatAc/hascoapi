@@ -183,14 +183,14 @@ public class URIPage extends Controller {
     }
 
     public static HADatAcThing objectFromUri(String uri) {
-        System.out.println("URIPage.objectFromUri(): URI [" + uri + "]");
+        // System.out.println("URIPage.objectFromUri(): URI [" + uri + "]");
         
         // FIXED: Try to resolve ontology classes (owl:Class) instead of skipping them
         if (isOntologyClass(uri)) {
-            System.out.println("[DEBUG] URIPage.objectFromUri(): Detected ontology class URI [" + uri + "], attempting to resolve as HADatAcClass");
+            // System.out.println("[DEBUG] URIPage.objectFromUri(): Detected ontology class URI [" + uri + "], attempting to resolve as HADatAcClass");
             HADatAcClass classObj = HADatAcClass.find(uri);
             if (classObj != null) {
-                System.out.println("[DEBUG] URIPage.objectFromUri(): Successfully resolved class [" + uri + "] with label [" + classObj.getLabel() + "]");
+                // System.out.println("[DEBUG] URIPage.objectFromUri(): Successfully resolved class [" + uri + "] with label [" + classObj.getLabel() + "]");
                 return classObj;
             } else {
                 System.out.println("[DEBUG] URIPage.objectFromUri(): Could not resolve class [" + uri + "], returning null");
@@ -209,6 +209,11 @@ public class URIPage extends Controller {
             GenericInstance result = GenericInstance.find(uri);
 
             if (result == null) {
+                HADatAcThing fallbackResult = resolveWithoutGenericInstance(uri);
+                if (fallbackResult != null) {
+                    return fallbackResult;
+                }
+
                 System.out.println("NS size: " + NameSpaces.getInstance().getNamespacesByUri().size());
                 NameSpace ns = NameSpaces.getInstance().getNamespacesByUri().get(uri);
 
@@ -354,6 +359,47 @@ public class URIPage extends Controller {
         } catch (Exception e) {
             throw new RuntimeException("Failed to resolve URI from triplestore: " + uri, e);
         }
+    }
+
+    /**
+     * Fallback resolver for valid resources that are not indexed as GenericInstance.
+     *
+     * Some legacy resources (notably Person URIs with local name prefix "PER")
+     * can exist in the triplestore but not be returned by GenericInstance.find().
+     * In this case we attempt direct typed lookups before emitting warnings.
+     */
+    private static HADatAcThing resolveWithoutGenericInstance(String uri) {
+        if (uri == null || uri.isEmpty()) {
+            return null;
+        }
+
+        // Direct person fallback (e.g., .../PER178542237213557067).
+        if (looksLikePersonUri(uri)) {
+            Person person = Person.find(uri);
+            if (person != null) {
+                return person;
+            }
+        }
+
+        return null;
+    }
+
+    private static boolean looksLikePersonUri(String uri) {
+        String local = localName(uri);
+        return local.startsWith("PER") || local.startsWith("per");
+    }
+
+    private static String localName(String uri) {
+        if (uri == null || uri.isEmpty()) {
+            return "";
+        }
+        int hash = uri.lastIndexOf('#');
+        int slash = uri.lastIndexOf('/');
+        int idx = Math.max(hash, slash);
+        if (idx >= 0 && idx < uri.length() - 1) {
+            return uri.substring(idx + 1);
+        }
+        return uri;
     }
 
     private Result processResult(Object result, String typeResult, String uri) {
