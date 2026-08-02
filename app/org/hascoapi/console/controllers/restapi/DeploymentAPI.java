@@ -70,11 +70,9 @@ public class DeploymentAPI extends Controller {
     }
 
     public Result findDeploymentsByPlatformInstanceWithPage(String platforminstanceUri, int pagesize, int offset) {
-        System.out.println("DeploymentAPI.findDeploymentsByPlatformInstanceWithPage() with uri=[" + platforminstanceUri + "]");
         if (platforminstanceUri == null || platforminstanceUri.isEmpty()) {
             return ok(ApiUtil.createResponse("No platform instance uri has been provided", false));
         }
-        System.out.println(platforminstanceUri);
         List<Deployment> results = Deployment.findByPlaformInstanceWithPage(platforminstanceUri, pagesize, offset);
         return this.getDeployments(results);
     }
@@ -83,7 +81,7 @@ public class DeploymentAPI extends Controller {
         if (platforminstanceUri == null || platforminstanceUri.isEmpty()) {
             return ok(ApiUtil.createResponse("No platform instance uri has been provided", false));
         }
-        int totalElements = totalElements = Deployment.findTotalByPlatformInstance(platforminstanceUri);
+        int totalElements = Deployment.findTotalByPlatformInstance(platforminstanceUri);
         if (totalElements >= 0) {
             String totalElementsJSON = "{\"total\":" + totalElements + "}";
             return ok(ApiUtil.createResponse(totalElementsJSON, true));

@@ -250,14 +250,23 @@ public class HADatAcClass extends HADatAcThing {
     }
 
     public static HADatAcClass lightWeightedFind(String classUri) {
+        if (classUri == null || classUri.isEmpty()) {
+            return null;
+        }
+
         HADatAcClass typeClass = null;
         Statement statement;
         RDFNode subject;
         RDFNode object;
 
         String queryString = "DESCRIBE <" + classUri + ">";
-        Model model = SPARQLUtils.describe(CollectionUtil.getCollectionPath(
-                CollectionUtil.Collection.SPARQL_QUERY), queryString);
+        Model model;
+        try {
+            model = SPARQLUtils.describe(CollectionUtil.getCollectionPath(
+                    CollectionUtil.Collection.SPARQL_QUERY), queryString);
+        } catch (Exception e) {
+            return null;
+        }
 
         StmtIterator stmtIterator = model.listStatements();
 
@@ -303,7 +312,11 @@ public class HADatAcClass extends HADatAcThing {
         }
 
         typeClass.setUri(classUri);
-        typeClass.setLocalName(classUri.substring(classUri.indexOf('#') + 1));
+        if (classUri.contains("#")) {
+            typeClass.setLocalName(classUri.substring(classUri.indexOf('#') + 1));
+        } else {
+            typeClass.setLocalName(classUri);
+        }
 
         return typeClass;
     }             

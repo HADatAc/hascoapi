@@ -129,7 +129,11 @@ public abstract class VSTOIInstance extends HADatAcThing implements Comparable<V
 		if (this.getTypeUri() == null || this.getTypeUri().isEmpty()) {
 			return null;
 		}
-		return HADatAcClass.lightWeightedFind(this.getTypeUri()); 
+		try {
+			return HADatAcClass.lightWeightedFind(this.getTypeUri());
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 	/* 

@@ -82,9 +82,18 @@ public class Entity extends HADatAcClass implements Comparable<Entity> {
     }
 
     public static Entity find(String uri) {
+        if (uri == null || uri.isEmpty()) {
+            return null;
+        }
+
         String queryString = "DESCRIBE <" + uri + ">";
-        Model model = SPARQLUtils.describe(CollectionUtil.getCollectionPath(
-                CollectionUtil.Collection.SPARQL_QUERY), queryString);
+        Model model;
+        try {
+            model = SPARQLUtils.describe(CollectionUtil.getCollectionPath(
+                    CollectionUtil.Collection.SPARQL_QUERY), queryString);
+        } catch (Exception e) {
+            return null;
+        }
 
         Entity entity = new Entity();
         StmtIterator stmtIterator = model.listStatements();
@@ -121,7 +130,11 @@ public class Entity extends HADatAcClass implements Comparable<Entity> {
         }
 
         entity.setUri(uri);
-        entity.setLocalName(uri.substring(uri.indexOf('#') + 1));
+        if (uri.contains("#")) {
+            entity.setLocalName(uri.substring(uri.indexOf('#') + 1));
+        } else {
+            entity.setLocalName(uri);
+        }
 
         return entity;
     }

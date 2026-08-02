@@ -281,8 +281,8 @@ public class INSGen {
         // Create sheet named 'Instruments'
         Sheet instrumentSheet = workbook.createSheet(INSGen.INSTRUMENTS);
         String[] instrumentHeaders = { "hasURI", "hasco:hascoType", "rdfs:subClassOf", "rdfs:label", "vstoi:hasShortName", "vstoi:hasLanguage",
-        	"vstoi:hasVersion", "hasco:hasMaker", "rdfs:comment", "hasco:hasImage", "vstoi:maxLoggedMeasurements", "vstoi:minOperatingTemperature", 
-            "vstoi:maxOperatingTemperature", "hasco:hasOperatingTemperatureUnit", "hasco:hasWebDocument", "vstoi:hasFirst"};
+	        "vstoi:hasVersion", "hasco:hasMaker", "rdfs:comment", "hasco:hasImage", "vstoi:maxLoggedMeasurements", "vstoi:minOperatingTemperature", 
+            "vstoi:maxOperatingTemperature", "hasco:hasOperatingTemperatureUnit", "hasco:hasWebDocument", "vstoi:hasFidelity", "vstoi:hasAnatomy", "vstoi:hasFirst"};
 
         // Create header row
         Row instrumentHeaderRow = instrumentSheet.createRow(0);

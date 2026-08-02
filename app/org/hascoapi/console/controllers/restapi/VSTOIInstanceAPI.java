@@ -18,6 +18,7 @@ import org.hascoapi.utils.HAScOMapper;
 import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.VSTOI;
 import play.mvc.Controller;
+import play.mvc.Http;
 import play.mvc.Result;
 
 import java.io.ByteArrayOutputStream;
@@ -53,6 +54,27 @@ public class VSTOIInstanceAPI extends Controller {
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));
         }
+    }
+
+    public Result findInstrumentInstancesByAnatomy(String uberonUri, Http.Request request) {
+        if (uberonUri == null || uberonUri.trim().isEmpty()) {
+            return ok(ApiUtil.createResponse("No UBERON URI has been provided", false));
+        }
+
+        String organizationUri = request.getQueryString("organizationUri");
+        List<InstrumentInstance> results = InstrumentInstance.findByAnatomy(uberonUri, organizationUri);
+        return getInstrumentInstances(results);
+    }
+
+    public Result findTotalInstrumentInstancesByAnatomy(String uberonUri, Http.Request request) {
+        if (uberonUri == null || uberonUri.trim().isEmpty()) {
+            return ok(ApiUtil.createResponse("No UBERON URI has been provided", false));
+        }
+
+        String organizationUri = request.getQueryString("organizationUri");
+        int totalElements = InstrumentInstance.findTotalByAnatomy(uberonUri, organizationUri);
+        String totalElementsJSON = "{\"total\":" + totalElements + "}";
+        return ok(ApiUtil.createResponse(totalElementsJSON, true));
     }
 
     public Result findPlatformInstancesByPlatformWithPage(String platformUri, int pagesize, int offset) {

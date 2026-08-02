@@ -83,13 +83,21 @@ public class INSInstrument {
         Cell cell15 = newRow.createCell(14);
         cell15.setCellValue(inst.getHasWebDocument());
 
-        // "vstoi:hasFirst"
+        // "vstoi:hasFidelity"
         Cell cell16 = newRow.createCell(15);
+        cell16.setCellValue(inst.getHasFidelity());
+
+        // "vstoi:hasAnatomy"
+        Cell cell17 = newRow.createCell(16);
+        cell17.setCellValue(inst.getHasAnatomy());
+
+        // "vstoi:hasFirst"
+        Cell cell18 = newRow.createCell(17);
         String hasFirst = "";
         if (inst != null && inst.getHasFirst() != null) {
             hasFirst = URIUtils.replaceNameSpaceEx(inst.getHasFirst());
         }
-        cell16.setCellValue(hasFirst);  
+        cell18.setCellValue(hasFirst);  
 
         return helper;
     }

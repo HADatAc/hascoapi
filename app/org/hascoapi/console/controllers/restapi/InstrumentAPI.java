@@ -19,9 +19,12 @@ import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.HAScOMapper;
 import org.hascoapi.vocabularies.VSTOI;
 import play.mvc.Controller;
+import play.mvc.Http;
 import play.mvc.Result;
 
 import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
 
 import static org.hascoapi.Constants.TEST_INSTRUMENT_URI;
@@ -124,6 +127,48 @@ public class InstrumentAPI extends Controller {
             JsonNode jsonObject = mapper.convertValue(results, JsonNode.class);
             return ok(ApiUtil.createResponse(jsonObject, true));
         }
+    }
+
+    private String normalizeUberonUri(String uberonUri) {
+        if (uberonUri == null) {
+            return null;
+        }
+
+        String trimmed = uberonUri.trim();
+        if (trimmed.startsWith("b64:")) {
+            String token = trimmed.substring(4);
+            try {
+                byte[] decoded = Base64.getUrlDecoder().decode(token);
+                return new String(decoded, StandardCharsets.UTF_8).trim();
+            } catch (IllegalArgumentException e) {
+                return "";
+            }
+        }
+
+        return trimmed;
+    }
+
+    public Result findInstrumentsByAnatomy(String uberonUri, Http.Request request) {
+        String normalizedUberonUri = normalizeUberonUri(uberonUri);
+        if (normalizedUberonUri == null || normalizedUberonUri.isEmpty()) {
+            return ok(ApiUtil.createResponse("No UBERON URI has been provided", false));
+        }
+
+        String organizationUri = request.getQueryString("organizationUri");
+        List<Instrument> results = Instrument.findByAnatomy(normalizedUberonUri, organizationUri);
+        return getInstruments(results);
+    }
+
+    public Result findTotalInstrumentsByAnatomy(String uberonUri, Http.Request request) {
+        String normalizedUberonUri = normalizeUberonUri(uberonUri);
+        if (normalizedUberonUri == null || normalizedUberonUri.isEmpty()) {
+            return ok(ApiUtil.createResponse("No UBERON URI has been provided", false));
+        }
+
+        String organizationUri = request.getQueryString("organizationUri");
+        int totalElements = Instrument.findTotalByAnatomy(normalizedUberonUri, organizationUri);
+        String totalElementsJSON = "{\"total\":" + totalElements + "}";
+        return ok(ApiUtil.createResponse(totalElementsJSON, true));
     }
 
     public Result toTextPlain(String uri) {

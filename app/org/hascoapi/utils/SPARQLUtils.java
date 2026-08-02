@@ -9,6 +9,7 @@ import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.ResultSetFactory;
 import org.apache.jena.query.ResultSetRewindable;
 import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
 import org.hascoapi.utils.URIUtils;
 
 public class SPARQLUtils {
@@ -47,6 +48,14 @@ public class SPARQLUtils {
             System.out.println("[ERROR] sparqlService: " + sparqlService + "\n");
             System.out.println("[ERROR] queryString: " + queryString);
             throw e;
+        } catch (RuntimeException e) {
+            if (isTransientTransportFailure(e)) {
+                // Degrade gracefully for transient triplestore/network interruptions.
+                System.err.println("[SPARQLUtils] select() transient failure; returning empty result set.");
+                System.err.println("[SPARQLUtils] Service URL: " + sparqlService);
+                return emptyResultSet();
+            }
+            throw e;
         }
     }
 
@@ -80,7 +89,13 @@ public class SPARQLUtils {
             System.out.println("[ERROR] queryString: " + queryString);
             throw e;
         } catch (Exception e) {
-            System.err.println("[SPARQLUtils] describe() failed with exception:");
+            if (isTransientTransportFailure(e)) {
+                // Degrade gracefully for transient triplestore/network interruptions.
+                System.err.println("[SPARQLUtils] describe() transient failure; returning empty model.");
+                System.err.println("[SPARQLUtils] Service URL: " + sparqlService);
+                return ModelFactory.createDefaultModel();
+            }
+            System.err.println("[SPARQLUtils] describe() failed with non-transient exception:");
             System.err.println("[SPARQLUtils] Service URL: " + sparqlService);
             System.err.println("[SPARQLUtils] Query: " + queryString);
             e.printStackTrace();
@@ -162,6 +177,13 @@ public class SPARQLUtils {
             Thread.sleep(delay);
         } catch (InterruptedException ie) {
             Thread.currentThread().interrupt();
+        }
+    }
+
+    private static ResultSetRewindable emptyResultSet() {
+        Model emptyModel = ModelFactory.createDefaultModel();
+        try (QueryExecution qexec = QueryExecutionFactory.create("SELECT * WHERE { FILTER(false) }", emptyModel)) {
+            return ResultSetFactory.copyResults(qexec.execSelect());
         }
     }
 

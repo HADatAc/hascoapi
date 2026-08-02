@@ -82,6 +82,7 @@ public class VSTOI {
     public static final String HAS_CONTENT_WITH_STYLE       = VSTOI + "hasContentWithStyle";
     public static final String HAS_DAMAGE_DATE              = VSTOI + "hasDamageDate";
     public static final String HAS_EDITOR_EMAIL             = VSTOI + "hasEditorEmail";
+    public static final String HAS_FIDELITY                 = VSTOI + "hasFidelity";
     public static final String HAS_FIRST                    = VSTOI + "hasFirst";
     public static final String HAS_INFORMANT                = VSTOI + "hasInformant";
     public static final String HAS_INSTRUMENT_INSTANCE      = VSTOI + "hasInstrumentInstance";
@@ -99,6 +100,7 @@ public class VSTOI {
     public static final String HAS_REVIEW_NOTE              = VSTOI + "hasReviewNote";
     public static final String HAS_SHORT_NAME               = VSTOI + "hasShortName";
     public static final String HAS_STATUS                   = VSTOI + "hasStatus";
+    public static final String HAS_ANATOMY                  = VSTOI + "hasAnatomy";
     public static final String HAS_SIR_MANAGER_EMAIL        = VSTOI + "hasSIRManagerEmail";
     public static final String HAS_SUBCONTAINER             = VSTOI + "hasSubcontainer";
     public static final String HAS_SUBTASK                  = VSTOI + "hasSubtask";

@@ -397,12 +397,22 @@ public class PostalAddress extends HADatAcThing implements Comparable<PostalAddr
 	}
 
 	public static PostalAddress find(String uri) {
+		if (uri == null || uri.isEmpty()) {
+			return null;
+		}
+
 		PostalAddress postalAddress;
 
 		// Conobjectuct the SELECT query to retrieve named graphs
 		String queryString = "SELECT DISTINCT ?graph ?p ?o WHERE { GRAPH ?graph { <" + uri + "> ?p ?o } }";
-		ResultSet resultSet = SPARQLUtils.select(CollectionUtil.getCollectionPath(
-        	CollectionUtil.Collection.SPARQL_QUERY), queryString);
+		ResultSet resultSet;
+		try {
+			resultSet = SPARQLUtils.select(CollectionUtil.getCollectionPath(
+	        		CollectionUtil.Collection.SPARQL_QUERY), queryString);
+		} catch (Exception e) {
+			log.warn("PostalAddress.find(): failed to query URI [{}]", uri, e);
+			return null;
+		}
 
 		if (!resultSet.hasNext()) {
 			return null;

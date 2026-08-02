@@ -266,12 +266,27 @@ public class SpreadsheetRecordFile implements RecordFile {
         @Override
         public String getValueByColumnName(String columnName) {
             if (columnName == null || headers == null) return "";
+            String target = normalizeHeaderToken(columnName);
             for (int i = 0; i < headers.size(); i++) {
-                if (columnName.equalsIgnoreCase(headers.get(i))) {
+                if (target.equals(normalizeHeaderToken(headers.get(i)))) {
                     return getValueByColumnIndex(i);
                 }
             }
             return "";
+        }
+
+        private String normalizeHeaderToken(String token) {
+            if (token == null) {
+                return "";
+            }
+            return token
+                    .replace("\u00A0", " ")
+                    .replace("\u2007", " ")
+                    .replace("\u202F", " ")
+                    .replace("\u200B", "")
+                    .replace("\uFEFF", "")
+                    .trim()
+                    .toLowerCase();
         }
 
         public List<String> getValues() {

@@ -101,7 +101,12 @@ public class Agent extends HADatAcThing implements Comparable<Agent> {
         if (this.hasAddressUri == null || this.hasAddressUri.isEmpty()) {
             return null;
         }
-        return PostalAddress.find(this.hasAddressUri);
+        try {
+            return PostalAddress.find(this.hasAddressUri);
+        } catch (Exception e) {
+            // Keep serialization resilient when triplestore/network is transiently unavailable.
+            return null;
+        }
     }
 
     public String getHasSIRManagerEmail() {

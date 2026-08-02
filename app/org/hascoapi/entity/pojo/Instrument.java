@@ -1,10 +1,14 @@
 package org.hascoapi.entity.pojo;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Statement;
@@ -32,6 +36,15 @@ public class Instrument extends Container {
 
 	private static final Logger log = LoggerFactory.getLogger(Instrument.class);
 
+	@PropertyField(uri="vstoi:hasFidelity")
+	private String hasFidelity;
+
+	@PropertyField(uri="vstoi:hasAnatomy")
+	private String hasAnatomy;
+
+	@PropertyField(uri="vstoi:hasAnatomy")
+	private List<String> hasAnatomyUris = new ArrayList<>();
+
 	public Instrument() {
 		super();
     }
@@ -52,6 +65,76 @@ public class Instrument extends Container {
 	@Override
 	public int hashCode() {
 		return getUri().hashCode();
+	}
+
+	public String getHasFidelity() {
+		return hasFidelity;
+	}
+
+	public void setHasFidelity(String hasFidelity) {
+		this.hasFidelity = hasFidelity;
+	}
+
+	public String getHasAnatomy() {
+		if (hasAnatomy != null && !hasAnatomy.trim().isEmpty()) {
+			return hasAnatomy;
+		}
+		if (hasAnatomyUris == null || hasAnatomyUris.isEmpty()) {
+			return "";
+		}
+		return String.join("; ", hasAnatomyUris);
+	}
+
+	public void setHasAnatomy(String hasAnatomy) {
+		if (hasAnatomy == null) {
+			this.hasAnatomy = "";
+			this.hasAnatomyUris = new ArrayList<>();
+			return;
+		}
+
+		List<String> parsedUris = parseAnatomyUris(hasAnatomy);
+		if (!parsedUris.isEmpty()) {
+			// Prefer URI list serialization when we can confidently parse URIs.
+			this.hasAnatomy = "";
+			this.hasAnatomyUris = parsedUris;
+		} else {
+			// Preserve legacy literal when content is not URI-list shaped.
+			this.hasAnatomy = hasAnatomy;
+			this.hasAnatomyUris = new ArrayList<>();
+		}
+	}
+
+	@JsonSetter("hasAnatomy")
+	public void setHasAnatomyFromJson(JsonNode hasAnatomyNode) {
+		if (hasAnatomyNode == null || hasAnatomyNode.isNull()) {
+			setHasAnatomy("");
+			return;
+		}
+
+		if (hasAnatomyNode.isArray()) {
+			Set<String> uniqueUris = new LinkedHashSet<>();
+			for (JsonNode item : hasAnatomyNode) {
+				if (item == null || item.isNull()) {
+					continue;
+				}
+				String value = item.asText(null);
+				if (value == null) {
+					continue;
+				}
+				String normalized = normalizeAnatomyToken(value);
+				if (isValidAnatomyUri(normalized)) {
+					uniqueUris.add(normalized);
+				}
+			}
+
+			if (!uniqueUris.isEmpty()) {
+				this.hasAnatomy = "";
+				this.hasAnatomyUris = new ArrayList<>(uniqueUris);
+				return;
+			}
+		}
+
+		setHasAnatomy(hasAnatomyNode.asText(""));
 	}
 
 	public static Instrument find(String uri) {
@@ -116,12 +199,90 @@ public class Instrument extends Container {
 					instrument.setHasSIRManagerEmail(object);
 				} else if (predicate.equals(VSTOI.HAS_EDITOR_EMAIL)) {
 					instrument.setHasEditorEmail(object);
+				} else if (predicate.equals(VSTOI.HAS_FIDELITY)) {
+					instrument.setHasFidelity(object);
+				} else if (predicate.equals(VSTOI.HAS_ANATOMY)) {
+					instrument.consumeHasAnatomyValue(object);
 				}
 			}
 		}
 
 		instrument.setUri(uri);
 		return instrument;
+	}
+
+	private void consumeHasAnatomyValue(String value) {
+		if (value == null || value.trim().isEmpty()) {
+			return;
+		}
+
+		List<String> parsedUris = parseAnatomyUris(value);
+		if (!parsedUris.isEmpty()) {
+			if (this.hasAnatomyUris == null) {
+				this.hasAnatomyUris = new ArrayList<>();
+			}
+			for (String uri : parsedUris) {
+				if (!this.hasAnatomyUris.contains(uri)) {
+					this.hasAnatomyUris.add(uri);
+				}
+			}
+			return;
+		}
+
+		if (this.hasAnatomy == null || this.hasAnatomy.trim().isEmpty()) {
+			this.hasAnatomy = value;
+		}
+	}
+
+	private static List<String> parseAnatomyUris(String rawValue) {
+		List<String> uris = new ArrayList<>();
+		if (rawValue == null || rawValue.trim().isEmpty()) {
+			return uris;
+		}
+
+		String[] parts = rawValue.split(";");
+		for (String part : parts) {
+			String normalized = normalizeAnatomyToken(part);
+			if (normalized.isEmpty()) {
+				continue;
+			}
+			if (!isValidAnatomyUri(normalized)) {
+				return new ArrayList<>();
+			}
+			if (!uris.contains(normalized)) {
+				uris.add(normalized);
+			}
+		}
+
+		if (uris.isEmpty()) {
+			String normalized = normalizeAnatomyToken(rawValue);
+			if (isValidAnatomyUri(normalized)) {
+				uris.add(normalized);
+			}
+		}
+
+		return uris;
+	}
+
+	private static String normalizeAnatomyToken(String token) {
+		if (token == null) {
+			return "";
+		}
+		String normalized = token.trim();
+		if (normalized.startsWith("<") && normalized.endsWith(">") && normalized.length() > 2) {
+			normalized = normalized.substring(1, normalized.length() - 1).trim();
+		}
+		return normalized;
+	}
+
+	private static boolean isValidAnatomyUri(String value) {
+		if (value == null || value.isEmpty()) {
+			return false;
+		}
+		if (value.contains(" ")) {
+			return false;
+		}
+		return URIUtils.isValidURI(value);
 	}
 
 
@@ -175,6 +336,149 @@ public class Instrument extends Container {
 
 		java.util.Collections.sort((List<Instrument>) instruments);
 		return instruments;
+	}
+
+	public static List<Instrument> findByAnatomy(String uberonUri, String organizationUri) {
+		List<Instrument> instruments = new ArrayList<Instrument>();
+		String cleanUberonUri = normalizeUri(uberonUri);
+		if (cleanUberonUri == null || cleanUberonUri.isEmpty()) {
+			return instruments;
+		}
+
+		String cleanOrganizationUri = normalizeUri(organizationUri);
+
+		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList()
+				+ " SELECT DISTINCT ?uri WHERE { "
+				+ "   { "
+				+ "     ?instModel rdfs:subClassOf* vstoi:Instrument . "
+				+ "     ?uri a ?instModel . "
+				+ "   } UNION { "
+				+ "     ?instModel rdfs:subClassOf* vstoi:Instrument . "
+				+ "     ?uri hasco:hascoType ?instModel . "
+				+ "   } UNION { "
+				+ "     ?uri hasco:hascoType vstoi:Instrument . "
+				+ "   } "
+				+ "   ?uri vstoi:hasAnatomy ?anatomy . "
+				+ "   BIND(STR(?anatomy) AS ?anatomyStr) . "
+				+ "   BIND(REPLACE(STR(?anatomy), ' ', '') AS ?anatomyNoSpace) . "
+				+ "   BIND(STR(<" + cleanUberonUri + ">) AS ?targetAnatomy) . "
+				+ "   FILTER( "
+				+ "      ?anatomyStr = ?targetAnatomy "
+				+ "      || CONTAINS(CONCAT(';', ?anatomyStr, ';'), CONCAT(';', ?targetAnatomy, ';')) "
+				+ "      || CONTAINS(CONCAT(';', ?anatomyNoSpace, ';'), CONCAT(';', ?targetAnatomy, ';')) "
+				+ "   ) . ";
+
+		if (cleanOrganizationUri != null && !cleanOrganizationUri.isEmpty()) {
+			queryString += "   { "
+					+ "     ?ii hasco:hascoType vstoi:InstrumentInstance . "
+					+ "     { ?ii vstoi:hasInstrument ?uri . } "
+					+ "     UNION { ?ii hasco:hasInstrument ?uri . } "
+					+ "     UNION { ?ii rdf:type ?uri . FILTER(?uri != vstoi:InstrumentInstance && ?uri != owl:NamedIndividual) } "
+					+ "     { ?ii vstoi:hasOwner <" + cleanOrganizationUri + "> . } "
+					+ "     UNION { "
+					+ "       ?dep hasco:hascoType vstoi:Deployment . "
+					+ "       ?dep vstoi:hasInstrumentInstance ?ii . "
+					+ "       ?dep vstoi:hasPlatformInstance ?platform . "
+					+ "       ?platform hasco:partOf <" + cleanOrganizationUri + "> . "
+					+ "     } "
+					+ "   } ";
+		}
+
+		queryString += " } ORDER BY ?uri ";
+
+		ResultSetRewindable resultsrw = SPARQLUtils.select(
+				CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+		while (resultsrw.hasNext()) {
+			QuerySolution soln = resultsrw.next();
+			if (soln.getResource("uri") == null) {
+				continue;
+			}
+			Instrument instrument = find(soln.getResource("uri").getURI().trim());
+			if (instrument != null) {
+				instruments.add(instrument);
+			}
+		}
+
+		java.util.Collections.sort((List<Instrument>) instruments);
+		return instruments;
+	}
+
+	public static int findTotalByAnatomy(String uberonUri, String organizationUri) {
+		String cleanUberonUri = normalizeUri(uberonUri);
+		if (cleanUberonUri == null || cleanUberonUri.isEmpty()) {
+			return 0;
+		}
+
+		String cleanOrganizationUri = normalizeUri(organizationUri);
+
+		String queryString = NameSpaces.getInstance().printSparqlNameSpaceList()
+				+ " SELECT (COUNT(DISTINCT ?uri) AS ?total) WHERE { "
+				+ "   { "
+				+ "     ?instModel rdfs:subClassOf* vstoi:Instrument . "
+				+ "     ?uri a ?instModel . "
+				+ "   } UNION { "
+				+ "     ?instModel rdfs:subClassOf* vstoi:Instrument . "
+				+ "     ?uri hasco:hascoType ?instModel . "
+				+ "   } UNION { "
+				+ "     ?uri hasco:hascoType vstoi:Instrument . "
+				+ "   } "
+				+ "   ?uri vstoi:hasAnatomy ?anatomy . "
+				+ "   BIND(STR(?anatomy) AS ?anatomyStr) . "
+				+ "   BIND(REPLACE(STR(?anatomy), ' ', '') AS ?anatomyNoSpace) . "
+				+ "   BIND(STR(<" + cleanUberonUri + ">) AS ?targetAnatomy) . "
+				+ "   FILTER( "
+				+ "      ?anatomyStr = ?targetAnatomy "
+				+ "      || CONTAINS(CONCAT(';', ?anatomyStr, ';'), CONCAT(';', ?targetAnatomy, ';')) "
+				+ "      || CONTAINS(CONCAT(';', ?anatomyNoSpace, ';'), CONCAT(';', ?targetAnatomy, ';')) "
+				+ "   ) . ";
+
+		if (cleanOrganizationUri != null && !cleanOrganizationUri.isEmpty()) {
+			queryString += "   { "
+					+ "     ?ii hasco:hascoType vstoi:InstrumentInstance . "
+					+ "     { ?ii vstoi:hasInstrument ?uri . } "
+					+ "     UNION { ?ii hasco:hasInstrument ?uri . } "
+					+ "     UNION { ?ii rdf:type ?uri . FILTER(?uri != vstoi:InstrumentInstance && ?uri != owl:NamedIndividual) } "
+					+ "     { ?ii vstoi:hasOwner <" + cleanOrganizationUri + "> . } "
+					+ "     UNION { "
+					+ "       ?dep hasco:hascoType vstoi:Deployment . "
+					+ "       ?dep vstoi:hasInstrumentInstance ?ii . "
+					+ "       ?dep vstoi:hasPlatformInstance ?platform . "
+					+ "       ?platform hasco:partOf <" + cleanOrganizationUri + "> . "
+					+ "     } "
+					+ "   } ";
+		}
+
+		queryString += " } ";
+
+		ResultSetRewindable resultsrw = SPARQLUtils.select(
+				CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), queryString);
+
+		if (resultsrw.hasNext()) {
+			QuerySolution soln = resultsrw.next();
+			if (soln != null && soln.getLiteral("total") != null) {
+				return soln.getLiteral("total").getInt();
+			}
+		}
+
+		return 0;
+	}
+
+	private static String normalizeUri(String uri) {
+		if (uri == null) {
+			return "";
+		}
+		String trimmed = uri.trim();
+		if (trimmed.isEmpty()) {
+			return "";
+		}
+		if (trimmed.startsWith("<") && trimmed.endsWith(">") && trimmed.length() > 2) {
+			trimmed = trimmed.substring(1, trimmed.length() - 1);
+		}
+		if (trimmed.contains("<") || trimmed.contains(">") || trimmed.contains("\"")) {
+			return "";
+		}
+		return trimmed;
 	}
 	
     @Override public void save() {

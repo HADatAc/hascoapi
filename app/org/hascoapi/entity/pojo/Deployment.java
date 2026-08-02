@@ -342,7 +342,7 @@ public class Deployment extends HADatAcThing {
             resolvedUri = requestedUri;
         }
 
-        System.out.println("[DEPLOYMENT DEBUG] find(): requestedUri=" + requestedUri + " resolvedUri=" + resolvedUri);
+        // System.out.println("[DEPLOYMENT DEBUG] find(): requestedUri=" + requestedUri + " resolvedUri=" + resolvedUri);
 
         if (resolvedUri != null && resolvedUri.startsWith("http")) {
             queryString += "DESCRIBE <" + resolvedUri + ">";

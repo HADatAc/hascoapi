@@ -291,7 +291,7 @@ public class HAScOMapper {
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "superUri", "typeLabel", "hasStatus", "hascoTypeUri",
                             "hasImageUri", "hasWebDocument", 
                             "hascoTypeLabel", "hasInformant", "comment", "hasFirst", "hasSerialNumber", "hasLanguage", 
-                            "hasVersion", "wasDerivedFrom", "hasSIRManagerEmail", "hasEditorEmail"));
+                    "hasVersion", "hasFidelity", "hasAnatomy", "wasDerivedFrom", "hasSIRManagerEmail", "hasEditorEmail"));
         }
 
         // INSTRUMENT_INSTANCE

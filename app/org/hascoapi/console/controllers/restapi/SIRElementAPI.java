@@ -1917,6 +1917,18 @@ public class SIRElementAPI extends Controller {
             GenericFindSocial<Organization> query = new GenericFindSocial<Organization>();
             List<Organization> results = query.findByKeywordTypeManagerEmailandStatusWithPages(Organization.class, project, keyword, type, managerEmail, status, pageSize, offset);
             return OrganizationAPI.getOrganizations(results);
+        } else if (elementType.equals("instrumentinstance")) {
+            GenericFindSocial<InstrumentInstance> query = new GenericFindSocial<InstrumentInstance>();
+            List<InstrumentInstance> results = query.findByKeywordTypeManagerEmailandStatusWithPages(InstrumentInstance.class, project, keyword, type, managerEmail, status, pageSize, offset);
+            return VSTOIInstanceAPI.getInstrumentInstances(results);
+        } else if (elementType.equals("componentinstance")) {
+            GenericFindSocial<ComponentInstance> query = new GenericFindSocial<ComponentInstance>();
+            List<ComponentInstance> results = query.findByKeywordTypeManagerEmailandStatusWithPages(ComponentInstance.class, project, keyword, type, managerEmail, status, pageSize, offset);
+            return VSTOIInstanceAPI.getComponentInstances(results);
+        } else if (elementType.equals("platforminstance")) {
+            GenericFindSocial<PlatformInstance> query = new GenericFindSocial<PlatformInstance>();
+            List<PlatformInstance> results = query.findByKeywordTypeManagerEmailandStatusWithPages(PlatformInstance.class, project, keyword, type, managerEmail, status, pageSize, offset);
+            return VSTOIInstanceAPI.getPlatformInstances(results);
         } else if (elementType.equals("person")) {
             GenericFindSocial<Person> query = new GenericFindSocial<Person>();
             List<Person> results = query.findByKeywordTypeManagerEmailandStatusWithPages(Person.class, project, keyword, type, managerEmail, status, pageSize, offset);
