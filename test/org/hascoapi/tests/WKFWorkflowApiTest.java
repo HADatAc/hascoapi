@@ -157,6 +157,44 @@ public class WKFWorkflowApiTest {
     }
 
     @Test
+    @DisplayName("Task.find normalizes legacy WKF#/ required instrument URI variants")
+    public void testTaskFindNormalizesLegacyRequiredInstrumentUris() {
+        assumeTrue(fusekiAvailable, "Fuseki not available");
+
+        String ts = String.valueOf(System.currentTimeMillis());
+        String taskUri = "https://pmsr.net/ont/WKF-TEST-" + ts + "/TSK/0001";
+        String canonicalRi = "https://pmsr.net/ont/WKF-TEST-" + ts + "/RIN/RIN001";
+        String legacyRi = "https://pmsr.net/ont/WKF#/WKF-TEST-" + ts + "/RIN/RIN001";
+
+        Task g1 = new Task();
+        g1.setUri(taskUri);
+        g1.setNamedGraph("http://example.org/graph/dedup-ri-legacy-g1-" + ts);
+        g1.setTypeUri(VSTOI.TASK);
+        g1.setHascoTypeUri(VSTOI.TASK);
+        g1.setLabel("Legacy RI Root");
+        g1.setHasStatus(VSTOI.CURRENT);
+        g1.setHasRequiredInstrumentUris(Collections.singletonList(canonicalRi));
+        g1.save();
+
+        Task g2 = new Task();
+        g2.setUri(taskUri);
+        g2.setNamedGraph("http://example.org/graph/dedup-ri-legacy-g2-" + ts);
+        g2.setTypeUri(VSTOI.TASK);
+        g2.setHascoTypeUri(VSTOI.TASK);
+        g2.setLabel("Legacy RI Root");
+        g2.setHasStatus(VSTOI.CURRENT);
+        g2.setHasRequiredInstrumentUris(Collections.singletonList(legacyRi));
+        g2.save();
+
+        Task retrieved = Task.find(taskUri);
+        assertNotNull(retrieved);
+
+        List<String> reqInst = retrieved.getHasRequiredInstrumentUris();
+        assertEquals(1, reqInst.size(), "Legacy and canonical URI variants must collapse to one value");
+        assertEquals(canonicalRi, reqInst.get(0));
+    }
+
+    @Test
     @DisplayName("Process tasks endpoint returns flat list with stable workflow fields")
     public void testProcessTasksEndpointFlatList() {
         assumeTrue(fusekiAvailable, "Fuseki not available");

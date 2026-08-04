@@ -66,6 +66,7 @@ public class Constants {
 
     public static final String PREFIX_ANNOTATION                 = "ANN";
     public static final String PREFIX_ANNOTATION_STEM            = "ASM";
+    public static final String PREFIX_ANALYTICAL_TOOL            = "ATL";
     public static final String PREFIX_CODEBOOK                   = "CBK";
     public static final String PREFIX_DATAFILE                   = "DFL";
     public static final String PREFIX_DATA_ACQUISITION           = "DA0";

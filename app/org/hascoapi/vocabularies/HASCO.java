@@ -9,6 +9,8 @@ public class HASCO {
      */
 
     public static final String AGENT                                  = "http://hadatac.org/ont/hasco/Agent";
+    public static final String ANALYTICAL_TOOL                        = "http://hadatac.org/ont/hasco/AnalyticalTool";
+    public static final String ANY_PROCESS                            = "http://hadatac.org/ont/hasco/AnyProcess";
     public static final String DATA_ACQUISITION                       = "http://hadatac.org/ont/hasco/DataAcquisition";
     public static final String DATAFILE                               = "http://hadatac.org/ont/hasco/DataFile";
     public static final String DD                                     = "http://hadatac.org/ont/hasco/DD";
@@ -57,6 +59,7 @@ public class HASCO {
     public static final String CAN_VIEW                               = "http://hadatac.org/ont/hasco/canView";
     //public static final String DETECTS                                = "http://hadatac.org/ont/hasco/detects";
     public static final String HAS_ACRONYM                            = "http://hadatac.org/ont/hasco/hasAcronym";
+    public static final String HAS_ANALYTICAL_TOOL                    = "http://hadatac.org/ont/hasco/hasAnalyticalTool";
     public static final String HAS_ABBREVIATION                       = "http://hadatac.org/ont/hasco/hasAbbreviation";
     public static final String HAS_ATTRIBUTE                          = "http://hadatac.org/ont/hasco/hasAttribute";
     public static final String HAS_BASE_ONTOLOGY                      = "http://hadatac.org/ont/hasco/hasBaseOntology";

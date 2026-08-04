@@ -57,6 +57,7 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
     private String processUri;
     private String creatorEmail;
     private String creationDate;
+    private Map<String, String> stdMetadata;
 
     private static class UserContext {
         String personUri = "";
@@ -110,13 +111,68 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
         this.creatorEmail = normalizeEmailValue(dataFile.getHasSIRManagerEmail());
         // Use current date if not specified
         this.creationDate = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
+        this.stdMetadata = new HashMap<>();
     }
 
     public ProcessBasedStudyGenerator(DataFile dataFile, String processUri, String creatorEmail, String creationDate) {
+        this(dataFile, processUri, creatorEmail, creationDate, null);
+    }
+
+    public ProcessBasedStudyGenerator(DataFile dataFile, String processUri, String creatorEmail, String creationDate, Map<String, String> stdMetadata) {
         super(dataFile);
         this.processUri = URIUtils.canonicalizePmsrUri(processUri);
         this.creatorEmail = normalizeEmailValue(creatorEmail != null ? creatorEmail : dataFile.getHasSIRManagerEmail());
         this.creationDate = creationDate != null ? creationDate : LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
+        this.stdMetadata = normalizeStdMetadata(stdMetadata);
+    }
+
+    private Map<String, String> normalizeStdMetadata(Map<String, String> source) {
+        Map<String, String> normalized = new HashMap<>();
+        if (source == null || source.isEmpty()) {
+            return normalized;
+        }
+
+        for (Map.Entry<String, String> entry : source.entrySet()) {
+            if (entry.getKey() == null) {
+                continue;
+            }
+            String key = entry.getKey().trim();
+            String value = entry.getValue() == null ? "" : entry.getValue().trim();
+            if (key.isEmpty() || value.isEmpty()) {
+                continue;
+            }
+            normalized.put(key, value);
+        }
+
+        return normalized;
+    }
+
+    private void applyStdMetadata(Map<String, String> metadata) {
+        if (stdMetadata == null || stdMetadata.isEmpty() || metadata == null) {
+            return;
+        }
+
+        putIfPresent(metadata, "studyID", stdMetadata.get("Study ID"));
+        putIfPresent(metadata, "studyTitle", stdMetadata.get("Title"));
+        putIfPresent(metadata, "specificAims", stdMetadata.get("Specific Aims"));
+        putIfPresent(metadata, "significance", stdMetadata.get("Significance"));
+        putIfPresent(metadata, "institution", stdMetadata.get("Institution"));
+        putIfPresent(metadata, "principalInvestigator", stdMetadata.get("Principal Investigator"));
+        putIfPresent(metadata, "contactEmail", stdMetadata.get("Email"));
+        putIfPresent(metadata, "startDate", stdMetadata.get("Start Date"));
+        putIfPresent(metadata, "endDate", stdMetadata.get("End Date"));
+        putIfPresent(metadata, "hasLearningObjectives", stdMetadata.get("vstoi:hasLearningObjectives"));
+        putIfPresent(metadata, "hasCriticalActions", stdMetadata.get("vstoi:hasCriticalActions"));
+        putIfPresent(metadata, "hasDebriefingFocus", stdMetadata.get("vstoi:hasDebriefingFocus"));
+    }
+
+    private void putIfPresent(Map<String, String> map, String key, String value) {
+        if (map == null || key == null || key.trim().isEmpty()) {
+            return;
+        }
+        if (value != null && !value.trim().isEmpty()) {
+            map.put(key, value.trim());
+        }
     }
 
     @Override
@@ -404,7 +460,7 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
             return null;
         }
 
-        // 2. Extract study metadata from Process properties (WKF v1.1)
+        // 2. Extract study metadata from Process properties (legacy fallback)
         Map<String, String> metadata = new HashMap<>();
         metadata.put("studyID", process.getStudyID());
         metadata.put("studyTitle", process.getStudyTitle());
@@ -419,22 +475,31 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
         log.info("Extracted metadata from Process - studyID: {}, title: {}", 
                  metadata.get("studyID"), metadata.get("studyTitle"));
 
-        // 3. Auto-generate missing metadata
+        // 3. STD sheet is canonical in WKF v1.2.1; apply STD values before autogeneration.
+        applyStdMetadata(metadata);
+
+        // 4. Auto-generate any remaining missing metadata.
         autoGenerateMetadata(process, metadata);
 
-        // 3.1 Resolve current user context for URI-based Study ownership fields
+        // 4.1 Resolve current user context for URI-based Study ownership fields
         UserContext userContext = resolveUserContext();
-        if (!userContext.personDisplay.isEmpty()) {
+
+        boolean stdHasPI = stdMetadata != null && stdMetadata.get("Principal Investigator") != null
+                && !stdMetadata.get("Principal Investigator").trim().isEmpty();
+        boolean stdHasInstitution = stdMetadata != null && stdMetadata.get("Institution") != null
+                && !stdMetadata.get("Institution").trim().isEmpty();
+
+        if (!stdHasPI && !userContext.personDisplay.isEmpty()) {
             metadata.put("principalInvestigator", userContext.personDisplay);
-        } else if (creatorEmail != null && !creatorEmail.trim().isEmpty()) {
+        } else if (!stdHasPI && creatorEmail != null && !creatorEmail.trim().isEmpty()) {
             metadata.put("principalInvestigator", creatorEmail.trim());
         }
 
-        if (!userContext.organizationDisplay.isEmpty()) {
+        if (!stdHasInstitution && !userContext.organizationDisplay.isEmpty()) {
             metadata.put("institution", userContext.organizationDisplay);
         }
 
-        // 4. Derive Study URI
+        // 5. Derive Study URI
         String studyId = metadata.get("studyID");
         if (studyId == null || studyId.isEmpty()) {
             logger.printExceptionById("GBL_00041");
@@ -456,7 +521,7 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
             metadata.put("studyTitle", process.getLabel());
         }
 
-        // 5. Build the row with all properties
+        // 6. Build the row with all properties
         Map<String, Object> row = new HashMap<>();
         
         // Required fields
@@ -472,22 +537,43 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
         row.put("hasco:hasStudyID", studyId);
         row.put("hasco:hasSpecificAims", metadata.get("specificAims"));
         row.put("hasco:hasSignificance", metadata.get("significance"));
-        if (userContext.organizationUri != null && !userContext.organizationUri.trim().isEmpty()) {
+
+        String stdInstitutionUri = stdMetadata == null ? "" : stdMetadata.get("Institution");
+        if (stdInstitutionUri != null && !stdInstitutionUri.trim().isEmpty()) {
+            row.put("hasco:hasInstitution", stdInstitutionUri.trim());
+        } else if (userContext.organizationUri != null && !userContext.organizationUri.trim().isEmpty()) {
             row.put("hasco:hasInstitution", userContext.organizationUri.trim());
         }
+
         if (metadata.get("institution") != null && !metadata.get("institution").trim().isEmpty()) {
             row.put("hasco:hasInstitutionName", metadata.get("institution"));
         }
-        if (userContext.personUri != null && !userContext.personUri.trim().isEmpty()) {
+
+        String stdPiUri = stdMetadata == null ? "" : stdMetadata.get("Principal Investigator");
+        if (stdPiUri != null && !stdPiUri.trim().isEmpty()) {
+            row.put("hasco:hasPI", stdPiUri.trim());
+        } else if (userContext.personUri != null && !userContext.personUri.trim().isEmpty()) {
             row.put("hasco:hasPI", userContext.personUri.trim());
         }
+
         if (metadata.get("principalInvestigator") != null && !metadata.get("principalInvestigator").trim().isEmpty()) {
             row.put("hasco:hasPrincipalInvestigator", metadata.get("principalInvestigator"));
         }
+
         row.put("hasco:hasContactEmail", metadata.get("contactEmail"));
         row.put("hasco:hasStartDate", metadata.get("startDate"));
         if (metadata.get("endDate") != null && !metadata.get("endDate").isEmpty()) {
             row.put("hasco:hasEndDate", metadata.get("endDate"));
+        }
+
+        if (metadata.get("hasLearningObjectives") != null && !metadata.get("hasLearningObjectives").trim().isEmpty()) {
+            row.put("vstoi:hasLearningObjectives", metadata.get("hasLearningObjectives"));
+        }
+        if (metadata.get("hasCriticalActions") != null && !metadata.get("hasCriticalActions").trim().isEmpty()) {
+            row.put("vstoi:hasCriticalActions", metadata.get("hasCriticalActions"));
+        }
+        if (metadata.get("hasDebriefingFocus") != null && !metadata.get("hasDebriefingFocus").trim().isEmpty()) {
+            row.put("vstoi:hasDebriefingFocus", metadata.get("hasDebriefingFocus"));
         }
         
         // Provenance

@@ -103,6 +103,7 @@ public class MTSheet {
 
         METADATA_SHEETS.put(Constants.MT_WKF, Arrays.asList(
                 "hasDependencies",
+                "hasStudyDescription",
                 "ProcessStems",
                 "Processes",
                 "Tasks",

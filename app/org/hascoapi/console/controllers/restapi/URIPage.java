@@ -243,6 +243,8 @@ public class URIPage extends Controller {
 
             if (hascoTypeUri.equals(VSTOI.ANNOTATION)) {
                 finalResult = Annotation.find(uri);
+            } else if (hascoTypeUri.equals(HASCO.ANALYTICAL_TOOL)) {
+                finalResult = AnalyticalTool.find(uri);
             } else if (hascoTypeUri.equals(VSTOI.ANNOTATION_STEM)) {
                 finalResult = AnnotationStem.find(uri);
             } else if (hascoTypeUri.equals(SIO.ATTRIBUTE)) {

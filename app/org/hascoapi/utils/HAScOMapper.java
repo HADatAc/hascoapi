@@ -66,6 +66,16 @@ public class HAScOMapper {
                             "hasAnnotationStem", "annotationStem", "hasPosition", "hasStyle"));
         }
 
+        // ANALYTICAL TOOL
+        if (mode.equals(FULL) && typeResult.equals(HASCO.ANALYTICAL_TOOL)) {
+            filterProvider.addFilter("analyticalToolFilter", SimpleBeanPropertyFilter.serializeAll());
+        } else {
+            filterProvider.addFilter("analyticalToolFilter",
+                    SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
+                            "hasImageUri", "hasWebDocument", "hascoTypeLabel", "comment", "hasLanguage", "hasVersion",
+                            "hasReviewNote", "hasSIRManagerEmail", "hasEditorEmail", "hasProcessUri"));
+        }
+
         // ANNOTATION_STEM
         if (mode.equals(FULL) && typeResult.equals(VSTOI.ANNOTATION_STEM)) {
             filterProvider.addFilter("annotationStemFilter", SimpleBeanPropertyFilter.serializeAll());
@@ -656,6 +666,8 @@ public class HAScOMapper {
 
         if (clazz == Annotation.class) {
             return getFiltered(mode, VSTOI.ANNOTATION);
+        } if (clazz == AnalyticalTool.class) {
+            return getFiltered(mode, HASCO.ANALYTICAL_TOOL);
         } if (clazz == AnnotationStem.class) {
             return getFiltered(mode, VSTOI.ANNOTATION_STEM);
         } if (clazz == Attribute.class) {   // CANNOT FIND IT ABOVE

@@ -21,7 +21,9 @@ import org.hascoapi.vocabularies.VSTOI;
 
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.hascoapi.Constants.*;
 
@@ -167,13 +169,52 @@ public class Task extends HADatAcThing implements Comparable<Task> {
     }
 
     public void addHasRequiredInstrumentUri(String hasRequiredInstrumentUri) {
-        if (hasRequiredInstrumentUri == null || hasRequiredInstrumentUri.trim().isEmpty()) {
+        String cleanUri = normalizeRelatedUri(hasRequiredInstrumentUri);
+        if (cleanUri.isEmpty()) {
             return;
         }
-        String cleanUri = hasRequiredInstrumentUri.trim();
         if (!this.hasRequiredInstrumentUris.contains(cleanUri)) {
             this.hasRequiredInstrumentUris.add(cleanUri);
         }
+    }
+
+    private static String normalizeRelatedUri(String uri) {
+        if (uri == null || uri.trim().isEmpty()) {
+            return "";
+        }
+
+        String normalized = URIUtils.canonicalizePmsrUri(uri.trim());
+
+        // Canonicalize legacy WKF fragment path variants.
+        normalized = normalized.replaceAll("(?i)/ont/WKF#/", "/ont/");
+        normalized = normalized.replaceAll("(?i)/ont/WKF#$", "/ont/");
+
+        return normalized.trim();
+    }
+
+    private static List<String> splitAndNormalizeUriValues(String value) {
+        LinkedHashSet<String> uris = new LinkedHashSet<String>();
+        if (value == null || value.trim().isEmpty()) {
+            return new ArrayList<String>();
+        }
+
+        String[] parts;
+        if (value.contains("|")) {
+            parts = value.split("\\s*\\|\\s*");
+        } else if (value.contains(";")) {
+            parts = value.split("\\s*;\\s*");
+        } else {
+            parts = new String[] { value };
+        }
+
+        for (String part : parts) {
+            String normalized = normalizeRelatedUri(part);
+            if (!normalized.isEmpty()) {
+                uris.add(normalized);
+            }
+        }
+
+        return new ArrayList<String>(uris);
     }
 
     public List<RequiredInstrument> getRequiredInstrument() {
@@ -181,41 +222,23 @@ public class Task extends HADatAcThing implements Comparable<Task> {
         if (hasRequiredInstrumentUris == null || hasRequiredInstrumentUris.size() <= 0) {
             return resp;
         }
+
+        // Avoid repeated lookups by expanding separators + deduplicating first.
+        LinkedHashSet<String> uniqueUris = new LinkedHashSet<String>();
         for (String hasRequiredInstrumentUri : hasRequiredInstrumentUris) {
-            // Handle cases where multiple URIs are concatenated with separators (e.g., "URI1 ; URI2 ; URI3")
-            // This can happen when data is stored as a single string value
-            if (hasRequiredInstrumentUri != null && hasRequiredInstrumentUri.contains(";")) {
-                // Split by semicolon and trim whitespace
-                String[] uris = hasRequiredInstrumentUri.split("\\s*;\\s*");
-                for (String uri : uris) {
-                    if (uri != null && !uri.trim().isEmpty()) {
-                        RequiredInstrument requiredInstrument = RequiredInstrument.find(uri.trim());
-                        if (requiredInstrument != null) {
-                            resp.add(requiredInstrument);
-                        }
-                    }
-                }
-            } else if (hasRequiredInstrumentUri != null && hasRequiredInstrumentUri.contains("|")) {
-                // Also handle pipe separator (alternative format)
-                String[] uris = hasRequiredInstrumentUri.split("\\s*\\|\\s*");
-                for (String uri : uris) {
-                    if (uri != null && !uri.trim().isEmpty()) {
-                        RequiredInstrument requiredInstrument = RequiredInstrument.find(uri.trim());
-                        if (requiredInstrument != null) {
-                            resp.add(requiredInstrument);
-                        }
-                    }
-                }
-            } else {
-                // Single URI case (normal) - also trim to remove any leading/trailing whitespace
-                if (hasRequiredInstrumentUri != null && !hasRequiredInstrumentUri.trim().isEmpty()) {
-                    RequiredInstrument requiredInstrument = RequiredInstrument.find(hasRequiredInstrumentUri.trim());
-                    if (requiredInstrument != null) {
-                        resp.add(requiredInstrument);
-                    }
-                }
+            List<String> expanded = splitAndNormalizeUriValues(hasRequiredInstrumentUri);
+            for (String uri : expanded) {
+                uniqueUris.add(uri);
             }
         }
+
+        for (String uri : uniqueUris) {
+            RequiredInstrument requiredInstrument = RequiredInstrument.find(uri);
+            if (requiredInstrument != null) {
+                resp.add(requiredInstrument);
+            }
+        }
+
         return resp;
     }
 
@@ -228,10 +251,10 @@ public class Task extends HADatAcThing implements Comparable<Task> {
     }
 
     public void addHasSubtaskUri(String hasSubtaskUri) {
-        if (hasSubtaskUri == null || hasSubtaskUri.trim().isEmpty()) {
+        String cleanUri = normalizeRelatedUri(hasSubtaskUri);
+        if (cleanUri.isEmpty()) {
             return;
         }
-        String cleanUri = hasSubtaskUri.trim();
         if (!this.hasSubtaskUris.contains(cleanUri)) {
             this.hasSubtaskUris.add(cleanUri);
         }
@@ -288,10 +311,10 @@ public class Task extends HADatAcThing implements Comparable<Task> {
     }
 
     public void addHasAssociatedAnatomyUri(String anatomyUri) {
-        if (anatomyUri == null || anatomyUri.trim().isEmpty()) {
+        String cleanUri = normalizeRelatedUri(anatomyUri);
+        if (cleanUri.isEmpty()) {
             return;
         }
-        String cleanUri = anatomyUri.trim();
         if (!isValidAssociatedAnatomyUri(cleanUri)) {
             System.out.println("[Task] Ignoring associated anatomy URI outside UBERON anatomical entity hierarchy: " + cleanUri);
             return;
@@ -360,34 +383,24 @@ public class Task extends HADatAcThing implements Comparable<Task> {
 		}
 		Task task = null;
 
-        // Retrieve one named graph where the task exists (for compatibility with update flows).
-        String graphQuery = "SELECT ?graph WHERE { GRAPH ?graph { <" + uri + "> ?p ?o } } LIMIT 1";
-        ResultSet graphResultSet = SPARQLUtils.select(CollectionUtil.getCollectionPath(
-        	CollectionUtil.Collection.SPARQL_QUERY), graphQuery);
-
-        String namedGraph = "";
-        if (graphResultSet != null && graphResultSet.hasNext()) {
-            QuerySolution gqs = graphResultSet.next();
-            if (gqs.contains("graph")) {
-                namedGraph = gqs.get("graph").toString();
-            }
-        }
-
-        // Deduplicate across graphs by selecting only predicate/object pairs.
-        String queryString = "SELECT DISTINCT ?p ?o WHERE { GRAPH ?graph { <" + uri + "> ?p ?o } }";
+        // Single query retrieves both data and one candidate graph.
+        String queryString = "SELECT DISTINCT ?graph ?p ?o WHERE { GRAPH ?graph { <" + uri + "> ?p ?o } }";
         ResultSet resultSet = SPARQLUtils.select(CollectionUtil.getCollectionPath(
         	CollectionUtil.Collection.SPARQL_QUERY), queryString);
 
-		if (!resultSet.hasNext()) {
+		if (resultSet == null || !resultSet.hasNext()) {
 			return null;
 		} else {
             task = new Task();
-            task.setNamedGraph(namedGraph);
 		}
 
 		// Iterate over results
 		while (resultSet.hasNext()) {
 			QuerySolution qs = resultSet.next();
+
+            if ((task.getNamedGraph() == null || task.getNamedGraph().isEmpty()) && qs.contains("graph")) {
+                task.setNamedGraph(qs.get("graph").toString());
+            }
 			
 			// Retrieve predicate and object (optional)
 			if (qs.contains("p") && qs.contains("o")) {
@@ -426,62 +439,23 @@ public class Task extends HADatAcThing implements Comparable<Task> {
                 } else if (predicate.equals(VSTOI.HAS_TEMPORAL_DEPENDENCY)) {
                     task.setHasTemporalDependency(object);
                 } else if (predicate.equals(VSTOI.HAS_REQUIRED_INSTRUMENT)) {
-                    System.out.println("[Task.find] Found hasRequiredInstrument: [" + object + "]");
-                    // Split if the object contains multiple URIs separated by | or ;
-                    if (object != null && (object.contains("|") || object.contains(";"))) {
-                        System.out.println("[Task.find] WARN: hasRequiredInstrument contains separators - splitting into individual URIs");
-                        String[] uriParts;
-                        if (object.contains("|")) {
-                            uriParts = object.split("\\s*\\|\\s*");
-                        } else {
-                            uriParts = object.split("\\s*;\\s*");
-                        }
-                        for (String uriPart : uriParts) {
-                            if (uriPart != null && !uriPart.trim().isEmpty()) {
-                                System.out.println("[Task.find]   Adding URI: [" + uriPart.trim() + "]");
-                                task.addHasRequiredInstrumentUri(uriPart.trim());
-                            }
-                        }
-                    } else {
-                        task.addHasRequiredInstrumentUri(object);
+                    List<String> uris = splitAndNormalizeUriValues(object);
+                    for (String instrumentUri : uris) {
+                        task.addHasRequiredInstrumentUri(instrumentUri);
                     }
                 } else if (predicate.equals(VSTOI.HAS_SUBTASK)) {
-                    // Split if the object contains multiple URIs separated by | or ;
-                    if (object != null && (object.contains("|") || object.contains(";"))) {
-                        String[] uriParts;
-                        if (object.contains("|")) {
-                            uriParts = object.split("\\s*\\|\\s*");
-                        } else {
-                            uriParts = object.split("\\s*;\\s*");
-                        }
-                        for (String uriPart : uriParts) {
-                            if (uriPart != null && !uriPart.trim().isEmpty()) {
-                                task.addHasSubtaskUri(uriPart.trim());
-                            }
-                        }
-                    } else {
-                        task.addHasSubtaskUri(object);
+                    List<String> uris = splitAndNormalizeUriValues(object);
+                    for (String subtaskUri : uris) {
+                        task.addHasSubtaskUri(subtaskUri);
                     }
                 } else if (predicate.equals(VSTOI.HAS_ITERATION_CONSTRAINT)) {
                     task.setHasIterationConstraint(object);
                 } else if (predicate.equals(VSTOI.SUPPORTS_OBJECTIVE)) {
                     task.setSupportsObjective(object);
                 } else if (predicate.equals(VSTOI.ASSOCIATED_ANATOMY)) {
-                    // Split if the object contains multiple URIs separated by | or ;
-                    if (object != null && (object.contains("|") || object.contains(";"))) {
-                        String[] uriParts;
-                        if (object.contains("|")) {
-                            uriParts = object.split("\\s*\\|\\s*");
-                        } else {
-                            uriParts = object.split("\\s*;\\s*");
-                        }
-                        for (String uriPart : uriParts) {
-                            if (uriPart != null && !uriPart.trim().isEmpty()) {
-                                task.addHasAssociatedAnatomyUri(uriPart.trim());
-                            }
-                        }
-                    } else {
-                        task.addHasAssociatedAnatomyUri(object);
+                    List<String> uris = splitAndNormalizeUriValues(object);
+                    for (String anatomyUri : uris) {
+                        task.addHasAssociatedAnatomyUri(anatomyUri);
                     }
                 }
             }

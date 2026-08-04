@@ -90,22 +90,34 @@ public class WKFGenerator extends BaseGenerator {
             String computedLabel = buildProcessInstanceLabel(row);
             row.put("rdfs:label", computedLabel);
         } else if (elementType.equals("task")) {
-            // CRITICAL FIX: Preserve CTT task type from Excel, don't override
-            // The hasco:hascoType should already be in the row from Excel (column C in Tasks sheet)
-            // Only set default if missing, and validate if present
-            if (!row.containsKey("hasco:hascoType") || row.get("hasco:hascoType").toString().trim().isEmpty()) {
-                // No type specified in Excel - use generic Task as fallback
-                row.put("hasco:hascoType", VSTOI.TASK);
-                System.out.println("[WKFGenerator] WARNING: Task " + row.get("hasURI") + " missing hasco:hascoType, using generic vstoi:Task");
-            } else {
-                // Validate the CTT task type from Excel
-                String taskType = row.get("hasco:hascoType").toString().trim();
-                if (!isValidCTTTaskType(taskType)) {
-                    System.out.println("[WKFGenerator] WARNING: Task " + row.get("hasURI") + " has invalid CTT task type: " + taskType + ", keeping it but validation may fail");
-                    this.dataFile.getLogger().printWarningByIdWithArgs("WKF_00009", row.get("hasURI").toString(), taskType);
+            // WKF v1.2.1 semantics:
+            // - hasco:hascoType MUST be vstoi:Task (archetype)
+            // - rdf:type MAY be vstoi:Task or any task subclass
+            String hascoTypeValue = row.containsKey("hasco:hascoType") && row.get("hasco:hascoType") != null
+                    ? row.get("hasco:hascoType").toString().trim()
+                    : "";
+            String rdfTypeValue = row.containsKey("rdf:type") && row.get("rdf:type") != null
+                    ? row.get("rdf:type").toString().trim()
+                    : "";
+
+            if (!hascoTypeValue.isEmpty() && !VSTOI.TASK.equals(hascoTypeValue)) {
+                // Backward-compatible migration: if previous templates stored subclass in hasco:hascoType,
+                // preserve it as rdf:type when rdf:type is missing or generic.
+                if (rdfTypeValue.isEmpty() || VSTOI.TASK.equals(rdfTypeValue)) {
+                    row.put("rdf:type", hascoTypeValue);
                 }
-                // Keep the value from Excel - don't override it
+
+                if (!isValidCTTTaskType(hascoTypeValue)) {
+                    System.out.println("[WKFGenerator] WARNING: Task " + row.get("hasURI") + " has non-standard Task rdf:type candidate: " + hascoTypeValue);
+                    this.dataFile.getLogger().printWarningByIdWithArgs("WKF_00009", row.get("hasURI").toString(), hascoTypeValue);
+                }
             }
+
+            if (rdfTypeValue.isEmpty()) {
+                row.put("rdf:type", VSTOI.TASK);
+            }
+
+            row.put("hasco:hascoType", VSTOI.TASK);
         } else if (elementType.equals("requiredinstrument")) {
             row.put("hasco:hascoType", VSTOI.REQUIRED_INSTRUMENT);
             // For RequiredInstruments: split concatenated components

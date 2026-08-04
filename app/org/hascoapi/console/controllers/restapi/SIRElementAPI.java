@@ -45,6 +45,21 @@ public class SIRElementAPI extends Controller {
                 message = e.getMessage();
                 return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
             }
+        } else if (clazz == AnalyticalTool.class) {
+            try {
+                AnalyticalTool object;
+                object = (AnalyticalTool)objectMapper.readValue(json, clazz);
+                if (object.getTypeUri() == null || object.getTypeUri().trim().isEmpty()) {
+                    object.setTypeUri(HASCO.ANALYTICAL_TOOL);
+                }
+                if (object.getHascoTypeUri() == null || object.getHascoTypeUri().trim().isEmpty()) {
+                    object.setHascoTypeUri(HASCO.ANALYTICAL_TOOL);
+                }
+                object.save();
+            } catch (JsonProcessingException e) {
+                message = e.getMessage();
+                return ok(ApiUtil.createResponse("Following error parsing JSON for " + clazz + ": " + e.getMessage(), false));
+            }
         } else if (clazz == AnnotationStem.class) {
             try {
                 AnnotationStem object;
@@ -608,6 +623,12 @@ public class SIRElementAPI extends Controller {
                 return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
             }
             object.delete();
+        } else if (clazz == AnalyticalTool.class) {
+            AnalyticalTool object = AnalyticalTool.find(uri);
+            if (object == null) {
+                return ok(ApiUtil.createResponse("No element with URI [" + uri + "] has been found", false));
+            }
+            object.delete();
         } else if (clazz == AnnotationStem.class) {
             AnnotationStem object = AnnotationStem.find(uri);
             if (object == null) {
@@ -987,6 +1008,10 @@ public class SIRElementAPI extends Controller {
             GenericFind<Instrument> query = new GenericFind<Instrument>();
             List<Instrument> results = query.findByKeywordWithPages(Instrument.class,keyword, pageSize, offset);
             return InstrumentAPI.getInstruments(results);
+        } else if (elementType.equals("analyticaltool")) {
+            GenericFind<AnalyticalTool> query = new GenericFind<AnalyticalTool>();
+            List<AnalyticalTool> results = query.findByKeywordWithPages(AnalyticalTool.class,keyword, pageSize, offset);
+            return AnalyticalToolAPI.getAnalyticalTools(results);
         } else if (elementType.equals("instrumentinstance")) {
             GenericFind<InstrumentInstance> query = new GenericFind<InstrumentInstance>();
             List<InstrumentInstance> results = query.findByKeywordWithPages(InstrumentInstance.class,keyword, pageSize, offset);

@@ -920,8 +920,8 @@ public class IngestionWorker {
                 for (Record rec : nameSpaceRecordFile.getRecords()) {
                     row++;
                     try {
-                        String rowAbbrev = safeTrim(rec.getValueByColumnName("hasPrefix"));
-                        String rowUri = safeTrim(rec.getValueByColumnName("hasNameSpace"));
+                        String rowAbbrev = firstNonBlankColumn(rec, "hasPrefix", "prefix");
+                        String rowUri = firstNonBlankColumn(rec, "hasNameSpace", "namespace");
                         String rowMime = safeTrim(rec.getValueByColumnName("hasFormat"));
                         String rowSource = safeTrim(rec.getValueByColumnName("hasSource"));
 
@@ -1037,8 +1037,8 @@ public class IngestionWorker {
         for (Record rec : nameSpaceRecordFile.getRecords()) {
             row++;
             try {
-                String rowAbbrev = safeTrim(rec.getValueByColumnName("hasPrefix"));
-                String rowUri = safeTrim(rec.getValueByColumnName("hasNameSpace"));
+                String rowAbbrev = firstNonBlankColumn(rec, "hasPrefix", "prefix");
+                String rowUri = firstNonBlankColumn(rec, "hasNameSpace", "namespace");
                 String rowMime = safeTrim(rec.getValueByColumnName("hasFormat"));
                 String rowSource = safeTrim(rec.getValueByColumnName("hasSource"));
 
@@ -1119,6 +1119,22 @@ public class IngestionWorker {
 
     private static String safeTrim(String value) {
         return value == null ? "" : value.trim();
+    }
+
+    private static String firstNonBlankColumn(Record rec, String... names) {
+        if (rec == null || names == null) {
+            return "";
+        }
+        for (String name : names) {
+            try {
+                String value = rec.getValueByColumnName(name);
+                if (value != null && !value.trim().isEmpty()) {
+                    return value.trim();
+                }
+            } catch (Exception ignored) {
+            }
+        }
+        return "";
     }
 
     private static boolean hasMimeAndSource(String mime, String source) {

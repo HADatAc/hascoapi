@@ -41,7 +41,8 @@ public class WKFRequiredInstruments {
         String queryString = org.hascoapi.utils.NameSpaces.getInstance().printSparqlNameSpaceList()
                 + " SELECT DISTINCT ?uri WHERE { "
                 + "   GRAPH <" + namedGraph + "> { "
-                + "     ?task a vstoi:Task . "
+            + "     { ?task hasco:hascoType vstoi:Task . } "
+            + "     UNION { ?task a ?taskType . ?taskType rdfs:subClassOf* vstoi:Task . } "
                 + "     ?task vstoi:hasRequiredInstrument ?uri . "
                 + "     ?uri a vstoi:RequiredInstrument . "
                 + "   } "
@@ -80,8 +81,6 @@ public class WKFRequiredInstruments {
             row.createCell(5).setCellValue(URIUtils.replaceNameSpaceEx(safe(ri.getUsesInstrument())));
             row.createCell(6).setCellValue(URIUtils.replaceNameSpaceEx(safe(ri.getIsRelatedToTask())));
             row.createCell(7).setCellValue(safe(ri.getHasInstrumentConfig()));
-            row.createCell(8).setCellValue(URIUtils.replaceNameSpaceEx(safe(ri.getHasImageUri())));
-            row.createCell(9).setCellValue(safe(ri.getHasWebDocument()));
 
             System.out.println("[WKFRequiredInstruments] Added RequiredInstrument row: uri=" + ri.getUri());
         }
@@ -113,8 +112,6 @@ public class WKFRequiredInstruments {
         row.createCell(5).setCellValue(URIUtils.replaceNameSpaceEx(safe(ri.getUsesInstrument())));
         row.createCell(6).setCellValue(URIUtils.replaceNameSpaceEx(safe(ri.getIsRelatedToTask())));
         row.createCell(7).setCellValue(safe(ri.getHasInstrumentConfig()));
-        row.createCell(8).setCellValue(URIUtils.replaceNameSpaceEx(safe(ri.getHasImageUri())));
-        row.createCell(9).setCellValue(safe(ri.getHasWebDocument()));
 
         System.out.println("[WKFRequiredInstruments] Added RequiredInstrument row: uri=" + ri.getUri() + ", usesInstrument=" + ri.getUsesInstrument());
 

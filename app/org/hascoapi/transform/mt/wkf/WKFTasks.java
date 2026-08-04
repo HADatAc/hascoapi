@@ -40,7 +40,8 @@ public class WKFTasks {
         String queryString = org.hascoapi.utils.NameSpaces.getInstance().printSparqlNameSpaceList()
                 + " SELECT ?uri WHERE { "
                 + "   GRAPH <" + namedGraph + "> { "
-                + "     ?uri a vstoi:Task . "
+            + "     { ?uri hasco:hascoType vstoi:Task . } "
+            + "     UNION { ?uri a ?taskType . ?taskType rdfs:subClassOf* vstoi:Task . } "
                 + "   } "
                 + " }";
 
@@ -70,8 +71,12 @@ public class WKFTasks {
 
             // Map Task fields to columns
             row.createCell(0).setCellValue(URIUtils.replaceNameSpaceEx(safe(t.getUri())));
-            row.createCell(1).setCellValue(URIUtils.replaceNameSpaceEx(safe(t.getTypeUri())));
-            row.createCell(2).setCellValue(URIUtils.replaceNameSpaceEx(safe(t.getHascoTypeUri())));
+            String typeUri = safe(t.getTypeUri());
+            if (typeUri.isEmpty()) {
+                typeUri = "vstoi:Task";
+            }
+            row.createCell(1).setCellValue(URIUtils.replaceNameSpaceEx(typeUri));
+            row.createCell(2).setCellValue("vstoi:Task");
             row.createCell(3).setCellValue(safe(t.getLabel()));
             row.createCell(4).setCellValue(safe(t.getComment()));
             row.createCell(5).setCellValue(safe(t.getHasStatus()));
@@ -96,6 +101,7 @@ public class WKFTasks {
             row.createCell(16).setCellValue(URIUtils.replaceNameSpaceEx(safe(t.getHasImageUri())));
             row.createCell(17).setCellValue(safe(t.getHasWebDocument()));
             row.createCell(18).setCellValue(safe(t.getHasIterationConstraint()));
+            row.createCell(19).setCellValue(safe(t.getSupportsObjective()));
 
             System.out.println("[WKFTasks] Added Task row: uri=" + t.getUri());
         }
@@ -128,12 +134,8 @@ public class WKFTasks {
         }
         row.createCell(1).setCellValue(URIUtils.replaceNameSpaceEx(typeUri));
 
-        // Fallback for HascoTypeUri
-        String hascoTypeUri = t.getHascoTypeUri();
-        if (hascoTypeUri == null || hascoTypeUri.trim().isEmpty()) {
-            hascoTypeUri = "vstoi:Task";
-        }
-        row.createCell(2).setCellValue(URIUtils.replaceNameSpaceEx(hascoTypeUri));
+        // WKF v1.2.1: task archetype is fixed in hasco:hascoType.
+        row.createCell(2).setCellValue("vstoi:Task");
 
         row.createCell(3).setCellValue(safe(t.getLabel()));
         row.createCell(4).setCellValue(safe(t.getComment()));
@@ -159,6 +161,7 @@ public class WKFTasks {
         row.createCell(16).setCellValue(URIUtils.replaceNameSpaceEx(safe(t.getHasImageUri())));
         row.createCell(17).setCellValue(safe(t.getHasWebDocument()));
         row.createCell(18).setCellValue(safe(t.getHasIterationConstraint()));
+        row.createCell(19).setCellValue(safe(t.getSupportsObjective()));
 
         System.out.println("[WKFTasks] Added Task row: uri=" + t.getUri() + ", label=" + t.getLabel() + ", typeUri=" + typeUri);
 
@@ -177,7 +180,7 @@ public class WKFTasks {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < uris.size(); i++) {
             if (i > 0) {
-                sb.append(" | ");
+                sb.append(";");
             }
             String uri = uris.get(i);
             if (uri != null && !uri.isEmpty()) {

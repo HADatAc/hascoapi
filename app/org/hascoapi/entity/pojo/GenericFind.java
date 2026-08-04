@@ -49,6 +49,8 @@ public class GenericFind<T> {
         
         if (elementType.equals("agent")) {
             return Agent.class;
+        } else if (elementType.equals("analyticaltool")) {
+            return AnalyticalTool.class;
         } else if (elementType.equals("annotation")) {
             return Annotation.class;
         } else if (elementType.equals("annotationstem")) {
@@ -169,6 +171,8 @@ public class GenericFind<T> {
     public static String classNameWithNamespace (Class clazz) {
         if (clazz == Instrument.class) {
             return URIUtils.replaceNameSpace(VSTOI.INSTRUMENT);
+        } else if (clazz == AnalyticalTool.class) {
+            return URIUtils.replaceNameSpace(HASCO.ANALYTICAL_TOOL);
         } else if (clazz == InstrumentInstance.class) {
             return URIUtils.replaceNameSpace(VSTOI.INSTRUMENT_INSTANCE);
         } else if (clazz == InstrumentType.class) {
@@ -271,6 +275,7 @@ public class GenericFind<T> {
         // Instrument/Container is not SIR Element
         // Component and ComponentStem were removed from SIR because they can now be created via DSG
         if (clazz == ResponseOption.class ||
+            clazz == AnalyticalTool.class ||
             clazz == AnnotationStem.class ||
             clazz == Annotation.class ||
             clazz == Process.class ||
@@ -1105,6 +1110,8 @@ public class GenericFind<T> {
         // List of instances
         } else if (clazz == Annotation.class) {
             return (T)Annotation.find(uri);
+        } else if (clazz == AnalyticalTool.class) {
+            return (T)AnalyticalTool.find(uri);
         } else if (clazz == Codebook.class) {
             return (T)Codebook.find(uri);
         } else if (clazz == CodebookSlot.class) {

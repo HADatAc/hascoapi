@@ -52,6 +52,9 @@ public class Utils {
         }
         String shortPrefix;
         switch (elementType) {
+            case "analyticaltool":
+                shortPrefix = Constants.PREFIX_ANALYTICAL_TOOL;
+                break;
             case "instrument":
                 shortPrefix = Constants.PREFIX_INSTRUMENT;
                 break;

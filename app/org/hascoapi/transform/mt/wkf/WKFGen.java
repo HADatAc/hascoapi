@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import org.hascoapi.entity.pojo.ProcessBasedStudy;
 import org.hascoapi.entity.pojo.WKF;
 import org.hascoapi.entity.pojo.GenericFindWithStatus;
 import org.hascoapi.entity.pojo.NameSpace;
@@ -13,6 +14,7 @@ import org.hascoapi.entity.pojo.ProcessStem;
 import org.hascoapi.entity.pojo.RequiredInstrument;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.hascoapi.utils.URIUtils;
 
 /*
 WKFGen builds an Excel workbook for workflows (WKF):
@@ -27,6 +29,7 @@ public class WKFGen {
 
     public static final String INFOSHEET                = "InfoSheet";
     public static final String NAMESPACES               = "Namespaces";
+    public static final String STD                      = "STD";
     public static final String PROCESSSTEMS             = "ProcessStems";
     public static final String PROCESSES                = "Processes";
     public static final String TASKS                    = "Tasks";
@@ -156,6 +159,14 @@ public class WKFGen {
             t.printStackTrace();
         }
 
+        // Populate STD row from ProcessBasedStudy metadata when available.
+        try {
+            populateStdSheetFromProcessBasedStudy(helper.workbook);
+        } catch (Throwable t) {
+            System.err.println("[WKFGen] WARN: failed to populate STD sheet from ProcessBasedStudy: " + t.getMessage());
+            t.printStackTrace();
+        }
+
         // After populating the workbook, keep only the namespaces that are actually referenced
         try {
             pruneUnusedNamespaces(helper.workbook);
@@ -228,6 +239,14 @@ public class WKFGen {
             t.printStackTrace();
         }
 
+        // Populate STD row from ProcessBasedStudy metadata when available.
+        try {
+            populateStdSheetFromProcessBasedStudy(helper.workbook);
+        } catch (Throwable t) {
+            System.err.println("[WKFGen] WARN: failed to populate STD sheet from ProcessBasedStudy: " + t.getMessage());
+            t.printStackTrace();
+        }
+
         // After populating the workbook, keep only the namespaces that are actually referenced
         try {
             pruneUnusedNamespaces(helper.workbook);
@@ -250,11 +269,16 @@ public class WKFGen {
     }
 
     public static String genByProcessStem(ProcessStem processStem, String filename, String mediaFolder, String verifyUri) {
+        return genByProcessStem(processStem, filename, mediaFolder, verifyUri, true);
+    }
+
+    public static String genByProcessStem(ProcessStem processStem, String filename, String mediaFolder, String verifyUri, boolean includeWorkflowModel) {
         if (processStem == null) {
             System.err.println("[WKFGen] ERROR: processStem is null");
             return "FAILURE: processStem is null";
         }
         System.out.println("[WKFGen] genByProcessStem START filename=" + filename + ", processStemUri=" + processStem.getUri());
+        System.out.println("[WKFGen] includeWorkflowModel=" + includeWorkflowModel);
 
         WKFGenHelper helper = new WKFGenHelper();
 
@@ -273,13 +297,15 @@ public class WKFGen {
             return "FAILURE: creating workbook - " + t.getMessage();
         }
 
-        // Add the ProcessStem to the ProcessStems sheet
-        try {
-            helper = WKFProcessStems.addProcessStem(helper, processStem);
-            System.out.println("[WKFGen] ProcessStem added: " + processStem.getLabel());
-        } catch (Throwable t) {
-            System.err.println("[WKFGen] ERROR adding ProcessStem: " + t.getMessage());
-            t.printStackTrace();
+        if (includeWorkflowModel) {
+            // Add the ProcessStem to the ProcessStems sheet
+            try {
+                helper = WKFProcessStems.addProcessStem(helper, processStem);
+                System.out.println("[WKFGen] ProcessStem added: " + processStem.getLabel());
+            } catch (Throwable t) {
+                System.err.println("[WKFGen] ERROR adding ProcessStem: " + t.getMessage());
+                t.printStackTrace();
+            }
         }
 
         // Get the named graph from the ProcessStem
@@ -293,87 +319,98 @@ public class WKFGen {
 
         System.out.println("[WKFGen] Using named graph: " + namedGraph);
 
-        // Query and add all Processes from the same named graph
-        try {
-            String ns = org.hascoapi.utils.NameSpaces.getInstance().printSparqlNameSpaceList();
-            String processQuery = ns
-                    + " SELECT ?uri WHERE { "
-                    + "   GRAPH <" + namedGraph + "> { "
-                    + "     ?uri a vstoi:Process . "
-                    + "   } "
-                    + " }";
+        if (includeWorkflowModel) {
+            // Query and add all Processes from the same named graph
+            try {
+                String ns = org.hascoapi.utils.NameSpaces.getInstance().printSparqlNameSpaceList();
+                String processQuery = ns
+                        + " SELECT ?uri WHERE { "
+                        + "   GRAPH <" + namedGraph + "> { "
+                        + "     ?uri a vstoi:Process . "
+                        + "   } "
+                        + " }";
 
-            System.out.println("[WKFGen] Process query: " + processQuery);
+                System.out.println("[WKFGen] Process query: " + processQuery);
 
-            List<org.hascoapi.entity.pojo.Process> processes = org.hascoapi.entity.pojo.GenericFind.findByQuery(
-                org.hascoapi.entity.pojo.Process.class, processQuery);
+                List<org.hascoapi.entity.pojo.Process> processes = org.hascoapi.entity.pojo.GenericFind.findByQuery(
+                    org.hascoapi.entity.pojo.Process.class, processQuery);
 
-            if (processes != null && !processes.isEmpty()) {
-                System.out.println("[WKFGen] Found " + processes.size() + " Processes in named graph");
-                for (org.hascoapi.entity.pojo.Process proc : processes) {
-                    helper = WKFProcesses.addProcess(helper, proc);
+                if (processes != null && !processes.isEmpty()) {
+                    System.out.println("[WKFGen] Found " + processes.size() + " Processes in named graph");
+                    for (org.hascoapi.entity.pojo.Process proc : processes) {
+                        helper = WKFProcesses.addProcess(helper, proc);
+                    }
+                } else {
+                    System.out.println("[WKFGen] No Processes found in named graph: " + namedGraph);
                 }
-            } else {
-                System.out.println("[WKFGen] No Processes found in named graph: " + namedGraph);
+            } catch (Throwable t) {
+                System.err.println("[WKFGen] ERROR querying/adding Processes: " + t.getMessage());
+                t.printStackTrace();
             }
-        } catch (Throwable t) {
-            System.err.println("[WKFGen] ERROR querying/adding Processes: " + t.getMessage());
-            t.printStackTrace();
+
+            // Query and add all Tasks from the same named graph
+            try {
+                String ns = org.hascoapi.utils.NameSpaces.getInstance().printSparqlNameSpaceList();
+                String taskQuery = ns
+                    + " SELECT DISTINCT ?uri WHERE { "
+                        + "   GRAPH <" + namedGraph + "> { "
+                        + "     { ?uri hasco:hascoType vstoi:Task . } "
+                        + "     UNION { ?uri a ?taskType . ?taskType rdfs:subClassOf* vstoi:Task . } "
+                        + "   } "
+                        + " }";
+
+                System.out.println("[WKFGen] Task query: " + taskQuery);
+
+                List<org.hascoapi.entity.pojo.Task> tasks = org.hascoapi.entity.pojo.GenericFind.findByQuery(
+                    org.hascoapi.entity.pojo.Task.class, taskQuery);
+
+                if (tasks != null && !tasks.isEmpty()) {
+                    System.out.println("[WKFGen] Found " + tasks.size() + " Tasks in named graph");
+                    for (org.hascoapi.entity.pojo.Task task : tasks) {
+                        helper = WKFTasks.addTask(helper, task);
+                    }
+                } else {
+                    System.out.println("[WKFGen] No Tasks found in named graph: " + namedGraph);
+                }
+            } catch (Throwable t) {
+                System.err.println("[WKFGen] ERROR querying/adding Tasks: " + t.getMessage());
+                t.printStackTrace();
+            }
+
+            // Query and add RequiredInstruments from the same named graph
+            try {
+                String ns = org.hascoapi.utils.NameSpaces.getInstance().printSparqlNameSpaceList();
+                String reqInstQuery = ns
+                        + " SELECT ?uri WHERE { "
+                        + "   GRAPH <" + namedGraph + "> { "
+                        + "     ?uri a vstoi:RequiredInstrument . "
+                        + "   } "
+                        + " }";
+
+                System.out.println("[WKFGen] RequiredInstrument query: " + reqInstQuery);
+
+                List<org.hascoapi.entity.pojo.RequiredInstrument> reqInstruments = org.hascoapi.entity.pojo.GenericFind.findByQuery(
+                    org.hascoapi.entity.pojo.RequiredInstrument.class, reqInstQuery);
+
+                if (reqInstruments != null && !reqInstruments.isEmpty()) {
+                    System.out.println("[WKFGen] Found " + reqInstruments.size() + " RequiredInstruments in named graph");
+                    for (org.hascoapi.entity.pojo.RequiredInstrument reqInst : reqInstruments) {
+                        helper = WKFRequiredInstruments.addRequiredInstrument(helper, reqInst);
+                    }
+                } else {
+                    System.out.println("[WKFGen] No RequiredInstruments found in named graph: " + namedGraph);
+                }
+            } catch (Throwable t) {
+                System.err.println("[WKFGen] ERROR querying/adding RequiredInstruments: " + t.getMessage());
+                t.printStackTrace();
+            }
         }
 
-        // Query and add all Tasks from the same named graph
+        // Populate STD row from ProcessBasedStudy metadata when available.
         try {
-            String ns = org.hascoapi.utils.NameSpaces.getInstance().printSparqlNameSpaceList();
-            String taskQuery = ns
-                    + " SELECT ?uri WHERE { "
-                    + "   GRAPH <" + namedGraph + "> { "
-                    + "     ?uri a vstoi:Task . "
-                    + "   } "
-                    + " }";
-
-            System.out.println("[WKFGen] Task query: " + taskQuery);
-
-            List<org.hascoapi.entity.pojo.Task> tasks = org.hascoapi.entity.pojo.GenericFind.findByQuery(
-                org.hascoapi.entity.pojo.Task.class, taskQuery);
-
-            if (tasks != null && !tasks.isEmpty()) {
-                System.out.println("[WKFGen] Found " + tasks.size() + " Tasks in named graph");
-                for (org.hascoapi.entity.pojo.Task task : tasks) {
-                    helper = WKFTasks.addTask(helper, task);
-                }
-            } else {
-                System.out.println("[WKFGen] No Tasks found in named graph: " + namedGraph);
-            }
+            populateStdSheetFromProcessBasedStudy(helper.workbook);
         } catch (Throwable t) {
-            System.err.println("[WKFGen] ERROR querying/adding Tasks: " + t.getMessage());
-            t.printStackTrace();
-        }
-
-        // Query and add RequiredInstruments from the same named graph
-        try {
-            String ns = org.hascoapi.utils.NameSpaces.getInstance().printSparqlNameSpaceList();
-            String reqInstQuery = ns
-                    + " SELECT ?uri WHERE { "
-                    + "   GRAPH <" + namedGraph + "> { "
-                    + "     ?uri a vstoi:RequiredInstrument . "
-                    + "   } "
-                    + " }";
-
-            System.out.println("[WKFGen] RequiredInstrument query: " + reqInstQuery);
-
-            List<org.hascoapi.entity.pojo.RequiredInstrument> reqInstruments = org.hascoapi.entity.pojo.GenericFind.findByQuery(
-                org.hascoapi.entity.pojo.RequiredInstrument.class, reqInstQuery);
-
-            if (reqInstruments != null && !reqInstruments.isEmpty()) {
-                System.out.println("[WKFGen] Found " + reqInstruments.size() + " RequiredInstruments in named graph");
-                for (org.hascoapi.entity.pojo.RequiredInstrument reqInst : reqInstruments) {
-                    helper = WKFRequiredInstruments.addRequiredInstrument(helper, reqInst);
-                }
-            } else {
-                System.out.println("[WKFGen] No RequiredInstruments found in named graph: " + namedGraph);
-            }
-        } catch (Throwable t) {
-            System.err.println("[WKFGen] ERROR querying/adding RequiredInstruments: " + t.getMessage());
+            System.err.println("[WKFGen] WARN: failed to populate STD sheet from ProcessBasedStudy: " + t.getMessage());
             t.printStackTrace();
         }
 
@@ -396,6 +433,157 @@ public class WKFGen {
         }
         System.out.println("[WKFGen] genByProcessStem END");
         return saveResult;
+    }
+
+    public static String genByProcessBasedStudy(ProcessBasedStudy study, String filename, String mediaFolder, String verifyUri, boolean includeWorkflowModel) {
+        if (study == null) {
+            System.err.println("[WKFGen] ERROR: ProcessBasedStudy is null");
+            return "FAILURE: ProcessBasedStudy is null";
+        }
+
+        System.out.println("[WKFGen] genByProcessBasedStudy START filename=" + filename + ", studyUri=" + study.getUri());
+        System.out.println("[WKFGen] includeWorkflowModel=" + includeWorkflowModel);
+
+        WKFGenHelper helper = new WKFGenHelper();
+        try {
+            java.util.List<WKF> emptyList = new java.util.ArrayList<>();
+            helper.workbook = WKFGen.create(filename, emptyList);
+            if (helper.workbook == null) {
+                return "FAILURE: workbook creation returned null";
+            }
+        } catch (Throwable t) {
+            t.printStackTrace();
+            return "FAILURE: creating workbook - " + t.getMessage();
+        }
+
+        try {
+            Sheet stdSheet = helper.workbook.getSheet(STD);
+            writeStdDataRow(stdSheet, study);
+            System.out.println("[WKFGen] STD row populated from ProcessBasedStudy uri=" + study.getUri());
+        } catch (Throwable t) {
+            System.err.println("[WKFGen] ERROR populating STD row from ProcessBasedStudy: " + t.getMessage());
+            t.printStackTrace();
+        }
+
+        if (includeWorkflowModel) {
+            String processUri = safe(study.getProcessUri());
+            if (!processUri.isEmpty()) {
+                try {
+                    org.hascoapi.entity.pojo.Process process = org.hascoapi.entity.pojo.Process.find(processUri);
+                    if (process != null) {
+                        helper = addWorkflowModelFromProcess(helper, process);
+                    } else {
+                        System.out.println("[WKFGen] WARN: Process not found for URI=" + processUri);
+                    }
+                } catch (Throwable t) {
+                    System.err.println("[WKFGen] ERROR adding workflow model from process: " + t.getMessage());
+                    t.printStackTrace();
+                }
+            }
+        }
+
+        try {
+            pruneUnusedNamespaces(helper.workbook);
+        } catch (Throwable t) {
+            System.err.println("[WKFGen] WARN: failed to prune unused namespaces: " + t.getMessage());
+            t.printStackTrace();
+        }
+
+        String saveResult;
+        try {
+            saveResult = WKFGen.save(helper, filename);
+            System.out.println("[WKFGen] Save result=" + saveResult);
+        } catch (Throwable t) {
+            t.printStackTrace();
+            return "FAILURE: saving workbook - " + t.getMessage();
+        }
+
+        System.out.println("[WKFGen] genByProcessBasedStudy END");
+        return saveResult;
+    }
+
+    private static WKFGenHelper addWorkflowModelFromProcess(WKFGenHelper helper, org.hascoapi.entity.pojo.Process process) {
+        if (helper == null || process == null) {
+            return helper;
+        }
+
+        try {
+            helper = WKFProcesses.addProcess(helper, process);
+        } catch (Throwable t) {
+            System.err.println("[WKFGen] ERROR adding Process row: " + t.getMessage());
+        }
+
+        try {
+            String processStemUri = safe(process.getWasDerivedFrom());
+            if (!processStemUri.isEmpty()) {
+                ProcessStem processStem = ProcessStem.find(processStemUri);
+                if (processStem != null) {
+                    helper = WKFProcessStems.addProcessStem(helper, processStem);
+                }
+            }
+        } catch (Throwable t) {
+            System.err.println("[WKFGen] ERROR adding ProcessStem row: " + t.getMessage());
+        }
+
+        java.util.List<org.hascoapi.entity.pojo.Task> tasks = new java.util.ArrayList<>();
+        try {
+            String namedGraph = safe(process.getNamedGraph());
+            if (namedGraph.isEmpty()) {
+                namedGraph = safe(process.getUri());
+            }
+
+            String ns = org.hascoapi.utils.NameSpaces.getInstance().printSparqlNameSpaceList();
+                String taskQuery = ns
+                    + " SELECT DISTINCT ?uri WHERE { "
+                    + "   GRAPH <" + namedGraph + "> { "
+                    + "     { ?uri hasco:hascoType vstoi:Task . } "
+                    + "     UNION { ?uri a ?taskType . ?taskType rdfs:subClassOf* vstoi:Task . } "
+                    + "   } "
+                    + " }";
+
+                List<org.hascoapi.entity.pojo.Task> queriedTasks = org.hascoapi.entity.pojo.GenericFind.findByQuery(
+                    org.hascoapi.entity.pojo.Task.class, taskQuery);
+                java.util.Set<String> seenTaskUris = new java.util.LinkedHashSet<>();
+            if (queriedTasks != null) {
+                for (org.hascoapi.entity.pojo.Task task : queriedTasks) {
+                    if (task == null) {
+                    continue;
+                    }
+                    String taskUri = safe(task.getUri());
+                    if (taskUri.isEmpty() || !seenTaskUris.add(taskUri)) {
+                    continue;
+                    }
+                    helper = WKFTasks.addTask(helper, task);
+                    tasks.add(task);
+                }
+            }
+        } catch (Throwable t) {
+            System.err.println("[WKFGen] ERROR adding Task rows: " + t.getMessage());
+        }
+
+        try {
+            java.util.Set<String> requiredInstrumentUris = new java.util.LinkedHashSet<>();
+            for (org.hascoapi.entity.pojo.Task task : tasks) {
+                List<String> uris = task.getHasRequiredInstrumentUris();
+                if (uris != null) {
+                    requiredInstrumentUris.addAll(uris);
+                }
+            }
+
+            for (String reqUri : requiredInstrumentUris) {
+                if (reqUri == null || reqUri.trim().isEmpty()) {
+                    continue;
+                }
+                RequiredInstrument req = RequiredInstrument.find(reqUri.trim());
+                if (req != null) {
+                    helper = WKFRequiredInstruments.addRequiredInstrument(helper, req);
+                }
+            }
+        } catch (Throwable t) {
+            System.err.println("[WKFGen] ERROR adding RequiredInstrument rows: " + t.getMessage());
+        }
+
+        return helper;
     }
 
     public static String genByManager(String useremail, String status, String filename, String mediaFolder, String verifyUri) {
@@ -470,6 +658,14 @@ public class WKFGen {
             System.out.println("[WKFGen] No WKFs found for manager/status; sheet population skipped");
         }
 
+        // Populate STD row from ProcessBasedStudy metadata when available.
+        try {
+            populateStdSheetFromProcessBasedStudy(helper.workbook);
+        } catch (Throwable t) {
+            System.err.println("[WKFGen] WARN: failed to populate STD sheet from ProcessBasedStudy: " + t.getMessage());
+            t.printStackTrace();
+        }
+
         // After populating the workbook, keep only the namespaces that are actually referenced
         try {
             pruneUnusedNamespaces(helper.workbook);
@@ -509,23 +705,27 @@ public class WKFGen {
         dataRow1.createCell(1).setCellValue("#" + WKFGen.NAMESPACES);
 
         Row dataRow2 = infoSheet.createRow(2);
-        dataRow2.createCell(0).setCellValue("ProcessStems");
-        dataRow2.createCell(1).setCellValue("#" + WKFGen.PROCESSSTEMS);
+        dataRow2.createCell(0).setCellValue("hasStudyDescription");
+        dataRow2.createCell(1).setCellValue("#" + WKFGen.STD);
 
         Row dataRow3 = infoSheet.createRow(3);
-        dataRow3.createCell(0).setCellValue("Processes");
-        dataRow3.createCell(1).setCellValue("#" + WKFGen.PROCESSES);
+        dataRow3.createCell(0).setCellValue("ProcessStems");
+        dataRow3.createCell(1).setCellValue("#" + WKFGen.PROCESSSTEMS);
 
         Row dataRow4 = infoSheet.createRow(4);
-        dataRow4.createCell(0).setCellValue("Tasks");
-        dataRow4.createCell(1).setCellValue("#" + WKFGen.TASKS);
+        dataRow4.createCell(0).setCellValue("Processes");
+        dataRow4.createCell(1).setCellValue("#" + WKFGen.PROCESSES);
 
         Row dataRow5 = infoSheet.createRow(5);
-        dataRow5.createCell(0).setCellValue("RequiredInstruments");
-        dataRow5.createCell(1).setCellValue("#" + WKFGen.REQUIREDINSTRUMENTS);
+        dataRow5.createCell(0).setCellValue("Tasks");
+        dataRow5.createCell(1).setCellValue("#" + WKFGen.TASKS);
 
         Row dataRow6 = infoSheet.createRow(6);
-        dataRow6.createCell(0).setCellValue("hasVersion");
+        dataRow6.createCell(0).setCellValue("RequiredInstruments");
+        dataRow6.createCell(1).setCellValue("#" + WKFGen.REQUIREDINSTRUMENTS);
+
+        Row dataRow7 = infoSheet.createRow(7);
+        dataRow7.createCell(0).setCellValue("hasVersion");
         // Get version from the first WKF if available
         String versionValue = "1"; // default
         if (wkfs != null && !wkfs.isEmpty() && wkfs.get(0) != null) {
@@ -534,11 +734,11 @@ public class WKFGen {
                 versionValue = wkfVersion;
             }
         }
-        dataRow6.createCell(1).setCellValue(versionValue);
+        dataRow7.createCell(1).setCellValue(versionValue);
 
         // Create sheet named 'Namespaces'
         Sheet nsSheet = workbook.createSheet(WKFGen.NAMESPACES);
-        String[] nsHeaders = { "hasPrefix", "hasNameSpace", "hasFormat", "hasSource" };
+        String[] nsHeaders = { "prefix", "namespace", "hasFormat", "hasSource" };
 
         // Header row
         Row nsHeaderRow = nsSheet.createRow(0);
@@ -555,8 +755,9 @@ public class WKFGen {
         if (nsMap != null && !nsMap.isEmpty()) {
             for (NameSpace ns : nsMap.values()) {
                 Row row = nsSheet.createRow(nsRowNum++);
-                row.createCell(0).setCellValue(safe(ns.getLabel()));       // hasPrefix
-                row.createCell(1).setCellValue(safe(ns.getUri()));         // hasNameSpace
+                String prefix = safe(ns.getLabel());
+                row.createCell(0).setCellValue(prefix);       // hasPrefix
+                row.createCell(1).setCellValue(normalizeNamespaceUri(prefix, safe(ns.getUri())));         // hasNameSpace
                 row.createCell(2).setCellValue(safe(ns.getSourceMime()));  // hasFormat
                 row.createCell(3).setCellValue(safe(ns.getSource()));      // hasSource
             }
@@ -565,8 +766,9 @@ public class WKFGen {
             if (inMem != null) {
                 for (NameSpace ns : inMem) {
                     Row row = nsSheet.createRow(nsRowNum++);
-                    row.createCell(0).setCellValue(safe(ns.getLabel()));
-                    row.createCell(1).setCellValue(safe(ns.getUri()));
+                    String prefix = safe(ns.getLabel());
+                    row.createCell(0).setCellValue(prefix);
+                    row.createCell(1).setCellValue(normalizeNamespaceUri(prefix, safe(ns.getUri())));
                     row.createCell(2).setCellValue(safe(ns.getSourceMime()));
                     row.createCell(3).setCellValue(safe(ns.getSource()));
                 }
@@ -574,10 +776,30 @@ public class WKFGen {
         }
 
         // Create data sheets
+        Sheet stdSheet = workbook.createSheet(WKFGen.STD);
         Sheet processItemsSheet = workbook.createSheet(WKFGen.PROCESSSTEMS);
         Sheet processesSheet = workbook.createSheet(WKFGen.PROCESSES);
         Sheet tasksSheet = workbook.createSheet(WKFGen.TASKS);
         Sheet requiredInstrumentsSheet = workbook.createSheet(WKFGen.REQUIREDINSTRUMENTS);
+
+        Row stdTitleRow = stdSheet.createRow(0);
+        stdTitleRow.createCell(0).setCellValue("Table 1");
+
+        Row stdHeaderRow = stdSheet.createRow(1);
+        stdHeaderRow.createCell(1).setCellValue("hasURI");
+        stdHeaderRow.createCell(2).setCellValue("hasco:hasProcess");
+        stdHeaderRow.createCell(3).setCellValue("Study ID");
+        stdHeaderRow.createCell(4).setCellValue("Title");
+        stdHeaderRow.createCell(5).setCellValue("Specific Aims");
+        stdHeaderRow.createCell(6).setCellValue("Significance");
+        stdHeaderRow.createCell(7).setCellValue("Institution");
+        stdHeaderRow.createCell(8).setCellValue("Principal Investigator");
+        stdHeaderRow.createCell(9).setCellValue("Email");
+        stdHeaderRow.createCell(10).setCellValue("Start Date");
+        stdHeaderRow.createCell(11).setCellValue("End Date");
+        stdHeaderRow.createCell(12).setCellValue("vstoi:hasLearningObjectives");
+        stdHeaderRow.createCell(13).setCellValue("vstoi:hasCriticalActions");
+        stdHeaderRow.createCell(14).setCellValue("vstoi:hasDebriefingFocus");
 
         // Initialize ProcessStems headers
         Row processItemsHeaderRow = processItemsSheet.createRow(0);
@@ -637,6 +859,7 @@ public class WKFGen {
         tasksHeaderRow.createCell(16).setCellValue("hasco:hasImage");
         tasksHeaderRow.createCell(17).setCellValue("hasco:hasWebDocument");
         tasksHeaderRow.createCell(18).setCellValue("vstoi:hasIterationConstraint");
+        tasksHeaderRow.createCell(19).setCellValue("vstoi:supportsObjective");
 
         // Initialize RequiredInstruments headers
         Row requiredInstrumentsHeaderRow = requiredInstrumentsSheet.createRow(0);
@@ -648,13 +871,115 @@ public class WKFGen {
         requiredInstrumentsHeaderRow.createCell(5).setCellValue("vstoi:usesInstrument");
         requiredInstrumentsHeaderRow.createCell(6).setCellValue("vstoi:isRelatedToTask");
         requiredInstrumentsHeaderRow.createCell(7).setCellValue("vstoi:hasInstrumentConfig");
-        requiredInstrumentsHeaderRow.createCell(8).setCellValue("hasco:hasImage");
-        requiredInstrumentsHeaderRow.createCell(9).setCellValue("hasco:hasWebDocument");
 
         return workbook;
     }
 
     private static String safe(String v) { return v == null ? "" : v; }
+
+    private static String normalizeNamespaceUri(String prefix, String uri) {
+        String p = safe(prefix).trim().toLowerCase();
+        String u = safe(uri).trim();
+        // WKF-SPEC-V2 requires the HASCO namespace in hash form.
+        if ("hasco".equals(p)) {
+            if ("http://hadatac.org/ont/hasco/".equals(u) || "http://hadatac.org/ont/hasco".equals(u)) {
+                return "http://hadatac.org/ont/hasco#";
+            }
+        }
+        return u;
+    }
+
+    /**
+     * Populate STD row using the first Process in the workbook that resolves
+     * to a persisted ProcessBasedStudy via hasco:hasProcess.
+     */
+    private static void populateStdSheetFromProcessBasedStudy(Workbook workbook) {
+        if (workbook == null) {
+            return;
+        }
+
+        Sheet stdSheet = workbook.getSheet(STD);
+        Sheet processSheet = workbook.getSheet(PROCESSES);
+        if (stdSheet == null || processSheet == null) {
+            return;
+        }
+
+        DataFormatter formatter = new DataFormatter();
+
+        for (int rowIdx = 1; rowIdx <= processSheet.getLastRowNum(); rowIdx++) {
+            Row processRow = processSheet.getRow(rowIdx);
+            if (processRow == null) {
+                continue;
+            }
+
+            String processValue = formatter.formatCellValue(processRow.getCell(0)).trim();
+            if (processValue.isEmpty()) {
+                continue;
+            }
+
+            String processUri = processValue;
+            if (!processUri.startsWith("http://") && !processUri.startsWith("https://")) {
+                processUri = URIUtils.replacePrefixEx(processUri);
+            }
+
+            ProcessBasedStudy pbs = ProcessBasedStudy.findByProcess(processUri);
+            if (pbs == null) {
+                continue;
+            }
+
+            writeStdDataRow(stdSheet, pbs);
+            System.out.println("[WKFGen] STD row populated from ProcessBasedStudy: process=" + processUri + ", study=" + pbs.getUri());
+            return;
+        }
+
+        System.out.println("[WKFGen] STD row not populated: no ProcessBasedStudy found for workbook Processes");
+    }
+
+    private static void writeStdDataRow(Sheet stdSheet, ProcessBasedStudy pbs) {
+        if (stdSheet == null || pbs == null) {
+            return;
+        }
+
+        Row row = stdSheet.getRow(2);
+        if (row == null) {
+            row = stdSheet.createRow(2);
+        }
+
+        String studyId = safe(pbs.getStudyID());
+        if (studyId.isEmpty()) {
+            studyId = safe(pbs.getId());
+        }
+
+        row.createCell(1).setCellValue(safe(pbs.getUri()));
+        row.createCell(2).setCellValue(safe(pbs.getProcessUri()));
+        row.createCell(3).setCellValue(studyId);
+        row.createCell(4).setCellValue(nonEmpty(safe(pbs.getStudyTitle()), safe(pbs.getTitle()), safe(pbs.getLabel())));
+        row.createCell(5).setCellValue(safe(pbs.getSpecificAims()));
+        row.createCell(6).setCellValue(safe(pbs.getSignificance()));
+
+        // WKF v1.2.2 expects URI-form ownership values in STD when provided.
+        row.createCell(7).setCellValue(safe(pbs.getInstitutionUri()));
+        row.createCell(8).setCellValue(safe(pbs.getPiUri()));
+
+        row.createCell(9).setCellValue(safe(pbs.getContactEmail()));
+        row.createCell(10).setCellValue(safe(pbs.getStartDate()));
+        row.createCell(11).setCellValue(safe(pbs.getEndDate()));
+        row.createCell(12).setCellValue(safe(pbs.getHasLearningObjectives()));
+        row.createCell(13).setCellValue(safe(pbs.getHasCriticalActions()));
+        row.createCell(14).setCellValue(safe(pbs.getHasDebriefingFocus()));
+    }
+
+    private static String nonEmpty(String... values) {
+        if (values == null) {
+            return "";
+        }
+        for (String value : values) {
+            if (value != null && !value.trim().isEmpty()) {
+                return value;
+            }
+        }
+        return "";
+    }
 
     public static String save(WKFGenHelper helper, String filename) {
         System.out.println("\n========== WKFGen.save() START ==========");
