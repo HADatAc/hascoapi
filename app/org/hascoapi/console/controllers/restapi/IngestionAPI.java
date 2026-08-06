@@ -332,6 +332,11 @@ public class IngestionAPI extends Controller {
                 dataFile.save();
                 return ok(ApiUtil.createResponse("WKF ingestion rejected: invalid filename prefix 'WKF_'. Please rename file to start with 'WKF-' and retry.", false));
             }
+
+            // The WKF submission timestamp is the authoritative source for
+            // ProcessBasedStudy label Start Date/Time derivation.
+            dataFile.setSubmissionTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
+            dataFile.save();
         }
 
         System.out.println("IngestionAPI.ingest(): DataFile retrieved - URI: " + dataFile.getUri() + ", Filename: " + dataFile.getFilename());

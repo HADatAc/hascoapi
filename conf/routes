@@ -29,7 +29,7 @@ GET     /hascoapi/api/processbasedstudy/:uri                                    
 GET     /hascoapi/api/processbasedstudy/byprocess/:processuri                             org.hascoapi.console.controllers.restapi.ProcessBasedStudyAPI.getProcessBasedStudyByProcess(processuri: String)
 POST    /hascoapi/api/processbasedstudy/create                                            org.hascoapi.console.controllers.restapi.ProcessBasedStudyAPI.createProcessBasedStudy(json: String)
 GET     /hascoapi/api/processbasedstudy/create/:json                                      org.hascoapi.console.controllers.restapi.ProcessBasedStudyAPI.createProcessBasedStudy(json: String)
-POST    /hascoapi/api/processbasedstudy/update/:uri                                       org.hascoapi.console.controllers.restapi.ProcessBasedStudyAPI.updateProcessBasedStudy(uri: String, json: String)
+POST    /hascoapi/api/processbasedstudy/update/:uri                                       org.hascoapi.console.controllers.restapi.ProcessBasedStudyAPI.updateProcessBasedStudy(uri: String, request: play.mvc.Http.Request)
 POST    /hascoapi/api/processbasedstudy/delete/:uri                                       org.hascoapi.console.controllers.restapi.ProcessBasedStudyAPI.deleteProcessBasedStudy(uri: String)
 GET     /hascoapi/api/processbasedstudy/delete/:uri                                       org.hascoapi.console.controllers.restapi.ProcessBasedStudyAPI.deleteProcessBasedStudy(uri: String)
 GET     /hascoapi/api/processbasedstudy/elements/:pageSize/:offset                        org.hascoapi.console.controllers.restapi.ProcessBasedStudyAPI.getProcessBasedStudiesWithPage(pageSize: Integer, offset: Integer)

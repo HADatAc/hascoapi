@@ -13,6 +13,7 @@ import org.hascoapi.utils.HAScOMapper;
 import org.hascoapi.utils.URIUtils;
 import org.hascoapi.vocabularies.HASCO;
 import play.mvc.Controller;
+import play.mvc.Http;
 import play.mvc.Result;
 
 import java.util.ArrayList;
@@ -194,18 +195,61 @@ public class ProcessBasedStudyAPI extends Controller {
         }
     }
 
+    private String extractJsonPayload(Http.Request request) {
+        if (request == null) {
+            return "";
+        }
+
+        // Backward compatibility: accept `json` query-string payload too.
+        String json = request.getQueryString("json");
+        if (json != null && !json.trim().isEmpty()) {
+            return json.trim();
+        }
+
+        try {
+            JsonNode bodyJson = request.body().asJson();
+            if (bodyJson != null && !bodyJson.isNull()) {
+                return bodyJson.toString();
+            }
+        } catch (Exception ignored) {
+        }
+
+        try {
+            String bodyText = request.body().asText();
+            if (bodyText != null && !bodyText.trim().isEmpty()) {
+                return bodyText.trim();
+            }
+        } catch (Exception ignored) {
+        }
+
+        try {
+            java.util.Map<String, String[]> form = request.body().asFormUrlEncoded();
+            if (form != null && form.containsKey("json") && form.get("json") != null && form.get("json").length > 0) {
+                String formJson = form.get("json")[0];
+                if (formJson != null && !formJson.trim().isEmpty()) {
+                    return formJson.trim();
+                }
+            }
+        } catch (Exception ignored) {
+        }
+
+        return "";
+    }
+
     /**
      * POST /api/processbasedstudy/update/:uri
      * Update an existing ProcessBasedStudy
      * 
      * @param uri The URI of the ProcessBasedStudy to update
-     * @param json JSON string with updated fields
+     * @param request HTTP request containing JSON in body or query param
      * @return JSON response confirming update
      */
-    public Result updateProcessBasedStudy(String uri, String json) {
+    public Result updateProcessBasedStudy(String uri, Http.Request request) {
         if (uri == null || uri.isEmpty()) {
             return ok(ApiUtil.createResponse("No URI has been provided", false));
         }
+
+        String json = extractJsonPayload(request);
         if (json == null || json.isEmpty()) {
             return ok(ApiUtil.createResponse("No JSON payload has been provided", false));
         }
@@ -227,6 +271,9 @@ public class ProcessBasedStudyAPI extends Controller {
             if (jsonNode.has("studyID")) {
                 study.setStudyID(jsonNode.get("studyID").asText());
             }
+            if (jsonNode.has("label")) {
+                study.setLabel(jsonNode.get("label").asText());
+            }
             if (jsonNode.has("studyTitle")) {
                 study.setStudyTitle(jsonNode.get("studyTitle").asText());
             }
@@ -241,11 +288,23 @@ public class ProcessBasedStudyAPI extends Controller {
             } else if (jsonNode.has("institution")) {
                 study.setInstitutionName(jsonNode.get("institution").asText());
             }
+            if (jsonNode.has("institutionUri")) {
+                study.setInstitutionUri(jsonNode.get("institutionUri").asText());
+            }
             if (jsonNode.has("principalInvestigator")) {
                 study.setPrincipalInvestigator(jsonNode.get("principalInvestigator").asText());
             }
             if (jsonNode.has("contactEmail")) {
                 study.setContactEmail(jsonNode.get("contactEmail").asText());
+            }
+            if (jsonNode.has("hasLaboratory") || jsonNode.has("laboratory")) {
+                String laboratory = jsonNode.has("hasLaboratory")
+                        ? jsonNode.get("hasLaboratory").asText()
+                        : jsonNode.get("laboratory").asText();
+                if (laboratory != null && laboratory.trim().equalsIgnoreCase("any")) {
+                    laboratory = "";
+                }
+                study.setHasLaboratory(laboratory == null ? "" : laboratory.trim());
             }
             if (jsonNode.has("startDate")) {
                 study.setStartDate(jsonNode.get("startDate").asText());

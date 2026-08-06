@@ -2,7 +2,10 @@ package org.hascoapi.ingestion;
 
 import java.lang.String;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,6 +17,7 @@ import org.hascoapi.entity.pojo.Organization;
 import org.hascoapi.entity.pojo.Person;
 import org.hascoapi.entity.pojo.Process;
 import org.hascoapi.entity.pojo.ProcessBasedStudy;
+import org.hascoapi.entity.pojo.ProcessStem;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.SPARQLUtils;
@@ -173,6 +177,19 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
         if (value != null && !value.trim().isEmpty()) {
             map.put(key, value.trim());
         }
+    }
+
+    private String normalizedUri(String raw) {
+        if (raw == null) {
+            return "";
+        }
+
+        String value = raw.trim();
+        if (value.isEmpty()) {
+            return "";
+        }
+
+        return URIUtils.canonicalizePmsrUri(value);
     }
 
     @Override
@@ -484,20 +501,38 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
         // 4.1 Resolve current user context for URI-based Study ownership fields
         UserContext userContext = resolveUserContext();
 
-        boolean stdHasPI = stdMetadata != null && stdMetadata.get("Principal Investigator") != null
-                && !stdMetadata.get("Principal Investigator").trim().isEmpty();
-        boolean stdHasInstitution = stdMetadata != null && stdMetadata.get("Institution") != null
-                && !stdMetadata.get("Institution").trim().isEmpty();
+        String stdPiUri = stdMetadata == null ? "" : stdMetadata.get("Principal Investigator");
+        String stdInstitutionUri = stdMetadata == null ? "" : stdMetadata.get("Institution");
 
-        if (!stdHasPI && !userContext.personDisplay.isEmpty()) {
+        // User context has precedence over WKF STD content for ownership semantics.
+        // If STD and user URIs disagree, keep user context and log the override.
+        String normalizedStdPiUri = normalizedUri(stdPiUri);
+        String normalizedUserPiUri = normalizedUri(userContext.personUri);
+        if (!normalizedStdPiUri.isEmpty() && !normalizedUserPiUri.isEmpty()
+                && !normalizedStdPiUri.equals(normalizedUserPiUri)) {
+            log.warn("WKF STD PI URI ({}) overridden by ingestion user URI ({})", stdPiUri, userContext.personUri);
+        }
+
+        String normalizedStdInstitutionUri = normalizedUri(stdInstitutionUri);
+        String normalizedUserInstitutionUri = normalizedUri(userContext.organizationUri);
+        if (!normalizedStdInstitutionUri.isEmpty() && !normalizedUserInstitutionUri.isEmpty()
+                && !normalizedStdInstitutionUri.equals(normalizedUserInstitutionUri)) {
+            log.warn("WKF STD Institution URI ({}) overridden by ingestion user affiliation URI ({})", stdInstitutionUri, userContext.organizationUri);
+        }
+
+        if (!userContext.personDisplay.isEmpty()) {
             metadata.put("principalInvestigator", userContext.personDisplay);
-        } else if (!stdHasPI && creatorEmail != null && !creatorEmail.trim().isEmpty()) {
+        } else if (creatorEmail != null && !creatorEmail.trim().isEmpty()) {
             metadata.put("principalInvestigator", creatorEmail.trim());
         }
 
-        if (!stdHasInstitution && !userContext.organizationDisplay.isEmpty()) {
+        if (!userContext.organizationDisplay.isEmpty()) {
             metadata.put("institution", userContext.organizationDisplay);
         }
+
+        // Start Date remains a strict dependency for label composition,
+        // but its value must be the WKF submission datetime.
+        metadata.put("startDate", resolveStartDateFromSubmissionTimeStrict());
 
         // 5. Derive Study URI
         String studyId = metadata.get("studyID");
@@ -516,7 +551,7 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
 
         log.info("Derived Study URI: {} from Study ID: {}", studyUri, studyId);
 
-        String studyLabel = buildStudyInstanceLabel(process);
+        String studyLabel = buildStudyInstanceLabel(process, metadata);
         if (metadata.get("studyTitle") == null || metadata.get("studyTitle").trim().isEmpty()) {
             metadata.put("studyTitle", process.getLabel());
         }
@@ -538,22 +573,20 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
         row.put("hasco:hasSpecificAims", metadata.get("specificAims"));
         row.put("hasco:hasSignificance", metadata.get("significance"));
 
-        String stdInstitutionUri = stdMetadata == null ? "" : stdMetadata.get("Institution");
-        if (stdInstitutionUri != null && !stdInstitutionUri.trim().isEmpty()) {
-            row.put("hasco:hasInstitution", stdInstitutionUri.trim());
-        } else if (userContext.organizationUri != null && !userContext.organizationUri.trim().isEmpty()) {
+        if (userContext.organizationUri != null && !userContext.organizationUri.trim().isEmpty()) {
             row.put("hasco:hasInstitution", userContext.organizationUri.trim());
+        } else if (stdInstitutionUri != null && !stdInstitutionUri.trim().isEmpty()) {
+            row.put("hasco:hasInstitution", stdInstitutionUri.trim());
         }
 
         if (metadata.get("institution") != null && !metadata.get("institution").trim().isEmpty()) {
             row.put("hasco:hasInstitutionName", metadata.get("institution"));
         }
 
-        String stdPiUri = stdMetadata == null ? "" : stdMetadata.get("Principal Investigator");
-        if (stdPiUri != null && !stdPiUri.trim().isEmpty()) {
-            row.put("hasco:hasPI", stdPiUri.trim());
-        } else if (userContext.personUri != null && !userContext.personUri.trim().isEmpty()) {
+        if (userContext.personUri != null && !userContext.personUri.trim().isEmpty()) {
             row.put("hasco:hasPI", userContext.personUri.trim());
+        } else if (stdPiUri != null && !stdPiUri.trim().isEmpty()) {
+            row.put("hasco:hasPI", stdPiUri.trim());
         }
 
         if (metadata.get("principalInvestigator") != null && !metadata.get("principalInvestigator").trim().isEmpty()) {
@@ -586,15 +619,15 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
     }
 
     /**
-     * Build study instance label as: [user name]'s [procedure label].
+     * Build study instance label as:
+     * [real user name]'s [ProcessStem rdfs:label] at [YYYY/MM/DD] [HH:MM]
+     *
+     * This method is strict by design and throws when any required label part
+     * cannot be resolved exactly from source data.
      */
-    private String buildStudyInstanceLabel(Process process) {
-        String procedureLabel = process != null && process.getLabel() != null
-            ? process.getLabel().trim()
-            : "procedure";
-        if (procedureLabel.isEmpty()) {
-            procedureLabel = "procedure";
-        }
+    private String buildStudyInstanceLabel(Process process, Map<String, String> metadata) throws Exception {
+        String processStemLabel = resolveProcessStemLabelStrict(process);
+        String[] startDateTimeParts = resolveLabelStartDateTimePartsStrict(metadata);
 
         String userDisplayName = "User";
         String email = creatorEmail != null ? creatorEmail.trim() : "";
@@ -615,7 +648,113 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
             }
         }
 
-        return userDisplayName + "'s " + procedureLabel;
+        return userDisplayName + "'s " + processStemLabel + " at " + startDateTimeParts[0] + " " + startDateTimeParts[1];
+    }
+
+    private String resolveProcessStemLabelStrict(Process process) throws Exception {
+        if (process == null) {
+            throw new Exception("Cannot compose ProcessBasedStudy rdfs:label: Process is null");
+        }
+
+        String stemUri = normalizedUri(process.getWasDerivedFrom());
+        if (stemUri.isEmpty()) {
+            throw new Exception("Cannot compose ProcessBasedStudy rdfs:label: Process has no prov:wasDerivedFrom ProcessStem URI");
+        }
+
+        ProcessStem processStem = ProcessStem.find(stemUri);
+        if (processStem == null) {
+            throw new Exception("Cannot compose ProcessBasedStudy rdfs:label: referenced ProcessStem not found: " + stemUri);
+        }
+
+        String stemLabel = processStem.getLabel() == null ? "" : processStem.getLabel().trim();
+        if (stemLabel.isEmpty()) {
+            throw new Exception("Cannot compose ProcessBasedStudy rdfs:label: ProcessStem rdfs:label is missing for " + stemUri);
+        }
+
+        return stemLabel;
+    }
+
+    /**
+     * Resolve Start Date from DataFile submission timestamp.
+     * Returned in ISO local datetime format to preserve strict Start Date
+     * dependency downstream.
+     */
+    private String resolveStartDateFromSubmissionTimeStrict() throws Exception {
+        String raw = dataFile != null && dataFile.getSubmissionTime() != null
+            ? dataFile.getSubmissionTime().trim()
+            : "";
+
+        if (raw.isEmpty()) {
+            throw new Exception("Cannot compose ProcessBasedStudy rdfs:label: DataFile submission timestamp is missing");
+        }
+
+        LocalDateTime dateTime = parseExactDateTime(raw);
+        if (dateTime == null) {
+            throw new Exception("Cannot compose ProcessBasedStudy rdfs:label: DataFile submission timestamp is not parseable as exact datetime: " + raw);
+        }
+
+        return dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
+    }
+
+    /**
+     * Resolve label date/time from Start Date metadata.
+     * This keeps Start Date as a strict dependency for label generation.
+     */
+    private String[] resolveLabelStartDateTimePartsStrict(Map<String, String> metadata) throws Exception {
+        String raw = "";
+        if (metadata != null) {
+            raw = metadata.get("startDate") == null ? "" : metadata.get("startDate").trim();
+        }
+
+        if (raw.isEmpty()) {
+            throw new Exception("Cannot compose ProcessBasedStudy rdfs:label: Start Date is missing");
+        }
+
+        LocalDateTime dateTime = parseExactDateTime(raw);
+        if (dateTime == null) {
+            throw new Exception("Cannot compose ProcessBasedStudy rdfs:label: Start Date is not parseable as exact datetime: " + raw);
+        }
+
+        return new String[] {
+            dateTime.toLocalDate().format(DateTimeFormatter.ofPattern("yyyy/MM/dd")),
+            dateTime.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm"))
+        };
+    }
+
+    private LocalDateTime parseExactDateTime(String raw) {
+        LocalDateTime dateTime = null;
+
+        // Primary format used by DataFile submission time: yyyy/MM/dd HH:mm:ss
+        try {
+            dateTime = LocalDateTime.parse(raw, DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss"));
+        } catch (DateTimeParseException ignored) {
+        }
+
+        // Compatibility fallback: allow ISO date-time if persisted in that format.
+        if (dateTime == null) {
+            String normalized = raw.replace(' ', 'T');
+
+            try {
+                dateTime = OffsetDateTime.parse(normalized, DateTimeFormatter.ISO_OFFSET_DATE_TIME).toLocalDateTime();
+            } catch (DateTimeParseException ignored) {
+            }
+
+            if (dateTime == null) {
+                try {
+                    dateTime = LocalDateTime.parse(normalized, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"));
+                } catch (DateTimeParseException ignored) {
+                }
+            }
+
+            if (dateTime == null) {
+                try {
+                    dateTime = LocalDateTime.parse(normalized, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
+                } catch (DateTimeParseException ignored) {
+                }
+            }
+        }
+
+        return dateTime;
     }
 
     @Override

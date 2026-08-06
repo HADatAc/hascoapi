@@ -93,6 +93,9 @@ public class ProcessBasedStudy extends Study {
     @PropertyField(uri = "hasco:hasContactEmail")
     private String contactEmail;
 
+    @PropertyField(uri = "hasco:hasLaboratory")
+    private String hasLaboratory;
+
     @PropertyField(uri = "hasco:hasStartDate")
     private String startDate;
 
@@ -121,6 +124,7 @@ public class ProcessBasedStudy extends Study {
         this.institutionName = "";
         this.principalInvestigator = "";
         this.contactEmail = "";
+        this.hasLaboratory = "";
         this.startDate = "";
         this.endDate = "";
         this.hasLearningObjectives = "";
@@ -225,6 +229,14 @@ public class ProcessBasedStudy extends Study {
 
     public void setContactEmail(String contactEmail) {
         this.contactEmail = contactEmail;
+    }
+
+    public String getHasLaboratory() {
+        return hasLaboratory;
+    }
+
+    public void setHasLaboratory(String hasLaboratory) {
+        this.hasLaboratory = hasLaboratory;
     }
 
     public String getStartDate() {
@@ -378,6 +390,8 @@ public class ProcessBasedStudy extends Study {
                     study.setPrincipalInvestigator(object);
                 } else if (predicateEquals(predicate, HASCO.HAS_CONTACT_EMAIL)) {
                     study.setContactEmail(object);
+                } else if (predicateEquals(predicate, "http://hadatac.org/ont/hasco/hasLaboratory")) {
+                    study.setHasLaboratory(object);
                 } else if (predicateEquals(predicate, HASCO.HAS_START_DATE)) {
                     study.setStartDate(object);
                 } else if (predicateEquals(predicate, HASCO.HAS_END_DATE)) {

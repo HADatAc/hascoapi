@@ -573,7 +573,7 @@ public class HAScOMapper {
                     SimpleBeanPropertyFilter.filterOutAllExcept("uri", "label", "typeUri", "typeLabel", "hasStatus", "hascoTypeUri",
                             "hasImageUri", "hasWebDocument", 
                             "hascoTypeLabel", "comment", "studyID", "studyTitle", "specificAims", "significance",
-                            "institutionName", "principalInvestigator", "contactEmail", "startDate", "endDate",
+                            "institutionName", "principalInvestigator", "contactEmail", "hasLaboratory", "startDate", "endDate",
                             "processUri", "hasStudyKG", "hasSIRManagerEmail", "project", "externalSource", 
                             "hasVariableDesign", "hasVersion", "hasDataFileUri"));
         }
