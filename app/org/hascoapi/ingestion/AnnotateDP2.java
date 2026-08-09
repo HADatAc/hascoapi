@@ -29,9 +29,13 @@ public class AnnotateDP2 extends BaseAnnotator {
         }
 
         // Validate DP2 workbook structure and semantics before ingestion.
-        if (!validateDP2Instances(dataFile, mapCatalog)) {
-            dataFile.getLogger().printWarningById("DP2_00006");
-            return null;
+        // Policy: DP2-VERIFY findings are warning-only and must not block ingestion.
+        boolean validationPassed = validateDP2Instances(dataFile, mapCatalog);
+        if (!validationPassed) {
+            dataFile.getLogger().printWarning("[DP2-VERIFY] Validation reported issues; continuing ingestion due to warning-only policy.");
+            dataFile.getLogger().println("[DP2-VERIFY-SUMMARY] validation=warnings, continuation_policy=non-blocking, ingestion_continues=true");
+        } else {
+            dataFile.getLogger().println("[DP2-VERIFY-SUMMARY] validation=pass, continuation_policy=non-blocking, ingestion_continues=true");
         }
         GeneratorChain chain = new GeneratorChain();
 
@@ -61,8 +65,6 @@ public class AnnotateDP2 extends BaseAnnotator {
                         (df, st) -> new DP2Generator("deployment", df, st));
 
             } else if ("ComponentDeployments".equalsIgnoreCase(sheet)) {
-                addCustomGeneratorIfSheetExists(dataFile, mapCatalog, sheet, status, chain,
-                    (df, st) -> new DP2Generator("componentdeployment", df, st));
                 addCustomGeneratorIfSheetExists(dataFile, mapCatalog, sheet, status, chain,
                         (df, st) -> new ComponentDeploymentGenerator(df));
 

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.hascoapi.entity.pojo.DataFile;
+import org.hascoapi.vocabularies.VSTOI;
 
 /**
  * Ingests DP2 ComponentDeployments rows and materializes two derived links:
@@ -11,8 +12,6 @@ import org.hascoapi.entity.pojo.DataFile;
  * 2) slot -> hasComponentInstance -> componentInstance
  */
 public class ComponentDeploymentGenerator extends BaseGenerator {
-
-    private static final String HASCO_COMPONENT_DEPLOYMENT_TYPE = "http://hadatac.org/ont/hasco/ComponentDeployment";
 
     public ComponentDeploymentGenerator(DataFile dataFile) {
         super(dataFile);
@@ -35,9 +34,6 @@ public class ComponentDeploymentGenerator extends BaseGenerator {
 
             String componentDeploymentUri = pick(rec,
                 "hasURI", "uri", "ComponentDeployment URI", "componentDeploymentUri", "componentDeploymentURI");
-            String componentDeploymentType = pick(rec,
-                "rdf:type", "a");
-
             String deploymentUri = pick(rec,
                     "deployment URI", "Deployment URI", "deploymentUri", "DeploymentUri",
                 "hasco:hascoDeployment", "hasco:hasDeployment", "hasDeployment");
@@ -63,8 +59,9 @@ public class ComponentDeploymentGenerator extends BaseGenerator {
             // Persist ComponentDeployment as first-class entity.
             Map<String, Object> componentDeploymentRow = new HashMap<String, Object>();
             componentDeploymentRow.put("hasURI", componentDeploymentUri.trim());
-            componentDeploymentRow.put("a", isBlank(componentDeploymentType) ? "vstoi:ComponentDeployment" : componentDeploymentType.trim());
-            componentDeploymentRow.put("hasco:hascoType", HASCO_COMPONENT_DEPLOYMENT_TYPE);
+            String resolvedType = VSTOI.COMPONENT_DEPLOYMENT;
+            componentDeploymentRow.put("rdf:type", resolvedType);
+            componentDeploymentRow.put("a", resolvedType);
             componentDeploymentRow.put("hasco:hascoDeployment", deploymentUri.trim());
             componentDeploymentRow.put("hasco:hasInstrumentSlot", slotUri.trim());
             componentDeploymentRow.put("hasco:hasComponentInstance", componentInstanceUri.trim());

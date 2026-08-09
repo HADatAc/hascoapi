@@ -376,7 +376,6 @@ public class InstrumentAPI extends Controller {
         StringBuilder query = new StringBuilder();
         query.append(NameSpaces.getInstance().printSparqlNameSpaceList());
         query.append(" SELECT DISTINCT ?deployment ?instrumentInstance ?platformInstance ?org WHERE { ");
-        query.append("   ?deployment hasco:hascoType vstoi:Deployment . ");
         query.append("   ?deployment vstoi:hasInstrumentInstance ?instrumentInstance . ");
         query.append("   ?instrumentInstance vstoi:hasOwner ?org . ");
         query.append("   OPTIONAL { ?deployment vstoi:hasPlatformInstance ?platformInstance . } ");
@@ -473,8 +472,10 @@ public class InstrumentAPI extends Controller {
 
         StringBuilder query = new StringBuilder();
         query.append(NameSpaces.getInstance().printSparqlNameSpaceList());
-        query.append(" SELECT DISTINCT ?cpi WHERE { ");
-        query.append("   ?cpi hasco:hascoType vstoi:ComponentInstance . ");
+        query.append(" SELECT DISTINCT ?ii ?cpi WHERE { ");
+        query.append("   ?dpl vstoi:hasInstrumentInstance ?ii . ");
+        query.append("   ?cd (hasco:hascoDeployment|hasco:hasDeployment) ?dpl . ");
+        query.append("   ?cd (hasco:hasComponentInstance|vstoi:hasComponentInstance) ?cpi . ");
         query.append(" } ORDER BY ?cpi ");
 
         ResultSetRewindable rs = SPARQLUtils.select(
@@ -484,7 +485,7 @@ public class InstrumentAPI extends Controller {
 
         while (rs.hasNext()) {
             QuerySolution soln = rs.next();
-            if (soln == null || soln.getResource("cpi") == null) {
+            if (soln == null || soln.getResource("cpi") == null || soln.getResource("ii") == null) {
                 continue;
             }
 
@@ -493,19 +494,7 @@ public class InstrumentAPI extends Controller {
                 continue;
             }
 
-            String local = extractUriLocalName(cpiUri);
-            if (local.isEmpty() || !local.startsWith("CPI-")) {
-                continue;
-            }
-
-            // CPI local pattern expected: CPI-INIxxxx-COMyyyy
-            String remainder = local.substring(4);
-            int sep = remainder.indexOf("-");
-            if (sep <= 0) {
-                continue;
-            }
-
-            String instrumentLocal = remainder.substring(0, sep).trim();
+            String instrumentLocal = extractUriLocalName(normalizeFilterUri(soln.getResource("ii").getURI()));
             if (instrumentLocal.isEmpty() || !instrumentLocal.startsWith("INI")) {
                 continue;
             }

@@ -1,0 +1,384 @@
+?s	?rdfType	?hascoType
+<https://pmsr.net/ont/DFL1786284423566382>	<http://hadatac.org/ont/hasco/DataFile>	<http://hadatac.org/ont/hasco/DataFile>
+<https://pmsr.net/ont/DPC0006592387626>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC0008859563881>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC0126458382377>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC0151562978576>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC0221818051497>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC0240468164976>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC0246799025866>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC0275509838342>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC0318428898423>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC0416979966949>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC0690994823896>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC0781690783224>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC0842825442223>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC0848026675503>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC0860293577452>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC0896735197466>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC0969923236042>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC1122804289259>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC1139849791142>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC1167773714280>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC1327023412827>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC1465051019035>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC1496333892273>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC1545760913587>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC1649026623008>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC1688754849258>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC1722166766415>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC1732631723725>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC1778237604137>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC1878952422247>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC1906186615383>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC1927407701058>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC2024008371319>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC2056398322414>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC2119269584657>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC2167813602804>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC2194792919141>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC2242649295527>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC2321179547346>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC2420625381472>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC2492578302697>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC2663630745890>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC2682520251092>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC2816959105813>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC2902119080694>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC3031835748630>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC3080328399016>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC3083075473130>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC3162232733408>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC3178658969454>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC3190110698537>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC3198218195332>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC3288251478742>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC3352108682095>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC3468742495130>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC3504618413131>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC3526532742425>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC3533463833584>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC3609625619686>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC3664676713700>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC3730589174212>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC3750052160199>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC3770274155561>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC3772259250513>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC3773024197118>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC3851242450203>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC3895617519852>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC3979197542207>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC4015583792764>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC4022079140364>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC4138727533824>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC4175897549684>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC4202136781671>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC4228667592750>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC4373949923662>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC4491025580506>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC4618954068744>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC4655031901582>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC4697246788384>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC4702995801001>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC4818253917846>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC4868704845521>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC4966482624572>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC4990146586087>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC5043434503676>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC5227801755631>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC5234995365675>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC5247134926367>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC5327815484336>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC5420470707068>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC5462099482989>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC5541439961598>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC5663087608752>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC5715377806242>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC5802790301673>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC5898331650990>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC5945446393853>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC6061564203246>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC6071662038270>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC6091800297761>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC6097718962654>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC6140977168027>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC6307229755835>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC6319774378784>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC6388002842001>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC6443846896330>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC6531300646713>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC6536043158866>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC6604433479007>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC6848419820749>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC6878704512825>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC6894935257150>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC6897570679952>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC6906664984616>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC7001722798830>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC7068126795358>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC7209845153715>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC7399319085188>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC7456373427912>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC7456555464394>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC7481576611398>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC7489587237390>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC7539928784273>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC7568380640426>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC7587894143247>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC7697837752735>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC7697871153639>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC7716687297938>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC7767485610163>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC7857375211457>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC7893559306718>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC7913174312036>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC7955989503315>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC8009198178422>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC8039582741016>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC8087479892204>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC8113436875898>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC8290565815989>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC8360291481390>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC8362497252394>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC8384566174144>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC8485418277246>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC8508444247579>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC8563952178774>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC8571215268462>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC8720628960226>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC8736494813405>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC8784654654479>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC8856930221053>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC8918177619285>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC8974819330433>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC8975611408756>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC8997126551405>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC9001129196502>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC9016131745031>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC9047623117665>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC9067333460885>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC9359961389332>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC9492941121957>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC9494478968604>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC9553313564661>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC9690369690523>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC9724326800196>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC9751260576173>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC9757203625353>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC9813771616996>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC9834065518677>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPC9934214297988>	<http://hadatac.org/ont/vstoi#ComponentDeployment>	
+<https://pmsr.net/ont/DPL1784879596173751>	<http://hadatac.org/ont/vstoi#Deployment>	
+<https://pmsr.net/ont/DPL1784879596211201>	<http://hadatac.org/ont/vstoi#Deployment>	
+<https://pmsr.net/ont/DPL1784879596358801>	<http://hadatac.org/ont/vstoi#Deployment>	
+<https://pmsr.net/ont/DPL1784879596379591>	<http://hadatac.org/ont/vstoi#Deployment>	
+<https://pmsr.net/ont/DPL1784879596409511>	<http://hadatac.org/ont/vstoi#Deployment>	
+<https://pmsr.net/ont/DPL1784879596421821>	<http://hadatac.org/ont/vstoi#Deployment>	
+<https://pmsr.net/ont/DPL1784879596471141>	<http://hadatac.org/ont/vstoi#Deployment>	
+<https://pmsr.net/ont/DPL1784879596521071>	<http://hadatac.org/ont/vstoi#Deployment>	
+<https://pmsr.net/ont/DPL1784879596552051>	<http://hadatac.org/ont/vstoi#Deployment>	
+<https://pmsr.net/ont/DPL1784879596585391>	<http://hadatac.org/ont/vstoi#Deployment>	
+<https://pmsr.net/ont/DPL1784879596615561>	<http://hadatac.org/ont/vstoi#Deployment>	
+<https://pmsr.net/ont/DPL1784879596740141>	<http://hadatac.org/ont/vstoi#Deployment>	
+<https://pmsr.net/ont/DPL1784879596777301>	<http://hadatac.org/ont/vstoi#Deployment>	
+<https://pmsr.net/ont/DPL1784879596789841>	<http://hadatac.org/ont/vstoi#Deployment>	
+<https://pmsr.net/ont/DPL1784879596801451>	<http://hadatac.org/ont/vstoi#Deployment>	
+<https://pmsr.net/ont/DPL1784879596841681>	<http://hadatac.org/ont/vstoi#Deployment>	
+<https://pmsr.net/ont/DPL1784879596851201>	<http://hadatac.org/ont/vstoi#Deployment>	
+<https://pmsr.net/ont/DPL1784879596983281>	<http://hadatac.org/ont/vstoi#Deployment>	
+<https://pmsr.net/ont/PFI1784879596163411>	<http://hadatac.org/ont/vstoi#Laboratory>	<http://hadatac.org/ont/hasco/PlatformInstance>
+<https://pmsr.net/ont/PFI1784879596184541>	<http://hadatac.org/ont/vstoi#Laboratory>	<http://hadatac.org/ont/hasco/PlatformInstance>
+<https://pmsr.net/ont/PFI1784879596244291>	<http://hadatac.org/ont/vstoi#Laboratory>	<http://hadatac.org/ont/hasco/PlatformInstance>
+<https://pmsr.net/ont/PFI1784879596286511>	<http://hadatac.org/ont/vstoi#Laboratory>	<http://hadatac.org/ont/hasco/PlatformInstance>
+<https://pmsr.net/ont/PFI1784879596392551>	<http://hadatac.org/ont/vstoi#Laboratory>	<http://hadatac.org/ont/hasco/PlatformInstance>
+<https://pmsr.net/ont/PFI1784879596409401>	<http://hadatac.org/ont/vstoi#Laboratory>	<http://hadatac.org/ont/hasco/PlatformInstance>
+<https://pmsr.net/ont/PFI1784879596626901>	<http://hadatac.org/ont/vstoi#Laboratory>	<http://hadatac.org/ont/hasco/PlatformInstance>
+<https://pmsr.net/ont/PFI1784879596665921>	<http://hadatac.org/ont/vstoi#Laboratory>	<http://hadatac.org/ont/hasco/PlatformInstance>
+<https://pmsr.net/ont/PFI1784879596787471>	<http://hadatac.org/ont/vstoi#Laboratory>	<http://hadatac.org/ont/hasco/PlatformInstance>
+<https://pmsr.net/ont/PFI1784879596797081>	<http://hadatac.org/ont/vstoi#Laboratory>	<http://hadatac.org/ont/hasco/PlatformInstance>
+<https://pmsr.net/ont/CPI0224109627489>	<https://pmsr.net/ont/COM1738099771423295>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI5562818936041>	<https://pmsr.net/ont/COM1738099771423295>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI9907785028863>	<https://pmsr.net/ont/COM1738099771423295>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI1328046693086>	<https://pmsr.net/ont/COM1738100153764155>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI4860657706081>	<https://pmsr.net/ont/COM1738100153764155>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI5926729031377>	<https://pmsr.net/ont/COM1738100153764155>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI0574984151883>	<https://pmsr.net/ont/COM1738187586682545>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI4433323671890>	<https://pmsr.net/ont/COM1738187586682545>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI5523181803461>	<https://pmsr.net/ont/COM1738187586682545>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI0963900985538>	<https://pmsr.net/ont/COM1738187818694655>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI1272614724265>	<https://pmsr.net/ont/COM1738187818694655>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI6564220492770>	<https://pmsr.net/ont/COM1738187818694655>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI2385493947917>	<https://pmsr.net/ont/COM1738188452521625>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI4568289153166>	<https://pmsr.net/ont/COM1738188452521625>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI7616545118677>	<https://pmsr.net/ont/COM1738188452521625>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI0542986476918>	<https://pmsr.net/ont/COM1739399134970895>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI3959656841687>	<https://pmsr.net/ont/COM1739399134970895>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI9241514063403>	<https://pmsr.net/ont/COM1739399134970895>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI3546774164755>	<https://pmsr.net/ont/COM1786054978466477000>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI5038280342477>	<https://pmsr.net/ont/COM1786054978466477000>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI5254971828047>	<https://pmsr.net/ont/COM1786054978466477000>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI2573421442695>	<https://pmsr.net/ont/COM1786054978466482000>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI5442455551516>	<https://pmsr.net/ont/COM1786054978466482000>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI8809523844577>	<https://pmsr.net/ont/COM1786054978466482000>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI0311274391218>	<https://pmsr.net/ont/COM1786054978466647000>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI4202788848154>	<https://pmsr.net/ont/COM1786054978466647000>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI8485842196696>	<https://pmsr.net/ont/COM1786054978466647000>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI0502064983078>	<https://pmsr.net/ont/COM1786054978466652000>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI1585228889059>	<https://pmsr.net/ont/COM1786054978466652000>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI6978218910936>	<https://pmsr.net/ont/COM1786054978466652000>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI1953104334163>	<https://pmsr.net/ont/COM1786054978466706000>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI3054160204214>	<https://pmsr.net/ont/COM1786054978466706000>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI3089947718071>	<https://pmsr.net/ont/COM1786054978466706000>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI4290482162068>	<https://pmsr.net/ont/COM1786054978466706000>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI4375379800192>	<https://pmsr.net/ont/COM1786054978466706000>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI4719063301206>	<https://pmsr.net/ont/COM1786054978466706000>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI5286936902472>	<https://pmsr.net/ont/COM1786054978466706000>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI6140569112784>	<https://pmsr.net/ont/COM1786054978466706000>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI7083644432581>	<https://pmsr.net/ont/COM1786054978466706000>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI7495292343594>	<https://pmsr.net/ont/COM1786054978466706000>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI8042736800175>	<https://pmsr.net/ont/COM1786054978466706000>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI9269801308798>	<https://pmsr.net/ont/COM1786054978466706000>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI0837530856940>	<https://pmsr.net/ont/COM1786054978466711000>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI0941693965836>	<https://pmsr.net/ont/COM1786054978466711000>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI1364291124520>	<https://pmsr.net/ont/COM1786054978466711000>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI1525655732121>	<https://pmsr.net/ont/COM1786054978466711000>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI2136679003342>	<https://pmsr.net/ont/COM1786054978466711000>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI2399838562343>	<https://pmsr.net/ont/COM1786054978466711000>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI2597532569735>	<https://pmsr.net/ont/COM1786054978466711000>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI3456466255557>	<https://pmsr.net/ont/COM1786054978466711000>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI6008319939197>	<https://pmsr.net/ont/COM1786054978466711000>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI6073081392368>	<https://pmsr.net/ont/COM1786054978466711000>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI6257645489513>	<https://pmsr.net/ont/COM1786054978466711000>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI6966523132614>	<https://pmsr.net/ont/COM1786054978466711000>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI0476680289218>	<https://pmsr.net/ont/COM90e60dc984ff6a513>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI0615345759015>	<https://pmsr.net/ont/COM90e60dc984ff6a513>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI0679382551864>	<https://pmsr.net/ont/COM90e60dc984ff6a513>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI1061027558794>	<https://pmsr.net/ont/COM90e60dc984ff6a513>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI2505830231212>	<https://pmsr.net/ont/COM90e60dc984ff6a513>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI3216351520950>	<https://pmsr.net/ont/COM90e60dc984ff6a513>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI4384864043274>	<https://pmsr.net/ont/COM90e60dc984ff6a513>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI4864228782910>	<https://pmsr.net/ont/COM90e60dc984ff6a513>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI7487522006094>	<https://pmsr.net/ont/COM90e60dc984ff6a513>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI7567470928333>	<https://pmsr.net/ont/COM90e60dc984ff6a513>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI8450441711947>	<https://pmsr.net/ont/COM90e60dc984ff6a513>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI8518853006279>	<https://pmsr.net/ont/COM90e60dc984ff6a513>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI0370277807266>	<https://pmsr.net/ont/COM910906a6c47d60667>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI2779174299478>	<https://pmsr.net/ont/COM910906a6c47d60667>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI9975888287893>	<https://pmsr.net/ont/COM910906a6c47d60667>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI0786785861566>	<https://pmsr.net/ont/COM916f797ebef7cb097>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI4895285967675>	<https://pmsr.net/ont/COM916f797ebef7cb097>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI7599704982262>	<https://pmsr.net/ont/COM916f797ebef7cb097>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI0978795890884>	<https://pmsr.net/ont/COM931d6340657316a0e>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI4603257198007>	<https://pmsr.net/ont/COM931d6340657316a0e>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI8784544338787>	<https://pmsr.net/ont/COM931d6340657316a0e>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI0439480507344>	<https://pmsr.net/ont/COM93e7212f043f1983f>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI1149254991817>	<https://pmsr.net/ont/COM93e7212f043f1983f>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI1353275160625>	<https://pmsr.net/ont/COM93e7212f043f1983f>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI1536887366038>	<https://pmsr.net/ont/COM93e7212f043f1983f>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI1567853262082>	<https://pmsr.net/ont/COM93e7212f043f1983f>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI1630997813394>	<https://pmsr.net/ont/COM93e7212f043f1983f>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI4447465951800>	<https://pmsr.net/ont/COM93e7212f043f1983f>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI4614166735514>	<https://pmsr.net/ont/COM93e7212f043f1983f>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI4747331382402>	<https://pmsr.net/ont/COM93e7212f043f1983f>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI5663444629881>	<https://pmsr.net/ont/COM93e7212f043f1983f>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI7471574996887>	<https://pmsr.net/ont/COM93e7212f043f1983f>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI9694748133873>	<https://pmsr.net/ont/COM93e7212f043f1983f>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI0042658878478>	<https://pmsr.net/ont/COM948ef0b0d7a09cc76>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI0311765936067>	<https://pmsr.net/ont/COM948ef0b0d7a09cc76>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI0940636937117>	<https://pmsr.net/ont/COM948ef0b0d7a09cc76>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI1336126666404>	<https://pmsr.net/ont/COM948ef0b0d7a09cc76>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI1711206826330>	<https://pmsr.net/ont/COM948ef0b0d7a09cc76>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI4490531796980>	<https://pmsr.net/ont/COM948ef0b0d7a09cc76>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI4740989498814>	<https://pmsr.net/ont/COM948ef0b0d7a09cc76>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI4842568002626>	<https://pmsr.net/ont/COM948ef0b0d7a09cc76>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI5932733067414>	<https://pmsr.net/ont/COM948ef0b0d7a09cc76>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI6448988670631>	<https://pmsr.net/ont/COM948ef0b0d7a09cc76>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI7060323258903>	<https://pmsr.net/ont/COM948ef0b0d7a09cc76>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI8124327463169>	<https://pmsr.net/ont/COM948ef0b0d7a09cc76>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI0572375320973>	<https://pmsr.net/ont/COM94cb8d9390f7e95ef>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI3059697525482>	<https://pmsr.net/ont/COM94cb8d9390f7e95ef>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI7635150395662>	<https://pmsr.net/ont/COM94cb8d9390f7e95ef>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI2512112215984>	<https://pmsr.net/ont/COM95cb2c19f033fd086>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI6464560687198>	<https://pmsr.net/ont/COM95cb2c19f033fd086>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI6498793785047>	<https://pmsr.net/ont/COM95cb2c19f033fd086>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI3321976440467>	<https://pmsr.net/ont/COM96337511110a8ba07>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI3335518337898>	<https://pmsr.net/ont/COM96337511110a8ba07>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI5110675307319>	<https://pmsr.net/ont/COM96337511110a8ba07>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI5329028945272>	<https://pmsr.net/ont/COM96337511110a8ba07>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI6104106460642>	<https://pmsr.net/ont/COM96337511110a8ba07>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI6688829059695>	<https://pmsr.net/ont/COM96337511110a8ba07>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI7205111839068>	<https://pmsr.net/ont/COM96337511110a8ba07>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI8091451557297>	<https://pmsr.net/ont/COM96337511110a8ba07>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI8429992995348>	<https://pmsr.net/ont/COM96337511110a8ba07>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI9031805225759>	<https://pmsr.net/ont/COM96337511110a8ba07>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI9089125570149>	<https://pmsr.net/ont/COM96337511110a8ba07>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI9181339482702>	<https://pmsr.net/ont/COM96337511110a8ba07>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI2115260540927>	<https://pmsr.net/ont/COM97e1b412645fe50a2>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI5737759123439>	<https://pmsr.net/ont/COM97e1b412645fe50a2>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI8732286866374>	<https://pmsr.net/ont/COM97e1b412645fe50a2>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI0294736558787>	<https://pmsr.net/ont/COM986d2eae69fc5432a>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI0630162723897>	<https://pmsr.net/ont/COM986d2eae69fc5432a>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI0773067110279>	<https://pmsr.net/ont/COM986d2eae69fc5432a>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI1006222817195>	<https://pmsr.net/ont/COM986d2eae69fc5432a>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI1062194583381>	<https://pmsr.net/ont/COM986d2eae69fc5432a>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI2883496993222>	<https://pmsr.net/ont/COM986d2eae69fc5432a>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI3174655820890>	<https://pmsr.net/ont/COM986d2eae69fc5432a>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI4314765208144>	<https://pmsr.net/ont/COM986d2eae69fc5432a>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI4986482755756>	<https://pmsr.net/ont/COM986d2eae69fc5432a>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI5122485185786>	<https://pmsr.net/ont/COM986d2eae69fc5432a>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI8129724613753>	<https://pmsr.net/ont/COM986d2eae69fc5432a>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI9313855264286>	<https://pmsr.net/ont/COM986d2eae69fc5432a>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI1581033991001>	<https://pmsr.net/ont/COM99b3a72b8d17baa57>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI1879732778481>	<https://pmsr.net/ont/COM99b3a72b8d17baa57>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI7081994501791>	<https://pmsr.net/ont/COM99b3a72b8d17baa57>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI1971847319129>	<https://pmsr.net/ont/COM9a53a6e7fef7f48cb>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI7337874171947>	<https://pmsr.net/ont/COM9a53a6e7fef7f48cb>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI8639815688873>	<https://pmsr.net/ont/COM9a53a6e7fef7f48cb>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI0385876926410>	<https://pmsr.net/ont/COM9b60fd244446501f2>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI1228183216438>	<https://pmsr.net/ont/COM9b60fd244446501f2>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI4532689666221>	<https://pmsr.net/ont/COM9b60fd244446501f2>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI5130746492421>	<https://pmsr.net/ont/COM9b60fd244446501f2>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI6092694141056>	<https://pmsr.net/ont/COM9b60fd244446501f2>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI6190232014841>	<https://pmsr.net/ont/COM9b60fd244446501f2>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI6630635509574>	<https://pmsr.net/ont/COM9b60fd244446501f2>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI7780955376598>	<https://pmsr.net/ont/COM9b60fd244446501f2>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI8078012494837>	<https://pmsr.net/ont/COM9b60fd244446501f2>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI8647315612972>	<https://pmsr.net/ont/COM9b60fd244446501f2>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI9095013878324>	<https://pmsr.net/ont/COM9b60fd244446501f2>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI9799158101713>	<https://pmsr.net/ont/COM9b60fd244446501f2>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI0347356302353>	<https://pmsr.net/ont/COM9ccf75d269b2b6120>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI2487278576131>	<https://pmsr.net/ont/COM9ccf75d269b2b6120>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI2841121039205>	<https://pmsr.net/ont/COM9ccf75d269b2b6120>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI0387944042378>	<https://pmsr.net/ont/COM9ce929fda23c7e246>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI0647706382943>	<https://pmsr.net/ont/COM9ce929fda23c7e246>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI7802050951193>	<https://pmsr.net/ont/COM9ce929fda23c7e246>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI0831323022252>	<https://pmsr.net/ont/COM9f281c65dd23087a6>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI1537243437803>	<https://pmsr.net/ont/COM9f281c65dd23087a6>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI1886751456530>	<https://pmsr.net/ont/COM9f281c65dd23087a6>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI2195798807697>	<https://pmsr.net/ont/COM9f281c65dd23087a6>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI4722244459683>	<https://pmsr.net/ont/COM9f281c65dd23087a6>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI5521402193567>	<https://pmsr.net/ont/COM9f281c65dd23087a6>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI5724034157945>	<https://pmsr.net/ont/COM9f281c65dd23087a6>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI7586372340116>	<https://pmsr.net/ont/COM9f281c65dd23087a6>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI8030268837213>	<https://pmsr.net/ont/COM9f281c65dd23087a6>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI8207998368627>	<https://pmsr.net/ont/COM9f281c65dd23087a6>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI8576577202752>	<https://pmsr.net/ont/COM9f281c65dd23087a6>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/CPI9199925660144>	<https://pmsr.net/ont/COM9f281c65dd23087a6>	<http://hadatac.org/ont/hasco/ComponentInstance>
+<https://pmsr.net/ont/INI1784879596131231>	<https://pmsr.net/ont/INS1739397137461495>	<http://hadatac.org/ont/hasco/InstrumentInstance>
+<https://pmsr.net/ont/INI1784879596190461>	<https://pmsr.net/ont/INS1739397137461495>	<http://hadatac.org/ont/hasco/InstrumentInstance>
+<https://pmsr.net/ont/INI1784879596300741>	<https://pmsr.net/ont/INS1739397137461495>	<http://hadatac.org/ont/hasco/InstrumentInstance>
+<https://pmsr.net/ont/INI1784879596301331>	<https://pmsr.net/ont/INS1739397137461495>	<http://hadatac.org/ont/hasco/InstrumentInstance>
+<https://pmsr.net/ont/INI1784879596358691>	<https://pmsr.net/ont/INS1739397137461495>	<http://hadatac.org/ont/hasco/InstrumentInstance>
+<https://pmsr.net/ont/INI1784879596663271>	<https://pmsr.net/ont/INS1739397137461495>	<http://hadatac.org/ont/hasco/InstrumentInstance>
+<https://pmsr.net/ont/INI1784879596705991>	<https://pmsr.net/ont/INS1739397137461495>	<http://hadatac.org/ont/hasco/InstrumentInstance>
+<https://pmsr.net/ont/INI1784879596852331>	<https://pmsr.net/ont/INS1739397137461495>	<http://hadatac.org/ont/hasco/InstrumentInstance>
+<https://pmsr.net/ont/INI1784879596903501>	<https://pmsr.net/ont/INS1739397137461495>	<http://hadatac.org/ont/hasco/InstrumentInstance>
+<https://pmsr.net/ont/INI1784879596936661>	<https://pmsr.net/ont/INS1739397137461495>	<http://hadatac.org/ont/hasco/InstrumentInstance>
+<https://pmsr.net/ont/INI1784879596950011>	<https://pmsr.net/ont/INS1739397137461495>	<http://hadatac.org/ont/hasco/InstrumentInstance>
+<https://pmsr.net/ont/INI1784879596976001>	<https://pmsr.net/ont/INS1739397137461495>	<http://hadatac.org/ont/hasco/InstrumentInstance>
+<https://pmsr.net/ont/INI1784879596105711>	<https://pmsr.net/ont/INS1739397556188145>	<http://hadatac.org/ont/hasco/InstrumentInstance>
+<https://pmsr.net/ont/INI1784879596173251>	<https://pmsr.net/ont/INS1739397556188145>	<http://hadatac.org/ont/hasco/InstrumentInstance>
+<https://pmsr.net/ont/INI1784879596716181>	<https://pmsr.net/ont/INS1739397556188145>	<http://hadatac.org/ont/hasco/InstrumentInstance>
+<https://pmsr.net/ont/INI1784879596202791>	<https://pmsr.net/ont/INS1739823398493725>	<http://hadatac.org/ont/hasco/InstrumentInstance>
+<https://pmsr.net/ont/INI1784879596266991>	<https://pmsr.net/ont/INS1739823398493725>	<http://hadatac.org/ont/hasco/InstrumentInstance>
+<https://pmsr.net/ont/INI1784879596916401>	<https://pmsr.net/ont/INS1739823398493725>	<http://hadatac.org/ont/hasco/InstrumentInstance>

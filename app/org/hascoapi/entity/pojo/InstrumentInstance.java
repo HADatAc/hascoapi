@@ -11,6 +11,7 @@ import org.apache.jena.query.ResultSetRewindable;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.SPARQLUtils;
+import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.VSTOI;
 
 import static org.hascoapi.Constants.*;
@@ -24,7 +25,7 @@ public class InstrumentInstance extends VSTOIInstance {
 
 	public InstrumentInstance() {
 		this.setTypeUri(VSTOI.INSTRUMENT_INSTANCE);
-		this.setHascoTypeUri(VSTOI.INSTRUMENT_INSTANCE); 
+		this.setHascoTypeUri(HASCO.INSTRUMENT_INSTANCE); 
 	}
 
 	public static InstrumentInstance find(String uri) {

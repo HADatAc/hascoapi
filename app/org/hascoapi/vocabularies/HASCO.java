@@ -39,6 +39,10 @@ public class HASCO {
     public static final String STREAM_TOPIC                           = "http://hadatac.org/ont/hasco/StreamTopic";
     public static final String STUDY                                  = "http://hadatac.org/ont/hasco/Study";
     public static final String PROCESS_BASED_STUDY                    = "http://hadatac.org/ont/hasco/ProcessBasedStudy";
+    public static final String PLATFORM_INSTANCE                      = "http://hadatac.org/ont/hasco/PlatformInstance";
+    public static final String INSTRUMENT_INSTANCE                    = "http://hadatac.org/ont/hasco/InstrumentInstance";
+    public static final String COMPONENT_INSTANCE                     = "http://hadatac.org/ont/hasco/ComponentInstance";
+    public static final String COMPONENT_DEPLOYMENT                   = "http://hadatac.org/ont/hasco/ComponentDeployment";
     public static final String STUDY_OBJECT                           = "http://hadatac.org/ont/hasco/StudyObject";
     public static final String STUDY_OBJECT_COLLECTION                = "http://hadatac.org/ont/hasco/StudyObjectCollection";
     public static final String STUDY_ROLE                             = "http://hadatac.org/ont/hasco/StudyRole";

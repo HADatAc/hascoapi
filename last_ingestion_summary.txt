@@ -1,0 +1,18 @@
+Last ingestion graph: https://pmsr.net/ont/DFL1786284423566382
+Total triples: 2969
+Distinct subjects: 410
+
+hasco:hascoType counts
+- hasco:ComponentInstance: 168
+- hasco:InstrumentInstance: 18
+- hasco:PlatformInstance: 10
+- hasco:DataFile: 1
+
+rdf:type counts (top)
+- vstoi:ComponentDeployment: 168
+- vstoi:Deployment: 18
+- vstoi:Laboratory: 10
+- hasco:DataFile: 1
+
+Full entity list:
+- last_ingestion_committed_entities.tsv

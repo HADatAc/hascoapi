@@ -30,7 +30,7 @@ import org.hascoapi.vocabularies.VSTOI;
 public class GenericFind<T> {
 
     private static boolean useRdfTypeHierarchyForClass(Class clazz) {
-        return clazz == Study.class || clazz == ProcessBasedStudy.class;
+        return clazz == Study.class || clazz == ProcessBasedStudy.class || clazz == PlatformInstance.class;
     }
 
     private static String buildInstanceTypePattern(Class clazz, String className) {
@@ -38,6 +38,16 @@ public class GenericFind<T> {
             return " { ?uri a hasco:Study . } " +
                    " UNION { ?uri a hasco:ProcessBasedStudy . } " +
                    " UNION { ?type rdfs:subClassOf* hasco:Study . ?uri a ?type . } ";
+        }
+        if (clazz == Deployment.class) {
+            return " { ?uri hasco:hascoType " + className + " . } " +
+                   " UNION { ?uri a ?type . ?type rdfs:subClassOf* " + className + " . } " +
+                   " UNION { ?uri hasco:hascoType ?type . ?type rdfs:subClassOf* " + className + " . } ";
+        }
+        if (clazz == PlatformInstance.class) {
+            return " { ?uri hasco:hascoType " + className + " . } " +
+                   " UNION { ?uri a ?type . ?type rdfs:subClassOf* " + className + " . } " +
+                   " UNION { ?uri hasco:hascoType ?type . ?type rdfs:subClassOf* " + className + " . } ";
         }
         if (useRdfTypeHierarchyForClass(clazz)) {
             return " ?type rdfs:subClassOf* " + className + " . ?uri a ?type . ";
@@ -174,7 +184,7 @@ public class GenericFind<T> {
         } else if (clazz == AnalyticalTool.class) {
             return URIUtils.replaceNameSpace(HASCO.ANALYTICAL_TOOL);
         } else if (clazz == InstrumentInstance.class) {
-            return URIUtils.replaceNameSpace(VSTOI.INSTRUMENT_INSTANCE);
+            return URIUtils.replaceNameSpace(HASCO.INSTRUMENT_INSTANCE);
         } else if (clazz == InstrumentType.class) {
             return URIUtils.replaceNameSpace(VSTOI.INSTRUMENT);
         } else if (clazz == Component.class) {
@@ -182,9 +192,9 @@ public class GenericFind<T> {
         } else if (clazz == ComponentStem.class) {
             return URIUtils.replaceNameSpace(VSTOI.COMPONENT_STEM);
         } else if (clazz == ComponentInstance.class) {
-            return URIUtils.replaceNameSpace(VSTOI.COMPONENT_INSTANCE);
+            return URIUtils.replaceNameSpace(HASCO.COMPONENT_INSTANCE);
         } else if (clazz == PlatformInstance.class) {
-            return URIUtils.replaceNameSpace(VSTOI.PLATFORM_INSTANCE);
+            return URIUtils.replaceNameSpace(HASCO.PLATFORM_INSTANCE);
         } else if (clazz == ContainerSlot.class) {
             return URIUtils.replaceNameSpace(VSTOI.CONTAINER_SLOT);
         } else if (clazz == Codebook.class) {

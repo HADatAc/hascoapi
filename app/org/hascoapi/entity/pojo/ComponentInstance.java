@@ -11,6 +11,7 @@ import org.apache.jena.query.ResultSetRewindable;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.SPARQLUtils;
+import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.VSTOI;
 
 import static org.hascoapi.Constants.*;
@@ -24,7 +25,7 @@ public class ComponentInstance extends VSTOIInstance {
 
 	public ComponentInstance() {
 		this.setTypeUri(VSTOI.COMPONENT_INSTANCE);
-		this.setHascoTypeUri(VSTOI.COMPONENT_INSTANCE); 
+		this.setHascoTypeUri(HASCO.COMPONENT_INSTANCE); 
 	}
 
 	public static ComponentInstance find(String uri) {
@@ -146,14 +147,8 @@ public class ComponentInstance extends VSTOIInstance {
 	 */
 	private static String buildOrganizationComponentTraversal(String organizationUri) {
 		return "   ?ii vstoi:hasOwner <" + organizationUri + "> . "
-				+ "   { ?ii hasco:hascoType vstoi:InstrumentInstance . } "
-				+ "   UNION { ?ii hasco:hascoType hasco:InstrumentInstance . } "
 				+ "   ?dpl vstoi:hasInstrumentInstance ?ii . "
-				+ "   { ?dpl hasco:hascoType vstoi:Deployment . } "
-				+ "   UNION { ?dpl hasco:hascoType hasco:Deployment . } "
 				+ "   ?cd (hasco:hascoDeployment|hasco:hasDeployment) ?dpl . "
-				+ "   { ?cd hasco:hascoType vstoi:ComponentDeployment . } "
-				+ "   UNION { ?cd hasco:hascoType hasco:ComponentDeployment . } "
 				+ "   ?cd (hasco:hasComponentInstance|vstoi:hasComponentInstance) ?uri . ";
 	}
 

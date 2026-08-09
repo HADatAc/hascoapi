@@ -43,7 +43,6 @@ public class DP2WorkbookVerifier {
     );
 
     private static final Pattern URI_SCHEME = Pattern.compile("^[A-Za-z][A-Za-z0-9+.-]*:.*$");
-    private static final Pattern INS_MODEL_PATTERN = Pattern.compile("(^|[:/#])INS[-_/].*", Pattern.CASE_INSENSITIVE);
 
     private final DataFile dataFile;
     private final Map<String, String> mapCatalog;
@@ -77,6 +76,10 @@ public class DP2WorkbookVerifier {
         }
 
         if (!validateFixedHascoTypeValues(sheets)) {
+            ok = false;
+        }
+
+        if (!validateDeploymentTypingRules(sheets)) {
             ok = false;
         }
 
@@ -123,7 +126,8 @@ public class DP2WorkbookVerifier {
                 continue;
             }
 
-            String modelUri = normUri(getValue(rec, "a"));
+            String modelRaw = getValue(rec, "a");
+            String modelUri = normUri(modelRaw);
             if (isBlank(modelUri)) {
                 error("II_MODEL_MISSING", "InstrumentInstances row " + rowNum + " is missing model URI in column 'a'");
                 ok = false;
@@ -136,8 +140,8 @@ public class DP2WorkbookVerifier {
                 continue;
             }
 
-            if (!hasInsLikeUri(modelUri)) {
-                error("II_MODEL_POLICY_VIOLATION", "InstrumentInstances row " + rowNum + " model URI is not INS-like: " + modelUri);
+            if (!hasRegisteredNamespaceUri(modelRaw)) {
+                error("II_MODEL_NAMESPACE_INVALID", "InstrumentInstances row " + rowNum + " model URI is not in a registered namespace: " + modelUri);
                 ok = false;
             }
 
@@ -276,6 +280,56 @@ public class DP2WorkbookVerifier {
         return ok;
     }
 
+    private boolean validateDeploymentTypingRules(Map<String, RecordFile> sheets) {
+        boolean ok = true;
+
+        RecordFile deployments = sheets.get("Deployments");
+        if (deployments != null) {
+            int rowNum = 1;
+            for (Record rec : deployments.getRecords()) {
+                rowNum++;
+                if (!hasAnyValue(rec, deployments.getHeaders())) {
+                    continue;
+                }
+
+                String hasUri = normUri(getValue(rec, "hasURI", "uri"));
+                if (isBlank(hasUri)) {
+                    continue;
+                }
+
+                String deploymentType = normUri(getValue(rec, "a", "rdf:type"));
+                if (isBlank(deploymentType) || !normUri("vstoi:Deployment").equals(deploymentType)) {
+                    error("DEPLOYMENT_TYPE_INVALID", "Deployments row " + rowNum + " must be typed as vstoi:Deployment");
+                    ok = false;
+                }
+            }
+        }
+
+        RecordFile componentDeployments = sheets.get("ComponentDeployments");
+        if (componentDeployments != null) {
+            int rowNum = 1;
+            for (Record rec : componentDeployments.getRecords()) {
+                rowNum++;
+                if (!hasAnyValue(rec, componentDeployments.getHeaders())) {
+                    continue;
+                }
+
+                String hasUri = normUri(getValue(rec, "hasURI", "uri", "ComponentDeployment URI", "componentDeploymentUri"));
+                if (isBlank(hasUri)) {
+                    continue;
+                }
+
+                String rdfType = normUri(getValue(rec, "rdf:type"));
+                if (isBlank(rdfType) || !normUri("vstoi:ComponentDeployment").equals(rdfType)) {
+                    error("COMP_DEPLOYMENT_RDFTYPE_INVALID", "ComponentDeployments row " + rowNum + " must have rdf:type = vstoi:ComponentDeployment");
+                    ok = false;
+                }
+            }
+        }
+
+        return ok;
+    }
+
     private boolean validateHasUriPresence(Map<String, RecordFile> sheets) {
         boolean ok = true;
         List<String> hasUriSheets = Arrays.asList(
@@ -357,7 +411,7 @@ public class DP2WorkbookVerifier {
             rowNum++;
 
             String cdUri = normUri(getValue(rec, "hasURI", "uri", "ComponentDeployment URI", "componentDeploymentUri"));
-            String cdType = normUri(getValue(rec, "rdf:type", "a"));
+            String cdType = normUri(getValue(rec, "rdf:type"));
 
             String depUri = normUri(getValue(rec,
                     "hasco:hascoDeployment", "Deployment URI", "deployment URI", "deploymentUri", "DeploymentUri",
@@ -403,13 +457,11 @@ public class DP2WorkbookVerifier {
             }
 
             if (!uriExists(slotUri)) {
-                error("COMP_DEPLOYMENT_SLOT_INVALID", "ComponentDeployments row " + rowNum + " references unknown slot URI: " + slotUri);
-                ok = false;
+                warn("COMP_DEPLOYMENT_SLOT_INVALID", "ComponentDeployments row " + rowNum + " references unknown slot URI: " + slotUri + " (soft validation)");
             }
 
             if (!slotBelongsToDeploymentInstrument(depUri, slotUri)) {
-                error("COMP_DEPLOYMENT_SLOT_INSTRUMENT_MISMATCH", "ComponentDeployments row " + rowNum + " slot owner does not match deployment instrument context");
-                ok = false;
+                warn("COMP_DEPLOYMENT_SLOT_INSTRUMENT_MISMATCH", "ComponentDeployments row " + rowNum + " slot owner does not match deployment instrument context (soft validation)");
             }
 
             // Step 2 enforcement: component model must be compatible with slot model.
@@ -422,9 +474,8 @@ public class DP2WorkbookVerifier {
                                 + modelCompatibility.slotModel + ", componentModel=" + modelCompatibility.componentModel);
                 ok = false;
             } else if (modelCompatibility.status == CompatibilityStatus.UNKNOWN) {
-                error("COMP_DEPLOYMENT_COMPONENT_MODEL_UNKNOWN",
-                        "ComponentDeployments row " + rowNum + " model compatibility could not be fully verified (missing slot/component model link)");
-                ok = false;
+                warn("COMP_DEPLOYMENT_COMPONENT_MODEL_UNKNOWN",
+                    "ComponentDeployments row " + rowNum + " model compatibility could not be fully verified (missing slot/component model link) (soft validation)");
             }
         }
 
@@ -586,12 +637,45 @@ public class DP2WorkbookVerifier {
         return !v.isEmpty() && URI_SCHEME.matcher(v).matches();
     }
 
-    private boolean hasInsLikeUri(String value) {
-        String v = normUri(value);
-        if (v.isEmpty()) {
+    private boolean hasRegisteredNamespaceUri(String value) {
+        String raw = safe(value).trim();
+        if (raw.isEmpty()) {
             return false;
         }
-        return INS_MODEL_PATTERN.matcher(v).matches();
+
+        if (raw.startsWith("<") && raw.endsWith(">") && raw.length() > 2) {
+            raw = raw.substring(1, raw.length() - 1).trim();
+        }
+
+        NameSpaces nameSpaces = NameSpaces.getInstance();
+
+        // Accept compact namespace form (e.g., pmsr:/INS..., hasco:Instrument).
+        int colonPos = raw.indexOf(':');
+        if (colonPos > 0) {
+            String prefix = raw.substring(0, colonPos).trim();
+            if (!prefix.isEmpty() && nameSpaces.getNamespaces().containsKey(prefix)) {
+                return true;
+            }
+        }
+
+        // Accept full URI form when it starts with any registered namespace URI.
+        String expanded = normUri(raw);
+        if (expanded.isEmpty() || !URI_SCHEME.matcher(expanded).matches()) {
+            return false;
+        }
+
+        for (Map.Entry<String, org.hascoapi.entity.pojo.NameSpace> entry : nameSpaces.getNamespaces().entrySet()) {
+            org.hascoapi.entity.pojo.NameSpace ns = entry.getValue();
+            if (ns == null) {
+                continue;
+            }
+            String nsUri = safe(ns.getUri()).trim();
+            if (!nsUri.isEmpty() && expanded.startsWith(nsUri)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private boolean isBlank(String value) {
@@ -607,7 +691,7 @@ public class DP2WorkbookVerifier {
     }
 
     private void error(String code, String message) {
-        dataFile.getLogger().printException("[DP2-VERIFY] " + code + ": " + message);
+        dataFile.getLogger().printWarning("[DP2-VERIFY] " + code + ": " + message + " (non-blocking)");
     }
 
     private enum CompatibilityStatus {

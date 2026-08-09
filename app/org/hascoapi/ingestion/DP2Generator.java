@@ -6,16 +6,13 @@ import java.util.Map;
 
 import org.hascoapi.entity.pojo.DataFile;
 import org.hascoapi.utils.URIUtils;
+import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.VSTOI;
 
 
 public class DP2Generator extends BaseGenerator {
 
     private final String status;
-	private static final String HASCO_PLATFORM_INSTANCE_TYPE = "http://hadatac.org/ont/hasco/PlatformInstance";
-	private static final String HASCO_INSTRUMENT_INSTANCE_TYPE = "http://hadatac.org/ont/hasco/InstrumentInstance";
-	private static final String HASCO_COMPONENT_INSTANCE_TYPE = "http://hadatac.org/ont/hasco/ComponentInstance";
-	private static final String HASCO_COMPONENT_DEPLOYMENT_TYPE = "http://hadatac.org/ont/hasco/ComponentDeployment";
 
 	public DP2Generator(String elementType, DataFile dataFile) {
 		this(elementType, dataFile, null);
@@ -60,11 +57,17 @@ public class DP2Generator extends BaseGenerator {
 			row.put("vstoi:hasStatus", URIUtils.replaceNameSpaceEx(this.status.trim()));
 		}
 
-		// Ensure rdf:type is present for downstream retrieval (many SPARQL queries use rdf:type)
-		if (!row.containsKey("a") || row.get("a") == null || row.get("a").toString().trim().isEmpty()) {
-			if (this.getElementType().equals("deployment")) {
-				row.put("a", VSTOI.DEPLOYMENT);
-			} else if (this.getElementType().equals("platform")) {
+		// Ensure canonical typing based on current DP2 rules.
+		if (this.getElementType().equals("deployment")) {
+			row.put("a", VSTOI.DEPLOYMENT);
+			if (row.containsKey("rdf:type")) {
+				row.put("rdf:type", VSTOI.DEPLOYMENT);
+			}
+		} else if (this.getElementType().equals("componentdeployment")) {
+			row.put("a", VSTOI.COMPONENT_DEPLOYMENT);
+			row.put("rdf:type", VSTOI.COMPONENT_DEPLOYMENT);
+		} else if (!row.containsKey("a") || row.get("a") == null || row.get("a").toString().trim().isEmpty()) {
+			if (this.getElementType().equals("platform")) {
 				row.put("a", VSTOI.PLATFORM);
 			} else if (this.getElementType().equals("platforminstance")) {
 				row.put("a", VSTOI.PLATFORM_INSTANCE);
@@ -74,33 +77,29 @@ public class DP2Generator extends BaseGenerator {
 				row.put("a", VSTOI.INSTRUMENT_INSTANCE);
 			} else if (this.getElementType().equals("componentinstance")) {
 				row.put("a", VSTOI.COMPONENT_INSTANCE);
-			} else if (this.getElementType().equals("componentdeployment")) {
-				row.put("a", VSTOI.COMPONENT_DEPLOYMENT);
 			}
 		}
 
 		// Set element-specific metadata
 		if (this.getElementType().equals("deployment")) {
-			row.put("hasco:hascoType", VSTOI.DEPLOYMENT);
 			row.put("hasco:canUpdate", this.dataFile.getHasSIRManagerEmail());
 			row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
 		} else if (this.getElementType().equals("platform")) {
 			row.put("hasco:hascoType", VSTOI.PLATFORM);
 			row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
 		} else if (this.getElementType().equals("platforminstance")) {
-			row.put("hasco:hascoType", HASCO_PLATFORM_INSTANCE_TYPE);
+			row.put("hasco:hascoType", HASCO.PLATFORM_INSTANCE);
 			row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
 		} else if (this.getElementType().equals("fieldofview")) {
 			row.put("hasco:hascoType", VSTOI.FIELD_OF_VIEW);
 			row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
 		} else if (this.getElementType().equals("instrumentinstance")) {
-			row.put("hasco:hascoType", HASCO_INSTRUMENT_INSTANCE_TYPE);
+			row.put("hasco:hascoType", HASCO.INSTRUMENT_INSTANCE);
 			row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
 		} else if (this.getElementType().equals("componentinstance")) {
-			row.put("hasco:hascoType", HASCO_COMPONENT_INSTANCE_TYPE);
+			row.put("hasco:hascoType", HASCO.COMPONENT_INSTANCE);
 			row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
 		} else if (this.getElementType().equals("componentdeployment")) {
-			row.put("hasco:hascoType", HASCO_COMPONENT_DEPLOYMENT_TYPE);
 			row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
 		}
 

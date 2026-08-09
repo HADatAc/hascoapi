@@ -94,7 +94,7 @@ public class PlatformInstance extends VSTOIInstance {
 
 	public PlatformInstance() {
 		this.setTypeUri(VSTOI.PLATFORM_INSTANCE);
-		this.setHascoTypeUri(VSTOI.PLATFORM_INSTANCE); 
+        this.setHascoTypeUri(HASCO.PLATFORM_INSTANCE); 
 	}
     public String getElevation() {
         return elevation;
@@ -407,7 +407,7 @@ public class PlatformInstance extends VSTOIInstance {
         String query = 
                 "SELECT ?uri " +
                 " WHERE {  ?uri rdf:type <" + platformUri + "> .  " +
-				"          ?uri hasco:hascoType vstoi:PlatformInstance . " +
+				"          " + platformInstanceTypePattern() +
                 " } " +
                 " LIMIT " + pageSize +
                 " OFFSET " + offset;
@@ -421,7 +421,7 @@ public class PlatformInstance extends VSTOIInstance {
         String query = NameSpaces.getInstance().printSparqlNameSpaceList() + 
                 " SELECT (count(?uri) as ?tot)  " +
                 " WHERE {  ?uri rdf:type <" + platformUri + "> .  " +
-				"          ?uri hasco:hascoType vstoi:PlatformInstance . " +
+				"          " + platformInstanceTypePattern() +
                 " }";
         return GenericFind.findTotalByQuery(query);
     }        
@@ -429,8 +429,18 @@ public class PlatformInstance extends VSTOIInstance {
     public static List<PlatformInstance> findAll() {
         String query =
                 "SELECT ?uri " +
-                " WHERE { ?uri hasco:hascoType vstoi:PlatformInstance . }";
+                " WHERE { " +
+                "   " + platformInstanceTypePattern() +
+                " }";
         return findManyByQuery(query);
+    }
+
+    private static String platformInstanceTypePattern() {
+         // Use full URI to avoid prefix mapping drift (slash vs hash namespace forms).
+         String hascoPlatformInstance = "<" + HASCO.PLATFORM_INSTANCE + ">";
+         return "{ ?uri hasco:hascoType " + hascoPlatformInstance + " . } " +
+             "UNION { ?uri a ?itype . ?itype rdfs:subClassOf* " + hascoPlatformInstance + " . } " +
+             "UNION { ?uri hasco:hascoType ?itype2 . ?itype2 rdfs:subClassOf* " + hascoPlatformInstance + " . }";
     }
 
 	private static List<PlatformInstance> findManyByQuery(String queryString) {
