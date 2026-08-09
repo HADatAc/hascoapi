@@ -11,14 +11,13 @@ import org.hascoapi.utils.URIUtils;
 public class DP2Deployments {
 
     public static void setHeaders(Sheet sheet) {
-        // Must match DP2-PMSR.xlsx golden standard exactly
+        // Must match DP2-PMSR-V3.xlsx structure.
         String[] headers = { 
             "hasURI", 
             "a", 
             "rdfs:label", 
             "vstoi:hasPlatformInstance", 
             "vstoi:hasInstrumentInstance",
-            "vstoi:hasDetectorInstance", 
             "vstoi:designedAtTime", 
             "prov:startedAtTime", 
             "prov:endedAtTime" 
@@ -61,12 +60,10 @@ public class DP2Deployments {
         // vstoi:hasInstrumentInstance - URI reference to InstrumentInstances.hasURI
         newRow.createCell(4).setCellValue(deploy.getInstrumentInstanceUri() != null ? URIUtils.replaceNameSpaceEx(deploy.getInstrumentInstanceUri()) : "");
 
-        // Optional fields in the golden template are currently not available in Deployment POJO.
-        // Keep columns present and leave values blank.
+        // Optional timestamp fields are not always mapped in the Deployment POJO.
         newRow.createCell(5).setCellValue("");
         newRow.createCell(6).setCellValue("");
         newRow.createCell(7).setCellValue("");
-        newRow.createCell(8).setCellValue("");
 
         return helper;
     }

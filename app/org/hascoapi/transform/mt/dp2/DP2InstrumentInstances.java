@@ -9,8 +9,7 @@ import org.hascoapi.utils.URIUtils;
 public class DP2InstrumentInstances {
 
     public static void setHeaders(Sheet sheet) {
-        // Updated to match DP2-PMSR.xlsx structure with vstoi:hasOwner
-        String[] headers = { "hasURI", "a", "rdfs:label", "vstoi:hasSerialNumber", "skos:definition", "owl:sameAs", "vstoi:hasOwner" };
+        String[] headers = { "hasURI", "a", "hasco:hascoType", "rdfs:label", "vstoi:hasSerialNumber", "skos:definition", "owl:sameAs", "vstoi:hasOwner" };
 
         Row row = sheet.createRow(0);
         for (int i = 0; i < headers.length; i++) {
@@ -53,21 +52,24 @@ public class DP2InstrumentInstances {
         // Column B: a (rdf:type) - Use typeUri (the actual Instrument class from INS) instead of hascoTypeUri
         newRow.createCell(1).setCellValue(instrumentInstance.getTypeUri() != null ? URIUtils.replaceNameSpaceEx(instrumentInstance.getTypeUri()) : "");
 
-        // Column C: rdfs:label
-        newRow.createCell(2).setCellValue(instrumentInstance.getLabel() != null ? instrumentInstance.getLabel() : "");
+        // Column C: hasco:hascoType fixed for instrument instances in DP2 v3
+        newRow.createCell(2).setCellValue("hasco:InstrumentInstance");
+
+        // Column D: rdfs:label
+        newRow.createCell(3).setCellValue(instrumentInstance.getLabel() != null ? instrumentInstance.getLabel() : "");
         
-        // Column D: vstoi:hasSerialNumber
-        newRow.createCell(3).setCellValue(instrumentInstance.getHasSerialNumber() != null ? instrumentInstance.getHasSerialNumber() : "");
+        // Column E: vstoi:hasSerialNumber
+        newRow.createCell(4).setCellValue(instrumentInstance.getHasSerialNumber() != null ? instrumentInstance.getHasSerialNumber() : "");
 
-        // Column E: skos:definition (not currently mapped in Java class)
-        newRow.createCell(4).setCellValue("");
-
-        // Column F: owl:sameAs (not currently mapped in Java class)
+        // Column F: skos:definition (not currently mapped in Java class)
         newRow.createCell(5).setCellValue("");
 
-        // Column G: vstoi:hasOwner
+        // Column G: owl:sameAs (not currently mapped in Java class)
+        newRow.createCell(6).setCellValue("");
+
+        // Column H: vstoi:hasOwner
         String ownerUri = instrumentInstance.getHasOwnerUri();
-        newRow.createCell(6).setCellValue(ownerUri != null && !ownerUri.isEmpty() ? URIUtils.replaceNameSpaceEx(ownerUri) : "");
+        newRow.createCell(7).setCellValue(ownerUri != null && !ownerUri.isEmpty() ? URIUtils.replaceNameSpaceEx(ownerUri) : "");
 
         return helper;
 

@@ -145,6 +145,7 @@ GET     /hascoapi/api/instrument/tordf/:uri                 org.hascoapi.console
 GET     /hascoapi/api/instrument/tofhir/:uri                org.hascoapi.console.controllers.restapi.InstrumentAPI.toFHIR(uri: String)
 GET     /hascoapi/api/instrument/components/:instrumentUri  org.hascoapi.console.controllers.restapi.InstrumentAPI.retrieveInstrumentComponents(instrumentUri: String)
 GET     /hascoapi/api/instrument/containerslots/:instrumentUri  org.hascoapi.console.controllers.restapi.InstrumentAPI.retrieveInstrumentContainerSlots(instrumentUri: String)
+GET     /hascoapi/api/instrument/prefilter                  org.hascoapi.console.controllers.restapi.InstrumentAPI.findOrganizationScopedInstrumentPrefilter(request: play.mvc.Http.Request)
 GET     /hascoapi/api/instrument/byanatomy/*uberonUri       org.hascoapi.console.controllers.restapi.InstrumentAPI.findInstrumentsByAnatomy(uberonUri: String, request: play.mvc.Http.Request)
 GET     /hascoapi/api/instrument/byanatomy/total/*uberonUri org.hascoapi.console.controllers.restapi.InstrumentAPI.findTotalInstrumentsByAnatomy(uberonUri: String, request: play.mvc.Http.Request)
 
@@ -201,6 +202,11 @@ GET     /hascoapi/api/topic/latest/:topicUri                                    
 
 GET     /hascoapi/api/platforminstance/byplatform/:platformUri/:pageSize/:offset    org.hascoapi.console.controllers.restapi.VSTOIInstanceAPI.findPlatformInstancesByPlatformWithPage(platformUri: String, pageSize: Integer, offset: Integer)
 GET     /hascoapi/api/platforminstance/byplatform/total/:platformUri                org.hascoapi.console.controllers.restapi.VSTOIInstanceAPI.findTotalPlatformInstancesByPlatform(platformUri: String)
+GET     /hascoapi/api/platforminstance/grouped-by-organization                      org.hascoapi.console.controllers.restapi.VSTOIInstanceAPI.findPlatformInstancesGroupedByOrganization()
+GET     /hascoapi/api/instrumentinstance/list/:pageSize/:offset                     org.hascoapi.console.controllers.restapi.VSTOIInstanceAPI.findInstrumentInstancesWithPage(pageSize: Integer, offset: Integer, request: play.mvc.Http.Request)
+GET     /hascoapi/api/instrumentinstance/count                                      org.hascoapi.console.controllers.restapi.VSTOIInstanceAPI.findTotalInstrumentInstances(request: play.mvc.Http.Request)
+GET     /hascoapi/api/componentinstance/list/:pageSize/:offset                      org.hascoapi.console.controllers.restapi.VSTOIInstanceAPI.findComponentInstancesWithPage(pageSize: Integer, offset: Integer, request: play.mvc.Http.Request)
+GET     /hascoapi/api/componentinstance/count                                       org.hascoapi.console.controllers.restapi.VSTOIInstanceAPI.findTotalComponentInstances(request: play.mvc.Http.Request)
 GET     /hascoapi/api/instrumentinstance/byanatomy/*uberonUri                       org.hascoapi.console.controllers.restapi.VSTOIInstanceAPI.findInstrumentInstancesByAnatomy(uberonUri: String, request: play.mvc.Http.Request)
 GET     /hascoapi/api/instrumentinstance/byanatomy/total/*uberonUri                 org.hascoapi.console.controllers.restapi.VSTOIInstanceAPI.findTotalInstrumentInstancesByAnatomy(uberonUri: String, request: play.mvc.Http.Request)
 
@@ -217,8 +223,18 @@ POST    /hascoapi/api/task/deletewithtasks/:taskUri                             
 POST    /hascoapi/api/project/member                                                org.hascoapi.console.controllers.restapi.ProjectAPI.setMembers(request: play.mvc.Http.Request)
 POST    /hascoapi/api/r-analysis/validate                                           org.hascoapi.console.controllers.restapi.RAnalysisAPI.validate(request: play.mvc.Http.Request)
 POST    /hascoapi/api/r-analysis/execute                                            org.hascoapi.console.controllers.restapi.RAnalysisAPI.execute(request: play.mvc.Http.Request)
+GET     /hascoapi/api/r-analysis/engine/health                                      org.hascoapi.console.controllers.restapi.RAnalysisAPI.engineHealth(request: play.mvc.Http.Request)
+POST    /hascoapi/api/r-analysis/engine/run                                         org.hascoapi.console.controllers.restapi.RAnalysisAPI.runViaEngine(request: play.mvc.Http.Request)
+GET     /hascoapi/api/r-analysis/engine/jobs/:jobId                                 org.hascoapi.console.controllers.restapi.RAnalysisAPI.getEngineRun(jobId: String, request: play.mvc.Http.Request)
+GET     /hascoapi/api/r-analysis/engine/jobs/:jobId/artifacts                       org.hascoapi.console.controllers.restapi.RAnalysisAPI.getEngineArtifacts(jobId: String, request: play.mvc.Http.Request)
+GET     /hascoapi/api/r-analysis/engine/jobs/:jobId/artifacts/download/*artifactPath org.hascoapi.console.controllers.restapi.RAnalysisAPI.downloadEngineArtifact(jobId: String, artifactPath: String, request: play.mvc.Http.Request)
 POST    /api/r-analysis/validate                                                    org.hascoapi.console.controllers.restapi.RAnalysisAPI.validate(request: play.mvc.Http.Request)
 POST    /api/r-analysis/execute                                                     org.hascoapi.console.controllers.restapi.RAnalysisAPI.execute(request: play.mvc.Http.Request)
+GET     /api/r-analysis/engine/health                                               org.hascoapi.console.controllers.restapi.RAnalysisAPI.engineHealth(request: play.mvc.Http.Request)
+POST    /api/r-analysis/engine/run                                                  org.hascoapi.console.controllers.restapi.RAnalysisAPI.runViaEngine(request: play.mvc.Http.Request)
+GET     /api/r-analysis/engine/jobs/:jobId                                          org.hascoapi.console.controllers.restapi.RAnalysisAPI.getEngineRun(jobId: String, request: play.mvc.Http.Request)
+GET     /api/r-analysis/engine/jobs/:jobId/artifacts                                org.hascoapi.console.controllers.restapi.RAnalysisAPI.getEngineArtifacts(jobId: String, request: play.mvc.Http.Request)
+GET     /api/r-analysis/engine/jobs/:jobId/artifacts/download/*artifactPath         org.hascoapi.console.controllers.restapi.RAnalysisAPI.downloadEngineArtifact(jobId: String, artifactPath: String, request: play.mvc.Http.Request)
 
 # INGESTION METHODS
 

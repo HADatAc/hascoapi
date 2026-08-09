@@ -1,0 +1,55 @@
+services:
+
+    fuseki:
+        build: ./fuseki
+        container_name: hascoapi_fuseki
+        ports:
+            - "3030:3030"
+        networks:
+            hascoapi:
+                aliases:
+                    - fuseki
+        volumes:
+            - hascoapi-fuseki-data:/fuseki/databases
+        restart: always
+
+    fuseki-yasgui:
+        build: ./fuseki-yasgui
+        container_name: hascoapi_fuseki_yasgui
+        ports:
+            - "8888:8888"
+        networks:
+            hascoapi:
+                aliases:
+                    - fuseki-yasgui
+        environment:
+            - DEFAULT_SPARQL_ENDPOINT=http://localhost:3030/store/sparql
+        depends_on:
+            - fuseki
+
+    r-engine:
+        build: ./r-engine
+        container_name: hascoapi_r_engine
+        ports:
+            - "3031:8000"
+        networks:
+            hascoapi:
+                aliases:
+                    - r-engine
+        environment:
+            - FUSEKI_SPARQL_ENDPOINT=http://fuseki:3030/store/sparql
+            - R_ENGINE_WORKDIR=/work
+            - R_ENGINE_OUTPUT_DIR=/work/output
+        volumes:
+            - hascoapi-r-engine-work:/work
+            - ./r-engine/examples:/opt/r-engine/examples:ro
+        depends_on:
+            - fuseki
+        restart: always
+
+volumes:
+    hascoapi-fuseki-data:
+    hascoapi-r-engine-work:
+
+networks:
+    hascoapi:

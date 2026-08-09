@@ -12,6 +12,10 @@ import org.hascoapi.vocabularies.VSTOI;
 public class DP2Generator extends BaseGenerator {
 
     private final String status;
+	private static final String HASCO_PLATFORM_INSTANCE_TYPE = "http://hadatac.org/ont/hasco/PlatformInstance";
+	private static final String HASCO_INSTRUMENT_INSTANCE_TYPE = "http://hadatac.org/ont/hasco/InstrumentInstance";
+	private static final String HASCO_COMPONENT_INSTANCE_TYPE = "http://hadatac.org/ont/hasco/ComponentInstance";
+	private static final String HASCO_COMPONENT_DEPLOYMENT_TYPE = "http://hadatac.org/ont/hasco/ComponentDeployment";
 
 	public DP2Generator(String elementType, DataFile dataFile) {
 		this(elementType, dataFile, null);
@@ -70,6 +74,8 @@ public class DP2Generator extends BaseGenerator {
 				row.put("a", VSTOI.INSTRUMENT_INSTANCE);
 			} else if (this.getElementType().equals("componentinstance")) {
 				row.put("a", VSTOI.COMPONENT_INSTANCE);
+			} else if (this.getElementType().equals("componentdeployment")) {
+				row.put("a", VSTOI.COMPONENT_DEPLOYMENT);
 			}
 		}
 
@@ -82,16 +88,19 @@ public class DP2Generator extends BaseGenerator {
 			row.put("hasco:hascoType", VSTOI.PLATFORM);
 			row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
 		} else if (this.getElementType().equals("platforminstance")) {
-			row.put("hasco:hascoType", VSTOI.PLATFORM_INSTANCE);
+			row.put("hasco:hascoType", HASCO_PLATFORM_INSTANCE_TYPE);
 			row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
 		} else if (this.getElementType().equals("fieldofview")) {
 			row.put("hasco:hascoType", VSTOI.FIELD_OF_VIEW);
 			row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
 		} else if (this.getElementType().equals("instrumentinstance")) {
-			row.put("hasco:hascoType", VSTOI.INSTRUMENT_INSTANCE);
+			row.put("hasco:hascoType", HASCO_INSTRUMENT_INSTANCE_TYPE);
 			row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
 		} else if (this.getElementType().equals("componentinstance")) {
-			row.put("hasco:hascoType", VSTOI.COMPONENT_INSTANCE);
+			row.put("hasco:hascoType", HASCO_COMPONENT_INSTANCE_TYPE);
+			row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
+		} else if (this.getElementType().equals("componentdeployment")) {
+			row.put("hasco:hascoType", HASCO_COMPONENT_DEPLOYMENT_TYPE);
 			row.put("vstoi:hasSIRManagerEmail", this.dataFile.getHasSIRManagerEmail());
 		}
 

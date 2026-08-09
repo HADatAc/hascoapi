@@ -14,6 +14,7 @@ public class DP2Gen {
     public static final String INFOSHEET                 = "InfoSheet";
     public static final String NAMESPACE                 = "Namespace";  // Changed from "Namespaces" to singular
     public static final String DEPLOYMENTS               = "Deployments";
+    public static final String COMPONENTDEPLOYMENTS      = "ComponentDeployments";
     public static final String PLATFORMS                 = "Platforms";
     public static final String PLATFORMINTANCES          = "PlatformInstances";
     public static final String FIELDSOFVIEW              = "FieldsOfView";
@@ -48,43 +49,50 @@ public class DP2Gen {
 
         Row dataRow3 = infoSheet.createRow(3);
         Cell isDataCell3_1 = dataRow3.createCell(0);
-        isDataCell3_1.setCellValue("Platforms");
+        isDataCell3_1.setCellValue("ComponentDeployments");
         Cell isDataCell3_2 = dataRow3.createCell(1);
-        isDataCell3_2.setCellValue("#" + PLATFORMS);
+        isDataCell3_2.setCellValue("#" + COMPONENTDEPLOYMENTS);
 
         Row dataRow4 = infoSheet.createRow(4);
         Cell isDataCell4_1 = dataRow4.createCell(0);
-        isDataCell4_1.setCellValue("PlatformInstances");
+        isDataCell4_1.setCellValue("Platforms");
         Cell isDataCell4_2 = dataRow4.createCell(1);
-        isDataCell4_2.setCellValue("#" + PLATFORMINTANCES);
+        isDataCell4_2.setCellValue("#" + PLATFORMS);
 
         Row dataRow5 = infoSheet.createRow(5);
         Cell isDataCell5_1 = dataRow5.createCell(0);
-        isDataCell5_1.setCellValue("FieldsOfView");
+        isDataCell5_1.setCellValue("PlatformInstances");
         Cell isDataCell5_2 = dataRow5.createCell(1);
-        isDataCell5_2.setCellValue("#" + FIELDSOFVIEW);
+        isDataCell5_2.setCellValue("#" + PLATFORMINTANCES);
 
         Row dataRow6 = infoSheet.createRow(6);
         Cell isDataCell6_1 = dataRow6.createCell(0);
-        isDataCell6_1.setCellValue("InstrumentInstances");
+        isDataCell6_1.setCellValue("FieldsOfView");
         Cell isDataCell6_2 = dataRow6.createCell(1);
-        isDataCell6_2.setCellValue("#" + INSTRUMENTINSTANCES);
+        isDataCell6_2.setCellValue("#" + FIELDSOFVIEW);
 
         Row dataRow7 = infoSheet.createRow(7);
         Cell isDataCell7_1 = dataRow7.createCell(0);
-        isDataCell7_1.setCellValue("ComponentInstances");
+        isDataCell7_1.setCellValue("InstrumentInstances");
         Cell isDataCell7_2 = dataRow7.createCell(1);
-        isDataCell7_2.setCellValue("#" + COMPONENTINSTANCES);
+        isDataCell7_2.setCellValue("#" + INSTRUMENTINSTANCES);
 
         Row dataRow8 = infoSheet.createRow(8);
         Cell isDataCell8_1 = dataRow8.createCell(0);
-        isDataCell8_1.setCellValue("SensingPerspective");
+        isDataCell8_1.setCellValue("ComponentInstances");
         Cell isDataCell8_2 = dataRow8.createCell(1);
-        isDataCell8_2.setCellValue("#" + SENSINGPERSPECTIVE);
+        isDataCell8_2.setCellValue("#" + COMPONENTINSTANCES);
 
-        // Create sheets in exact order as DP2-PMSR.xlsx
+        Row dataRow9 = infoSheet.createRow(9);
+        Cell isDataCell9_1 = dataRow9.createCell(0);
+        isDataCell9_1.setCellValue("SensingPerspective");
+        Cell isDataCell9_2 = dataRow9.createCell(1);
+        isDataCell9_2.setCellValue("#" + SENSINGPERSPECTIVE);
+
+        // Create sheets in exact order as DP2-PMSR-V3.xlsx
         workbook.createSheet(NAMESPACE);
         workbook.createSheet(DEPLOYMENTS);
+        workbook.createSheet(COMPONENTDEPLOYMENTS);
         workbook.createSheet(PLATFORMS);
         workbook.createSheet(PLATFORMINTANCES);
         workbook.createSheet(INSTRUMENTINSTANCES);
@@ -94,12 +102,13 @@ public class DP2Gen {
 
         // IMPORTANT: set headers for each sheet so add() methods write into the correct columns
         DP2Deployments.setHeaders(workbook.getSheet(DEPLOYMENTS));
+        DP2ComponentDeployments.setHeaders(workbook.getSheet(COMPONENTDEPLOYMENTS));
         DP2Plataforms.setHeaders(workbook.getSheet(PLATFORMS));
         DP2PlataformInstances.setHeaders(workbook.getSheet(PLATFORMINTANCES));
         DP2InstrumentInstances.setHeaders(workbook.getSheet(INSTRUMENTINSTANCES));
         DP2ComponentsInstances.setHeaders(workbook.getSheet(COMPONENTINSTANCES));
         DP2FieldsOfView.setHeaders(workbook.getSheet(FIELDSOFVIEW));
-        // DP2SensingPerspective headers are not implemented yet
+        DP2SensingPerspective.setHeaders(workbook.getSheet(SENSINGPERSPECTIVE));
 
         return workbook;
     }
@@ -215,6 +224,7 @@ public class DP2Gen {
         helper.workbook = DP2Gen.create(filename);
 
         helper = DP2Deployments.add(helper,deployment);
+        helper = DP2ComponentDeployments.addFromDeployment(helper, deployment);
 
 
         return DP2Gen.save(helper, filename);
@@ -752,6 +762,7 @@ public class DP2Gen {
             for (Deployment deployment : deployments) {
                 if (deployment != null) {
                     helper = DP2Deployments.add(helper, deployment);
+                    helper = DP2ComponentDeployments.addFromDeployment(helper, deployment);
                 } else {
                     System.out.println("[DP2Gen] WARNING: Skipping null deployment");
                 }
@@ -832,6 +843,7 @@ public class DP2Gen {
         if (deployments != null) {
             for (Deployment deployment: deployments) {
                 helper = DP2Deployments.add(helper,deployment);
+                helper = DP2ComponentDeployments.addFromDeployment(helper, deployment);
             }
         }
 

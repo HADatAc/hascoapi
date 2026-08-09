@@ -53,4 +53,91 @@ In the example below, we named the backup file with the backup date. This can be
 5. Go to home folder: `cd ~`
 6. Restore the backup file: `docker run --rm --volumes-from hascoapi_fuseki -v $PWD:/bkp ubuntu bash -c "tar -zxvf /bkp/fuseki-data_17Aug2023.tar.gz"`
 
+## R Engine (Fuseki + R Execution)
+
+The file `docker-compose-fuseki-r.yml` starts Fuseki, YASGUI, and an `r-engine` service.
+
+1. Start the stack:
+
+```bash
+docker compose -f docker-compose-fuseki-r.yml up -d --build
+```
+
+2. Check R engine health:
+
+```bash
+curl -s http://localhost:8000/health | jq .
+```
+
+3. Submit R code with inline CSV input:
+
+```bash
+curl -s -X POST http://localhost:8000/run \
+	-H 'Content-Type: application/json' \
+	-d '{
+		"job_id": "demo-job-001",
+		"input_csv_text": "student,score\nA,90\nB,75\nC,88",
+		"code": "d <- read.csv(Sys.getenv(\"INPUT_CSV\")); out <- Sys.getenv(\"OUTPUT_DIR\"); write.csv(d, file.path(out, \"scores.csv\"), row.names = FALSE); png(file.path(out, \"scores.png\"), 800, 500); barplot(d$score, names.arg=d$student, col=\"steelblue\", main=\"Scores\"); dev.off(); cat(\"done\\n\")"
+	}' | jq .
+```
+
+4. Retrieve generated artifact paths from response:
+
+```bash
+curl -s -X POST http://localhost:8000/run \
+	-H 'Content-Type: application/json' \
+	-d '{"code":"cat(\"Hello from R\\n\")"}' \
+	| jq -r '.artifacts[]'
+```
+
+Notes:
+- The response includes `job_id`, `output_dir`, and `artifacts`.
+- Artifact files are written under the R engine work volume at `/work/output/<job_id>/` inside the container.
+- The execution environment exposes `INPUT_CSV`, `OUTPUT_DIR`, and `FUSEKI_SPARQL_ENDPOINT` to your script.
+
+### HASCOAPI Endpoints For R Script Execution
+
+For hascoapi-based applications, call HASCOAPI directly instead of calling the R engine container.
+
+1. Health check:
+
+```bash
+curl -s http://localhost:9000/hascoapi/api/r-analysis/engine/health | jq .
+```
+
+2. Execute R code (proxied by HASCOAPI to the R engine):
+
+```bash
+curl -s -X POST http://localhost:9000/hascoapi/api/r-analysis/engine/run \
+	-H 'Content-Type: application/json' \
+	-d '{
+		"jobId": "demo-job-002",
+		"inputCsvText": "student,score\nA,91\nB,72\nC,84",
+		"code": "d <- read.csv(Sys.getenv(\"INPUT_CSV\")); out <- Sys.getenv(\"OUTPUT_DIR\"); write.csv(d, file.path(out, \"scores.csv\"), row.names = FALSE); png(file.path(out, \"scores.png\"), 800, 500); barplot(d$score, names.arg=d$student, col=\"darkgreen\", main=\"Scores\"); dev.off(); cat(\"done\\n\")"
+	}' | jq .
+```
+
+3. Retrieve execution record:
+
+```bash
+curl -s http://localhost:9000/hascoapi/api/r-analysis/engine/jobs/demo-job-002 | jq .
+```
+
+4. List generated artifacts and download URLs:
+
+```bash
+curl -s http://localhost:9000/hascoapi/api/r-analysis/engine/jobs/demo-job-002/artifacts | jq .
+```
+
+5. Download a generated artifact (example):
+
+```bash
+curl -L "http://localhost:9000/hascoapi/api/r-analysis/engine/jobs/demo-job-002/artifacts/download/scores.png" -o scores.png
+```
+
+Configuration:
+- `R_ENGINE_URL` (default: `http://r-engine:8000`)
+- `R_ENGINE_TIMEOUT_SECONDS` (default: `300`)
+- `R_ENGINE_ARTIFACT_ROOT` (optional, needed for artifact download via HASCOAPI)
+
 

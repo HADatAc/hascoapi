@@ -10,7 +10,7 @@ import org.hascoapi.utils.URIUtils;
 public class DP2Plataforms {
 
     public static void setHeaders(Sheet sheet) {
-        String[] headers = { "hasURI", "rdfs:subClassOf", "rdfs:label", "vstoi:hasMaker", "rdfs:comment", "hasco:hasImage", "vstoi:hasWebDocumentation" };
+        String[] headers = { "hasURI", "rdfs:subClassOf", "rdfs:label", "hasco:hasMaker", "rdfs:comment", "hasco:hasImage", "vstoi:hasWebDocumentation" };
 
         Row row = sheet.createRow(0);
         for (int i = 0; i < headers.length; i++) {

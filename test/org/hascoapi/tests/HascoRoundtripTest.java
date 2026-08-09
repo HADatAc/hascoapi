@@ -73,7 +73,7 @@ public class HascoRoundtripTest {
 
             case DP2:
                 // Authoritative DP2 test workbook for PMSR
-                return new File("test/resources/dp2/DP2-PMSR.xlsx");
+                return new File("test/resources/dp2/DP2-PMSR-V2.xlsx");
 
             case WKF:
                 // Authoritative WKF test workbook for Weather Station Workflow
@@ -161,7 +161,7 @@ public class HascoRoundtripTest {
 
     private static final String TEMPLATE_GENERIC = "conf/template.generic.conf";
     private static final String REGENERATED_DSG_FILENAME = "DSG-STD-test-regenerated.xlsx";
-    private static final String REGENERATED_DP2_FILENAME = "DP2-PMSR-regenerated.xlsx";
+    private static final String REGENERATED_DP2_FILENAME = "DP2-PMSR-V2-regenerated.xlsx";
     private static final String REGENERATED_WKF_FILENAME = "WKF-PMSR-Simulators-regenerated.xlsx";
     private static final String REGENERATED_SDD_FILENAME = "SDD-health-regenerated.xlsx";
 

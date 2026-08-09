@@ -426,6 +426,13 @@ public class PlatformInstance extends VSTOIInstance {
         return GenericFind.findTotalByQuery(query);
     }        
 
+    public static List<PlatformInstance> findAll() {
+        String query =
+                "SELECT ?uri " +
+                " WHERE { ?uri hasco:hascoType vstoi:PlatformInstance . }";
+        return findManyByQuery(query);
+    }
+
 	private static List<PlatformInstance> findManyByQuery(String queryString) {
         String query = NameSpaces.getInstance().printSparqlNameSpaceList() + queryString;
 

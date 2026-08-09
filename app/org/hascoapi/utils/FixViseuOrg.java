@@ -7,7 +7,7 @@ import java.io.*;
 public class FixViseuOrg {
     public static void main(String[] args) {
         if (args.length != 1) {
-            System.err.println("Usage: java FixViseuOrg <DP2-PIAGET.xlsx>");
+            System.err.println("Usage: java FixViseuOrg <DP2-PIAGET-V2.xlsx>");
             System.exit(1);
         }
 

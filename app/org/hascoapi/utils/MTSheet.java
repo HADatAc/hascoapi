@@ -30,6 +30,7 @@ public class MTSheet {
         METADATA_SHEETS.put(Constants.MT_DP2, Arrays.asList(
                 "hasDependencies",
                 "Deployments",
+                "ComponentDeployments",
                 "Platforms",
                 "PlatformInstances",
                 "FieldsOfView",

@@ -7,8 +7,8 @@ import java.io.*;
 import java.util.*;
 
 /**
- * Enhances DP2-PIAGET.xlsx by:
- * 1. Following URI conventions from DP2-PMSR.xlsx (using namespaces instead of full URLs)
+ * Enhances DP2-PIAGET-V2.xlsx by:
+ * 1. Following URI conventions from DP2-PMSR-V2.xlsx (using namespaces instead of full URLs)
  * 2. Updating Deployments to match new URIs
  * 3. Using Organization URIs from KGR-FACULDADES-URI.xlsx
  */
@@ -22,7 +22,7 @@ public class EnhanceDP2Piaget {
 
     public static void main(String[] args) {
         if (args.length != 3) {
-            System.err.println("Usage: java EnhanceDP2Piaget <DP2-PMSR.xlsx> <KGR-FACULDADES-URI.xlsx> <DP2-PIAGET.xlsx>");
+            System.err.println("Usage: java EnhanceDP2Piaget <DP2-PMSR-V2.xlsx> <KGR-FACULDADES-URI.xlsx> <DP2-PIAGET-V2.xlsx>");
             System.exit(1);
         }
 
@@ -31,7 +31,7 @@ public class EnhanceDP2Piaget {
         String piaget = args[2];
 
         try {
-            System.out.println("Step 1: Reading DP2-PMSR.xlsx to understand URI patterns...");
+            System.out.println("Step 1: Reading DP2-PMSR-V2.xlsx to understand URI patterns...");
             analyzeUriPatterns(pmsr);
             
             // Set defaults if patterns weren't found
@@ -47,10 +47,10 @@ public class EnhanceDP2Piaget {
             System.out.println("\nStep 2: Reading KGR-FACULDADES-URI.xlsx for Organization URIs...");
             loadOrganizationUris(kgr);
 
-            System.out.println("\nStep 3: Updating DP2-PIAGET.xlsx...");
+            System.out.println("\nStep 3: Updating DP2-PIAGET-V2.xlsx...");
             updatePiagetFile(piaget);
 
-            System.out.println("\n✅ Successfully enhanced DP2-PIAGET.xlsx");
+            System.out.println("\n✅ Successfully enhanced DP2-PIAGET-V2.xlsx");
 
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());

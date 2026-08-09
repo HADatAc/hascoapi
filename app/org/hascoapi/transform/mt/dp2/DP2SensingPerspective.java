@@ -10,9 +10,21 @@ import org.hascoapi.utils.URIUtils;
 
 public class DP2SensingPerspective {
 
-    /*
     public static void setHeaders(Sheet sheet) {
-        String[] headers = { "hasURI", "a", "rdfs:label", "hasco:hasFieldOfView", "hasco:hasDeployment" };
+    String[] headers = {
+        "hasURI",
+        "a",
+        "vstoi:perspectiveOf",
+        "hasco:hasPerspectiveEntity",
+        "hasco:hasPerspectiveCharacteristic",
+        "vstoi:hasAccuracyPercentage",
+        "vstoi:hasAccuracyR2",
+        "vstoi:hasOutputResolution",
+        "vstoi:hasMaxResponseTimeValue",
+        "hasco:hasResponseTimeUnit",
+        "vstoi:hasLowRangeValue",
+        "vstoi:hasHighRangeValue"
+    };
         
         Row row = sheet.createRow(0);
         for (int i = 0; i < headers.length; i++) {
@@ -24,6 +36,7 @@ public class DP2SensingPerspective {
         }
     }
 
+    /*
     public static DP2GenHelper add(DP2GenHelper helper, SensingPerspective sensingPerspective) {
 
         if (sensingPerspective == null) {

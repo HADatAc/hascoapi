@@ -6,7 +6,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- * Enhances DP2-PIAGET.xlsx by:
+ * Enhances DP2-PIAGET-V2.xlsx by:
  * 1. Converting simple column names to DP2 standard format (hasURI, rdfs:label, etc.)
  * 2. Converting full URLs to namespace prefixes (pmsr:)
  * 3. Adding organization assignments from KGR-FACULDADES-URI.xlsx
@@ -17,7 +17,7 @@ public class EnhanceDP2PiagetV2 {
     
     public static void main(String[] args) {
         if (args.length != 2) {
-            System.err.println("Usage: java EnhanceDP2PiagetV2 <KGR-FACULDADES-URI.xlsx> <DP2-PIAGET.xlsx>");
+            System.err.println("Usage: java EnhanceDP2PiagetV2 <KGR-FACULDADES-URI.xlsx> <DP2-PIAGET-V2.xlsx>");
             System.exit(1);
         }
 
@@ -28,10 +28,10 @@ public class EnhanceDP2PiagetV2 {
             System.out.println("Step 1: Reading KGR-FACULDADES-URI.xlsx for Organization URIs...");
             loadOrganizationUris(kgr);
 
-            System.out.println("\nStep 2: Enhancing DP2-PIAGET.xlsx...");
+            System.out.println("\nStep 2: Enhancing DP2-PIAGET-V2.xlsx...");
             enhancePiagetFile(piaget);
 
-            System.out.println("\n✅ Successfully enhanced DP2-PIAGET.xlsx");
+            System.out.println("\n✅ Successfully enhanced DP2-PIAGET-V2.xlsx");
 
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());

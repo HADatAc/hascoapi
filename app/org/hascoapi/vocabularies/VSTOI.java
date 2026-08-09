@@ -45,6 +45,7 @@ public class VSTOI {
     public static final String CODEBOOK                     = VSTOI + "Codebook";
     public static final String CODEBOOK_SLOT                = VSTOI + "CodebookSlot";
     public static final String COMPONENT                    = VSTOI + "Component";
+    public static final String COMPONENT_DEPLOYMENT         = VSTOI + "ComponentDeployment";
     public static final String COMPONENT_STEM               = VSTOI + "ComponentStem";
     public static final String COMPONENT_INSTANCE           = VSTOI + "ComponentInstance";
     public static final String CONTAINER_SLOT               = VSTOI + "ContainerSlot";

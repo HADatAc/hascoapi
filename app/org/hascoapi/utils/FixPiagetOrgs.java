@@ -5,12 +5,12 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.*;
 
 /**
- * Fix Piaget organization assignments in DP2-PIAGET.xlsx using URIs from KGR-PEOPLE.xlsx
+ * Fix Piaget organization assignments in DP2-PIAGET-V2.xlsx using URIs from KGR-PEOPLE.xlsx
  */
 public class FixPiagetOrgs {
     public static void main(String[] args) {
         if (args.length != 1) {
-            System.err.println("Usage: java FixPiagetOrgs <DP2-PIAGET.xlsx>");
+            System.err.println("Usage: java FixPiagetOrgs <DP2-PIAGET-V2.xlsx>");
             System.exit(1);
         }
 

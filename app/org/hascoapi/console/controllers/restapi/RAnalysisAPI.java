@@ -31,6 +31,8 @@ import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -42,6 +44,273 @@ import javax.crypto.spec.SecretKeySpec;
 public class RAnalysisAPI extends Controller {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RAnalysisAPI.class);
+    private static final ConcurrentMap<String, ObjectNode> ENGINE_RUN_CACHE = new ConcurrentHashMap<>();
+    private static final int ENGINE_RUN_CACHE_MAX = 500;
+
+    public Result engineHealth(Http.Request request) {
+        String runId = generateRunId();
+        String engineBaseUrl = resolveEngineBaseUrl();
+        try {
+            Result authResult = validateAuthIfRequired(request, runId);
+            if (authResult != null) {
+                return authResult;
+            }
+
+            HttpResult engine = callREngine("GET", "/health", null, resolveEngineTimeoutSeconds(30));
+            if (!engine.is2xx()) {
+                ObjectNode details = Json.newObject();
+                details.put("runId", runId);
+                details.put("engineBaseUrl", engineBaseUrl);
+                details.put("engineEndpoint", engineBaseUrl + "/health");
+                details.put("status", engine.statusCode);
+                details.put("body", summarizeOutput(engine.body));
+                return status(502, errorResponse("r_engine_unavailable", "R engine health check failed", details));
+            }
+
+            ObjectNode body = Json.newObject();
+            body.put("runId", runId);
+            body.put("status", "ok");
+            body.set("engine", parseJsonOrText(engine.body));
+
+            ObjectNode success = Json.newObject();
+            success.put("isSuccessful", true);
+            success.set("body", body);
+            return ok(success);
+        } catch (Exception e) {
+            ObjectNode details = Json.newObject();
+            details.put("runId", runId);
+            details.put("engineBaseUrl", engineBaseUrl);
+            details.put("engineEndpoint", engineBaseUrl + "/health");
+            details.put("message", e.getMessage() == null ? "Unexpected server error" : e.getMessage());
+            return internalServerError(errorResponse("r_engine_unavailable", "Unable to reach R engine", details));
+        }
+    }
+
+    public Result runViaEngine(Http.Request request) {
+        String runId = generateRunId();
+        Instant startedAt = Instant.now();
+        String engineBaseUrl = resolveEngineBaseUrl();
+
+        try {
+            Result authResult = validateAuthIfRequired(request, runId);
+            if (authResult != null) {
+                return authResult;
+            }
+
+            JsonNode payload = request.body().asJson();
+            if (payload == null || payload.isNull()) {
+                ArrayNode details = Json.newArray();
+                details.add(errorDetail("body", "Expecting JSON body"));
+                return badRequest(errorResponse("invalid_payload", "Malformed or missing JSON payload", details));
+            }
+
+            String code = firstNonEmpty(
+                    text(payload, "code"),
+                    text(payload.path("tool"), "inlineCode")
+            );
+            if (code.isEmpty()) {
+                ArrayNode details = Json.newArray();
+                details.add(errorDetail("code", "Required non-empty R code string"));
+                return badRequest(errorResponse("invalid_payload", "Payload validation failed", details));
+            }
+
+            String requestedJobId = firstNonEmpty(text(payload, "jobId"), text(payload, "job_id"));
+            String inputCsvText = firstNonEmpty(text(payload, "inputCsvText"), text(payload, "input_csv_text"));
+            String inputCsvBase64 = firstNonEmpty(text(payload, "inputCsvBase64"), text(payload, "input_csv_base64"));
+
+            ObjectNode enginePayload = Json.newObject();
+            enginePayload.put("code", code);
+            if (!requestedJobId.isEmpty()) {
+                enginePayload.put("job_id", requestedJobId);
+            }
+            if (!inputCsvText.isEmpty()) {
+                enginePayload.put("input_csv_text", inputCsvText);
+            }
+            if (!inputCsvBase64.isEmpty()) {
+                enginePayload.put("input_csv_base64", inputCsvBase64);
+            }
+
+            int timeoutSeconds = resolveEngineTimeoutSeconds(resolveTimeoutSeconds(payload));
+            HttpResult engine = callREngine("POST", "/run", enginePayload, timeoutSeconds);
+            if (!engine.is2xx()) {
+                ObjectNode details = Json.newObject();
+                details.put("runId", runId);
+                details.put("engineBaseUrl", engineBaseUrl);
+                details.put("engineEndpoint", engineBaseUrl + "/run");
+                details.put("status", engine.statusCode);
+                details.put("body", summarizeOutput(engine.body));
+                return status(502, errorResponse("r_engine_execution_failed", "R engine rejected execution request", details));
+            }
+
+            JsonNode engineBodyNode = parseJsonOrText(engine.body);
+            String jobId = text(engineBodyNode, "job_id");
+            if (jobId.isEmpty()) {
+                jobId = requestedJobId.isEmpty() ? runId : requestedJobId;
+            }
+
+            ObjectNode record = Json.newObject();
+            record.put("runId", runId);
+            record.put("jobId", jobId);
+            record.put("startedAt", startedAt.toString());
+            record.put("finishedAt", Instant.now().toString());
+            record.put("status", text(engineBodyNode, "ok").equalsIgnoreCase("true") || engineBodyNode.path("ok").asBoolean(false) ? "completed" : "failed");
+            record.set("engineResponse", engineBodyNode);
+
+            cacheEngineRun(jobId, record);
+
+            ObjectNode body = Json.newObject();
+            body.put("runId", runId);
+            body.put("jobId", jobId);
+            body.put("status", record.path("status").asText("completed"));
+            body.set("engine", engineBodyNode);
+            body.set("artifacts", buildArtifactList(jobId, engineBodyNode.path("artifacts")));
+
+            ObjectNode success = Json.newObject();
+            success.put("isSuccessful", true);
+            success.set("body", body);
+            return ok(success);
+
+        } catch (Exception e) {
+            ObjectNode details = Json.newObject();
+            details.put("runId", runId);
+            details.put("engineBaseUrl", engineBaseUrl);
+            details.put("engineEndpoint", engineBaseUrl + "/run");
+            details.put("exception", e.getClass().getSimpleName());
+            details.put("message", e.getMessage() == null ? "Unexpected server error" : e.getMessage());
+            if (e.getCause() != null) {
+                details.put("causeException", e.getCause().getClass().getSimpleName());
+                details.put("causeMessage", e.getCause().getMessage() == null ? "" : e.getCause().getMessage());
+            }
+            return internalServerError(errorResponse("r_engine_execution_failed", "Unexpected runtime failure", details));
+        }
+    }
+
+    public Result getEngineRun(String jobId, Http.Request request) {
+        String runId = generateRunId();
+        try {
+            Result authResult = validateAuthIfRequired(request, runId);
+            if (authResult != null) {
+                return authResult;
+            }
+
+            ObjectNode record = ENGINE_RUN_CACHE.get(jobId);
+            if (record == null) {
+                ObjectNode details = Json.newObject();
+                details.put("runId", runId);
+                details.put("jobId", jobId);
+                return notFound(errorResponse("job_not_found", "No R execution record found for jobId", details));
+            }
+
+            ObjectNode success = Json.newObject();
+            success.put("isSuccessful", true);
+            success.set("body", record);
+            return ok(success);
+        } catch (Exception e) {
+            ObjectNode details = Json.newObject();
+            details.put("runId", runId);
+            details.put("jobId", jobId);
+            details.put("message", e.getMessage() == null ? "Unexpected server error" : e.getMessage());
+            return internalServerError(errorResponse("internal_server_error", "Failed to retrieve R execution record", details));
+        }
+    }
+
+    public Result getEngineArtifacts(String jobId, Http.Request request) {
+        String runId = generateRunId();
+        try {
+            Result authResult = validateAuthIfRequired(request, runId);
+            if (authResult != null) {
+                return authResult;
+            }
+
+            ObjectNode record = ENGINE_RUN_CACHE.get(jobId);
+            if (record == null) {
+                ObjectNode details = Json.newObject();
+                details.put("runId", runId);
+                details.put("jobId", jobId);
+                return notFound(errorResponse("job_not_found", "No R execution record found for jobId", details));
+            }
+
+            JsonNode artifactsNode = record.path("engineResponse").path("artifacts");
+            ObjectNode body = Json.newObject();
+            body.put("jobId", jobId);
+            body.set("artifacts", buildArtifactList(jobId, artifactsNode));
+
+            ObjectNode success = Json.newObject();
+            success.put("isSuccessful", true);
+            success.set("body", body);
+            return ok(success);
+        } catch (Exception e) {
+            ObjectNode details = Json.newObject();
+            details.put("runId", runId);
+            details.put("jobId", jobId);
+            details.put("message", e.getMessage() == null ? "Unexpected server error" : e.getMessage());
+            return internalServerError(errorResponse("internal_server_error", "Failed to retrieve R artifacts", details));
+        }
+    }
+
+    public Result downloadEngineArtifact(String jobId, String artifactPath, Http.Request request) {
+        String runId = generateRunId();
+        try {
+            Result authResult = validateAuthIfRequired(request, runId);
+            if (authResult != null) {
+                return authResult;
+            }
+
+            String cleanArtifactPath = sanitizeArtifactPath(artifactPath);
+            if (cleanArtifactPath.isEmpty()) {
+                ArrayNode details = Json.newArray();
+                details.add(errorDetail("artifactPath", "Invalid artifact path"));
+                return badRequest(errorResponse("invalid_payload", "Artifact path is invalid", details));
+            }
+
+            ObjectNode record = ENGINE_RUN_CACHE.get(jobId);
+            if (record == null) {
+                ObjectNode details = Json.newObject();
+                details.put("runId", runId);
+                details.put("jobId", jobId);
+                return notFound(errorResponse("job_not_found", "No R execution record found for jobId", details));
+            }
+
+            if (!artifactExistsInRecord(record, cleanArtifactPath)) {
+                ObjectNode details = Json.newObject();
+                details.put("runId", runId);
+                details.put("jobId", jobId);
+                details.put("artifactPath", cleanArtifactPath);
+                return notFound(errorResponse("artifact_not_found", "Artifact is not registered for this job", details));
+            }
+
+            Path root = resolveEngineArtifactRoot();
+            if (root == null) {
+                ObjectNode details = Json.newObject();
+                details.put("runId", runId);
+                details.put("jobId", jobId);
+                return badRequest(errorResponse("artifact_root_not_configured", "Artifact root is not configured. Set hascoapi.r_engine.artifact_root or R_ENGINE_ARTIFACT_ROOT.", details));
+            }
+
+            Path resolved = root.resolve(jobId).resolve(cleanArtifactPath).normalize();
+            Path allowedRoot = root.resolve(jobId).normalize();
+            if (!resolved.startsWith(allowedRoot) || !Files.exists(resolved) || Files.isDirectory(resolved)) {
+                ObjectNode details = Json.newObject();
+                details.put("runId", runId);
+                details.put("jobId", jobId);
+                details.put("artifactPath", cleanArtifactPath);
+                return notFound(errorResponse("artifact_not_found", "Artifact file does not exist", details));
+            }
+
+            String contentType = Files.probeContentType(resolved);
+            if (contentType == null || contentType.isEmpty()) {
+                contentType = "application/octet-stream";
+            }
+            return ok(Files.newInputStream(resolved)).as(contentType);
+
+        } catch (Exception e) {
+            ObjectNode details = Json.newObject();
+            details.put("runId", runId);
+            details.put("jobId", jobId);
+            details.put("message", e.getMessage() == null ? "Unexpected server error" : e.getMessage());
+            return internalServerError(errorResponse("internal_server_error", "Failed to download artifact", details));
+        }
+    }
 
     public Result validate(Http.Request request) {
         String runId = generateRunId();
@@ -318,6 +587,191 @@ public class RAnalysisAPI extends Controller {
         }
     }
 
+    private static void cacheEngineRun(String jobId, ObjectNode record) {
+        if (jobId == null || jobId.trim().isEmpty() || record == null) {
+            return;
+        }
+
+        if (ENGINE_RUN_CACHE.size() >= ENGINE_RUN_CACHE_MAX) {
+            String firstKey = ENGINE_RUN_CACHE.keySet().stream().findFirst().orElse(null);
+            if (firstKey != null) {
+                ENGINE_RUN_CACHE.remove(firstKey);
+            }
+        }
+
+        ENGINE_RUN_CACHE.put(jobId, record);
+    }
+
+    private static boolean artifactExistsInRecord(ObjectNode record, String artifactPath) {
+        JsonNode artifacts = record.path("engineResponse").path("artifacts");
+        if (!artifacts.isArray()) {
+            return false;
+        }
+        for (JsonNode artifact : artifacts) {
+            if (artifact != null && artifact.isTextual() && artifact.asText("").trim().equals(artifactPath)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static String sanitizeArtifactPath(String artifactPath) {
+        if (artifactPath == null) {
+            return "";
+        }
+        String value = artifactPath.trim();
+        while (value.startsWith("/")) {
+            value = value.substring(1);
+        }
+        if (value.isEmpty() || value.contains("..") || value.contains("\\0")) {
+            return "";
+        }
+        return value;
+    }
+
+    private static Path resolveEngineArtifactRoot() {
+        String envRoot = System.getenv("R_ENGINE_ARTIFACT_ROOT");
+        if (envRoot != null && !envRoot.trim().isEmpty()) {
+            return Paths.get(envRoot.trim());
+        }
+
+        Config config = ConfigFactory.load();
+        if (config.hasPath("hascoapi.r_engine.artifact_root")) {
+            String confRoot = config.getString("hascoapi.r_engine.artifact_root");
+            if (confRoot != null && !confRoot.trim().isEmpty()) {
+                return Paths.get(confRoot.trim());
+            }
+        }
+        return null;
+    }
+
+    private static ArrayNode buildArtifactList(String jobId, JsonNode artifactsNode) {
+        ArrayNode artifacts = Json.newArray();
+        if (artifactsNode != null && artifactsNode.isArray()) {
+            for (JsonNode artifact : artifactsNode) {
+                if (artifact != null && artifact.isTextual()) {
+                    String artifactPath = artifact.asText("").trim();
+                    if (artifactPath.isEmpty()) {
+                        continue;
+                    }
+                    ObjectNode node = Json.newObject();
+                    node.put("path", artifactPath);
+                    node.put("downloadUrl", "/hascoapi/api/r-analysis/engine/jobs/" + jobId + "/artifacts/download/" + artifactPath);
+                    artifacts.add(node);
+                }
+            }
+        }
+        return artifacts;
+    }
+
+    private static int resolveEngineTimeoutSeconds(int fallback) {
+        int timeout = fallback;
+        String envTimeout = System.getenv("R_ENGINE_TIMEOUT_SECONDS");
+        if (envTimeout != null && !envTimeout.trim().isEmpty()) {
+            try {
+                timeout = Integer.parseInt(envTimeout.trim());
+            } catch (NumberFormatException ignored) {
+            }
+        }
+
+        Config config = ConfigFactory.load();
+        if (config.hasPath("hascoapi.r_engine.timeout_seconds")) {
+            timeout = config.getInt("hascoapi.r_engine.timeout_seconds");
+        }
+
+        if (timeout < 1) {
+            return 60;
+        }
+        if (timeout > 3600) {
+            return 3600;
+        }
+        return timeout;
+    }
+
+    private static String resolveEngineBaseUrl() {
+        String env = System.getenv("R_ENGINE_URL");
+        if (env != null && !env.trim().isEmpty()) {
+            return trimTrailingSlash(env.trim());
+        }
+
+        Config config = ConfigFactory.load();
+        if (config.hasPath("hascoapi.r_engine.base_url")) {
+            String conf = config.getString("hascoapi.r_engine.base_url");
+            if (conf != null && !conf.trim().isEmpty()) {
+                return trimTrailingSlash(conf.trim());
+            }
+        }
+
+        return "http://localhost:3031";
+    }
+
+    private static String trimTrailingSlash(String value) {
+        String v = value;
+        while (v.endsWith("/")) {
+            v = v.substring(0, v.length() - 1);
+        }
+        return v;
+    }
+
+    private static String firstNonEmpty(String... values) {
+        if (values == null) {
+            return "";
+        }
+        for (String value : values) {
+            if (value != null && !value.trim().isEmpty()) {
+                return value.trim();
+            }
+        }
+        return "";
+    }
+
+    private static JsonNode parseJsonOrText(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return Json.newObject();
+        }
+        try {
+            return Json.parse(value);
+        } catch (Exception ignored) {
+            ObjectNode node = Json.newObject();
+            node.put("raw", value);
+            return node;
+        }
+    }
+
+    private static HttpResult callREngine(String method, String path, JsonNode body, int timeoutSeconds) throws IOException, InterruptedException {
+        String endpoint = resolveEngineBaseUrl() + (path.startsWith("/") ? path : "/" + path);
+        HttpClient client = HttpClient.newBuilder()
+            .version(HttpClient.Version.HTTP_1_1)
+            .build();
+        HttpRequest.Builder builder = HttpRequest.newBuilder(URI.create(endpoint))
+                .timeout(java.time.Duration.ofSeconds(timeoutSeconds));
+
+        if ("GET".equalsIgnoreCase(method)) {
+            builder.GET();
+        } else {
+            String content = body == null ? "{}" : body.toString();
+            builder.header("Content-Type", "application/json");
+            builder.POST(HttpRequest.BodyPublishers.ofString(content, StandardCharsets.UTF_8));
+        }
+
+        HttpResponse<String> response = client.send(builder.build(), HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        return new HttpResult(response.statusCode(), response.body() == null ? "" : response.body());
+    }
+
+    protected static final class HttpResult {
+        private final int statusCode;
+        private final String body;
+
+        private HttpResult(int statusCode, String body) {
+            this.statusCode = statusCode;
+            this.body = body;
+        }
+
+        private boolean is2xx() {
+            return statusCode >= 200 && statusCode < 300;
+        }
+    }
+
     private static ObjectNode errorDetail(String field, String message) {
         ObjectNode node = Json.newObject();
         node.put("field", field);
@@ -428,7 +882,7 @@ public class RAnalysisAPI extends Controller {
             throws IOException, InterruptedException, ExecutionException, TimeoutException {
 
         JsonNode toolNode = payload.path("tool");
-        Path scriptPath = resolveScriptPath(toolNode, request);
+        Path scriptPath = resolveScriptPath(toolNode, request, runId);
 
         List<String> command = new ArrayList<>();
         String rscriptBin = System.getenv("R_SCRIPT_BIN");
@@ -505,7 +959,16 @@ public class RAnalysisAPI extends Controller {
         }
     }
 
-    private static Path resolveScriptPath(JsonNode toolNode, Http.Request request) throws IOException {
+    private static Path resolveScriptPath(JsonNode toolNode, Http.Request request, String runId) throws IOException {
+        String inlineCode = firstNonEmpty(
+                text(toolNode, "inlineCode"),
+                text(toolNode, "sourceCode")
+        );
+        if (!inlineCode.isEmpty()) {
+            String inlineName = firstNonEmpty(text(toolNode, "sourceFilename"), text(toolNode, "artifactFilename"));
+            return materializeInlineScript(inlineCode, inlineName, runId);
+        }
+
         String entrypoint = text(toolNode, "entrypoint");
         String artifactUri = text(toolNode, "artifactUri");
         String artifactFilename = text(toolNode, "artifactFilename");
@@ -548,6 +1011,35 @@ public class RAnalysisAPI extends Controller {
         }
 
         throw new IOException("Could not resolve R script from tool.entrypoint/artifactUri");
+    }
+
+    private static Path materializeInlineScript(String inlineCode, String sourceFilename, String runId) throws IOException {
+        String safeRunId = (runId == null || runId.trim().isEmpty()) ? generateRunId() : runId.trim();
+        String baseName = sourceFilename == null ? "script.R" : sourceFilename.trim();
+        if (baseName.isEmpty()) {
+            baseName = "script.R";
+        }
+
+        baseName = Paths.get(baseName).getFileName().toString();
+        if (!baseName.toLowerCase().endsWith(".r")) {
+            baseName = baseName + ".R";
+        }
+
+        Path sourceRoot = resolveEngineArtifactRoot();
+        if (sourceRoot == null) {
+            sourceRoot = Paths.get(System.getProperty("java.io.tmpdir"), "hascoapi-r-analysis");
+        }
+
+        Path runRoot = sourceRoot.resolve("source-code").resolve(safeRunId).normalize();
+        Files.createDirectories(runRoot);
+
+        Path scriptPath = runRoot.resolve(baseName).normalize();
+        if (!scriptPath.startsWith(runRoot)) {
+            throw new IOException("Invalid inline source filename");
+        }
+
+        Files.writeString(scriptPath, inlineCode, StandardCharsets.UTF_8);
+        return scriptPath;
     }
 
     private static Path downloadArtifact(String artifactUri, String artifactFilename, String authorizationHeader) throws IOException {

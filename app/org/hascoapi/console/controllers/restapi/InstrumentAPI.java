@@ -3,6 +3,8 @@ package org.hascoapi.console.controllers.restapi;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
@@ -10,22 +12,39 @@ import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 
 import org.hascoapi.Constants;
+import org.hascoapi.entity.pojo.Component;
+import org.hascoapi.entity.pojo.ComponentInstance;
+import org.hascoapi.entity.pojo.Deployment;
 import org.hascoapi.entity.fhir.Questionnaire;
 import org.hascoapi.entity.pojo.Instrument;
+import org.hascoapi.entity.pojo.InstrumentInstance;
+import org.hascoapi.entity.pojo.PlatformInstance;
 import org.hascoapi.entity.pojo.ContainerSlot;
 import org.hascoapi.transform.Renderings;
 import org.hascoapi.transform.InstrumentTraversal;
 import org.hascoapi.utils.ApiUtil;
+import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.HAScOMapper;
+import org.hascoapi.utils.NameSpaces;
+import org.hascoapi.utils.SPARQLUtils;
 import org.hascoapi.vocabularies.VSTOI;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.libs.Json;
+
+import org.apache.jena.query.QuerySolution;
+import org.apache.jena.query.ResultSetRewindable;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static org.hascoapi.Constants.TEST_INSTRUMENT_URI;
 import static org.hascoapi.Constants.TEST_INSTRUMENT_TOT_CONTAINER_SLOTS;
@@ -304,6 +323,491 @@ public class InstrumentAPI extends Controller {
             }
         }
         return ok(ApiUtil.createResponse("retrieveInstrumentContainerSlots() failed to retrieve containerSlots", false));
+    }
+
+    private String normalizeFilterUri(String uri) {
+        if (uri == null) {
+            return "";
+        }
+        String trimmed = uri.trim();
+        if (trimmed.isEmpty()) {
+            return "";
+        }
+        if (trimmed.startsWith("<") && trimmed.endsWith(">") && trimmed.length() > 2) {
+            trimmed = trimmed.substring(1, trimmed.length() - 1);
+        }
+        if (trimmed.contains("<") || trimmed.contains(">") || trimmed.contains("\"") || trimmed.contains(" ")) {
+            return "";
+        }
+        return trimmed;
+    }
+
+    private Set<String> parseScopeUris(Http.Request request) {
+        Set<String> scope = new LinkedHashSet<String>();
+
+        String organizationUri = normalizeFilterUri(request.getQueryString("organizationUri"));
+        if (!organizationUri.isEmpty()) {
+            scope.add(organizationUri);
+        }
+
+        String csvScope = request.getQueryString("organizationScopeUris");
+        if (csvScope != null && !csvScope.trim().isEmpty()) {
+            String[] values = csvScope.split(",");
+            for (String value : values) {
+                String normalized = normalizeFilterUri(value);
+                if (!normalized.isEmpty()) {
+                    scope.add(normalized);
+                }
+            }
+        }
+
+        String scoped = request.getQueryString("organizationScopeUri");
+        if (scoped != null && !scoped.trim().isEmpty()) {
+            String normalized = normalizeFilterUri(scoped);
+            if (!normalized.isEmpty()) {
+                scope.add(normalized);
+            }
+        }
+
+        return scope;
+    }
+
+    private ResultSetRewindable selectDeploymentsForScope(Set<String> organizationScopeUris, int pageSize, int offset) {
+        StringBuilder query = new StringBuilder();
+        query.append(NameSpaces.getInstance().printSparqlNameSpaceList());
+        query.append(" SELECT DISTINCT ?deployment ?instrumentInstance ?platformInstance ?org WHERE { ");
+        query.append("   ?deployment hasco:hascoType vstoi:Deployment . ");
+        query.append("   ?deployment vstoi:hasInstrumentInstance ?instrumentInstance . ");
+        query.append("   ?instrumentInstance vstoi:hasOwner ?org . ");
+        query.append("   OPTIONAL { ?deployment vstoi:hasPlatformInstance ?platformInstance . } ");
+
+        if (!organizationScopeUris.isEmpty()) {
+            query.append("   FILTER(?org IN (");
+            int i = 0;
+            for (String org : organizationScopeUris) {
+                if (i > 0) {
+                    query.append(", ");
+                }
+                query.append("<").append(org).append(">");
+                i += 1;
+            }
+            query.append(")) . ");
+        }
+
+        query.append(" } ORDER BY ?deployment ");
+        query.append(" LIMIT ").append(pageSize);
+        query.append(" OFFSET ").append(offset);
+
+        return SPARQLUtils.select(
+            CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY),
+            query.toString()
+        );
+    }
+
+    private String extractUriLocalName(String uri) {
+        if (uri == null || uri.trim().isEmpty()) {
+            return "";
+        }
+        String value = uri.trim();
+        int hash = value.lastIndexOf('#');
+        int slash = value.lastIndexOf('/');
+        int idx = Math.max(hash, slash);
+        if (idx >= 0 && idx + 1 < value.length()) {
+            return value.substring(idx + 1).trim();
+        }
+        return value;
+    }
+
+    private String deriveComponentRole(String componentTypeUri, Map<String, String> typeRoleCache) {
+        String normalizedTypeUri = normalizeFilterUri(componentTypeUri);
+        if (normalizedTypeUri.isEmpty()) {
+            return "";
+        }
+
+        if (typeRoleCache.containsKey(normalizedTypeUri)) {
+            return typeRoleCache.get(normalizedTypeUri);
+        }
+
+        String detectorTypeUri = VSTOI.VSTOI + "Detector";
+        String actuatorTypeUri = VSTOI.VSTOI + "Actuator";
+        String resolvedRole = "";
+
+        try {
+            String query = NameSpaces.getInstance().printSparqlNameSpaceList()
+                + " SELECT ?x WHERE { "
+                + "   <" + normalizedTypeUri + "> rdfs:subClassOf* <" + detectorTypeUri + "> . "
+                + "   BIND(<" + normalizedTypeUri + "> AS ?x) "
+                + " } LIMIT 1";
+            ResultSetRewindable rs = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY),
+                query
+            );
+            if (rs != null && rs.hasNext()) {
+                resolvedRole = "detector";
+            }
+        } catch (Exception ignored) {}
+
+        if (resolvedRole.isEmpty()) {
+            try {
+                String query = NameSpaces.getInstance().printSparqlNameSpaceList()
+                    + " SELECT ?x WHERE { "
+                    + "   <" + normalizedTypeUri + "> rdfs:subClassOf* <" + actuatorTypeUri + "> . "
+                    + "   BIND(<" + normalizedTypeUri + "> AS ?x) "
+                    + " } LIMIT 1";
+                ResultSetRewindable rs = SPARQLUtils.select(
+                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY),
+                    query
+                );
+                if (rs != null && rs.hasNext()) {
+                    resolvedRole = "actuator";
+                }
+            } catch (Exception ignored) {}
+        }
+
+        typeRoleCache.put(normalizedTypeUri, resolvedRole);
+        return resolvedRole;
+    }
+
+    private Map<String, List<String>> selectComponentInstancesByInstrumentLocal() {
+        Map<String, List<String>> byInstrumentLocal = new LinkedHashMap<String, List<String>>();
+
+        StringBuilder query = new StringBuilder();
+        query.append(NameSpaces.getInstance().printSparqlNameSpaceList());
+        query.append(" SELECT DISTINCT ?cpi WHERE { ");
+        query.append("   ?cpi hasco:hascoType vstoi:ComponentInstance . ");
+        query.append(" } ORDER BY ?cpi ");
+
+        ResultSetRewindable rs = SPARQLUtils.select(
+            CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY),
+            query.toString()
+        );
+
+        while (rs.hasNext()) {
+            QuerySolution soln = rs.next();
+            if (soln == null || soln.getResource("cpi") == null) {
+                continue;
+            }
+
+            String cpiUri = normalizeFilterUri(soln.getResource("cpi").getURI());
+            if (cpiUri.isEmpty()) {
+                continue;
+            }
+
+            String local = extractUriLocalName(cpiUri);
+            if (local.isEmpty() || !local.startsWith("CPI-")) {
+                continue;
+            }
+
+            // CPI local pattern expected: CPI-INIxxxx-COMyyyy
+            String remainder = local.substring(4);
+            int sep = remainder.indexOf("-");
+            if (sep <= 0) {
+                continue;
+            }
+
+            String instrumentLocal = remainder.substring(0, sep).trim();
+            if (instrumentLocal.isEmpty() || !instrumentLocal.startsWith("INI")) {
+                continue;
+            }
+
+            List<String> values = byInstrumentLocal.get(instrumentLocal);
+            if (values == null) {
+                values = new ArrayList<String>();
+                byInstrumentLocal.put(instrumentLocal, values);
+            }
+            values.add(cpiUri);
+        }
+
+        return byInstrumentLocal;
+    }
+
+    private String deriveComponentModelUriFromComponentInstanceUri(String componentInstanceUri) {
+        String normalized = normalizeFilterUri(componentInstanceUri);
+        if (normalized.isEmpty()) {
+            return "";
+        }
+
+        String local = extractUriLocalName(normalized);
+        if (local.isEmpty() || !local.startsWith("CPI-")) {
+            return "";
+        }
+
+        String remainder = local.substring(4);
+        int sep = remainder.indexOf("-");
+        if (sep <= 0 || sep + 1 >= remainder.length()) {
+            return "";
+        }
+
+        String componentLocal = remainder.substring(sep + 1).trim();
+        if (componentLocal.isEmpty() || !componentLocal.startsWith("COM")) {
+            return "";
+        }
+
+        int slash = normalized.lastIndexOf('/');
+        if (slash < 0) {
+            return "";
+        }
+
+        return normalized.substring(0, slash + 1) + componentLocal;
+    }
+
+    public Result findOrganizationScopedInstrumentPrefilter(Http.Request request) {
+        String studyUri = normalizeFilterUri(request.getQueryString("studyUri"));
+        String processUri = normalizeFilterUri(request.getQueryString("processUri"));
+        String organizationUri = normalizeFilterUri(request.getQueryString("organizationUri"));
+
+        int pageSize = 400;
+        int offset = 0;
+        try {
+            String pageSizeRaw = request.getQueryString("pageSize");
+            if (pageSizeRaw != null && !pageSizeRaw.trim().isEmpty()) {
+                pageSize = Math.max(1, Math.min(1000, Integer.parseInt(pageSizeRaw.trim())));
+            }
+        } catch (Exception ignored) {}
+        try {
+            String offsetRaw = request.getQueryString("offset");
+            if (offsetRaw != null && !offsetRaw.trim().isEmpty()) {
+                offset = Math.max(0, Integer.parseInt(offsetRaw.trim()));
+            }
+        } catch (Exception ignored) {}
+
+        Set<String> organizationScopeUris = parseScopeUris(request);
+        if (organizationScopeUris.isEmpty() && !organizationUri.isEmpty()) {
+            organizationScopeUris.add(organizationUri);
+        }
+
+        ObjectNode payload = Json.newObject();
+        payload.put("organizationUri", organizationUri);
+        payload.put("studyUri", studyUri);
+        payload.put("processUri", processUri);
+
+        ArrayNode scopeNode = Json.newArray();
+        for (String scopeUri : organizationScopeUris) {
+            scopeNode.add(scopeUri);
+        }
+        payload.set("organizationScopeUris", scopeNode);
+
+        ArrayNode instrumentsNode = Json.newArray();
+        payload.set("instruments", instrumentsNode);
+
+        if (organizationScopeUris.isEmpty()) {
+            ObjectNode response = Json.newObject();
+            response.put("ok", true);
+            response.put("generatedAt", java.time.Instant.now().toString());
+            response.put("count", 0);
+            response.set("payload", payload);
+            return ok(response);
+        }
+
+        try {
+            ResultSetRewindable results = selectDeploymentsForScope(organizationScopeUris, pageSize, offset);
+            Map<String, List<String>> componentInstancesByInstrumentLocal = selectComponentInstancesByInstrumentLocal();
+
+            Map<String, ObjectNode> byInstrument = new LinkedHashMap<String, ObjectNode>();
+            Map<String, Set<String>> componentSeen = new LinkedHashMap<String, Set<String>>();
+            Map<String, String> componentTypeRoleCache = new LinkedHashMap<String, String>();
+            Map<String, ComponentInstance> componentInstanceCache = new LinkedHashMap<String, ComponentInstance>();
+            Map<String, Component> componentModelCache = new LinkedHashMap<String, Component>();
+            int scopedDeployments = 0;
+            int scopedComponents = 0;
+
+            while (results.hasNext()) {
+                QuerySolution soln = results.next();
+                if (soln == null || soln.getResource("deployment") == null || soln.getResource("instrumentInstance") == null) {
+                    continue;
+                }
+
+                String instrumentInstanceUri = soln.getResource("instrumentInstance").getURI().trim();
+                String platformInstanceUri = soln.getResource("platformInstance") != null
+                    ? soln.getResource("platformInstance").getURI().trim()
+                    : "";
+
+                scopedDeployments += 1;
+
+                if (instrumentInstanceUri.isEmpty()) {
+                    continue;
+                }
+
+                InstrumentInstance instrumentInstance = InstrumentInstance.find(instrumentInstanceUri);
+                if (instrumentInstance == null) {
+                    continue;
+                }
+
+                String instrumentUri = normalizeFilterUri(instrumentInstance.getTypeUri());
+                if (instrumentUri.isEmpty()) {
+                    continue;
+                }
+
+                ObjectNode instrumentNode = byInstrument.get(instrumentUri);
+                if (instrumentNode == null) {
+                    instrumentNode = Json.newObject();
+                    instrumentNode.put("uri", instrumentUri);
+                    instrumentNode.put("hasURI", instrumentUri);
+
+                    Instrument instrument = Instrument.find(instrumentUri);
+                    if (instrument != null) {
+                        String label = instrument.getLabel() != null ? instrument.getLabel().trim() : "";
+                        String status = instrument.getHasStatus() != null ? instrument.getHasStatus().trim() : "";
+                        instrumentNode.put("label", label.isEmpty() ? instrumentUri : label);
+                        instrumentNode.put("hasStatus", status);
+                    } else {
+                        instrumentNode.put("label", instrumentUri);
+                        instrumentNode.put("hasStatus", "");
+                    }
+
+                    instrumentNode.set("instanceUris", Json.newArray());
+                    instrumentNode.set("platforms", Json.newArray());
+                    instrumentNode.set("components", Json.newArray());
+
+                    byInstrument.put(instrumentUri, instrumentNode);
+                    componentSeen.put(instrumentUri, new LinkedHashSet<String>());
+                }
+
+                ArrayNode instanceUrisNode = (ArrayNode) instrumentNode.get("instanceUris");
+                boolean hasInstance = false;
+                for (JsonNode instanceNode : instanceUrisNode) {
+                    if (instrumentInstanceUri.equals(instanceNode.asText())) {
+                        hasInstance = true;
+                        break;
+                    }
+                }
+                if (!hasInstance) {
+                    instanceUrisNode.add(instrumentInstanceUri);
+                }
+
+                if (!platformInstanceUri.isEmpty()) {
+                    ArrayNode platformsNode = (ArrayNode) instrumentNode.get("platforms");
+                    boolean hasPlatform = false;
+                    for (JsonNode existingPlatformNode : platformsNode) {
+                        if (platformInstanceUri.equals(existingPlatformNode.path("uri").asText())) {
+                            hasPlatform = true;
+                            break;
+                        }
+                    }
+
+                    if (!hasPlatform) {
+                        ObjectNode platformNode = Json.newObject();
+                        platformNode.put("uri", platformInstanceUri);
+
+                        PlatformInstance platformInstance = PlatformInstance.find(platformInstanceUri);
+                        String platformLabel = platformInstance != null && platformInstance.getLabel() != null
+                            ? platformInstance.getLabel().trim()
+                            : "";
+                        platformNode.put("label", platformLabel.isEmpty() ? platformInstanceUri : platformLabel);
+                        platformsNode.add(platformNode);
+                    }
+                }
+
+                String instrumentLocal = extractUriLocalName(instrumentInstanceUri);
+                List<String> componentUris = componentInstancesByInstrumentLocal.get(instrumentLocal);
+                if (componentUris == null) {
+                    continue;
+                }
+
+                for (String componentUriRaw : componentUris) {
+                    String componentUri = normalizeFilterUri(componentUriRaw);
+                    if (componentUri.isEmpty()) {
+                        continue;
+                    }
+
+                    Set<String> seenForInstrument = componentSeen.get(instrumentUri);
+                    if (seenForInstrument == null) {
+                        seenForInstrument = new LinkedHashSet<String>();
+                        componentSeen.put(instrumentUri, seenForInstrument);
+                    }
+                    if (seenForInstrument.contains(componentUri)) {
+                        continue;
+                    }
+                    seenForInstrument.add(componentUri);
+
+                    ComponentInstance componentInstance = componentInstanceCache.get(componentUri);
+                    if (componentInstance == null) {
+                        componentInstance = ComponentInstance.find(componentUri);
+                        componentInstanceCache.put(componentUri, componentInstance);
+                    }
+
+                    String componentLabel = componentUri;
+                    String componentStatus = "";
+                    String componentModelUri = deriveComponentModelUriFromComponentInstanceUri(componentUri);
+                    String componentModelLabel = "";
+                    String componentTypeUri = "";
+                    String componentTypeLabel = "";
+                    String componentRole = "";
+
+                    if (componentInstance != null) {
+                        if (componentInstance.getLabel() != null && !componentInstance.getLabel().trim().isEmpty()) {
+                            componentLabel = componentInstance.getLabel().trim();
+                        }
+                        if (componentInstance.getHasStatus() != null) {
+                            componentStatus = componentInstance.getHasStatus().trim();
+                        }
+                        if (componentModelUri.isEmpty()) {
+                            componentModelUri = normalizeFilterUri(componentInstance.getTypeUri());
+                        }
+                    }
+
+                    if (!componentModelUri.isEmpty()) {
+                        Component componentModel = componentModelCache.get(componentModelUri);
+                        if (!componentModelCache.containsKey(componentModelUri)) {
+                            componentModel = Component.find(componentModelUri);
+                            componentModelCache.put(componentModelUri, componentModel);
+                        }
+
+                        if (componentModel != null) {
+                            componentModelLabel = componentModel.getLabel() != null
+                                ? componentModel.getLabel().trim()
+                                : "";
+                            componentTypeUri = normalizeFilterUri(componentModel.getTypeUri());
+                        }
+                    }
+
+                    if (!componentTypeUri.isEmpty()) {
+                        componentTypeLabel = extractUriLocalName(componentTypeUri);
+                        componentRole = deriveComponentRole(componentTypeUri, componentTypeRoleCache);
+                    }
+
+                    ObjectNode componentNode = Json.newObject();
+                    componentNode.put("uri", componentUri);
+                    componentNode.put("hasURI", componentUri);
+                    componentNode.put("label", componentLabel);
+                    componentNode.put("hasStatus", componentStatus);
+                    componentNode.put("componentModelUri", componentModelUri);
+                    componentNode.put("componentModelLabel", componentModelLabel.isEmpty() ? componentModelUri : componentModelLabel);
+                    componentNode.put("componentTypeUri", componentTypeUri);
+                    componentNode.put("componentTypeLabel", componentTypeLabel);
+                    componentNode.put("componentRole", componentRole);
+                    ((ArrayNode) instrumentNode.get("components")).add(componentNode);
+                    scopedComponents += 1;
+                }
+            }
+
+            if (scopedDeployments > 0 && scopedComponents == 0) {
+                ObjectNode error = Json.newObject();
+                error.put("ok", false);
+                error.put("error", "Prefilter inconsistency: deployments found in scope but zero component instances resolved.");
+                error.put("deployments", scopedDeployments);
+                error.put("components", scopedComponents);
+                error.put("organizationUri", organizationUri);
+                return internalServerError(error);
+            }
+
+            for (Map.Entry<String, ObjectNode> entry : byInstrument.entrySet()) {
+                instrumentsNode.add(entry.getValue());
+            }
+
+            ObjectNode response = Json.newObject();
+            response.put("ok", true);
+            response.put("generatedAt", java.time.Instant.now().toString());
+            response.put("count", byInstrument.size());
+            response.set("payload", payload);
+            return ok(response);
+        }
+        catch (Exception e) {
+            ObjectNode error = Json.newObject();
+            error.put("ok", false);
+            error.put("error", e.getMessage() == null ? "Failed to build instrument prefilter" : e.getMessage());
+            return internalServerError(error);
+        }
     }
 
 }

@@ -184,6 +184,7 @@ public abstract class BaseAnnotator {
         // NOTE: hasDependencies is a FIELD in InfoSheet, NOT a sheet name
         List<String> keys = Arrays.asList(
                 "Deployments",
+            "ComponentDeployments",
                 "Platforms",
                 "InstrumentInstances",
                 "ComponentInstances",

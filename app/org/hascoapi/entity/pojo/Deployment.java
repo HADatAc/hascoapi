@@ -125,6 +125,8 @@ public class Deployment extends HADatAcThing {
     public void setDesignedAt(String designedAtString) {
         DateTimeFormatter formatterWithZone = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         DateTimeFormatter formatterWithoutZone = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
+        DateTimeFormatter formatterWithoutMillis = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss");
+        DateTimeFormatter formatterDateOnly = DateTimeFormat.forPattern("yyyy-MM-dd");
         DateTimeFormatter formatterISO = ISODateTimeFormat.dateTime();
         DateTime designedAtRaw;
         try {
@@ -133,7 +135,15 @@ public class Deployment extends HADatAcThing {
             try {
                 designedAtRaw = DateTime.parse(designedAtString, formatterWithoutZone);
             } catch (IllegalArgumentException ex) {
-                throw new IllegalArgumentException("Date-time string is not in a valid format: " + designedAtString, ex);
+                try {
+                    designedAtRaw = DateTime.parse(designedAtString, formatterWithoutMillis);
+                } catch (IllegalArgumentException exNoMillis) {
+                    try {
+                        designedAtRaw = formatterDateOnly.parseLocalDate(designedAtString).toDateTimeAtStartOfDay();
+                    } catch (IllegalArgumentException exDateOnly) {
+                        throw new IllegalArgumentException("Date-time string is not in a valid format: " + designedAtString, exDateOnly);
+                    }
+                }
             }
         }
         //System.out.println("setDesignedAtXsdWithMillis: " +  designedAtRaw.toString(formatterISO));
@@ -150,6 +160,8 @@ public class Deployment extends HADatAcThing {
     public void setStartedAt(String startedAtString) {
         DateTimeFormatter formatterWithZone = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         DateTimeFormatter formatterWithoutZone = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
+        DateTimeFormatter formatterWithoutMillis = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss");
+        DateTimeFormatter formatterDateOnly = DateTimeFormat.forPattern("yyyy-MM-dd");
         DateTimeFormatter formatterISO = ISODateTimeFormat.dateTime();
         DateTime startedAtRaw;
         try {
@@ -158,7 +170,15 @@ public class Deployment extends HADatAcThing {
             try {
                 startedAtRaw = DateTime.parse(startedAtString, formatterWithoutZone);
             } catch (IllegalArgumentException ex) {
-                throw new IllegalArgumentException("Date-time string is not in a valid format: " + startedAtString, ex);
+                try {
+                    startedAtRaw = DateTime.parse(startedAtString, formatterWithoutMillis);
+                } catch (IllegalArgumentException exNoMillis) {
+                    try {
+                        startedAtRaw = formatterDateOnly.parseLocalDate(startedAtString).toDateTimeAtStartOfDay();
+                    } catch (IllegalArgumentException exDateOnly) {
+                        throw new IllegalArgumentException("Date-time string is not in a valid format: " + startedAtString, exDateOnly);
+                    }
+                }
             }
         }
         this.startedAt = startedAtRaw.toString(formatterISO);
@@ -174,6 +194,8 @@ public class Deployment extends HADatAcThing {
     public void setEndedAt(String endedAtString) {
         DateTimeFormatter formatterWithZone = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         DateTimeFormatter formatterWithoutZone = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
+        DateTimeFormatter formatterWithoutMillis = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss");
+        DateTimeFormatter formatterDateOnly = DateTimeFormat.forPattern("yyyy-MM-dd");
         DateTimeFormatter formatterISO = ISODateTimeFormat.dateTime();
         DateTime endedAtRaw;
         try {
@@ -182,7 +204,15 @@ public class Deployment extends HADatAcThing {
             try {
                 endedAtRaw = DateTime.parse(endedAtString, formatterWithoutZone);
             } catch (IllegalArgumentException ex) {
-                throw new IllegalArgumentException("Date-time string is not in a valid format: " + endedAtString, ex);
+                try {
+                    endedAtRaw = DateTime.parse(endedAtString, formatterWithoutMillis);
+                } catch (IllegalArgumentException exNoMillis) {
+                    try {
+                        endedAtRaw = formatterDateOnly.parseLocalDate(endedAtString).toDateTimeAtStartOfDay();
+                    } catch (IllegalArgumentException exDateOnly) {
+                        throw new IllegalArgumentException("Date-time string is not in a valid format: " + endedAtString, exDateOnly);
+                    }
+                }
             }
         }
         this.endedAt = endedAtRaw.toString(formatterISO);
@@ -236,10 +266,11 @@ public class Deployment extends HADatAcThing {
         return componentInstances;
     }
     public void addComponentInstanceUri(String componentInstanceUri) {
-        if (componentInstanceUri != null) {
-            if (!componentInstanceUri.contains(componentInstanceUri)) {
-                this.componentInstanceUri.add(componentInstanceUri);
-            }
+        if (componentInstanceUri == null || componentInstanceUri.isEmpty()) {
+            return;
+        }
+        if (!this.componentInstanceUri.contains(componentInstanceUri)) {
+            this.componentInstanceUri.add(componentInstanceUri);
         }
     }
 

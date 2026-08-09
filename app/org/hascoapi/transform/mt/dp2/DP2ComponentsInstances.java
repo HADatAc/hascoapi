@@ -11,8 +11,7 @@ import org.hascoapi.utils.URIUtils;
 public class DP2ComponentsInstances {
 
     public static void setHeaders(Sheet sheet) {
-        // Fix: Remove vstoi:isInstrumentAttachment
-        String[] headers = { "hasURI", "a", "rdfs:label", "vstoi:hasSerialNumber" };
+        String[] headers = { "hasURI", "a", "hasco:hascoType", "rdfs:label", "vstoi:hasSerialNumber", "vstoi:isInstrumentAttachment" };
 
         Row row = sheet.createRow(0);
         for (int i = 0; i < headers.length; i++) {
@@ -50,13 +49,21 @@ public class DP2ComponentsInstances {
         Cell cell2 = newRow.createCell(1);
         cell2.setCellValue(componentInstance.getTypeUri() != null ? URIUtils.replaceNameSpaceEx(componentInstance.getTypeUri()) : "");
 
-        // "rdfs:label"
+        // "hasco:hascoType" fixed for component instances in DP2 v3
         Cell cell3 = newRow.createCell(2);
-        cell3.setCellValue(componentInstance.getLabel() != null ? URIUtils.replaceNameSpaceEx(componentInstance.getLabel()) : "");
+        cell3.setCellValue("hasco:ComponentInstance");
+
+        // "rdfs:label"
+        Cell cell4 = newRow.createCell(3);
+        cell4.setCellValue(componentInstance.getLabel() != null ? URIUtils.replaceNameSpaceEx(componentInstance.getLabel()) : "");
 
         // "vstoi:hasSerialNumber"
-        Cell cell4 = newRow.createCell(3);
-        cell4.setCellValue(componentInstance.getHasSerialNumber() != null ? componentInstance.getHasSerialNumber() : "");
+        Cell cell5 = newRow.createCell(4);
+        cell5.setCellValue(componentInstance.getHasSerialNumber() != null ? componentInstance.getHasSerialNumber() : "");
+
+        // "vstoi:isInstrumentAttachment" (not currently mapped in POJO)
+        Cell cell6 = newRow.createCell(5);
+        cell6.setCellValue("");
 
 
         return helper;

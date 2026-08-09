@@ -5,19 +5,19 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.*;
 
 /**
- * Compare DP2-PMSR.xlsx structure with DP2Gen output
+ * Compare DP2-PMSR-V2.xlsx structure with DP2Gen output
  */
 public class CompareDP2Structure {
     public static void main(String[] args) {
         if (args.length != 1) {
-            System.err.println("Usage: java CompareDP2Structure <DP2-PMSR.xlsx>");
+            System.err.println("Usage: java CompareDP2Structure <DP2-PMSR-V2.xlsx>");
             System.exit(1);
         }
 
         try (FileInputStream fis = new FileInputStream(args[0]);
              Workbook workbook = new XSSFWorkbook(fis)) {
 
-            System.out.println("DP2-PMSR.xlsx GOLDEN STANDARD STRUCTURE");
+            System.out.println("DP2-PMSR-V2.xlsx GOLDEN STANDARD STRUCTURE");
             System.out.println("========================================");
             System.out.println();
             System.out.println("Number of sheets: " + workbook.getNumberOfSheets());
