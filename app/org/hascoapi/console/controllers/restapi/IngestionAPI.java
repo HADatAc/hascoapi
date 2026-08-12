@@ -68,7 +68,9 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.nio.file.CopyOption;
 import java.nio.file.Files;
@@ -80,6 +82,7 @@ import javax.inject.Inject;
 public class IngestionAPI extends Controller {
 
     private final Config config;
+    private static final Set<String> ACTIVE_INGESTIONS = ConcurrentHashMap.newKeySet();
 
     @Inject
     public IngestionAPI(Config config) {
@@ -88,6 +91,49 @@ public class IngestionAPI extends Controller {
 
     public String templateFile() {
         return config.getString("hascoapi.templates.template_filename");
+    }
+
+    private static String ingestionKey(String elementType, DataFile dataFile) {
+        String type = (elementType == null) ? "" : elementType.trim().toLowerCase();
+        String uri = (dataFile == null || dataFile.getUri() == null) ? "" : dataFile.getUri().trim();
+        return type + "::" + uri;
+    }
+
+    /**
+     * Start a new ingestion log section without deleting previous failure history.
+     *
+     * Keeps only the tail of very large logs to avoid unbounded growth.
+     */
+    private void beginIngestionRunLog(DataFile dataFile, String elementType, String status) {
+        if (dataFile == null) {
+            return;
+        }
+
+        final int maxCharsToKeep = 24000;
+        String existing = dataFile.getLog();
+        if (existing == null) {
+            existing = "";
+        }
+
+        if (existing.length() > maxCharsToKeep) {
+            existing = existing.substring(existing.length() - maxCharsToKeep);
+            existing = "... previous log truncated ...\n" + existing;
+        }
+
+        String normalizedType = (elementType == null || elementType.trim().isEmpty())
+            ? "unknown"
+            : elementType.trim().toLowerCase();
+        String normalizedStatus = (status == null || status.trim().isEmpty())
+            ? "unknown"
+            : status.trim();
+
+        String marker = "\n\n=== Ingestion Run Start ["
+            + new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date())
+            + "] type=" + normalizedType
+            + " status=" + normalizedStatus
+            + " ===\n";
+
+        dataFile.setLog(existing + marker);
     }
 
     /**
@@ -136,6 +182,40 @@ public class IngestionAPI extends Controller {
         return value;
     }
 
+    private String normalizeOrganizationUriParam(String raw) {
+        if (raw == null) {
+            return "";
+        }
+
+        String value = raw.trim();
+        if (value.isEmpty()) {
+            return "";
+        }
+
+        int idx = value.toLowerCase().indexOf("organizationuri=");
+        if (idx >= 0) {
+            int start = idx + "organizationuri=".length();
+            int endAmp = value.indexOf('&', start);
+            value = (endAmp > start) ? value.substring(start, endAmp).trim() : value.substring(start).trim();
+        }
+
+        int qPos = value.indexOf('?');
+        if (qPos >= 0) {
+            value = value.substring(0, qPos).trim();
+        }
+
+        value = URIUtils.canonicalizePmsrUri(value);
+        if (value == null) {
+            return "";
+        }
+        value = value.trim();
+        if (!(value.startsWith("http://") || value.startsWith("https://"))) {
+            return "";
+        }
+
+        return value;
+    }
+
     public Result ingest(String status, String elementType, String elementUri, Http.Request request) {
         System.out.println(" ");
         System.out.println(" ");
@@ -164,6 +244,7 @@ public class IngestionAPI extends Controller {
         // WKF contract: manager email must be explicitly provided in ingest request.
         // Example: POST /hascoapi/api/ingest/DRAFT/wkf/{wkfUri}?manageremail=user@example.org
         String requestedManagerEmail = request.getQueryString("manageremail");
+        String requestedOrganizationUri = request.getQueryString("organizationuri");
         if ("wkf".equals(elementType)) {
             if (requestedManagerEmail == null || requestedManagerEmail.trim().isEmpty()) {
                 return ok(ApiUtil.createResponse("WKF ingestion rejected: missing required query parameter 'manageremail'.", false));
@@ -171,6 +252,15 @@ public class IngestionAPI extends Controller {
             requestedManagerEmail = normalizeManagerEmailParam(requestedManagerEmail);
             if (requestedManagerEmail.isEmpty() || !requestedManagerEmail.contains("@")) {
                 return ok(ApiUtil.createResponse("WKF ingestion rejected: invalid 'manageremail' value.", false));
+            }
+
+            if (requestedOrganizationUri != null && !requestedOrganizationUri.trim().isEmpty()) {
+                requestedOrganizationUri = normalizeOrganizationUriParam(requestedOrganizationUri);
+                if (requestedOrganizationUri.isEmpty()) {
+                    return ok(ApiUtil.createResponse("WKF ingestion rejected: invalid 'organizationuri' value.", false));
+                }
+            } else {
+                requestedOrganizationUri = "";
             }
         }
 
@@ -308,6 +398,10 @@ public class IngestionAPI extends Controller {
             // Enforce caller-provided manager email as source of truth for WKF ingestion.
             if (dataFile != null && requestedManagerEmail != null && !requestedManagerEmail.isEmpty()) {
                 dataFile.setHasSIRManagerEmail(requestedManagerEmail);
+                if (requestedOrganizationUri != null && !requestedOrganizationUri.isEmpty()) {
+                    dataFile.setIngestionOrganizationUri(requestedOrganizationUri);
+                    System.out.println("[INGESTION FIX] Set DataFile.hasIngestionOrganization from ingest request: " + requestedOrganizationUri);
+                }
                 dataFile.save();
                 System.out.println("[INGESTION FIX] Set DataFile.hasSIRManagerEmail from ingest request: " + requestedManagerEmail);
             }
@@ -562,16 +656,26 @@ public class IngestionAPI extends Controller {
 
         dataFile.setLastProcessTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
         dataFile.setFileStatus(DataFile.WORKING);
-        dataFile.getLogger().resetLog();
+        beginIngestionRunLog(dataFile, elementType, status);
         dataFile.save();
         System.out.println("IngestionAPI.ingest(): API has read DataFile from triplestore");
 
         // Copy file to correct ingestion directory (resources/{DFL...}/) for processing
         File filePerm = this.saveFileAsPermanent(fileToIngest, dataFile);
         if (filePerm != null) {
+            final String activeKey = ingestionKey(elementType, dataFile);
+            if (!ACTIVE_INGESTIONS.add(activeKey)) {
+                return ok(ApiUtil.createResponse("Ingestion already running for this element/data file. Please wait for current run to finish.", false));
+            }
+
             final DataFile finalDataFile = dataFile;
             CompletableFuture.runAsync(() -> {
                 IngestionWorker.ingest(finalDataFile, filePerm, templateFile(), status);
+            }).whenComplete((ignored, throwable) -> {
+                ACTIVE_INGESTIONS.remove(activeKey);
+                if (throwable != null) {
+                    System.out.println("[ERROR] IngestionAPI.ingest(): async ingestion failed for key " + activeKey + ": " + throwable.getMessage());
+                }
             });
             System.out.println("IngestionAPI.ingest(): API has just called IngestionWorker.ingest()");
         } else {
@@ -1754,7 +1858,7 @@ public class IngestionAPI extends Controller {
         // Set status in DataFile
         dataFile.setLastProcessTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
         dataFile.setFileStatus(DataFile.WORKING);
-        dataFile.getLogger().resetLog();
+        beginIngestionRunLog(dataFile, "dasoc", "WORKING");
         dataFile.save();
 
         // Run DASOC ingestion asynchronously

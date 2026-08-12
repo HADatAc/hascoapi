@@ -17,7 +17,6 @@ import org.hascoapi.entity.pojo.Organization;
 import org.hascoapi.entity.pojo.Person;
 import org.hascoapi.entity.pojo.Process;
 import org.hascoapi.entity.pojo.ProcessBasedStudy;
-import org.hascoapi.entity.pojo.ProcessStem;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.utils.SPARQLUtils;
@@ -168,6 +167,13 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
         putIfPresent(metadata, "hasLearningObjectives", stdMetadata.get("vstoi:hasLearningObjectives"));
         putIfPresent(metadata, "hasCriticalActions", stdMetadata.get("vstoi:hasCriticalActions"));
         putIfPresent(metadata, "hasDebriefingFocus", stdMetadata.get("vstoi:hasDebriefingFocus"));
+        putIfPresent(metadata, "hasStudyDescription", stdMetadata.get("hasStudyDescription"));
+
+        if ((metadata.get("specificAims") == null || metadata.get("specificAims").isEmpty())
+                && metadata.get("hasStudyDescription") != null
+                && !metadata.get("hasStudyDescription").trim().isEmpty()) {
+            metadata.put("specificAims", metadata.get("hasStudyDescription").trim());
+        }
     }
 
     private void putIfPresent(Map<String, String> map, String key, String value) {
@@ -309,6 +315,15 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
             }
             metadata.put("specificAims", aims);
             log.info("Auto-generated Specific Aims: {}", aims);
+        }
+
+        if (metadata.get("hasStudyDescription") == null || metadata.get("hasStudyDescription").isEmpty()) {
+            String comment = process.getComment();
+            if (comment != null && !comment.trim().isEmpty()) {
+                metadata.put("hasStudyDescription", comment.trim());
+            } else if (metadata.get("specificAims") != null && !metadata.get("specificAims").trim().isEmpty()) {
+                metadata.put("hasStudyDescription", metadata.get("specificAims").trim());
+            }
         }
 
         // Significance - default value
@@ -501,6 +516,26 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
         // 4.1 Resolve current user context for URI-based Study ownership fields
         UserContext userContext = resolveUserContext();
 
+        String ingestionOrganizationOverride = normalizedUri(dataFile.getIngestionOrganizationUri());
+        if (!ingestionOrganizationOverride.isEmpty()) {
+            if (!userContext.organizationUri.isEmpty() && !userContext.organizationUri.equals(ingestionOrganizationOverride)) {
+                log.warn("User affiliation URI ({}) overridden by ingestion request organization URI ({})", userContext.organizationUri, ingestionOrganizationOverride);
+            }
+            userContext.organizationUri = ingestionOrganizationOverride;
+            try {
+                Organization targetOrg = Organization.find(ingestionOrganizationOverride);
+                if (targetOrg != null) {
+                    if (targetOrg.getName() != null && !targetOrg.getName().trim().isEmpty()) {
+                        userContext.organizationDisplay = targetOrg.getName().trim();
+                    } else if (targetOrg.getLabel() != null && !targetOrg.getLabel().trim().isEmpty()) {
+                        userContext.organizationDisplay = targetOrg.getLabel().trim();
+                    }
+                }
+            } catch (Exception ignored) {
+                // Keep URI override even if organization label lookup fails.
+            }
+        }
+
         String stdPiUri = stdMetadata == null ? "" : stdMetadata.get("Principal Investigator");
         String stdInstitutionUri = stdMetadata == null ? "" : stdMetadata.get("Institution");
 
@@ -612,7 +647,14 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
         // Provenance
         row.put("hasco:hasDataFile", dataFile.getUri());
         row.put("vstoi:hasSIRManagerEmail", creatorEmail);
-        row.put("rdfs:comment", "ProcessBasedStudy auto-generated from workflow " + processUri);
+        String studyDescription = metadata.get("hasStudyDescription") != null
+            ? metadata.get("hasStudyDescription").trim()
+            : "";
+        if (!studyDescription.isEmpty()) {
+            row.put("rdfs:comment", studyDescription);
+        } else {
+            row.put("rdfs:comment", "ProcessBasedStudy auto-generated from workflow " + processUri);
+        }
 
         log.info("Created ProcessBasedStudy row: URI={}, hasProcess={}", studyUri, processUri);
         return row;
@@ -620,13 +662,13 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
 
     /**
      * Build study instance label as:
-     * [real user name]'s [ProcessStem rdfs:label] at [YYYY/MM/DD] [HH:MM]
+     * [Person Full Name]'s [Process Name] at [YYYY/MM/DD] [HH:MM]
      *
      * This method is strict by design and throws when any required label part
      * cannot be resolved exactly from source data.
      */
     private String buildStudyInstanceLabel(Process process, Map<String, String> metadata) throws Exception {
-        String processStemLabel = resolveProcessStemLabelStrict(process);
+        String processName = resolveProcessNameStrict(process);
         String[] startDateTimeParts = resolveLabelStartDateTimePartsStrict(metadata);
 
         String userDisplayName = "User";
@@ -648,30 +690,20 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
             }
         }
 
-        return userDisplayName + "'s " + processStemLabel + " at " + startDateTimeParts[0] + " " + startDateTimeParts[1];
+        return userDisplayName + "'s " + processName + " at " + startDateTimeParts[0] + " " + startDateTimeParts[1];
     }
 
-    private String resolveProcessStemLabelStrict(Process process) throws Exception {
+    private String resolveProcessNameStrict(Process process) throws Exception {
         if (process == null) {
             throw new Exception("Cannot compose ProcessBasedStudy rdfs:label: Process is null");
         }
 
-        String stemUri = normalizedUri(process.getWasDerivedFrom());
-        if (stemUri.isEmpty()) {
-            throw new Exception("Cannot compose ProcessBasedStudy rdfs:label: Process has no prov:wasDerivedFrom ProcessStem URI");
+        String processLabel = process.getLabel() == null ? "" : process.getLabel().trim();
+        if (processLabel.isEmpty()) {
+            throw new Exception("Cannot compose ProcessBasedStudy rdfs:label: Process rdfs:label is missing for " + process.getUri());
         }
 
-        ProcessStem processStem = ProcessStem.find(stemUri);
-        if (processStem == null) {
-            throw new Exception("Cannot compose ProcessBasedStudy rdfs:label: referenced ProcessStem not found: " + stemUri);
-        }
-
-        String stemLabel = processStem.getLabel() == null ? "" : processStem.getLabel().trim();
-        if (stemLabel.isEmpty()) {
-            throw new Exception("Cannot compose ProcessBasedStudy rdfs:label: ProcessStem rdfs:label is missing for " + stemUri);
-        }
-
-        return stemLabel;
+        return processLabel;
     }
 
     /**

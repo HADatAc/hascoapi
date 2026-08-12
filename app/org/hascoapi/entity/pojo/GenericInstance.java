@@ -1,7 +1,10 @@
 package org.hascoapi.entity.pojo;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
@@ -11,6 +14,7 @@ import org.apache.jena.rdf.model.StmtIterator;
 import org.hascoapi.utils.CollectionUtil;
 import org.hascoapi.utils.NameSpaces;
 import org.hascoapi.vocabularies.HASCO;
+import org.hascoapi.vocabularies.OWL;
 import org.hascoapi.utils.SPARQLUtils;
 import org.hascoapi.utils.URIUtils;
 import org.hascoapi.vocabularies.RDF;
@@ -18,6 +22,18 @@ import org.hascoapi.vocabularies.RDFS;
 import org.hascoapi.vocabularies.VSTOI;
 
 public class GenericInstance extends HADatAcThing implements Comparable<GenericInstance> {
+
+    private static final List<String> HASCO_TYPE_PRIORITY = Arrays.asList(
+            HASCO.COMPONENT_INSTANCE,
+            HASCO.INSTRUMENT_INSTANCE,
+            HASCO.PLATFORM_INSTANCE,
+            HASCO.REPOSITORY,
+            VSTOI.COMPONENT_INSTANCE,
+            VSTOI.INSTRUMENT_INSTANCE,
+            VSTOI.PLATFORM_INSTANCE,
+            VSTOI.SLOT_ELEMENT,
+            VSTOI.CONTAINER_SLOT
+    );
 
     public GenericInstance(String uri,
                            String typeUri,
@@ -94,6 +110,8 @@ public class GenericInstance extends HADatAcThing implements Comparable<GenericI
 			return null;
 		}
 		GenericInstance instance = null;
+        Set<String> rdfTypes = new HashSet<>();
+        Set<String> hascoTypes = new HashSet<>();
 		// Construct the SELECT query to retrieve named graphs
 		String queryString = "SELECT DISTINCT ?graph ?p ?o WHERE { GRAPH ?graph { <" + uri + "> ?p ?o } }";
 		ResultSet resultSet = SPARQLUtils.select(CollectionUtil.getCollectionPath(
@@ -124,9 +142,9 @@ public class GenericInstance extends HADatAcThing implements Comparable<GenericI
                 if (predicate.equals(RDFS.LABEL)) {
                     instance.setLabel(object);
                 } else if (predicate.equals(RDF.TYPE)) {
-                    instance.setTypeUri(object);
+                    rdfTypes.add(object);
                 } else if (predicate.equals(HASCO.HASCO_TYPE)) {
-                    instance.setHascoTypeUri(object);
+                    hascoTypes.add(object);
                 } else if (predicate.equals(RDFS.COMMENT)) {
                     instance.setComment(object);
                 } else if (predicate.equals(HASCO.HAS_IMAGE)) {
@@ -137,6 +155,16 @@ public class GenericInstance extends HADatAcThing implements Comparable<GenericI
             }
         }
 
+        String selectedTypeUri = selectPreferredType(rdfTypes);
+        if (selectedTypeUri != null && !selectedTypeUri.isEmpty()) {
+            instance.setTypeUri(selectedTypeUri);
+        }
+
+        String selectedHascoType = selectPreferredHascoType(hascoTypes, rdfTypes);
+        if (selectedHascoType != null && !selectedHascoType.isEmpty()) {
+            instance.setHascoTypeUri(selectedHascoType);
+        }
+
         instance.setUri(uri);
 
         instance.setNodeId(HADatAcThing.createUrlHash(uri));
@@ -144,6 +172,38 @@ public class GenericInstance extends HADatAcThing implements Comparable<GenericI
         //System.out.println("GenericInstance.find() instance's URI is [" + instance.getUri() + "] and type is [" + instance.getTypeUri() + "]");
 
         return instance;
+    }
+
+    private static String selectPreferredType(Set<String> rdfTypes) {
+        if (rdfTypes == null || rdfTypes.isEmpty()) {
+            return "";
+        }
+        if (rdfTypes.contains(OWL.CLASS)) {
+            return OWL.CLASS;
+        }
+        return rdfTypes.stream().sorted().findFirst().orElse("");
+    }
+
+    private static String selectPreferredHascoType(Set<String> hascoTypes, Set<String> rdfTypes) {
+        if (hascoTypes != null && !hascoTypes.isEmpty()) {
+            for (String preferred : HASCO_TYPE_PRIORITY) {
+                if (hascoTypes.contains(preferred)) {
+                    return preferred;
+                }
+            }
+            return hascoTypes.stream().sorted().findFirst().orElse("");
+        }
+
+        // Fallback when hasco:hascoType is missing: use rdf:type if it matches known task aliases.
+        if (rdfTypes != null) {
+            for (String preferred : HASCO_TYPE_PRIORITY) {
+                if (rdfTypes.contains(preferred)) {
+                    return preferred;
+                }
+            }
+        }
+
+        return "";
     }
 
     public static int getNumberGenericInstances(String requiredClass) {

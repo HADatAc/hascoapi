@@ -209,11 +209,6 @@ public class URIPage extends Controller {
             GenericInstance result = GenericInstance.find(uri);
 
             if (result == null) {
-                HADatAcThing fallbackResult = resolveWithoutGenericInstance(uri);
-                if (fallbackResult != null) {
-                    return fallbackResult;
-                }
-
                 System.out.println("NS size: " + NameSpaces.getInstance().getNamespacesByUri().size());
                 NameSpace ns = NameSpaces.getInstance().getNamespacesByUri().get(uri);
 
@@ -255,12 +250,22 @@ public class URIPage extends Controller {
                 finalResult = CodebookSlot.find(uri);
             } else if (hascoTypeUri.equals(VSTOI.COMPONENT)) {
                 finalResult = Component.find(uri);
+            } else if (hascoTypeUri.equals(HASCO.COMPONENT_INSTANCE)) {
+                finalResult = ComponentInstance.find(uri);
             } else if (hascoTypeUri.equals(VSTOI.COMPONENT_INSTANCE)) {
                 finalResult = ComponentInstance.find(uri);
             } else if (hascoTypeUri.equals(VSTOI.COMPONENT_STEM)) {
                 finalResult = ComponentStem.find(uri);
             } else if (hascoTypeUri.equals(VSTOI.CONTAINER_SLOT)) {
                 finalResult = ContainerSlot.find(uri);
+            } else if (hascoTypeUri.equals(VSTOI.SLOT_ELEMENT)) {
+                SlotElement slotElement = SlotOperations.findSlotElement(uri);
+                if (slotElement instanceof HADatAcThing) {
+                    finalResult = (HADatAcThing) slotElement;
+                } else {
+                    // Keep abstract SlotElement resolvable even when it has no concrete subtype materialized.
+                    finalResult = result;
+                }
             } else if (hascoTypeUri.equals(HASCO.DATA_ACQUISITION)) {
                 finalResult = DA.find(uri);
             } else if (hascoTypeUri.equals(HASCO.DATAFILE)) {
@@ -281,6 +286,8 @@ public class URIPage extends Controller {
                 finalResult = INS.find(uri);
             } else if (hascoTypeUri.equals(VSTOI.INSTRUMENT)) {
                 finalResult = Instrument.find(uri);
+            } else if (hascoTypeUri.equals(HASCO.INSTRUMENT_INSTANCE)) {
+                finalResult = InstrumentInstance.find(uri);
             } else if (hascoTypeUri.equals(VSTOI.INSTRUMENT_INSTANCE)) {
                 finalResult = InstrumentInstance.find(uri);
             } else if (hascoTypeUri.equals(HASCO.KGR)) {
@@ -295,6 +302,8 @@ public class URIPage extends Controller {
                 finalResult = Place.find(uri);
             } else if (hascoTypeUri.equals(VSTOI.PLATFORM)) {
                 finalResult = Platform.find(uri);
+            } else if (hascoTypeUri.equals(HASCO.PLATFORM_INSTANCE)) {
+                finalResult = PlatformInstance.find(uri);
             } else if (hascoTypeUri.equals(VSTOI.PLATFORM_INSTANCE)) {
                 finalResult = PlatformInstance.find(uri);
             } else if (hascoTypeUri.equals(HASCO.POSSIBLE_VALUE)) {
@@ -329,6 +338,8 @@ public class URIPage extends Controller {
                 finalResult = Stream.find(uri);
             } else if (hascoTypeUri.equals(HASCO.STREAM_TOPIC)) {
                 finalResult = StreamTopic.find(uri);
+            } else if (hascoTypeUri.equals(HASCO.REPOSITORY)) {
+                finalResult = RepositoryInstance.getInstance();
             } else if (hascoTypeUri.equals(HASCO.STUDY)) {
                 finalResult = Study.find(uri);
             } else if (hascoTypeUri.equals(HASCO.PROCESS_BASED_STUDY)) {
@@ -361,47 +372,6 @@ public class URIPage extends Controller {
         } catch (Exception e) {
             throw new RuntimeException("Failed to resolve URI from triplestore: " + uri, e);
         }
-    }
-
-    /**
-     * Fallback resolver for valid resources that are not indexed as GenericInstance.
-     *
-     * Some legacy resources (notably Person URIs with local name prefix "PER")
-     * can exist in the triplestore but not be returned by GenericInstance.find().
-     * In this case we attempt direct typed lookups before emitting warnings.
-     */
-    private static HADatAcThing resolveWithoutGenericInstance(String uri) {
-        if (uri == null || uri.isEmpty()) {
-            return null;
-        }
-
-        // Direct person fallback (e.g., .../PER178542237213557067).
-        if (looksLikePersonUri(uri)) {
-            Person person = Person.find(uri);
-            if (person != null) {
-                return person;
-            }
-        }
-
-        return null;
-    }
-
-    private static boolean looksLikePersonUri(String uri) {
-        String local = localName(uri);
-        return local.startsWith("PER") || local.startsWith("per");
-    }
-
-    private static String localName(String uri) {
-        if (uri == null || uri.isEmpty()) {
-            return "";
-        }
-        int hash = uri.lastIndexOf('#');
-        int slash = uri.lastIndexOf('/');
-        int idx = Math.max(hash, slash);
-        if (idx >= 0 && idx < uri.length() - 1) {
-            return uri.substring(idx + 1);
-        }
-        return uri;
     }
 
     private Result processResult(Object result, String typeResult, String uri) {

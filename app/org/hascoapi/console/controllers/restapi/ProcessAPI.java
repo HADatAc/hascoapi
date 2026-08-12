@@ -176,16 +176,16 @@ public class ProcessAPI extends Controller {
             }
             taskNode.set("hasSubtaskUris", subtaskUrisNode);
 
-            ArrayNode reqInstUrisNode = mapper.createArrayNode();
-            List<String> reqInstUris = task.getHasRequiredInstrumentUris();
-            if (reqInstUris != null) {
-                for (String reqUri : reqInstUris) {
+            ArrayNode componentInstanceUrisNode = mapper.createArrayNode();
+            List<String> componentInstanceUris = task.getUsesComponentInstanceUris();
+            if (componentInstanceUris != null) {
+                for (String reqUri : componentInstanceUris) {
                     if (reqUri != null && !reqUri.trim().isEmpty()) {
-                        reqInstUrisNode.add(reqUri);
+                        componentInstanceUrisNode.add(reqUri);
                     }
                 }
             }
-            taskNode.set("hasRequiredInstrumentUris", reqInstUrisNode);
+            taskNode.set("usesComponentInstanceUris", componentInstanceUrisNode);
 
             tasksArray.add(taskNode);
         }

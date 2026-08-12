@@ -60,6 +60,7 @@ public class VSTOI {
     public static final String REQUIRED_INSTRUMENT          = VSTOI + "RequiredInstrument";
     public static final String REQUIRED_COMPONENT           = VSTOI + "RequiredComponent";
     public static final String RESPONSE_OPTION              = VSTOI + "ResponseOption";
+    public static final String SLOT_ELEMENT                 = VSTOI + "SlotElement";
     public static final String TABLE                        = VSTOI + "Table";
     public static final String TASK                         = VSTOI + "Task";
     public static final String TEMPORAL_DEPENDENCY          = VSTOI + "TemporalDependency";
@@ -122,6 +123,7 @@ public class VSTOI {
     public static final String IS_RELATED_TO_TASK           = VSTOI + "isRelatedToTask";
     public static final String OF_CODEBOOK                  = VSTOI + "ofCodebook";
     public static final String USES_COMPONENT               = VSTOI + "usesComponent";
+    public static final String USES_COMPONENT_INSTANCE      = VSTOI + "usesComponentInstance";
     public static final String USES_INSTRUMENT              = VSTOI + "usesInstrument";
 
     /*
@@ -163,6 +165,8 @@ public class VSTOI {
 
      public static final String ABSTRACT_TASK               = VSTOI + "AbstractTask";
      public static final String APPLICATION_TASK            = VSTOI + "ApplicationTask";
+    public static final String AUTOMATED_TASK              = VSTOI + "AutomatedTask";
+    public static final String INTERACTION_TASK            = VSTOI + "InteractionTask";
      public static final String INTERACTIVE_TASK            = VSTOI + "InteractiveTask";
      public static final String USER_TASK                   = VSTOI + "UserTask";
 

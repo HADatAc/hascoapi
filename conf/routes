@@ -217,7 +217,7 @@ POST    /hascoapi/api/analyticaltool/register                                   
 POST    /hascoapi/api/analyticaltool/link/:processUri/:toolUri                      org.hascoapi.console.controllers.restapi.AnalyticalToolAPI.linkProcess(processUri: String, toolUri: String)
 POST    /hascoapi/api/analyticaltool/unlink/:processUri/:toolUri                    org.hascoapi.console.controllers.restapi.AnalyticalToolAPI.unlinkProcess(processUri: String, toolUri: String)
 
-POST    /hascoapi/api/task/instruments                                              org.hascoapi.console.controllers.restapi.TaskAPI.setRequiredInstruments(request: play.mvc.Http.Request)
+POST    /hascoapi/api/task/componentinstances                                       org.hascoapi.console.controllers.restapi.TaskAPI.setUsesComponentInstances(request: play.mvc.Http.Request)
 POST    /hascoapi/api/task/deletewithtasks/:taskUri                                 org.hascoapi.console.controllers.restapi.TaskAPI.deleteWithTasks(taskUri: String)
 
 POST    /hascoapi/api/project/member                                                org.hascoapi.console.controllers.restapi.ProjectAPI.setMembers(request: play.mvc.Http.Request)

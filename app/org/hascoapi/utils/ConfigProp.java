@@ -64,7 +64,51 @@ public class ConfigProp {
     }
     public static String getKbPrefix() {
         //return RepositoryInstance.getInstance().getHasDefaultNamespacePrefix() + "-kb:";
-        return RepositoryInstance.getInstance().getHasDefaultNamespacePrefix() + ":";
+        String prefix = null;
+        try {
+            prefix = RepositoryInstance.getInstance().getHasDefaultNamespacePrefix();
+        } catch (Exception ignored) {
+            prefix = null;
+        }
+
+        prefix = sanitizePrefix(prefix);
+        if (prefix == null) {
+            // Fallback to configured namespace abbreviation when repository metadata
+            // is not initialized yet during ingestion bootstrap.
+            try {
+                prefix = sanitizePrefix(ConfigFactory.load().getString("hascoapi.namespace.abbreviation"));
+            } catch (Exception ignored) {
+                prefix = null;
+            }
+        }
+
+        if (prefix == null) {
+            // Last-resort stable default for PMSR deployments.
+            prefix = "pmsr";
+        }
+
+        return prefix + ":";
+    }
+
+    private static String sanitizePrefix(String prefix) {
+        if (prefix == null) {
+            return null;
+        }
+
+        String normalized = prefix.trim();
+        if (normalized.isEmpty()) {
+            return null;
+        }
+
+        if (normalized.endsWith(":")) {
+            normalized = normalized.substring(0, normalized.length() - 1).trim();
+        }
+
+        if (normalized.isEmpty() || normalized.equalsIgnoreCase("null")) {
+            return null;
+        }
+
+        return normalized;
     }
 
 	public static String getTemplateFileName() {

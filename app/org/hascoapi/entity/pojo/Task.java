@@ -59,8 +59,8 @@ public class Task extends HADatAcThing implements Comparable<Task> {
     @PropertyField(uri = "vstoi:hasTemporalDependency")
     private String hasTemporalDependency;
 
-    @PropertyField(uri="vstoi:hasRequiredInstrument", valueType=PropertyValueType.URI)
-    private List<String> hasRequiredInstrumentUris = new ArrayList<String>();
+    @PropertyField(uri="vstoi:usesComponentInstance", valueType=PropertyValueType.URI)
+    private List<String> usesComponentInstanceUris = new ArrayList<String>();
 
     @PropertyField(uri="vstoi:hasSubtask", valueType=PropertyValueType.URI)
     private List<String> hasSubtaskUris = new ArrayList<String>();
@@ -156,25 +156,25 @@ public class Task extends HADatAcThing implements Comparable<Task> {
         this.hasTemporalDependency = hasTemporalDependency;
     }
 
-    public List<String> getHasRequiredInstrumentUris() {
-        return hasRequiredInstrumentUris;
+    public List<String> getUsesComponentInstanceUris() {
+        return usesComponentInstanceUris;
     }
 
-    public void setHasRequiredInstrumentUris(List<String> hasRequiredInstrumentUris) {
-        if (hasRequiredInstrumentUris == null) {
-            this.hasRequiredInstrumentUris = new ArrayList<String>();
+    public void setUsesComponentInstanceUris(List<String> usesComponentInstanceUris) {
+        if (usesComponentInstanceUris == null) {
+            this.usesComponentInstanceUris = new ArrayList<String>();
         } else {
-            this.hasRequiredInstrumentUris = hasRequiredInstrumentUris;
+            this.usesComponentInstanceUris = usesComponentInstanceUris;
         }
     }
 
-    public void addHasRequiredInstrumentUri(String hasRequiredInstrumentUri) {
-        String cleanUri = normalizeRelatedUri(hasRequiredInstrumentUri);
+    public void addUsesComponentInstanceUri(String usesComponentInstanceUri) {
+        String cleanUri = normalizeRelatedUri(usesComponentInstanceUri);
         if (cleanUri.isEmpty()) {
             return;
         }
-        if (!this.hasRequiredInstrumentUris.contains(cleanUri)) {
-            this.hasRequiredInstrumentUris.add(cleanUri);
+        if (!this.usesComponentInstanceUris.contains(cleanUri)) {
+            this.usesComponentInstanceUris.add(cleanUri);
         }
     }
 
@@ -219,14 +219,14 @@ public class Task extends HADatAcThing implements Comparable<Task> {
 
     public List<RequiredInstrument> getRequiredInstrument() {
         List<RequiredInstrument> resp = new ArrayList<RequiredInstrument>();
-        if (hasRequiredInstrumentUris == null || hasRequiredInstrumentUris.size() <= 0) {
+        if (usesComponentInstanceUris == null || usesComponentInstanceUris.size() <= 0) {
             return resp;
         }
 
         // Avoid repeated lookups by expanding separators + deduplicating first.
         LinkedHashSet<String> uniqueUris = new LinkedHashSet<String>();
-        for (String hasRequiredInstrumentUri : hasRequiredInstrumentUris) {
-            List<String> expanded = splitAndNormalizeUriValues(hasRequiredInstrumentUri);
+        for (String usesComponentInstanceUri : usesComponentInstanceUris) {
+            List<String> expanded = splitAndNormalizeUriValues(usesComponentInstanceUri);
             for (String uri : expanded) {
                 uniqueUris.add(uri);
             }
@@ -268,6 +268,19 @@ public class Task extends HADatAcThing implements Comparable<Task> {
 
     public List<String> getHasSubtaskUris() {
         return this.hasSubtaskUris;
+    }
+
+    // Legacy aliases maintained to avoid breaking older callers at compile-time.
+    public List<String> getHasRequiredInstrumentUris() {
+        return getUsesComponentInstanceUris();
+    }
+
+    public void setHasRequiredInstrumentUris(List<String> hasRequiredInstrumentUris) {
+        setUsesComponentInstanceUris(hasRequiredInstrumentUris);
+    }
+
+    public void addHasRequiredInstrumentUri(String hasRequiredInstrumentUri) {
+        addUsesComponentInstanceUri(hasRequiredInstrumentUri);
     }
 
     public String getHasIterationConstraint() {
@@ -438,10 +451,10 @@ public class Task extends HADatAcThing implements Comparable<Task> {
                     task.setHasSupertaskUri(object);
                 } else if (predicate.equals(VSTOI.HAS_TEMPORAL_DEPENDENCY)) {
                     task.setHasTemporalDependency(object);
-                } else if (predicate.equals(VSTOI.HAS_REQUIRED_INSTRUMENT)) {
+                } else if (predicate.equals(VSTOI.USES_COMPONENT_INSTANCE)) {
                     List<String> uris = splitAndNormalizeUriValues(object);
                     for (String instrumentUri : uris) {
-                        task.addHasRequiredInstrumentUri(instrumentUri);
+                        task.addUsesComponentInstanceUri(instrumentUri);
                     }
                 } else if (predicate.equals(VSTOI.HAS_SUBTASK)) {
                     List<String> uris = splitAndNormalizeUriValues(object);

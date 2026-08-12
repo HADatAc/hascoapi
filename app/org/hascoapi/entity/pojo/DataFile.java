@@ -74,6 +74,9 @@ public class DataFile extends HADatAcThing implements Cloneable {
     @PropertyField(uri = "vstoi:hasSIRManagerEmail")
     private String hasSIRManagerEmail = "";
 
+    @PropertyField(uri = "hasco:hasIngestionOrganization")
+    private String ingestionOrganizationUri = "";
+
     @PropertyField(uri = "hasco:hasViewerEmail")
     private List<String> viewerEmails;
 
@@ -303,6 +306,13 @@ public class DataFile extends HADatAcThing implements Cloneable {
     }
     public void setHasSIRManagerEmail(String hasSIRManagerEmail) {
         this.hasSIRManagerEmail = hasSIRManagerEmail;
+    }
+
+    public String getIngestionOrganizationUri() {
+        return ingestionOrganizationUri;
+    }
+    public void setIngestionOrganizationUri(String ingestionOrganizationUri) {
+        this.ingestionOrganizationUri = ingestionOrganizationUri;
     }
 
     public List<String> getViewerEmails() {
@@ -598,6 +608,8 @@ public class DataFile extends HADatAcThing implements Cloneable {
                 dataFile.setFileStatus(str);
             } else if (statement.getPredicate().getURI().equals(VSTOI.HAS_SIR_MANAGER_EMAIL)) {
                 dataFile.setHasSIRManagerEmail(str);
+            } else if (statement.getPredicate().getURI().equals("http://hadatac.org/ont/hasco/hasIngestionOrganization")) {
+                dataFile.setIngestionOrganizationUri(str);
             } else if (statement.getPredicate().getURI().equals(HASCO.HAS_VIEWER_EMAIL)) {
                 List<String> viewerList = dataFile.getViewerEmails();
                 if (!viewerList.contains(str)) {

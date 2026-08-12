@@ -266,7 +266,7 @@ public class WKFWorkflowApiTest {
             assertTrue(task.has("uri"));
             assertTrue(task.has("hasSupertaskUri"));
             assertTrue(task.has("hasSubtaskUris"));
-            assertTrue(task.has("hasRequiredInstrumentUris"));
+            assertTrue(task.has("usesComponentInstanceUris"));
         }
     }
 
@@ -398,7 +398,7 @@ public class WKFWorkflowApiTest {
         d.setLabel("D");
         d.setHasStatus(VSTOI.CURRENT);
         d.setHasSupertaskUri(cUri);
-        d.setHasRequiredInstrumentUris(Collections.singletonList(riUri));
+        d.setUsesComponentInstanceUris(Collections.singletonList(riUri));
         d.save();
 
         Process p = new Process();
@@ -447,8 +447,8 @@ public class WKFWorkflowApiTest {
             }
         }
         assertNotNull(deepest, "Deepest task must be present");
-        assertEquals(1, deepest.path("hasRequiredInstrumentUris").size());
-        assertEquals(riUri, deepest.path("hasRequiredInstrumentUris").get(0).asText());
+        assertEquals(1, deepest.path("usesComponentInstanceUris").size());
+        assertEquals(riUri, deepest.path("usesComponentInstanceUris").get(0).asText());
     }
 
     @Test

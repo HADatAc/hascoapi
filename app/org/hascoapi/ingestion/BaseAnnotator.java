@@ -75,6 +75,13 @@ public abstract class BaseAnnotator {
                         && ("hasMediaFolder".equals(required) || "verifyUri".equals(required))) {
                     continue;
                 }
+                // WKF legacy workbooks can omit hasStudyDescription.
+                // Keep ingestion-compatible behavior by treating it as optional.
+                if (mtType != null && mtType.equalsIgnoreCase(org.hascoapi.Constants.MT_WKF)
+                        && "hasStudyDescription".equals(required)) {
+                    dataFile.getLogger().printWarning("Missing optional sheet key 'hasStudyDescription' for metadata type WKF in InfoSheet. Continuing without STD-sheet semantics validation.");
+                    continue;
+                }
                 dataFile.getLogger().printExceptionByIdWithArgs("GBL_00006", required, mtType);
                 isValid = false;
             }

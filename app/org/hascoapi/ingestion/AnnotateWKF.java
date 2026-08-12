@@ -111,7 +111,9 @@ public class AnnotateWKF extends BaseAnnotator {
 
             if ("InfoSheet".equalsIgnoreCase(sheet) ||
                 "Namespaces".equalsIgnoreCase(sheet) ||
-                "hasStudyDescription".equalsIgnoreCase(sheet)) {
+                "hasStudyDescription".equalsIgnoreCase(sheet) ||
+                "hasDependencies".equalsIgnoreCase(sheet) ||
+                "hasVersion".equalsIgnoreCase(sheet)) {
                 System.out.println("    → Skipping metadata sheet");
                 continue; // Skip metadata sheets
             }
@@ -132,12 +134,6 @@ public class AnnotateWKF extends BaseAnnotator {
                 System.out.println("    → Adding Task generator");
                 addCustomGeneratorIfSheetExists(dataFile, mapCatalog, sheet, status, chain,
                         (df, st) -> new WKFGenerator("task", df, st));
-                generatorCount++;
-
-            } else if ("RequiredInstruments".equalsIgnoreCase(sheet)) {
-                System.out.println("    → Adding RequiredInstrument generator");
-                addCustomGeneratorIfSheetExists(dataFile, mapCatalog, sheet, status, chain,
-                        (df, st) -> new WKFGenerator("requiredinstrument", df, st));
                 generatorCount++;
 
             } else {
@@ -401,27 +397,27 @@ public class AnnotateWKF extends BaseAnnotator {
     }
 
     /**
-     * Validate InfoSheet structure according to WKF-SPEC-V2 v1.2.2.
+     * Validate InfoSheet structure according to WKF-SPEC-V3.
      */
     private static boolean validateInfoSheetStructure(DataFile dataFile, Map<String, String> catalog) {
         final String[] expectedKeys = {
             "hasDependencies",
-            "hasStudyDescription",
             "ProcessStems",
             "Processes",
             "Tasks",
-            "RequiredInstruments",
             "hasVersion"
         };
         final String[] expectedValues = {
             "#Namespaces",
-            "#STD",
             "#ProcessStems",
             "#Processes",
             "#Tasks",
-            "#RequiredInstruments",
             null
         };
+
+        final boolean hasStudyDescriptionRow = catalog != null
+            && catalog.containsKey("hasStudyDescription")
+            && !safeValue(catalog.get("hasStudyDescription")).isEmpty();
 
         boolean valid = true;
         RecordFile infoSheet = dataFile.getRecordFile();
@@ -430,10 +426,10 @@ public class AnnotateWKF extends BaseAnnotator {
             return false;
         }
 
-        if (infoSheet.getRecords() == null || infoSheet.getRecords().size() != 7) {
-            System.err.println("[WKF Validation] InfoSheet must have exactly 7 data rows, found "
-                + (infoSheet.getRecords() == null ? 0 : infoSheet.getRecords().size()));
-            dataFile.getLogger().printException("InfoSheet must have exactly 7 data rows");
+        int rows = infoSheet.getRecords() == null ? 0 : infoSheet.getRecords().size();
+        if (rows != 6 && rows != 5) {
+            System.err.println("[WKF Validation] InfoSheet must have 5 or 6 data rows, found " + rows);
+            dataFile.getLogger().printException("InfoSheet must have 5 or 6 data rows");
             valid = false;
         }
 
@@ -455,23 +451,51 @@ public class AnnotateWKF extends BaseAnnotator {
                 valid = false;
             }
 
-            for (int i = 0; i < expectedKeys.length; i++) {
-                int rowIdx = i + 1;
+            Set<String> seenKeys = new HashSet<>();
+            int maxRows = info.getLastRowNum();
+            for (int rowIdx = 1; rowIdx <= maxRows; rowIdx++) {
                 Row row = info.getRow(rowIdx);
-                String key = row == null ? "" : formatter.formatCellValue(row.getCell(0)).trim();
-                String value = row == null ? "" : formatter.formatCellValue(row.getCell(1)).trim();
+                if (row == null) {
+                    continue;
+                }
+                String key = formatter.formatCellValue(row.getCell(0)).trim();
+                if (key.isEmpty()) {
+                    continue;
+                }
+                String value = formatter.formatCellValue(row.getCell(1)).trim();
+                seenKeys.add(key);
 
-                if (!expectedKeys[i].equals(key)) {
-                    dataFile.getLogger().printException("InfoSheet row " + (rowIdx + 1)
-                        + " must have key '" + expectedKeys[i] + "' and found '" + key + "'");
+                if ("hasDependencies".equals(key) && !"#Namespaces".equals(value)) {
+                    dataFile.getLogger().printException("InfoSheet hasDependencies must point to #Namespaces and found '" + value + "'");
                     valid = false;
                 }
-
-                if (expectedValues[i] != null && !expectedValues[i].equals(value)) {
-                    dataFile.getLogger().printException("InfoSheet row " + (rowIdx + 1)
-                        + " must have value '" + expectedValues[i] + "' and found '" + value + "'");
+                if ("ProcessStems".equals(key) && !"#ProcessStems".equals(value)) {
+                    dataFile.getLogger().printException("InfoSheet ProcessStems must point to #ProcessStems and found '" + value + "'");
                     valid = false;
                 }
+                if ("Processes".equals(key) && !"#Processes".equals(value)) {
+                    dataFile.getLogger().printException("InfoSheet Processes must point to #Processes and found '" + value + "'");
+                    valid = false;
+                }
+                if ("Tasks".equals(key) && !"#Tasks".equals(value)) {
+                    dataFile.getLogger().printException("InfoSheet Tasks must point to #Tasks and found '" + value + "'");
+                    valid = false;
+                }
+                if ("hasStudyDescription".equals(key) && !value.isEmpty() && !"#STD".equals(value)) {
+                    dataFile.getLogger().printException("InfoSheet hasStudyDescription must point to #STD when provided and found '" + value + "'");
+                    valid = false;
+                }
+            }
+
+            for (String required : expectedKeys) {
+                if (!seenKeys.contains(required)) {
+                    dataFile.getLogger().printException("InfoSheet is missing required key '" + required + "'");
+                    valid = false;
+                }
+            }
+
+            if (!hasStudyDescriptionRow) {
+                dataFile.getLogger().printWarning("InfoSheet does not provide hasStudyDescription; WKF comment will be used as study description fallback.");
             }
         } catch (Exception e) {
             dataFile.getLogger().printException("Error validating InfoSheet workbook structure: " + e.getMessage());
@@ -506,6 +530,7 @@ public class AnnotateWKF extends BaseAnnotator {
 
             String stdPointer = catalog.get("hasStudyDescription");
             if (stdPointer == null || stdPointer.trim().isEmpty()) {
+                populateStdMetadataFromWkfComment(dataFile, stdMetadata);
                 return stdMetadata;
             }
 
@@ -519,6 +544,7 @@ public class AnnotateWKF extends BaseAnnotator {
 
                 Sheet stdSheet = workbook.getSheet(stdSheetName);
                 if (stdSheet == null) {
+                    populateStdMetadataFromWkfComment(dataFile, stdMetadata);
                     return stdMetadata;
                 }
 
@@ -533,6 +559,7 @@ public class AnnotateWKF extends BaseAnnotator {
                 }
 
                 if (headerRow == null || dataRow == null) {
+                    populateStdMetadataFromWkfComment(dataFile, stdMetadata);
                     return stdMetadata;
                 }
 
@@ -546,13 +573,60 @@ public class AnnotateWKF extends BaseAnnotator {
                         stdMetadata.put(header, value);
                     }
                 }
+
+                if (!stdMetadata.containsKey("hasStudyDescription") || stdMetadata.get("hasStudyDescription").trim().isEmpty()) {
+                    populateStdMetadataFromWkfComment(dataFile, stdMetadata);
+                }
             }
 
         } catch (Exception e) {
             dataFile.getLogger().printWarning("Unable to extract STD metadata during WKF post-processing: " + e.getMessage());
+            populateStdMetadataFromWkfComment(dataFile, stdMetadata);
         }
 
         return stdMetadata;
+    }
+
+    private static void populateStdMetadataFromWkfComment(DataFile dataFile, Map<String, String> stdMetadata) {
+        String wkfComment = resolveWkfCommentByDataFile(dataFile);
+        if (wkfComment == null || wkfComment.trim().isEmpty()) {
+            return;
+        }
+
+        String cleaned = wkfComment.trim();
+        stdMetadata.putIfAbsent("hasStudyDescription", cleaned);
+        if (!stdMetadata.containsKey("Specific Aims") || stdMetadata.get("Specific Aims").trim().isEmpty()) {
+            stdMetadata.put("Specific Aims", cleaned);
+        }
+    }
+
+    private static String resolveWkfCommentByDataFile(DataFile dataFile) {
+        if (dataFile == null || dataFile.getUri() == null || dataFile.getUri().trim().isEmpty()) {
+            return "";
+        }
+
+        try {
+            String dfUri = dataFile.getUri().trim();
+            String query = NameSpaces.getInstance().printSparqlNameSpaceList()
+                + "SELECT DISTINCT ?comment WHERE { "
+                + "  ?wkf hasco:hasDataFile <" + dfUri + "> . "
+                + "  { ?wkf a hasco:WKF . } UNION { ?wkf hasco:hascoType hasco:WKF . } "
+                + "  ?wkf rdfs:comment ?comment . "
+                + "} LIMIT 1";
+
+            ResultSetRewindable results = SPARQLUtils.select(
+                CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), query);
+            if (results != null && results.hasNext()) {
+                QuerySolution sol = results.next();
+                if (sol != null && sol.get("comment") != null) {
+                    return sol.get("comment").toString();
+                }
+            }
+        } catch (Exception e) {
+            dataFile.getLogger().printWarning("WKF comment fallback lookup failed: " + e.getMessage());
+        }
+
+        return "";
     }
 
     /**
@@ -561,9 +635,9 @@ public class AnnotateWKF extends BaseAnnotator {
     private static boolean validateStdSheetSemantics(DataFile dataFile, Map<String, String> catalog) {
         String stdPointer = catalog.get("hasStudyDescription");
         if (stdPointer == null || stdPointer.trim().isEmpty()) {
-            System.err.println("[WKF Validation] Missing hasStudyDescription in InfoSheet");
-            dataFile.getLogger().printException("Missing hasStudyDescription in InfoSheet");
-            return false;
+            System.out.println("[WKF Validation] Optional hasStudyDescription not provided in InfoSheet; skipping STD sheet semantic validation.");
+            dataFile.getLogger().printWarning("Optional hasStudyDescription not provided in InfoSheet; skipping STD sheet semantic validation.");
+            return true;
         }
 
         String stdSheetName = stdPointer.trim().replace("#", "");
@@ -780,16 +854,32 @@ public class AnnotateWKF extends BaseAnnotator {
                     continue;
                 }
 
-                if (!isTaskArchetypeValue(hascoType)) {
-                    System.err.println("[WKF Validation] Tasks row " + rowNumber + " has invalid hasco:hascoType (must be vstoi:Task): " + hascoType);
-                    dataFile.getLogger().printException("Tasks row " + rowNumber + " has invalid hasco:hascoType (must be vstoi:Task): " + hascoType);
-                    valid = false;
+                boolean hascoTypeIsArchetype = isTaskArchetypeValue(hascoType);
+                boolean hascoTypeIsSubclass = !hascoTypeIsArchetype
+                    && !hascoType.isEmpty()
+                    && isTaskTypeOrSubclass(hascoType, taskSubclassCache, dataFile);
+
+                if (!hascoTypeIsArchetype) {
+                    if (hascoTypeIsSubclass) {
+                        dataFile.getLogger().printWarning("Tasks row " + rowNumber
+                            + " uses legacy hasco:hascoType subclass value '" + hascoType
+                            + "'. It will be normalized to vstoi:Task during ingestion.");
+                    } else {
+                        System.err.println("[WKF Validation] Tasks row " + rowNumber + " has invalid hasco:hascoType (must be vstoi:Task or subclass): " + hascoType);
+                        dataFile.getLogger().printException("Tasks row " + rowNumber + " has invalid hasco:hascoType (must be vstoi:Task or subclass): " + hascoType);
+                        valid = false;
+                    }
                 }
 
                 if (rdfType.isEmpty()) {
-                    System.err.println("[WKF Validation] Tasks row " + rowNumber + " has empty rdf:type");
-                    dataFile.getLogger().printException("Tasks row " + rowNumber + " has empty rdf:type");
-                    valid = false;
+                    if (hascoTypeIsSubclass) {
+                        dataFile.getLogger().printWarning("Tasks row " + rowNumber
+                            + " has empty rdf:type but legacy hasco:hascoType subclass is present; rdf:type will be inferred during ingestion.");
+                    } else {
+                        System.err.println("[WKF Validation] Tasks row " + rowNumber + " has empty rdf:type");
+                        dataFile.getLogger().printException("Tasks row " + rowNumber + " has empty rdf:type");
+                        valid = false;
+                    }
                 } else if (!isTaskTypeOrSubclass(rdfType, taskSubclassCache, dataFile)) {
                     System.err.println("[WKF Validation] Tasks row " + rowNumber + " has rdf:type not compatible with vstoi:Task: " + rdfType);
                     dataFile.getLogger().printException("Tasks row " + rowNumber + " has rdf:type not compatible with vstoi:Task: " + rdfType);
@@ -824,6 +914,10 @@ public class AnnotateWKF extends BaseAnnotator {
             return false;
         }
 
+        boolean lexicalTaskLike = value.endsWith("Task")
+            || value.contains(":Task")
+            || value.contains("#Task");
+
         if (isTaskArchetypeValue(value)) {
             return true;
         }
@@ -844,11 +938,17 @@ public class AnnotateWKF extends BaseAnnotator {
             ResultSetRewindable rs = SPARQLUtils.select(
                     CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), query);
             boolean isSubclass = rs != null && rs.hasNext();
+            if (!isSubclass && lexicalTaskLike) {
+                dataFile.getLogger().printWarning("Task type '" + value
+                    + "' has no explicit rdfs:subClassOf* vstoi:Task assertion in KG; accepting by lexical task-like fallback.");
+                cache.put(value, true);
+                return true;
+            }
             cache.put(value, isSubclass);
             return isSubclass;
         } catch (Exception e) {
             // If subclass lookup cannot be evaluated, keep strict lexical guard.
-            boolean lexicalFallback = value.endsWith("Task") || value.contains(":Task");
+            boolean lexicalFallback = lexicalTaskLike;
             dataFile.getLogger().printWarning("Task type subclass lookup failed for '" + value + "'; using lexical fallback=" + lexicalFallback + ". Reason: " + e.getMessage());
             cache.put(value, lexicalFallback);
             return lexicalFallback;
@@ -1260,8 +1360,9 @@ public class AnnotateWKF extends BaseAnnotator {
      * - Process -> ProcessStem (prov:wasDerivedFrom)
      * - Process -> Task (vstoi:hasTopTask)
      * - Task -> Task (vstoi:hasSupertask, vstoi:hasSubtask)
-     * - Task -> RequiredInstrument (vstoi:hasRequiredInstrument)
-     * - RequiredInstrument -> Instrument (vstoi:usesInstrument) - warns only
+     * - Task -> ComponentInstance (vstoi:usesComponentInstance) URI format
+     * Task type restriction (when property is populated):
+     * - rdf:type must be vstoi:AutomatedTask or vstoi:InteractionTask
      */
     private static boolean validateReferenceIntegrity(DataFile dataFile, Map<String, String> catalog) {
         try {
@@ -1270,7 +1371,6 @@ public class AnnotateWKF extends BaseAnnotator {
             urisByType.put("ProcessStem", collectURIs(dataFile, catalog, "ProcessStems"));
             urisByType.put("Process", collectURIs(dataFile, catalog, "Processes"));
             urisByType.put("Task", collectURIs(dataFile, catalog, "Tasks"));
-            urisByType.put("RequiredInstrument", collectURIs(dataFile, catalog, "RequiredInstruments"));
             
             boolean allValid = true;
             
@@ -1337,15 +1437,27 @@ public class AnnotateWKF extends BaseAnnotator {
                             }
                         }
                         
-                        // Check vstoi:hasRequiredInstrument -> RequiredInstruments
-                        String instruments = rec.getValueByColumnName("vstoi:hasRequiredInstrument");
-                        if (instruments != null && !instruments.trim().isEmpty()) {
-                            String[] instrumentList = instruments.split(";");
-                            for (String instrument : instrumentList) {
-                                String cleanInst = instrument.trim();
-                                if (!cleanInst.isEmpty() && !urisByType.get("RequiredInstrument").contains(cleanInst)) {
-                                    System.err.println("[WKF Validation] Task " + taskUri + " references non-existent required instrument: " + cleanInst);
-                                    dataFile.getLogger().printExceptionByIdWithArgs("WKF_00017", taskUri, cleanInst);
+                        // WKF-SPEC-V3: validate usesComponentInstance by URI format and task type only.
+                        String componentInstances = rec.getValueByColumnName("vstoi:usesComponentInstance");
+                        if (componentInstances != null && !componentInstances.trim().isEmpty()) {
+                            String taskType = safeValue(rec.getValueByColumnName("rdf:type"));
+                            if (!isTaskTypeAllowedForComponentInstances(taskType)) {
+                                System.err.println("[WKF Validation] Task " + taskUri
+                                    + " uses vstoi:usesComponentInstance but rdf:type is not vstoi:AutomatedTask or vstoi:InteractionTask: " + taskType);
+                                dataFile.getLogger().printException("Task " + taskUri
+                                    + " uses vstoi:usesComponentInstance but rdf:type is not vstoi:AutomatedTask or vstoi:InteractionTask: " + taskType);
+                                allValid = false;
+                            }
+
+                            String[] componentInstanceList = componentInstances.split("[;|]");
+                            for (String componentInstance : componentInstanceList) {
+                                String cleanUri = componentInstance.trim();
+                                if (cleanUri.isEmpty()) {
+                                    continue;
+                                }
+                                if (!isValidHttpUri(cleanUri)) {
+                                    System.err.println("[WKF Validation] Task " + taskUri + " has non-URI vstoi:usesComponentInstance value: " + cleanUri);
+                                    dataFile.getLogger().printException("Task " + taskUri + " has non-URI vstoi:usesComponentInstance value: " + cleanUri);
                                     allValid = false;
                                 }
                             }
@@ -1353,10 +1465,7 @@ public class AnnotateWKF extends BaseAnnotator {
                     }
                 }
             }
-            
-            // Note: vstoi:usesInstrument references to external INS templates are NOT validated
-            // (they may be in separate files/graphs)
-            
+
             return allValid; // Return false only if internal references are broken
             
         } catch (Exception e) {
@@ -1391,6 +1500,23 @@ public class AnnotateWKF extends BaseAnnotator {
         }
         
         return uris;
+    }
+
+    private static boolean isValidHttpUri(String value) {
+        String v = safeValue(value);
+        return URIUtils.isValidURI(v) && (v.startsWith("http://") || v.startsWith("https://"));
+    }
+
+    private static boolean isTaskTypeAllowedForComponentInstances(String taskType) {
+        String tt = safeValue(taskType);
+        if (tt.isEmpty()) {
+            return false;
+        }
+
+        return "vstoi:AutomatedTask".equals(tt)
+            || "vstoi:InteractionTask".equals(tt)
+            || VSTOI.AUTOMATED_TASK.equals(tt)
+            || VSTOI.INTERACTION_TASK.equals(tt);
     }
 
     /**

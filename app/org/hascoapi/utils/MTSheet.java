@@ -108,7 +108,6 @@ public class MTSheet {
                 "ProcessStems",
                 "Processes",
                 "Tasks",
-                "RequiredInstruments",
                 "hasVersion"
         ));
     }

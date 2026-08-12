@@ -94,9 +94,9 @@ public class WKFTasks {
 
             row.createCell(14).setCellValue(safe(t.getHasTemporalDependency()));
 
-            // hasRequiredInstrument is a list - join with pipes
-            String requiredInstrumentsStr = joinUriList(t.getHasRequiredInstrumentUris());
-            row.createCell(15).setCellValue(requiredInstrumentsStr);
+            // usesComponentInstance is a list - join with separators
+            String componentInstancesStr = joinUriList(t.getUsesComponentInstanceUris());
+            row.createCell(15).setCellValue(componentInstancesStr);
 
             row.createCell(16).setCellValue(URIUtils.replaceNameSpaceEx(safe(t.getHasImageUri())));
             row.createCell(17).setCellValue(safe(t.getHasWebDocument()));
@@ -154,9 +154,9 @@ public class WKFTasks {
 
         row.createCell(14).setCellValue(safe(t.getHasTemporalDependency()));
 
-        // hasRequiredInstrument is a list - join with pipes
-        String requiredInstrumentsStr = joinUriList(t.getHasRequiredInstrumentUris());
-        row.createCell(15).setCellValue(requiredInstrumentsStr);
+        // usesComponentInstance is a list - join with separators
+        String componentInstancesStr = joinUriList(t.getUsesComponentInstanceUris());
+        row.createCell(15).setCellValue(componentInstancesStr);
 
         row.createCell(16).setCellValue(URIUtils.replaceNameSpaceEx(safe(t.getHasImageUri())));
         row.createCell(17).setCellValue(safe(t.getHasWebDocument()));

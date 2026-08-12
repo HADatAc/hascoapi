@@ -11,7 +11,6 @@ import org.hascoapi.entity.pojo.WKF;
 import org.hascoapi.entity.pojo.GenericFindWithStatus;
 import org.hascoapi.entity.pojo.NameSpace;
 import org.hascoapi.entity.pojo.ProcessStem;
-import org.hascoapi.entity.pojo.RequiredInstrument;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.hascoapi.utils.URIUtils;
@@ -19,8 +18,8 @@ import org.hascoapi.utils.URIUtils;
 /*
 WKFGen builds an Excel workbook for workflows (WKF):
 genByStatus queries WKFs by status,
-create initializes the workbook (InfoSheet + ProcessStems/Processes/Tasks/RequiredInstruments + Namespaces),
-ProcessStems/Processes/Tasks/RequiredInstruments rows are added per WKF,
+create initializes the workbook (InfoSheet + ProcessStems/Processes/Tasks + Namespaces),
+ProcessStems/Processes/Tasks rows are added per WKF,
 InfoSheet references are set (first WKF URI/label and first namespace URI),
 Namespaces is populated from the helper map or in-memory namespaces, and save writes and closes the file.
 */
@@ -33,7 +32,7 @@ public class WKFGen {
     public static final String PROCESSSTEMS             = "ProcessStems";
     public static final String PROCESSES                = "Processes";
     public static final String TASKS                    = "Tasks";
-    public static final String REQUIREDINSTRUMENTS      = "RequiredInstruments";
+    public static final String REQUIREDINSTRUMENTS      = "RequiredInstruments"; // legacy constant, no longer used by V3 generation
 
     public static final int PAGESIZE                    = 20000;
     public static final int OFFSET                      = 0;
@@ -119,46 +118,6 @@ public class WKFGen {
             t.printStackTrace();
         }
 
-        // Query RequiredInstruments referenced by the Tasks found
-        try {
-            java.util.Set<String> requiredInstrumentUris = new java.util.HashSet<>();
-            
-            // Collect all RequiredInstrument URIs from all tasks
-            for (org.hascoapi.entity.pojo.Task task : tasksFound) {
-                List<String> riUris = task.getHasRequiredInstrumentUris();
-                System.out.println("[WKFGen] Task " + task.getUri() + " has " + (riUris == null ? 0 : riUris.size()) + " RequiredInstrument URIs");
-                if (riUris != null && !riUris.isEmpty()) {
-                    for (String riUri : riUris) {
-                        System.out.println("[WKFGen]   - " + riUri);
-                    }
-                    requiredInstrumentUris.addAll(riUris);
-                }
-            }
-            
-            if (!requiredInstrumentUris.isEmpty()) {
-                System.out.println("[WKFGen] Found " + requiredInstrumentUris.size() + " unique RequiredInstrument URI(s) referenced by Tasks");
-                
-                // Fetch each RequiredInstrument and add to workbook
-                for (String riUri : requiredInstrumentUris) {
-                    try {
-                        org.hascoapi.entity.pojo.RequiredInstrument ri = org.hascoapi.entity.pojo.RequiredInstrument.find(riUri);
-                        if (ri != null) {
-                            helper = WKFRequiredInstruments.addRequiredInstrument(helper, ri);
-                        } else {
-                            System.out.println("[WKFGen] WARN: RequiredInstrument not found: " + riUri);
-                        }
-                    } catch (Exception e) {
-                        System.err.println("[WKFGen] ERROR fetching RequiredInstrument " + riUri + ": " + e.getMessage());
-                    }
-                }
-            } else {
-                System.out.println("[WKFGen] No RequiredInstruments referenced by Tasks");
-            }
-        } catch (Throwable t) {
-            System.err.println("[WKFGen] ERROR querying RequiredInstruments: " + t.getMessage());
-            t.printStackTrace();
-        }
-
         // Populate STD row from ProcessBasedStudy metadata when available.
         try {
             populateStdSheetFromProcessBasedStudy(helper.workbook);
@@ -231,14 +190,6 @@ public class WKFGen {
             System.err.println("[WKFGen] ERROR adding Tasks: " + t.getMessage());
             t.printStackTrace();
         }
-        try {
-            helper = WKFRequiredInstruments.addByWkf(helper, wkf);
-            System.out.println("[WKFGen] RequiredInstruments added");
-        } catch (Throwable t) {
-            System.err.println("[WKFGen] ERROR adding RequiredInstruments: " + t.getMessage());
-            t.printStackTrace();
-        }
-
         // Populate STD row from ProcessBasedStudy metadata when available.
         try {
             populateStdSheetFromProcessBasedStudy(helper.workbook);
@@ -377,33 +328,6 @@ public class WKFGen {
                 t.printStackTrace();
             }
 
-            // Query and add RequiredInstruments from the same named graph
-            try {
-                String ns = org.hascoapi.utils.NameSpaces.getInstance().printSparqlNameSpaceList();
-                String reqInstQuery = ns
-                        + " SELECT ?uri WHERE { "
-                        + "   GRAPH <" + namedGraph + "> { "
-                        + "     ?uri a vstoi:RequiredInstrument . "
-                        + "   } "
-                        + " }";
-
-                System.out.println("[WKFGen] RequiredInstrument query: " + reqInstQuery);
-
-                List<org.hascoapi.entity.pojo.RequiredInstrument> reqInstruments = org.hascoapi.entity.pojo.GenericFind.findByQuery(
-                    org.hascoapi.entity.pojo.RequiredInstrument.class, reqInstQuery);
-
-                if (reqInstruments != null && !reqInstruments.isEmpty()) {
-                    System.out.println("[WKFGen] Found " + reqInstruments.size() + " RequiredInstruments in named graph");
-                    for (org.hascoapi.entity.pojo.RequiredInstrument reqInst : reqInstruments) {
-                        helper = WKFRequiredInstruments.addRequiredInstrument(helper, reqInst);
-                    }
-                } else {
-                    System.out.println("[WKFGen] No RequiredInstruments found in named graph: " + namedGraph);
-                }
-            } catch (Throwable t) {
-                System.err.println("[WKFGen] ERROR querying/adding RequiredInstruments: " + t.getMessage());
-                t.printStackTrace();
-            }
         }
 
         // Populate STD row from ProcessBasedStudy metadata when available.
@@ -561,28 +485,6 @@ public class WKFGen {
             System.err.println("[WKFGen] ERROR adding Task rows: " + t.getMessage());
         }
 
-        try {
-            java.util.Set<String> requiredInstrumentUris = new java.util.LinkedHashSet<>();
-            for (org.hascoapi.entity.pojo.Task task : tasks) {
-                List<String> uris = task.getHasRequiredInstrumentUris();
-                if (uris != null) {
-                    requiredInstrumentUris.addAll(uris);
-                }
-            }
-
-            for (String reqUri : requiredInstrumentUris) {
-                if (reqUri == null || reqUri.trim().isEmpty()) {
-                    continue;
-                }
-                RequiredInstrument req = RequiredInstrument.find(reqUri.trim());
-                if (req != null) {
-                    helper = WKFRequiredInstruments.addRequiredInstrument(helper, req);
-                }
-            }
-        } catch (Throwable t) {
-            System.err.println("[WKFGen] ERROR adding RequiredInstrument rows: " + t.getMessage());
-        }
-
         return helper;
     }
 
@@ -644,13 +546,6 @@ public class WKFGen {
                     System.out.println("[WKFGen] Tasks added for wkf[" + idx + "]");
                 } catch (Throwable t) {
                     System.err.println("[WKFGen] ERROR adding Tasks for wkf uri=" + wkf.getUri() + ": " + t.getMessage());
-                    t.printStackTrace();
-                }
-                try {
-                    helper = WKFRequiredInstruments.addByWkf(helper, wkf);
-                    System.out.println("[WKFGen] RequiredInstruments added for wkf[" + idx + "]");
-                } catch (Throwable t) {
-                    System.err.println("[WKFGen] ERROR adding RequiredInstruments for wkf uri=" + wkf.getUri() + ": " + t.getMessage());
                     t.printStackTrace();
                 }
             }
@@ -721,11 +616,7 @@ public class WKFGen {
         dataRow5.createCell(1).setCellValue("#" + WKFGen.TASKS);
 
         Row dataRow6 = infoSheet.createRow(6);
-        dataRow6.createCell(0).setCellValue("RequiredInstruments");
-        dataRow6.createCell(1).setCellValue("#" + WKFGen.REQUIREDINSTRUMENTS);
-
-        Row dataRow7 = infoSheet.createRow(7);
-        dataRow7.createCell(0).setCellValue("hasVersion");
+        dataRow6.createCell(0).setCellValue("hasVersion");
         // Get version from the first WKF if available
         String versionValue = "1"; // default
         if (wkfs != null && !wkfs.isEmpty() && wkfs.get(0) != null) {
@@ -734,7 +625,7 @@ public class WKFGen {
                 versionValue = wkfVersion;
             }
         }
-        dataRow7.createCell(1).setCellValue(versionValue);
+        dataRow6.createCell(1).setCellValue(versionValue);
 
         // Create sheet named 'Namespaces'
         Sheet nsSheet = workbook.createSheet(WKFGen.NAMESPACES);
@@ -780,7 +671,6 @@ public class WKFGen {
         Sheet processItemsSheet = workbook.createSheet(WKFGen.PROCESSSTEMS);
         Sheet processesSheet = workbook.createSheet(WKFGen.PROCESSES);
         Sheet tasksSheet = workbook.createSheet(WKFGen.TASKS);
-        Sheet requiredInstrumentsSheet = workbook.createSheet(WKFGen.REQUIREDINSTRUMENTS);
 
         Row stdTitleRow = stdSheet.createRow(0);
         stdTitleRow.createCell(0).setCellValue("Table 1");
@@ -855,22 +745,11 @@ public class WKFGen {
         tasksHeaderRow.createCell(12).setCellValue("vstoi:hasSupertask");
         tasksHeaderRow.createCell(13).setCellValue("vstoi:hasSubtask");
         tasksHeaderRow.createCell(14).setCellValue("vstoi:hasTemporalDependency");
-        tasksHeaderRow.createCell(15).setCellValue("vstoi:hasRequiredInstrument");
+        tasksHeaderRow.createCell(15).setCellValue("vstoi:usesComponentInstance");
         tasksHeaderRow.createCell(16).setCellValue("hasco:hasImage");
         tasksHeaderRow.createCell(17).setCellValue("hasco:hasWebDocument");
         tasksHeaderRow.createCell(18).setCellValue("vstoi:hasIterationConstraint");
         tasksHeaderRow.createCell(19).setCellValue("vstoi:supportsObjective");
-
-        // Initialize RequiredInstruments headers
-        Row requiredInstrumentsHeaderRow = requiredInstrumentsSheet.createRow(0);
-        requiredInstrumentsHeaderRow.createCell(0).setCellValue("hasURI");
-        requiredInstrumentsHeaderRow.createCell(1).setCellValue("rdf:type");
-        requiredInstrumentsHeaderRow.createCell(2).setCellValue("hasco:hascoType");
-        requiredInstrumentsHeaderRow.createCell(3).setCellValue("rdfs:label");
-        requiredInstrumentsHeaderRow.createCell(4).setCellValue("rdfs:comment");
-        requiredInstrumentsHeaderRow.createCell(5).setCellValue("vstoi:usesInstrument");
-        requiredInstrumentsHeaderRow.createCell(6).setCellValue("vstoi:isRelatedToTask");
-        requiredInstrumentsHeaderRow.createCell(7).setCellValue("vstoi:hasInstrumentConfig");
 
         return workbook;
     }

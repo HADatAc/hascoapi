@@ -375,13 +375,16 @@ public class InstrumentAPI extends Controller {
     private ResultSetRewindable selectDeploymentsForScope(Set<String> organizationScopeUris, int pageSize, int offset) {
         StringBuilder query = new StringBuilder();
         query.append(NameSpaces.getInstance().printSparqlNameSpaceList());
-        query.append(" SELECT DISTINCT ?deployment ?instrumentInstance ?platformInstance ?org WHERE { ");
-        query.append("   ?deployment vstoi:hasInstrumentInstance ?instrumentInstance . ");
-        query.append("   ?instrumentInstance vstoi:hasOwner ?org . ");
-        query.append("   OPTIONAL { ?deployment vstoi:hasPlatformInstance ?platformInstance . } ");
+        query.append(" SELECT DISTINCT ?deployment ?instrumentInstance ?platformInstance ?org ?platformOrg WHERE { ");
+        query.append("   ?deployment (vstoi:hasInstrumentInstance|hasco:hasInstrumentInstance) ?instrumentInstance . ");
+        query.append("   OPTIONAL { ?instrumentInstance vstoi:hasOwner ?org . } ");
+        query.append("   OPTIONAL { ");
+        query.append("     ?deployment (vstoi:hasPlatformInstance|hasco:hasPlatformInstance) ?platformInstance . ");
+        query.append("     OPTIONAL { ?platformInstance hasco:partOf ?platformOrg . } ");
+        query.append("   } ");
 
         if (!organizationScopeUris.isEmpty()) {
-            query.append("   FILTER(?org IN (");
+            query.append("   FILTER((BOUND(?org) && ?org IN (");
             int i = 0;
             for (String org : organizationScopeUris) {
                 if (i > 0) {
@@ -390,7 +393,16 @@ public class InstrumentAPI extends Controller {
                 query.append("<").append(org).append(">");
                 i += 1;
             }
-            query.append(")) . ");
+            query.append(")) || (BOUND(?platformOrg) && ?platformOrg IN (");
+            i = 0;
+            for (String org : organizationScopeUris) {
+                if (i > 0) {
+                    query.append(", ");
+                }
+                query.append("<").append(org).append(">");
+                i += 1;
+            }
+            query.append("))) . ");
         }
 
         query.append(" } ORDER BY ?deployment ");

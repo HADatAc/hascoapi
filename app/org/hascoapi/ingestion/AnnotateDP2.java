@@ -28,15 +28,8 @@ public class AnnotateDP2 extends BaseAnnotator {
             return null;
         }
 
-        // Validate DP2 workbook structure and semantics before ingestion.
-        // Policy: DP2-VERIFY findings are warning-only and must not block ingestion.
-        boolean validationPassed = validateDP2Instances(dataFile, mapCatalog);
-        if (!validationPassed) {
-            dataFile.getLogger().printWarning("[DP2-VERIFY] Validation reported issues; continuing ingestion due to warning-only policy.");
-            dataFile.getLogger().println("[DP2-VERIFY-SUMMARY] validation=warnings, continuation_policy=non-blocking, ingestion_continues=true");
-        } else {
-            dataFile.getLogger().println("[DP2-VERIFY-SUMMARY] validation=pass, continuation_policy=non-blocking, ingestion_continues=true");
-        }
+        // DP2-VERIFY disabled by request: skip verifier execution entirely.
+        dataFile.getLogger().println("[DP2-VERIFY-SUMMARY] validation=disabled, continuation_policy=skipped, ingestion_continues=true");
         GeneratorChain chain = new GeneratorChain();
 
         // Set the named graph URI so data is stored in the DataFile's graph

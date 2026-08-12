@@ -68,7 +68,7 @@ public class WKFGenerator extends BaseGenerator {
 
         // For Tasks: split concatenated multi-value properties into Lists
         if (elementType.equals("task")) {
-            splitMultiValueProperty(row, "vstoi:hasRequiredInstrument");
+            splitMultiValueProperty(row, "vstoi:usesComponentInstance");
             splitMultiValueProperty(row, "vstoi:hasSubtask");
         }
 
@@ -118,10 +118,6 @@ public class WKFGenerator extends BaseGenerator {
             }
 
             row.put("hasco:hascoType", VSTOI.TASK);
-        } else if (elementType.equals("requiredinstrument")) {
-            row.put("hasco:hascoType", VSTOI.REQUIRED_INSTRUMENT);
-            // For RequiredInstruments: split concatenated components
-            splitMultiValueProperty(row, "vstoi:hasRequiredComponent");
         } else {
             this.dataFile.getLogger().printExceptionByIdWithArgs("GEN_00001", elementType);
             return null;
@@ -146,9 +142,20 @@ public class WKFGenerator extends BaseGenerator {
     }
 
     /**
-     * Build process instance label as: [WorkflowStemLabel] at [Organization short-name].
+     * Build process instance label from WKF metadata label (Add WKF Name).
+     *
+     * Primary rule:
+     * - Use the WKF template rdfs:label linked to this DataFile.
+     *
+     * Fallback:
+     * - Keep legacy WorkflowStem/organization labeling if WKF label cannot be resolved.
      */
     private String buildProcessInstanceLabel(Map<String, Object> row) throws Exception {
+        String wkfLabel = resolveWkfTemplateLabel();
+        if (!wkfLabel.isEmpty()) {
+            return wkfLabel;
+        }
+
         String stemLabel = "";
         String orgLabel = "";
         String processUri = row.get("hasURI") == null ? "" : row.get("hasURI").toString().trim();
@@ -216,6 +223,38 @@ public class WKFGenerator extends BaseGenerator {
         }
 
         return stemLabel + " at " + orgLabel;
+    }
+
+    /**
+     * Resolve WKF metadata template label associated with the current DataFile.
+     */
+    private String resolveWkfTemplateLabel() {
+        if (this.dataFile == null || this.dataFile.getUri() == null || this.dataFile.getUri().trim().isEmpty()) {
+            return "";
+        }
+
+        String dataFileUri = this.dataFile.getUri().trim();
+        String query = NameSpaces.getInstance().printSparqlNameSpaceList()
+            + "SELECT DISTINCT ?label WHERE { "
+            + "  ?wkf hasco:hasDataFile <" + dataFileUri + "> . "
+            + "  { ?wkf a hasco:WKF . } UNION { ?wkf hasco:hascoType hasco:WKF . } "
+            + "  ?wkf rdfs:label ?label . "
+            + "} LIMIT 1";
+
+        ResultSetRewindable results = SPARQLUtils.select(
+            CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), query);
+
+        if (results != null && results.hasNext()) {
+            QuerySolution sol = results.next();
+            if (sol != null && sol.get("label") != null) {
+                String label = sol.get("label").toString();
+                if (label != null && !label.trim().isEmpty()) {
+                    return label.trim();
+                }
+            }
+        }
+
+        return "";
     }
 
     private String resolveOrganizationShortName(Organization org) {
