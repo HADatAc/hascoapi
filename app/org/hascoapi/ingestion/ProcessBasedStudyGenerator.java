@@ -1,7 +1,6 @@
 package org.hascoapi.ingestion;
 
 import java.lang.String;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
@@ -112,8 +111,8 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
         super(dataFile);
         this.processUri = URIUtils.canonicalizePmsrUri(processUri);
         this.creatorEmail = normalizeEmailValue(dataFile.getHasSIRManagerEmail());
-        // Use current date if not specified
-        this.creationDate = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
+        // Keep a local fallback with date+time for ingestion timestamp derivation.
+        this.creationDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss"));
         this.stdMetadata = new HashMap<>();
     }
 
@@ -125,7 +124,9 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
         super(dataFile);
         this.processUri = URIUtils.canonicalizePmsrUri(processUri);
         this.creatorEmail = normalizeEmailValue(creatorEmail != null ? creatorEmail : dataFile.getHasSIRManagerEmail());
-        this.creationDate = creationDate != null ? creationDate : LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
+        this.creationDate = creationDate != null
+            ? creationDate
+            : LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss"));
         this.stdMetadata = normalizeStdMetadata(stdMetadata);
     }
 
@@ -355,9 +356,9 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
             log.info("Auto-generated Contact Email: {}", email);
         }
 
-        // Start Date - creation date or current date
+        // Start Date - ingestion date/time or fallback current date/time
         if (metadata.get("startDate") == null || metadata.get("startDate").isEmpty()) {
-            String startDate = creationDate != null ? creationDate : LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
+            String startDate = resolveStartDateFromSubmissionTime();
             metadata.put("startDate", startDate);
             log.info("Auto-generated Start Date: {}", startDate);
         }
@@ -492,7 +493,8 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
             return null;
         }
 
-        // 2. Extract study metadata from Process properties (legacy fallback)
+        // 2. Extract study metadata from Process properties.
+        // Start/end date must come from canonical STD/ProcessBasedStudy sources.
         Map<String, String> metadata = new HashMap<>();
         metadata.put("studyID", process.getStudyID());
         metadata.put("studyTitle", process.getStudyTitle());
@@ -501,8 +503,8 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
         metadata.put("institution", process.getInstitution());
         metadata.put("principalInvestigator", process.getPrincipalInvestigator());
         metadata.put("contactEmail", process.getContactEmail());
-        metadata.put("startDate", process.getStartDate());
-        metadata.put("endDate", process.getEndDate());
+        metadata.put("startDate", "");
+        metadata.put("endDate", "");
 
         log.info("Extracted metadata from Process - studyID: {}, title: {}", 
                  metadata.get("studyID"), metadata.get("studyTitle"));
@@ -567,7 +569,7 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
 
         // Start Date remains a strict dependency for label composition,
         // but its value must be the WKF submission datetime.
-        metadata.put("startDate", resolveStartDateFromSubmissionTimeStrict());
+        metadata.put("startDate", resolveStartDateFromSubmissionTime());
 
         // 5. Derive Study URI
         String studyId = metadata.get("studyID");
@@ -588,7 +590,11 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
 
         String studyLabel = buildStudyInstanceLabel(process, metadata);
         if (metadata.get("studyTitle") == null || metadata.get("studyTitle").trim().isEmpty()) {
-            metadata.put("studyTitle", process.getLabel());
+            String fallbackStudyTitle = process.getLabel();
+            if (fallbackStudyTitle == null || fallbackStudyTitle.trim().isEmpty()) {
+                fallbackStudyTitle = studyLabel;
+            }
+            metadata.put("studyTitle", fallbackStudyTitle == null ? "" : fallbackStudyTitle.trim());
         }
 
         // 6. Build the row with all properties
@@ -708,21 +714,22 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
 
     /**
      * Resolve Start Date from DataFile submission timestamp.
-     * Returned in ISO local datetime format to preserve strict Start Date
-     * dependency downstream.
+     * Always returns a date-time so ProcessBasedStudy hasStartDate is populated.
      */
-    private String resolveStartDateFromSubmissionTimeStrict() throws Exception {
+    private String resolveStartDateFromSubmissionTime() {
         String raw = dataFile != null && dataFile.getSubmissionTime() != null
             ? dataFile.getSubmissionTime().trim()
             : "";
 
-        if (raw.isEmpty()) {
-            throw new Exception("Cannot compose ProcessBasedStudy rdfs:label: DataFile submission timestamp is missing");
+        LocalDateTime dateTime = raw.isEmpty() ? null : parseExactDateTime(raw);
+
+        if (dateTime == null && creationDate != null && !creationDate.trim().isEmpty()) {
+            dateTime = parseExactDateTime(creationDate.trim());
         }
 
-        LocalDateTime dateTime = parseExactDateTime(raw);
         if (dateTime == null) {
-            throw new Exception("Cannot compose ProcessBasedStudy rdfs:label: DataFile submission timestamp is not parseable as exact datetime: " + raw);
+            dateTime = LocalDateTime.now();
+            log.warn("DataFile submission timestamp unavailable/unparseable for {}, using current time as ingestion timestamp", processUri);
         }
 
         return dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));

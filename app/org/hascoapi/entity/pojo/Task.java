@@ -475,8 +475,33 @@ public class Task extends HADatAcThing implements Comparable<Task> {
         }
                                                                                                                                                                                                               
         task.setUri(uri);
+        enrichSubtasksFromInverseSupertaskLinks(task);
 
         return task;
+    }
+
+    private static void enrichSubtasksFromInverseSupertaskLinks(Task task) {
+        if (task == null || task.getUri() == null || task.getUri().trim().isEmpty()) {
+            return;
+        }
+
+        String queryString = "SELECT DISTINCT ?child WHERE { "
+                + " ?child <" + VSTOI.HAS_SUPERTASK + "> <" + task.getUri() + "> . "
+                + "}";
+
+        ResultSet resultSet = SPARQLUtils.select(CollectionUtil.getCollectionPath(
+                CollectionUtil.Collection.SPARQL_QUERY), queryString);
+        if (resultSet == null) {
+            return;
+        }
+
+        while (resultSet.hasNext()) {
+            QuerySolution qs = resultSet.next();
+            if (!qs.contains("child") || qs.get("child") == null) {
+                continue;
+            }
+            task.addHasSubtaskUri(qs.get("child").toString());
+        }
     }
 
     @Override

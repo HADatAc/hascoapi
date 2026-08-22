@@ -101,7 +101,9 @@ public class CodebookSlot extends HADatAcThing implements Comparable<CodebookSlo
             QuerySolution soln = resultsrw.next();
             if (soln != null && soln.getResource("uri").getURI() != null) {
                 CodebookSlot slot = CodebookSlot.find(soln.getResource("uri").getURI());
-                slots.add(slot);
+                if (slot != null) {
+                    slots.add(slot);
+                }
             }
         }
         return slots;
@@ -140,11 +142,40 @@ public class CodebookSlot extends HADatAcThing implements Comparable<CodebookSlo
 
         while (resultsrw.hasNext()) {
             QuerySolution soln = resultsrw.next();
-            CodebookSlot slot = find(soln.getResource("uri").getURI());
-            slots.add(slot);
+            if (soln != null && soln.getResource("uri") != null && soln.getResource("uri").getURI() != null) {
+                CodebookSlot slot = find(soln.getResource("uri").getURI());
+                if (slot != null) {
+                    slots.add(slot);
+                }
+            }
         }
 
-        java.util.Collections.sort((List<CodebookSlot>) slots);
+        java.util.Collections.sort(slots, new java.util.Comparator<CodebookSlot>() {
+            @Override
+            public int compare(CodebookSlot left, CodebookSlot right) {
+                if (left == right) {
+                    return 0;
+                }
+                if (left == null) {
+                    return 1;
+                }
+                if (right == null) {
+                    return -1;
+                }
+                String leftPriority = left.getHasPriority();
+                String rightPriority = right.getHasPriority();
+                if (leftPriority == null && rightPriority == null) {
+                    return 0;
+                }
+                if (leftPriority == null) {
+                    return 1;
+                }
+                if (rightPriority == null) {
+                    return -1;
+                }
+                return leftPriority.compareTo(rightPriority);
+            }
+        });
         return slots;
 
     }

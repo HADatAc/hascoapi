@@ -76,9 +76,19 @@ public class Process extends HADatAcThing implements Comparable<Process> {
     @PropertyField(uri = "hasco:hasContactEmail")
     private String contactEmail;
 
+    /**
+     * @deprecated Start date belongs to ProcessBasedStudy metadata.
+     *             Kept only for backward compatibility with legacy Process payloads.
+     */
+    @Deprecated
     @PropertyField(uri = "hasco:hasStartDate")
     private String startDate;
 
+    /**
+     * @deprecated End date belongs to ProcessBasedStudy metadata.
+     *             Kept only for backward compatibility with legacy Process payloads.
+     */
+    @Deprecated
     @PropertyField(uri = "hasco:hasEndDate")
     private String endDate;
 
@@ -210,18 +220,34 @@ public class Process extends HADatAcThing implements Comparable<Process> {
         this.contactEmail = contactEmail;
     }
 
+    /**
+     * @deprecated Use ProcessBasedStudy#getStartDate() instead.
+     */
+    @Deprecated
     public String getStartDate() {
         return startDate;
     }
 
+    /**
+     * @deprecated Use ProcessBasedStudy#setStartDate(String) instead.
+     */
+    @Deprecated
     public void setStartDate(String startDate) {
         this.startDate = startDate;
     }
 
+    /**
+     * @deprecated Use ProcessBasedStudy#getEndDate() instead.
+     */
+    @Deprecated
     public String getEndDate() {
         return endDate;
     }
 
+    /**
+     * @deprecated Use ProcessBasedStudy#setEndDate(String) instead.
+     */
+    @Deprecated
     public void setEndDate(String endDate) {
         this.endDate = endDate;
     }
@@ -301,10 +327,6 @@ public class Process extends HADatAcThing implements Comparable<Process> {
                     process.setPrincipalInvestigator(object);
                 } else if (predicate.equals(HASCO.HAS_CONTACT_EMAIL)) {
                     process.setContactEmail(object);
-                } else if (predicate.equals(HASCO.HAS_START_DATE)) {
-                    process.setStartDate(object);
-                } else if (predicate.equals(HASCO.HAS_END_DATE)) {
-                    process.setEndDate(object);
                 }
             }
         }

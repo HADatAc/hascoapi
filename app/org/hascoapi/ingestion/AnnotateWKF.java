@@ -402,6 +402,7 @@ public class AnnotateWKF extends BaseAnnotator {
     private static boolean validateInfoSheetStructure(DataFile dataFile, Map<String, String> catalog) {
         final String[] expectedKeys = {
             "hasDependencies",
+            "hasStudyDescription",
             "ProcessStems",
             "Processes",
             "Tasks",
@@ -409,15 +410,12 @@ public class AnnotateWKF extends BaseAnnotator {
         };
         final String[] expectedValues = {
             "#Namespaces",
+            "#STD",
             "#ProcessStems",
             "#Processes",
             "#Tasks",
             null
         };
-
-        final boolean hasStudyDescriptionRow = catalog != null
-            && catalog.containsKey("hasStudyDescription")
-            && !safeValue(catalog.get("hasStudyDescription")).isEmpty();
 
         boolean valid = true;
         RecordFile infoSheet = dataFile.getRecordFile();
@@ -427,9 +425,9 @@ public class AnnotateWKF extends BaseAnnotator {
         }
 
         int rows = infoSheet.getRecords() == null ? 0 : infoSheet.getRecords().size();
-        if (rows != 6 && rows != 5) {
-            System.err.println("[WKF Validation] InfoSheet must have 5 or 6 data rows, found " + rows);
-            dataFile.getLogger().printException("InfoSheet must have 5 or 6 data rows");
+        if (rows != 6) {
+            System.err.println("[WKF Validation] InfoSheet must have exactly 6 data rows, found " + rows);
+            dataFile.getLogger().printException("InfoSheet must have exactly 6 data rows");
             valid = false;
         }
 
@@ -494,9 +492,6 @@ public class AnnotateWKF extends BaseAnnotator {
                 }
             }
 
-            if (!hasStudyDescriptionRow) {
-                dataFile.getLogger().printWarning("InfoSheet does not provide hasStudyDescription; WKF comment will be used as study description fallback.");
-            }
         } catch (Exception e) {
             dataFile.getLogger().printException("Error validating InfoSheet workbook structure: " + e.getMessage());
             return false;
@@ -635,9 +630,9 @@ public class AnnotateWKF extends BaseAnnotator {
     private static boolean validateStdSheetSemantics(DataFile dataFile, Map<String, String> catalog) {
         String stdPointer = catalog.get("hasStudyDescription");
         if (stdPointer == null || stdPointer.trim().isEmpty()) {
-            System.out.println("[WKF Validation] Optional hasStudyDescription not provided in InfoSheet; skipping STD sheet semantic validation.");
-            dataFile.getLogger().printWarning("Optional hasStudyDescription not provided in InfoSheet; skipping STD sheet semantic validation.");
-            return true;
+            System.err.println("[WKF Validation] hasStudyDescription is required and must point to #STD");
+            dataFile.getLogger().printException("hasStudyDescription is required and must point to #STD");
+            return false;
         }
 
         String stdSheetName = stdPointer.trim().replace("#", "");

@@ -243,16 +243,32 @@ public class ProcessBasedStudy extends Study {
         return startDate;
     }
 
+    public String getHasStartDate() {
+        return startDate;
+    }
+
     public void setStartDate(String startDate) {
         this.startDate = startDate;
+    }
+
+    public void setHasStartDate(String hasStartDate) {
+        this.startDate = hasStartDate;
     }
 
     public String getEndDate() {
         return endDate;
     }
 
+    public String getHasEndDate() {
+        return endDate;
+    }
+
     public void setEndDate(String endDate) {
         this.endDate = endDate;
+    }
+
+    public void setHasEndDate(String hasEndDate) {
+        this.endDate = hasEndDate;
     }
 
     public String getHasLearningObjectives() {
