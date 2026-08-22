@@ -1,8 +1,12 @@
 package org.hascoapi.ingestion;
 
 import java.util.*;
+import java.io.File;
 import org.hascoapi.entity.pojo.DataFile;
+import org.hascoapi.utils.ConfigProp;
 import org.hascoapi.utils.MTSheet;
+import org.hascoapi.utils.URIUtils;
+import org.hascoapi.Constants;
 
 public abstract class BaseAnnotator {
 
@@ -11,7 +15,9 @@ public abstract class BaseAnnotator {
      * Returns null if the InfoSheet is invalid, empty, or has missing/unexpected sheet keys.
      */
     protected static Map<String, String> loadCatalog(DataFile dataFile, String mtType) {
-        RecordFile recordFile = new SpreadsheetRecordFile(dataFile.getFile(), "InfoSheet");
+        File workbookFile = resolveWorkbookFile(dataFile);
+
+        RecordFile recordFile = new SpreadsheetRecordFile(workbookFile, "InfoSheet");
 
         // InfoSheet missing
         if (!recordFile.isValid()) {
@@ -53,6 +59,54 @@ public abstract class BaseAnnotator {
         }
 
         return mapCatalog;
+    }
+
+    /**
+     * Resolve physical workbook file for a DataFile.
+     * Priority:
+     * 1) in-memory DataFile file handle
+     * 2) absolute filename
+     * 3) {ingestionPath}/resources/{DFL...}/{filename}
+     * 4) legacy relative filename fallback
+     */
+    protected static File resolveWorkbookFile(DataFile dataFile) {
+        if (dataFile == null) {
+            return null;
+        }
+
+        File handle = dataFile.getFile();
+        if (handle != null && handle.exists() && handle.canRead()) {
+            return handle;
+        }
+
+        String filename = dataFile.getFilename();
+        if (filename == null || filename.trim().isEmpty()) {
+            return null;
+        }
+
+        String normalizedFilename = filename.trim();
+        File absoluteFile = new File(normalizedFilename);
+        if (absoluteFile.isAbsolute()) {
+            return absoluteFile;
+        }
+
+        String dataFileUri = dataFile.getUri();
+        String ingestionBase = ConfigProp.getPathIngestion();
+        if (dataFileUri != null && !dataFileUri.trim().isEmpty()
+                && ingestionBase != null && !ingestionBase.trim().isEmpty()) {
+            String uriTerm = URIUtils.uriLastSegment(dataFileUri.trim());
+            if (uriTerm != null && !uriTerm.trim().isEmpty()) {
+                File storedFile = new File(
+                    ingestionBase,
+                    Constants.RESOURCE_FOLDER + File.separator + uriTerm.trim() + File.separator + normalizedFilename
+                );
+                if (storedFile.exists() && storedFile.canRead()) {
+                    return storedFile;
+                }
+            }
+        }
+
+        return absoluteFile;
     }
 
     /**

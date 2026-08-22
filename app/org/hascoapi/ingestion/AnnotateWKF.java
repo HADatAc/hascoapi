@@ -22,12 +22,113 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.function.Supplier;
 
 public class AnnotateWKF extends BaseAnnotator {
+
+    private static final String RULE_WKF_NULL_DATAFILE = "WKF-RULE-000";
+    private static final String RULE_WKF_CATALOG_LOAD = "WKF-RULE-020";
+    private static final String RULE_INFO_SHEET_STRUCTURE = "WKF-RULE-101";
+    private static final String RULE_STD_SEMANTICS = "WKF-RULE-102";
+    private static final String RULE_NAMESPACES_SEMANTICS = "WKF-RULE-103";
+    private static final String RULE_TASK_TYPING = "WKF-RULE-201";
+    private static final String RULE_TEMPORAL_DAG = "WKF-RULE-202";
+    private static final String RULE_TASK_HIERARCHY_ACYCLIC = "WKF-RULE-203";
+    private static final String RULE_TASK_PARENT_CHILD = "WKF-RULE-204";
+    private static final String RULE_TOP_LEVEL_TASK = "WKF-RULE-205";
+    private static final String RULE_REFERENCE_INTEGRITY = "WKF-RULE-301";
+
+    private static final String SPEC_GENERAL = "WKF-SPEC-V3: General";
+    private static final String SPEC_FILE_FORMAT = "WKF-SPEC-V3: File Format";
+    private static final String SPEC_INFOSHEET = "WKF-SPEC-V3: InfoSheet";
+    private static final String SPEC_STD = "WKF-SPEC-V3: STD";
+    private static final String SPEC_NAMESPACES = "WKF-SPEC-V3: Namespaces";
+    private static final String SPEC_TASK_TYPING = "WKF-SPEC-V3: Tasks / Typing rules";
+    private static final String SPEC_TASK_HIERARCHY = "WKF-SPEC-V3: Tasks / Task hierarchy and cardinality rules";
+    private static final String SPEC_CROSS_SHEET = "WKF-SPEC-V3: Cross-Sheet Integrity Requirements";
+    private static final String SPEC_PMSR = "WKF-SPEC-V3: PMSR Normative Rules";
+
+    public static class BrokenRule {
+        private final String ruleId;
+        private final String message;
+        private final String specSection;
+
+        public BrokenRule(String ruleId, String message, String specSection) {
+            this.ruleId = ruleId;
+            this.message = message;
+            this.specSection = specSection;
+        }
+
+        public String getRuleId() {
+            return ruleId;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public String getSpecSection() {
+            return specSection;
+        }
+    }
+
+    public static class ValidationReport {
+        private boolean valid = true;
+        private final LinkedHashMap<String, BrokenRule> brokenRules = new LinkedHashMap<>();
+
+        public boolean isValid() {
+            return valid;
+        }
+
+        public List<String> getBrokenRules() {
+            return brokenRules.values().stream()
+                .map(BrokenRule::getMessage)
+                .collect(Collectors.toList());
+        }
+
+        public List<BrokenRule> getBrokenRuleDetails() {
+            return new ArrayList<>(brokenRules.values());
+        }
+
+        public void addBrokenRule(String ruleId, String message, String specSection) {
+            String normalizedRuleId = normalize(ruleId);
+            String normalizedMessage = normalize(message);
+            String normalizedSpecSection = normalize(specSection);
+
+            if (normalizedRuleId.isEmpty() || normalizedMessage.isEmpty()) {
+                return;
+            }
+
+            String key = normalizedRuleId + "||" + normalizedMessage;
+            if (!brokenRules.containsKey(key)) {
+                brokenRules.put(key,
+                    new BrokenRule(normalizedRuleId, normalizedMessage, normalizedSpecSection));
+            }
+            valid = false;
+        }
+
+        public boolean hasRuleId(String ruleId) {
+            String normalizedRuleId = normalize(ruleId);
+            if (normalizedRuleId.isEmpty()) {
+                return false;
+            }
+            for (BrokenRule rule : brokenRules.values()) {
+                if (rule != null && normalizedRuleId.equals(normalize(rule.getRuleId()))) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private String normalize(String value) {
+            return value == null ? "" : value.trim();
+        }
+    }
 
     public static GeneratorChain exec(DataFile dataFile, String templateFile, String status) {
         System.out.println("\n========== AnnotateWKF.exec() START ==========");
@@ -159,63 +260,244 @@ public class AnnotateWKF extends BaseAnnotator {
 
         System.out.println("✓ WKF: Generator chain validated successfully");
 
-        // HIGH PRIORITY FIX: Strict task typing validation (Tasks columns B and C)
-        System.out.println("→ Validating task typing semantics...");
-        if (!validateTaskTypingSemantics(dataFile, mapCatalog)) {
-            System.err.println("❌ Task typing semantic validation failed");
-            dataFile.getLogger().printException("WKF Task typing semantic validation failed");
+        if (!runWkfValidationPipeline(dataFile, mapCatalog, true, true, null)) {
             return null;
         }
-        System.out.println("✓ Task typing semantics validated successfully");
-
-        // CRITICAL PRIORITY FIX: Validate temporal dependencies form a DAG (no cycles)
-        System.out.println("→ Validating temporal dependency DAG...");
-        if (!validateTemporalDependencyDAG(dataFile, mapCatalog)) {
-            System.err.println("❌ Temporal dependency DAG validation failed - circular dependencies detected");
-            dataFile.getLogger().printExceptionById("WKF_00004");
-            return null;
-        }
-        System.out.println("✓ Temporal dependencies form a valid DAG (no cycles)");
-
-        // CRITICAL PRIORITY FIX: Validate task hierarchy has no cycles
-        System.out.println("→ Validating task hierarchy...");
-        if (!validateTaskHierarchy(dataFile, mapCatalog)) {
-            System.err.println("❌ Task hierarchy validation failed - circular references detected");
-            dataFile.getLogger().printExceptionById("WKF_00003");
-            return null;
-        }
-        System.out.println("✓ Task hierarchy validated successfully (no cycles)");
-
-        // CRITICAL PRIORITY FIX: enforce unique top-level task and Process top-task coherence
-        System.out.println("→ Validating top-level task semantics...");
-        if (!validateTopLevelTaskSemantics(dataFile, mapCatalog)) {
-            System.err.println("❌ Top-level task semantics validation failed");
-            dataFile.getLogger().printException("WKF top-level task semantic validation failed");
-            return null;
-        }
-        System.out.println("✓ Top-level task semantics validated successfully");
-
-        // HIGH PRIORITY FIX: Validate reference integrity
-        System.out.println("→ Validating reference integrity...");
-        if (!validateReferenceIntegrity(dataFile, mapCatalog)) {
-            System.err.println("❌ Reference integrity validation failed");
-            // Don't return null - just warn, as some references might be to external resources
-            dataFile.getLogger().printWarning("WKF reference integrity issues detected - check logs");
-        }
-        System.out.println("✓ Reference integrity validation completed");
-
-        // EDUCATIONAL ENHANCEMENT: Validate educational properties
-        System.out.println("→ Validating educational properties...");
-        validateEducationalProperties(dataFile, mapCatalog);
-        System.out.println("✓ Educational properties validation completed");
-
-        // EDUCATIONAL ENHANCEMENT: Validate objective consistency
-        System.out.println("→ Validating objective consistency...");
-        validateObjectiveConsistency(dataFile, mapCatalog);
-        System.out.println("✓ Objective consistency validation completed");
 
         System.out.println("========== AnnotateWKF.exec() END (SUCCESS) ==========\n");
         return chain;
+    }
+
+    /**
+     * Validation-only entrypoint for WKF templates.
+     * Executes all ingestion-time semantic checks without creating or committing entities.
+     */
+    public static boolean validateOnly(DataFile dataFile) {
+        return validateOnlyWithReport(dataFile).isValid();
+    }
+
+    public static ValidationReport validateOnlyWithReport(DataFile dataFile) {
+        ValidationReport report = new ValidationReport();
+        if (dataFile == null) {
+            report.addBrokenRule(
+                RULE_WKF_NULL_DATAFILE,
+                "WKF validation failed: DataFile is null.",
+                SPEC_GENERAL);
+            return report;
+        }
+
+        File workbook = resolveWorkbookFile(dataFile);
+        if (workbook == null || !workbook.exists() || !workbook.canRead()) {
+            String filename = dataFile.getFilename() == null ? "" : dataFile.getFilename().trim();
+            String suffix = filename.isEmpty() ? "" : (" (filename: " + filename + ")");
+            String msg = "WKF validation failed: template workbook file is missing or unreadable for selected WKF" + suffix + ".";
+            dataFile.getLogger().printException(msg);
+            report.addBrokenRule(
+                RULE_WKF_CATALOG_LOAD,
+                msg,
+                SPEC_FILE_FORMAT);
+            return report;
+        }
+
+        Map<String, String> mapCatalog = loadCatalog(dataFile, Constants.MT_WKF);
+        if (mapCatalog == null) {
+            dataFile.getLogger().printExceptionById("WKF_00020");
+            report.addBrokenRule(
+                RULE_WKF_CATALOG_LOAD,
+                "WKF_00020: Failed to load WKF catalog.",
+                SPEC_CROSS_SHEET);
+            return report;
+        }
+
+        runWkfValidationPipeline(dataFile, mapCatalog, false, false, report);
+        return report;
+    }
+
+    private static boolean runWkfValidationPipeline(DataFile dataFile,
+                                                    Map<String, String> mapCatalog,
+                                                    boolean failFast,
+                                                    boolean verbose,
+                                                    ValidationReport report) {
+        boolean valid = true;
+
+        valid &= runValidationStep(
+            dataFile,
+            "InfoSheet structure",
+            () -> validateInfoSheetStructure(dataFile, mapCatalog),
+            () -> dataFile.getLogger().printExceptionById("WKF_00001"),
+            RULE_INFO_SHEET_STRUCTURE,
+            "WKF_00001: InfoSheet structure validation failed.",
+            SPEC_INFOSHEET,
+            report,
+            verbose);
+        if (failFast && !valid) {
+            return false;
+        }
+
+        valid &= runValidationStep(
+            dataFile,
+            "STD sheet semantics",
+            () -> validateStdSheetSemantics(dataFile, mapCatalog),
+            () -> dataFile.getLogger().printException("WKF STD sheet semantic validation failed"),
+            RULE_STD_SEMANTICS,
+            "WKF STD sheet semantic validation failed",
+            SPEC_STD,
+            report,
+            verbose);
+        if (failFast && !valid) {
+            return false;
+        }
+
+        valid &= runValidationStep(
+            dataFile,
+            "Namespaces semantics",
+            () -> validateNamespaceSheetSemantics(dataFile, mapCatalog),
+            () -> dataFile.getLogger().printException("WKF Namespaces semantic validation failed"),
+            RULE_NAMESPACES_SEMANTICS,
+            "WKF Namespaces semantic validation failed",
+            SPEC_NAMESPACES,
+            report,
+            verbose);
+        if (failFast && !valid) {
+            return false;
+        }
+
+        valid &= runValidationStep(
+            dataFile,
+            "task typing semantics",
+            () -> validateTaskTypingSemantics(dataFile, mapCatalog, report),
+            () -> dataFile.getLogger().printException("WKF Task typing semantic validation failed"),
+            RULE_TASK_TYPING,
+            "WKF Task typing semantic validation failed",
+            SPEC_TASK_TYPING,
+            report,
+            verbose);
+        if (failFast && !valid) {
+            return false;
+        }
+
+        valid &= runValidationStep(
+            dataFile,
+            "temporal dependency DAG",
+            () -> validateTemporalDependencyDAG(dataFile, mapCatalog),
+            () -> dataFile.getLogger().printExceptionById("WKF_00004"),
+            RULE_TEMPORAL_DAG,
+            "WKF_00004: Temporal dependency DAG validation failed.",
+            SPEC_CROSS_SHEET,
+            report,
+            verbose);
+        if (failFast && !valid) {
+            return false;
+        }
+
+        valid &= runValidationStep(
+            dataFile,
+            "task hierarchy",
+            () -> validateTaskHierarchy(dataFile, mapCatalog),
+            () -> dataFile.getLogger().printExceptionById("WKF_00003"),
+            RULE_TASK_HIERARCHY_ACYCLIC,
+            "WKF_00003: Task hierarchy validation failed.",
+            SPEC_CROSS_SHEET,
+            report,
+            verbose);
+        if (failFast && !valid) {
+            return false;
+        }
+
+        valid &= runValidationStep(
+            dataFile,
+            "task parent-child semantics",
+            () -> validateTaskParentChildSemantics(dataFile, mapCatalog),
+            () -> dataFile.getLogger().printException("WKF task parent-child semantic validation failed"),
+            RULE_TASK_PARENT_CHILD,
+            "WKF task parent-child semantic validation failed",
+            SPEC_TASK_HIERARCHY,
+            report,
+            verbose);
+        if (failFast && !valid) {
+            return false;
+        }
+
+        valid &= runValidationStep(
+            dataFile,
+            "top-level task semantics",
+            () -> validateTopLevelTaskSemantics(dataFile, mapCatalog),
+            () -> dataFile.getLogger().printException("WKF top-level task semantic validation failed"),
+            RULE_TOP_LEVEL_TASK,
+            "WKF top-level task semantic validation failed",
+            SPEC_PMSR,
+            report,
+            verbose);
+        if (failFast && !valid) {
+            return false;
+        }
+
+        valid &= runValidationStep(
+            dataFile,
+            "reference integrity",
+            () -> validateReferenceIntegrity(dataFile, mapCatalog),
+            () -> dataFile.getLogger().printException("WKF reference integrity validation failed"),
+            RULE_REFERENCE_INTEGRITY,
+            "WKF reference integrity validation failed",
+            SPEC_CROSS_SHEET,
+            report,
+            verbose);
+        if (failFast && !valid) {
+            return false;
+        }
+
+        if (verbose) {
+            System.out.println("→ Validating educational properties...");
+        }
+        validateEducationalProperties(dataFile, mapCatalog);
+        if (verbose) {
+            System.out.println("✓ Educational properties validation completed");
+            System.out.println("→ Validating objective consistency...");
+        }
+        validateObjectiveConsistency(dataFile, mapCatalog);
+        if (verbose) {
+            System.out.println("✓ Objective consistency validation completed");
+        }
+
+        return valid;
+    }
+
+    private static boolean runValidationStep(DataFile dataFile,
+                                             String label,
+                                             Supplier<Boolean> step,
+                                             Runnable onFailure,
+                                             String ruleId,
+                                             String brokenRule,
+                                             String specSection,
+                                             ValidationReport report,
+                                             boolean verbose) {
+        if (verbose) {
+            System.out.println("→ Validating " + label + "...");
+        }
+
+        boolean stepValid = step.get();
+        if (!stepValid) {
+            if (verbose) {
+                System.err.println("❌ " + capitalizeLabel(label) + " validation failed");
+            }
+            onFailure.run();
+            if (report != null && !report.hasRuleId(ruleId)) {
+                report.addBrokenRule(ruleId, brokenRule, specSection);
+            }
+            return false;
+        }
+
+        if (verbose) {
+            System.out.println("✓ " + capitalizeLabel(label) + " validated successfully");
+        }
+        return true;
+    }
+
+    private static String capitalizeLabel(String label) {
+        if (label == null || label.isEmpty()) {
+            return "Validation";
+        }
+        return Character.toUpperCase(label.charAt(0)) + label.substring(1);
     }
 
     /**
@@ -431,7 +713,7 @@ public class AnnotateWKF extends BaseAnnotator {
             valid = false;
         }
 
-        try (FileInputStream fis = new FileInputStream(dataFile.getFile());
+        try (FileInputStream fis = new FileInputStream(resolveWorkbookFile(dataFile));
              Workbook workbook = new XSSFWorkbook(fis)) {
 
             Sheet info = workbook.getSheet("InfoSheet");
@@ -534,7 +816,7 @@ public class AnnotateWKF extends BaseAnnotator {
                 return stdMetadata;
             }
 
-            try (FileInputStream fis = new FileInputStream(dataFile.getFile());
+              try (FileInputStream fis = new FileInputStream(resolveWorkbookFile(dataFile));
                  Workbook workbook = new XSSFWorkbook(fis)) {
 
                 Sheet stdSheet = workbook.getSheet(stdSheetName);
@@ -642,7 +924,7 @@ public class AnnotateWKF extends BaseAnnotator {
             return false;
         }
 
-        try (FileInputStream fis = new FileInputStream(dataFile.getFile());
+        try (FileInputStream fis = new FileInputStream(resolveWorkbookFile(dataFile));
              Workbook workbook = new XSSFWorkbook(fis)) {
 
             Sheet stdSheet = workbook.getSheet(stdSheetName);
@@ -818,25 +1100,28 @@ public class AnnotateWKF extends BaseAnnotator {
     }
 
     /**
-     * Strict WKF v1.2.1 validation for Tasks typing:
-     * - Column C (hasco:hascoType) MUST be vstoi:Task
-     * - Column B (rdf:type) MUST be vstoi:Task or subclass of vstoi:Task
+     * Strict WKF-SPEC-V3 validation for Tasks typing:
+     * - Column C (hasco:hascoType) MUST be exactly vstoi:Task
+     * - Column B (rdf:type) MUST be exactly one of:
+     *   vstoi:AbstractTask, vstoi:ManualTask, vstoi:AutomatedTask, vstoi:InteractionTask
      */
-    private static boolean validateTaskTypingSemantics(DataFile dataFile, Map<String, String> catalog) {
+    private static boolean validateTaskTypingSemantics(DataFile dataFile,
+                                                       Map<String, String> catalog,
+                                                       ValidationReport report) {
         String tasksSheet = catalog.get("Tasks");
         if (tasksSheet == null || tasksSheet.trim().isEmpty()) {
             return true;
         }
 
         try {
-            RecordFile tasks = new SpreadsheetRecordFile(dataFile.getFile(), tasksSheet.replace("#", ""));
+            File workbook = resolveWorkbookFile(dataFile);
+            RecordFile tasks = new SpreadsheetRecordFile(workbook, tasksSheet.replace("#", ""));
             if (!tasks.isValid() || tasks.getRecords() == null || tasks.getRecords().isEmpty()) {
                 return true;
             }
 
             boolean valid = true;
             int rowNumber = 2; // Tasks sheet header is expected at row 1
-            Map<String, Boolean> taskSubclassCache = new HashMap<>();
 
             for (Record rec : tasks.getRecords()) {
                 String taskUri = safeValue(rec.getValueByColumnName("hasURI"));
@@ -849,35 +1134,38 @@ public class AnnotateWKF extends BaseAnnotator {
                     continue;
                 }
 
-                boolean hascoTypeIsArchetype = isTaskArchetypeValue(hascoType);
-                boolean hascoTypeIsSubclass = !hascoTypeIsArchetype
-                    && !hascoType.isEmpty()
-                    && isTaskTypeOrSubclass(hascoType, taskSubclassCache, dataFile);
-
-                if (!hascoTypeIsArchetype) {
-                    if (hascoTypeIsSubclass) {
-                        dataFile.getLogger().printWarning("Tasks row " + rowNumber
-                            + " uses legacy hasco:hascoType subclass value '" + hascoType
-                            + "'. It will be normalized to vstoi:Task during ingestion.");
-                    } else {
-                        System.err.println("[WKF Validation] Tasks row " + rowNumber + " has invalid hasco:hascoType (must be vstoi:Task or subclass): " + hascoType);
-                        dataFile.getLogger().printException("Tasks row " + rowNumber + " has invalid hasco:hascoType (must be vstoi:Task or subclass): " + hascoType);
-                        valid = false;
+                if (!isTaskArchetypeValue(hascoType)) {
+                    String msg = "Tasks row " + rowNumber
+                        + " (hasURI=" + (taskUri.isEmpty() ? "(empty)" : taskUri) + ")"
+                        + " has invalid hasco:hascoType (must be exactly vstoi:Task): "
+                        + (hascoType.isEmpty() ? "(empty)" : hascoType);
+                    System.err.println("[WKF Validation] " + msg);
+                    dataFile.getLogger().printException(msg);
+                    if (report != null) {
+                        report.addBrokenRule(RULE_TASK_TYPING, msg, SPEC_TASK_TYPING);
                     }
+                    valid = false;
                 }
 
                 if (rdfType.isEmpty()) {
-                    if (hascoTypeIsSubclass) {
-                        dataFile.getLogger().printWarning("Tasks row " + rowNumber
-                            + " has empty rdf:type but legacy hasco:hascoType subclass is present; rdf:type will be inferred during ingestion.");
-                    } else {
-                        System.err.println("[WKF Validation] Tasks row " + rowNumber + " has empty rdf:type");
-                        dataFile.getLogger().printException("Tasks row " + rowNumber + " has empty rdf:type");
-                        valid = false;
+                    String msg = "Tasks row " + rowNumber
+                        + " (hasURI=" + (taskUri.isEmpty() ? "(empty)" : taskUri) + ") has empty rdf:type";
+                    System.err.println("[WKF Validation] " + msg);
+                    dataFile.getLogger().printException(msg);
+                    if (report != null) {
+                        report.addBrokenRule(RULE_TASK_TYPING, msg, SPEC_TASK_TYPING);
                     }
-                } else if (!isTaskTypeOrSubclass(rdfType, taskSubclassCache, dataFile)) {
-                    System.err.println("[WKF Validation] Tasks row " + rowNumber + " has rdf:type not compatible with vstoi:Task: " + rdfType);
-                    dataFile.getLogger().printException("Tasks row " + rowNumber + " has rdf:type not compatible with vstoi:Task: " + rdfType);
+                    valid = false;
+                } else if (!isAllowedConcreteTaskType(rdfType)) {
+                    String msg = "Tasks row " + rowNumber
+                        + " (hasURI=" + (taskUri.isEmpty() ? "(empty)" : taskUri) + ")"
+                        + " has invalid rdf:type. Allowed values: vstoi:AbstractTask, vstoi:ManualTask, vstoi:AutomatedTask, vstoi:InteractionTask. Found: "
+                        + rdfType;
+                    System.err.println("[WKF Validation] " + msg);
+                    dataFile.getLogger().printException(msg);
+                    if (report != null) {
+                        report.addBrokenRule(RULE_TASK_TYPING, msg, SPEC_TASK_TYPING);
+                    }
                     valid = false;
                 }
 
@@ -898,65 +1186,26 @@ public class AnnotateWKF extends BaseAnnotator {
 
     private static boolean isTaskArchetypeValue(String value) {
         String v = safeValue(value);
-        return VSTOI.TASK.equals(v) || "vstoi:Task".equals(v);
+        return VSTOI.TASK.equals(v)
+            || "vstoi:Task".equals(v)
+            || "http://hadatac.org/ont/vstoi#Task".equals(v);
     }
 
-    private static boolean isTaskTypeOrSubclass(String taskType,
-                                                Map<String, Boolean> cache,
-                                                DataFile dataFile) {
-        String value = safeValue(taskType);
-        if (value.isEmpty()) {
-            return false;
-        }
-
-        boolean lexicalTaskLike = value.endsWith("Task")
-            || value.contains(":Task")
-            || value.contains("#Task");
-
-        if (isTaskArchetypeValue(value)) {
-            return true;
-        }
-
-        if (cache.containsKey(value)) {
-            return cache.get(value);
-        }
-
-        try {
-            String candidateToken = toSparqlResource(value);
-            String taskToken = toSparqlResource(VSTOI.TASK);
-            String query = NameSpaces.getInstance().printSparqlNameSpaceList()
-                    + "SELECT ?candidate WHERE { "
-                    + "  VALUES ?candidate { " + candidateToken + " } "
-                    + "  ?candidate rdfs:subClassOf* " + taskToken + " . "
-                    + "} LIMIT 1";
-
-            ResultSetRewindable rs = SPARQLUtils.select(
-                    CollectionUtil.getCollectionPath(CollectionUtil.Collection.SPARQL_QUERY), query);
-            boolean isSubclass = rs != null && rs.hasNext();
-            if (!isSubclass && lexicalTaskLike) {
-                dataFile.getLogger().printWarning("Task type '" + value
-                    + "' has no explicit rdfs:subClassOf* vstoi:Task assertion in KG; accepting by lexical task-like fallback.");
-                cache.put(value, true);
-                return true;
-            }
-            cache.put(value, isSubclass);
-            return isSubclass;
-        } catch (Exception e) {
-            // If subclass lookup cannot be evaluated, keep strict lexical guard.
-            boolean lexicalFallback = lexicalTaskLike;
-            dataFile.getLogger().printWarning("Task type subclass lookup failed for '" + value + "'; using lexical fallback=" + lexicalFallback + ". Reason: " + e.getMessage());
-            cache.put(value, lexicalFallback);
-            return lexicalFallback;
-        }
+    private static boolean isAllowedConcreteTaskType(String value) {
+        String normalized = normalizeTaskType(value);
+        return "vstoi:AbstractTask".equals(normalized)
+            || "vstoi:ManualTask".equals(normalized)
+            || "vstoi:AutomatedTask".equals(normalized)
+            || "vstoi:InteractionTask".equals(normalized);
     }
 
-    private static String toSparqlResource(String value) {
+    private static String normalizeTaskType(String value) {
         String v = safeValue(value);
-        if (v.startsWith("<") && v.endsWith(">")) {
-            return v;
+        if (v.startsWith("http://hadatac.org/ont/vstoi#")) {
+            return "vstoi:" + v.substring("http://hadatac.org/ont/vstoi#".length());
         }
-        if (URIUtils.isValidURI(v) && (v.startsWith("http://") || v.startsWith("https://"))) {
-            return "<" + v + ">";
+        if (v.startsWith("https://hadatac.org/ont/vstoi#")) {
+            return "vstoi:" + v.substring("https://hadatac.org/ont/vstoi#".length());
         }
         return v;
     }
@@ -1003,7 +1252,7 @@ public class AnnotateWKF extends BaseAnnotator {
         }
 
         try {
-            RecordFile namespaces = new SpreadsheetRecordFile(dataFile.getFile(), namespaceSheetName.replace("#", ""));
+            RecordFile namespaces = new SpreadsheetRecordFile(resolveWorkbookFile(dataFile), namespaceSheetName.replace("#", ""));
             if (!namespaces.isValid() || namespaces.getRecords() == null) {
                 dataFile.getLogger().printException("Namespaces sheet is missing or invalid");
                 return false;
@@ -1077,7 +1326,7 @@ public class AnnotateWKF extends BaseAnnotator {
         }
 
         try {
-            RecordFile tasks = new SpreadsheetRecordFile(dataFile.getFile(), tasksSheet.replace("#", ""));
+            RecordFile tasks = new SpreadsheetRecordFile(resolveWorkbookFile(dataFile), tasksSheet.replace("#", ""));
             if (!tasks.isValid() || tasks.getRecords() == null || tasks.getRecords().isEmpty()) {
                 return true;
             }
@@ -1100,42 +1349,46 @@ public class AnnotateWKF extends BaseAnnotator {
                 }
             }
 
+            boolean valid = true;
             if (topLevelTasks.size() != 1) {
                 dataFile.getLogger().printException("WKF must have exactly one top-level task, found " + topLevelTasks.size());
-                return false;
+                valid = false;
             }
 
-            String root = topLevelTasks.iterator().next();
-            for (String task : allTasks) {
-                if (task.equals(root)) {
-                    continue;
-                }
-
-                String cursor = task;
-                Set<String> guard = new HashSet<>();
-                boolean reachesRoot = false;
-                while (!cursor.isEmpty() && !guard.contains(cursor)) {
-                    guard.add(cursor);
-                    String parent = safeValue(parentByTask.get(cursor));
-                    if (parent.isEmpty()) {
-                        break;
+            String root = null;
+            if (topLevelTasks.size() == 1) {
+                root = topLevelTasks.iterator().next();
+                for (String task : allTasks) {
+                    if (task.equals(root)) {
+                        continue;
                     }
-                    if (parent.equals(root)) {
-                        reachesRoot = true;
-                        break;
-                    }
-                    cursor = parent;
-                }
 
-                if (!reachesRoot) {
-                    dataFile.getLogger().printException("Task is not a descendant of unique top-level task: " + task);
-                    return false;
+                    String cursor = task;
+                    Set<String> guard = new HashSet<>();
+                    boolean reachesRoot = false;
+                    while (!cursor.isEmpty() && !guard.contains(cursor)) {
+                        guard.add(cursor);
+                        String parent = safeValue(parentByTask.get(cursor));
+                        if (parent.isEmpty()) {
+                            break;
+                        }
+                        if (parent.equals(root)) {
+                            reachesRoot = true;
+                            break;
+                        }
+                        cursor = parent;
+                    }
+
+                    if (!reachesRoot) {
+                        dataFile.getLogger().printException("Task is not a descendant of unique top-level task: " + task);
+                        valid = false;
+                    }
                 }
             }
 
             String processSheet = catalog.get("Processes");
             if (processSheet != null && !processSheet.trim().isEmpty()) {
-                RecordFile processes = new SpreadsheetRecordFile(dataFile.getFile(), processSheet.replace("#", ""));
+                RecordFile processes = new SpreadsheetRecordFile(resolveWorkbookFile(dataFile), processSheet.replace("#", ""));
                 if (processes.isValid() && processes.getRecords() != null) {
                     for (Record rec : processes.getRecords()) {
                         String processUri = safeValue(rec.getValueByColumnName("hasURI"));
@@ -1143,19 +1396,198 @@ public class AnnotateWKF extends BaseAnnotator {
                         if (processUri.isEmpty()) {
                             continue;
                         }
-                        if (!root.equals(topTask)) {
+                        if (root != null && !root.equals(topTask)) {
                             dataFile.getLogger().printException("Process " + processUri
                                 + " must reference unique top-level task " + root + " in vstoi:hasTopTask");
-                            return false;
+                            valid = false;
                         }
                     }
                 }
             }
-            return true;
+            return valid;
         } catch (Exception e) {
             dataFile.getLogger().printException("Error validating top-level task semantics: " + e.getMessage());
             return false;
         }
+    }
+
+    /**
+     * Enforce task hierarchy/cardinality semantics from WKF-SPEC-V3.
+     */
+    private static boolean validateTaskParentChildSemantics(DataFile dataFile, Map<String, String> catalog) {
+        String tasksSheet = catalog.get("Tasks");
+        if (tasksSheet == null || tasksSheet.trim().isEmpty()) {
+            return true;
+        }
+
+        try {
+            RecordFile tasks = new SpreadsheetRecordFile(resolveWorkbookFile(dataFile), tasksSheet.replace("#", ""));
+            if (!tasks.isValid() || tasks.getRecords() == null || tasks.getRecords().isEmpty()) {
+                return true;
+            }
+
+            boolean valid = true;
+            Set<String> allTasks = new HashSet<>();
+            Map<String, String> rdfTypeByTask = new HashMap<>();
+            Map<String, String> temporalByTask = new HashMap<>();
+            Map<String, String> supertaskByChild = new HashMap<>();
+            Map<String, Set<String>> childrenByParentFromSubtask = new HashMap<>();
+            Map<String, Set<String>> parentsByChildFromSubtask = new HashMap<>();
+
+            int rowNumber = 2;
+            for (Record rec : tasks.getRecords()) {
+                String taskUri = safeValue(rec.getValueByColumnName("hasURI"));
+                if (taskUri.isEmpty()) {
+                    rowNumber++;
+                    continue;
+                }
+
+                allTasks.add(taskUri);
+                rdfTypeByTask.put(taskUri, normalizeTaskType(rec.getValueByColumnName("rdf:type")));
+                temporalByTask.put(taskUri, safeValue(rec.getValueByColumnName("vstoi:hasTemporalDependency")));
+
+                String supertask = safeValue(rec.getValueByColumnName("vstoi:hasSupertask"));
+                if (!supertask.isEmpty()) {
+                    String previous = supertaskByChild.putIfAbsent(taskUri, supertask);
+                    if (previous != null && !previous.equals(supertask)) {
+                        dataFile.getLogger().printException("Task " + taskUri
+                            + " has conflicting vstoi:hasSupertask values: " + previous + " and " + supertask);
+                        valid = false;
+                    }
+                }
+
+                String subtasks = safeValue(rec.getValueByColumnName("vstoi:hasSubtask"));
+                if (!subtasks.isEmpty()) {
+                    Set<String> seenChildrenInRow = new HashSet<>();
+                    for (String token : subtasks.split("[;|]")) {
+                        String child = safeValue(token);
+                        if (child.isEmpty()) {
+                            continue;
+                        }
+                        if (!seenChildrenInRow.add(child)) {
+                            dataFile.getLogger().printException("Task " + taskUri
+                                + " lists duplicate child in vstoi:hasSubtask: " + child);
+                            valid = false;
+                            continue;
+                        }
+
+                        childrenByParentFromSubtask.computeIfAbsent(taskUri, k -> new HashSet<>()).add(child);
+                        parentsByChildFromSubtask.computeIfAbsent(child, k -> new HashSet<>()).add(taskUri);
+                    }
+                }
+
+                rowNumber++;
+            }
+
+            // Every non-top task MUST have exactly one immediate parent via hasSupertask.
+            for (String task : allTasks) {
+                String parent = safeValue(supertaskByChild.get(task));
+                if (parent.isEmpty()) {
+                    continue;
+                }
+                if (!allTasks.contains(parent)) {
+                    dataFile.getLogger().printException("Task " + task
+                        + " has vstoi:hasSupertask that does not resolve inside Tasks: " + parent);
+                    valid = false;
+                }
+            }
+
+            // No child can have more than one parent from hasSubtask side.
+            for (Map.Entry<String, Set<String>> entry : parentsByChildFromSubtask.entrySet()) {
+                if (entry.getValue().size() > 1) {
+                    dataFile.getLogger().printException("Task " + entry.getKey()
+                        + " is attached to more than one parent in vstoi:hasSubtask: " + entry.getValue());
+                    valid = false;
+                }
+            }
+
+            // Bidirectional consistency: hasSubtask -> hasSupertask
+            for (Map.Entry<String, Set<String>> entry : childrenByParentFromSubtask.entrySet()) {
+                String parent = entry.getKey();
+                for (String child : entry.getValue()) {
+                    String supertask = safeValue(supertaskByChild.get(child));
+                    if (!parent.equals(supertask)) {
+                        dataFile.getLogger().printException("Parent-child mismatch: parent " + parent
+                            + " lists child " + child + " in vstoi:hasSubtask, but child has vstoi:hasSupertask="
+                            + (supertask.isEmpty() ? "<empty>" : supertask));
+                        valid = false;
+                    }
+                }
+            }
+
+            // Bidirectional consistency: hasSupertask -> hasSubtask
+            for (Map.Entry<String, String> entry : supertaskByChild.entrySet()) {
+                String child = entry.getKey();
+                String parent = safeValue(entry.getValue());
+                Set<String> listedChildren = childrenByParentFromSubtask.getOrDefault(parent, Collections.emptySet());
+                if (!listedChildren.contains(child)) {
+                    dataFile.getLogger().printException("Parent-child mismatch: child " + child
+                        + " has vstoi:hasSupertask=" + parent
+                        + " but parent does not include child in vstoi:hasSubtask");
+                    valid = false;
+                }
+            }
+
+            // Children computed from authoritative hasSupertask relation.
+            Map<String, Set<String>> childrenByParentFromSupertask = new HashMap<>();
+            for (Map.Entry<String, String> entry : supertaskByChild.entrySet()) {
+                String child = entry.getKey();
+                String parent = safeValue(entry.getValue());
+                if (!parent.isEmpty()) {
+                    childrenByParentFromSupertask.computeIfAbsent(parent, k -> new HashSet<>()).add(child);
+                }
+            }
+
+            // AbstractTask cardinality rules.
+            for (String task : allTasks) {
+                String taskType = normalizeTaskType(rdfTypeByTask.get(task));
+                int childCount = childrenByParentFromSupertask.getOrDefault(task, Collections.emptySet()).size();
+
+                if ("vstoi:AbstractTask".equals(taskType) && childCount < 1) {
+                    dataFile.getLogger().printException("Task " + task
+                        + " has rdf:type vstoi:AbstractTask but has no child tasks");
+                    valid = false;
+                }
+
+                String op = extractTemporalOperator(temporalByTask.get(task));
+                if ("vstoi:AbstractTask".equals(taskType)
+                    && ("parallel".equals(op) || "choice".equals(op) || "independent".equals(op))
+                    && childCount < 2) {
+                    dataFile.getLogger().printException("Task " + task
+                        + " has rdf:type vstoi:AbstractTask and temporal operator " + op
+                        + " but has fewer than two child tasks");
+                    valid = false;
+                }
+            }
+
+            return valid;
+        } catch (Exception e) {
+            dataFile.getLogger().printException("Error validating task parent-child semantics: " + e.getMessage());
+            return false;
+        }
+    }
+
+    private static String extractTemporalOperator(String temporalDependency) {
+        String value = safeValue(temporalDependency).toLowerCase(Locale.ROOT);
+        if (value.isEmpty()) {
+            return "";
+        }
+
+        // If multiple constraints are encoded, inspect only the first tokenized clause.
+        String firstClause = safeValue(value.split("[;|]", 2)[0]);
+        if (firstClause.isEmpty()) {
+            return "";
+        }
+
+        if (firstClause.startsWith("after ")) {
+            return "after";
+        }
+        if (firstClause.startsWith("before ")) {
+            return "before";
+        }
+
+        String[] parts = firstClause.split("\\s+");
+        return parts.length == 0 ? "" : parts[0];
     }
 
     private static Row firstNonEmptyDataRow(Sheet sheet, int startRowIndex) {
@@ -1191,41 +1623,88 @@ public class AnnotateWKF extends BaseAnnotator {
         }
         
         try {
-            RecordFile tasks = new SpreadsheetRecordFile(dataFile.getFile(), tasksSheet.replace("#", ""));
+            RecordFile tasks = new SpreadsheetRecordFile(resolveWorkbookFile(dataFile), tasksSheet.replace("#", ""));
             if (!tasks.isValid() || tasks.getRecords().isEmpty()) {
                 return true; // No tasks, no dependencies
             }
             
-            // Build dependency graph: task -> list of predecessors (tasks it depends on via "after")
+            // Build dependency graph: task -> list of predecessors.
+            // "after X"  => task depends on X      => edge task -> X
+            // "before X" => X depends on task      => edge X -> task
             Map<String, List<String>> graph = new HashMap<>();
             Map<String, String> taskURIs = new HashMap<>();
+            Map<String, String> temporalByTask = new HashMap<>();
             
             for (Record rec : tasks.getRecords()) {
                 String uri = rec.getValueByColumnName("hasURI");
                 String tempDep = rec.getValueByColumnName("vstoi:hasTemporalDependency");
                 
                 if (uri != null && !uri.trim().isEmpty()) {
-                    taskURIs.put(uri, uri);
-                    
-                    // Parse temporal dependency - only "after" creates directed edge
-                    if (tempDep != null && tempDep.trim().startsWith("after ")) {
-                        String predecessor = tempDep.substring(6).trim();
-                        graph.computeIfAbsent(uri, k -> new ArrayList<>()).add(predecessor);
+                    String cleanUri = uri.trim();
+                    taskURIs.put(cleanUri, cleanUri);
+                    temporalByTask.put(cleanUri, safeValue(tempDep));
+                }
+            }
+
+            boolean valid = true;
+            for (Map.Entry<String, String> entry : temporalByTask.entrySet()) {
+                String uri = entry.getKey();
+                String tempDep = entry.getValue();
+                if (tempDep.isEmpty()) {
+                    continue;
+                }
+
+                for (String clauseRaw : tempDep.split("[;|]")) {
+                    String clause = safeValue(clauseRaw);
+                    if (clause.isEmpty()) {
+                        continue;
+                    }
+
+                    String lower = clause.toLowerCase(Locale.ROOT);
+                    if (lower.startsWith("after ")) {
+                        String predecessor = safeValue(clause.substring(6));
+                        if (predecessor.isEmpty()) {
+                            continue;
+                        }
+                        if (!taskURIs.containsKey(predecessor)) {
+                            dataFile.getLogger().printException("Task " + uri
+                                + " has temporal dependency 'after' that references non-existent task: " + predecessor);
+                            valid = false;
+                        } else {
+                            graph.computeIfAbsent(uri, k -> new ArrayList<>()).add(predecessor);
+                        }
+                    } else if (lower.startsWith("before ")) {
+                        String successor = safeValue(clause.substring(7));
+                        if (successor.isEmpty()) {
+                            continue;
+                        }
+                        if (!taskURIs.containsKey(successor)) {
+                            dataFile.getLogger().printException("Task " + uri
+                                + " has temporal dependency 'before' that references non-existent task: " + successor);
+                            valid = false;
+                        } else {
+                            graph.computeIfAbsent(successor, k -> new ArrayList<>()).add(uri);
+                        }
                     }
                 }
             }
+
+            // Keep scanning for additional cycle violations even when some
+            // dependencies reference missing tasks.
             
-            // Detect cycles using DFS
+            // Detect cycles using DFS; keep scanning to report all cycles.
             Set<String> visited = new HashSet<>();
             Set<String> recStack = new HashSet<>();
+            Set<String> cycleReported = new HashSet<>();
+            boolean hasCycle = false;
             
             for (String task : graph.keySet()) {
-                if (hasCycleDFS(task, graph, visited, recStack, dataFile)) {
-                    return false; // Cycle detected
+                if (hasCycleDFS(task, graph, visited, recStack, cycleReported, dataFile)) {
+                    hasCycle = true;
                 }
             }
             
-            return true; // No cycles - valid DAG
+            return !hasCycle; // No cycles - valid DAG
             
         } catch (Exception e) {
             System.err.println("[WKF Validation] Error validating temporal dependencies: " + e.getMessage());
@@ -1241,11 +1720,17 @@ public class AnnotateWKF extends BaseAnnotator {
      */
     private static boolean hasCycleDFS(String task, Map<String, List<String>> graph,
                                        Set<String> visited, Set<String> recStack,
+                                       Set<String> cycleReported,
                                        DataFile dataFile) {
+        boolean hasCycle = false;
+
         if (recStack.contains(task)) {
             // Cycle detected!
-            System.err.println("[WKF Validation] CYCLE DETECTED in temporal dependencies involving task: " + task);
-            dataFile.getLogger().printExceptionByIdWithArgs("WKF_00018", task);
+            if (!cycleReported.contains(task)) {
+                cycleReported.add(task);
+                System.err.println("[WKF Validation] CYCLE DETECTED in temporal dependencies involving task: " + task);
+                dataFile.getLogger().printExceptionByIdWithArgs("WKF_00018", task);
+            }
             return true;
         }
         
@@ -1257,13 +1742,13 @@ public class AnnotateWKF extends BaseAnnotator {
         recStack.add(task);
         
         for (String neighbor : graph.getOrDefault(task, Collections.emptyList())) {
-            if (hasCycleDFS(neighbor, graph, visited, recStack, dataFile)) {
-                return true;
+            if (hasCycleDFS(neighbor, graph, visited, recStack, cycleReported, dataFile)) {
+                hasCycle = true;
             }
         }
         
         recStack.remove(task);
-        return false;
+        return hasCycle;
     }
 
     /**
@@ -1279,7 +1764,7 @@ public class AnnotateWKF extends BaseAnnotator {
         }
         
         try {
-            RecordFile tasks = new SpreadsheetRecordFile(dataFile.getFile(), tasksSheet.replace("#", ""));
+            RecordFile tasks = new SpreadsheetRecordFile(resolveWorkbookFile(dataFile), tasksSheet.replace("#", ""));
             if (!tasks.isValid() || tasks.getRecords().isEmpty()) {
                 return true;
             }
@@ -1298,17 +1783,19 @@ public class AnnotateWKF extends BaseAnnotator {
                 }
             }
             
-            // Detect cycles: for each task, follow parent chain
+            // Detect cycles: for each task, follow parent chain and keep scanning.
             Set<String> visited = new HashSet<>();
+            Set<String> cycleReported = new HashSet<>();
+            boolean hasCycle = false;
             for (String task : hierarchy.keySet()) {
                 if (!visited.contains(task)) {
-                    if (hasHierarchyCycle(task, hierarchy, visited, new HashSet<>(), dataFile)) {
-                        return false; // Cycle detected
+                    if (hasHierarchyCycle(task, hierarchy, visited, new HashSet<>(), cycleReported, dataFile)) {
+                        hasCycle = true;
                     }
                 }
             }
             
-            return true; // No cycles
+            return !hasCycle; // No cycles
             
         } catch (Exception e) {
             System.err.println("[WKF Validation] Error validating task hierarchy: " + e.getMessage());
@@ -1323,11 +1810,17 @@ public class AnnotateWKF extends BaseAnnotator {
      */
     private static boolean hasHierarchyCycle(String task, Map<String, String> hierarchy,
                                             Set<String> visited, Set<String> recStack,
+                                            Set<String> cycleReported,
                                             DataFile dataFile) {
+        boolean hasCycle = false;
+
         if (recStack.contains(task)) {
             // Cycle detected!
-            System.err.println("[WKF Validation] CYCLE DETECTED in task hierarchy involving task: " + task);
-            dataFile.getLogger().printExceptionByIdWithArgs("WKF_00018", task);
+            if (!cycleReported.contains(task)) {
+                cycleReported.add(task);
+                System.err.println("[WKF Validation] CYCLE DETECTED in task hierarchy involving task: " + task);
+                dataFile.getLogger().printExceptionByIdWithArgs("WKF_00018", task);
+            }
             return true;
         }
         
@@ -1340,13 +1833,13 @@ public class AnnotateWKF extends BaseAnnotator {
         
         String parent = hierarchy.get(task);
         if (parent != null && !parent.trim().isEmpty()) {
-            if (hasHierarchyCycle(parent, hierarchy, visited, recStack, dataFile)) {
-                return true;
+            if (hasHierarchyCycle(parent, hierarchy, visited, recStack, cycleReported, dataFile)) {
+                hasCycle = true;
             }
         }
         
         recStack.remove(task);
-        return false;
+        return hasCycle;
     }
 
     /**
@@ -1372,7 +1865,7 @@ public class AnnotateWKF extends BaseAnnotator {
             // Validate Process references
             String processSheet = catalog.get("Processes");
             if (processSheet != null && !processSheet.trim().isEmpty()) {
-                RecordFile processes = new SpreadsheetRecordFile(dataFile.getFile(), processSheet.replace("#", ""));
+                RecordFile processes = new SpreadsheetRecordFile(resolveWorkbookFile(dataFile), processSheet.replace("#", ""));
                 if (processes.isValid()) {
                     for (Record rec : processes.getRecords()) {
                         String processUri = rec.getValueByColumnName("hasURI");
@@ -1403,7 +1896,7 @@ public class AnnotateWKF extends BaseAnnotator {
             // Validate Task references
             String taskSheet = catalog.get("Tasks");
             if (taskSheet != null && !taskSheet.trim().isEmpty()) {
-                RecordFile tasks = new SpreadsheetRecordFile(dataFile.getFile(), taskSheet.replace("#", ""));
+                RecordFile tasks = new SpreadsheetRecordFile(resolveWorkbookFile(dataFile), taskSheet.replace("#", ""));
                 if (tasks.isValid()) {
                     for (Record rec : tasks.getRecords()) {
                         String taskUri = rec.getValueByColumnName("hasURI");
@@ -1480,7 +1973,7 @@ public class AnnotateWKF extends BaseAnnotator {
         
         if (sheetName != null && !sheetName.trim().isEmpty()) {
             try {
-                RecordFile sheet = new SpreadsheetRecordFile(dataFile.getFile(), sheetName.replace("#", ""));
+                RecordFile sheet = new SpreadsheetRecordFile(resolveWorkbookFile(dataFile), sheetName.replace("#", ""));
                 if (sheet.isValid()) {
                     for (Record rec : sheet.getRecords()) {
                         String uri = rec.getValueByColumnName("hasURI");
@@ -1532,7 +2025,7 @@ public class AnnotateWKF extends BaseAnnotator {
         Map<String, Record> pbsByProcess = loadProcessBasedStudiesByProcess(dataFile, catalog);
         
         try {
-            RecordFile processes = new SpreadsheetRecordFile(dataFile.getFile(), processSheet.replace("#", ""));
+            RecordFile processes = new SpreadsheetRecordFile(resolveWorkbookFile(dataFile), processSheet.replace("#", ""));
             if (!processes.isValid() || processes.getRecords().isEmpty()) {
                 return;
             }
@@ -1608,8 +2101,8 @@ public class AnnotateWKF extends BaseAnnotator {
         Map<String, Record> pbsByProcess = loadProcessBasedStudiesByProcess(dataFile, catalog);
         
         try {
-            RecordFile processes = new SpreadsheetRecordFile(dataFile.getFile(), processSheet.replace("#", ""));
-            RecordFile tasks = new SpreadsheetRecordFile(dataFile.getFile(), taskSheet.replace("#", ""));
+            RecordFile processes = new SpreadsheetRecordFile(resolveWorkbookFile(dataFile), processSheet.replace("#", ""));
+            RecordFile tasks = new SpreadsheetRecordFile(resolveWorkbookFile(dataFile), taskSheet.replace("#", ""));
             
             if (!processes.isValid() || !tasks.isValid()) {
                 return;
@@ -1704,7 +2197,7 @@ public class AnnotateWKF extends BaseAnnotator {
         }
 
         try {
-            RecordFile pbsRows = new SpreadsheetRecordFile(dataFile.getFile(), pbsSheet.replace("#", ""));
+            RecordFile pbsRows = new SpreadsheetRecordFile(resolveWorkbookFile(dataFile), pbsSheet.replace("#", ""));
             if (!pbsRows.isValid()) {
                 return byProcess;
             }

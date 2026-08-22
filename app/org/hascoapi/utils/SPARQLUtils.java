@@ -16,6 +16,8 @@ public class SPARQLUtils {
 
     private static final int MAX_RETRIES = 3;
     private static final long BASE_BACKOFF_MS = 120L;
+    private static final boolean LOG_TRANSIENT_SPARQL_FAILURES =
+            Boolean.parseBoolean(System.getenv().getOrDefault("HASCOAPI_LOG_TRANSIENT_SPARQL_FAILURES", "false"));
 
     public static ResultSetRewindable select(String sparqlService, String queryString) {
         //System.out.println("queryString: " + queryString + "\n");
@@ -51,8 +53,7 @@ public class SPARQLUtils {
         } catch (RuntimeException e) {
             if (isTransientTransportFailure(e)) {
                 // Degrade gracefully for transient triplestore/network interruptions.
-                System.err.println("[SPARQLUtils] select() transient failure; returning empty result set.");
-                System.err.println("[SPARQLUtils] Service URL: " + sparqlService);
+                logTransientFailure("select", sparqlService, e);
                 return emptyResultSet();
             }
             throw e;
@@ -91,8 +92,7 @@ public class SPARQLUtils {
         } catch (Exception e) {
             if (isTransientTransportFailure(e)) {
                 // Degrade gracefully for transient triplestore/network interruptions.
-                System.err.println("[SPARQLUtils] describe() transient failure; returning empty model.");
-                System.err.println("[SPARQLUtils] Service URL: " + sparqlService);
+                logTransientFailure("describe", sparqlService, e);
                 return ModelFactory.createDefaultModel();
             }
             System.err.println("[SPARQLUtils] describe() failed with non-transient exception:");
@@ -151,12 +151,17 @@ public class SPARQLUtils {
             String message = String.valueOf(current.getMessage()).toLowerCase();
 
             if (type.contains("eofexception")
+                    || type.contains("riotexception")
                     || type.contains("connectexception")
                     || type.contains("socketexception")
                     || type.contains("sockettimeoutexception")
                     || type.contains("httptimeoutexception")
                     || type.contains("queryexceptionhttp")
                     || message.contains("eof reached while reading")
+                    || message.contains("bad input stream")
+                    || message.contains("java.io.ioexception: closed")
+                    || message.contains("input stream")
+                    || message.contains("stream closed")
                     || message.contains("connection reset")
                     || message.contains("broken pipe")
                     || message.contains("timed out")
@@ -185,6 +190,17 @@ public class SPARQLUtils {
         try (QueryExecution qexec = QueryExecutionFactory.create("SELECT * WHERE { FILTER(false) }", emptyModel)) {
             return ResultSetFactory.copyResults(qexec.execSelect());
         }
+    }
+
+    private static void logTransientFailure(String operation, String sparqlService, Throwable error) {
+        if (!LOG_TRANSIENT_SPARQL_FAILURES) {
+            return;
+        }
+
+        String details = (error == null || error.getMessage() == null) ? "" : (": " + error.getMessage());
+        System.err.println("[SPARQLUtils] " + operation + "() transient failure; returning degraded empty result" + details);
+        System.err.println("[SPARQLUtils] Service URL: " + sparqlService);
+        System.err.println("[SPARQLUtils] Hint: set HASCOAPI_LOG_TRANSIENT_SPARQL_FAILURES=false to keep this silent.");
     }
 
 }

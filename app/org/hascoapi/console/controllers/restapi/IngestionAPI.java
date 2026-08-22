@@ -3,6 +3,7 @@ package org.hascoapi.console.controllers.restapi;
 import org.hascoapi.entity.pojo.WKF;
 import org.hascoapi.transform.mt.wkf.WKFGen;
 import org.hascoapi.Constants;
+import org.hascoapi.ingestion.AnnotateWKF;
 import org.hascoapi.ingestion.IngestionWorker;
 import org.hascoapi.entity.pojo.DA;
 import org.hascoapi.entity.pojo.DataFile;
@@ -51,6 +52,9 @@ import org.apache.jena.update.UpdateRequest;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.libs.Json;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import static org.hascoapi.Constants.*;
 
 
@@ -214,6 +218,60 @@ public class IngestionAPI extends Controller {
         }
 
         return value;
+    }
+
+    /**
+     * Validation-only endpoint for WKF meta-templates.
+     * Runs WKF-SPEC validations without creating/committing entities.
+     */
+    public Result validateWkf(String elementUri, Http.Request request) {
+        try {
+            WKF wkf = WKF.find(elementUri);
+            if (wkf == null) {
+                return ok(ApiUtil.createResponse("WKF validation failed: could not retrieve WKF " + elementUri, false));
+            }
+
+            String dataFileUri = wkf.getHasDataFileUri();
+            DataFile dataFile = DataFile.find(dataFileUri);
+            if (dataFile == null) {
+                return ok(ApiUtil.createResponse("WKF validation failed: could not retrieve DataFile for WKF " + elementUri, false));
+            }
+
+            beginIngestionRunLog(dataFile, "wkf", "VALIDATE");
+            AnnotateWKF.ValidationReport report = AnnotateWKF.validateOnlyWithReport(dataFile);
+
+            ArrayNode brokenRules = Json.newArray();
+            ArrayNode brokenRuleDetails = Json.newArray();
+            for (AnnotateWKF.BrokenRule rule : report.getBrokenRuleDetails()) {
+                if (rule == null) {
+                    continue;
+                }
+                if (rule.getMessage() != null && !rule.getMessage().trim().isEmpty()) {
+                    brokenRules.add(rule.getMessage());
+                }
+
+                ObjectNode detail = Json.newObject();
+                detail.put("ruleId", rule.getRuleId() == null ? "" : rule.getRuleId());
+                detail.put("message", rule.getMessage() == null ? "" : rule.getMessage());
+                detail.put("specSection", rule.getSpecSection() == null ? "" : rule.getSpecSection());
+                brokenRuleDetails.add(detail);
+            }
+            boolean valid = report.isValid();
+
+            ObjectNode body = Json.newObject();
+            body.put("wkfUri", elementUri);
+            body.put("dataFileUri", dataFileUri == null ? "" : dataFileUri);
+            body.put("valid", valid);
+            body.put("summary", valid
+                ? "WKF is valid."
+                : "WKF validation failed.");
+            body.set("brokenRules", brokenRules);
+            body.set("brokenRuleDetails", brokenRuleDetails);
+
+            return ok(ApiUtil.createResponse(body, true));
+        } catch (Exception e) {
+            return ok(ApiUtil.createResponse("WKF validation failed with exception: " + e.getMessage(), false));
+        }
     }
 
     public Result ingest(String status, String elementType, String elementUri, Http.Request request) {

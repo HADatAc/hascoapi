@@ -300,15 +300,28 @@ public class NameSpaces {
         System.out.println("NameSpaces: Initiating " + namespaces.size() + " pre-defined name spaces.");
 
         // ADDING STORE NAMED SPACES INSIDE CACHED NAME SPACE LIST
-        List<NameSpace> storedNamedSpaces = NameSpace.find();      
+        List<NameSpace> storedNamedSpaces = new ArrayList<NameSpace>();
+        try {
+            List<NameSpace> fetched = NameSpace.find();
+            if (fetched != null) {
+                storedNamedSpaces = fetched;
+            }
+        } catch (Throwable t) {
+            System.out.println("[WARNING] NameSpaces: failed to load stored namespaces from triplestore: " + t.getMessage());
+        }
+
         System.out.println("NameSpaces: Initiating " + storedNamedSpaces.size() + " stored name spaces.");
-        if (storedNamedSpaces != null && storedNamedSpaces.size() > 0) {
+        if (storedNamedSpaces.size() > 0) {
             namespaces.addAll(storedNamedSpaces);
         }
 
         // UPDATE NUMBER OS LOADED TRIPLES INSIDE EACH NAMESPACE
         for (NameSpace ns: namespaces) {
-            ns.setNumberOfLoadedTriples();
+            try {
+                ns.setNumberOfLoadedTriples();
+            } catch (Throwable t) {
+                System.out.println("[WARNING] NameSpaces: failed to refresh triple count for namespace [" + ns.getLabel() + "]: " + t.getMessage());
+            }
         }
 
         return namespaces;
@@ -382,7 +395,13 @@ public class NameSpaces {
 
     private NameSpaces() {
         //System.out.println("Instantiating NameSpaces");
-        List<NameSpace> namespaces = InitiateNameSpaces();
+        List<NameSpace> namespaces;
+        try {
+            namespaces = InitiateNameSpaces();
+        } catch (Throwable t) {
+            System.out.println("[WARNING] NameSpaces: initialization degraded, using empty cached namespace list: " + t.getMessage());
+            namespaces = new ArrayList<NameSpace>();
+        }
 
         // ADD NAMESPACES INTO CACHE
         for (NameSpace ns : namespaces) {

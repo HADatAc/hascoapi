@@ -23,22 +23,35 @@ public class OnStart {
 
     @Inject
     public OnStart() {
-        try {
-            System.out.println("[OnStart] Step 1: Initializing directory structure...");
-            initDirectoryStructure();
-            System.out.println("[OnStart] Step 2: Getting RepositoryInstance...");
-            RepositoryInstance.getInstance();
-            System.out.println("[OnStart] Step 3: Updating local namespace...");
-            NameSpaces.getInstance().updateLocalNamespace();
-            System.out.println("[OnStart] Step 4: Initiating StreamTopics...");
-            StreamTopic.initiateStreamTopics();
-            System.out.println("[OnStart] Step 5: Startup complete!");
-        } catch (Exception e) {
-            System.err.println("[OnStart] FATAL ERROR during startup:");
-            e.printStackTrace();
-            throw new RuntimeException("Startup failed", e);
-        }
+		System.out.println("[OnStart] Step 1: Initializing directory structure...");
+		runStartupStep("initDirectoryStructure", () -> initDirectoryStructure());
+
+		System.out.println("[OnStart] Step 2: Getting RepositoryInstance...");
+		runStartupStep("RepositoryInstance.getInstance", () -> RepositoryInstance.getInstance());
+
+		System.out.println("[OnStart] Step 3: Updating local namespace...");
+		runStartupStep("NameSpaces.updateLocalNamespace", () -> NameSpaces.getInstance().updateLocalNamespace());
+
+		System.out.println("[OnStart] Step 4: Initiating StreamTopics...");
+		runStartupStep("StreamTopic.initiateStreamTopics", () -> StreamTopic.initiateStreamTopics());
+
+		System.out.println("[OnStart] Step 5: Startup complete (with possible degraded services if warnings were printed). ");
     }
+
+	@FunctionalInterface
+	private interface StartupAction {
+		void run() throws Exception;
+	}
+
+	private void runStartupStep(String stepName, StartupAction action) {
+		try {
+			action.run();
+		} catch (Throwable t) {
+			System.err.println("[OnStart] WARNING: startup step failed [" + stepName + "]: " + t.getMessage());
+			t.printStackTrace();
+			log.warn("Startup step failed [{}]", stepName, t);
+		}
+	}
 
     private void initDirectoryStructure() {
         List<String> listFolderPaths = new LinkedList<String>();

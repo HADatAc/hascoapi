@@ -41,7 +41,9 @@ public class SpreadsheetRecordFile implements RecordFile {
 
     public SpreadsheetRecordFile(File file, String fileName, String sheetName) {
         this.file = file;
-        this.fileName = fileName == null || fileName.isEmpty() ? file.getName() : fileName;
+        this.fileName = fileName == null || fileName.isEmpty()
+            ? (file != null ? file.getName() : "")
+            : fileName;
         this.sheetName = sheetName;
         init();
     }

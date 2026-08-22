@@ -184,6 +184,7 @@ public class URIPage extends Controller {
 
     public static HADatAcThing objectFromUri(String uri) {
         // System.out.println("URIPage.objectFromUri(): URI [" + uri + "]");
+        uri = normalizeLookupUri(uri);
         
         // FIXED: Try to resolve ontology classes (owl:Class) instead of skipping them
         if (isOntologyClass(uri)) {
@@ -209,6 +210,11 @@ public class URIPage extends Controller {
             GenericInstance result = GenericInstance.find(uri);
 
             if (result == null) {
+                HADatAcClass classObj = resolveOntologyClass(uri);
+                if (classObj != null) {
+                    return classObj;
+                }
+
                 System.out.println("NS size: " + NameSpaces.getInstance().getNamespacesByUri().size());
                 NameSpace ns = NameSpaces.getInstance().getNamespacesByUri().get(uri);
 
@@ -529,6 +535,60 @@ public class URIPage extends Controller {
         }
         
         return false;
+    }
+
+    private static HADatAcClass resolveOntologyClass(String uri) {
+        if (uri == null || uri.isEmpty()) {
+            return null;
+        }
+
+        HADatAcClass direct = HADatAcClass.find(uri);
+        if (direct != null) {
+            return direct;
+        }
+
+        // Compatibility aliases seen in legacy data and older mapping files.
+        String[] candidates = new String[] {
+                uri.replace("http://pmsr.net/ont/pmsr#", "https://pmsr.net/ont/"),
+                uri.replace("https://pmsr.net/ont/pmsr#", "https://pmsr.net/ont/"),
+                uri.replace("http://pmsr.net/ont/", "https://pmsr.net/ont/"),
+                uri.replace("https://pmsr.net/ont/pmsr#", "http://pmsr.net/ont/pmsr#"),
+                uri.replace("https://hadatac.org/ont/", "http://hadatac.org/ont/"),
+                uri.replace("http://hadatac.org/ont/", "https://hadatac.org/ont/")
+        };
+
+        for (String candidate : candidates) {
+            if (candidate == null || candidate.isEmpty() || candidate.equals(uri)) {
+                continue;
+            }
+            HADatAcClass alt = HADatAcClass.find(candidate);
+            if (alt != null) {
+                return alt;
+            }
+        }
+
+        return null;
+    }
+
+    private static String normalizeLookupUri(String uri) {
+        if (uri == null) {
+            return null;
+        }
+
+        String normalized = uri.trim();
+        if (normalized.isEmpty()) {
+            return normalized;
+        }
+
+        if (normalized.startsWith("http://pmsr.net/ont/pmsr#")) {
+            return "https://pmsr.net/ont/" + normalized.substring("http://pmsr.net/ont/pmsr#".length());
+        }
+
+        if (normalized.startsWith("https://pmsr.net/ont/pmsr#")) {
+            return "https://pmsr.net/ont/" + normalized.substring("https://pmsr.net/ont/pmsr#".length());
+        }
+
+        return normalized;
     }
 
 }
