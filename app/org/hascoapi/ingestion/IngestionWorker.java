@@ -53,9 +53,9 @@ public class IngestionWorker {
     public static void ingest(DataFile dataFile, File file, String templateFile, String status) {
 
         // DP2 status rule: if the API didn't provide a status, default to DRAFT for DP2 ingestion.
-        final String fileNameForRule = (dataFile.getFilename() == null ? "" : dataFile.getFilename());
+        final String fileNameForRule = normalizeFilenameForTypeRouting(dataFile.getFilename()).toUpperCase();
         String effectiveStatus = status;
-        if (fileNameForRule.startsWith("DP2-") || fileNameForRule.contains("/DP2-") || fileNameForRule.contains("\\DP2-")) {
+        if (fileNameForRule.startsWith("DP2-")) {
             if (effectiveStatus == null || effectiveStatus.trim().isEmpty()) {
                 effectiveStatus = VSTOI.DRAFT;
             }
@@ -66,8 +66,12 @@ public class IngestionWorker {
         dataFile.save();
 
         String fileName = dataFile.getFilename();
+        String routingFileName = normalizeFilenameForTypeRouting(fileName);
 
         dataFile.getLogger().println(String.format("Processing file: %s", fileName));
+        if (!routingFileName.equals(fileName)) {
+            dataFile.getLogger().println(String.format("Normalized filename for ingestion routing: %s", routingFileName));
+        }
 
         // file is rejected if it has an invalid extension
         RecordFile recordFile = null;
@@ -95,8 +99,8 @@ public class IngestionWorker {
 
         // Auto-detect DASOC files (DA-SOC-* pattern)
         // Study URI will be discovered automatically from originalIDs in the CSV
-        if (FilenameUtils.getBaseName(fileName).startsWith("DA-SOC-")) {
-            String baseName = FilenameUtils.getBaseName(fileName);
+        if (FilenameUtils.getBaseName(routingFileName).startsWith("DA-SOC-")) {
+            String baseName = FilenameUtils.getBaseName(routingFileName);
             String socName = baseName.substring(7); // "DA-SOC-EQUIPMENT-MODULE" -> "EQUIPMENT-MODULE"
 
             dataFile.getLogger().println("DASOC file detected - SOC name from filename: " + socName);
@@ -129,7 +133,7 @@ public class IngestionWorker {
 
         // Setting study URI from dataFile
         String studyUri = "";
-        if (dataFile.getFilename().contains("DSG-")) {
+        if (routingFileName.contains("DSG-")) {
             // Getting study URI from InfoSheet
             studyUri = getStudyUri(dataFile);
 
@@ -210,7 +214,7 @@ public class IngestionWorker {
                 }
 
                 // WKF post-processing: Create ProcessBasedStudy entities from Process entities
-                String fileNameBase = FilenameUtils.getBaseName(dataFile.getFilename());
+                String fileNameBase = FilenameUtils.getBaseName(normalizeFilenameForTypeRouting(dataFile.getFilename()));
                 if (fileNameBase.startsWith("WKF-")) {
                     AnnotateWKF.postProcessAfterIngestion(dataFile);
 
@@ -633,7 +637,13 @@ public class IngestionWorker {
 
     public static GeneratorChain getGeneratorChain(DataFile dataFile, String studyUri, String templateFile, String status) {
         GeneratorChain chain = null;
-        String fileName = FilenameUtils.getBaseName(dataFile.getFilename());
+        String originalFileName = FilenameUtils.getName(dataFile.getFilename());
+        String normalizedFileName = normalizeFilenameForTypeRouting(originalFileName);
+        String fileName = FilenameUtils.getBaseName(normalizedFileName);
+
+        if (!normalizedFileName.equals(originalFileName)) {
+            dataFile.getLogger().println("Using normalized filename for generator routing: " + normalizedFileName);
+        }
 
         // Check for DA-SOC files BEFORE general DA files
         // DA-SOC files are DASOC (Data Acquisition - Study Object Collection) links
@@ -765,6 +775,38 @@ public class IngestionWorker {
         }
 
         return chain;
+    }
+
+    /**
+     * Some uploads keep a timestamp prefix (e.g., 20260823-WKF-FOO.xlsx).
+     * Normalize to the first known ingestion prefix token for routing.
+     */
+    private static String normalizeFilenameForTypeRouting(String filename) {
+        if (filename == null) {
+            return "";
+        }
+
+        String name = FilenameUtils.getName(filename.trim());
+        if (name.isEmpty()) {
+            return "";
+        }
+
+        String upper = name.toUpperCase();
+        String[] prefixes = new String[] {
+            "DA-SOC-", "DA-", "DD-", "DOI-", "DP2-", "DSG-", "INS-", "KGR-", "SDD-", "STR-", "WKF-", "WKF_"
+        };
+
+        for (String prefix : prefixes) {
+            int idx = upper.indexOf(prefix);
+            if (idx == 0) {
+                return name;
+            }
+            if (idx > 0) {
+                return name.substring(idx);
+            }
+        }
+
+        return name;
     }
 
     /**

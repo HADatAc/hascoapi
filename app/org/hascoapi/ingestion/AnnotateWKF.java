@@ -684,7 +684,6 @@ public class AnnotateWKF extends BaseAnnotator {
     private static boolean validateInfoSheetStructure(DataFile dataFile, Map<String, String> catalog) {
         final String[] expectedKeys = {
             "hasDependencies",
-            "hasStudyDescription",
             "ProcessStems",
             "Processes",
             "Tasks",
@@ -707,9 +706,9 @@ public class AnnotateWKF extends BaseAnnotator {
         }
 
         int rows = infoSheet.getRecords() == null ? 0 : infoSheet.getRecords().size();
-        if (rows != 6) {
-            System.err.println("[WKF Validation] InfoSheet must have exactly 6 data rows, found " + rows);
-            dataFile.getLogger().printException("InfoSheet must have exactly 6 data rows");
+        if (rows < 5 || rows > 7) {
+            System.err.println("[WKF Validation] InfoSheet must have 5 to 7 data rows, found " + rows);
+            dataFile.getLogger().printException("InfoSheet must have 5 to 7 data rows");
             valid = false;
         }
 
@@ -763,6 +762,10 @@ public class AnnotateWKF extends BaseAnnotator {
                 }
                 if ("hasStudyDescription".equals(key) && !value.isEmpty() && !"#STD".equals(value)) {
                     dataFile.getLogger().printException("InfoSheet hasStudyDescription must point to #STD when provided and found '" + value + "'");
+                    valid = false;
+                }
+                if ("RequiredInstruments".equals(key) && !"#RequiredInstruments".equals(value)) {
+                    dataFile.getLogger().printException("InfoSheet RequiredInstruments must point to #RequiredInstruments and found '" + value + "'");
                     valid = false;
                 }
             }
@@ -912,9 +915,9 @@ public class AnnotateWKF extends BaseAnnotator {
     private static boolean validateStdSheetSemantics(DataFile dataFile, Map<String, String> catalog) {
         String stdPointer = catalog.get("hasStudyDescription");
         if (stdPointer == null || stdPointer.trim().isEmpty()) {
-            System.err.println("[WKF Validation] hasStudyDescription is required and must point to #STD");
-            dataFile.getLogger().printException("hasStudyDescription is required and must point to #STD");
-            return false;
+            // Some WKF workbooks intentionally omit STD linkage.
+            dataFile.getLogger().printWarning("WKF InfoSheet has no hasStudyDescription pointer; skipping STD semantic validation.");
+            return true;
         }
 
         String stdSheetName = stdPointer.trim().replace("#", "");
@@ -1196,7 +1199,8 @@ public class AnnotateWKF extends BaseAnnotator {
         return "vstoi:AbstractTask".equals(normalized)
             || "vstoi:ManualTask".equals(normalized)
             || "vstoi:AutomatedTask".equals(normalized)
-            || "vstoi:InteractionTask".equals(normalized);
+            || "vstoi:InteractionTask".equals(normalized)
+            || "vstoi:Task".equals(normalized);
     }
 
     private static String normalizeTaskType(String value) {

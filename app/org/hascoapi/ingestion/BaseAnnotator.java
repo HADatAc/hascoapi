@@ -124,6 +124,9 @@ public abstract class BaseAnnotator {
         // Missing expected sheets (always an error)
         for (String required : expectedSheets) {
             if (!providedSheets.contains(required)) {
+                if (isOptionalSheetKey(mtType, required)) {
+                    continue;
+                }
                 // KGR legacy workbooks can omit some InfoSheet parameters.
                 if (mtType != null && mtType.equalsIgnoreCase(org.hascoapi.Constants.MT_KGR)
                         && ("hasMediaFolder".equals(required) || "verifyUri".equals(required))) {
@@ -137,6 +140,9 @@ public abstract class BaseAnnotator {
         // Extra sheets: for DP2, treat as optional (warning) instead of failing ingestion.
         for (String extra : providedSheets) {
             if (!expectedSheets.contains(extra)) {
+                if (isOptionalSheetKey(mtType, extra)) {
+                    continue;
+                }
                 if (mtType != null && mtType.equalsIgnoreCase(org.hascoapi.Constants.MT_DP2)) {
                     // DP2 templates evolve and can include optional tabs; don't fail ingestion.
                     dataFile.getLogger().printWarningByIdWithArgs("GBL_00007", extra, mtType);
@@ -148,6 +154,18 @@ public abstract class BaseAnnotator {
         }
 
         return isValid;
+    }
+
+    private static boolean isOptionalSheetKey(String mtType, String key) {
+        if (mtType == null || key == null) {
+            return false;
+        }
+
+        if (mtType.equalsIgnoreCase(org.hascoapi.Constants.MT_WKF)) {
+            return "hasStudyDescription".equals(key) || "RequiredInstruments".equals(key);
+        }
+
+        return false;
     }
 
     /**

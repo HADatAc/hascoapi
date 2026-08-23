@@ -337,6 +337,21 @@ public class DataFileAPI extends Controller {
             return internalServerError(ApiUtil.createResponse("[ERROR] Failed to save file: " + e.getMessage(), false));
         }
 
+        // Keep DataFile metadata filename aligned with the uploaded/stored file name.
+        // This is required for ingestion routing, which relies on DataFile.filename prefix.
+        try {
+            DataFile dataFile = DataFile.find(dataFileUri);
+            if (dataFile != null) {
+                dataFile.setFilename(filename);
+                dataFile.save();
+                System.out.println("[INFO] DataFileAPI.uploadFile(): Updated DataFile filename metadata to: " + filename);
+            } else {
+                System.out.println("[WARN] DataFileAPI.uploadFile(): Could not find DataFile to update filename metadata: " + dataFileUri);
+            }
+        } catch (Exception e) {
+            System.out.println("[WARN] DataFileAPI.uploadFile(): Failed to update DataFile filename metadata: " + e.getMessage());
+        }
+
         System.out.println("=== DataFileAPI.uploadFile() END (file saved successfully) ===");
 
         return ok(ApiUtil.createResponse("File uploaded and saved successfully.", true));
