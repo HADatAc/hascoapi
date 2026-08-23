@@ -67,10 +67,24 @@ public class IngestionWorker {
 
         String fileName = dataFile.getFilename();
         String routingFileName = normalizeFilenameForTypeRouting(fileName);
+        String routingUpper = routingFileName == null ? "" : routingFileName.toUpperCase();
 
         dataFile.getLogger().println(String.format("Processing file: %s", fileName));
         if (!routingFileName.equals(fileName)) {
             dataFile.getLogger().println(String.format("Normalized filename for ingestion routing: %s", routingFileName));
+        }
+
+        // WKF ingestion pipeline expects workbook input. A generated Turtle file should
+        // be ingested through RDF/KGR flows, not the WKF spreadsheet workflow.
+        if (routingUpper.startsWith("WKF") && routingFileName.toLowerCase().endsWith(".ttl")) {
+            dataFile.getLogger().printException(
+                "WKF ingestion rejected: unsupported file extension '.ttl'. " +
+                "WKF ingestion expects an .xlsx workbook (InfoSheet/Namespaces/ProcessStems/Processes/Tasks)."
+            );
+            dataFile.setFileStatus(DataFile.ERROR);
+            dataFile.setCompletionTime(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
+            dataFile.save();
+            return;
         }
 
         // file is rejected if it has an invalid extension

@@ -8,7 +8,9 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.hascoapi.Constants;
 import org.hascoapi.RepositoryInstance;
@@ -30,6 +32,9 @@ import play.mvc.Controller;
 import play.mvc.Result;
 
 public class URIPage extends Controller {
+
+    private static final long MISSING_URI_WARNING_WINDOW_MS = 60_000L;
+    private static final Map<String, Long> missingUriWarningLastSeen = new ConcurrentHashMap<>();
 
     private Result apiError(int statusCode, String code, String message) {
         ObjectNode response = new ObjectMapper().createObjectNode();
@@ -214,12 +219,12 @@ public class URIPage extends Controller {
                 if (classObj != null) {
                     return classObj;
                 }
-
-                System.out.println("NS size: " + NameSpaces.getInstance().getNamespacesByUri().size());
                 NameSpace ns = NameSpaces.getInstance().getNamespacesByUri().get(uri);
 
                 if (ns == null) {
-                    System.out.println("[WARNING] URIPage.objectFromUri(): No generic instance found for uri [" + uri + "]");
+                    if (shouldLogMissingGenericInstanceWarning(uri)) {
+                        System.out.println("[WARNING] URIPage.objectFromUri(): No generic instance found for uri [" + uri + "]");
+                    }
                     return null;
                 }
 
@@ -589,6 +594,26 @@ public class URIPage extends Controller {
         }
 
         return normalized;
+    }
+
+    private static boolean shouldLogMissingGenericInstanceWarning(String uri) {
+        if (uri == null || uri.isEmpty()) {
+            return false;
+        }
+
+        // Process URIs are often probed before WKF post-processing materializes Process/Study.
+        // Avoid warning floods for known probe patterns.
+        if (looksLikeWkfProcessUri(uri)) {
+            return false;
+        }
+
+        long now = System.currentTimeMillis();
+        Long previous = missingUriWarningLastSeen.put(uri, now);
+        return previous == null || (now - previous) >= MISSING_URI_WARNING_WINDOW_MS;
+    }
+
+    private static boolean looksLikeWkfProcessUri(String uri) {
+        return uri.contains("/WKF") && uri.contains("/PROC/");
     }
 
 }
