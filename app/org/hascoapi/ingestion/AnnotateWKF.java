@@ -829,14 +829,18 @@ public class AnnotateWKF extends BaseAnnotator {
                 }
 
                 DataFormatter formatter = new DataFormatter();
-                Row headerRow = stdSheet.getRow(1);
-                if (headerRow == null) {
-                    headerRow = stdSheet.getRow(0);
-                }
-                Row dataRow = firstNonEmptyDataRow(stdSheet, 2);
-                if (dataRow == null) {
-                    dataRow = firstNonEmptyDataRow(stdSheet, 1);
-                }
+                List<String> stdRequiredHeaders = Arrays.asList(
+                    "hasURI",
+                    "hasco:hasProcess",
+                    "Study ID",
+                    "Title",
+                    "Institution",
+                    "Principal Investigator",
+                    "Email"
+                );
+
+                Row headerRow = resolveStdHeaderRow(stdSheet, formatter, stdRequiredHeaders);
+                Row dataRow = resolveStdDataRow(stdSheet, formatter, headerRow);
 
                 if (headerRow == null || dataRow == null) {
                     populateStdMetadataFromWkfComment(dataFile, stdMetadata);
@@ -937,15 +941,6 @@ public class AnnotateWKF extends BaseAnnotator {
                 return false;
             }
 
-            DataFormatter formatter = new DataFormatter();
-            Row headerRow = stdSheet.getRow(1);
-            int headerRowIndex = 1;
-            if (headerRow == null) {
-                System.err.println("[WKF Validation] STD sheet must have effective headers on row 2");
-                dataFile.getLogger().printException("STD sheet must have effective headers on row 2");
-                return false;
-            }
-
             List<String> requiredHeaders = Arrays.asList(
                 "hasURI",
                 "hasco:hasProcess",
@@ -962,6 +957,15 @@ public class AnnotateWKF extends BaseAnnotator {
                 "vstoi:hasCriticalActions",
                 "vstoi:hasDebriefingFocus"
             );
+
+            DataFormatter formatter = new DataFormatter();
+            Row headerRow = resolveStdHeaderRow(stdSheet, formatter, requiredHeaders);
+            if (headerRow == null) {
+                System.err.println("[WKF Validation] STD sheet missing recognizable header row");
+                dataFile.getLogger().printException("STD sheet missing recognizable header row");
+                return false;
+            }
+            int headerRowIndex = headerRow.getRowNum();
 
             Map<String, Integer> headerIndex = new HashMap<>();
             for (int col = 0; col <= headerRow.getLastCellNum(); col++) {
@@ -985,7 +989,7 @@ public class AnnotateWKF extends BaseAnnotator {
 
             List<Row> nonEmptyRows = new ArrayList<>();
             Set<String> stdProcessUris = new HashSet<>();
-            for (int rowIndex = Math.max(headerRowIndex + 1, 2); rowIndex <= stdSheet.getLastRowNum(); rowIndex++) {
+            for (int rowIndex = Math.max(headerRowIndex + 1, 0); rowIndex <= stdSheet.getLastRowNum(); rowIndex++) {
                 Row row = stdSheet.getRow(rowIndex);
                 if (row == null) {
                     continue;
@@ -1045,12 +1049,16 @@ public class AnnotateWKF extends BaseAnnotator {
                 if (institutionValue.isEmpty() || !URIUtils.isValidURI(institutionValue)) {
                     dataFile.getLogger().printException("STD row " + stdRowNumber + " must define valid Institution URI");
                     valid = false;
+                } else if (isTemplatePlaceholderOwnershipUri(institutionValue)) {
+                    dataFile.getLogger().printWarning("STD row " + stdRowNumber + " uses template ownership Institution URI: " + institutionValue);
                 }
 
                 String piValue = formatter.formatCellValue(stdRow.getCell(headerIndex.get("Principal Investigator"))).trim();
                 if (piValue.isEmpty() || !URIUtils.isValidURI(piValue)) {
                     dataFile.getLogger().printException("STD row " + stdRowNumber + " must define valid Principal Investigator URI");
                     valid = false;
+                } else if (isTemplatePlaceholderOwnershipUri(piValue)) {
+                    dataFile.getLogger().printWarning("STD row " + stdRowNumber + " uses template ownership Principal Investigator URI: " + piValue);
                 }
 
                 String emailValue = formatter.formatCellValue(stdRow.getCell(headerIndex.get("Email"))).trim();
@@ -1105,8 +1113,11 @@ public class AnnotateWKF extends BaseAnnotator {
     /**
      * Strict WKF-SPEC-V3 validation for Tasks typing:
      * - Column C (hasco:hascoType) MUST be exactly vstoi:Task
-     * - Column B (rdf:type) MUST be exactly one of:
+     * - Column B (rdf:type) MUST resolve to one canonical value:
      *   vstoi:AbstractTask, vstoi:ManualTask, vstoi:AutomatedTask, vstoi:InteractionTask
+     *
+     * Backward compatibility: legacy aliases (for example vstoi:UserTask)
+     * are normalized to canonical values before validation.
      */
     private static boolean validateTaskTypingSemantics(DataFile dataFile,
                                                        Map<String, String> catalog,
@@ -1162,7 +1173,7 @@ public class AnnotateWKF extends BaseAnnotator {
                 } else if (!isAllowedConcreteTaskType(rdfType)) {
                     String msg = "Tasks row " + rowNumber
                         + " (hasURI=" + (taskUri.isEmpty() ? "(empty)" : taskUri) + ")"
-                        + " has invalid rdf:type. Allowed values: vstoi:AbstractTask, vstoi:ManualTask, vstoi:AutomatedTask, vstoi:InteractionTask. Found: "
+                        + " has invalid rdf:type. Allowed canonical values: vstoi:AbstractTask, vstoi:ManualTask, vstoi:AutomatedTask, vstoi:InteractionTask. Found: "
                         + rdfType;
                     System.err.println("[WKF Validation] " + msg);
                     dataFile.getLogger().printException(msg);
@@ -1206,11 +1217,20 @@ public class AnnotateWKF extends BaseAnnotator {
     private static String normalizeTaskType(String value) {
         String v = safeValue(value);
         if (v.startsWith("http://hadatac.org/ont/vstoi#")) {
-            return "vstoi:" + v.substring("http://hadatac.org/ont/vstoi#".length());
+            v = "vstoi:" + v.substring("http://hadatac.org/ont/vstoi#".length());
         }
         if (v.startsWith("https://hadatac.org/ont/vstoi#")) {
-            return "vstoi:" + v.substring("https://hadatac.org/ont/vstoi#".length());
+            v = "vstoi:" + v.substring("https://hadatac.org/ont/vstoi#".length());
         }
+
+        // Canonicalize legacy aliases to WKF-SPEC-V3 concrete types.
+        if ("vstoi:UserTask".equals(v) || "vstoi:InteractiveTask".equals(v)) {
+            return "vstoi:InteractionTask";
+        }
+        if ("vstoi:ApplicationTask".equals(v) || "vstoi:SystemTask".equals(v)) {
+            return "vstoi:AutomatedTask";
+        }
+
         return v;
     }
 
@@ -1613,6 +1633,187 @@ public class AnnotateWKF extends BaseAnnotator {
         return null;
     }
 
+    private static Row resolveStdHeaderRow(Sheet sheet, DataFormatter formatter, List<String> requiredHeaders) {
+        if (sheet == null || formatter == null) {
+            return null;
+        }
+
+        Set<String> required = new HashSet<>();
+        if (requiredHeaders != null) {
+            for (String header : requiredHeaders) {
+                String norm = normalizeStdHeader(header);
+                if (!norm.isEmpty()) {
+                    required.add(norm);
+                }
+            }
+        }
+
+        int start = Math.max(sheet.getFirstRowNum(), 0);
+        int end = sheet.getLastRowNum();
+        for (int rowIndex = start; rowIndex <= end; rowIndex++) {
+            Row row = sheet.getRow(rowIndex);
+            if (row == null) {
+                continue;
+            }
+
+            Set<String> tokenSet = new HashSet<>();
+            for (int col = row.getFirstCellNum(); col <= row.getLastCellNum(); col++) {
+                if (col < 0) {
+                    continue;
+                }
+                String token = normalizeStdHeader(formatter.formatCellValue(row.getCell(col)));
+                if (!token.isEmpty()) {
+                    tokenSet.add(token);
+                }
+            }
+
+            if (tokenSet.isEmpty()) {
+                continue;
+            }
+
+            if (!required.isEmpty() && tokenSet.containsAll(required)) {
+                return row;
+            }
+
+            // Lenient fallback for corrected and legacy STD layouts.
+            if (tokenSet.contains("hasuri") && tokenSet.contains("hasco:hasprocess")
+                && tokenSet.contains("studyid") && tokenSet.contains("institution")
+                && tokenSet.contains("principalinvestigator")) {
+                return row;
+            }
+        }
+
+        return null;
+    }
+
+    private static Row resolveStdDataRow(Sheet sheet, DataFormatter formatter, Row headerRow) {
+        if (sheet == null || formatter == null || headerRow == null) {
+            return null;
+        }
+
+        int start = Math.max(headerRow.getRowNum() + 1, 0);
+        Row fallback = firstNonEmptyDataRow(sheet, start);
+        if (fallback == null) {
+            return null;
+        }
+
+        Map<String, Integer> headerIndex = new HashMap<>();
+        for (int col = headerRow.getFirstCellNum(); col <= headerRow.getLastCellNum(); col++) {
+            if (col < 0) {
+                continue;
+            }
+            String header = normalizeStdHeader(formatter.formatCellValue(headerRow.getCell(col)));
+            if (!header.isEmpty()) {
+                headerIndex.put(header, col);
+            }
+        }
+
+        int bestScore = Integer.MIN_VALUE;
+        Row bestRow = null;
+        for (int rowIndex = start; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
+            Row row = sheet.getRow(rowIndex);
+            if (row == null) {
+                continue;
+            }
+            int score = scoreStdDataRow(row, headerIndex, formatter);
+            if (score > bestScore) {
+                bestScore = score;
+                bestRow = row;
+            }
+        }
+
+        return bestRow != null ? bestRow : fallback;
+    }
+
+    private static int scoreStdDataRow(Row row, Map<String, Integer> headerIndex, DataFormatter formatter) {
+        if (row == null || headerIndex == null || formatter == null) {
+            return Integer.MIN_VALUE;
+        }
+
+        boolean hasAnyValue = false;
+        for (int col = row.getFirstCellNum(); col <= row.getLastCellNum(); col++) {
+            if (col < 0) {
+                continue;
+            }
+            String value = formatter.formatCellValue(row.getCell(col)).trim();
+            if (!value.isEmpty()) {
+                hasAnyValue = true;
+                break;
+            }
+        }
+        if (!hasAnyValue) {
+            return Integer.MIN_VALUE;
+        }
+
+        int score = 0;
+        score += scoreHeaderValue(row, headerIndex.get("hasuri"), formatter, false);
+        score += scoreHeaderValue(row, headerIndex.get("studyid"), formatter, false);
+        score += scoreHeaderValue(row, headerIndex.get("title"), formatter, false);
+
+        String institution = getHeaderValue(row, headerIndex.get("institution"), formatter);
+        if (!institution.isEmpty() && URIUtils.isValidURI(institution)) {
+            score += 3;
+            if (isTemplatePlaceholderOwnershipUri(institution)) {
+                score -= 6;
+            }
+        }
+
+        String pi = getHeaderValue(row, headerIndex.get("principalinvestigator"), formatter);
+        if (!pi.isEmpty() && URIUtils.isValidURI(pi)) {
+            score += 3;
+            if (isTemplatePlaceholderOwnershipUri(pi)) {
+                score -= 6;
+            }
+        }
+
+        String process = getHeaderValue(row, headerIndex.get("hasco:hasprocess"), formatter);
+        if (!process.isEmpty() && URIUtils.isValidURI(process)) {
+            score += 2;
+        }
+
+        return score;
+    }
+
+    private static int scoreHeaderValue(Row row, Integer colIndex, DataFormatter formatter, boolean requireUri) {
+        String value = getHeaderValue(row, colIndex, formatter);
+        if (value.isEmpty()) {
+            return 0;
+        }
+        if (!requireUri) {
+            return 1;
+        }
+        return URIUtils.isValidURI(value) ? 1 : 0;
+    }
+
+    private static String getHeaderValue(Row row, Integer colIndex, DataFormatter formatter) {
+        if (row == null || colIndex == null || formatter == null || colIndex < 0) {
+            return "";
+        }
+        return formatter.formatCellValue(row.getCell(colIndex)).trim();
+    }
+
+    private static String normalizeStdHeader(String value) {
+        if (value == null) {
+            return "";
+        }
+
+        return value.trim().toLowerCase(Locale.ROOT).replaceAll("\\s+", "");
+    }
+
+    private static boolean isTemplatePlaceholderOwnershipUri(String rawUri) {
+        if (rawUri == null || rawUri.trim().isEmpty()) {
+            return false;
+        }
+
+        String normalized = URIUtils.canonicalizePmsrUri(URIUtils.replacePrefixEx(URIUtils.stripAngleBrackets(rawUri.trim())));
+        String lower = normalized == null ? "" : normalized.trim().toLowerCase(Locale.ROOT);
+
+        return lower.equals("https://pmsr.net/ont/org/ess")
+            || lower.equals("https://pmsr.net/ont/per/pi-001")
+            || lower.equals("pmsr:org/ess")
+            || lower.equals("pmsr:per/pi-001");
+    }
+
     /**
      * CRITICAL PRIORITY FIX: Validate temporal dependencies form a DAG (Directed Acyclic Graph)
      * Requirements:
@@ -2000,7 +2201,7 @@ public class AnnotateWKF extends BaseAnnotator {
     }
 
     private static boolean isTaskTypeAllowedForComponentInstances(String taskType) {
-        String tt = safeValue(taskType);
+        String tt = normalizeTaskType(taskType);
         if (tt.isEmpty()) {
             return false;
         }

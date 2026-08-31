@@ -53,7 +53,13 @@ public class URIUtils {
             return uri;
         }
 
-        String normalized = uri.trim()
+        String normalized = uri.trim();
+
+        if (normalized.regionMatches(true, 0, "pmsr:", 0, 5)) {
+            normalized = PMSR_CANONICAL_BASE + normalized.substring(5).replaceFirst("^/+", "");
+        }
+
+        normalized = normalized
                 .replaceAll("(?i)^https?://pmsr\\.net/ont/pmsr#/?", PMSR_CANONICAL_BASE)
                 .replaceAll("(?i)^http://pmsr\\.net/ont/", PMSR_CANONICAL_BASE)
                 .replaceAll("(?i)/(WFK)[-_]", "/WKF-")

@@ -69,6 +69,31 @@ public class OrganizationAPI extends Controller {
     }
 
     /**
+     * Get curator of an organization. If missing, auto-provision one.
+     *
+     * GET /hascoapi/api/organization/curator/:uri
+     */
+    public Result getCurator(String uri) {
+        String organizationUri = normalizeUri(uri);
+        if (organizationUri == null || organizationUri.isEmpty()) {
+            return ok(ApiUtil.createResponse("No valid organization URI has been provided", false));
+        }
+
+        Person curator = Organization.findCurator(organizationUri);
+        if (curator == null) {
+            curator = Organization.ensureCurator(organizationUri);
+        }
+
+        if (curator == null) {
+            return ok(ApiUtil.createResponse("No curator could be found or created for organization <" + organizationUri + ">", false));
+        }
+
+        ObjectMapper mapper = HAScOMapper.getFiltered(HAScOMapper.FULL, HASCO.STUDY);
+        JsonNode jsonObject = mapper.convertValue(curator, JsonNode.class);
+        return ok(ApiUtil.createResponse(jsonObject, true));
+    }
+
+    /**
      * Get instrument model counts owned by a specific organization.
      *
      * GET /hascoapi/api/organization/instrumentmodels/:uri

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 import org.hascoapi.Constants;
+import org.hascoapi.entity.pojo.Organization;
 import org.hascoapi.entity.pojo.Project;
 import org.hascoapi.entity.pojo.RequiredInstrument;
 import org.hascoapi.entity.pojo.Task;
@@ -84,6 +85,12 @@ public class ProjectAPI extends Controller {
         }
 
         project.setContributorUris(memberUris);
+
+        for (String memberUri : memberUris) {
+            if (memberUri != null && !memberUri.trim().isEmpty()) {
+                Organization.ensureCurator(memberUri.trim());
+            }
+        }
 
         System.out.println("ProjectAPI: will save process");
         try {

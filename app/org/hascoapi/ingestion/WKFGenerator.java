@@ -22,7 +22,7 @@ public class WKFGenerator extends BaseGenerator {
     private static final String LEGACY_PMSR_BASE = "https://pmsr.net/ont/";
     private static final String LEGACY_PMSR_BASE_HTTPS = "https://pmsr.net/ont/";
     private static final String CANONICAL_PMSR_BASE = "https://pmsr.net/ont/";
-    private static final java.util.regex.Pattern EMAIL_PATTERN = java.util.regex.Pattern.compile("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\\\.[A-Za-z]{2,}$");
+    private static final java.util.regex.Pattern EMAIL_PATTERN = java.util.regex.Pattern.compile("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
 
     protected String wkfUri = "";
     protected String hasStatus = "";
@@ -75,6 +75,19 @@ public class WKFGenerator extends BaseGenerator {
         // Add common metadata to all rows
         if (elementType.equals("processstem")) {
             row.put("hasco:hascoType", VSTOI.PROCESS_STEM);
+
+            // Keep hierarchy stable: only fill parent when WKF omitted it.
+            // Do not overwrite an explicit parent defined by the template.
+            String parentUri = extractProcessStemSuperclassUri(row);
+            if (parentUri.isEmpty()) {
+                parentUri = CANONICAL_PMSR_PROCESS_STEM_URI;
+            }
+            row.put("rdfs:subClassOf", parentUri);
+
+            // Ensure process stems are materialized as classes for class-tree APIs.
+            if (!hasNonEmptyValue(row, "rdf:type")) {
+                row.put("rdf:type", "owl:Class");
+            }
         } else if (elementType.equals("process")) {
             row.put("hasco:hascoType", VSTOI.PROCESS);
 
@@ -354,6 +367,44 @@ public class WKFGenerator extends BaseGenerator {
         }
 
         return "";
+    }
+
+    private String extractProcessStemSuperclassUri(Map<String, Object> row) {
+        String[] keys = new String[] {
+            "rdfs:subClassOf",
+            "superUri",
+            "superuri",
+            "hasSuperUri",
+            "hasSuperURI"
+        };
+
+        for (String key : keys) {
+            Object value = row.get(key);
+            if (value == null) {
+                continue;
+            }
+
+            String uri = normalizeUriValue(value.toString());
+            if (uri.isEmpty()) {
+                continue;
+            }
+
+            if (VSTOI.PROCESS_STEM.equals(uri)) {
+                return CANONICAL_PMSR_PROCESS_STEM_URI;
+            }
+
+            return uri;
+        }
+
+        return "";
+    }
+
+    private boolean hasNonEmptyValue(Map<String, Object> row, String key) {
+        if (row == null || key == null) {
+            return false;
+        }
+        Object val = row.get(key);
+        return val != null && !val.toString().trim().isEmpty();
     }
 
     private String normalizeUriValue(String raw) {

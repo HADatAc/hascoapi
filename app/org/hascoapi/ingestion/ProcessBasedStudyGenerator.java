@@ -136,6 +136,12 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
             return normalized;
         }
 
+        java.util.Set<String> uriLikeKeys = new java.util.HashSet<>();
+        uriLikeKeys.add("Institution");
+        uriLikeKeys.add("Principal Investigator");
+        uriLikeKeys.add("hasURI");
+        uriLikeKeys.add("hasco:hasProcess");
+
         for (Map.Entry<String, String> entry : source.entrySet()) {
             if (entry.getKey() == null) {
                 continue;
@@ -145,6 +151,11 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
             if (key.isEmpty() || value.isEmpty()) {
                 continue;
             }
+
+            if (uriLikeKeys.contains(key)) {
+                value = normalizedUri(value);
+            }
+
             normalized.put(key, value);
         }
 
@@ -196,6 +207,8 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
             return "";
         }
 
+        value = URIUtils.stripAngleBrackets(value);
+        value = URIUtils.replacePrefixEx(value);
         return URIUtils.canonicalizePmsrUri(value);
     }
 
@@ -515,7 +528,7 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
         // 4. Auto-generate any remaining missing metadata.
         autoGenerateMetadata(process, metadata);
 
-        // 4.1 Resolve current user context for URI-based Study ownership fields
+        // 4.1 Resolve current user context for fallback ownership fields.
         UserContext userContext = resolveUserContext();
 
         String ingestionOrganizationOverride = normalizedUri(dataFile.getIngestionOrganizationUri());
@@ -540,30 +553,43 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
 
         String stdPiUri = stdMetadata == null ? "" : stdMetadata.get("Principal Investigator");
         String stdInstitutionUri = stdMetadata == null ? "" : stdMetadata.get("Institution");
-
-        // User context has precedence over WKF STD content for ownership semantics.
-        // If STD and user URIs disagree, keep user context and log the override.
         String normalizedStdPiUri = normalizedUri(stdPiUri);
-        String normalizedUserPiUri = normalizedUri(userContext.personUri);
-        if (!normalizedStdPiUri.isEmpty() && !normalizedUserPiUri.isEmpty()
-                && !normalizedStdPiUri.equals(normalizedUserPiUri)) {
-            log.warn("WKF STD PI URI ({}) overridden by ingestion user URI ({})", stdPiUri, userContext.personUri);
-        }
-
         String normalizedStdInstitutionUri = normalizedUri(stdInstitutionUri);
+        String normalizedUserPiUri = normalizedUri(userContext.personUri);
         String normalizedUserInstitutionUri = normalizedUri(userContext.organizationUri);
-        if (!normalizedStdInstitutionUri.isEmpty() && !normalizedUserInstitutionUri.isEmpty()
-                && !normalizedStdInstitutionUri.equals(normalizedUserInstitutionUri)) {
-            log.warn("WKF STD Institution URI ({}) overridden by ingestion user affiliation URI ({})", stdInstitutionUri, userContext.organizationUri);
+
+        boolean stdHasPiUri = !normalizedStdPiUri.isEmpty();
+        boolean stdHasInstitutionUri = !normalizedStdInstitutionUri.isEmpty();
+
+        // WKF protocol:
+        // - Keep PI/Institution URIs from STD when provided.
+        // - Only fallback to user context when BOTH URIs are missing in STD.
+        boolean fallbackOwnershipFromUserContext = !stdHasPiUri && !stdHasInstitutionUri;
+        String effectivePiUri = stdHasPiUri
+            ? normalizedStdPiUri
+            : (fallbackOwnershipFromUserContext ? normalizedUserPiUri : "");
+        String effectiveInstitutionUri = stdHasInstitutionUri
+            ? normalizedStdInstitutionUri
+            : (fallbackOwnershipFromUserContext ? normalizedUserInstitutionUri : "");
+
+        if (stdHasPiUri && stdHasInstitutionUri) {
+            log.info("WKF STD provides PI and Institution URIs; preserving workbook ownership values.");
+        } else if (!stdHasPiUri && !stdHasInstitutionUri) {
+            log.info("WKF STD missing PI and Institution URIs; using ingestion user context fallback (PI={}, Institution={}).",
+                normalizedUserPiUri, normalizedUserInstitutionUri);
+        } else {
+            log.info("WKF STD provides partial ownership URIs; preserving provided value(s) and leaving missing value(s) unchanged.");
         }
 
-        if (!userContext.personDisplay.isEmpty()) {
-            metadata.put("principalInvestigator", userContext.personDisplay);
-        } else if (creatorEmail != null && !creatorEmail.trim().isEmpty()) {
-            metadata.put("principalInvestigator", creatorEmail.trim());
+        if (fallbackOwnershipFromUserContext && !stdHasPiUri) {
+            if (!userContext.personDisplay.isEmpty()) {
+                metadata.put("principalInvestigator", userContext.personDisplay);
+            } else if (creatorEmail != null && !creatorEmail.trim().isEmpty()) {
+                metadata.put("principalInvestigator", creatorEmail.trim());
+            }
         }
 
-        if (!userContext.organizationDisplay.isEmpty()) {
+        if (fallbackOwnershipFromUserContext && !stdHasInstitutionUri && !userContext.organizationDisplay.isEmpty()) {
             metadata.put("institution", userContext.organizationDisplay);
         }
 
@@ -614,20 +640,16 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
         row.put("hasco:hasSpecificAims", metadata.get("specificAims"));
         row.put("hasco:hasSignificance", metadata.get("significance"));
 
-        if (userContext.organizationUri != null && !userContext.organizationUri.trim().isEmpty()) {
-            row.put("hasco:hasInstitution", userContext.organizationUri.trim());
-        } else if (stdInstitutionUri != null && !stdInstitutionUri.trim().isEmpty()) {
-            row.put("hasco:hasInstitution", stdInstitutionUri.trim());
+        if (effectiveInstitutionUri != null && !effectiveInstitutionUri.trim().isEmpty()) {
+            row.put("hasco:hasInstitution", effectiveInstitutionUri.trim());
         }
 
         if (metadata.get("institution") != null && !metadata.get("institution").trim().isEmpty()) {
             row.put("hasco:hasInstitutionName", metadata.get("institution"));
         }
 
-        if (userContext.personUri != null && !userContext.personUri.trim().isEmpty()) {
-            row.put("hasco:hasPI", userContext.personUri.trim());
-        } else if (stdPiUri != null && !stdPiUri.trim().isEmpty()) {
-            row.put("hasco:hasPI", stdPiUri.trim());
+        if (effectivePiUri != null && !effectivePiUri.trim().isEmpty()) {
+            row.put("hasco:hasPI", effectivePiUri.trim());
         }
 
         if (metadata.get("principalInvestigator") != null && !metadata.get("principalInvestigator").trim().isEmpty()) {

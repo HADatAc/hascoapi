@@ -78,6 +78,7 @@ public class HASCO {
     public static final String HAS_DATASET_PATTERN                    = "http://hadatac.org/ont/hasco/hasDatasetPattern";
     public static final String HAS_DD                                 = "http://hadatac.org/ont/hasco/hasDD";
     public static final String HAS_CTT_URL                            = "http://hadatac.org/ont/hasco/hasCTTURL";
+    public static final String HAS_CURATOR                            = "http://hadatac.org/ont/hasco/hasCurator";
     public static final String HAS_DEFAULT_NAMESPACE_PREFIX           = "http://hadatac.org/ont/hasco/hasDefaultNamespacePrefix";
     public static final String HAS_DEFAULT_NAMESPACE_SOURCE           = "http://hadatac.org/ont/hasco/hasDefaultNamespaceSource";
     public static final String HAS_DEFAULT_NAMESPACE_SOURCE_MIME      = "http://hadatac.org/ont/hasco/hasDefaultNamespaceSourceMime";
