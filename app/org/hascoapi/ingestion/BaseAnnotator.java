@@ -162,7 +162,7 @@ public abstract class BaseAnnotator {
         }
 
         if (mtType.equalsIgnoreCase(org.hascoapi.Constants.MT_WKF)) {
-            return "hasStudyDescription".equals(key) || "RequiredInstruments".equals(key);
+            return "hasStudyDescription".equals(key) || "STD".equals(key) || "RequiredInstruments".equals(key);
         }
 
         return false;

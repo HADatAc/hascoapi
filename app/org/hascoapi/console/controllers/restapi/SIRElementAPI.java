@@ -482,6 +482,10 @@ public class SIRElementAPI extends Controller {
             try {
                 Study object;
                 object = (Study)objectMapper.readValue(json, clazz);
+                // Scenarios are ready for use as soon as they are ingested.
+                if (object.getHasStatus() == null || object.getHasStatus().isEmpty()) {
+                    object.setHasStatus(VSTOI.CURRENT);
+                }
                 object.save();
             } catch (JsonProcessingException e) {
                 message = e.getMessage();
@@ -494,6 +498,10 @@ public class SIRElementAPI extends Controller {
                 // Set RDF type and HASCO type (required for proper RDF generation)
                 object.setTypeUri(HASCO.PROCESS_BASED_STUDY);  // Specific subclass for rdf:type
                 object.setHascoTypeUri(HASCO.STUDY);           // Fundamental concept for hasco:hascoType
+                // Scenarios are ready for use as soon as they are ingested.
+                if (object.getHasStatus() == null || object.getHasStatus().isEmpty()) {
+                    object.setHasStatus(VSTOI.CURRENT);
+                }
                 // Validate before saving
                 if (!object.validate()) {
                     return ok(ApiUtil.createResponse("ProcessBasedStudy validation failed: " + object.getErrorMessage(), false));

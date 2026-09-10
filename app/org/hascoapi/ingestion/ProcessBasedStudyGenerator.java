@@ -22,6 +22,7 @@ import org.hascoapi.utils.SPARQLUtils;
 import org.hascoapi.utils.URIUtils;
 import org.hascoapi.vocabularies.HASCO;
 import org.hascoapi.vocabularies.RDFS;
+import org.hascoapi.vocabularies.VSTOI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -614,7 +615,7 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
 
         log.info("Derived Study URI: {} from Study ID: {}", studyUri, studyId);
 
-        String studyLabel = buildStudyInstanceLabel(process, metadata);
+        String studyLabel = buildStudyInstanceLabel(process, metadata, effectivePiUri);
         if (metadata.get("studyTitle") == null || metadata.get("studyTitle").trim().isEmpty()) {
             String fallbackStudyTitle = process.getLabel();
             if (fallbackStudyTitle == null || fallbackStudyTitle.trim().isEmpty()) {
@@ -675,6 +676,8 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
         // Provenance
         row.put("hasco:hasDataFile", dataFile.getUri());
         row.put("vstoi:hasSIRManagerEmail", creatorEmail);
+        // Scenarios are ready for use as soon as they are ingested.
+        row.put("vstoi:hasStatus", VSTOI.CURRENT);
         String studyDescription = metadata.get("hasStudyDescription") != null
             ? metadata.get("hasStudyDescription").trim()
             : "";
@@ -695,30 +698,77 @@ public class ProcessBasedStudyGenerator extends BaseGenerator {
      * This method is strict by design and throws when any required label part
      * cannot be resolved exactly from source data.
      */
-    private String buildStudyInstanceLabel(Process process, Map<String, String> metadata) throws Exception {
+    private String buildStudyInstanceLabel(Process process, Map<String, String> metadata, String effectivePiUri) throws Exception {
         String processName = resolveProcessNameStrict(process);
         String[] startDateTimeParts = resolveLabelStartDateTimePartsStrict(metadata);
 
-        String userDisplayName = "User";
-        String email = creatorEmail != null ? creatorEmail.trim() : "";
-        if (!email.isEmpty()) {
-            try {
-                Person person = Person.findByEmail(email);
-                if (person != null) {
-                    if (person.getName() != null && !person.getName().trim().isEmpty()) {
-                        userDisplayName = person.getName().trim();
-                    } else if (person.getUserName() != null && !person.getUserName().trim().isEmpty()) {
-                        userDisplayName = person.getUserName().trim();
-                    } else if (person.getLabel() != null && !person.getLabel().trim().isEmpty()) {
-                        userDisplayName = person.getLabel().trim();
-                    }
-                }
-            } catch (Exception e) {
-                // Keep fallback behavior on lookup failure.
+        String piDisplayName = resolvePersonDisplayName(effectivePiUri);
+        if (piDisplayName.isEmpty()) {
+            String piValue = metadata == null ? "" : normalizedUri(metadata.get("principalInvestigator"));
+            piDisplayName = resolvePersonDisplayName(piValue);
+        }
+        if (piDisplayName.isEmpty() && metadata != null) {
+            piDisplayName = resolvePersonDisplayNameByEmail(metadata.get("contactEmail"));
+        }
+        if (piDisplayName.isEmpty() && metadata != null && metadata.get("principalInvestigator") != null) {
+            String piValue = metadata.get("principalInvestigator").trim();
+            if (!piValue.startsWith("http")) {
+                piDisplayName = piValue;
             }
         }
+        if (piDisplayName.isEmpty()) {
+            piDisplayName = "PI";
+        }
 
-        return userDisplayName + "'s " + processName + " at " + startDateTimeParts[0] + " " + startDateTimeParts[1];
+        return piDisplayName + "'s " + processName + " at " + startDateTimeParts[0] + " " + startDateTimeParts[1];
+    }
+
+    private String resolvePersonDisplayName(String personUri) {
+        String normalizedPersonUri = normalizedUri(personUri);
+        if (normalizedPersonUri.isEmpty()) {
+            return "";
+        }
+
+        try {
+            Person person = Person.find(normalizedPersonUri);
+            if (person != null) {
+                if (person.getName() != null && !person.getName().trim().isEmpty()) {
+                    return person.getName().trim();
+                } else if (person.getUserName() != null && !person.getUserName().trim().isEmpty()) {
+                    return person.getUserName().trim();
+                } else if (person.getLabel() != null && !person.getLabel().trim().isEmpty()) {
+                    return person.getLabel().trim();
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Failed to resolve PI display name from URI {}", normalizedPersonUri, e);
+        }
+
+        return "";
+    }
+
+    private String resolvePersonDisplayNameByEmail(String email) {
+        String normalizedEmail = email == null ? "" : email.trim();
+        if (normalizedEmail.isEmpty()) {
+            return "";
+        }
+
+        try {
+            Person person = Person.findByEmail(normalizedEmail);
+            if (person != null) {
+                if (person.getName() != null && !person.getName().trim().isEmpty()) {
+                    return person.getName().trim();
+                } else if (person.getUserName() != null && !person.getUserName().trim().isEmpty()) {
+                    return person.getUserName().trim();
+                } else if (person.getLabel() != null && !person.getLabel().trim().isEmpty()) {
+                    return person.getLabel().trim();
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Failed to resolve PI display name from email {}", normalizedEmail, e);
+        }
+
+        return "";
     }
 
     private String resolveProcessNameStrict(Process process) throws Exception {

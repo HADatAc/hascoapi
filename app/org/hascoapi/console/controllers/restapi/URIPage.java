@@ -219,6 +219,12 @@ public class URIPage extends Controller {
                 if (classObj != null) {
                     return classObj;
                 }
+                if (isPmsrComponentInstanceUri(uri)) {
+                    ComponentInstance componentInstance = ComponentInstance.find(uri);
+                    if (componentInstance != null) {
+                        return componentInstance;
+                    }
+                }
                 NameSpace ns = NameSpaces.getInstance().getNamespacesByUri().get(uri);
 
                 if (ns == null) {
@@ -383,6 +389,14 @@ public class URIPage extends Controller {
         } catch (Exception e) {
             throw new RuntimeException("Failed to resolve URI from triplestore: " + uri, e);
         }
+    }
+
+    private static boolean isPmsrComponentInstanceUri(String uri) {
+        if (uri == null) {
+            return false;
+        }
+        String value = uri.trim();
+        return value.startsWith("https://pmsr.net/ont/CPI") || value.startsWith("http://pmsr.net/ont/CPI");
     }
 
     private Result processResult(Object result, String typeResult, String uri) {

@@ -640,9 +640,12 @@ public class AnnotateWKF extends BaseAnnotator {
             }
 
             String managerEmail = dataFile.getHasSIRManagerEmail() == null ? "" : dataFile.getHasSIRManagerEmail();
+            String baseStudyUri = studyUri.endsWith("/") ? studyUri.substring(0, studyUri.length() - 1) : studyUri;
+            String studentSocUri = baseStudyUri + "/SOC/STUDENTS";
+            String studentRoleUri = baseStudyUri + "/ROLE/STUDENT";
 
             StudyRole studentRole = new StudyRole();
-            studentRole.setUri(Utils.uriGen("studyrole"));
+            studentRole.setUri(studentRoleUri);
             studentRole.setTypeUri(HASCO.STUDY_ROLE);
             studentRole.setHascoTypeUri(HASCO.STUDY_ROLE);
             studentRole.setLabel("Student");
@@ -660,7 +663,7 @@ public class AnnotateWKF extends BaseAnnotator {
             }
 
             StudyObjectCollection studentsSoc = new StudyObjectCollection();
-            studentsSoc.setUri(Utils.uriGen("studyobjectcollection"));
+            studentsSoc.setUri(studentSocUri);
             studentsSoc.setTypeUri(HASCO.STUDY_OBJECT_COLLECTION);
             studentsSoc.setHascoTypeUri(HASCO.STUDY_OBJECT_COLLECTION);
             studentsSoc.setLabel(socLabel);

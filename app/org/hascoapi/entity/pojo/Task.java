@@ -219,26 +219,6 @@ public class Task extends HADatAcThing implements Comparable<Task> {
 
     public List<RequiredInstrument> getRequiredInstrument() {
         List<RequiredInstrument> resp = new ArrayList<RequiredInstrument>();
-        if (usesComponentInstanceUris == null || usesComponentInstanceUris.size() <= 0) {
-            return resp;
-        }
-
-        // Avoid repeated lookups by expanding separators + deduplicating first.
-        LinkedHashSet<String> uniqueUris = new LinkedHashSet<String>();
-        for (String usesComponentInstanceUri : usesComponentInstanceUris) {
-            List<String> expanded = splitAndNormalizeUriValues(usesComponentInstanceUri);
-            for (String uri : expanded) {
-                uniqueUris.add(uri);
-            }
-        }
-
-        for (String uri : uniqueUris) {
-            RequiredInstrument requiredInstrument = RequiredInstrument.find(uri);
-            if (requiredInstrument != null) {
-                resp.add(requiredInstrument);
-            }
-        }
-
         return resp;
     }
 

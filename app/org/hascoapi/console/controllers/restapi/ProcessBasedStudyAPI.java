@@ -12,6 +12,7 @@ import org.hascoapi.utils.ApiUtil;
 import org.hascoapi.utils.HAScOMapper;
 import org.hascoapi.utils.URIUtils;
 import org.hascoapi.vocabularies.HASCO;
+import org.hascoapi.vocabularies.VSTOI;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -173,7 +174,12 @@ public class ProcessBasedStudyAPI extends Controller {
             // Set RDF type and HASCO type (required for proper RDF generation)
             study.setTypeUri(HASCO.PROCESS_BASED_STUDY);  // Specific subclass for rdf:type
             study.setHascoTypeUri(HASCO.STUDY);           // Fundamental concept for hasco:hascoType
-            
+
+            // Scenarios are ready for use as soon as they are ingested.
+            if (study.getHasStatus() == null || study.getHasStatus().isEmpty()) {
+                study.setHasStatus(VSTOI.CURRENT);
+            }
+
             // Validate before saving
             if (!study.validate()) {
                 return ok(ApiUtil.createResponse("ProcessBasedStudy validation failed: " + study.getErrorMessage(), false));
